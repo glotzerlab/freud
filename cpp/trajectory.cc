@@ -2,6 +2,7 @@
 #include <boost/python.hpp>
 
 #include "num_util.h"
+#include "trajectory.h"
 
 using namespace std;
 using namespace boost::python;
@@ -25,17 +26,10 @@ void test(bnp::array inValue)
         }
     }
  
-
-
-BOOST_PYTHON_MODULE(_trajectory)
+void export_trajectory()
     {
-    // setup needed for numpy
-    import_array();
-    bnp::array::set_module_and_type("numpy", "ndarray");
-
     // define functions
     def("hello", &hello);
     def("test", &test);
     }
-
 
