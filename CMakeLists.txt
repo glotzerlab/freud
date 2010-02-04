@@ -15,6 +15,11 @@ find_package(PythonLibs REQUIRED)
 
 include_directories(${PYTHON_INCLUDE_DIR})
 
+# setup numpy
+include (FREUDNumpySetup)
+include_directories(${NUMPY_INCLUDE_DIR})
+add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
+
 add_subdirectory(cpp)
 add_subdirectory(py)
 add_subdirectory(run)

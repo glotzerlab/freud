@@ -6,5 +6,5 @@ target_link_libraries(${target} ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
 endmacro(setup_pymodule)
 #####################
 
-add_library(_trajectory MODULE trajectory.h trajectory.cc)
+add_library(_trajectory MODULE trajectory.h trajectory.cc num_util.cc)
 setup_pymodule(_trajectory)
