@@ -1,5 +1,4 @@
 #include <iostream>
-#include <boost/python.hpp>
 
 #include "num_util.h"
 #include "trajectory.h"
@@ -31,5 +30,13 @@ void export_trajectory()
     // define functions
     def("hello", &hello);
     def("test", &test);
+    class_<Box>("Box", init<float>())
+        .def(init<float, float, float>())
+        .def("getLx", &Box::getLx)
+        .def("getLy", &Box::getLy)
+        .def("getLz", &Box::getLz)
+        .def("wrap", &Box::wrapPy)
+        .def("unwrap", &Box::unwrapPy)
+        ;
     }
 

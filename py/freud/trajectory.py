@@ -5,13 +5,17 @@ except ImportError:
 
 import numpy
 
+from _freud import Box;
+
 ## \package hoomd_analyze.trajectory
 #
 # Reads MD trajectories into numpy arrays
 #
 # TODO: complete a full set of documentation
 # TODO: refactor common trajectory operations to a base class Trajectory
-# TODO: need system box specification (need to think about smart ways to get min image)
+#
+# The following classes are imported into trajectory from c++:
+#  * Box
 
 class TrajectoryIter:
     def __init__(self, traj):
