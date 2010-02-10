@@ -51,10 +51,10 @@ class TrajectoryVMD:
 
         # get the top molecule if requested
         if mol_id is None:
-            mol_id = VMD.molecule.get_top();
+            self.mol_id = VMD.molecule.get_top();
 
-        self.mol = VMD.Molecule.Molecule(id=mol_id);
-        self.all = VMD.atomsel.atomsel('all', molid=mol_id);
+        self.mol = VMD.Molecule.Molecule(id=self.mol_id);
+        self.all = VMD.atomsel.atomsel('all', molid=self.mol_id);
 
         # save the static properties
         self.static_props = {};
@@ -88,7 +88,9 @@ class TrajectoryVMD:
         for prop in ['x', 'y', 'z']:
             dynamic_props[prop] = numpy.array(self.all.get(prop), dtype='float32');
         
-        return Frame(self, self.mol.curFrame(), dynamic_props);
+        vmdbox = VMD.molecule.get_periodic(self.mol_id, self.mol.curFrame())
+        box = Box(vmdbox['a'], vmdbox['b'], vmdbox['c']);
+        return Frame(self, self.mol.curFrame(), dynamic_props, box);
     
     ## Get the current frame
     # \param idx Index of the frame to access
@@ -120,10 +122,11 @@ class Frame:
     #
     # \note  High level classes should not construct Frame classes directly. Instead create a Trajectory and query it 
     # to get frames
-    def __init__(self, traj, idx, dynamic_props):
+    def __init__(self, traj, idx, dynamic_props, box):
         self.traj = traj;
         self.frame = idx;
         self.dynamic_props = dynamic_props;
+        self.box = box;
     
     ## Access particle properties at this frame
     #
