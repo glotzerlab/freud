@@ -159,14 +159,14 @@ class Index3D
         //! Contstructor
         /*! \param w Width of the cubic 3D array
         */
-        HOSTDEVICE inline Index3D(unsigned int w) : m_w(w), m_h(w), m_d(w) {}
+        HOSTDEVICE inline Index3D(unsigned int w=0) : m_w(w), m_h(w), m_d(w) {}
         
         //! Contstructor
         /*! \param w Width of the 3D array
             \param h Height of the 3D array
             \param d Depth of the 3D array
         */
-        HOSTDEVICE inline Index2D(unsigned int w, unsigned int h, unsigned int d) : m_w(w), m_h(h), m_d(d) {}
+        HOSTDEVICE inline Index3D(unsigned int w, unsigned int h, unsigned int d) : m_w(w), m_h(h), m_d(d) {}
         
         //! Calculate an index
         /*! \param i index along the width
@@ -174,7 +174,7 @@ class Index3D
             \param k index along the depth
             \returns 1D array index corresponding to the 3D index (\a i, \a j, \a k) in row major order
         */
-        HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j, unsigned int k)
+        HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j, unsigned int k) const
             {
             return k*m_h*m_d + j*m_d + i;
             }
@@ -182,25 +182,25 @@ class Index3D
         //! Get the number of 1D elements stored
         /*! \returns Number of elements stored in the underlying 1D array
         */
-        HOSTDEVICE inline unsigned int getNumElements()
+        HOSTDEVICE inline unsigned int getNumElements() const
             {
             return m_w * m_h * m_d;
             }
             
         //! Get the width of the 3D array
-        HOSTDEVICE inline unsigned int getW()
+        HOSTDEVICE inline unsigned int getW() const
             {
             return m_w;
             }
 
         //! Get the height of the 3D array
-        HOSTDEVICE inline unsigned int getH()
+        HOSTDEVICE inline unsigned int getH() const
             {
             return m_h;
             }
         
         //! Get the depth of the 3D array
-        HOSTDEVICE inline unsigned int getD()
+        HOSTDEVICE inline unsigned int getD() const
             {
             return m_d;
             }
