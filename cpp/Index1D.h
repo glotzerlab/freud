@@ -176,7 +176,7 @@ class Index3D
         */
         HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j, unsigned int k) const
             {
-            return k*m_h*m_d + j*m_d + i;
+            return k*m_w*m_h + j*m_w + i;
             }
             
         //! Get the number of 1D elements stored
