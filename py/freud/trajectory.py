@@ -7,7 +7,7 @@ import numpy
 
 from _freud import Box;
 
-## \package hoomd_analyze.trajectory
+## \package freud.trajectory
 #
 # Reads MD trajectories into numpy arrays
 #
