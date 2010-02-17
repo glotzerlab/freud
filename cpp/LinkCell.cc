@@ -7,9 +7,7 @@
 using namespace std;
 using namespace boost::python;
 
-const unsigned int LinkCell::LINK_CELL_TERMINATOR = 0xffffffff;
-
-LinkCell::LinkCell(const Box& box, float cell_width) : m_box(box)
+LinkCell::LinkCell(const Box& box, float cell_width) : m_box(box), m_Np(0)
     {
     if (cell_width > m_box.getLx() ||
         cell_width > m_box.getLy() ||
@@ -57,6 +55,8 @@ void LinkCell::computeCellList(float *x, float *y, float *z, unsigned int Np)
         throw runtime_error("Cannot generate a cell list of 0 particles");
         }
     
+    m_Np = Np;
+    
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
     assert(Nc > 0);
@@ -89,6 +89,12 @@ void export_LinkCell()
         .def("getNumCells", &LinkCell::getNumCells)
         .def("getCell", &LinkCell::getCell)
         .def("getCellCoord", &LinkCell::getCellCoord)
+        .def("itercell", &LinkCell::itercell)
         .def("computeCellList", &LinkCell::computeCellListPy)
+        ;
+    
+    class_<IteratorLinkCell>("IteratorLinkCell",
+        init<boost::shared_array<unsigned int>, unsigned int, unsigned int, unsigned int>())
+        .def("next", &IteratorLinkCell::nextPy)
         ;
     }
