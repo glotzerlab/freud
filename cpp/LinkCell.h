@@ -1,9 +1,11 @@
 #include <boost/shared_array.hpp>
 #include <boost/python.hpp>
+#include <vector>
 
 #include "trajectory.h"
 #include "HOOMDMath.h"
 #include "Index1D.h"
+#include "num_util.h"
 
 #ifndef _LINKCELL_H__
 #define _LINKCELL_H__
@@ -146,10 +148,23 @@ class LinkCell
             }
         
         //! Iterate over particles in a cell
-        iteratorcell itercell(unsigned int cell)
+        iteratorcell itercell(unsigned int cell) const
             {
             assert(m_cell_list.get() != NULL);
             return iteratorcell(m_cell_list, m_Np, getNumCells(), cell);
+            }
+        
+        //! Get a list of neighbors to a cell
+        const std::vector<unsigned int>& getCellNeighbors(unsigned int cell) const
+            {
+            return m_cell_neighbors[cell];
+            }
+        
+        //! Python wrapper for getCellNeighbors
+        boost::python::numeric::array getCellNeighborsPy(unsigned int cell)
+            {
+            unsigned int *start = &m_cell_neighbors[cell][0];
+            return num_util::makeNum(start, m_cell_neighbors[cell].size());
             }
         
         //! Compute the cell list
@@ -165,6 +180,11 @@ class LinkCell
         unsigned int m_Np;
         
         boost::shared_array<unsigned int> m_cell_list;    //!< The cell list last computed
+        
+        std::vector< std::vector<unsigned int> > m_cell_neighbors;    //!< List of cell neighborts to each cell
+        
+        //! Helper function to compute cell neighbors
+        void computeCellNeighbors();
     };
 
 //! Exports all classes in this file to python

@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <boost/python.hpp>
+#include <algorithm>
 
 #include "num_util.h"
 #include "LinkCell.h"
@@ -21,6 +22,7 @@ LinkCell::LinkCell(const Box& box, float cell_width) : m_box(box), m_Np(0)
     unsigned int Nz = (unsigned int)(m_box.getLz() / cell_width);
     
     m_cell_index = Index3D(Nx, Ny, Nz);
+    computeCellNeighbors();
     }
 
 void LinkCell::computeCellListPy(boost::python::numeric::array x,
@@ -81,6 +83,41 @@ void LinkCell::computeCellList(float *x, float *y, float *z, unsigned int Np)
         }
     }
 
+void LinkCell::computeCellNeighbors()
+    {
+    // clear the list
+    m_cell_neighbors.clear();
+    m_cell_neighbors.resize(getNumCells());
+    
+    // for each cell
+    for (unsigned int k = 0; k < m_cell_index.getD(); k++)
+        for (unsigned int j = 0; j < m_cell_index.getH(); j++)
+            for (unsigned int i = 0; i < m_cell_index.getW(); i++)
+                {
+                // clear the list
+                unsigned int cur_cell = m_cell_index(i,j,k);
+                m_cell_neighbors[cur_cell].clear();
+                
+                // loop over the 27 neighbor cells
+                for (int neighk = k-1; neighk <= (int)k+1; neighk++)
+                    for (int neighj = j-1; neighj <= (int)j+1; neighj++)
+                        for (int neighi = i-1; neighi <= (int)i+1; neighi++)
+                            {
+                            // wrap back into the box
+                            int wrapi = neighi % m_cell_index.getW();
+                            int wrapj = neighj % m_cell_index.getW();
+                            int wrapk = neighk % m_cell_index.getD();
+                            
+                            unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
+                            // add to the list
+                            m_cell_neighbors[cur_cell].push_back(neigh_cell);
+                            }
+                
+                // sort the list
+                sort(m_cell_neighbors[cur_cell].begin(), m_cell_neighbors[cur_cell].end());
+                }
+    }
+
 void export_LinkCell()
     {
     class_<LinkCell>("LinkCell", init<Box&, float>())
@@ -90,6 +127,7 @@ void export_LinkCell()
         .def("getCell", &LinkCell::getCell)
         .def("getCellCoord", &LinkCell::getCellCoord)
         .def("itercell", &LinkCell::itercell)
+        .def("getCellNeighbors", &LinkCell::getCellNeighborsPy)
         .def("computeCellList", &LinkCell::computeCellListPy)
         ;
     
