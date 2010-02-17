@@ -2,6 +2,7 @@
 
 #include "trajectory.h"
 #include "num_util.h"
+#include "LinkCell.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -13,4 +14,5 @@ BOOST_PYTHON_MODULE(_freud)
     bnp::array::set_module_and_type("numpy", "ndarray");
 
     export_trajectory();
+    export_LinkCell();
     }

@@ -1,7 +1,13 @@
 #include <stdexcept>
-using namespace std;
+#include <boost/python.hpp>
 
+#include "num_util.h"
 #include "LinkCell.h"
+
+using namespace std;
+using namespace boost::python;
+
+const unsigned int LinkCell::LINK_CELL_TERMINATOR = 0xffffffff;
 
 LinkCell::LinkCell(const Box& box, float cell_width) : m_box(box)
     {
@@ -17,6 +23,31 @@ LinkCell::LinkCell(const Box& box, float cell_width) : m_box(box)
     unsigned int Nz = (unsigned int)(m_box.getLz() / cell_width);
     
     m_cell_index = Index3D(Nx, Ny, Nz);
+    }
+
+void LinkCell::computeCellListPy(boost::python::numeric::array x,
+                                 boost::python::numeric::array y,
+                                 boost::python::numeric::array z)
+    {
+    // validate input type and rank
+    num_util::check_type(x, PyArray_FLOAT);
+    num_util::check_rank(x, 1);
+    num_util::check_type(y, PyArray_FLOAT);
+    num_util::check_rank(y, 1);
+    num_util::check_type(z, PyArray_FLOAT);
+    num_util::check_rank(z, 1);
+    
+    // validate all inputs are the same size
+    unsigned int Np = num_util::size(x);
+    num_util::check_size(y, Np);
+    num_util::check_size(z, Np);
+    
+    // get the raw data pointers and compute the cell list
+    float* x_raw = (float*) num_util::data(x);
+    float* y_raw = (float*) num_util::data(y);
+    float* z_raw = (float*) num_util::data(z);
+    
+    computeCellList(x_raw, y_raw, z_raw, Np);
     }
 
 void LinkCell::computeCellList(float *x, float *y, float *z, unsigned int Np)
@@ -48,4 +79,16 @@ void LinkCell::computeCellList(float *x, float *y, float *z, unsigned int Np)
         m_cell_list[i] = m_cell_list[Np+cell];
         m_cell_list[Np+cell] = i;
         }
+    }
+
+void export_LinkCell()
+    {
+    class_<LinkCell>("LinkCell", init<Box&, float>())
+        .def("getBox", &LinkCell::getBox, return_internal_reference<>())
+        .def("getCellIndexer", &LinkCell::getCellIndexer, return_internal_reference<>())
+        .def("getNumCells", &LinkCell::getNumCells)
+        .def("getCell", &LinkCell::getCell)
+        .def("getCellCoord", &LinkCell::getCellCoord)
+        .def("computeCellList", &LinkCell::computeCellListPy)
+        ;
     }

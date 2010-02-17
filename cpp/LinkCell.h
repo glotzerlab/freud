@@ -7,8 +7,6 @@
 #ifndef _LINKCELL_H__
 #define _LINKCELL_H__
 
-const unsigned int LINK_CELL_TERMINATOR = 0xffffffff;
-
 //! Computes a cell id for each particle and a link cell data structure for iterating through it
 /*! For simplicity in only needing a small number of arrays, the link cell algorithm is used to generate and store 
     the cell list data for particles.
@@ -29,6 +27,9 @@ const unsigned int LINK_CELL_TERMINATOR = 0xffffffff;
 class LinkCell
     {
     public:
+        //! Signfies the end of the linked list
+        static const unsigned int LINK_CELL_TERMINATOR;
+    
         //! Constructor
         LinkCell(const Box& box, float cell_width);
         
@@ -73,6 +74,11 @@ class LinkCell
         
         //! Compute the cell list
         void computeCellList(float *x, float *y, float *z, unsigned int Np);
+        
+        //! Python wrapper for computeCellList
+        void computeCellListPy(boost::python::numeric::array x,
+                               boost::python::numeric::array y,
+                               boost::python::numeric::array z);
     private:
         Box m_box;              //!< Simulation box the particles belong in
         Index3D m_cell_index;   //!< Indexer to compute cell indices
