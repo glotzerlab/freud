@@ -60,12 +60,13 @@ class LinkCell
         //! Compute cell coordinates for a given position
         uint3 getCellCoord(float x, float y, float z) const
             {
+            m_box.makeunit(x,y,z);
             uint3 c;
-            c.x = floorf((x + m_box.getLx()/2.0f) * (float(m_cell_index.getW())/m_box.getLx()));
+            c.x = floorf(x * float(m_cell_index.getW()));
             c.x %= m_cell_index.getW();
-            c.y = floorf((y + m_box.getLy()/2.0f) * (float(m_cell_index.getH())/m_box.getLy()));
+            c.y = floorf(y * float(m_cell_index.getH()));
             c.y %= m_cell_index.getH();
-            c.z = floorf((z + m_box.getLz()/2.0f) * (float(m_cell_index.getD())/m_box.getLz()));
+            c.z = floorf(z * float(m_cell_index.getD()));
             c.z %= m_cell_index.getD();
             return c;
             }
