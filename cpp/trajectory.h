@@ -43,6 +43,11 @@ class Box
             {
             return m_Lz;
             }
+        //! Get the volume of the box
+        float getVolume()
+            {
+            return m_Lx*m_Ly*m_Lz;
+            }
         
         //! Wrap a given vector back into the box
         /*! \param x x coordinate to wrap
