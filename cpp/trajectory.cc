@@ -38,6 +38,7 @@ void export_trajectory()
         .def("getVolume", &Box::getVolume)
         .def("wrap", &Box::wrapPy)
         .def("unwrap", &Box::unwrapPy)
+        .def("makeunit", &Box::makeunitPy)
         ;
     }
 

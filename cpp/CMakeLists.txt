@@ -6,7 +6,10 @@ target_link_libraries(${target} ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
 endmacro(setup_pymodule)
 #####################
 
-set(SOURCES trajectory.cc)
+set(SOURCES trajectory.cc trajectory.h
+            LinkCell.cc LinkCell.h
+            Index1D.h
+            HOOMDMath.h)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} num_util.cc module.cc)

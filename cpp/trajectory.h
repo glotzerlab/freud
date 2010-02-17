@@ -29,17 +29,17 @@ class Box
             setup();
             }
         //! Get the value of Lx
-        float getLx()
+        float getLx() const
             {
             return m_Lx;
             }
         //! Get the value of Ly
-        float getLy()
+        float getLy() const
             {
             return m_Ly;
             }
         //! Get the value of Lz
-        float getLz()
+        float getLz() const
             {
             return m_Lz;
             }
@@ -57,7 +57,7 @@ class Box
             Vectors are wrapped following the minimum image convention. \b Any x,y,z, no matter how far outside of the
             box, will be wrapped back into the range [-L/2, L/2]
         */
-        void wrap(float &x, float &y, float &z)
+        void wrap(float &x, float &y, float &z) const
             {
             x -= m_Lx * rintf(x * m_Lx_inv);
             y -= m_Ly * rintf(y * m_Ly_inv);
@@ -65,7 +65,7 @@ class Box
             }
         
         //! Python wrapper for wrap
-        boost::python::tuple wrapPy(float x, float y, float z)
+        boost::python::tuple wrapPy(float x, float y, float z) const
             {
             wrap(x,y,z);
             return boost::python::make_tuple(x,y,z);
@@ -79,17 +79,39 @@ class Box
             \param iy y coordinate of the box image
             \param iz z coordinate of the box image
         */
-        void unwrap(float &x, float &y, float &z, int ix, int iy, int iz)
+        void unwrap(float &x, float &y, float &z, int ix, int iy, int iz) const
             {
             x += m_Lx * float(ix);
             y += m_Ly * float(iy);
             z += m_Lz * float(iz);
             }
 
-        //! Python wrapper for wrap
-        boost::python::tuple unwrapPy(float x, float y, float z, int ix, int iy, int iz)
+        //! Python wrapper for unwrap
+        boost::python::tuple unwrapPy(float x, float y, float z, int ix, int iy, int iz) const
             {
             unwrap(x,y,z, ix, iy, iz);
+            return boost::python::make_tuple(x,y,z);
+            }
+        
+        //! Compute the position of the particle in box relative coordinates
+        /*! \param x x coordinate in, alpha x out
+            \param y y coordinate in, alpha y out
+            \param z z coordinate in, alpha z out
+            
+            alpha x is 0 when \a x is on the far left side of the box and 1.0 when it is on the far right. If x is
+            outside of the box in either direction, it will go larger than 1 or less than 0 keeping the same scaling.
+        */
+        void makeunit(float &x, float &y, float &z) const
+            {
+            x = x * m_Lx_inv + 0.5f;
+            y = y * m_Ly_inv + 0.5f;
+            z = z * m_Lz_inv + 0.5f;
+            }
+        
+        //! Python wrapper for normalize
+        boost::python::tuple makeunitPy(float x, float y, float z) const
+            {
+            makeunit(x,y,z);
             return boost::python::make_tuple(x,y,z);
             }
     private:
