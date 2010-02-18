@@ -35,7 +35,8 @@ RDF::RDF(const Box& box, float rmax, float dr)
     for (unsigned int i = 1; i < m_nbins; i++)
         {
         float r = float(i) * m_dr;
-        m_vol_array[i] = 4.0f / 3.0f * M_PI * r*r*r - m_vol_array[i-1];
+        float prevr = float(i-1) * m_dr;
+        m_vol_array[i] = 4.0f / 3.0f * M_PI * (r*r*r - prevr*prevr*prevr);
         }
     }
 
@@ -100,10 +101,13 @@ void RDF::compute(float *x_ref,
     
     // done looping over reference points
     // now compute the rdf
-    float normalize_factor = m_box.getVolume() / float(Np) / float(Nref);
+    float ndens = float(Np) / m_box.getVolume();
     m_rdf_array[0] = 0;
     for (unsigned int bin = 1; bin < m_nbins; bin++)
-        m_rdf_array[bin] = m_bin_counts[bin] / m_vol_array[bin] * normalize_factor;
+        {
+        float avg_counts = m_bin_counts[bin] / float(Nref);
+        m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
+        }
     }
 
 void RDF::computePy(boost::python::numeric::array x_ref,
