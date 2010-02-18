@@ -101,7 +101,8 @@ void RDF::compute(float *x_ref,
     // done looping over reference points
     // now compute the rdf
     float normalize_factor = m_box.getVolume() / float(Np) / float(Nref);
-    for (unsigned int bin = 0; bin < m_nbins; bin++)
+    m_rdf_array[0] = 0;
+    for (unsigned int bin = 1; bin < m_nbins; bin++)
         m_rdf_array[bin] = m_bin_counts[bin] / m_vol_array[bin] * normalize_factor;
     }
 
