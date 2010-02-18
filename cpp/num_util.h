@@ -64,6 +64,58 @@ namespace num_util{
     boost::python::throw_error_already_set();
     return PyArray_VOID;
   }
+  
+    //specializations for use by makeNum
+
+
+  template <>
+  PyArray_TYPES getEnum<unsigned char>(void);
+
+  template <>
+  PyArray_TYPES getEnum<signed char>(void);
+
+  template <>
+  PyArray_TYPES getEnum<short>(void);
+
+  template <>
+  PyArray_TYPES getEnum<unsigned short>(void);
+
+  template <>
+  PyArray_TYPES getEnum<unsigned int>(void);
+
+  template <>
+  PyArray_TYPES getEnum<int>(void);
+
+  template <>
+  PyArray_TYPES getEnum<long>(void);
+
+  template <>
+  PyArray_TYPES getEnum<unsigned long>(void);
+
+  template <>
+  PyArray_TYPES getEnum<long long>(void);
+
+  template <>
+  PyArray_TYPES getEnum<unsigned long long>(void);
+
+  template <>
+  PyArray_TYPES getEnum<float>(void);
+
+  template <>
+  PyArray_TYPES getEnum<double>(void);
+    
+  template <>
+  PyArray_TYPES getEnum<long double>(void);
+
+  template <>
+  PyArray_TYPES getEnum<std::complex<float> >(void);
+
+  template <>
+  PyArray_TYPES getEnum<std::complex<double> >(void);
+
+  template <>
+  PyArray_TYPES getEnum<std::complex<long double> >(void);
+
 
   /** 
    *Function template creates a one-dimensional numpy array of length n containing

@@ -63,13 +63,15 @@ class RDF
         //! Python wrapper for getRDF() (returns a copy)
         boost::python::numeric::array getRDFPy()
             {
-            return num_util::makeNum(m_rdf_array.get(), m_nbins);
+            float *arr = m_rdf_array.get();
+            return num_util::makeNum(arr, m_nbins);
             }
 
         //! Python wrapper for getR() (returns a copy)
         boost::python::numeric::array getRPy()
             {
-            return num_util::makeNum(m_r_array.get(), m_nbins);
+            float *arr = m_r_array.get();
+            return num_util::makeNum(arr, m_nbins);
             }
     private:
         Box m_box;            //!< Simulation box the particles belong in
