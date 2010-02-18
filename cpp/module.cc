@@ -3,6 +3,7 @@
 #include "trajectory.h"
 #include "num_util.h"
 #include "LinkCell.h"
+#include "RDF.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -15,4 +16,5 @@ BOOST_PYTHON_MODULE(_freud)
 
     export_trajectory();
     export_LinkCell();
+    export_RDF();
     }

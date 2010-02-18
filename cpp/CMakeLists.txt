@@ -8,9 +8,10 @@ endmacro(setup_pymodule)
 
 set(SOURCES trajectory.cc trajectory.h
             LinkCell.cc LinkCell.h
+            RDF.cc RDF.h
             Index1D.h
             HOOMDMath.h)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
-add_library(_freud MODULE ${SOURCES} num_util.cc module.cc)
+add_library(_freud MODULE ${SOURCES} num_util.cc num_util.h module.cc)
 setup_pymodule(_freud)
