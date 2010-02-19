@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <emmintrin.h>
 
 #include "RDF.h"
 
@@ -63,6 +64,8 @@ void RDF::compute(float *x_ref,
     
     // zero the bin counts for totalling
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    float dr_inv = 1.0f / m_dr;
+    float rmaxsq = m_rmax * m_rmax;
     
     // for each reference point
     for (unsigned int i = 0; i < Nref; i++)
@@ -87,12 +90,14 @@ void RDF::compute(float *x_ref,
                 m_box.wrap(dx, dy, dz);
                 
                 float rsq = dx*dx + dy*dy + dz*dz;
-                float r = sqrtf(rsq);
-                
-                // bin that r
-                unsigned int bin = (unsigned int)(floorf(r / m_dr));
-                if (bin < m_nbins)
+                if (rsq < rmaxsq)
                     {
+                    float r = sqrtf(rsq);
+                
+                    // bin that r
+                    float binr = r * dr_inv;
+                    // fast float to int conversion with truncation
+                    unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
                     m_bin_counts[bin]++;
                     }
                 }
