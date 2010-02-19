@@ -41,26 +41,26 @@ RDF::RDF(const Box& box, float rmax, float dr)
         }
     }
 
-void RDF::compute(float *x_ref,
-                  float *y_ref,
-                  float *z_ref,
+void RDF::compute(float *x_ref_data,
+                  float *y_ref_data,
+                  float *z_ref_data,
                   unsigned int Nref,
-                  float *x,
-                  float *y,
-                  float *z,
+                  float *x_data,
+                  float *y_data,
+                  float *z_data,
                   unsigned int Np)
     {
-    assert(x_ref);
-    assert(y_ref);
-    assert(z_ref);
+    assert(x_ref_data);
+    assert(y_ref_data);
+    assert(z_ref_data);
     assert(Nref > 0);
-    assert(x);
-    assert(y);
-    assert(z);
+    assert(x_data);
+    assert(y_data);
+    assert(z_data);
     assert(Np > 0);
     
     // bin the x,y,z particles
-    m_lc.computeCellList(x, y, z, Np);
+    m_lc.computeCellList(x_data, y_data, z_data, Np);
     
     // zero the bin counts for totalling
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
@@ -71,7 +71,10 @@ void RDF::compute(float *x_ref,
     for (unsigned int i = 0; i < Nref; i++)
         {
         // get the cell the point is in
-        unsigned int ref_cell = m_lc.getCell(x_ref[i], y_ref[i], z_ref[i]);
+        float x_ref = x_ref_data[i];
+        float y_ref = y_ref_data[i];
+        float z_ref = z_ref_data[i];
+        unsigned int ref_cell = m_lc.getCell(x_ref, y_ref, z_ref);
         
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
@@ -84,9 +87,9 @@ void RDF::compute(float *x_ref,
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
                 // compute r between the two particles
-                float dx = float(x_ref[i] - x[j]);
-                float dy = float(y_ref[i] - y[j]);
-                float dz = float(z_ref[i] - z[j]);
+                float dx = float(x_ref - x_data[j]);
+                float dy = float(y_ref - y_data[j]);
+                float dz = float(z_ref - z_data[j]);
                 m_box.wrap(dx, dy, dz);
                 
                 float rsq = dx*dx + dy*dy + dz*dz;

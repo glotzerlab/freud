@@ -1,5 +1,7 @@
 #include <boost/python.hpp>
 
+#include "HOOMDMath.h"
+
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
 

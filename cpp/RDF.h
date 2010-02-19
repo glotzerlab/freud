@@ -31,13 +31,13 @@ class RDF
             }
         
         //! Compute the RDF
-        void compute(float *x_ref,
-                     float *y_ref,
-                     float *z_ref,
+        void compute(float *x_ref_data,
+                     float *y_ref_data,
+                     float *z_ref_data,
                      unsigned int Nref,
-                     float *x,
-                     float *y,
-                     float *z,
+                     float *x_data,
+                     float *y_data,
+                     float *z_data,
                      unsigned int Np);
         
         //! Python wrapper for compute
