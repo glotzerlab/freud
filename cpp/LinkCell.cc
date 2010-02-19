@@ -75,7 +75,7 @@ void LinkCell::computeCellList(float *x, float *y, float *z, unsigned int Np)
     assert(y);
     assert(z);
     
-    for (unsigned int i = 0; i < Np; i++)
+    for (int i = Np-1; i >= 0; i--)
         {
         unsigned int cell = getCell(x[i], y[i], z[i]);
         m_cell_list[i] = m_cell_list[Np+cell];
