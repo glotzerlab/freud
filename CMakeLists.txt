@@ -23,3 +23,4 @@ add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
 add_subdirectory(cpp)
 add_subdirectory(py)
 add_subdirectory(run)
+
