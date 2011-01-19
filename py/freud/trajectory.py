@@ -59,6 +59,7 @@ class TrajectoryVMD:
         # save the static properties
         self.static_props = {};
         self.static_props['mass'] = numpy.array(self.all.get('mass'), dtype='float32');
+        self.static_props['diameter'] = 2.0*numpy.array(self.all.get('radius'), dtype='float32');        
 
     ## Test if a given particle property is static over the length of the trajectory
     # \param prop Property to check
