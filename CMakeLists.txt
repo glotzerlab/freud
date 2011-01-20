@@ -9,10 +9,7 @@ find_package(Boost 1.35.0 COMPONENTS python REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 # setup python
-find_package(PythonInterp REQUIRED)
-set(CMAKE_FIND_FRAMEWORK "LAST")
-find_package(PythonLibs REQUIRED)
-
+include(FREUDPythonSetup)
 include_directories(${PYTHON_INCLUDE_DIR})
 
 # setup numpy
