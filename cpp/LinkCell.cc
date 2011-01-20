@@ -1,5 +1,5 @@
-#include <stdexcept>
 #include <boost/python.hpp>
+#include <stdexcept>
 #include <algorithm>
 
 #include "num_util.h"

@@ -1,5 +1,5 @@
-#include <boost/shared_array.hpp>
 #include <boost/python.hpp>
+#include <boost/shared_array.hpp>
 
 #include "LinkCell.h"
 #include "num_util.h"

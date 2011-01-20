@@ -1,7 +1,7 @@
+#include "RDF.h"
+
 #include <stdexcept>
 #include <emmintrin.h>
-
-#include "RDF.h"
 
 using namespace std;
 using namespace boost::python;
