@@ -41,26 +41,18 @@ RDF::RDF(const Box& box, float rmax, float dr)
         }
     }
 
-void RDF::compute(float *x_ref_data,
-                  float *y_ref_data,
-                  float *z_ref_data,
+void RDF::compute(const float3 *ref_points,
                   unsigned int Nref,
-                  float *x_data,
-                  float *y_data,
-                  float *z_data,
+                  const float3 *points,
                   unsigned int Np)
     {
-    assert(x_ref_data);
-    assert(y_ref_data);
-    assert(z_ref_data);
+    assert(ref_points);
+    assert(points);
     assert(Nref > 0);
-    assert(x_data);
-    assert(y_data);
-    assert(z_data);
     assert(Np > 0);
     
     // bin the x,y,z particles
-    m_lc.computeCellList(x_data, y_data, z_data, Np);
+    m_lc.computeCellList(points, Np);
     
     // zero the bin counts for totalling
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
@@ -71,10 +63,8 @@ void RDF::compute(float *x_ref_data,
     for (unsigned int i = 0; i < Nref; i++)
         {
         // get the cell the point is in
-        float x_ref = x_ref_data[i];
-        float y_ref = y_ref_data[i];
-        float z_ref = z_ref_data[i];
-        unsigned int ref_cell = m_lc.getCell(x_ref, y_ref, z_ref);
+        float3 ref = ref_points[i];
+        unsigned int ref_cell = m_lc.getCell(ref);
         
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
@@ -87,12 +77,12 @@ void RDF::compute(float *x_ref_data,
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
                 // compute r between the two particles
-                float dx = float(x_ref - x_data[j]);
-                float dy = float(y_ref - y_data[j]);
-                float dz = float(z_ref - z_data[j]);
-                m_box.wrap(dx, dy, dz);
+                float dx = float(ref.x - points[j].x);
+                float dy = float(ref.y - points[j].y);
+                float dz = float(ref.z - points[j].z);
+                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 
-                float rsq = dx*dx + dy*dy + dz*dz;
+                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                 if (rsq < rmaxsq)
                     {
                     float r = sqrtf(rsq);
@@ -118,44 +108,27 @@ void RDF::compute(float *x_ref_data,
         }
     }
 
-void RDF::computePy(boost::python::numeric::array x_ref,
-                    boost::python::numeric::array y_ref,
-                    boost::python::numeric::array z_ref,
-                    boost::python::numeric::array x,
-                    boost::python::numeric::array y,
-                    boost::python::numeric::array z)
+void RDF::computePy(boost::python::numeric::array ref_points,
+                    boost::python::numeric::array points)
     {
     // validate input type and rank
-    num_util::check_type(x, PyArray_FLOAT);
-    num_util::check_rank(x, 1);
-    num_util::check_type(y, PyArray_FLOAT);
-    num_util::check_rank(y, 1);
-    num_util::check_type(z, PyArray_FLOAT);
-    num_util::check_rank(z, 1);
-    num_util::check_type(x_ref, PyArray_FLOAT);
-    num_util::check_rank(x_ref, 1);
-    num_util::check_type(y_ref, PyArray_FLOAT);
-    num_util::check_rank(y_ref, 1);
-    num_util::check_type(z_ref, PyArray_FLOAT);
-    num_util::check_rank(z_ref, 1);
+    num_util::check_type(ref_points, PyArray_FLOAT);
+    num_util::check_rank(ref_points, 2);
+    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_rank(points, 2);
     
-    // validate all inputs are the same size
-    unsigned int Np = num_util::size(x);
-    num_util::check_size(y, Np);
-    num_util::check_size(z, Np);
-    unsigned int Nref = num_util::size(x_ref);
-    num_util::check_size(y_ref, Nref);
-    num_util::check_size(z_ref, Nref);
+    // validate that the 2nd dimension is only 3
+    num_util::check_dim(points, 1, 3);
+    unsigned int Np = num_util::shape(points)[0];
+    
+    num_util::check_dim(ref_points, 1, 3);
+    unsigned int Nref = num_util::shape(ref_points)[0];
     
     // get the raw data pointers and compute the cell list
-    float* x_raw = (float*) num_util::data(x);
-    float* y_raw = (float*) num_util::data(y);
-    float* z_raw = (float*) num_util::data(z);
-    float* x_ref_raw = (float*) num_util::data(x_ref);
-    float* y_ref_raw = (float*) num_util::data(y_ref);
-    float* z_ref_raw = (float*) num_util::data(z_ref);
+    float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    float3* points_raw = (float3*) num_util::data(points);
 
-    compute(x_ref_raw, y_ref_raw, z_ref_raw, Nref, x_raw, y_raw, z_raw, Np);
+    compute(ref_points_raw, Nref, points_raw, Np);
     }
 
 void export_RDF()

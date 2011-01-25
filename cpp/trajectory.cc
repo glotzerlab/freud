@@ -36,9 +36,9 @@ void export_trajectory()
         .def("getLy", &Box::getLy)
         .def("getLz", &Box::getLz)
         .def("getVolume", &Box::getVolume)
-        .def("wrap", &Box::wrapPy)
+        /*.def("wrap", &Box::wrapPy)
         .def("unwrap", &Box::unwrapPy)
-        .def("makeunit", &Box::makeunitPy)
+        .def("makeunit", &Box::makeunitPy)*/
         ;
     }
 

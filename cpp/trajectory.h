@@ -52,70 +52,60 @@ class Box
             }
         
         //! Wrap a given vector back into the box
-        /*! \param x x coordinate to wrap
-            \param y y coordinate to wrap
-            \param z z coordinate to wrap
+        /*! \param p point to wrap
+            \returns The wrapped coordinates
             
             Vectors are wrapped following the minimum image convention. \b Any x,y,z, no matter how far outside of the
             box, will be wrapped back into the range [-L/2, L/2]
         */
-        void wrap(float &x, float &y, float &z) const
+        float3 wrap(const float3& p) const
             {
-            x -= m_Lx * rintf(x * m_Lx_inv);
-            y -= m_Ly * rintf(y * m_Ly_inv);
-            z -= m_Lz * rintf(z * m_Lz_inv);
-            }
-        
-        //! Python wrapper for wrap
-        boost::python::tuple wrapPy(float x, float y, float z) const
-            {
-            wrap(x,y,z);
-            return boost::python::make_tuple(x,y,z);
-            }
-        
-        //! Unwrap a given position to its "real" location
-        /*! \param x x coordinate to unwrap
-            \param y y coordinate to unwrap
-            \param z z coordinate to unwrap
-            \param ix x coordinate of the box image
-            \param iy y coordinate of the box image
-            \param iz z coordinate of the box image
-        */
-        void unwrap(float &x, float &y, float &z, int ix, int iy, int iz) const
-            {
-            x += m_Lx * float(ix);
-            y += m_Ly * float(iy);
-            z += m_Lz * float(iz);
+            float3 newp = p;
+            newp.x -= m_Lx * rintf(newp.x * m_Lx_inv);
+            newp.y -= m_Ly * rintf(newp.y * m_Ly_inv);
+            newp.z -= m_Lz * rintf(newp.z * m_Lz_inv);
+            return newp;
             }
 
-        //! Python wrapper for unwrap
-        boost::python::tuple unwrapPy(float x, float y, float z, int ix, int iy, int iz) const
+        // Python wrapper for wrap (TODO - possibly write as an array method that will handle many poitns in a single
+        // call
+
+        //! Unwrap a given position to its "real" location
+        /*! \param p coordinates to unwrap
+            \param image image flags for this point
+            \returns The unwrapped coordinates
+        */
+        float3 unwrap(const float3& p, const int3& image) const
             {
-            unwrap(x,y,z, ix, iy, iz);
-            return boost::python::make_tuple(x,y,z);
+            float3 newp = p;
+            newp.x += m_Lx * float(image.x);
+            newp.y += m_Ly * float(image.y);
+            newp.z += m_Lz * float(image.z);
+            return newp;
             }
+
+        // Python wrapper for unwrap (TODO - possibly write as an array method that will handle many poitns in a single
+        // call
         
         //! Compute the position of the particle in box relative coordinates
-        /*! \param x x coordinate in, alpha x out
-            \param y y coordinate in, alpha y out
-            \param z z coordinate in, alpha z out
+        /*! \param p point
+            \returns alpha
             
-            alpha x is 0 when \a x is on the far left side of the box and 1.0 when it is on the far right. If x is
+            alpha.x is 0 when \a x is on the far left side of the box and 1.0 when it is on the far right. If x is
             outside of the box in either direction, it will go larger than 1 or less than 0 keeping the same scaling.
+            Similar for y and z.
         */
-        void makeunit(float &x, float &y, float &z) const
+        float3 makeunit(const float3& p) const
             {
-            x = x * m_Lx_inv + 0.5f;
-            y = y * m_Ly_inv + 0.5f;
-            z = z * m_Lz_inv + 0.5f;
+            float3 newp;
+            newp.x = p.x * m_Lx_inv + 0.5f;
+            newp.y = p.y * m_Ly_inv + 0.5f;
+            newp.z = p.z * m_Lz_inv + 0.5f;
+            return newp;
             }
         
-        //! Python wrapper for normalize
-        boost::python::tuple makeunitPy(float x, float y, float z) const
-            {
-            makeunit(x,y,z);
-            return boost::python::make_tuple(x,y,z);
-            }
+        // TODO -makeunit wrapper for python
+        
     private:
         //! Precomputes 1.0/L for performance
         void setup()

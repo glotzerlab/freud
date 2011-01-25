@@ -25,32 +25,23 @@ LinkCell::LinkCell(const Box& box, float cell_width) : m_box(box), m_Np(0)
     computeCellNeighbors();
     }
 
-void LinkCell::computeCellListPy(boost::python::numeric::array x,
-                                 boost::python::numeric::array y,
-                                 boost::python::numeric::array z)
+void LinkCell::computeCellListPy(boost::python::numeric::array points)
     {
     // validate input type and rank
-    num_util::check_type(x, PyArray_FLOAT);
-    num_util::check_rank(x, 1);
-    num_util::check_type(y, PyArray_FLOAT);
-    num_util::check_rank(y, 1);
-    num_util::check_type(z, PyArray_FLOAT);
-    num_util::check_rank(z, 1);
+    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_rank(points, 2);
     
-    // validate all inputs are the same size
-    unsigned int Np = num_util::size(x);
-    num_util::check_size(y, Np);
-    num_util::check_size(z, Np);
+    // validate that the 2nd dimension is only 3
+    num_util::check_dim(points, 1, 3);
+    unsigned int Np = num_util::shape(points)[0];
     
     // get the raw data pointers and compute the cell list
-    float* x_raw = (float*) num_util::data(x);
-    float* y_raw = (float*) num_util::data(y);
-    float* z_raw = (float*) num_util::data(z);
+    float3* points_raw = (float3*) num_util::data(points);
     
-    computeCellList(x_raw, y_raw, z_raw, Np);
+    computeCellList(points_raw, Np);
     }
 
-void LinkCell::computeCellList(float *x, float *y, float *z, unsigned int Np)
+void LinkCell::computeCellList(const float3 *points, unsigned int Np)
     {
     if (Np == 0)
         {
@@ -71,13 +62,11 @@ void LinkCell::computeCellList(float *x, float *y, float *z, unsigned int Np)
         }
     
     // generate the cell list
-    assert(x);
-    assert(y);
-    assert(z);
+    assert(points);
     
     for (int i = Np-1; i >= 0; i--)
         {
-        unsigned int cell = getCell(x[i], y[i], z[i]);
+        unsigned int cell = getCell(points[i]);
         m_cell_list[i] = m_cell_list[Np+cell];
         m_cell_list[Np+cell] = i;
         }
@@ -124,7 +113,7 @@ void export_LinkCell()
         .def("getBox", &LinkCell::getBox, return_internal_reference<>())
         .def("getCellIndexer", &LinkCell::getCellIndexer, return_internal_reference<>())
         .def("getNumCells", &LinkCell::getNumCells)
-        .def("getCell", &LinkCell::getCell)
+        .def("getCell", &LinkCell::getCellPy)
         .def("getCellCoord", &LinkCell::getCellCoord)
         .def("itercell", &LinkCell::itercell)
         .def("getCellNeighbors", &LinkCell::getCellNeighborsPy)

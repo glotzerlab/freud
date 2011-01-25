@@ -127,22 +127,37 @@ class LinkCell
             }
         
         //! Compute the cell id for a given position
-        unsigned int getCell(float x, float y, float z) const
+        unsigned int getCell(const float3& p) const
             {
-            uint3 c = getCellCoord(x,y,z);
+            uint3 c = getCellCoord(p);
             return m_cell_index(c.x, c.y, c.z);
+            }
+        
+        //! Wrapper for python to getCell
+        unsigned int getCellPy(boost::python::numeric::array p)
+            {
+            // validate input type and rank
+            num_util::check_type(p, PyArray_FLOAT);
+            num_util::check_rank(p, 1);
+            
+            // validate that the 2nd dimension is only 3
+            num_util::check_size(p, 3);
+            
+            // get the raw data pointers and compute the cell list
+            float3* p_raw = (float3*) num_util::data(p);
+            return getCell(*p_raw);
             }
             
         //! Compute cell coordinates for a given position
-        uint3 getCellCoord(float x, float y, float z) const
+        uint3 getCellCoord(const float3& p) const
             {
-            m_box.makeunit(x,y,z);
+            float3 alpha = m_box.makeunit(p);
             uint3 c;
-            c.x = floorf(x * float(m_cell_index.getW()));
+            c.x = floorf(alpha.x * float(m_cell_index.getW()));
             c.x %= m_cell_index.getW();
-            c.y = floorf(y * float(m_cell_index.getH()));
+            c.y = floorf(alpha.y * float(m_cell_index.getH()));
             c.y %= m_cell_index.getH();
-            c.z = floorf(z * float(m_cell_index.getD()));
+            c.z = floorf(alpha.z * float(m_cell_index.getD()));
             c.z %= m_cell_index.getD();
             return c;
             }
@@ -168,12 +183,10 @@ class LinkCell
             }
         
         //! Compute the cell list
-        void computeCellList(float *x, float *y, float *z, unsigned int Np);
+        void computeCellList(const float3 *points, unsigned int Np);
         
         //! Python wrapper for computeCellList
-        void computeCellListPy(boost::python::numeric::array x,
-                               boost::python::numeric::array y,
-                               boost::python::numeric::array z);
+        void computeCellListPy(boost::python::numeric::array points);
     private:
         Box m_box;              //!< Simulation box the particles belong in
         Index3D m_cell_index;   //!< Indexer to compute cell indices

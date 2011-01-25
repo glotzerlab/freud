@@ -31,22 +31,14 @@ class RDF
             }
         
         //! Compute the RDF
-        void compute(float *x_ref_data,
-                     float *y_ref_data,
-                     float *z_ref_data,
+        void compute(const float3 *ref_points,
                      unsigned int Nref,
-                     float *x_data,
-                     float *y_data,
-                     float *z_data,
+                     const float3 *points,
                      unsigned int Np);
         
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array x_ref,
-                       boost::python::numeric::array y_ref,
-                       boost::python::numeric::array z_ref,
-                       boost::python::numeric::array x,
-                       boost::python::numeric::array y,
-                       boost::python::numeric::array z);
+        void computePy(boost::python::numeric::array ref_points,
+                       boost::python::numeric::array points);
                        
         //! Get a reference to the last computed rdf
         boost::shared_array<float> getRDF()
