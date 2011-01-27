@@ -41,42 +41,16 @@ class TrajectoryIter:
         self.index += 1;
         return result;
 
-## Trajectory information read directly from a running VMD instance
+## Base class Trajectory that defines a common interface for working with any trajectory
 #
-# TrajectoryVMD acts as a proxy to the VMD python data access APIs. It takes in a given molecule id and then presents
-# a Trajectory interface on top of it, allowing looping through frames, accessing particle data an so forth.
+# TODO: Document me
 #
-# TrajectoryVMD only works when created inside of a running VMD instance. It will raise a RuntimeError if VMD is not
-# found
-#
-class TrajectoryVMD:
-    ## Initialize a VMD trajectory for access
-    # \param mol_id Id number of the VMD molecule to access
-    #
-    # When \a mol_id is set to None, the 'top' molecule is accessed
-    def __init__(self, mol_id=None):
-        # check that VMD is loaded
-        if VMD is None:
-            raise RuntimeError('VMD is not loaded')
-
-        # get the top molecule if requested
-        if mol_id is None:
-            self.mol_id = VMD.molecule.get_top();
-
-        self.mol = VMD.Molecule.Molecule(id=self.mol_id);
-        self.all = VMD.atomsel.atomsel('all', molid=self.mol_id);
-
-        # save the static properties
+class Trajectory:
+    ## Initizlize an emtpy trajectory
+    def __init__(self):
         self.static_props = {};
-        self.static_props['mass'] = numpy.array(self.all.get('mass'), dtype='float32');
-        self.static_props['diameter'] = 2.0*numpy.array(self.all.get('radius'), dtype='float32');
-        self.static_props['typename'] = self.all.get('type');
-        self.static_props['typeid'] = _assign_typeid(self.static_props['typename']);
-        self.static_props['body'] = numpy.array(self.all.get('resid'), dtype=numpy.int32);
-        self.static_props['charge'] = numpy.array(self.all.get('charge'), dtype=numpy.float32);
-        
-        self.modifiable_props = ['user', 'user2', 'user3', 'user4'];
-        
+        self.modifiable_props = {};
+    
     ## Test if a given particle property is modifiable
     # \param prop Property to check
     # \returns True if \a prop is modifiable
@@ -93,7 +67,100 @@ class TrajectoryVMD:
     # \param prop Property name to get
     def getStatic(self, prop):
         return self.static_props[prop];
+
+    ## Get the number of particles in the trajectory
+    # \returns Number of particles
+    # \note The base class Trajectory doesn't load any particles, so this always returns 0. Derived classes
+    #       should override.
+    def numParticles(self):
+        return 0;    
+
+    ## Get the number of frames in the trajectory
+    # \returns Number of frames
+    # \note The base class Trajectory doesn't load any particles, so this always returns 0. Derived classes
+    #       should override.
+    def __len__(self):
+        return 0;
     
+    ## Sets the current frame
+    # \param idx Index of the frame to seek to
+    # \note The base class Trajectory doesn't load any particles, so calling this method will produce an error.
+    #       Derived classes should override
+    def setFrame(self, idx):
+        raise RuntimeError("Trajectory.setFrame not implemented");
+    
+    ## Get the current frame
+    # \returns A Frame containing the current frame data
+    # \note The base class Trajectory doesn't load any particles, so calling this method will produce an error.
+    #       Derived classes should override
+    def getCurrentFrame(self):
+        raise RuntimeError("Trajectory.setFrame not implemented");
+
+    ## Get the selected frame
+    # \param idx Index of the frame to access
+    # \returns A Frame containing the current frame data
+    def __getitem__(self, idx):
+        if idx < 0 or idx >= len(self):
+            raise IndexError('Frame index out of range');
+        
+        self.setFrame(idx);
+        return self.getCurrentFrame();
+    
+    ## Iterate through frames
+    def __iter__(self):
+        return TrajectoryIter(self);
+    
+    ## Modify properties of the currently set frame
+    # \param prop Name of property to modify
+    # \param value New values to set for that property
+    # \note The base class Trajectory doesn't load any particles, so calling this method won't do anything.
+    #       Derived classes can call it as a handy way to check for error conditions.
+    def setProperty(self, prop, value):
+        # error check
+        if not prop in self.modifiable_props:
+            raise ValueError('prop is not modifiable');
+        if len(value) != self.numParticles():
+            raise ValueError('value is not of the correct length');
+
+
+## Trajectory information read directly from a running VMD instance
+#
+# TrajectoryVMD acts as a proxy to the VMD python data access APIs. It takes in a given molecule id and then presents
+# a Trajectory interface on top of it, allowing looping through frames, accessing particle data an so forth.
+#
+# TrajectoryVMD only works when created inside of a running VMD instance. It will raise a RuntimeError if VMD is not
+# found
+#
+class TrajectoryVMD(Trajectory):
+    ## Initialize a VMD trajectory for access
+    # \param mol_id Id number of the VMD molecule to access
+    #
+    # When \a mol_id is set to None, the 'top' molecule is accessed
+    def __init__(self, mol_id=None):
+        Trajectory.__init__(self);
+    
+        # check that VMD is loaded
+        if VMD is None:
+            raise RuntimeError('VMD is not loaded')
+
+        # get the top molecule if requested
+        if mol_id is None:
+            self.mol_id = VMD.molecule.get_top();
+
+        self.mol = VMD.Molecule.Molecule(id=self.mol_id);
+        self.all = VMD.atomsel.atomsel('all', molid=self.mol_id);
+
+        # save the static properties
+        self.static_props['mass'] = numpy.array(self.all.get('mass'), dtype='float32');
+        self.static_props['diameter'] = 2.0*numpy.array(self.all.get('radius'), dtype='float32');
+        self.static_props['typename'] = self.all.get('type');
+        self.static_props['typeid'] = _assign_typeid(self.static_props['typename']);
+        self.static_props['body'] = numpy.array(self.all.get('resid'), dtype=numpy.int32);
+        self.static_props['charge'] = numpy.array(self.all.get('charge'), dtype=numpy.float32);
+        
+        self.modifiable_props = ['user', 'user2', 'user3', 'user4'];
+        
+   
     ## Get the number of particles in the trajectory
     # \returns Number of particles
     def numParticles(self):
@@ -129,29 +196,12 @@ class TrajectoryVMD:
         box = Box(vmdbox['a'], vmdbox['b'], vmdbox['c']);
         return Frame(self, self.mol.curFrame(), dynamic_props, box);
     
-    ## Get the selected frame
-    # \param idx Index of the frame to access
-    # \returns A Frame containing the current frame data
-    def __getitem__(self, idx):
-        if idx < 0 or idx >= len(self):
-            raise IndexError('Frame index out of range');
-        
-        self.setFrame(idx);
-        return self.getCurrentFrame();
-    
-    ## Iterate through frames
-    def __iter__(self):
-        return TrajectoryIter(self);
-    
     ## Modify properties of the currently set frame
     # \param prop Name of property to modify
     # \param value New values to set for that property
     def setProperty(self, prop, value):
         # error check
-        if not prop in self.modifiable_props:
-            raise ValueError('prop is not modifiable');
-        if len(value) != self.numParticles():
-            raise ValueError('value is not of the correct length');
+        Trajectory.setProperty(self, prop, value);
         
         self.all.set(prop, list(value));
 
