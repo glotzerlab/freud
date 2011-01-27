@@ -25,3 +25,5 @@ for c in range(0, lc.getNumCells()):
     cell_members = list(lc.itercell(c));
     print cell_members;
 
+# example of how to select specific points for future reference
+numpy.compress([1, 1, 0, 0, 1], points, axis=0)
