@@ -4,6 +4,7 @@ except ImportError:
     VMD = None
 
 import numpy
+import xml.dom.minidom
 
 from _freud import Box;
 
@@ -254,4 +255,144 @@ class Frame:
     def set(self, prop, value):
         self.traj.setFrame(self.frame);
         self.traj.setProperty(prop, value);
+
+## Trajectory information read from an XML/DCD file combination
+#
+# TrajectoryXMLDCD reads structure information in from the provided XML file (typenames, bonds, rigid bodies, etc...)
+# Then, it opens the provided DCD file and reads in the position data for each frame from it.
+#
+# \note Always read DCD frames in increasing order for the best possible performance.
+# While the Trajectory interface does allow for random access of specific frames, actually doing so
+# is extremely inefficient for the DCD file format. To rewind to a previous frame, the file must be closed
+# and every frame read from the beginning until the desired frame is reached! 
+#
+class TrajectoryXMLDCD(Trajectory):
+    ## Initialize an XML/DCD trajectory for access
+    # \param xml_fname File name of the XML file to read the structure from
+    # \param dcd_fname File name of the DCD trajectory to read
+    #
+    def __init__(self, xml_fname, dcd_fname):
+        Trajectory.__init__(self);
+    
+        # parse the XML file
+        dom = xml.dom.minidom.parse(xml_fname);
+        hoomd_xml = dom.getElementsByTagName('hoomd_xml');
+        if len(hoomd_xml) != 1:
+            raise RuntimeError("hoomd_xml tag not found in xml file")
+        else:
+            hoomd_xml = hoomd_xml[0];
+            
+        configuration = hoomd_xml.getElementsByTagName('configuration');
+        if len(configuration) != 1:
+            raise RuntimeError("configuration tag not found in xml file")
+        else:
+            configuration = configuration[0];
+
+        # read the position node just to get the number of particles
+        position = configuration.getElementsByTagName('position');
+        if len(position) != 1:
+            raise RuntimeError("hoomd_xml tag not found in xml file")
+        else:
+            position = position[0];
+        position_text = position.childNodes[0].data
+        xyz = position_text.split()
+        self.num_particles = len(xyz)/3;
+
+        # parse the particle types
+        type_nodes = configuration.getElementsByTagName('type');
+        if len(type_nodes) == 1:
+            type_text = type_nodes[0].childNodes[0].data;
+            type_names = type_text.split();
+            if len(type_names) != self.num_particles:
+                raise RuntimeError("wrong number of types found in xml file")
+        else:
+            raise RuntimeError("type tag not found in xml file")
+
+        # parse the particle masses
+        mass_nodes = configuration.getElementsByTagName('mass');
+        if len(mass_nodes) == 1:
+            mass_text = mass_nodes[0].childNodes[0].data;
+            mass_list = mass_text.split();
+            if len(mass_list) != self.num_particles:
+                raise RuntimeError("wrong number of masses found in xml file")
+            mass_array = numpy.array([float(m) for m in mass_list], dtype=numpy.float32);
+        else:
+            # default to a mass of 1.0, like hoomd
+            mass_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32);
+        
+        # parse the particle diameters
+        diam_nodes = configuration.getElementsByTagName('diameter');
+        if len(diam_nodes) == 1:
+            diam_text = diam_nodes[0].childNodes[0].data;
+            diam_list = diam_text.split();
+            if len(diam_list) != self.num_particles:
+                raise RuntimeError("wrong number of diameters found in xml file")
+            diameter_array = numpy.array([float(d) for d in diam_list], dtype=numpy.float32);
+        else:
+            # default to a diameter of 1.0, like hoomd
+            diameter_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32);
+
+        # parse the particle bodies
+        body_nodes = configuration.getElementsByTagName('body');
+        if len(body_nodes) == 1:
+            body_text = body_nodes[0].childNodes[0].data;
+            body_list = body_text.split();
+            if len(body_list) != self.num_particles:
+                raise RuntimeError("wrong number of bodies found in xml file")
+            body_array = numpy.array([float(b) for b in body_list], dtype=numpy.int32);
+        else:
+            # default to a body of -1, like hoomd
+            body_array = -1 * numpy.ones(shape=(1,self.num_particles), dtype=numpy.int32);
+
+        # parse the particle charges
+        charge_nodes = configuration.getElementsByTagName('charge');
+        if len(charge_nodes) == 1:
+            charge_text = charge_nodes[0].childNodes[0].data;
+            charge_list = charge_text.split();
+            if len(charge_list) != self.num_particles:
+                raise RuntimeError("wrong number of charges found in xml file")
+            charge_array = numpy.array([float(c) for c in charge_list], dtype=numpy.float32);
+        else:
+            # default to a charge of 0.0, like hoomd
+            charge_array = numpy.zeros(shape=(1,self.num_particles), dtype=numpy.float32);
+
+        # save the static properties
+        self.static_props['mass'] = mass_array;
+        self.static_props['diameter'] = diameter_array;
+        self.static_props['typename'] = type_names;
+        self.static_props['typeid'] = _assign_typeid(self.static_props['typename']);
+        self.static_props['body'] = body_array;
+        self.static_props['charge'] = charge_array;
+   
+    ## Get the number of particles in the trajectory
+    # \returns Number of particles
+    def numParticles(self):
+        return self.num_particles;
+    
+    ## Get the number of frames in the trajectory
+    # \returns Number of frames
+    def __len__(self):
+        return 0;
+    
+    ## Sets the current frame
+    # \param idx Index of the frame to seek to
+    def setFrame(self, idx):
+        pass;
+    
+    ## Get the current frame
+    # \returns A FrameVMD containing the current frame data
+    def getCurrentFrame(self):
+        dynamic_props = {};
+
+        # get position
+        # pos = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32);
+        # pos[:,0] = numpy.array(self.all.get('x'));
+        # pos[:,1] = numpy.array(self.all.get('y'));
+        # pos[:,2] = numpy.array(self.all.get('z'));
+        # dynamic_props['position'] = pos;
+        
+        # vmdbox = VMD.molecule.get_periodic(self.mol_id, self.mol.curFrame())
+        # box = Box(vmdbox['a'], vmdbox['b'], vmdbox['c']);
+        # return Frame(self, self.mol.curFrame(), dynamic_props, box);
+
     
