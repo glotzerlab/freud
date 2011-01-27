@@ -10,7 +10,15 @@ set(SOURCES trajectory.cc trajectory.h
             LinkCell.cc LinkCell.h
             RDF.cc RDF.h
             Index1D.h
-            HOOMDMath.h)
+            HOOMDMath.h
+            DCDLoader.cc DCDLoader.h
+            molfile/dcdplugin.cc
+            molfile/vmdplugin.h
+            molfile/endianswap.h
+            molfile/fastio.h
+            molfile/largefiles.h
+            molfile/molfile_plugins.h
+            molfile/molfile_plugin.h)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} num_util.cc num_util.h module.cc)

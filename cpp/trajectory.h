@@ -20,6 +20,12 @@
 class Box
     {
     public:
+        //! Construct a zero box
+        Box() : m_Lx(0), m_Ly(0), m_Lz(0)
+            {
+            setup();
+            }
+            
         //! Construct a cubic box
         Box(float L) : m_Lx(L), m_Ly(L), m_Lz(L)
             {

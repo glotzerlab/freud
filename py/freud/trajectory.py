@@ -4,9 +4,11 @@ except ImportError:
     VMD = None
 
 import numpy
+import copy
 import xml.dom.minidom
 
 from _freud import Box;
+import _freud;
 
 ## \package freud.trajectory
 #
@@ -363,6 +365,11 @@ class TrajectoryXMLDCD(Trajectory):
         self.static_props['typeid'] = _assign_typeid(self.static_props['typename']);
         self.static_props['body'] = body_array;
         self.static_props['charge'] = charge_array;
+        
+        # load in the DCD file
+        self.dcd_loader = _freud.DCDLoader(dcd_fname);
+        if self.dcd_loader.getNumParticles() != self.num_particles:
+            raise RuntimeError("number of particles in the DCD file doesn't match the number in the XML file");
    
     ## Get the number of particles in the trajectory
     # \returns Number of particles
@@ -372,12 +379,13 @@ class TrajectoryXMLDCD(Trajectory):
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
-        return 0;
+        return self.dcd_loader.getFrameCount();
     
     ## Sets the current frame
     # \param idx Index of the frame to seek to
     def setFrame(self, idx):
-        pass;
+        self.dcd_loader.jumpToFrame(idx);
+        self.dcd_loader.readNextFrame();
     
     ## Get the current frame
     # \returns A FrameVMD containing the current frame data
@@ -385,14 +393,10 @@ class TrajectoryXMLDCD(Trajectory):
         dynamic_props = {};
 
         # get position
-        # pos = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32);
-        # pos[:,0] = numpy.array(self.all.get('x'));
-        # pos[:,1] = numpy.array(self.all.get('y'));
-        # pos[:,2] = numpy.array(self.all.get('z'));
-        # dynamic_props['position'] = pos;
+        pos = copy.copy(self.dcd_loader.getPoints());
+        dynamic_props['position'] = pos;
         
-        # vmdbox = VMD.molecule.get_periodic(self.mol_id, self.mol.curFrame())
-        # box = Box(vmdbox['a'], vmdbox['b'], vmdbox['c']);
-        # return Frame(self, self.mol.curFrame(), dynamic_props, box);
+        box = self.dcd_loader.getBox();
 
-    
+        return Frame(self, self.dcd_loader.getLastFrameNum(), dynamic_props, box);
+

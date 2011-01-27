@@ -2,6 +2,7 @@
 
 #include "num_util.h"
 #include "trajectory.h"
+#include "DCDLoader.h"
 
 using namespace std;
 using namespace boost::python;
@@ -40,5 +41,6 @@ void export_trajectory()
         .def("unwrap", &Box::unwrapPy)
         .def("makeunit", &Box::makeunitPy)*/
         ;
+    export_dcdloader();
     }
 
