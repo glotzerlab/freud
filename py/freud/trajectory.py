@@ -76,7 +76,7 @@ class Trajectory:
     # \note The base class Trajectory doesn't load any particles, so this always returns 0. Derived classes
     #       should override.
     def numParticles(self):
-        return 0;    
+        return 0;
 
     ## Get the number of frames in the trajectory
     # \returns Number of frames
@@ -400,3 +400,72 @@ class TrajectoryXMLDCD(Trajectory):
 
         return Frame(self, self.dcd_loader.getLastFrameNum(), dynamic_props, box);
 
+## Trajectory information obtained from within a running hoomd instance
+#
+# TrajectoryHOOMD reads structure information and dynamic data in from a live, currently running hoomd simulation.
+# In principle, much of the structure (i.e. particle types, bonds, etc...) could be changing as well. However,
+# this first implementation will assume the most common case (that which TrajectoryXMLDCD and TrajectoryVMD follow)
+# which is that mass, types, bonds, charges, and diameters remain constant and only position/velocity change from 
+# step to step. These assumptions may be relaxed in a later version.
+#
+# TrajectoryHOOMD works a little different from the others in one respect. Because it is accessing the current
+# state data directly from hoomd, there are no frames over which to loop. Accessing frame 0 will always return
+# the current state of the system. Advancing forward of course must be done with hoomd run() commands.
+#
+class TrajectoryHOOMD(Trajectory):
+    ## Initialize a HOOMD trajectory
+    # \param sysdef System definition (returned from an init. call)
+    #
+    def __init__(self, sysdef):
+        Trajectory.__init__(self);
+        self.sysdef = sysdef;
+    
+        # extract "static" values
+        mass_array = numpy.array([p.mass for p in self.sysdef.particles], dtype=numpy.float32);
+        diameter_array = numpy.array([p.diameter for p in self.sysdef.particles], dtype=numpy.float32);
+        # body_array = numpy.array([p.body for p in self.sysdef.particles], dtype=numpy.int32);
+        charge_array = numpy.array([p.charge for p in self.sysdef.particles], dtype=numpy.float32);
+        type_names = [p.type for p in self.sysdef.particles];
+        typeid_array = numpy.array([p.typeid for p in self.sysdef.particles], dtype=numpy.uint32);
+
+        # save the static properties
+        self.static_props['mass'] = mass_array;
+        self.static_props['diameter'] = diameter_array;
+        self.static_props['typename'] = type_names;
+        self.static_props['typeid'] = typeid_array;
+        # self.static_props['body'] = body_array;  # unsupported in hoomd currently
+        self.static_props['charge'] = charge_array;
+        
+    ## Get the number of particles in the trajectory
+    # \returns Number of particles
+    def numParticles(self):
+        return len(self.sysdef.particles);
+    
+    ## Get the number of frames in the trajectory
+    # \returns Number of frames
+    def __len__(self):
+        return 1;
+    
+    ## Sets the current frame
+    # \param idx Index of the frame to seek to
+    def setFrame(self, idx):
+        pass;
+    
+    ## Get the current frame
+    # \returns A FrameVMD containing the current frame data
+    def getCurrentFrame(self):
+        dynamic_props = {};
+
+        # get position
+        pos = numpy.array([p.position for p in self.sysdef.particles], dtype=numpy.float32);
+        image = numpy.array([p.image for p in self.sysdef.particles], dtype=numpy.int32);
+        velocity = numpy.array([p.velocity for p in self.sysdef.particles], dtype=numpy.float32);
+
+        dynamic_props['position'] = pos;
+        dynamic_props['image'] = image;
+        dynamic_props['velocity'] = velocity;
+        
+        hoomd_box = self.sysdef.box;
+        box = Box(hoomd_box[0], hoomd_box[1], hoomd_box[2]);
+
+        return Frame(self, 0, dynamic_props, box);
