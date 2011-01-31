@@ -42,7 +42,7 @@ void DCDLoader::jumpToFrame(int frame)
     
 	// figure out where we are in the file:
 	int cur_frame = m_dcd->setsread;
-	if (cur_frame < frame)
+	if (frame < cur_frame)
 		{
         // cout << "Warning, rewinding DCD file. Expect slow performance" << endl;
         // close and reopen the file to get back to frame 0

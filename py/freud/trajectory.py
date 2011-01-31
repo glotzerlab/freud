@@ -384,8 +384,9 @@ class TrajectoryXMLDCD(Trajectory):
     ## Sets the current frame
     # \param idx Index of the frame to seek to
     def setFrame(self, idx):
-        self.dcd_loader.jumpToFrame(idx);
-        self.dcd_loader.readNextFrame();
+        if not(self.dcd_loader.getLastFrameNum() == idx):
+            self.dcd_loader.jumpToFrame(idx);
+            self.dcd_loader.readNextFrame();
     
     ## Get the current frame
     # \returns A FrameVMD containing the current frame data
