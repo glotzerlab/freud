@@ -1,10 +1,10 @@
-## \package freud.trajectory
+## \package freud.locality
 #
 # Computes locality information on sets of points
 #
 # The following classes are imported into locality from C++:
-#  * LinkCell
-#  * IteratorLinkCell
+#  - LinkCell
+#  - IteratorLinkCell
 
 # bring related c++ classes into the locality module
 from _freud import LinkCell
