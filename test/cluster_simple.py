@@ -15,8 +15,13 @@ points = numpy.array([[0, 0, 0],
 
 box = trajectory.Box(25);
 cluster = locality.Cluster(box, 1.2);
-cluster.compute(points);
+cluster.computeClusters(points);
+
+keys = numpy.array([0, 1, 0, 2, 3, 3], dtype=numpy.uint32);
+cluster.computeClusterMembership(keys);
 
 print "Num clusters:", cluster.getNumClusters();
 
 print "cluster_idx:", cluster.getClusterIdx();
+
+print "cluster_keys:", cluster.getClusterKeys();

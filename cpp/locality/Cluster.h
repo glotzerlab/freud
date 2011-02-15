@@ -1,6 +1,7 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 #include <vector>
+#include <set>
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -54,12 +55,18 @@ class Cluster
             return m_box;
             }
         
-        //! Compute the RDF
-        void compute(const float3 *points,
-                     unsigned int Np);
+        //! Compute the point clusters
+        void computeClusters(const float3 *points,
+                             unsigned int Np);
         
-        //! Python wrapper for compute
-        void computePy(boost::python::numeric::array points);
+        //! Python wrapper for computePointClusters
+        void computeClustersPy(boost::python::numeric::array points);
+        
+        //! Compute clusters with key membership
+        void computeClusterMembership(const unsigned int *keys);
+        
+        //! Python wrapper for computeClusterMembership
+        void computeClusterMembershipPy(boost::python::numeric::array keys);
         
         //! Count the number of clusters found in the last call to compute()
         unsigned int getNumClusters()
@@ -79,6 +86,15 @@ class Cluster
             unsigned int *arr = m_cluster_idx.get();
             return num_util::makeNum(arr, m_num_particles);
             }
+            
+        //!  Returns the cluster keys last determined by computeClusterKeys, in python format
+        boost::python::object getClusterKeysPy();
+        
+        //! Returns the cluster keys last determined by computeClusterKeys
+        const std::vector< std::set<unsigned int> >& getClusterKeys()
+            {
+            return m_cluster_keys;
+            }
     private:
         Box m_box;                    //!< Simulation box the particles belong in
         float m_rcut;                 //!< Maximum r at which points will be counted in the same cluster
@@ -87,6 +103,8 @@ class Cluster
         unsigned int m_num_clusters;  //!< Number of clusters found inthe last call to compute()
         
         boost::shared_array<unsigned int> m_cluster_idx; //!< Cluster index determined for each particle
+        std::vector< std::set<unsigned int> > m_cluster_keys;    //!< List of keys in each cluster
+        
     };
 
 //! Exports all classes in this file to python

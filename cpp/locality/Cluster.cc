@@ -72,8 +72,8 @@ Cluster::Cluster(const Box& box, float rcut)
         throw invalid_argument("Cluster does not support computations where rcut > 1/3 any box dimension");
     }
 
-void Cluster::compute(const float3 *points,
-                      unsigned int Np)
+void Cluster::computeClusters(const float3 *points,
+                              unsigned int Np)
     {
     assert(points);
     assert(Np > 0);
@@ -152,7 +152,7 @@ void Cluster::compute(const float3 *points,
     m_num_clusters = cur_set;
     }
 
-void Cluster::computePy(boost::python::numeric::array points)
+void Cluster::computeClustersPy(boost::python::numeric::array points)
     {
     // validate input type and rank
     num_util::check_type(points, PyArray_FLOAT);
@@ -165,15 +165,83 @@ void Cluster::computePy(boost::python::numeric::array points)
     // get the raw data pointers and compute the cell list
     float3* points_raw = (float3*) num_util::data(points);
 
-    compute(points_raw, Np);
+    computeClusters(points_raw, Np);
+    }
+
+/*! \param keys Array of keys (1 per particle)
+
+    Loops overa all particles and adds them to a list of sets. Each set contains all the keys that are part of that
+    cluster.
+    
+    Get the computed list with getClusterKeys().
+    
+    \note The length of keys is assumed to be the same length as the particles in the last call to computeClusters().
+*/
+void Cluster::computeClusterMembership(const unsigned int *keys)
+    {
+    // clear the membership
+    m_cluster_keys.resize(m_num_clusters);
+    
+    for (unsigned int i = 0; i < m_num_clusters; i++)
+        m_cluster_keys[i].clear();
+    
+    // add members to the sets
+    for (unsigned int i = 0; i < m_num_particles; i++)
+        {
+        unsigned int key = keys[i];
+        unsigned int cluster = m_cluster_idx[i];
+        m_cluster_keys[cluster].insert(key);
+        }
+    }
+
+/*! \param keys numpy array of uints, one for each particle.
+
+    Each particle is given a key (more than one particle can share the same key). getClusterKeys determines which keys
+    are present in each cluster. It returns a list of lists. List i in the return value is the list of keys that
+    are present in cluster i.
+*/
+void Cluster::computeClusterMembershipPy(boost::python::numeric::array keys)
+    {
+    // validate input type and rank
+    num_util::check_type(keys, PyArray_UINT32);
+    num_util::check_rank(keys, 1);
+    
+    // Check that there is one key per point
+    unsigned int Np = num_util::shape(keys)[0];
+    
+    if (!(Np == m_num_particles))
+        throw invalid_argument("Number of keys must be equal to the number of particles last handled by compute()");
+
+    // get the raw data pointer to the keys
+    unsigned int* keys_raw = (unsigned int *)num_util::data(keys);
+    computeClusterMembership(keys_raw);
+    }
+
+/*! Converts m_cluster_keys into a python list of lists
+*/
+boost::python::object Cluster::getClusterKeysPy()
+    {
+    boost::python::list cluster_keys_py;
+    for (unsigned int i = 0; i < m_cluster_keys.size(); i++)
+        {
+        boost::python::list members;
+        set<unsigned int>::iterator k;
+        for (k = m_cluster_keys[i].begin(); k != m_cluster_keys[i].end(); ++k)
+            members.append(*k);
+        
+        cluster_keys_py.append(members);
+        }
+    return cluster_keys_py;
     }
 
 void export_Cluster()
     {
     class_<Cluster>("Cluster", init<Box&, float>())
         .def("getBox", &Cluster::getBox, return_internal_reference<>())
-        .def("compute", &Cluster::computePy)
+        .def("computeClusters", &Cluster::computeClustersPy)
         .def("getNumClusters", &Cluster::getNumClusters)
         .def("getClusterIdx", &Cluster::getClusterIdxPy)
+        .def("computeClusterMembership", &Cluster::computeClusterMembershipPy)
+        .def("getClusterKeys", &Cluster::getClusterKeysPy)
         ;
     }
