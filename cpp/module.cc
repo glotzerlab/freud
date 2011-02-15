@@ -3,6 +3,7 @@
 #include "trajectory.h"
 #include "num_util.h"
 #include "LinkCell.h"
+#include "Cluster.h"
 #include "RDF.h"
 
 using namespace boost::python;
@@ -17,4 +18,5 @@ BOOST_PYTHON_MODULE(_freud)
     export_trajectory();
     export_LinkCell();
     export_RDF();
+    export_Cluster();
     }

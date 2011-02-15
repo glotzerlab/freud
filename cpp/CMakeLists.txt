@@ -19,6 +19,8 @@ set(SOURCES trajectory/trajectory.cc
             locality/LinkCell.h
             locality/RDF.cc
             locality/RDF.h
+            locality/Cluster.h
+            locality/Cluster.cc
             util/Index1D.h
             util/HOOMDMath.h
             molfile/dcdplugin.cc
