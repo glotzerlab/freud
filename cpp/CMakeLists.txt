@@ -9,7 +9,8 @@ endmacro(setup_pymodule)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/trajectory
                     ${CMAKE_CURRENT_SOURCE_DIR}/util
-                    ${CMAKE_CURRENT_SOURCE_DIR}/locality)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/locality
+                    ${CMAKE_CURRENT_SOURCE_DIR}/cluster)
 
 set(SOURCES trajectory/trajectory.cc
             trajectory/trajectory.h
@@ -19,8 +20,10 @@ set(SOURCES trajectory/trajectory.cc
             locality/LinkCell.h
             locality/RDF.cc
             locality/RDF.h
-            locality/Cluster.h
-            locality/Cluster.cc
+            cluster/Cluster.h
+            cluster/Cluster.cc
+            cluster/ClusterProperties.h
+            cluster/ClusterProperties.cc
             util/Index1D.h
             util/HOOMDMath.h
             molfile/dcdplugin.cc

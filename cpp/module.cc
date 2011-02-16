@@ -5,6 +5,7 @@
 #include "LinkCell.h"
 #include "Cluster.h"
 #include "RDF.h"
+#include "ClusterProperties.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -19,4 +20,5 @@ BOOST_PYTHON_MODULE(_freud)
     export_LinkCell();
     export_RDF();
     export_Cluster();
+    export_ClusterProperties();
     }

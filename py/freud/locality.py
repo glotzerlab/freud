@@ -5,12 +5,10 @@
 # The following classes are imported into locality from C++:
 #  - LinkCell
 #  - IteratorLinkCell
-#  - Cluster
 
 # bring related c++ classes into the locality module
 from _freud import LinkCell
 from _freud import IteratorLinkCell
-from _freud import Cluster
 
 
 # fixup IteratorLinkCell with an __iter__ method
