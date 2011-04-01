@@ -1,4 +1,5 @@
 #include <boost/python.hpp>
+#include "num_util.h"
 
 #include "HOOMDMath.h"
 
@@ -73,8 +74,44 @@ class Box
             return newp;
             }
 
-        // Python wrapper for wrap (TODO - possibly write as an array method that will handle many poitns in a single
-        // call
+        //! Wrap a given array of vectors back into the box from python
+        /*! \param vecs numpy array of vectors (Nx3) (or just 3 elements) to wrap
+            \note Vectors are wrapped in place to avoid costly memory copies
+        */
+        void wrapPy(boost::python::numeric::array vecs)
+            {
+            // validate input type and dimensions
+            num_util::check_type(vecs, PyArray_FLOAT);
+            
+            // if this is a rank 1 array, then it must be a simple 3-vector of points
+            if (num_util::rank(vecs) == 1)
+                {
+                // validate that the 1st dimension is only 3
+                num_util::check_dim(vecs, 0, 3);
+                float3* vecs_raw = (float3*) num_util::data(vecs);
+                
+                // wrap the single vector back
+                vecs_raw[0] = wrap(vecs_raw[0]);
+                }
+            else
+            if (num_util::rank(vecs) == 2)
+                {
+                // validate that the 2nd dimension is only 3
+                num_util::check_dim(vecs, 1, 3);
+                unsigned int Np = num_util::shape(vecs)[0];
+                float3* vecs_raw = (float3*) num_util::data(vecs);
+                
+                // wrap all the vecs back
+                for (unsigned int i = 0; i < Np; i++)
+                    vecs_raw[i] = wrap(vecs_raw[i]);
+                }
+            else
+                {
+                PyErr_SetString(PyExc_ValueError, "no mapping available for this type");
+                boost::python::throw_error_already_set();
+                }
+            }
+
 
         //! Unwrap a given position to its "real" location
         /*! \param p coordinates to unwrap
