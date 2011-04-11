@@ -270,7 +270,7 @@ class Frame:
 class TrajectoryXMLDCD(Trajectory):
     ## Initialize an XML/DCD trajectory for access
     # \param xml_fname File name of the XML file to read the structure from
-    # \param dcd_fname File name of the DCD trajectory to read
+    # \param dcd_fname File name of the DCD trajectory to read (or None to skip reading trajectory data)
     #
     def __init__(self, xml_fname, dcd_fname):
         Trajectory.__init__(self);
@@ -366,9 +366,12 @@ class TrajectoryXMLDCD(Trajectory):
         self.static_props['charge'] = charge_array;
         
         # load in the DCD file
-        self.dcd_loader = _freud.DCDLoader(dcd_fname);
-        if self.dcd_loader.getNumParticles() != self.num_particles:
-            raise RuntimeError("number of particles in the DCD file doesn't match the number in the XML file");
+        if dcd_fname is not None:
+            self.dcd_loader = _freud.DCDLoader(dcd_fname);
+            if self.dcd_loader.getNumParticles() != self.num_particles:
+                raise RuntimeError("number of particles in the DCD file doesn't match the number in the XML file");
+        else:
+            self.dcd_loader = None;
    
     ## Get the number of particles in the trajectory
     # \returns Number of particles
@@ -378,11 +381,17 @@ class TrajectoryXMLDCD(Trajectory):
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
-        return self.dcd_loader.getFrameCount();
+        if self.dcd_loader is not None:
+            return self.dcd_loader.getFrameCount();
+        else:
+            return 0;
     
     ## Sets the current frame
     # \param idx Index of the frame to seek to
     def setFrame(self, idx):
+        if self.dcd_loader is None:
+            raise RuntimError("No DCD file was loaded");
+
         if not(self.dcd_loader.getLastFrameNum() == idx):
             self.dcd_loader.jumpToFrame(idx);
             self.dcd_loader.readNextFrame();
@@ -390,6 +399,9 @@ class TrajectoryXMLDCD(Trajectory):
     ## Get the current frame
     # \returns A Frame containing the current frame data
     def getCurrentFrame(self):
+        if self.dcd_loader is None:
+            raise RuntimError("No DCD file was loaded");
+        
         dynamic_props = {};
 
         # get position
