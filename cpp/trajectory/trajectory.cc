@@ -37,8 +37,8 @@ void export_trajectory()
         .def("getLy", &Box::getLy)
         .def("getLz", &Box::getLz)
         .def("getVolume", &Box::getVolume)
-        /*.def("wrap", &Box::wrapPy)
-        .def("unwrap", &Box::unwrapPy)
+        .def("wrap", &Box::wrapPy)
+        /*.def("unwrap", &Box::unwrapPy)
         .def("makeunit", &Box::makeunitPy)*/
         ;
     export_dcdloader();
