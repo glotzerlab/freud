@@ -14,11 +14,10 @@ import _freud;
 #
 # Reads MD trajectories into numpy arrays
 #
-# TODO: complete a full set of documentation
-# TODO: refactor common trajectory operations to a base class Trajectory
+# \todo complete a full set of documentation
 #
 # The following classes are imported into trajectory from c++:
-#  * Box
+#  - Box
 
 ## \internal
 # \brief Takes in a list of particle types and uniquely determines type ids for each one
@@ -180,7 +179,7 @@ class TrajectoryVMD(Trajectory):
         self.mol.setFrame(idx);
     
     ## Get the current frame
-    # \returns A FrameVMD containing the current frame data
+    # \returns A Frame containing the current frame data
     def getCurrentFrame(self):
         dynamic_props = {};
 
@@ -389,7 +388,7 @@ class TrajectoryXMLDCD(Trajectory):
             self.dcd_loader.readNextFrame();
     
     ## Get the current frame
-    # \returns A FrameVMD containing the current frame data
+    # \returns A Frame containing the current frame data
     def getCurrentFrame(self):
         dynamic_props = {};
 
@@ -601,7 +600,7 @@ class TrajectoryHOOMD(Trajectory):
         pass;
     
     ## Get the current frame
-    # \returns A FrameVMD containing the current frame data
+    # \returns A Frame containing the current frame data
     def getCurrentFrame(self):
         dynamic_props = {};
 
