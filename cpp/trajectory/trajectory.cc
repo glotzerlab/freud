@@ -31,8 +31,10 @@ void export_trajectory()
     // define functions
     def("hello", &hello);
     def("test", &test);
-    class_<Box>("Box", init<float>())
-        .def(init<float, float, float>())
+    class_<Box>("Box", init<float, optional<bool> >())
+        .def(init<float, float, float, optional<bool> >())
+        .def("set2D", &Box::set2D)
+        .def("is2D", &Box::is2D)
         .def("getLx", &Box::getLx)
         .def("getLy", &Box::getLy)
         .def("getLz", &Box::getLz)
