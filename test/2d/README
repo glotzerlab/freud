@@ -1,0 +1,2 @@
+This directory contains freud scripts that test its ability to work with 2D simulations. 
+The hoomd script generate.py generates the data files used in the test scripts.
