@@ -54,6 +54,9 @@ class SFactor3DPoints:
     # \param box The simulation box
     # \param g The number of grid points for q in each direction is 2*g+1.
     def __init__(self, box, g):
+        if box.is2D():
+            raise ValueError("SFactor3DPoints does not support 2D boxes")
+        
         self.grid = 2*g + 1;
         self.qx = numpy.linspace(-g * 2 * math.pi / box.getLx(), g * 2 * math.pi / box.getLx(), num=self.grid)
         self.qy = numpy.linspace(-g * 2 * math.pi / box.getLy(), g * 2 * math.pi / box.getLy(), num=self.grid)
