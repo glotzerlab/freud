@@ -17,26 +17,45 @@
     
     For performance reasons assuming that many millions of calls to wrap will be made, 1.0 / L is precomputed when
     the box is created
+    
+    A Box can represent either a two or three dimensional box. By default, a Box is 3D, but can be set as 2D with the
+    method set2D(), or via an arugment to the constructor. is2D() queries if a Box is 2D or not.
+    2D boxes have a "volume" of Lx * Ly, and Lz is set to 0. To keep programming simple, all inputs and outputs are
+    still 3-component vectors even for 2D boxes. The third component ignored (assumed set to 0).
 */
 class Box
     {
     public:
         //! Construct a zero box
-        Box() : m_Lx(0), m_Ly(0), m_Lz(0)
+        Box() : m_Lx(0), m_Ly(0), m_Lz(0), m_2d(false)
             {
             setup();
             }
             
         //! Construct a cubic box
-        Box(float L) : m_Lx(L), m_Ly(L), m_Lz(L)
+        Box(float L, bool _2d=false) : m_Lx(L), m_Ly(L), m_Lz(L), m_2d(_2d)
             {
             setup();
             }
         //! Construct a non-cubic box
-        Box(float Lx, float Ly, float Lz) : m_Lx(Lx), m_Ly(Ly), m_Lz(Lz) 
+        Box(float Lx, float Ly, float Lz, bool _2d=false) : m_Lx(Lx), m_Ly(Ly), m_Lz(Lz), m_2d(_2d)
             {
             setup();
             }
+        
+        //! Set the box to 2D mode
+        void set2D(bool _2d)
+            {
+            m_2d = _2d;
+            setup();
+            }
+        
+        //! Test if the box is 2D
+        bool is2D()
+            {
+            return m_2d;
+            }
+            
         //! Get the value of Lx
         float getLx() const
             {
@@ -52,10 +71,13 @@ class Box
             {
             return m_Lz;
             }
-        //! Get the volume of the box
+        //! Get the volume of the box (area in 2D)
         float getVolume()
             {
-            return m_Lx*m_Ly*m_Lz;
+            if (m_2d)
+                return m_Lx*m_Ly;
+            else
+                return m_Lx*m_Ly*m_Lz;
             }
         
         //! Wrap a given vector back into the box
@@ -155,11 +177,15 @@ class Box
             {
             m_Lx_inv = 1.0f / m_Lx;
             m_Ly_inv = 1.0f / m_Ly;
-            m_Lz_inv = 1.0f / m_Lz;
+            if (m_2d)
+                m_Lz = m_Lz_inv = 0.0f;
+            else
+                m_Lz_inv = 1.0f / m_Lz;
             }
         
         float m_Lx, m_Ly, m_Lz;
         float m_Lx_inv, m_Ly_inv, m_Lz_inv;
+        bool m_2d;
     };
 
 //! Exports all classes in this file to python

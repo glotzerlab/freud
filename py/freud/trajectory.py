@@ -133,6 +133,10 @@ class Trajectory:
 # TrajectoryVMD only works when created inside of a running VMD instance. It will raise a RuntimeError if VMD is not
 # found
 #
+# VMD has no way of specifiying 2D simulations explicitly. This code attempts to detect 2D simulations by checking
+# the maximum z coord in the simulation. If the maximum z coord (in absolute value) is less than 1e-3, then the frame's
+# box is set to 2D. If this is not what you intend, override the setting by calling box.set2D(True/False).
+#
 class TrajectoryVMD(Trajectory):
     ## Initialize a VMD trajectory for access
     # \param mol_id Id number of the VMD molecule to access
@@ -196,6 +200,11 @@ class TrajectoryVMD(Trajectory):
         
         vmdbox = VMD.molecule.get_periodic(self.mol_id, self.mol.curFrame())
         box = Box(vmdbox['a'], vmdbox['b'], vmdbox['c']);
+        
+        # detect if the box should be 2D
+        if abs(pos[:,2]).max() < 1e-3:
+            box.set2D(True);
+        
         return Frame(self, self.mol.curFrame(), dynamic_props, box);
     
     ## Modify properties of the currently set frame
@@ -267,6 +276,7 @@ class Frame:
 # is extremely inefficient for the DCD file format. To rewind to a previous frame, the file must be closed
 # and every frame read from the beginning until the desired frame is reached! 
 #
+# 2D input will set the frame box appropriately.
 class TrajectoryXMLDCD(Trajectory):
     ## Initialize an XML/DCD trajectory for access
     # \param xml_fname File name of the XML file to read the structure from
@@ -288,12 +298,18 @@ class TrajectoryXMLDCD(Trajectory):
             raise RuntimeError("configuration tag not found in xml file")
         else:
             configuration = configuration[0];
-            
+        
+        # determine the number of dimensions
+        if configuration.hasAttribute('dimensions'):
+            self.ndim = int(configuration.getAttribute('dimensions'));
+        else:
+            self.ndim = 3;
+        
         # if there is no dcd file, read box
         if dcd_fname is None:        
             box_node = position = configuration.getElementsByTagName('box');
             box_config = box_node[0].toxml().split("\"")
-            self.box = Box(float(box_config[1]),float(box_config[3]),float(box_config[5]))      
+            self.box = Box(float(box_config[1]),float(box_config[3]),float(box_config[5]), self.ndim == 2)
 
         # read the position node just to get the number of particles
         # unless there is no dcd file. Then read positions.
@@ -423,6 +439,7 @@ class TrajectoryXMLDCD(Trajectory):
             pos = copy.copy(self.dcd_loader.getPoints());
             dynamic_props['position'] = pos;
             box = self.dcd_loader.getBox();
+            box.set2D(self.ndim == 2);
             return Frame(self, self.dcd_loader.getLastFrameNum(), dynamic_props, box);
         else:   
             box = self.box;
@@ -441,6 +458,7 @@ class TrajectoryXMLDCD(Trajectory):
 # state data directly from hoomd, there are no frames over which to loop. Accessing frame 0 will always return
 # the current state of the system. Advancing forward of course must be done with hoomd run() commands.
 #
+# 2D simulations will set the frame box appropriately.
 class TrajectoryHOOMD(Trajectory):
     ## Initialize a HOOMD trajectory
     # \param sysdef System definition (returned from an init. call)
@@ -495,6 +513,6 @@ class TrajectoryHOOMD(Trajectory):
         dynamic_props['velocity'] = velocity;
         
         hoomd_box = self.sysdef.box;
-        box = Box(hoomd_box[0], hoomd_box[1], hoomd_box[2]);
+        box = Box(hoomd_box[0], hoomd_box[1], hoomd_box[2], self.sysdef.dimensions == 2);
 
         return Frame(self, 0, dynamic_props, box);

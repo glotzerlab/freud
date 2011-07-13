@@ -10,16 +10,22 @@ using namespace boost::python;
 
 LinkCell::LinkCell(const Box& box, float cell_width) : m_box(box), m_Np(0)
     {
-    if (cell_width > m_box.getLx() ||
-        cell_width > m_box.getLy() ||
-        cell_width > m_box.getLz())
+    // check if the cell width is too wide for the box
+    bool too_wide = cell_width > 1.0f/3.0f * m_box.getLx() || cell_width > 1.0f/3.0f * m_box.getLy();
+    if (!m_box.is2D())
+        too_wide |= cell_width > 1.0f/3.0f * m_box.getLz();
+    if (too_wide)
         {
-        throw runtime_error("Cannot generate a cell list where cell_width is larger than a box dimension");
+        throw runtime_error("Cannot generate a cell list where cell_width is larger than 1/3 of any box dimension");
         }
     
     unsigned int Nx = (unsigned int)(m_box.getLx() / cell_width);
     unsigned int Ny = (unsigned int)(m_box.getLy() / cell_width);
     unsigned int Nz = (unsigned int)(m_box.getLz() / cell_width);
+
+    // only 1 cell deep in 2D
+    if (m_box.is2D())
+        Nz = 1;
     
     m_cell_index = Index3D(Nx, Ny, Nz);
     computeCellNeighbors();
@@ -87,10 +93,15 @@ void LinkCell::computeCellNeighbors()
                 unsigned int cur_cell = m_cell_index(i,j,k);
                 m_cell_neighbors[cur_cell].clear();
                 
-                // loop over the 27 neighbor cells
-                for (int neighk = k-1; neighk <= (int)k+1; neighk++)
-                    for (int neighj = j-1; neighj <= (int)j+1; neighj++)
-                        for (int neighi = i-1; neighi <= (int)i+1; neighi++)
+                // loop over the 27 neighbor cells (9 in 2d)
+                int startk = (int)k-1;
+                int endk = (int)k+1;
+                if (m_box.is2D())
+                    startk = endk = k;
+                
+                for (int neighk = startk; neighk <= endk; neighk++)
+                    for (int neighj = (int)j-1; neighj <= (int)j+1; neighj++)
+                        for (int neighi = (int)i-1; neighi <= (int)i+1; neighi++)
                             {
                             // wrap back into the box
                             int wrapi = neighi % m_cell_index.getW();
