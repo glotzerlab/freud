@@ -24,6 +24,8 @@ set(SOURCES trajectory/trajectory.cc
             cluster/Cluster.cc
             cluster/ClusterProperties.h
             cluster/ClusterProperties.cc
+            order/HexOrderParameter.h
+            order/HexOrderParameter.cc
             util/Index1D.h
             util/HOOMDMath.h
             molfile/dcdplugin.cc
