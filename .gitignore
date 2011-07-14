@@ -1,2 +1,5 @@
 *.pyc
 *.pyo
+*.dcd
+*.xml
+*.mat

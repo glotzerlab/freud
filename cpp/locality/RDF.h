@@ -16,7 +16,9 @@
     The values of r to compute the rdf at are controlled by the rmax and dr parameters to the constructor. rmax
     determins the maximum r at which to compute g(r) and dr is the step size for each bin.
     
-    In its current
+    <b>2D:</b><br>
+    RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
+    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
 class RDF
     {

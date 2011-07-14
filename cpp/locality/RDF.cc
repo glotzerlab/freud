@@ -15,8 +15,6 @@ RDF::RDF(const Box& box, float rmax, float dr)
         throw invalid_argument("rmax must be positive");
     if (dr > rmax)
         throw invalid_argument("rmax must be greater than dr");
-    if (!(box.getLx() >= 3.0 * m_rmax && box.getLy() >= 3.0 * m_rmax && box.getLz() >= 3.0 * m_rmax))
-        throw invalid_argument("RDF currently does not support computations where rmax > 1/3 any box dimension");
     
     m_nbins = int(ceilf(m_rmax / m_dr));
     assert(m_nbins > 0);
@@ -37,7 +35,10 @@ RDF::RDF(const Box& box, float rmax, float dr)
         {
         float r = float(i) * m_dr;
         float prevr = float(i-1) * m_dr;
-        m_vol_array[i] = 4.0f / 3.0f * M_PI * (r*r*r - prevr*prevr*prevr);
+        if (m_box.is2D())
+            m_vol_array[i] = M_PI * (r*r - prevr*prevr);
+        else
+            m_vol_array[i] = 4.0f / 3.0f * M_PI * (r*r*r - prevr*prevr*prevr);
         }
     }
 

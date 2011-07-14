@@ -67,9 +67,7 @@ Cluster::Cluster(const Box& box, float rcut)
     : m_box(box), m_rcut(rcut), m_lc(box, rcut), m_num_particles(0)
     {
     if (m_rcut < 0.0f)
-        throw invalid_argument("rmax must be positive");
-    if (!(box.getLx() >= 3.0 * m_rcut && box.getLy() >= 3.0 * m_rcut && box.getLz() >= 3.0 * m_rcut))
-        throw invalid_argument("Cluster does not support computations where rcut > 1/3 any box dimension");
+        throw invalid_argument("rcut must be positive");
     }
 
 void Cluster::computeClusters(const float3 *points,

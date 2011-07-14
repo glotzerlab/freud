@@ -98,6 +98,11 @@ class IteratorLinkCell
     <b>Data structures:</b><br>
     The internal data structure used in LinkCell is a linked list of particle indices. See IteratorLinkCell
     for information on how to iterate through these.
+    
+    <b>2D:</b><br>
+    LinkCell properly handles 2D boxes. When a 2D box is handed to LinkCell, it creates an m x n x 1 cell list and
+    neighbor cells are only listed in the plane. As with everything else in freud, 2D points must be passed in as
+    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
 class LinkCell
     {
@@ -143,7 +148,7 @@ class LinkCell
             // validate that the 2nd dimension is only 3
             num_util::check_size(p, 3);
             
-            // get the raw data pointers and compute the cell list
+            // get the raw data pointers and compute the cell index
             float3* p_raw = (float3*) num_util::data(p);
             return getCell(*p_raw);
             }

@@ -40,8 +40,12 @@ class DisjointSet
     In a cluster of points, each and every point belongs to one and only one cluster. However, because a string
     of points belongs to a polymer, that single polymer may be present in more than one cluster. To handle this
     situation, an optional layer is presented on top of the \c cluster_idx array. Given a key value per particle
-    (i.e. the polymer id), the ... function will process cluster_idx with the key values in mind and provide
-    a list of keys that are present in each cluster.
+    (i.e. the polymer id), the computeClusterMembership function will process cluster_idx with the key values in mind
+    and provide a list of keys that are present in each cluster.
+    
+    <b>2D:</b><br>
+    Cluster properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
+    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
 class Cluster
     {
