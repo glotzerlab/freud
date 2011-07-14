@@ -16,7 +16,9 @@ set(SOURCES trajectory/trajectory.cc
             trajectory/trajectory.h
             trajectory/DCDLoader.cc
             trajectory/DCDLoader.h
-            locality/LinkCell.cc
+            locality/GaussianDensity.cc
+						locality/GaussianDensity.h
+						locality/LinkCell.cc
             locality/LinkCell.h
             locality/RDF.cc
             locality/RDF.h

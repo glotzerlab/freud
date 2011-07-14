@@ -4,6 +4,7 @@
 #include "num_util.h"
 #include "LinkCell.h"
 #include "Cluster.h"
+#include "GaussianDensity.h"
 #include "RDF.h"
 #include "ClusterProperties.h"
 
@@ -17,7 +18,8 @@ BOOST_PYTHON_MODULE(_freud)
     bnp::array::set_module_and_type("numpy", "ndarray");
 
     export_trajectory();
-    export_LinkCell();
+    export_GaussianDensity();
+		export_LinkCell();
     export_RDF();
     export_Cluster();
     export_ClusterProperties();
