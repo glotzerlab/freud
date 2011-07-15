@@ -190,7 +190,9 @@ class Box
         bool m_2d;
     };
 
-//! Exports all classes in this file to python
+/*! \internal
+    \brief Exports all classes in this file to python 
+*/
 void export_trajectory();
 
 }; };

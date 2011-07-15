@@ -1,10 +1,7 @@
 ## \package freud.locality
 #
-# Computes locality information on sets of points
+# Methods and data structures computing properties that at local in space.
 #
-# The following classes are imported into locality from C++:
-#  - LinkCell
-#  - IteratorLinkCell
 
 # bring related c++ classes into the locality module
 from _freud import LinkCell

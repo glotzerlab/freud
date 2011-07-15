@@ -4,9 +4,7 @@ import copy
 
 ## \package freud.kspace
 #
-# Analyses that are compute quantities in/using kspace
-#
-# \todo complete a full set of documentation
+# Analyses that are compute quantities in kspace
 #
 
 ## Computes an n-dimensional meshgrid

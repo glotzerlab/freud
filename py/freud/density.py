@@ -1,10 +1,6 @@
 ## \package freud.density
 #
-# Computes particle densities in various ways
+# Methods to compute densities from point distributions.
 #
-
-import locality
-import numpy
-import math
 
 from _freud import RDF;

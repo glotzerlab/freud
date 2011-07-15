@@ -30,7 +30,7 @@ class DisjointSet
         uint32_t find(const uint32_t c);
     };
 
-//! Finds clusters in a set of points
+//! Find clusters in a set of points
 /*! Given a set of coordinates and a cutoff, Cluster will determine all of the clusters of points that are made
     up of points that are closer than the cutoff. Clusters are labelled from 0 to the number of clusters-1
     and an index array is returned where \c cluster_idx[i] is the cluster index in which particle \c i is found.
@@ -112,7 +112,9 @@ class Cluster
         
     };
 
-//! Exports all classes in this file to python
+/*! \internal
+    \brief Exports all classes in this file to python 
+*/
 void export_Cluster();
 
 }; }; // end namespace freud::cluster

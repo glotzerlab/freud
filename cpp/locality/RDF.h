@@ -81,7 +81,9 @@ class RDF
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
     };
 
-//! Exports all classes in this file to python
+/*! \internal
+    \brief Exports all classes in this file to python 
+*/
 void export_RDF();
 
 }; }; // end namespace freud::density

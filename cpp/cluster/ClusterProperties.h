@@ -92,7 +92,9 @@ class ClusterProperties
         boost::shared_array<float> m_cluster_G;      //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
     };
 
-//! Exports all classes in this file to python
+/*! \internal
+    \brief Exports all classes in this file to python 
+*/
 void export_ClusterProperties();
 
 }; }; // end namespace freud::cluster
