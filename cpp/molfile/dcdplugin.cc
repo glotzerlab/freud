@@ -56,6 +56,7 @@
 #include "endianswap.h"
 //#include "fastio.h"
 #include "molfile_plugin.h"
+#include "fastio_impl.h"
 
 #ifndef M_PI_2
 #define M_PI_2 1.57079632679489661922
