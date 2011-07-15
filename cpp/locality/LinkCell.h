@@ -10,6 +10,8 @@
 #ifndef _LINKCELL_H__
 #define _LINKCELL_H__
 
+namespace freud { namespace locality {
+
 //! Signfies the end of the linked list
 const unsigned int LINK_CELL_TERMINATOR = 0xffffffff;
 
@@ -111,10 +113,10 @@ class LinkCell
         typedef IteratorLinkCell iteratorcell;
     
         //! Constructor
-        LinkCell(const Box& box, float cell_width);
+        LinkCell(const trajectory::Box& box, float cell_width);
         
         //! Get the simulation box
-        const Box& getBox() const
+        const trajectory::Box& getBox() const
             {
             return m_box;
             }
@@ -193,9 +195,9 @@ class LinkCell
         //! Python wrapper for computeCellList
         void computeCellListPy(boost::python::numeric::array points);
     private:
-        Box m_box;              //!< Simulation box the particles belong in
-        Index3D m_cell_index;   //!< Indexer to compute cell indices
-        unsigned int m_Np;
+        trajectory::Box m_box;      //!< Simulation box the particles belong in
+        Index3D m_cell_index;       //!< Indexer to compute cell indices
+        unsigned int m_Np;          //!< Number of particles last placed into the cell list
         
         boost::shared_array<unsigned int> m_cell_list;    //!< The cell list last computed
         
@@ -208,4 +210,6 @@ class LinkCell
 //! Exports all classes in this file to python
 void export_LinkCell();
 
-#endif // _TRAJECTORY_H__
+}; }; // end namespace freud::locality
+
+#endif // _LINKCELL_H__

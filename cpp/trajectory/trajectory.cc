@@ -26,6 +26,8 @@ void test(bnp::array inValue)
         }
     }
  
+namespace freud { namespace trajectory {
+ 
 void export_trajectory()
     {
     // define functions
@@ -46,3 +48,4 @@ void export_trajectory()
     export_dcdloader();
     }
 
+}; }; // end namespace freud::trajectory

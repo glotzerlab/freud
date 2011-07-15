@@ -8,7 +8,9 @@
 using namespace std;
 using namespace boost::python;
 
-ClusterProperties::ClusterProperties(const Box& box)
+namespace freud { namespace cluster {
+
+ClusterProperties::ClusterProperties(const trajectory::Box& box)
     : m_box(box), m_num_clusters(0)
     {
     }
@@ -160,7 +162,7 @@ void ClusterProperties::computePropertiesPy(boost::python::numeric::array points
 
 void export_ClusterProperties()
     {
-    class_<ClusterProperties>("ClusterProperties", init<Box&>())
+    class_<ClusterProperties>("ClusterProperties", init<trajectory::Box&>())
         .def("getBox", &ClusterProperties::getBox, return_internal_reference<>())
         .def("computeProperties", &ClusterProperties::computePropertiesPy)
         .def("getNumClusters", &ClusterProperties::getNumClusters)
@@ -168,3 +170,4 @@ void export_ClusterProperties()
         .def("getClusterG", &ClusterProperties::getClusterGPy)
         ;
     }
+}; }; // end namespace freud::cluster

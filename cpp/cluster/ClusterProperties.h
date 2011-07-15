@@ -8,6 +8,7 @@
 #ifndef _CLUSTER_PROPERTIES_H__
 #define _CLUSTER_PROPERTIES_H__
 
+namespace freud { namespace cluster {
 
 //! Computes properties of clusters
 /*! Given a set of points and \a cluster_idx (from Cluster, or some other source), ClusterProperties determines
@@ -27,10 +28,10 @@ class ClusterProperties
     {
     public:
         //! Constructor
-        ClusterProperties(const Box& box);
+        ClusterProperties(const trajectory::Box& box);
         
         //! Get the simulation box
-        const Box& getBox() const
+        const trajectory::Box& getBox() const
             {
             return m_box;
             }
@@ -84,8 +85,8 @@ class ClusterProperties
             }
         
     private:
-        Box m_box;                    //!< Simulation box the particles belong in
-        unsigned int m_num_clusters;  //!< Number of clusters found in the last call to computeProperties()
+        trajectory::Box m_box;                       //!< Simulation box the particles belong in
+        unsigned int m_num_clusters;                 //!< Number of clusters found in the last call to computeProperties()
         
         boost::shared_array<float3> m_cluster_com;   //!< Center of mass computed for each cluster (length: m_num_clusters)
         boost::shared_array<float> m_cluster_G;      //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
@@ -93,5 +94,7 @@ class ClusterProperties
 
 //! Exports all classes in this file to python
 void export_ClusterProperties();
+
+}; }; // end namespace freud::cluster
 
 #endif // _CLUSTER_PROPERTIES_H__
