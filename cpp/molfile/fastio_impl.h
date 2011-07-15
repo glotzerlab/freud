@@ -347,11 +347,11 @@ static int fio_write_int32(fio_fd fd, int i) {
   return (fio_fwrite(&i, 4, 1, fd) != 1);
 }
 
-static int fio_read_int32(fio_fd fd, int *i) {
+/*static int fio_read_int32(fio_fd fd, int *i) {
   return (fio_fread(i, 4, 1, fd) != 1);
-}
+}*/
 
-static int fio_write_str(fio_fd fd, const char *str) {
+/*static int fio_write_str(fio_fd fd, const char *str) {
   int len = strlen(str);
   return (fio_fwrite((void *) str, len, 1, fd) != 1);
-}
+}*/

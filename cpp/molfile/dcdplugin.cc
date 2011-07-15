@@ -142,7 +142,7 @@ static int read_dcdheader(fio_fd fd, int *N, int *NSET, int *ISTART,
                    int **FREEINDEXES, float **fixedcoords, int *reverseEndian, 
                    int *charmm)
 {
-  unsigned int input_integer[2];  /* buffer space */
+  int input_integer[2];  /* buffer space */
   int i, ret_val, rec_scale;
   char hdrbuf[84];    /* char buffer used to store header */
   int NTITLE;
@@ -501,7 +501,7 @@ static int read_dcdstep(fio_fd fd, int N, float *X, float *Y, float *Z,
   if ((num_fixed==0) || first) {
     /* temp storage for reading formatting info */
     /* note: has to be max size we'll ever use  */
-    int tmpbuf[6*RECSCALEMAX]; 
+    unsigned int tmpbuf[6*RECSCALEMAX]; 
 
     fio_iovec iov[7];   /* I/O vector for fio_readv() call          */
     fio_size_t readlen; /* number of bytes actually read            */
@@ -541,7 +541,7 @@ static int read_dcdstep(fio_fd fd, int N, float *X, float *Y, float *Z,
 
     readlen = fio_readv(fd, &iov[0], 7);
 
-    if (readlen != (rec_scale*6*sizeof(int) + 3*N*sizeof(float)))
+    if (readlen != fio_size_t(rec_scale*6*sizeof(int) + 3*N*sizeof(float)))
       return DCD_BADREAD;
 
     /* convert endianism if necessary */
