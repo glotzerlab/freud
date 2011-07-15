@@ -226,6 +226,7 @@ class Frame:
     # \param traj Parent Trajectory
     # \param idx Index of the frame
     # \param dynamic_props Dictionary of dynamic properties accessible in this frame
+    # \param box the simulation Box for this frame
     #
     # \note  High level classes should not construct Frame classes directly. Instead create a Trajectory and query it 
     # to get frames
