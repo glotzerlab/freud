@@ -27,6 +27,10 @@ void GaussianDensity::compute(const float3 *points,
 		assert(points);
 		assert(Np > 0);
 
+		// reset the memory so multiple Densities can be computed in 1 script
+		unsigned int binscube = m_nbins*m_nbins*m_nbins;
+		memset((void*)m_Density_array.get(), 0, sizeof(float)*binscube);
+
 		float lx = m_box.getLx();
 		float ly = m_box.getLy();
 		float lz = m_box.getLz();
