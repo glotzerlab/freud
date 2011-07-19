@@ -10,6 +10,7 @@
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
+using namespace freud;
 
 BOOST_PYTHON_MODULE(_freud)
     {
@@ -17,10 +18,10 @@ BOOST_PYTHON_MODULE(_freud)
     import_array();
     bnp::array::set_module_and_type("numpy", "ndarray");
 
-    export_trajectory();
-    export_GaussianDensity();
-		export_LinkCell();
-    export_RDF();
-    export_Cluster();
-    export_ClusterProperties();
+    trajectory::export_trajectory();
+    locality::export_LinkCell();
+    density::export_RDF();
+		density::export_GaussianDensity();
+		cluster::export_Cluster();
+    cluster::export_ClusterProperties();
     }

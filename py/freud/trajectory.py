@@ -12,15 +12,12 @@ import _freud;
 
 ## \package freud.trajectory
 #
-# Reads MD trajectories into numpy arrays
+# Reads MD trajectories into numpy arrays for use in other freud modules
 #
-# \todo complete a full set of documentation
-#
-# The following classes are imported into trajectory from c++:
-#  - Box
 
 ## \internal
 # \brief Takes in a list of particle types and uniquely determines type ids for each one
+#
 # \note While typids will remain the same when run with the same types in the box, regardless of order, if one
 # or another types are missing, then the typid assigments will differ. Thus, this is not to be used for trajectories
 # where types vary from frame to frame and may dissapear
@@ -229,6 +226,7 @@ class Frame:
     # \param traj Parent Trajectory
     # \param idx Index of the frame
     # \param dynamic_props Dictionary of dynamic properties accessible in this frame
+    # \param box the simulation Box for this frame
     #
     # \note  High level classes should not construct Frame classes directly. Instead create a Trajectory and query it 
     # to get frames

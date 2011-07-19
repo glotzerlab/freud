@@ -7,6 +7,8 @@
 using namespace std;
 using namespace boost::python;
 
+namespace freud { namespace cluster {
+
 /*! \param n Number of initial sets
 */
 DisjointSet::DisjointSet(uint32_t n)
@@ -63,7 +65,7 @@ uint32_t DisjointSet::find(const uint32_t c)
     return r;
     }
 
-Cluster::Cluster(const Box& box, float rcut)
+Cluster::Cluster(const trajectory::Box& box, float rcut)
     : m_box(box), m_rcut(rcut), m_lc(box, rcut), m_num_particles(0)
     {
     if (m_rcut < 0.0f)
@@ -101,7 +103,7 @@ void Cluster::computeClusters(const float3 *points,
             unsigned int neigh_cell = neigh_cells[neigh_idx];
             
             // iterate over the particles in that cell
-            LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
+            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
                 if (i != j)
@@ -234,7 +236,7 @@ boost::python::object Cluster::getClusterKeysPy()
 
 void export_Cluster()
     {
-    class_<Cluster>("Cluster", init<Box&, float>())
+    class_<Cluster>("Cluster", init<trajectory::Box&, float>())
         .def("getBox", &Cluster::getBox, return_internal_reference<>())
         .def("computeClusters", &Cluster::computeClustersPy)
         .def("getNumClusters", &Cluster::getNumClusters)
@@ -243,3 +245,5 @@ void export_Cluster()
         .def("getClusterKeys", &Cluster::getClusterKeysPy)
         ;
     }
+
+}; }; // end namespace freud::cluster

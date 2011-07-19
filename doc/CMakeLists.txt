@@ -14,8 +14,7 @@ file(GLOB_RECURSE _source_files
                   ${FREUD_SOURCE_DIR}/cpp/*.cuh
                   ${FREUD_SOURCE_DIR}/cpp/*.cu
                   ${FREUD_SOURCE_DIR}/py/*.py
-                  ${FREUD_SOURCE_DIR}/examples/*.cc
-                  ${FREUD_SOURCE_DIR}/examples/*.py
+                  ${FREUD_SOURCE_DIR}/examples/*
                   ${CMAKE_CURRENT_SOURCE_DIR}/*.dox)
 
 set (_dev_doc_sources  ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in

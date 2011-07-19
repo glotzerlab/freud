@@ -8,7 +8,9 @@
 using namespace std;
 using namespace boost::python;
 
-LinkCell::LinkCell(const Box& box, float cell_width) : m_box(box), m_Np(0)
+namespace freud { namespace locality {
+
+LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m_Np(0)
     {
     // check if the cell width is too wide for the box
     bool too_wide = cell_width > 1.0f/3.0f * m_box.getLx() || cell_width > 1.0f/3.0f * m_box.getLy();
@@ -120,7 +122,7 @@ void LinkCell::computeCellNeighbors()
 
 void export_LinkCell()
     {
-    class_<LinkCell>("LinkCell", init<Box&, float>())
+    class_<LinkCell>("LinkCell", init<trajectory::Box&, float>())
         .def("getBox", &LinkCell::getBox, return_internal_reference<>())
         .def("getCellIndexer", &LinkCell::getCellIndexer, return_internal_reference<>())
         .def("getNumCells", &LinkCell::getNumCells)
@@ -136,3 +138,5 @@ void export_LinkCell()
         .def("next", &IteratorLinkCell::nextPy)
         ;
     }
+
+}; }; // end namespace freud::locality

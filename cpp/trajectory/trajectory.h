@@ -6,6 +6,8 @@
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
 
+namespace freud { namespace trajectory {
+
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box
 /*! Box stores a standard hoomd simulation box that goes from -L/2 to L/2 in each dimension, with the possibility
     or assigning \a Lx, \a Ly, and \a Lz independantly. All angles in the box are pi/2 radians.
@@ -188,8 +190,12 @@ class Box
         bool m_2d;
     };
 
-//! Exports all classes in this file to python
+/*! \internal
+    \brief Exports all classes in this file to python 
+*/
 void export_trajectory();
+
+}; };
 
 #endif // _TRAJECTORY_H__
 

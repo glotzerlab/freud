@@ -10,6 +10,7 @@
 #ifndef _CLUSTER_H__
 #define _CLUSTER_H__
 
+namespace freud { namespace cluster {
 
 //! A disjoint set
 /*! Implements efficient find and merge for disjoint sets
@@ -18,7 +19,7 @@
 class DisjointSet
     {
     private:
-        std::vector<uint32_t> s;    //!< The disjoint set data
+        std::vector<uint32_t> s;            //!< The disjoint set data
         std::vector<unsigned int> rank;     //!< The rank of each tree in the set
     public:
         //! Constructor
@@ -29,7 +30,7 @@ class DisjointSet
         uint32_t find(const uint32_t c);
     };
 
-//! Finds clusters in a set of points
+//! Find clusters in a set of points
 /*! Given a set of coordinates and a cutoff, Cluster will determine all of the clusters of points that are made
     up of points that are closer than the cutoff. Clusters are labelled from 0 to the number of clusters-1
     and an index array is returned where \c cluster_idx[i] is the cluster index in which particle \c i is found.
@@ -51,10 +52,10 @@ class Cluster
     {
     public:
         //! Constructor
-        Cluster(const Box& box, float rcut);
+        Cluster(const trajectory::Box& box, float rcut);
         
         //! Get the simulation box
-        const Box& getBox() const
+        const trajectory::Box& getBox() const
             {
             return m_box;
             }
@@ -100,18 +101,22 @@ class Cluster
             return m_cluster_keys;
             }
     private:
-        Box m_box;                    //!< Simulation box the particles belong in
-        float m_rcut;                 //!< Maximum r at which points will be counted in the same cluster
-        LinkCell m_lc;                //!< LinkCell to bin particles for the computation
-        unsigned int m_num_particles; //!< Number of particles processed in the last call to compute()
-        unsigned int m_num_clusters;  //!< Number of clusters found inthe last call to compute()
+        trajectory::Box m_box;                    //!< Simulation box the particles belong in
+        float m_rcut;                             //!< Maximum r at which points will be counted in the same cluster
+        locality::LinkCell m_lc;                  //!< LinkCell to bin particles for the computation
+        unsigned int m_num_particles;             //!< Number of particles processed in the last call to compute()
+        unsigned int m_num_clusters;              //!< Number of clusters found inthe last call to compute()
         
-        boost::shared_array<unsigned int> m_cluster_idx; //!< Cluster index determined for each particle
+        boost::shared_array<unsigned int> m_cluster_idx;         //!< Cluster index determined for each particle
         std::vector< std::set<unsigned int> > m_cluster_keys;    //!< List of keys in each cluster
         
     };
 
-//! Exports all classes in this file to python
+/*! \internal
+    \brief Exports all classes in this file to python 
+*/
 void export_Cluster();
+
+}; }; // end namespace freud::cluster
 
 #endif // _CLUSTER_H__

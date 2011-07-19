@@ -10,7 +10,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/trajectory
                     ${CMAKE_CURRENT_SOURCE_DIR}/util
                     ${CMAKE_CURRENT_SOURCE_DIR}/locality
-                    ${CMAKE_CURRENT_SOURCE_DIR}/cluster)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/cluster
+                    ${CMAKE_CURRENT_SOURCE_DIR}/density)
 
 set(SOURCES trajectory/trajectory.cc
             trajectory/trajectory.h
@@ -20,8 +21,8 @@ set(SOURCES trajectory/trajectory.cc
 						locality/GaussianDensity.h
 						locality/LinkCell.cc
             locality/LinkCell.h
-            locality/RDF.cc
-            locality/RDF.h
+            density/RDF.cc
+            density/RDF.h
             cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h

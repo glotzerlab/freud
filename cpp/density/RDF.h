@@ -8,6 +8,7 @@
 #ifndef _RDF_H__
 #define _RDF_H__
 
+namespace freud { namespace density {
 
 //! Computes the RDF (g(r)) for a given set of points
 /*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
@@ -24,10 +25,10 @@ class RDF
     {
     public:
         //! Constructor
-        RDF(const Box& box, float rmax, float dr);
+        RDF(const trajectory::Box& box, float rmax, float dr);
         
         //! Get the simulation box
-        const Box& getBox() const
+        const trajectory::Box& getBox() const
             {
             return m_box;
             }
@@ -68,11 +69,11 @@ class RDF
             return num_util::makeNum(arr, m_nbins);
             }
     private:
-        Box m_box;            //!< Simulation box the particles belong in
-        float m_rmax;         //!< Maximum r at which to compute g(r)
-        float m_dr;           //!< Step size for r in the computation
-        LinkCell m_lc;        //!< LinkCell to bin particles for the computation
-        unsigned int m_nbins; //!< Number of r bins to compute g(r) over
+        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        float m_rmax;                     //!< Maximum r at which to compute g(r)
+        float m_dr;                       //!< Step size for r in the computation
+        locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
+        unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
         
         boost::shared_array<float> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
@@ -80,7 +81,11 @@ class RDF
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
     };
 
-//! Exports all classes in this file to python
+/*! \internal
+    \brief Exports all classes in this file to python 
+*/
 void export_RDF();
 
-#endif // _TRAJECTORY_H__
+}; }; // end namespace freud::density
+
+#endif // _RDF_H__
