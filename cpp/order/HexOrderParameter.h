@@ -8,6 +8,7 @@
 #ifndef _HEX_ORDER_PARAMTER_H__
 #define _HEX_ORDER_PARAMTER_H__
 
+namespace freud { namespace order {
 
 //! Compute the hexagonal order parameter for a set of points
 /*! 
@@ -16,10 +17,10 @@ class HexOrderParameter
     {
     public:
         //! Constructor
-        HexOrderParameter(const Box& box, float rmax);
+        HexOrderParameter(const trajectory::Box& box, float rmax);
         
         //! Get the simulation box
-        const Box& getBox() const
+        const trajectory::Box& getBox() const
             {
             return m_box;
             }
@@ -55,5 +56,7 @@ class HexOrderParameter
 
 //! Exports all classes in this file to python
 void export_HexOrderParameter();
+
+}; }; // end namespace freud::order
 
 #endif // _HEX_ORDER_PARAMTER_H__
