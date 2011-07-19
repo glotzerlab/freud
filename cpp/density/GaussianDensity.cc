@@ -6,7 +6,9 @@
 using namespace std;
 using namespace boost::python;
 
-GaussianDensity::GaussianDensity(const Box& box, unsigned int nbins, float r_cut, float sigma)
+namespace freud { namespace density {
+
+GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int nbins, float r_cut, float sigma)
 		: m_box(box), m_nbins(nbins), m_r_cut(r_cut), m_sigma(sigma)
 		{
 		if (nbins < 0)
@@ -98,10 +100,11 @@ void GaussianDensity::computePy(boost::python::numeric::array points)
 
 void export_GaussianDensity()
 		{
-		class_<GaussianDensity>("GaussianDensity", init<Box&, unsigned int, float, float>())
+		class_<GaussianDensity>("GaussianDensity", init<trajectory::Box&, unsigned int, float, float>())
 				.def("getBox", &GaussianDensity::getBox, return_internal_reference<>())
 				.def("compute", &GaussianDensity::computePy)
 				.def("getGaussianDensity", &GaussianDensity::getDensityPy)
 				;
 		}
 
+}; }; // end namespace freud::density
