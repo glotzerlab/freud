@@ -11,6 +11,8 @@
 #include <cassert>
 #include <string>
 
+using namespace freud::trajectory;
+
 //! Class for loading DCD files into freud
 /*! The structure information is assumed to have been read in elsewhere.
 

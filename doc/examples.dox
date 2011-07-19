@@ -1,0 +1,3 @@
+/*! \example rdf_ex
+    This example shows how to load in a .dcd trajectory and compute an average RDF over all frames.
+*/

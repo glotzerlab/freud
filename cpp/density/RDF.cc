@@ -6,7 +6,9 @@
 using namespace std;
 using namespace boost::python;
 
-RDF::RDF(const Box& box, float rmax, float dr)
+namespace freud { namespace density {
+
+RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     : m_box(box), m_rmax(rmax), m_dr(dr), m_lc(box, rmax)
     {
     if (dr < 0.0f)
@@ -74,7 +76,7 @@ void RDF::compute(const float3 *ref_points,
             unsigned int neigh_cell = neigh_cells[neigh_idx];
             
             // iterate over the particles in that cell
-            LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
+            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
                 // compute r between the two particles
@@ -134,10 +136,12 @@ void RDF::computePy(boost::python::numeric::array ref_points,
 
 void export_RDF()
     {
-    class_<RDF>("RDF", init<Box&, float, float>())
+    class_<RDF>("RDF", init<trajectory::Box&, float, float>())
         .def("getBox", &RDF::getBox, return_internal_reference<>())
         .def("compute", &RDF::computePy)
         .def("getRDF", &RDF::getRDFPy)
         .def("getR", &RDF::getRPy)
         ;
     }
+
+}; }; // end namespace freud::density
