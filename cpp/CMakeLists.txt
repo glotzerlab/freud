@@ -17,13 +17,13 @@ set(SOURCES trajectory/trajectory.cc
             trajectory/trajectory.h
             trajectory/DCDLoader.cc
             trajectory/DCDLoader.h
-            locality/GaussianDensity.cc
-						locality/GaussianDensity.h
 						locality/LinkCell.cc
             locality/LinkCell.h
             density/RDF.cc
             density/RDF.h
-            cluster/Cluster.h
+            density/GaussianDensity.cc
+						density/GaussianDensity.h
+						cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h
             cluster/ClusterProperties.cc
