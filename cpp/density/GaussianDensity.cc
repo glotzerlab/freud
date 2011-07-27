@@ -46,11 +46,22 @@ void GaussianDensity::compute(const float3 *points,
 				{
 				// find the distance of that particle to bins
 				// will use this information to evaluate the Gaussian
-				for (unsigned int i = 0; i < m_nbins; i++)
+				// Find the which bin the particle is in
+				int bin_x = int(points[particle].x/grid_size_x);
+				int bin_y = int(points[particle].y/grid_size_y);
+				int bin_z = int(points[particle].z/grid_size_z);
+
+				// Find the number of bins within r_cut
+				int bin_cut_x = int(m_r_cut/grid_size_x);
+				int bin_cut_y = int(m_r_cut/grid_size_y);
+				int bin_cut_z = int(m_r_cut/grid_size_z);
+
+				// Only evaluate over bins that are within the cut off to reduce the number of computations
+				for (int i = bin_x - bin_cut_x; i<= bin_x + bin_cut_x; i++)
 						{
-						for (unsigned int j = 0; j < m_nbins; j++)
+						for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
 								{
-								for (unsigned int k = 0; k < m_nbins; k++)
+								for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
 										{
 										// calculate the distance from the grid cell to particular particle
 										float dx = float(((grid_size_x)*i + (grid_size_x)/2.0f) - points[particle].x);
@@ -73,8 +84,14 @@ void GaussianDensity::compute(const float3 *points,
 													float y_gaussian = A*exp((-1.0f)*(delta.y*delta.y)/(2.0f*sigmasq));
 													float z_gaussian = A*exp((-1.0f)*(delta.z*delta.z)/(2.0f*sigmasq));
 												
+													// Assure that out of range indices are corrected for storage in the array
+													// i.e. bin -1 is actually bin 29 for nbins = 30
+													unsigned int ni = i % m_nbins;
+													unsigned int nj = j % m_nbins;
+													unsigned int nk = k % m_nbins;
+
 													// store the product of these values in an array - n[i, j, k] = gx*gy*gz
-													m_Density_array[i*m_nbins*m_nbins + j*m_nbins + k] += x_gaussian*y_gaussian*z_gaussian;
+													m_Density_array[ni*m_nbins*m_nbins + nj*m_nbins + nk] += x_gaussian*y_gaussian*z_gaussian;
 												}
 										}
 								}
