@@ -86,9 +86,9 @@ void GaussianDensity::compute(const float3 *points,
 												
 													// Assure that out of range indices are corrected for storage in the array
 													// i.e. bin -1 is actually bin 29 for nbins = 30
-													unsigned int ni = i % m_nbins;
-													unsigned int nj = j % m_nbins;
-													unsigned int nk = k % m_nbins;
+													unsigned int ni = (i + m_nbins) % m_nbins;
+													unsigned int nj = (j + m_nbins) % m_nbins;
+													unsigned int nk = (k + m_nbins) % m_nbins;
 
 													// store the product of these values in an array - n[i, j, k] = gx*gy*gz
 													m_Density_array[ni*m_nbins*m_nbins + nj*m_nbins + nk] += x_gaussian*y_gaussian*z_gaussian;
