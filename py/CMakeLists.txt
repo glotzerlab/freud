@@ -1,6 +1,6 @@
 # install the hoomd_analyze python module
 install(DIRECTORY freud
-    DESTINATION "."
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python
     PATTERN "*.pyc" EXCLUDE
     PATTERN "*.pyo" EXCLUDE
     )
