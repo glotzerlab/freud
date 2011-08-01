@@ -1,6 +1,6 @@
+freud::trajectory::TrajectoryXMLDCD freud::density::RDF
 # Due to deficiencies in doxygen, the classes that this provides examples are listed explitily here
-freud::trajectory::TrajectoryXMLDCD
-freud::density::RDF
+# run this script with "python -x filename" to skip the first line, or remove this header
 
 # ---- rdf_ex.py ----
 from freud import trajectory

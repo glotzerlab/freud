@@ -4,6 +4,7 @@
 #include "num_util.h"
 #include "LinkCell.h"
 #include "Cluster.h"
+#include "GaussianDensity.h"
 #include "RDF.h"
 #include "ClusterProperties.h"
 
@@ -20,6 +21,7 @@ BOOST_PYTHON_MODULE(_freud)
     trajectory::export_trajectory();
     locality::export_LinkCell();
     density::export_RDF();
-    cluster::export_Cluster();
+		density::export_GaussianDensity();
+		cluster::export_Cluster();
     cluster::export_ClusterProperties();
     }
