@@ -3,3 +3,4 @@
 *.dcd
 *.xml
 *.mat
+.DS_Store
