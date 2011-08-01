@@ -186,7 +186,7 @@ numeric::array makeNum(object x){
     throw_error_already_set();
   }
   object obj(handle<>
-	     (PyArray_ContiguousFromObject(x.ptr(),PyArray_NOTYPE,0,0)));
+         (PyArray_ContiguousFromObject(x.ptr(),PyArray_NOTYPE,0,0)));
   check_PyArrayElementType(obj);
   return extract<numeric::array>(obj); 
 }
@@ -201,7 +201,7 @@ numeric::array makeNum(intp n, PyArray_TYPES t=PyArray_DOUBLE){
   
 //Create a Numeric array with dimensions dimens and Numeric type t
 numeric::array makeNum(std::vector<intp> dimens, 
-		       PyArray_TYPES t=PyArray_DOUBLE){
+               PyArray_TYPES t=PyArray_DOUBLE){
   intp total = std::accumulate(dimens.begin(),dimens.end(),1,std::multiplies<intp>());
   object obj(handle<>(PyArray_SimpleNew(dimens.size(), &dimens[0], t)));
   void *arr_data = PyArray_DATA((PyArrayObject*) obj.ptr());
@@ -220,12 +220,12 @@ PyArray_TYPES type(numeric::array arr){
 }
 
 void check_type(boost::python::numeric::array arr, 
-		PyArray_TYPES expected_type){
+        PyArray_TYPES expected_type){
   PyArray_TYPES actual_type = type(arr);
   if (actual_type != expected_type) {
     std::ostringstream stream;
     stream << "expected Numeric type " << kindstrings[expected_type]
-	   << ", found Numeric type " << kindstrings[actual_type] << std::ends;
+       << ", found Numeric type " << kindstrings[actual_type] << std::ends;
     PyErr_SetString(PyExc_TypeError, stream.str().c_str());
     throw_error_already_set();
   }
@@ -247,7 +247,7 @@ void check_rank(boost::python::numeric::array arr, int expected_rank){
   if (actual_rank != expected_rank) {
     std::ostringstream stream;
     stream << "expected rank " << expected_rank 
-	   << ", found rank " << actual_rank << std::ends;
+       << ", found rank " << actual_rank << std::ends;
     PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());
     throw_error_already_set();
   }
@@ -268,7 +268,7 @@ void check_size(boost::python::numeric::array arr, intp expected_size){
   if (actual_size != expected_size) {
     std::ostringstream stream;
     stream << "expected size " << expected_size 
-	   << ", found size " << actual_size << std::ends;
+       << ", found size " << actual_size << std::ends;
     PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());
     throw_error_already_set();
   }
@@ -308,7 +308,7 @@ void check_shape(boost::python::numeric::array arr, std::vector<intp> expected_d
   if (actual_dims != expected_dims) {
     std::ostringstream stream;
     stream << "expected dimensions " << vector_str(expected_dims)
-	   << ", found dimensions " << vector_str(actual_dims) << std::ends;
+       << ", found dimensions " << vector_str(actual_dims) << std::ends;
     PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());
     throw_error_already_set();
   }
@@ -397,7 +397,7 @@ void check_PyArrayElementType(object newo){
       std::ostringstream stream;
       stream << "array elments have been cast to PyArray_OBJECT, "
              << "numhandle can only accept arrays with numerical elements" 
-	     << std::ends;
+         << std::ends;
       PyErr_SetString(PyExc_TypeError, stream.str().c_str());
       throw_error_already_set();
   }

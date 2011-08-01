@@ -49,8 +49,8 @@ namespace num_util{
    *@return a numeric array of shape dimens with elements initialized to zero.
    */
   boost::python::numeric::array makeNum(std::vector<intp> dimens, 
-					PyArray_TYPES t);
-				      
+                    PyArray_TYPES t);
+                      
   /** 
    *Function template returns PyArray_Type for C++ type
    *See num_util.cpp for specializations
@@ -158,7 +158,7 @@ namespace num_util{
    *@return a numeric array referencing the input array.
    */
   boost::python::numeric::array makeNum(const 
-					boost::python::numeric::array& arr);
+                    boost::python::numeric::array& arr);
 
   /** 
    *A free function that retrieves the numpy type of a numpy array.
@@ -175,7 +175,7 @@ namespace num_util{
    *@return -----
    */
   void check_type(boost::python::numeric::array arr, 
-		  PyArray_TYPES expected_type);
+          PyArray_TYPES expected_type);
 
   /** 
    *A free function that retrieves the number of dimensions of a numpy array.
@@ -231,7 +231,7 @@ namespace num_util{
    *@return -----
    */
   void check_shape(boost::python::numeric::array arr, 
-		   std::vector<intp> expected_dims);
+           std::vector<intp> expected_dims);
 
   /**
    *Throws an exception if a specific dimension from a numpy array does not
@@ -286,7 +286,7 @@ namespace num_util{
    *@return a replicate of 'arr' with type set to 't'.
    */
   boost::python::numeric::array astype(boost::python::numeric::array arr, 
-				       PyArray_TYPES t);
+                       PyArray_TYPES t);
 
 
 /*    *Returns the reference count of the array. */

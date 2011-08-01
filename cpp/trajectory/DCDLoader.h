@@ -16,7 +16,7 @@ using namespace freud::trajectory;
 //! Class for loading DCD files into freud
 /*! The structure information is assumed to have been read in elsewhere.
 
-	Every call to readNextStep() will fill out the existing Nx3 numpy array. Users in python will have to be aware
+    Every call to readNextStep() will fill out the existing Nx3 numpy array. Users in python will have to be aware
     of this and plan accordingly (specifically TrajectoryXMLDCD will make a copy so that users aren't confused)
     
     The values read in can be accessed with getPoints() and getBox()
@@ -24,21 +24,21 @@ using namespace freud::trajectory;
     jumpToFrame() is smart in that it can be called as many times as needed and it will not re-read the file
     if it only has to advance. If a previous frame is selected, however, jumpToFrame has no choice but to close
     and reopen the file and reread it from the beginning.
-	*/
+    */
 class DCDLoader
-	{
-	public:
-		//! Constructs the loader and associates it to the given file
-		DCDLoader(const std::string &dcd_fname);
-		//! Frees all dynamic memory
-		~DCDLoader();
-		
-		//! Jumps to a particular frame number in the file
-		void jumpToFrame(int frame);
+    {
+    public:
+        //! Constructs the loader and associates it to the given file
+        DCDLoader(const std::string &dcd_fname);
+        //! Frees all dynamic memory
+        ~DCDLoader();
         
-		//! Read the next step in the file
-		void readNextFrame();
-		
+        //! Jumps to a particular frame number in the file
+        void jumpToFrame(int frame);
+        
+        //! Read the next step in the file
+        void readNextFrame();
+        
         //! Access the points read by the last step
         boost::python::numeric::array getPoints() const
             {
@@ -73,20 +73,20 @@ class DCDLoader
             return m_dcd->nsets;
             }
         
-	private:
+    private:
         std::string m_fname;                        //!< File name of the DCD file
         Box m_box;                                  //!< The box read from the last readNextStep()
         boost::python::numeric::array m_points;     //!< Points read during the last readNextStep()
         
-		//! Keep track of the dcd file
-		dcdhandle *m_dcd;
-		
-		//! Keep track of the dcd plugin
-		molfile_plugin_t *dcdplugin;
-		
-		//! Helper function to start loading the dcd file
-		void loadDCD();
+        //! Keep track of the dcd file
+        dcdhandle *m_dcd;
+        
+        //! Keep track of the dcd plugin
+        molfile_plugin_t *dcdplugin;
+        
+        //! Helper function to start loading the dcd file
+        void loadDCD();
     };
-	
+    
 void export_dcdloader();
 #endif

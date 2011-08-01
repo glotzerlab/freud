@@ -21,7 +21,7 @@ BOOST_PYTHON_MODULE(_freud)
     trajectory::export_trajectory();
     locality::export_LinkCell();
     density::export_RDF();
-		density::export_GaussianDensity();
-		cluster::export_Cluster();
+    density::export_GaussianDensity();
+    cluster::export_Cluster();
     cluster::export_ClusterProperties();
     }
