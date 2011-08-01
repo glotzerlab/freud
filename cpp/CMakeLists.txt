@@ -17,11 +17,13 @@ set(SOURCES trajectory/trajectory.cc
             trajectory/trajectory.h
             trajectory/DCDLoader.cc
             trajectory/DCDLoader.h
-            locality/LinkCell.cc
+						locality/LinkCell.cc
             locality/LinkCell.h
             density/RDF.cc
             density/RDF.h
-            cluster/Cluster.h
+            density/GaussianDensity.cc
+						density/GaussianDensity.h
+						cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h
             cluster/ClusterProperties.cc
@@ -40,3 +42,6 @@ set(SOURCES trajectory/trajectory.cc
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} util/num_util.cc util/num_util.h module.cc)
 setup_pymodule(_freud)
+INSTALL(TARGETS _freud
+  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python/freud
+  )

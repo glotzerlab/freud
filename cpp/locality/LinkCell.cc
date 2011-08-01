@@ -107,7 +107,7 @@ void LinkCell::computeCellNeighbors()
                             {
                             // wrap back into the box
                             int wrapi = neighi % m_cell_index.getW();
-                            int wrapj = neighj % m_cell_index.getW();
+                            int wrapj = neighj % m_cell_index.getH();
                             int wrapk = neighk % m_cell_index.getD();
                             
                             unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
