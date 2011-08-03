@@ -558,14 +558,17 @@ class TrajectoryDISCMC(Trajectory):
         w = self.df["/param/w"][0];
         L = m * w;
 
-        count = 0;
-        for i in xrange(0,m):
-            for j in xrange(0,m):
-                cur_cell_o = cell_occupancy[j,i];
-                for k in xrange(0,cur_cell_o):
-                    pos[count,0] = (numpy.double(w * i) + numpy.double(cell_data[j,i,k,0]) - L/2.0);
-                    pos[count,1] = (numpy.double(w * j) + numpy.double(cell_data[j,i,k,1]) - L/2.0);
-                    count += 1;
+        # call a c++ function to extract the point data fast
+        _freud.extract_discmc_data(pos, cell_data, cell_occupancy, int(m), float(w));
+        
+        #count = 0;
+        #for i in xrange(0,m):
+        #    for j in xrange(0,m):
+        #        cur_cell_o = cell_occupancy[j,i];
+        #        for k in xrange(0,cur_cell_o):
+        #            pos[count,0] = (numpy.double(w * i) + numpy.double(cell_data[j,i,k,0]) - L/2.0);
+        #            pos[count,1] = (numpy.double(w * j) + numpy.double(cell_data[j,i,k,1]) - L/2.0);
+        #            count += 1;
 
         dynamic_props['position'] = pos;
         
