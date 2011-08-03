@@ -11,7 +11,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/util
                     ${CMAKE_CURRENT_SOURCE_DIR}/locality
                     ${CMAKE_CURRENT_SOURCE_DIR}/cluster
-                    ${CMAKE_CURRENT_SOURCE_DIR}/density)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/density
+                    ${CMAKE_CURRENT_SOURCE_DIR}/order)
 
 set(SOURCES trajectory/trajectory.cc
             trajectory/trajectory.h

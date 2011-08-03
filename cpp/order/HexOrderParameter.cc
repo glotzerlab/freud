@@ -1,7 +1,7 @@
 #include "HexOrderParameter.h"
 
 #include <stdexcept>
-#include <complex>  //to overload exp?
+#include <complex>
 
 using namespace std;
 using namespace boost::python;
@@ -16,6 +16,7 @@ HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax)
 void HexOrderParameter::compute(const float3 *points, unsigned int Np)
     {
     m_lc.computeCellList(points,Np);
+    m_Np = Np;
     float rmaxsq = m_rmax * m_rmax;
     m_psi_array = boost::shared_array<complex<double> >(new complex<double> [Np]);
     memset((void*)m_psi_array.get(), 0, sizeof(complex<double>)*Np);
@@ -25,7 +26,7 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
         //get cell point is in
         float3 ref = points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
-        unsigned int num_adjacent;
+        unsigned int num_adjacent = 0;
         
         //loop over neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
@@ -44,17 +45,16 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
                 float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 
                 float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                if (rsq < rmaxsq)
+                if (rsq < rmaxsq && delta.x != 0)
                     {
                     //compute psi for neighboring particle(only constructed for 2d)
                     double psi_ij = atan(delta.y/delta.x);
                     m_psi_array[i] += exp(complex<double>(0,6*psi_ij));
                     num_adjacent++;
                     }
-                
                 }
             }
-        m_psi_array[i] /= double(num_adjacent);   
+        m_psi_array[i] /= complex<double>(num_adjacent);  
         }
     }
 
@@ -71,6 +71,15 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
     // get the raw data pointers and compute the cell list
     float3* points_raw = (float3*) num_util::data(points);
     compute(points_raw, Np);
+    }
+    
+void export_HexOrderParameter()
+    {
+    class_<HexOrderParameter>("HexOrderParameter", init<trajectory::Box&, float>())
+        .def("getBox", &HexOrderParameter::getBox, return_internal_reference<>())
+        .def("compute", &HexOrderParameter::computePy)
+        .def("getPsi", &HexOrderParameter::getPsiPy)
+        ;
     }
     
 }; }; // end namespace freud::order
