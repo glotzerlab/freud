@@ -571,6 +571,7 @@ class TrajectoryDISCMC(Trajectory):
         #            count += 1;
 
         dynamic_props['position'] = pos;
+        dynamic_props['rho'] = float(self.numParticles())/(L*L)
         
         box = Box(L, L, 0, True);
 
