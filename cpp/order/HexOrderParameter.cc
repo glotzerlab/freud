@@ -45,10 +45,10 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
                 float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 
                 float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                if (rsq < rmaxsq && delta.x != 0)
+                if (rsq < rmaxsq && rsq > 1e-6)
                     {
                     //compute psi for neighboring particle(only constructed for 2d)
-                    double psi_ij = atan(delta.y/delta.x);
+                    double psi_ij = atan2(delta.y, delta.x);
                     m_psi_array[i] += exp(complex<double>(0,6*psi_ij));
                     num_adjacent++;
                     }
