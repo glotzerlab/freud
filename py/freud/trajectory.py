@@ -572,6 +572,15 @@ class TrajectoryDISCMC(Trajectory):
 
         dynamic_props['position'] = pos;
         dynamic_props['rho'] = float(self.numParticles())/(L*L)
+        dynamic_props['m'] = m;
+        dynamic_props['w'] = w;
+        
+        # extract M(r) data
+        if "/param/dr" in self.df:
+            dynamic_props['dr'] = self.df["/param/dr"][0];
+            Mr = numpy.zeros(self.df["/traj/Mr"].shape[0]);
+            Mr = self.df["/traj/Mr"][self.cur_frame,:];
+            dynamic_props['Mr'] = Mr;
         
         box = Box(L, L, 0, True);
 
