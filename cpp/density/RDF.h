@@ -54,6 +54,12 @@ class RDF
             {
             return m_r_array;
             }
+
+        //! Get a reference to the N_r array
+        boost::shared_array<float> getNr()
+            {
+            return m_N_r_array;
+            }
         
         //! Python wrapper for getRDF() (returns a copy)
         boost::python::numeric::array getRDFPy()
@@ -68,6 +74,13 @@ class RDF
             float *arr = m_r_array.get();
             return num_util::makeNum(arr, m_nbins);
             }
+            
+        //! Python wrapper for getNr() (returns a copy)
+        boost::python::numeric::array getNrPy()
+            {
+            float *arr = m_N_r_array.get();
+            return num_util::makeNum(arr, m_nbins);
+            }
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
@@ -77,6 +90,7 @@ class RDF
         
         boost::shared_array<float> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+        boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
     };
