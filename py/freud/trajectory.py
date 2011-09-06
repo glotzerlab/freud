@@ -306,7 +306,7 @@ class TrajectoryXMLDCD(Trajectory):
         # if there is no dcd file, read box
         if dcd_fname is None:        
             box_node = position = configuration.getElementsByTagName('box');
-            self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')]), self.ndim == 2)
+            self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
 
         # read the position node just to get the number of particles
         # unless there is no dcd file. Then read positions.
