@@ -525,7 +525,7 @@ class TrajectoryDISCMC(Trajectory):
     #
     def __init__(self, fname):
         Trajectory.__init__(self);
-        self.df = h5py.File(fname)
+        self.df = h5py.File(fname, 'r')
     
     ## Get the number of particles in the trajectory
     # \returns Number of particles
@@ -552,25 +552,17 @@ class TrajectoryDISCMC(Trajectory):
 
         dset_cell_occupancy = self.df["/traj/cell_occupancy"];
         dset_cell_data = self.df["/traj/cell_data"];
-        cell_occupancy = dset_cell_occupancy[self.cur_frame,:];
-        cell_data = dset_cell_data[self.cur_frame,:];
         m = self.df["/param/m"][0];
         w = self.df["/param/w"][0];
         L = m * w;
 
-        # call a c++ function to extract the point data fast
-        _freud.extract_discmc_data(pos, cell_data, cell_occupancy, int(m), float(w));
+        if self.cur_frame < dset_cell_occupancy.shape[0]:
+            cell_occupancy = dset_cell_occupancy[self.cur_frame,:];
+            cell_data = dset_cell_data[self.cur_frame,:];
+            # call a c++ function to extract the point data fast
+            _freud.extract_discmc_data(pos, cell_data, cell_occupancy, int(m), float(w));
+            dynamic_props['position'] = pos;
         
-        #count = 0;
-        #for i in xrange(0,m):
-        #    for j in xrange(0,m):
-        #        cur_cell_o = cell_occupancy[j,i];
-        #        for k in xrange(0,cur_cell_o):
-        #            pos[count,0] = (numpy.double(w * i) + numpy.double(cell_data[j,i,k,0]) - L/2.0);
-        #            pos[count,1] = (numpy.double(w * j) + numpy.double(cell_data[j,i,k,1]) - L/2.0);
-        #            count += 1;
-
-        dynamic_props['position'] = pos;
         dynamic_props['rho'] = float(self.numParticles())/(L*L)
         dynamic_props['m'] = m;
         dynamic_props['w'] = w;
