@@ -1,7 +1,9 @@
 #include "RDF.h"
 
 #include <stdexcept>
+#ifdef __SSE2__
 #include <emmintrin.h>
+#endif
 
 using namespace std;
 using namespace boost::python;
@@ -93,7 +95,11 @@ void RDF::compute(const float3 *ref_points,
                     // bin that r
                     float binr = r * dr_inv;
                     // fast float to int conversion with truncation
+#ifdef __SSE2__
                     unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+#else
+                    unsigned int bin = (unsigned int)(binr);
+#endif
                     m_bin_counts[bin]++;
                     }
                 }

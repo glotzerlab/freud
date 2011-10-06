@@ -1,7 +1,9 @@
 #include "GaussianDensity.h"
 
 #include <stdexcept>
+#ifdef __SSE2__
 #include <emmintrin.h>
+#endif
 
 using namespace std;
 using namespace boost::python;
