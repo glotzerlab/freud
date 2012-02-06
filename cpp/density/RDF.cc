@@ -26,6 +26,8 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
     m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
     
     // precompute the bin start positions
     m_r_array = boost::shared_array<float>(new float[m_nbins]);
@@ -110,10 +112,15 @@ void RDF::compute(const float3 *ref_points,
     // now compute the rdf
     float ndens = float(Np) / m_box.getVolume();
     m_rdf_array[0] = 0;
+    m_N_r_array[0] = 0.0f;
+    m_N_r_array[1] = 0.0f;    
     for (unsigned int bin = 1; bin < m_nbins; bin++)
         {
         float avg_counts = m_bin_counts[bin] / float(Nref);
         m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
+        
+        if (bin+1 < m_nbins)
+            m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
         }
     }
 
@@ -147,6 +154,7 @@ void export_RDF()
         .def("compute", &RDF::computePy)
         .def("getRDF", &RDF::getRDFPy)
         .def("getR", &RDF::getRPy)
+        .def("getNr", &RDF::getNrPy)
         ;
     }
 

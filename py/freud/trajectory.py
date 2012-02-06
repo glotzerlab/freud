@@ -6,6 +6,7 @@ except ImportError:
 import numpy
 import copy
 import xml.dom.minidom
+import h5py
 
 from _freud import Box;
 import _freud;
@@ -513,3 +514,66 @@ class TrajectoryHOOMD(Trajectory):
         box = Box(hoomd_box[0], hoomd_box[1], hoomd_box[2], self.sysdef.dimensions == 2);
 
         return Frame(self, 0, dynamic_props, box);
+    
+
+## Trajectory information loaded from a discmc ouptut file
+#
+class TrajectoryDISCMC(Trajectory):
+    ## Initialize a DISCMC trajectory
+    # \param fname File name to load
+    #
+    def __init__(self, fname):
+        Trajectory.__init__(self);
+        self.df = h5py.File(fname, 'r')
+    
+    ## Get the number of particles in the trajectory
+    # \returns Number of particles
+    def numParticles(self):
+        return self.df["/param/N"][0];
+    
+    ## Get the number of frames in the trajectory
+    # \returns Number of frames
+    def __len__(self):
+        return self.df["/traj/step"].shape[0];
+    
+    ## Sets the current frame
+    # \param idx Index of the frame to seek to
+    def setFrame(self, idx):
+        self.cur_frame = idx;
+    
+    ## Get the current frame
+    # \returns A Frame containing the current frame data
+    def getCurrentFrame(self):
+        dynamic_props = {};
+
+        # get position
+        pos = numpy.zeros(shape=(self.numParticles(), 3), dtype=numpy.float32);
+
+        dset_cell_occupancy = self.df["/traj/cell_occupancy"];
+        dset_cell_data = self.df["/traj/cell_data"];
+        m = self.df["/param/m"][0];
+        w = self.df["/param/w"][0];
+        L = m * w;
+
+        if self.cur_frame < dset_cell_occupancy.shape[0]:
+            cell_occupancy = dset_cell_occupancy[self.cur_frame,:];
+            cell_data = dset_cell_data[self.cur_frame,:];
+            # call a c++ function to extract the point data fast
+            _freud.extract_discmc_data(pos, cell_data, cell_occupancy, int(m), float(w));
+            dynamic_props['position'] = pos;
+        
+        dynamic_props['rho'] = float(self.numParticles())/(L*L)
+        dynamic_props['m'] = m;
+        dynamic_props['w'] = w;
+        
+        # extract M(r) data
+        if "/param/dr" in self.df:
+            dynamic_props['dr'] = self.df["/param/dr"][0];
+            Mr = numpy.zeros(self.df["/traj/Mr"].shape[0]);
+            Mr = self.df["/traj/Mr"][self.cur_frame,:];
+            dynamic_props['Mr'] = Mr;
+        
+        box = Box(L, L, 0, True);
+
+        return Frame(self, 0, dynamic_props, box);
+

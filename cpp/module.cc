@@ -7,6 +7,7 @@
 #include "GaussianDensity.h"
 #include "RDF.h"
 #include "ClusterProperties.h"
+#include "HexOrderParameter.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -24,4 +25,5 @@ BOOST_PYTHON_MODULE(_freud)
     density::export_GaussianDensity();
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
+    order::export_HexOrderParameter();
     }
