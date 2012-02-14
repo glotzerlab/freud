@@ -43,7 +43,25 @@ class TrajectoryIter:
 
 ## Base class Trajectory that defines a common interface for working with any trajectory
 #
-# TODO: Document me
+# A Trajectory represents a series of frames. Each frame consists of a set of properties on the particles, composite
+# bodies, bonds, and walls in the system. Some trajectory formats may provide quantities that others do not.
+# Some formats may provide certain properties only in the first frame, and others may store those properties at
+# each frame. In addition, some formats may not even be capable of storing certain properties.
+#
+# Trajectory exposes properties as numpy arrays. Properties loaded for the first frame only are called \b static
+# properties. The method isStatic() returns true if a given property is static.
+#
+# The Frame class provides access to the properties at any given frame. You can access a Frame by indexing a 
+# Trajectory directly:
+# \code
+# f = traj[frame_idx];
+# \endcode
+# Or by iterating over all frames:
+# \code
+# for f in traj:
+#     ...
+# \endcode
+# The number of frames in a trajectory is len(traj).
 #
 class Trajectory:
     ## Initizlize an emtpy trajectory
@@ -219,8 +237,11 @@ class TrajectoryVMD(Trajectory):
 # High level classes should not construct Frame classes directly. Instead create a Trajectory and query it to get
 # frames.
 #
-# Call access() to get the particle properties of the system at this frame. The member variable frame lists the current
-# frame index.
+# Call get() to get the properties of the system at this frame. get() takes a string name of the property to be
+# queried. If the property is static, the value of the property at the first frame will be returned from their
+# Trajectory. If the property is dynamic, the value of the property at the current frame will be returned.
+#
+# Most properties are returned as numpy arrays. For example, position is returned as an Nx3 numpy array.
 #
 class Frame:
     ## Initialize a frame for access
@@ -239,12 +260,9 @@ class Frame:
     
     ## Access particle properties at this frame
     #
-    # Particle properties are returned as numpy arrays with one element per particle. Properties are queried by name.
-    # Common properties are
-    #  - 'position' - particle positions (Nx3 array)
-    #  - 'mass' - particle masses (Nx1 array)
+    # Properties are queried by name. See the documentation of the specific Trajectory you load to see which
+    # properties it loads.
     #
-    # Some types of Trajectories may provide other properties. See their documentation for details.
     def get(self, prop):
         if prop in self.dynamic_props:
             return self.dynamic_props[prop];
@@ -261,6 +279,7 @@ class Frame:
     # the user, user2, user3, and user4 flags. Check if a property is modifiable with Trajectory.isModifiable()
     #
     # Some types of Trajectories may provide other modifiable properties. See their documentation for details.
+    #
     def set(self, prop, value):
         self.traj.setFrame(self.frame);
         self.traj.setProperty(prop, value);
