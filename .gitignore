@@ -4,3 +4,4 @@
 *.xml
 *.mat
 .DS_Store
+*.kdev4
