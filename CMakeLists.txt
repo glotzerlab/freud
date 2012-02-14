@@ -1,6 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2 FATAL_ERROR)
 
 project (FREUD)
+
+string(FIND ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} FOUND)
+if(${FOUND} EQUAL 0)
+   message(FATAL_ERROR "The build directory must be outside of the source directory")
+endif(${FOUND} EQUAL 0)
+
 add_subdirectory(CMake)
 
 include(FREUDCFlagsSetup)
