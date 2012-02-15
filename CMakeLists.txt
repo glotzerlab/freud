@@ -2,10 +2,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2 FATAL_ERROR)
 
 project (FREUD)
 
-string(FIND ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} FOUND)
-if(${FOUND} EQUAL 0)
-   message(FATAL_ERROR "The build directory must be outside of the source directory")
-endif(${FOUND} EQUAL 0)
+if(${CMAKE_VERSION} VERSION_GREATER 2.8.4)
+    string(FIND ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} FOUND)
+    if(${FOUND} EQUAL 0)
+       message(FATAL_ERROR "The build directory must be outside of the source directory")
+    endif(${FOUND} EQUAL 0)
+else(${CMAKE_VERSION} VERSION_GREATER 2.8.4)
+    if(${PROJECT_SOURCE_DIR} STREQUAL ${PROJECT_BINARY_DIR})
+       message(FATAL_ERROR "The build directory must be outside of the source directory")
+    endif(${PROJECT_SOURCE_DIR} STREQUAL ${PROJECT_BINARY_DIR})
+endif(${CMAKE_VERSION} VERSION_GREATER 2.8.4)
 
 add_subdirectory(CMake)
 
