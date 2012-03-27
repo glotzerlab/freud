@@ -298,7 +298,7 @@ class TrajectoryXML(Trajectory):
         self.xml_list = xml_fname_list
         
         # parse the initial XML file
-        if len(xml_fname_list == 0):
+        if len(xml_fname_list) == 0:
             raise RuntimeError("no filenames passed to TrajectoryXML")
         dom = xml.dom.minidom.parse(xml_fname_list[0])
         
@@ -321,7 +321,7 @@ class TrajectoryXML(Trajectory):
             self.ndim = 3
             
         # read box 
-        box_node = position = configuration.getElementsByTagName('box')
+        box_config = configuration.getElementsByTagName('box')[0]
         self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
         
         # Set the number of particles from the positions attribute
