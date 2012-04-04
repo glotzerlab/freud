@@ -5,3 +5,5 @@
 *.mat
 .DS_Store
 *.kdev4
+.project
+.pydevproject
