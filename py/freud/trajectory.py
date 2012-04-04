@@ -344,6 +344,7 @@ class TrajectoryXML(Trajectory):
             self.static_props['body'] = self._update('body', configuration)
         if not 'charge' in self.dynamic_props:
             self.static_props['charge'] = self._update('charge', configuration)
+	self.setFrame(0)
 
     ## Get the number of particles in the trajectory
     # \returns Number of particles
@@ -359,7 +360,7 @@ class TrajectoryXML(Trajectory):
     ## Sets the current frame
     # \param idx Index of the frame to seek to
     def setFrame(self, idx):
-        if idx >  len(self.xml_list):
+        if idx >=  len(self.xml_list):
             raise RuntimeError("Invalid Frame Number")
         self.idx = idx
     
