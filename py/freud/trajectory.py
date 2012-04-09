@@ -291,7 +291,7 @@ class Frame:
 class TrajectoryXML(Trajectory):
     ## Initialize a list of XMLs trajectory for access
     # /param xml_fname_list File names of the XML files to be read
-    # /param dynamic List of dynamic properties in the trajectory
+    # /param dynamic List of dynamic properties in the trajectory 
     def __init__(self, xml_fname_list, dynamic=['position']):
         Trajectory.__init__(self)
         
