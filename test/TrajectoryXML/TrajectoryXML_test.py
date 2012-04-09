@@ -2,11 +2,10 @@
 from freud import trajectory
 
 # read in a .xml file
-traj = trajectory.TrajectoryXML(['start.xml'])
+traj = trajectory.TrajectoryXML(['start0.xml','start1.xml','start2.xml'])
 
-frame = traj.getCurrentFrame()
-
-print frame.get('position')
-print frame.get('velocity')
-print frame.get('typename')
-print frame.get('mass')
+for frame in traj:
+    print frame.get('position')
+    print frame.get('velocity')
+    #print frame.get('typename')
+    print frame.get('mass')
