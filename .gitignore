@@ -3,5 +3,8 @@
 *.dcd
 *.xml
 *.mat
+*.swp
 .DS_Store
 *.kdev4
+.project
+.pydevproject
