@@ -6,7 +6,10 @@ except ImportError:
 import numpy
 import copy
 import xml.dom.minidom
-import h5py
+try:
+    import h5py
+except ImportError:
+    h5py = None;
 
 from _freud import Box;
 import _freud;
@@ -543,6 +546,9 @@ class TrajectoryDISCMC(Trajectory):
     #
     def __init__(self, fname):
         Trajectory.__init__(self);
+        
+        if h5py is None:
+            raise RuntimeError('h5py not found')
         self.df = h5py.File(fname, 'r')
     
     ## Get the number of particles in the trajectory
