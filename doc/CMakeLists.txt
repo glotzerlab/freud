@@ -1,5 +1,7 @@
 find_package(Doxygen)
 
+if(DOXYGEN)
+
 # disable DOT in doxygen if dot is not found
 if(DOXYGEN_DOT_PATH)
     set(DOXYGEN_HAVE_DOT "YES")
@@ -32,3 +34,4 @@ add_custom_command (OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
 add_custom_target (doc ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
                            SOURCES ${_dev_doc_sources})
 
+endif (DOXYGEN)
