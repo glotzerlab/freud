@@ -574,17 +574,13 @@ class TrajectoryDISCMC(Trajectory):
         # get position
         pos = numpy.zeros(shape=(self.numParticles(), 3), dtype=numpy.float32);
 
-        dset_cell_occupancy = self.df["/traj/cell_occupancy"];
-        dset_cell_data = self.df["/traj/cell_data"];
+        dset_pos = self.df["/traj/pos"];
         m = self.df["/param/m"][0];
         w = self.df["/param/w"][0];
         L = m * w;
 
-        if self.cur_frame < dset_cell_occupancy.shape[0]:
-            cell_occupancy = dset_cell_occupancy[self.cur_frame,:];
-            cell_data = dset_cell_data[self.cur_frame,:];
-            # call a c++ function to extract the point data fast
-            _freud.extract_discmc_data(pos, cell_data, cell_occupancy, int(m), float(w));
+        if self.cur_frame < dset_pos.shape[0]:
+            pos[:,0:2] = dset_pos[self.cur_frame,:];
             dynamic_props['position'] = pos;
         
         dynamic_props['rho'] = float(self.numParticles())/(L*L)
@@ -601,4 +597,3 @@ class TrajectoryDISCMC(Trajectory):
         box = Box(L, L, 0, True);
 
         return Frame(self, 0, dynamic_props, box);
-
