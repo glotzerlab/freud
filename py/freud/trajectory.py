@@ -581,6 +581,9 @@ class TrajectoryDISCMC(Trajectory):
 
         if self.cur_frame < dset_pos.shape[0]:
             pos[:,0:2] = dset_pos[self.cur_frame,:];
+            # freud boxes are centered on 0,0,0 - shift the coordinates
+            pos[:,0] -= L/2.0;
+            pos[:,1] -= L/2.0;
             dynamic_props['position'] = pos;
         
         dynamic_props['rho'] = float(self.numParticles())/(L*L)
