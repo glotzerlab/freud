@@ -1,5 +1,5 @@
 freud::trajectory::TrajectoryXMLDCD freud::density::RDF
-# Due to deficiencies in doxygen, the classes that this provides examples are listed explitily here
+# Due to deficiencies in doxygen, the classes that this provides examples are listed explicitly here
 # run this script with "python -x filename" to skip the first line, or remove this header
 
 # ---- rdf_ex.py ----
@@ -9,7 +9,7 @@ from freud import density
 # read in a .dcd trajectory
 traj = trajectory.TrajectoryXMLDCD('start.xml', 'dump.dcd')
 
-# intialize the RDF computation using the simulation box from frame 0 (assumes constant volume)
+# initialize the RDF computation using the simulation box from frame 0 (assumes constant volume)
 f = traj[0]
 rdf = density.RDF(f.box, 20.0, 0.1)
 total_rdf = rdf.getRDF();

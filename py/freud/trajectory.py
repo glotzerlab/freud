@@ -67,7 +67,7 @@ class TrajectoryIter:
 # The number of frames in a trajectory is len(traj).
 #
 class Trajectory:
-    ## Initizlize an emtpy trajectory
+    ## Initialize an empty trajectory
     def __init__(self):
         self.static_props = {};
         self.modifiable_props = {};
@@ -115,7 +115,7 @@ class Trajectory:
     # \note The base class Trajectory doesn't load any particles, so calling this method will produce an error.
     #       Derived classes should override
     def getCurrentFrame(self):
-        raise RuntimeError("Trajectory.setFrame not implemented");
+        raise RuntimeError("Trajectory.getCurrentFrame not implemented");
 
     ## Get the selected frame
     # \param idx Index of the frame to access
@@ -235,7 +235,7 @@ class TrajectoryVMD(Trajectory):
         
         self.all.set(prop, list(value));
 
-## Frame information represneting the system state at a specific frame in a Trajectory
+## Frame information representing the system state at a specific frame in a Trajectory
 #
 # High level classes should not construct Frame classes directly. Instead create a Trajectory and query it to get
 # frames.
@@ -287,6 +287,212 @@ class Frame:
         self.traj.setFrame(self.frame);
         self.traj.setProperty(prop, value);
 
+## Trajectory information read from a list of XML files
+#
+# TrajectoryXML reads structure information in from the provided XML files (typenames, bonds, rigid bodies, etc...)
+# storing each file as a consecutive frame
+class TrajectoryXML(Trajectory):
+    ## Initialize a list of XMLs trajectory for access
+    # /param xml_fname_list File names of the XML files to be read
+    # /param dynamic List of dynamic properties in the trajectory 
+    def __init__(self, xml_fname_list, dynamic=['position']):
+        Trajectory.__init__(self)
+        
+        self.xml_list = xml_fname_list
+        
+        # initialize dynamic list
+        self.dynamic_props = {}
+        for prop in dynamic:
+            self.dynamic_props[prop] = {}
+        
+        # parse the initial XML file
+        if len(xml_fname_list) == 0:
+            raise RuntimeError("no filenames passed to TrajectoryXML")
+        
+        configuration = self._parseXML(self.xml_list[0])
+                
+        # determine the number of dimensions
+        if configuration.hasAttribute('dimensions'):
+            self.ndim = int(configuration.getAttribute('dimensions'))
+        else:
+            self.ndim = 3
+            
+        # read box 
+        box_config = configuration.getElementsByTagName('box')[0]
+        self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
+        
+        # Set the number of particles from the positions attribute
+        position = configuration.getElementsByTagName('position')
+        if len(position) != 1:
+            raise RuntimeError("position tag not found in xml file")
+        else:
+            position = position[0]
+        position_text = position.childNodes[0].data
+        xyz = position_text.split()
+        self.num_particles = len(xyz)/3
+        
+        # Update the static properties
+        if not 'position' in self.dynamic_props:
+            self.static_props['position'] = self._update('position', configuration)
+        if not 'velocity' in self.dynamic_props:
+            self.static_props['velocity'] = self._update('velocity', configuration)
+        if not 'mass' in self.dynamic_props:
+            self.static_props['mass'] = self._update('mass', configuration)
+        if not 'diameter' in self.dynamic_props:
+            self.static_props['diameter'] = self._update('diameter', configuration)
+        if not 'type' in self.dynamic_props:
+            self.static_props['typename'] = self._update('type', configuration)
+            self.static_props['typeid'] = _assign_typeid(self.static_props['typename'])
+        if not 'body' in self.dynamic_props:
+            self.static_props['body'] = self._update('body', configuration)
+        if not 'charge' in self.dynamic_props:
+            self.static_props['charge'] = self._update('charge', configuration)
+	self.setFrame(0)
+
+    ## Get the number of particles in the trajectory
+    # \returns Number of particles
+    def numParticles(self):
+        return self.num_particles
+    
+    
+    ## Get the number of frames in the trajectory
+    # \returns Number of frames
+    def __len__(self):
+        return len(self.xml_list)
+    
+    ## Sets the current frame
+    # \param idx Index of the frame to seek to
+    def setFrame(self, idx):
+        if idx >=  len(self.xml_list):
+            raise RuntimeError("Invalid Frame Number")
+        self.idx = idx
+    
+    ## Get the current frame
+    # \returns A Frame containing the current frame data
+    def getCurrentFrame(self):
+        # load the information for the current frame
+        configuration = self._parseXML(self.xml_list[self.idx])
+                
+        for prop in self.dynamic_props.keys():
+            self.dynamic_props[prop] = self._update(prop, configuration)
+        
+        return Frame(self, self.idx, self.dynamic_props, self.box)
+    
+    
+    def _parseXML(self, xml_filename):
+        dom = xml.dom.minidom.parse(xml_filename)
+        
+        hoomd_xml = dom.getElementsByTagName('hoomd_xml')
+        if len(hoomd_xml) != 1:
+            raise RuntimeError("hoomd_xml tag not found in xml file")
+        else:
+            hoomd_xml = hoomd_xml[0]
+        
+        configuration = hoomd_xml.getElementsByTagName('configuration')
+        if len(configuration) != 1:
+            raise RuntimeError("configuration tag not found in xml file")
+        else:
+            return configuration[0]
+        
+    def _update(self, prop, configuration):
+        if prop == 'position':
+            position = configuration.getElementsByTagName('position')
+            if len(position) != 1:
+                raise RuntimeError("position tag not found in xml file")
+            else:
+                position = position[0]
+            position_text = position.childNodes[0].data
+            xyz = position_text.split()
+            
+            pos = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
+            for i in xrange(0,self.num_particles):
+                pos[i,0] = float(xyz[3*i])
+                pos[i,1] = float(xyz[3*i+1])
+                pos[i,2] = float(xyz[3*i+2])
+            return pos
+        
+        if prop == 'type':
+            type_nodes = configuration.getElementsByTagName('type')
+            if len(type_nodes) == 1:
+                type_text = type_nodes[0].childNodes[0].data
+                type_names = type_text.split()
+                if len(type_names) != self.num_particles:
+                    raise RuntimeError("wrong number of types found in xml file")
+            else:
+                raise RuntimeError("type tag not found in xml file")
+            return type_names
+        
+        if prop == 'mass':
+            mass_nodes = configuration.getElementsByTagName('mass')
+            if len(mass_nodes) == 1:
+                mass_text = mass_nodes[0].childNodes[0].data
+                mass_list = mass_text.split()
+                if len(mass_list) != self.num_particles:
+                    raise RuntimeError("wrong number of masses found in xml file")
+                mass_array = numpy.array([float(m) for m in mass_list], dtype=numpy.float32)
+            else:
+                # default to a mass of 1.0, like hoomd
+                mass_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32)
+                return mass_array
+            
+        if prop == 'diameter':
+            diam_nodes = configuration.getElementsByTagName('diameter')
+            if len(diam_nodes) == 1:
+                diam_text = diam_nodes[0].childNodes[0].data
+                diam_list = diam_text.split()
+                if len(diam_list) != self.num_particles:
+                    raise RuntimeError("wrong number of diameters found in xml file")
+                diameter_array = numpy.array([float(d) for d in diam_list], dtype=numpy.float32)
+            else:
+                # default to a diameter of 1.0, like hoomd
+                diameter_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32)
+            return diameter_array
+        
+        if prop == 'body':
+            body_nodes = configuration.getElementsByTagName('body')
+            if len(body_nodes) == 1:
+                body_text = body_nodes[0].childNodes[0].data
+                body_list = body_text.split()
+                if len(body_list) != self.num_particles:
+                    raise RuntimeError("wrong number of bodies found in xml file")
+                body_array = numpy.array([float(b) for b in body_list], dtype=numpy.int32)
+            else:
+                # default to a body of -1, like hoomd
+                body_array = -1 * numpy.ones(shape=(1,self.num_particles), dtype=numpy.int32)
+            return body_array
+        
+        if prop == 'charge':
+            charge_nodes = configuration.getElementsByTagName('charge')
+            if len(charge_nodes) == 1:
+                charge_text = charge_nodes[0].childNodes[0].data
+                charge_list = charge_text.split()
+                if len(charge_list) != self.num_particles:
+                    raise RuntimeError("wrong number of charges found in xml file")
+                charge_array = numpy.array([float(c) for c in charge_list], dtype=numpy.float32)
+            else:
+                # default to a charge of 0.0, like hoomd
+                charge_array = numpy.zeros(shape=(1,self.num_particles), dtype=numpy.float32)
+            return charge_array
+        
+        if prop == 'velocity':
+            velocity = configuration.getElementsByTagName('velocity')
+            if len(velocity) == 1:
+                velocity = velocity[0]
+                velocity_text = velocity.childNodes[0].data
+                xyz = velocity_text.split()
+                if len(xyz)/3 != self.num_particles:
+                    raise RuntimeError("wrong number of velocities found in xml file")
+            
+                velocity_array = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
+                for i in xrange(0,self.num_particles):
+                    velocity_array[i,0] = float(xyz[3*i])
+                    velocity_array[i,1] = float(xyz[3*i+1])
+                    velocity_array[i,2] = float(xyz[3*i+2])
+            else:
+                # default to zero
+                velocity_array = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
+            return velocity_array    
+        
 ## Trajectory information read from an XML/DCD file combination
 #
 # TrajectoryXMLDCD reads structure information in from the provided XML file (typenames, bonds, rigid bodies, etc...)
@@ -442,7 +648,7 @@ class TrajectoryXMLDCD(Trajectory):
     # \param idx Index of the frame to seek to
     def setFrame(self, idx):
         if self.dcd_loader is None and idx > 0:
-            raise RuntimError("No DCD file was loaded");
+            raise RuntimeError("No DCD file was loaded");
 
         if self.dcd_loader is not None and not(self.dcd_loader.getLastFrameNum() == idx):
             self.dcd_loader.jumpToFrame(idx);
