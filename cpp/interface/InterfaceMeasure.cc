@@ -31,6 +31,8 @@ unsigned int InterfaceMeasure::compute(const float3 *ref_points,
     // for each reference point
     for( unsigned int i = 0; i < Nref; i++)
     {
+        bool inInterface = false;
+
         // get the cell the point is in
         float3 ref = ref_points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
@@ -39,12 +41,16 @@ unsigned int InterfaceMeasure::compute(const float3 *ref_points,
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
         for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
         {
+            if(inInterface)
+                break;
             unsigned int neigh_cell = neigh_cells[neigh_idx];
 
-            // iterate ofer the particles in that cell
+            // iterate over the particles in that cell
             locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
             {
+                if(inInterface)
+                    break;
                 // compute the distance between the two particles
                 float dx = float(ref.x - points[j].x);
                 float dy = float(ref.y - points[j].y);
@@ -55,9 +61,14 @@ unsigned int InterfaceMeasure::compute(const float3 *ref_points,
                 // Check if the distance is less than the cutoff
                 float deltasq = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                 if (deltasq < rcutsq)
-                    interfaceCount++;
+                {
+                    inInterface = true;
+                    break;
+                }
             }
         }
+        if(inInterface)
+            interfaceCount++;
     }
     return interfaceCount;
 }
