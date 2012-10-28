@@ -48,7 +48,7 @@ class InterfaceMeasure
 /*! \internal
  *  \brief Exports all classes in this file to python
  */
-void export__InterfaceMeasure();
+void export_InterfaceMeasure();
 
 }; }; // end namespace freud::interface
 

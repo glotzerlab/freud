@@ -3,7 +3,7 @@
 using namespace std;
 using namespace boost::python;
 
-namespace freud { namespace density {
+namespace freud { namespace interface {
 
 InterfaceMeasure::InterfaceMeasure(const trajectory::Box& box, float r_cut)
     : m_box(box), m_rcut(r_cut), m_lc(box, r_cut)
@@ -14,7 +14,7 @@ InterfaceMeasure::InterfaceMeasure(const trajectory::Box& box, float r_cut)
 
 unsigned int InterfaceMeasure::compute(const float3 *ref_points,
                                        unsigned int Nref,
-                                       const float4 *points,
+                                       const float3 *points,
                                        unsigned int Np)
 {
     assert(ref_points);
@@ -37,12 +37,12 @@ unsigned int InterfaceMeasure::compute(const float3 *ref_points,
 
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neig_cells.size(); neigh_idx++)
+        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
         {
             unsigned int neigh_cell = neigh_cells[neigh_idx];
 
             // iterate ofer the particles in that cell
-            locality::LinkCells::iteratorcell it = m_lc.itercell(neigh_cell);
+            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
             {
                 // compute the distance between the two particles
@@ -85,7 +85,7 @@ unsigned int InterfaceMeasure::computePy(boost::python::numeric::array ref_point
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
     float3* points_raw = (float3*) num_util::data(points);
 
-    compute(ref_points_raw, Nref, points_raw, Np);
+    return compute(ref_points_raw, Nref, points_raw, Np);
 }
 
 // Export the methods inside the InterfaceMeasure class
