@@ -12,7 +12,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/locality
                     ${CMAKE_CURRENT_SOURCE_DIR}/cluster
                     ${CMAKE_CURRENT_SOURCE_DIR}/density
-                    ${CMAKE_CURRENT_SOURCE_DIR}/order)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/order
+                    ${CMAKE_CURRENT_SOURCE_DIR}/interface
+                    )
 
 set(SOURCES trajectory/trajectory.cc
             trajectory/trajectory.h
@@ -38,7 +40,9 @@ set(SOURCES trajectory/trajectory.cc
             molfile/fastio.h
             molfile/largefiles.h
             molfile/molfile_plugins.h
-            molfile/molfile_plugin.h)
+            molfile/molfile_plugin.h
+            interface/InterfaceMeasure.cc
+            interface/InterfaceMeasure.h)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} util/num_util.cc util/num_util.h module.cc)

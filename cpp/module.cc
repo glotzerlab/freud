@@ -8,6 +8,7 @@
 #include "RDF.h"
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
+#include "InterfaceMeasure.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -26,4 +27,5 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
+    interface::export_InterfaceMeasure();
     }
