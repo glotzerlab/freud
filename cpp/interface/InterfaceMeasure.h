@@ -3,6 +3,7 @@
 
 #include "trajectory.h"
 #include "LinkCell.h"
+#include "num_util.h"
 
 #ifndef _INTERFACEMEASURE_H_
 #define _INTERFACEMEASURE_H_
@@ -36,7 +37,7 @@ class InterfaceMeasure
                              unsigned int Np);
 
         //! Python wrapper for compute
-        unsigned int compute(boost::python::numeric::array ref_points,
+        unsigned int computePy(boost::python::numeric::array ref_points,
                              boost::python::numeric::array points);
     private:
         trajectory::Box m_box;          //!< Simulation box the particles belong in
