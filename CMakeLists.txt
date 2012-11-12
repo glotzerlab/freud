@@ -4,6 +4,26 @@ project (FREUD)
 
 add_subdirectory(CMake)
 
+#### Setup OpenMP
+# Apple's OpenMP is buggy, disable it
+if (NOT APPLE)
+# OpenMP needs CMake 2.6.4 or newer
+set (_cmake_ver "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
+if (_cmake_ver VERSION_GREATER 2.6.3)
+    find_package(OpenMP)
+    if (OPENMP_FOUND)
+        option (ENABLE_OPENMP "Enable openmp compilation to accelerate CPU code on multi-core machines" ON)
+        if (ENABLE_OPENMP)
+            add_definitions (-DENABLE_OPENMP)
+            # Compiler options to enable openmp are set in FREUDCFlagsSetup
+        endif (ENABLE_OPENMP)
+    endif (OPENMP_FOUND)
+else (_cmake_ver VERSION_GREATER 2.6.3)
+    message (STATUS "Upgrade to CMake 2.6.4 or newer to enable OpenMP compilation")
+endif (_cmake_ver VERSION_GREATER 2.6.3)
+endif (NOT APPLE)
+#### End of OpenMP Setup
+
 include(FREUDCFlagsSetup)
 
 # setup boost
@@ -20,21 +40,6 @@ include (FREUDNumpySetup)
 include_directories(${NUMPY_INCLUDE_DIR})
 add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
 
-# setup OpenMP
-# OpenMP needs CMake 2.6.4 or newer
-set (_cmake_ver "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
-if (_cmake_ver VERSION_GREATER 2.6.3)
-    find_package(OpenMP)
-    if (OPENMP_FOUND)
-        option (ENABLE_OPENMP "Enable openmp compilation to accelerate CPU code on multi-core machines" ON)
-        if (ENABLE_OPENMP)
-            add_definitions (-DENABLE_OPENMP)
-            # Compiler options to enable openmp are set in FREUDCFlagsSetup
-        endif (ENABLE_OPENMP)
-    endif (OPENMP_FOUND)
-else (_cmake_ver VERSION_GREATER 2.6.3)
-    message (STATUS "Upgrade to CMake 2.6.4 or newer to enable OpenMP compilation")
-endif (_cmake_ver VERSION_GREATER 2.6.3)
 
 add_subdirectory(cpp)
 add_subdirectory(py)
