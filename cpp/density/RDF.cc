@@ -5,6 +5,10 @@
 #include <emmintrin.h>
 #endif
 
+#ifdef ENABLE_OPENMP
+#include <omp.h>
+#endif
+
 using namespace std;
 using namespace boost::python;
 
@@ -66,9 +70,14 @@ void RDF::compute(const float3 *ref_points,
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
     
+    #pragma omp parallel
+    {
+    
+    #pragma omp for schedule(guided)
     // for each reference point
     for (unsigned int i = 0; i < Nref; i++)
         {
+        
         // get the cell the point is in
         float3 ref = ref_points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
@@ -102,18 +111,20 @@ void RDF::compute(const float3 *ref_points,
 #else
                     unsigned int bin = (unsigned int)(binr);
 #endif
+                    #pragma omp atomic
                     m_bin_counts[bin]++;
                     }
                 }
             }
-        }
-    
-    // done looping over reference points
+        } // done looping over reference points
+    } // End of parallel section
+
     // now compute the rdf
     float ndens = float(Np) / m_box.getVolume();
     m_rdf_array[0] = 0;
     m_N_r_array[0] = 0.0f;
-    m_N_r_array[1] = 0.0f;    
+    m_N_r_array[1] = 0.0f; 
+
     for (unsigned int bin = 1; bin < m_nbins; bin++)
         {
         float avg_counts = m_bin_counts[bin] / float(Nref);
