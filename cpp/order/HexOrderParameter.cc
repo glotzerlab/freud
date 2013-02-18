@@ -54,7 +54,9 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
                     }
                 }
             }
-        m_psi_array[i] /= complex<double>(num_adjacent);  
+	// Don't divide by zero if the particle has no neighbors (this leaves psi at 0)
+	if(num_adjacent)
+	  m_psi_array[i] /= complex<double>(num_adjacent);  
         }
     }
 
