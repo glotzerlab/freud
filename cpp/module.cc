@@ -14,10 +14,15 @@ using namespace boost::python;
 namespace bnp=boost::python::numeric;
 using namespace freud;
 
+int my_import_array()
+    {
+    import_array();
+    }
+
 BOOST_PYTHON_MODULE(_freud)
     {
     // setup needed for numpy
-    import_array();
+    my_import_array();
     bnp::array::set_module_and_type("numpy", "ndarray");
 
     trajectory::export_trajectory();
