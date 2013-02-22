@@ -19,17 +19,17 @@ endmacro(run_python)
 find_package(PythonInterp REQUIRED)
 
 # determine the include directory
-run_python("from __future__ import print_function; from distutils import sysconfig\; print(sysconfig.get_python_inc())" _python_include_hint)
+run_python("from __future__ import print_function\; from distutils import sysconfig\; print(sysconfig.get_python_inc())" _python_include_hint)
 find_path(PYTHON_INCLUDE_DIR Python.h
           HINTS ${_python_include_hint}
           NO_DEFAULT_PATH)
 
 # get the python installation prefix and version
-run_python("from __future__ import print_function; from distutils import sysconfig\; print(sysconfig.PREFIX)" _python_prefix_hint)
-run_python("from __future__ import print_function; from distutils import sysconfig\; print(sysconfig.get_config_var('LIBPL'))" _python_static_hint)
-run_python("from __future__ import print_function; from distutils import sysconfig\; print(sysconfig.get_config_var('LIBRARY'))" _python_static_lib_name)
-run_python("from __future__ import print_function; from distutils import sysconfig\; print(sysconfig.get_config_var('LDLIBRARY'))" _python_dynamic_lib_name)
-run_python("from __future__ import print_function; from distutils import sysconfig\; print(sysconfig.get_python_version())" _python_version)
+run_python("from __future__ import print_function\; from distutils import sysconfig\; print(sysconfig.PREFIX)" _python_prefix_hint)
+run_python("from __future__ import print_function\; from distutils import sysconfig\; print(sysconfig.get_config_var('LIBPL'))" _python_static_hint)
+run_python("from __future__ import print_function\; from distutils import sysconfig\; print(sysconfig.get_config_var('LIBRARY'))" _python_static_lib_name)
+run_python("from __future__ import print_function\; from distutils import sysconfig\; print(sysconfig.get_config_var('LDLIBRARY'))" _python_dynamic_lib_name)
+run_python("from __future__ import print_function\; from distutils import sysconfig\; print(sysconfig.get_python_version())" _python_version)
 string(REPLACE "." "" _python_version_no_dots ${_python_version})
 
 # always link the dynamic python library
