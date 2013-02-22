@@ -5,7 +5,7 @@ if(NOT NUMPY_INCLUDE_DIR)
 
 execute_process(
     COMMAND
-    ${PYTHON_EXECUTABLE} -c "import numpy; print numpy.get_include()"
+    ${PYTHON_EXECUTABLE} -c "from __future__ import print_function; import numpy; print(numpy.get_include())"
     OUTPUT_VARIABLE NUMPY_INCLUDE_GUESS
     RESULT_VARIABLE NUMPY_ERR
     OUTPUT_STRIP_TRAILING_WHITESPACE
