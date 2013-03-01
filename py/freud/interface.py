@@ -3,4 +3,4 @@
 # Methods to compute the amount of interface from point distributions
 #
 
-from _freud import InterfaceMeasure
+from freud._freud import InterfaceMeasure

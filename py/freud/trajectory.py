@@ -11,8 +11,8 @@ try:
 except ImportError:
     h5py = None;
 
-from _freud import Box;
-import _freud;
+from freud._freud import Box;
+import freud._freud;
 
 ## \package freud.trajectory
 #
@@ -347,7 +347,7 @@ class TrajectoryXML(Trajectory):
             self.static_props['body'] = self._update('body', configuration)
         if not 'charge' in self.dynamic_props:
             self.static_props['charge'] = self._update('charge', configuration)
-	self.setFrame(0)
+        self.setFrame(0)
 
     ## Get the number of particles in the trajectory
     # \returns Number of particles
