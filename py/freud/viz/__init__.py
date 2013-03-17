@@ -65,16 +65,6 @@ class Primitive(object):
     ## Base class inits nothing
     def __init__(self):
         pass;
-    
-    ## Base class doesn't do anything in response to setFrame
-    # \param frame Frame index to set
-    def setFrame(self, frame):
-        pass;
-
-    ## Base class doesn't have any animation frames
-    # \returns 1
-    def getNumFrames(self):
-        return 1;
 
 ## Disk representation (2D)
 #
@@ -172,18 +162,14 @@ class Group(object):
     
     ## Sets the current animation frame
     # \param frame Animation frame index to set
-    # A Group simply passes on the frame set to each of its primitives
+    # The base class group does nothing
     def setFrame(self, frame):
-        for primitive in self.primitives:
-            primitive.setFrame(frame);
-
+        pass
+    
     ## Get the number of animation frames
-    # \returns Maximum of the number of frames in attached primitives
+    # \returns Base class group only has 1 static frame
     def getNumFrames(self):
-        num_frames = 1;
-        
-        for primitive in self.primitives:
-            num_frames = max(num_frames, primitive.getNumFrames());
+        return 1;
     
 ## Specify the camera from which the scene should be rendered
 #
