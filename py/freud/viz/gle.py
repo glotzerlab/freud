@@ -134,15 +134,21 @@ class WriteGLE:
             fill_str += "aline {0} {1}\n".format(*vert_cm)
         fill_str += "aline {0} {1}\n".format(*polygons.polygon[0][:]*self.sim_to_cm);
         
+        # compute the polygon's radius
+        radius = 0;
+        for vert in polygons.polygon:
+            r = math.sqrt(numpy.dot(vert, vert));
+            radius = max(radius, r);
+        
         for position,angle,color in zip(polygons.positions, polygons.angles, polygons.colors):
             # map the position into the view space
             position = (position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
             
-            # don't write out polygons that are off the edge (TODO, implement this)
-            # if position[0]+diameter/2 < 0 or position[0]-diameter/2 > self.width_cm:
-            #     continue;
-            # if position[1]+diameter/2 < 0 or position[1]-diameter/2 > self.height_cm:
-            #     continue;
+            # don't write out polygons that are off the edge
+            if position[0]+radius < 0 or position[0]-radius > self.width_cm:
+                continue;
+            if position[1]+radius < 0 or position[1]-radius > self.height_cm:
+                continue;
             
             out.write('begin translate {0} {1}\n'.format(*position));
             out.write('begin rotate {0}\n'.format(180*angle/math.pi));
