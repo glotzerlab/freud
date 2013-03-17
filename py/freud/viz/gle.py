@@ -68,7 +68,7 @@ class WriteGLE:
             diameter = diameter * self.sim_to_cm;
             
             # don't write out disks that are off the edge
-            if position[0]+diameter/2 < 0 or position[1]-diameter/2 > self.width_cm:
+            if position[0]+diameter/2 < 0 or position[0]-diameter/2 > self.width_cm:
                 continue;
             if position[1]+diameter/2 < 0 or position[1]-diameter/2 > self.height_cm:
                 continue;
