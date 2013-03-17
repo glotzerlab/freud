@@ -81,7 +81,7 @@ class WriteGLE:
             # circle 2.0-a/2
             
             # compute outline width
-            a = disks.outline * diameter/2;
+            a = disks.outline * self.sim_to_cm;
             
             out.write('amove {0} {1}\n'.format(*position));
 

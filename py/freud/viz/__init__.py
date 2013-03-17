@@ -76,7 +76,7 @@ class Disks(Primitive):
     # \param colors Nx4 array listing the colors (rgba 0.0-1.0) of each disk
     # \param color 4 element iterable listing the color to be applied to every disk.
     #              \a color overrides anything set by colors
-    # \param outline Outline width as a fraction of the radius
+    # \param outline Outline width in distance units
     #
     # When \a diameters is None, it defaults to 1.0 for each particle. When colors is none, it defaults to 
     # (0,0,0,1) for each particle.
