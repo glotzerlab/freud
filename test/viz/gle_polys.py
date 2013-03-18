@@ -3,7 +3,7 @@ import math
 import random
 
 from freud import viz
-from freud.viz import gle
+from freud.viz.render import gle
 
 # generate random positions
 def gen_random_pos(N, w):
@@ -53,12 +53,12 @@ if __name__ == '__main__':
     
     triangle = [[-0.5, -0.5], [0.5, -0.5], [0, 0.5]];
     
-    polys = viz.RepeatedPolygons(positions=p, angles=a, polygon=triangle, colors=c, outline=0.05);
+    polys = viz.primitive.RepeatedPolygons(positions=p, angles=a, polygon=triangle, colors=c, outline=0.05);
     # disks1 = viz.Disks(positions=gen_random_disks(100, 20), color=(0,0,1,1));
     
-    group = viz.Group(primitives=[polys]); #, disks1]);
-    cam = viz.Camera(position=(0,0,1), look_at=(0,0,0), up=(0,1,0), aspect=4/3, height=18);
-    scene = viz.Scene(camera=cam, groups=[group]);
+    group = viz.base.Group(primitives=[polys]); #, disks1]);
+    cam = viz.base.Camera(position=(0,0,1), look_at=(0,0,0), up=(0,1,0), aspect=4/3, height=18);
+    scene = viz.base.Scene(camera=cam, groups=[group]);
     
     writer = gle.WriteGLE()
     writer.write(open('gle_polys.gle', 'wb'), scene);

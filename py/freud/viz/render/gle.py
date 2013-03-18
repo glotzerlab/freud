@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import numpy
 import math
 
-## \package freud.viz.gle
+## \package freud.viz.render.gle
 #
 # GLE output for freud.viz
 #
