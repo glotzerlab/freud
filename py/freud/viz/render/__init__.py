@@ -1,4 +1,4 @@
-## \package freud.viz
+## \package freud.viz.render
 #
-# Scriptable visualization tools in freud
+# Renderers for freud viz
 #
