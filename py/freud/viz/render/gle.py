@@ -128,11 +128,11 @@ class WriteGLE:
         out.write('set lwidth {0}\n'.format(polygons.outline*self.sim_to_cm));
         
         # first, generate a string that writes the whole polygon
-        fill_str = "amove {0} {1}\n".format(*polygons.polygon[0][:]*self.sim_to_cm);
+        fill_str = "amove {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
         for vert in polygons.polygon[1:]:
             vert_cm = vert * self.sim_to_cm;
             fill_str += "aline {0} {1}\n".format(*vert_cm)
-        fill_str += "aline {0} {1}\n".format(*polygons.polygon[0][:]*self.sim_to_cm);
+        fill_str += "aline {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
         
         # compute the polygon's radius
         radius = 0;
