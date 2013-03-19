@@ -1,15 +1,14 @@
 from __future__ import division, print_function
 import numpy
 import math
-import copy
 
 ## \package freud.viz.colorutil
 #
-# Color conversion functions, color maps, etc...
+# Color conversion functions
 #
 
 ## Gamma value
-# Consider this a predefined constant and do not change it, SRGB is approximately gamma 2.2 (close enough that no one
+# Consider this a predefined constant and do not change it, sRGB is approximately gamma 2.2 (close enough that no one
 # will notice)
 #
 gamma = 2.2;
@@ -38,10 +37,10 @@ def _unfold(v):
         u.shape = (n, v.shape[-1]);
         return u
 
-## Convert SRGBA colors to linear
-# \param v A numpy array (or something that converts to one) of 0.0-1.0 SRGBA colors
+## Convert sRGBA colors to linear
+# \param v A numpy array (or something that converts to one) of 0.0-1.0 sRGBA colors
 #
-# RGB values chosen in a color picker (for example) or in any image file are in SRGB format, which is pre-gamma
+# RGB values chosen in a color picker (for example) or in any image file are in sRGB format, which is pre-gamma
 # corrected for display. This function undoes that correction and puts the colors back into a linear space for
 # combination, lighting, etc...
 #
@@ -54,13 +53,13 @@ def _unfold(v):
 # A numpy array the same size as \a v with all r,g, and b values converted into a linear space. The alpha value is not
 # modified (it is already linear)
 #
-def SRGBAtoLinear(v):
+def sRGBAtoLinear(v):
     # make a copy of v and convert to a numpy array if needed
     ret = numpy.array(v, dtype=numpy.float32);
     
     # check that the last dimension is indeed 4
     if ret.shape[-1] != 4:
-        raise ValueError('srgbaToLinear expects the last dimension to be 4');
+        raise ValueError('sRGBAtoLinear expects the last dimension to be 4');
     
     # unfold the array
     u = _unfold(ret);
@@ -69,11 +68,11 @@ def SRGBAtoLinear(v):
     u[:,0:3] = u[:,0:3]**gamma;
     return ret
 
-## Convert linear colors to SRGBA 
+## Convert linear colors to sRGBA 
 # \param u A numpy array (or something that converts to one) of 0.0-1.0 linear colors
 #
-# RGB values chosen in a color picker (for example) or in any image file are in SRGB format, which is pre-gamma
-# corrected for display. This function applies that correction and takes colors from a linear space back into SRGBA.
+# RGB values chosen in a color picker (for example) or in any image file are in sRGB format, which is pre-gamma
+# corrected for display. This function applies that correction and takes colors from a linear space back into sRGBA.
 #
 # \note
 # \a u can be any shape where the last dimension is 4 - e.g. a 4-element array, an Nx4 array an MxNx4 array, an LxMxNx4 
@@ -81,7 +80,7 @@ def SRGBAtoLinear(v):
 # to per-particle colors sent into a primitive, or a colormapped image, or a colormapped volume, ...
 #
 # \returns
-# A numpy array the same size as \a u with all r,g, and b values converted into the SRGBA space. The alpha value is not
+# A numpy array the same size as \a u with all r,g, and b values converted into the sRGBA space. The alpha value is not
 # modified (it is always linear)
 #
 def linearToSRGBA(u):
@@ -90,7 +89,7 @@ def linearToSRGBA(u):
     
     # check that the last dimension is indeed 4
     if ret.shape[-1] != 4:
-        raise ValueError('srgbaToLinear expects the last dimension to be 4');
+        raise ValueError('linearToSRGBA expects the last dimension to be 4');
     
     # unfold the array
     v = _unfold(ret);
@@ -99,8 +98,8 @@ def linearToSRGBA(u):
     v[:,0:3] = v[:,0:3]**(1.0/gamma);
     return ret
 
-## Convert SRGBA to ARGB32
-# \param v A numpy array (or something that converts to one) of 0.0-1.0 SRGBA colors
+## Convert sRGBA to ARGB32
+# \param v A numpy array (or something that converts to one) of 0.0-1.0 sRGBA colors
 #
 # Image file formats don't store floats per channel, but instead use 8-bits per channel. This function converts an image
 # from 0-1.0 floats to 0-255 uchar values. It is primarily intended for use in images output by QImage, but could also 
@@ -115,20 +114,22 @@ def linearToSRGBA(u):
 # A numpy array the same size as \a u with all r,g, and b values converted into 8-bit channels in the order a,r,g,b - 
 # suitable for passing to a QImage
 #
-def SRGBAtoARGB32(v):
+def sRGBAtoARGB32(v):
     # make a copy of v and convert to a numpy array if needed
     w = numpy.array(v, dtype=numpy.float32);
     ret = numpy.zeros(shape=w.shape, dtype=numpy.uint8);
     
     # check that the last dimension is indeed 4
     if w.shape[-1] != 4:
-        raise ValueError('srgbaToLinear expects the last dimension to be 4');
+        raise ValueError('sRGBAtoARGB32 expects the last dimension to be 4');
     
     # unfold the arrays
     w_u = _unfold(w);
     ret_u = _unfold(ret);
     
-    # Convert 0-1 to 0-255 and change the order of RGBA to ARGB
+    # Clamp to 0-1, then convert 0-1 to 0-255 and change the order of RGBA to ARGB
+    w_u = numpy.minimum(w_u, 1.0);
+    w_u = numpy.maximum(w_u, 0.0);
     ret_u[:,0] = w_u[:,3]*255;
     ret_u[:,1:4] = w_u[:,0:3]*255
     return ret
