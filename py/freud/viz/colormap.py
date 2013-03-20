@@ -41,4 +41,4 @@ def grayscale(u, alpha=1.0):
     cmap_u[:,2] = w_u[:];
     cmap_u[:,3] = alpha;
     
-    return colorutil.linearToSRGBA(cmap_u);
+    return colorutil.linearToSRGBA(cmap);
