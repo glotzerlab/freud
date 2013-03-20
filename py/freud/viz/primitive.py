@@ -2,18 +2,24 @@ from __future__ import division, print_function
 import math
 import numpy
 
+try:
+    from PySide import QtGui
+except ImportError:
+    QtGui = None;
+
 from freud.viz import base
+from freud.viz import colorutil
 
 ## \package freud.viz.primitive
 #
 # Definition of basic viz primitives
 #
 
-## Disk representation (2D)
+## Disk primitive (2D)
 #
 # Represent N disks in 2D. Each has a given color and a global outline width is specified.
 class Disks(base.Primitive):
-    ## Initialize a disk representation
+    ## Initialize a disk primitive
     # \param positions Nx2 array listing the positions of each disk (in distance units)
     # \param diameters N array listing the diameters of each disk (in distance units)
     # \param colors Nx4 array listing the colors (rgba 0.0-1.0) of each disk (in SRGB)
@@ -86,7 +92,7 @@ class Disks(base.Primitive):
         # set up outline
         self.outline = outline;
 
-## Line representation
+## Line primitive
 #
 # Represent N lines in 2D or 3D (2D specific renderers may simply ignore the z component).
 class Lines(base.Primitive):
@@ -98,7 +104,7 @@ class Lines(base.Primitive):
 # are drawn given a global outline width.
 #
 class RepeatedPolygons(base.Primitive):
-    ## Initialize a disk representation
+    ## Initialize a disk primitive
     # \param positions Nx2 array listing the positions of each polygon (in distance units)
     # \param angles N array listing the rotation of the polygon about its center (in radians)
     # \param polygon Kx2 array listing the coordinates of each polygon in its local frame (in distance units)
@@ -115,7 +121,7 @@ class RepeatedPolygons(base.Primitive):
     # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
-    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1):        
+    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1):   
         # -----------------------------------------------------------------
         # set up positions
         # convert to a numpy array
@@ -179,3 +185,75 @@ class RepeatedPolygons(base.Primitive):
         # set up outline
         self.outline = outline;
 
+## Image
+#
+# The Image primitive takes in a 2D array of sRGBA values and draws that image at the specified point and size in
+# space. It is useful for overlaying heat maps on top of simulation data.
+#
+class Image(base.Primitive):
+    ## Initialize a image primitive
+    # \param position 2-element array containing the position of the image (in distance units)
+    # \param size 2-element array containing the size of the image (in distance units)
+    # \param data NxMx4 array containing the image data in sRGBA 0.0-1.0 format
+    # \param filename (if specified) A filename (must end in .png) to save the image to
+    #
+    # After initialization, the instance will have members position, size, and data, each being a numpy
+    # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
+    # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
+    #
+    # \a filename may be used by renderers that need to save images out for input into other programs. It can be used 
+    # to control what filename the image is saved as. Users can also trigger a save by calling save(). \a filename is 
+    # relative to the current working directory at the time save() is called (or at the time a renderer's write() is 
+    # called). If no filename is specified, the renderer will auto-generate one as needed.
+    #
+    def __init__(self, position, size, data, filename=None):   
+        # -----------------------------------------------------------------
+        # set up position
+        # convert to a numpy array
+        self.position = numpy.array(position, dtype=numpy.float32);        
+        # error check the input
+        if len(self.position.shape) != 1:
+            raise TypeError("position must be a 2-element array");
+        if self.position.shape[0] != 2:
+            raise ValueError("position must be a 2-element array");
+        
+        # -----------------------------------------------------------------
+        # set up size
+        # convert to a numpy array
+        self.size = numpy.array(size, dtype=numpy.float32);        
+        # error check the input
+        if len(self.size.shape) != 1:
+            raise TypeError("size must be a 2-element array");
+        if self.size.shape[0] != 2:
+            raise ValueError("size must be a 2-element array");
+        
+        # -----------------------------------------------------------------
+        # set up data
+        # convert to a numpy array
+        self.data = numpy.array(data, dtype=numpy.float32);        
+        # error check the input
+        if len(self.data.shape) != 3:
+            raise TypeError("data must be a NxMx4 array");
+        if self.data.shape[2] != 4:
+            raise ValueError("data must be a NxMx4 array");
+
+        self.filename = filename;
+        
+    ## Save the image to a png file
+    # \param filename Filename to save to (must end in .png)
+    #
+    # Save the image data to a png file
+    #
+    # \note Image saving requires PySide (an optional dependency). If PySide is not available, save will raise an
+    # exception.
+    #
+    def save(self, filename):
+        if QtGui is None:
+            raise RuntimeError("save requires PySide");
+        
+        # convert to ARGB32 format and init QImage
+        data_bytes = colorutil.sRGBAtoARGB32(self.data);
+        img = QtGui.QImage(data_bytes, data_bytes.shape[0], data_bytes.shape[1], QtGui.QImage.Format_ARGB32);
+        
+        # save
+        img.save(filename);

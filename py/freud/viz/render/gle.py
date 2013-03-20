@@ -25,6 +25,7 @@ class WriteGLE:
     # \note Height is determined from the aspect ratio
     def __init__(self, width_cm=8.0):
         self.width_cm = width_cm;
+        self.file_count = 0;
 
     ## Writes a Primitive out to the GLE file
     # \param out Output stream
@@ -100,6 +101,7 @@ class WriteGLE:
     # \param polygons Disks to polygons
     #
     def write_RepeatedPolygons(self, out, polygons):
+        # TODO: Update to do proper edge fills
         # initial implementation use stroke and fill on a path to draw polygons. This has 2 issues : 1) The stroke
         # goes outside the polygon and 2) The stroke overlaps the fill (looks bad with alpha rendering).
         # An improved implementation would need to compute an inner set of vertices for the polygon and use two paths,
@@ -163,7 +165,35 @@ class WriteGLE:
 
             out.write('end rotate\n');
             out.write('end translate\n');
-            
+
+    ## Write out image
+    # \param out Output stream
+    # \param img Image to write
+    #
+    def write_Image(self, out, img):
+        # map the position into the view space
+        position = (img.position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
+        size = img.size * self.sim_to_cm;
+        
+        # don't write out images that are off the edge
+        if position[0]+size[0]/2 < 0 or position[0]-size[0]/2 > self.width_cm:
+            return;
+        if position[1]+size[1]/2 < 0 or position[1]-size[1]/2 > self.height_cm:
+            return;
+        
+        # save the image to a file
+        if img.filename is not None:
+            fname = img.filename;
+        else:
+            fname = 'img{0}.png'.format(self.file_count);
+            self.file_count += 1;
+        
+        img.save(fname);
+        
+        # write out the GLE code to place the image    
+        out.write('amove {0} {1}\n'.format(*position));
+        out.write('bitmap {0} {1} {2}\n'.format(fname, size[0], size[1]));
+    
     ## Write a viz element to a GLE stream
     # \param out Output stream
     # \param obj Object to write
