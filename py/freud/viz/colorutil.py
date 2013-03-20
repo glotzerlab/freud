@@ -130,6 +130,10 @@ def sRGBAtoARGB32(v):
     # Clamp to 0-1, then convert 0-1 to 0-255 and change the order of RGBA to ARGB
     w_u = numpy.minimum(w_u, 1.0);
     w_u = numpy.maximum(w_u, 0.0);
-    ret_u[:,0] = w_u[:,3]*255;
-    ret_u[:,1:4] = w_u[:,0:3]*255
+    
+    # note that due to the way bytes are stored, this is actually in the order BGRA
+    ret_u[:,3] = w_u[:,3]*255;   # A
+    ret_u[:,0] = w_u[:,2]*255;   # B
+    ret_u[:,1] = w_u[:,1]*255;   # G
+    ret_u[:,2] = w_u[:,0]*255;   # R    
     return ret
