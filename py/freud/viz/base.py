@@ -7,6 +7,8 @@ import numpy
 # Base classes for core viz functionality
 #
 
+__prim_id = 0;
+
 ## Scene container
 #
 # A Scene represents a collection of all objects necessary to render a given scene. It has a Camera, zero or more Light
@@ -61,10 +63,13 @@ class Scene(object):
 # A primitive represents its visual aspect in the simplest pure form (for example, center and radius). Different 
 # render implementations may take this data and produce specific information that they need.
 #
+# Derived classes should call the super init which inserts a tracking identifier for use by the cache.
+# 
 class Primitive(object):
     ## Base class inits nothing
     def __init__(self):
-        pass;
+        self.ident = __prim_id;
+        __prim_id += 1;
 
 ## Group collects zero or more primitives together
 #

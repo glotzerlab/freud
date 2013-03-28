@@ -37,6 +37,8 @@ class Disks(base.Primitive):
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
     def __init__(self, positions, diameters=None, colors=None, color=None, outline=0.1):
+        base.Primitive.__init__(self);
+        
         # -----------------------------------------------------------------
         # set up positions
         # convert to a numpy array
@@ -122,6 +124,8 @@ class RepeatedPolygons(base.Primitive):
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
     def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1):   
+        base.Primitive.__init__(self);
+        
         # -----------------------------------------------------------------
         # set up positions
         # convert to a numpy array
@@ -206,7 +210,9 @@ class Image(base.Primitive):
     # relative to the current working directory at the time save() is called (or at the time a renderer's write() is 
     # called). If no filename is specified, the renderer will auto-generate one as needed.
     #
-    def __init__(self, position, size, data, filename=None):   
+    def __init__(self, position, size, data, filename=None):
+        base.Primitive.__init__(self);
+        
         # -----------------------------------------------------------------
         # set up position
         # convert to a numpy array
