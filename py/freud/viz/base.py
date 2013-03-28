@@ -118,6 +118,7 @@ class Group(object):
 # **TODO** Current methods are set up for 2D only. Expand with full 4x4 matrix generation method for general use (though
 #          designed primarily for OpenGL.
 # **TODO** add perspective projection camera
+# **TODO** convert all methods over to properties, and see how doxygen does at documenting them
 #
 class Camera(object):
     ## Initialize a camera
@@ -239,6 +240,38 @@ class Camera(object):
             raise TypeError('position must be a 3-element vector')
         self.position = numpy.array(position);
     
+    ## 2D orthographic camera matrix
+    # \returns A 4x4 numpy array with the camera matrix
+    #
+    # When used in 2D rendering, only the following fields are used to generate the camera matrix (all others are 
+    # ignored).
+    #   - position (x,y - z is ignored)
+    #   - aspect
+    #   - height
+    #
+    # https://en.wikipedia.org/wiki/Orthographic_projection_(geometry)
+    @property
+    def ortho_2d_matrix(self):
+        l = position[0] - self.getWidth()/2;
+        r = position[0] + self.getWidth()/2;
+        b = position[1] - self.getHeight()/2;
+        t = position[1] + self.getHeight()/2;
+        n = -1;
+        f = 1;
+        
+        mat = numpy.zeros(shape=(4,4), dtype=numpy.float32);
+        # numpy matrices are row-major, so we index them [r,c]
+        mat[0,0] = 2/(r-l);
+        mat[1,1] = 2/(t-b);
+        mat[2,2] = -2/(f-n);
+        
+        mat[0,3] = -(r+l)/(r-l);
+        mat[1,3] = -(t+b)/(t-b);
+        mat[2,3] = -(f+n)/(f-n);
+        mat[3,3] = 1;
+        
+        return mat;
+        
 ## Specify the location and properties of a light in the scene
 class Light(object):
     pass
