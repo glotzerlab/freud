@@ -19,7 +19,7 @@ import math
 # to modify this in a way to enable multiple scenes in a single GLE file. Such modifications are left for a later date.
 #
 # TODO: once camera matrices are in, modify this to use them
-class WriteGLE:
+class WriteGLE(object):
     ## Initialize a WriteGLE
     # \param width_cm Width of the output figure in cm
     # \note Height is determined from the aspect ratio
