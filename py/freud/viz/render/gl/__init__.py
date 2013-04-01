@@ -3,7 +3,7 @@ import numpy
 import math
 from ctypes import c_void_p
 from OpenGL import GL as gl
-from freud.viz.gl import glprimitive
+from freud.viz.render.gl import glprimitive
 
 null = c_void_p(0)
 
@@ -104,7 +104,8 @@ class Program(object):
     ## Initialize the program from a GLPrimitive
     # \param glprim GLPrimitive to compile
     def __init__(self, glprim):
-        self.__init__(glprim.vertex_shader, glprim.fragment_shader, glprim.attributes);
+        print('Initializing program1');
+        self.program = self._initialize_program(glprim.vertex_shader, glprim.fragment_shader, glprim.attributes);
     
     ## Initialize the program
     # \param vertex_shader
@@ -115,6 +116,7 @@ class Program(object):
     # as an OpenGL program
     #
     def __init__(self, vertex_shader, fragment_shader, attributes):
+        print('Initializing program');
         self.program = self._initialize_program(vertex_shader, fragment_shader, attributes);
     
     ## Clean up

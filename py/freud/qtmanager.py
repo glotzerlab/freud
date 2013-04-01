@@ -17,13 +17,13 @@ app = None;
 #
 # Any module that uses Qt functionalities should call init_app() on module load. The first such call will initialize
 # the QApplication, and subsequent calls will do nothing. initApp() will also detect when ipython initializes the
-# application for us
+# application for us.
 #
 def initApp():
     global app;
     
     # first, check if we have already initialized
     if QtCore.QCoreApplication.instance() is None:
-        #app = QtGui.QApplication(sys.argv);
-        app = QtCore.QCoreApplication(sys.argv);
+        app = QtGui.QApplication(sys.argv);
+        #app = QtCore.QCoreApplication(sys.argv);
         app.processEvents();

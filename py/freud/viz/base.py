@@ -7,7 +7,7 @@ import numpy
 # Base classes for core viz functionality
 #
 
-__prim_id = 0;
+_prim_id = 0;
 
 ## Scene container
 #
@@ -68,8 +68,9 @@ class Scene(object):
 class Primitive(object):
     ## Base class inits nothing
     def __init__(self):
-        self.ident = __prim_id;
-        __prim_id += 1;
+        global _prim_id;
+        self.ident = _prim_id;
+        _prim_id += 1;
 
 ## Group collects zero or more primitives together
 #
