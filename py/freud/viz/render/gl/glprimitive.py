@@ -112,8 +112,10 @@ class GLRepeatedPolygons(GLPrimitive):
 #  - N: number of disks
 #  - outline: outline width (in map coordinates)
 #  - buffer_position: OpenGL buffer (N*6 2-element positions)
-#  - buffer_mapcoord: OpenGL buffer (N*6 2-element map coordinates)
+#  - buffer_mapcoord: OpenGL buffer (N*6 3-element map coordinates)
 #  - buffer_color: OpenGL buffer (N*6 4-element colors)
+#
+# mapcoord.xy stores the position in the disk and z stores the diameter of the disk (need to get it in there somehow).
 #
 # There are certainly improvements one could make, but this seems like the simplest place to start and the least
 # error prone. Ideas for improvement:
@@ -131,12 +133,13 @@ class GLDisks(GLPrimitive):
 #version 120
 
 uniform mat4 camera;
+uniform float outline_width;
 
 attribute vec4 position;
-attribute vec2 mapcoord;
+attribute vec3 mapcoord;
 attribute vec4 color;
 
-varying vec4 v_mapcoord;
+varying vec3 v_mapcoord;
 varying vec4 v_color;
 void main()
     {
@@ -152,11 +155,28 @@ void main()
     fragment_shader = """
 #version 120
 
-varying vec4 v_mapcoord;
+uniform float outline;
+
+varying vec3 v_mapcoord;
 varying vec4 v_color;
 void main()
     {
-    gl_FragColor = v_color;
+    // determine position in the disk and its radius
+    vec2 p = v_mapcoord.xy;
+    float rsq = dot(p,p);
+    float disk_r = v_mapcoord.z/2.0f;
+    
+    // determine the edges of the various colors
+    float color_rsq = (disk_r - outline)*(disk_r - outline);
+    float edge_rsq = disk_r * disk_r;
+    
+    // color the output fragment appropriately
+    if (rsq < color_rsq)
+        gl_FragColor = v_color;
+    else if (rsq < edge_rsq)
+        gl_FragColor = vec4(0,0,0,v_color.a);
+    else
+        discard;
     }
 """;
     
@@ -167,7 +187,7 @@ void main()
     # \param prim base Primitive to represent
     #
     def __init__(self, prim):
-        CacheItem.__init__(self);
+        GLPrimitive.__init__(self, prim);
         
         # simple scalar values
         self.N = len(prim.positions);
@@ -175,13 +195,13 @@ void main()
         
         # initialize values for buffers
         position = numpy.zeros(shape=(self.N, 6, 2), dtype=numpy.float32);
-        mapcoord = numpy.zeros(shape=(self.N, 6, 2), dtype=numpy.float32);
+        mapcoord = numpy.zeros(shape=(self.N, 6, 3), dtype=numpy.float32);
         color = numpy.zeros(shape=(self.N, 6, 4), dtype=numpy.float32);
         
         # start all coords at the center, with all the same color
         for i in range(6):
             position[:,i,:] = prim.positions;
-            color[:,i,:] = prim.color;
+            color[:,i,:] = prim.colors;
         
         # Map of coords
         # 0 --- 2  5
@@ -197,19 +217,23 @@ void main()
         for i in [0,1,3]:
             position[:,i,0] -= prim.diameters/2;
             mapcoord[:,i,0] = -prim.diameters/2;
+            mapcoord[:,i,2] = prim.diameters;
         
         for i in [2,4,5]:
             position[:,i,0] += prim.diameters/2;
             mapcoord[:,i,0] = prim.diameters/2;
-
+            mapcoord[:,i,2] = prim.diameters;
+        
         # update y coordinates
         for i in [0,2,5]:
             position[:,i,1] += prim.diameters/2;
             mapcoord[:,i,1] = prim.diameters/2;
+            mapcoord[:,i,2] = prim.diameters;
 
         for i in [1,3,4]:
             position[:,i,1] -= prim.diameters/2;
             mapcoord[:,i,1] = -prim.diameters/2;
+            mapcoord[:,i,2] = prim.diameters;        
         
         # generate OpenGL buffers and copy data
         self.buffer_position = gl.glGenBuffers(1);
@@ -234,9 +258,12 @@ void main()
         gl.glUseProgram(program);
         
         # update the camera matrix
-        camera_uniform = gl.glGetUnifromLocation(program, "camera");
+        camera_uniform = gl.glGetUniformLocation(program, "camera");
         gl.glUniformMatrix4fv(camera_uniform, 1, True, camera.ortho_2d_matrix);
                 
+        outline_uniform = gl.glGetUniformLocation(program, "outline");
+        gl.glUniform1f(outline_uniform, self.outline);
+
         # bind everything and then draw the disks
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
         gl.glEnableVertexAttribArray(0);
@@ -244,11 +271,11 @@ void main()
         
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_mapcoord);
         gl.glEnableVertexAttribArray(1);
-        gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+        gl.glVertexAttribPointer(1, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
 
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
         gl.glEnableVertexAttribArray(2);
-        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+        gl.glVertexAttribPointer(2, 4, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
         
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, self.N*6);
 
@@ -263,6 +290,5 @@ void main()
     # Frees all OpenGL resources used by the primitive
     #
     def __del__(self):
-        print('Deleting disk cache: ', id(self));
         buf_list = numpy.array([self.buffer_position, self.buffer_mapcoord, self.buffer_color], dtype=numpy.uint32);
         gl.glDeleteBuffers(3, buf_list);

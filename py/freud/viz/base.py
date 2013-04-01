@@ -253,10 +253,10 @@ class Camera(object):
     # https://en.wikipedia.org/wiki/Orthographic_projection_(geometry)
     @property
     def ortho_2d_matrix(self):
-        l = position[0] - self.getWidth()/2;
-        r = position[0] + self.getWidth()/2;
-        b = position[1] - self.getHeight()/2;
-        t = position[1] + self.getHeight()/2;
+        l = self.position[0] - self.getWidth()/2;
+        r = self.position[0] + self.getWidth()/2;
+        b = self.position[1] - self.getHeight()/2;
+        t = self.position[1] + self.getHeight()/2;
         n = -1;
         f = 1;
         

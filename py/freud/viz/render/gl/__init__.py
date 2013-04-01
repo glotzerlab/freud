@@ -103,37 +103,26 @@ class DrawGL(object):
 class Program(object):
     ## Initialize the program from a GLPrimitive
     # \param glprim GLPrimitive to compile
-    def __init__(self, glprim):
-        print('Initializing program1');
-        self.program = self._initialize_program(glprim.vertex_shader, glprim.fragment_shader, glprim.attributes);
-    
-    ## Initialize the program
-    # \param vertex_shader
-    # \param fragment_shader
-    # \param attributes
-    #
     # Compiles and initializes the Program. After initialization, the program attribute is accessible and usable
     # as an OpenGL program
     #
-    def __init__(self, vertex_shader, fragment_shader, attributes):
-        print('Initializing program');
-        self.program = self._initialize_program(vertex_shader, fragment_shader, attributes);
+    def __init__(self, glprim=None):
+        self.program = self._initialize_program(glprim.vertex_shader, glprim.fragment_shader, glprim.attributes);
     
     ## Clean up
     # Release OpenGL resources
     #
     def __del__(self):
-        print('Deleting program: ', self.program);
         gl.glDeleteProgram(self.program);
     
     @staticmethod
     def _initialize_program(vertex_shader, fragment_shader, attributes):
         shaders = [];
         
-        shaders.append(self._create_shader(gl.GL_VERTEX_SHADER, vertex_shader));
-        shaders.append(self._create_shader(gl.GL_FRAGMENT_SHADER, fragment_shader));
+        shaders.append(Program._create_shader(gl.GL_VERTEX_SHADER, vertex_shader));
+        shaders.append(Program._create_shader(gl.GL_FRAGMENT_SHADER, fragment_shader));
         
-        program = self._create_program(shaders, attributes);
+        program = Program._create_program(shaders, attributes);
 
         for shader in shaders:
             gl.glDeleteShader(shader);
@@ -142,7 +131,7 @@ class Program(object):
 
     @staticmethod
     def _create_shader(stype, source):
-        shader = gl.glCreateShader(type);
+        shader = gl.glCreateShader(stype);
         gl.glShaderSource(shader, source);
         
         gl.glCompileShader(shader);
