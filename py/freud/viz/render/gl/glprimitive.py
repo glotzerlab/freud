@@ -156,25 +156,43 @@ void main()
 #version 120
 
 uniform float outline;
+uniform float pixel_size;
 
 varying vec3 v_mapcoord;
 varying vec4 v_color;
 void main()
     {
-    // determine position in the disk and its radius
-    vec2 p = v_mapcoord.xy;
-    float rsq = dot(p,p);
-    float disk_r = v_mapcoord.z/2.0f;
+    // determine position in the disk (in pixels) and its radius
+    vec2 p = v_mapcoord.xy / pixel_size;
+    float r = sqrt(dot(p,p));
+    float disk_r = v_mapcoord.z/2.0f / pixel_size;
     
     // determine the edges of the various colors
-    float color_rsq = (disk_r - outline)*(disk_r - outline);
-    float edge_rsq = disk_r * disk_r;
+    float color_r = disk_r - outline / pixel_size;
     
     // color the output fragment appropriately
-    if (rsq < color_rsq)
-        gl_FragColor = v_color;
-    else if (rsq < edge_rsq)
-        gl_FragColor = vec4(0,0,0,v_color.a);
+    vec4 color_inside = v_color;
+    vec4 color_edge = vec4(0,0,0,v_color.a);
+    if (r < color_r-1)
+        {
+        gl_FragColor = color_inside;
+        }
+    else if (r < color_r+1)
+        {
+        // antialias color-edge boundary
+        float d = color_r + 1 - r;
+        float a = exp2(-2 * d * d);
+        gl_FragColor = a * color_edge + (1-a) * color_inside;
+        }
+    else if (r < disk_r - 1)
+        gl_FragColor = color_edge;
+    else if (r < disk_r + 1)
+        {
+        // antialias color-edge boundary (alpha blending is used for the blend)
+        float d = disk_r - 1 - r;
+        color_edge.a = exp2(-2 * d * d);
+        gl_FragColor = color_edge;
+        }
     else
         discard;
     }
@@ -213,27 +231,31 @@ void main()
         # 1  3 --- 4
         #
         
+        # Expand the size of the quad by 5% to leave room for anti-alias pixel rendering on the edge
+        # this doesn't guarantee that enough will be rendered, but should work in most cases
+        ex_factor = 1.05;
+        
         # Update x coordinates
         for i in [0,1,3]:
-            position[:,i,0] -= prim.diameters/2;
-            mapcoord[:,i,0] = -prim.diameters/2;
+            position[:,i,0] -= prim.diameters/2 * ex_factor;
+            mapcoord[:,i,0] = -prim.diameters/2 * ex_factor;
             mapcoord[:,i,2] = prim.diameters;
         
         for i in [2,4,5]:
-            position[:,i,0] += prim.diameters/2;
-            mapcoord[:,i,0] = prim.diameters/2;
+            position[:,i,0] += prim.diameters/2 * ex_factor;
+            mapcoord[:,i,0] = prim.diameters/2 * ex_factor;
             mapcoord[:,i,2] = prim.diameters;
         
         # update y coordinates
         for i in [0,2,5]:
-            position[:,i,1] += prim.diameters/2;
-            mapcoord[:,i,1] = prim.diameters/2;
+            position[:,i,1] += prim.diameters/2 * ex_factor;
+            mapcoord[:,i,1] = prim.diameters/2 * ex_factor;
             mapcoord[:,i,2] = prim.diameters;
 
         for i in [1,3,4]:
-            position[:,i,1] -= prim.diameters/2;
-            mapcoord[:,i,1] = -prim.diameters/2;
-            mapcoord[:,i,2] = prim.diameters;        
+            position[:,i,1] -= prim.diameters/2 * ex_factor;
+            mapcoord[:,i,1] = -prim.diameters/2 * ex_factor;
+            mapcoord[:,i,2] = prim.diameters;
         
         # generate OpenGL buffers and copy data
         self.buffer_position = gl.glGenBuffers(1);
@@ -255,6 +277,14 @@ void main()
     # \param camera The camera to use when drawing
     #
     def draw(self, program, camera):
+        # save state
+        gl.glPushAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
+        
+        # setup state
+        gl.glDisable(gl.GL_MULTISAMPLE);
+        gl.glEnable(gl.GL_BLEND);
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+        
         gl.glUseProgram(program);
         
         # update the camera matrix
@@ -263,6 +293,9 @@ void main()
                 
         outline_uniform = gl.glGetUniformLocation(program, "outline");
         gl.glUniform1f(outline_uniform, self.outline);
+
+        pixel_size_uniform = gl.glGetUniformLocation(program, "pixel_size");
+        gl.glUniform1f(pixel_size_uniform, camera.pixel_size);
 
         # bind everything and then draw the disks
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
@@ -284,6 +317,9 @@ void main()
         gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
         gl.glUseProgram(0);
+        
+        # restore state
+        gl.glPopAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
     
     ## Release a cached GL primitive
     # 

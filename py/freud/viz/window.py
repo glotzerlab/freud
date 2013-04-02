@@ -29,6 +29,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     def resizeGL(self, w, h):
         GL.glViewport(0, 0, w, h)
         self.scene.camera.setAspect(w/h);
+        self.scene.camera.resolution = h;
         
     def paintGL(self):
         # get framerate
@@ -44,9 +45,12 @@ class GLWidget(QtOpenGL.QGLWidget):
     
     def updateFPS(self):
         cur_time = time.time();
-        elapsed_time = cur_time - self.last_time;
-        print(self.frame_count / elapsed_time, "FPS");
-        self.frame_count = 0;
+
+        if self.frame_count > 0:
+            elapsed_time = cur_time - self.last_time;
+            print(self.frame_count / elapsed_time, "FPS");
+            self.frame_count = 0;
+            
         self.last_time = cur_time;
     
         

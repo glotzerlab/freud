@@ -130,8 +130,9 @@ class Camera(object):
     # \param vfov vertical field of view (in radians) of the viewable plane passing through the look_at point
     # \param height height of the viewable plane passing through the look_at point in world space units (overrides vfov
     #        if set)
+    # \param resolution height of the viewable plane in display pixels
     #
-    def __init__(self, position, look_at, up, aspect, vfov=math.pi/4, height=None):
+    def __init__(self, position, look_at, up, aspect, vfov=math.pi/4, height=None, resolution=1080):
         if len(position) != 3:
             raise TypeError('look_at must be a 3-element vector')
         if len(look_at) != 3:
@@ -145,6 +146,7 @@ class Camera(object):
         self.aspect = aspect;
         self.vfov = vfov;
         self.height = height;
+        self.resolution = resolution;
     
     ## Get the height of the view plane
     # \returns height of the view plane passing through the look_at point
@@ -272,6 +274,12 @@ class Camera(object):
         mat[3,3] = 1;
         
         return mat;
+    
+    ## Pixel size
+    # \returns The size of a pixel (in distance units) at the view plane
+    @property
+    def pixel_size(self):
+        return self.getHeight() / self.resolution;
         
 ## Specify the location and properties of a light in the scene
 class Light(object):
