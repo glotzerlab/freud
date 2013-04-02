@@ -14,10 +14,29 @@ using namespace boost::python;
 namespace bnp=boost::python::numeric;
 using namespace freud;
 
+/* numpy is terrible (see /opt/local/Library/Frameworks/Python.framework/Versions/2.7/
+lib/python2.7/site-packages/numpy/core/generate_numpy_array.py)
+The following #defines help get around this
+*/
+
+#if PY_VERSION_HEX >= 0x03000000
+#define MY_PY_VER_3x
+#else
+#define MY_PY_VER_2x
+#endif
+
+#ifdef MY_PY_VER_3x
 int my_import_array()
     {
     import_array();
     }
+#endif
+#ifdef MY_PY_VER_2x
+void my_import_array()
+    {
+    import_array();
+    }
+#endif
 
 BOOST_PYTHON_MODULE(_freud)
     {
