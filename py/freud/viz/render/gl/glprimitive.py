@@ -190,7 +190,7 @@ void main()
         {
         // antialias color-edge boundary (alpha blending is used for the blend)
         float d = disk_r - 1 - r;
-        color_edge.a = exp2(-2 * d * d);
+        color_edge.a *= exp2(-2 * d * d);
         gl_FragColor = color_edge;
         }
     else
