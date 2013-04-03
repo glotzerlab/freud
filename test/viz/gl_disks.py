@@ -51,8 +51,8 @@ if __name__ == '__main__':
     c = gen_random_colors(len(p));
     d = gen_random_diameters(len(p));
     
-    disks = viz.primitive.Disks(positions=p, colors=c, diameters=d, outline=0.01);
-    disks1 = viz.primitive.Disks(positions=gen_random_disks(100, 20), color=(0,0,1,0.5), outline=0.05);
+    disks = viz.primitive.Disks(positions=p, colors=c, diameters=d, outline=0.06);
+    disks1 = viz.primitive.Disks(positions=gen_random_disks(100, 20), color=(0,0,1,1), outline=0.06);
     
     group = viz.base.Group(primitives=[disks, disks1]);
     cam = viz.base.Camera(position=(0,0,1), look_at=(0,0,0), up=(0,1,0), aspect=4/3, height=18);
