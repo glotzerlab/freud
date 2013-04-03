@@ -44,6 +44,17 @@ class TrajectoryIter:
         self.index += 1;
         return result;
 
+## Enable pickling of internal classes
+# Box
+def Box_getinitargs(self):
+    return (self.getLx(), self.getLy(), self.getLz(), self.is2D())
+Box.__getinitargs__ = Box_getinitargs
+
+# DCDLoader
+def DCDLoader_getinitargs(self):
+    return (self.getFileName(), )
+_freud.DCDLoader.__getinitargs__ = DCDLoader_getinitargs
+
 ## Base class Trajectory that defines a common interface for working with any trajectory
 #
 # A Trajectory represents a series of frames. Each frame consists of a set of properties on the particles, composite
