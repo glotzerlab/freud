@@ -3,5 +3,5 @@
 # Methods to compute densities from point distributions.
 #
 
-from freud._freud import GaussianDensity;
-from freud._freud import RDF;
+from _freud import GaussianDensity;
+from _freud import RDF;

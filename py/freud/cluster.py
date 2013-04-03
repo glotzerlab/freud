@@ -4,5 +4,5 @@
 #
 
 # bring related c++ classes into the cluster module
-from freud._freud import Cluster
-from freud._freud import ClusterProperties
+from _freud import Cluster
+from _freud import ClusterProperties

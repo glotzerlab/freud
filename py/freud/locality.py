@@ -4,8 +4,8 @@
 #
 
 # bring related c++ classes into the locality module
-from freud._freud import LinkCell
-from freud._freud import IteratorLinkCell
+from _freud import LinkCell
+from _freud import IteratorLinkCell
 
 
 # fixup IteratorLinkCell with an __iter__ method

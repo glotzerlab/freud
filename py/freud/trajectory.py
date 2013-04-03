@@ -11,8 +11,8 @@ try:
 except ImportError:
     h5py = None;
 
-from freud._freud import Box;
-import freud._freud as _freud;
+from _freud import Box;
+import _freud;
 
 ## \package freud.trajectory
 #
