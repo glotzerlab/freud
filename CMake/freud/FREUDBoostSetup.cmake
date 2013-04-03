@@ -8,10 +8,6 @@ if(ENABLE_STATIC)
     set(Boost_USE_STATIC_LIBS "ON")
     add_definitions(-DBOOST_PYTHON_STATIC_LIB)
 else(ENABLE_STATIC)
-    if(WIN32)
-        message(FATAL_ERROR "Dynamically linking boost to HOOMD on windows is a hopeless cause. If 
-            you really want this feature, make it work yourself")
-    endif(WIN32)
     set(Boost_USE_STATIC_LIBS "OFF")
 endif(ENABLE_STATIC)
 
@@ -28,13 +24,14 @@ set(BOOST_PYTHON_COMPONENT "python-${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINO
 
 set(REQUIRED_BOOST_COMPONENTS thread filesystem ${BOOST_PYTHON_COMPONENT} signals program_options unit_test_framework iostreams serialization)
 
+message(STATUS "First attempt to find boost, it's OK if it fails")
 # first, see if we can get any supported version of Boost
 find_package(Boost 1.32.0 COMPONENTS ${REQUIRED_BOOST_COMPONENTS})
 
 # if python is not found, try looking for python or python3
 string(TOUPPER ${BOOST_PYTHON_COMPONENT} UPPER_BOOST_PYTHON_COMPONENT )
 if (NOT Boost_${UPPER_BOOST_PYTHON_COMPONENT}_FOUND)
-message(STATUS "Python ${BOOST_PYTHON_COMPONENT} not found, trying python-${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+message(STATUS "Python ${BOOST_PYTHON_COMPONENT} not found, trying python or python3")
 list(REMOVE_ITEM REQUIRED_BOOST_COMPONENTS ${BOOST_PYTHON_COMPONENT})
 
 if (PYTHON_VERSION VERSION_GREATER 3)
