@@ -3,6 +3,7 @@ import random
 
 from freud import viz
 from freud.viz import window
+from freud import qtmanager
 
 # generate random disks
 def gen_random_disks(N, w):
@@ -60,3 +61,5 @@ if __name__ == '__main__':
     
     w = window.GLWidget(scene)
     w.show()
+
+qtmanager.runEventLoop();
