@@ -671,6 +671,179 @@ class TrajectoryXMLDCD(Trajectory):
             box = self.box;
             return Frame(self, 1, dynamic_props, box);
 
+## Trajectory information read from an POS file
+#
+# TrajectoryPOS reads structure information in from the provided POS file
+class TrajectoryPOS(Trajectory):
+    ## Initialize an POS trajectory for access
+    # \param pos_fname File name of the POS file to read the structure from
+    #
+    def __init__(self, pos_fname):
+        Trajectory.__init__(self);
+    
+        # parse the POS file
+
+        pos = pos_reader.parse(pos_fname);
+
+        # Old Stuff
+        dom = xml.dom.minidom.parse(xml_fname);
+        hoomd_xml = dom.getElementsByTagName('hoomd_xml');
+        if len(hoomd_xml) != 1:
+            raise RuntimeError("hoomd_xml tag not found in xml file")
+        else:
+            hoomd_xml = hoomd_xml[0];
+            
+        configuration = hoomd_xml.getElementsByTagName('configuration');
+        if len(configuration) != 1:
+            raise RuntimeError("configuration tag not found in xml file")
+        else:
+            configuration = configuration[0];
+        
+        # determine the number of dimensions
+        if configuration.hasAttribute('dimensions'):
+            self.ndim = int(configuration.getAttribute('dimensions'));
+        else:
+            self.ndim = 3;
+        
+        # if there is no dcd file, read box
+        if dcd_fname is None:        
+            box_config = configuration.getElementsByTagName('box')[0];
+            self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
+
+        # read the position node just to get the number of particles
+        # unless there is no dcd file. Then read positions.
+        position = configuration.getElementsByTagName('position');
+        if len(position) != 1:
+            raise RuntimeError("hoomd_xml tag not found in xml file")
+        else:
+            position = position[0];
+        position_text = position.childNodes[0].data
+        xyz = position_text.split()
+        self.num_particles = len(xyz)/3;
+        if dcd_fname is None:
+            pos = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32);
+            for i in xrange(0,self.num_particles):
+                pos[i,0] = float(xyz[3*i]);
+                pos[i,1] = float(xyz[3*i+1]);
+                pos[i,2] = float(xyz[3*i+2]);         
+        
+        # parse the particle types
+        type_nodes = configuration.getElementsByTagName('type');
+        if len(type_nodes) == 1:
+            type_text = type_nodes[0].childNodes[0].data;
+            type_names = type_text.split();
+            if len(type_names) != self.num_particles:
+                raise RuntimeError("wrong number of types found in xml file")
+        else:
+            raise RuntimeError("type tag not found in xml file")
+
+        # parse the particle masses
+        mass_nodes = configuration.getElementsByTagName('mass');
+        if len(mass_nodes) == 1:
+            mass_text = mass_nodes[0].childNodes[0].data;
+            mass_list = mass_text.split();
+            if len(mass_list) != self.num_particles:
+                raise RuntimeError("wrong number of masses found in xml file")
+            mass_array = numpy.array([float(m) for m in mass_list], dtype=numpy.float32);
+        else:
+            # default to a mass of 1.0, like hoomd
+            mass_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32);
+        
+        # parse the particle diameters
+        diam_nodes = configuration.getElementsByTagName('diameter');
+        if len(diam_nodes) == 1:
+            diam_text = diam_nodes[0].childNodes[0].data;
+            diam_list = diam_text.split();
+            if len(diam_list) != self.num_particles:
+                raise RuntimeError("wrong number of diameters found in xml file")
+            diameter_array = numpy.array([float(d) for d in diam_list], dtype=numpy.float32);
+        else:
+            # default to a diameter of 1.0, like hoomd
+            diameter_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32);
+
+        # parse the particle bodies
+        body_nodes = configuration.getElementsByTagName('body');
+        if len(body_nodes) == 1:
+            body_text = body_nodes[0].childNodes[0].data;
+            body_list = body_text.split();
+            if len(body_list) != self.num_particles:
+                raise RuntimeError("wrong number of bodies found in xml file")
+            body_array = numpy.array([float(b) for b in body_list], dtype=numpy.int32);
+        else:
+            # default to a body of -1, like hoomd
+            body_array = -1 * numpy.ones(shape=(1,self.num_particles), dtype=numpy.int32);
+
+        # parse the particle charges
+        charge_nodes = configuration.getElementsByTagName('charge');
+        if len(charge_nodes) == 1:
+            charge_text = charge_nodes[0].childNodes[0].data;
+            charge_list = charge_text.split();
+            if len(charge_list) != self.num_particles:
+                raise RuntimeError("wrong number of charges found in xml file")
+            charge_array = numpy.array([float(c) for c in charge_list], dtype=numpy.float32);
+        else:
+            # default to a charge of 0.0, like hoomd
+            charge_array = numpy.zeros(shape=(1,self.num_particles), dtype=numpy.float32);
+
+        # save the static properties
+        self.static_props['mass'] = mass_array;
+        self.static_props['diameter'] = diameter_array;
+        self.static_props['typename'] = type_names;
+        self.static_props['typeid'] = _assign_typeid(self.static_props['typename']);
+        self.static_props['body'] = body_array;
+        self.static_props['charge'] = charge_array;
+        if dcd_fname is None:
+            self.static_props['position'] = pos;
+       
+        
+        # load in the DCD file
+        if dcd_fname is not None:
+            self.dcd_loader = _freud.DCDLoader(dcd_fname);
+            if self.dcd_loader.getNumParticles() != self.num_particles:
+                raise RuntimeError("number of particles in the DCD file doesn't match the number in the XML file");
+        else:
+            self.dcd_loader = None;
+   
+    ## Get the number of particles in the trajectory
+    # \returns Number of particles
+    def numParticles(self):
+        return self.num_particles;
+    
+    ## Get the number of frames in the trajectory
+    # \returns Number of frames
+    def __len__(self):
+        if self.dcd_loader is not None:
+            return self.dcd_loader.getFrameCount();
+        else:
+            return 1;
+    
+    ## Sets the current frame
+    # \param idx Index of the frame to seek to
+    def setFrame(self, idx):
+        if self.dcd_loader is None and idx > 0:
+            raise RuntimeError("No DCD file was loaded");
+
+        if self.dcd_loader is not None and not(self.dcd_loader.getLastFrameNum() == idx):
+            self.dcd_loader.jumpToFrame(idx);
+            self.dcd_loader.readNextFrame();
+    
+    ## Get the current frame
+    # \returns A Frame containing the current frame data
+    def getCurrentFrame(self):
+        
+        dynamic_props = {};
+
+        # get position
+        if self.dcd_loader is not None:
+            pos = copy.copy(self.dcd_loader.getPoints());
+            dynamic_props['position'] = pos;
+            box = self.dcd_loader.getBox();
+            box.set2D(self.ndim == 2);
+            return Frame(self, self.dcd_loader.getLastFrameNum(), dynamic_props, box);
+        else:   
+            box = self.box;
+            return Frame(self, 1, dynamic_props, box);
+
         
 ## Trajectory information obtained from within a running hoomd instance
 #
