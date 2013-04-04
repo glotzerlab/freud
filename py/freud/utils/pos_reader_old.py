@@ -6,12 +6,13 @@ import subprocess
 import time
 import string
 
-class file:
+class File:
     """
         object class to read/parse incsim output and/or distill data and position
     """
-    def __init__(self, posfile, only_last=False):
-        # Need some kind of error checking??
+    def __init__(self, infile=None, datfile=None, posfile=None, only_last=False):
+        self.infile = infile
+        self.datfile = datfile
         self.posfile = posfile
         self.observables = list()
         self.data = dict()
@@ -25,7 +26,6 @@ class file:
         self.quaternion_list = []
         self.boxMatrix_list = []
         self.frame_list = [] # list of ints
-        self.only_last = only_last
         
         #a bunch of Injavis environment variables
         self.injavis_params=dict()
@@ -40,103 +40,107 @@ class file:
         self.injavis_params['addFog']=None
         self.injavis_params['antiAliasing']=None
         self.injavis_params['cartesian']=None
-        #if not infile is None:
-        #    self.load(only_last=only_last)
+        if not infile is None:
+            self.load(only_last=only_last)
+    def load(self, filename=None,only_last=False):
+        """
+            Read an incsim output file into memory. Invoked automatically if
+            infile is specified to the constructor.
 
-    ## Read an incsim output file into memory. Invoked automatically if
-    #        infile is specified to the constructor.
-    #
-    #        filename may be a valid filename, an open file descriptor, or a
-    #        list of lines as from a file.
-    def parse(self):
-        filename = self.posfile;
-        #if isinstance(filename, file):
-        #    f = filename
-        #elif isinstance(filename, list):
-        #    f = filename
-        #else:
-        #    f = open(filename, 'rU')
-        f = open(filename, 'rU')
-        i=0
-        isdata=False
-        self.particle_list.append([])
-        self.definitions.append(dict())
-        self.position_list.append([])
-        self.object_list.append([])
-        self.quaternion_list.append([])
-
-        pbuff=old_pbuff=[]
-        pbuff_frame=old_pbuff_frame = 0
-        for line in f:
-            #i+=1
-            if re.match('^//',line): 
-                continue
-            elif re.match('#\[data\]', line):
-                #print "Found data header on line %i" % i
-                if len(self.observables) == 0:
-                    self.observables = re.split('\s+', line)[1:-1]
-                    for col in self.observables:
-                        self.data[col]=list()
-                isdata=True
-                    
-                #if the buff is full, enmpty it
-                # if we reading all the frames
-                if len(pbuff)>0 and not only_last:
-                    self.frame_list.append(pbuff_frame)
-                    for lbuff in pbuff:
-                    self.addPosline(lbuff.strip())
-
-                #otherwise save a copy of this buff incase the
-                #next frame is corrupt
-                else:
-                    old_pbuff=list(pbuff)
-                    old_pbuff_frame=pbuff_frame
-
-                #clear the pos buffer
-                pbuff = []
-                    
-                continue
-            elif re.match('#\[done\]', line):
-                isdata=False
-                continue
-            if isdata:
-                self.addDataline(line)
+            filename may be a valid filename, an open file descriptor, or a
+            list of lines as from a file.
+        """
+        if filename is None:
+            filename = self.infile
+        if filename is None:
+            print "No input file assigned"
+        else:
+            if isinstance(filename, file):
+                f = filename
+            elif isinstance(filename, list):
+                f = filename
             else:
-                if ( re.match("^eof",line) ):
-                try:
-                    pbuff_frame = self.steps[len(self.steps)-1]
-                except:
-                    i += 1
-                    pbuff_frame = i 
-                pbuff.append(line)
+                f = open(filename, 'rU')
+            i=0
+            isdata=False
+            self.particle_list.append([])
+            self.definitions.append(dict())
+            self.position_list.append([])
+            self.object_list.append([])
+            self.quaternion_list.append([])
 
-        #did the buffer end full?
-        if len(pbuff)>0:
-            #are both buffers complete?
-            #if so, read the newer one
-            if len(pbuff)==len(old_pbuff):
-            #final buff is complete, add to data set
-            for lbuff in pbuff:
-                self.addPosline(lbuff.strip())
-            self.frame_list.append(pbuff_frame)
+            pbuff=old_pbuff=[]
+            pbuff_frame=old_pbuff_frame = 0
+            for line in f:
+                #i+=1
+                if re.match('^//',line): 
+                    continue
+                elif re.match('#\[data\]', line):
+                    #print "Found data header on line %i" % i
+                    if len(self.observables) == 0:
+                        self.observables = re.split('\s+', line)[1:-1]
+                        for col in self.observables:
+                            self.data[col]=list()
+                    isdata=True
+                    
+                    #if the buff is full, enmpty it
+                    # if we reading all the frames
+                    if len(pbuff)>0 and not only_last:
+                      self.frame_list.append(pbuff_frame)
+                      for lbuff in pbuff:
+                        self.addPosline(lbuff.strip())
+
+                    #otherwise save a copy of this buff incase the
+                    #next frame is corrupt
+                    else:
+                      old_pbuff=list(pbuff)
+                      old_pbuff_frame=pbuff_frame
+
+                    #clear the pos buffer
+                    pbuff = []
+                    
+                    continue
+                elif re.match('#\[done\]', line):
+                    isdata=False
+                    continue
+                if isdata:
+                    self.addDataline(line)
+                else:
+                  if ( re.match("^eof",line) ):
+                    try:
+                        pbuff_frame = self.steps[len(self.steps)-1]
+                    except:
+                        i += 1
+                        pbuff_frame = i 
+                  pbuff.append(line)
+
+            #did the buffer end full?
+            if len(pbuff)>0:
+              #are both buffers complete?
+              #if so, read the newer one
+              if len(pbuff)==len(old_pbuff):
+                #final buff is complete, add to data set
+                for lbuff in pbuff:
+                  self.addPosline(lbuff.strip())
+                self.frame_list.append(pbuff_frame)
+              elif only_last:
+                #last buff was incomplete, read in the old one
+                #this isn't necessary if the only_last is false
+                #because it has already been read in
+                for lbuff in old_pbuff:
+                  self.addPosline(lbuff.strip())
+                self.frame_list.append(old_pbuff_frame)
             elif only_last:
-            #last buff was incomplete, read in the old one
-            #this isn't necessary if the only_last is false
-            #because it has already been read in
-            for lbuff in old_pbuff:
+              #read in the last buffer, this file was 
+              #truncated in a data section
+              for lbuff in old_pbuff:
                 self.addPosline(lbuff.strip())
-            self.frame_list.append(old_pbuff_frame)
-        elif only_last:
-            #read in the last buffer, this file was 
-            #truncated in a data section
-            for lbuff in old_pbuff:
-                self.addPosline(lbuff.strip())
-            self.frame_list.append(old_pbuff_frame)
-        self.particle_list.pop()
-        self.position_list.pop()
-        self.object_list.pop()
-        self.quaternion_list.pop()
-        self.definitions.pop()
+              self.frame_list.append(old_pbuff_frame)
+            self.particle_list.pop()
+            self.position_list.pop()
+            self.object_list.pop()
+            self.quaternion_list.pop()
+            self.definitions.pop()
     
     def writePos(self,filename,boxMatrix_list,position_list,quaternion_list,particle_list,injavis_params=None,object_list=None,comment=None):
         if os.path.exists(filename):
