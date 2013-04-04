@@ -41,6 +41,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     def initializeGL(self):
         print("OpenGL version: ", GL.glGetString(GL.GL_VERSION))
+        print("Swap interval:  ", self.format().swapInterval())
         self.draw_gl = gl.DrawGL();
     
     def updateFPS(self):
@@ -72,7 +73,8 @@ class Window(QtGui.QWidget):
 # initialize Qt and set the default GL format
 qtmanager.initApp();
 glFormat = QtOpenGL.QGLFormat();
-glFormat.setVersion(3, 2);
+glFormat.setVersion(2, 1);
 glFormat.setProfile( QtOpenGL.QGLFormat.CompatibilityProfile );
 glFormat.setSampleBuffers(True);
+glFormat.setSwapInterval(0);
 QtOpenGL.QGLFormat.setDefaultFormat(glFormat);
