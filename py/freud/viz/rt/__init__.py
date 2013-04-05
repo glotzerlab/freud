@@ -20,6 +20,7 @@ except ImportError:
 OpenGL.FORWARD_COMPATIBLE_ONLY = True
 OpenGL.ERROR_ON_COPY = True
 OpenGL.INFO_LOGGING = False
+# OpenGL.ERROR_CHECKING = False
 
 # force gl logger to emit only warnings and above
 gl_logger = logging.getLogger('OpenGL')
@@ -41,16 +42,34 @@ from . import rastergl
 null = c_void_p(0)
 
 class GLWidget(QtOpenGL.QGLWidget):
+    # animation states the UI code can take
+    ANIM_IDLE = 1;
+    ANIM_PAN = 2;
+    
+    
     def __init__(self, scene, *args, **kwargs):
         QtOpenGL.QGLWidget.__init__(self, *args, **kwargs)
         self.scene = scene;
+        
+        self.setCursor(QtCore.Qt.OpenHandCursor)
+        
+        # initialize state machine variables
+        self._anim_state = GLWidget.ANIM_IDLE;
+        self._prev_pos = numpy.array([0,0], dtype=numpy.float32);
+        self._prev_time = time.time();
+        self._pan_vel = numpy.array([0,0], dtype=numpy.float32);
+        self._initial_pan_vel = numpy.array([0,0], dtype=numpy.float32);
+        self._initial_pan_time = time.time();
         
         # timers for FPS
         self.last_time = time.time();
         self.frame_count = 0;
         self.timer_fps = QtCore.QTimer(self)
         self.timer_fps.timeout.connect(self.updateFPS)
-        self.timer_fps.start(500)
+        #self.timer_fps.start(500)
+        
+        self._timer_animate = QtCore.QTimer(self)
+        self._timer_animate.timeout.connect(self.animate)
         
     def resizeGL(self, w, h):
         gl.glViewport(0, 0, w, h)
@@ -67,6 +86,25 @@ class GLWidget(QtOpenGL.QGLWidget):
     def initializeGL(self):
         logger.info('OpenGL version: ' + gl.glGetString(gl.GL_VERSION))
         self.draw_gl = rastergl.DrawGL();
+
+    def animate(self):
+        if self._anim_state == GLWidget.ANIM_IDLE:
+            self._timer_animate.stop();
+        
+        if self._anim_state == GLWidget.ANIM_PAN:
+            cur_time = time.time();
+            self._pan_vel = numpy.exp(-(cur_time - self._initial_pan_time)/0.1) * self._initial_pan_vel;
+            
+            delta = self._pan_vel * (cur_time - self._prev_time) * self.scene.camera.pixel_size;
+            delta[0] = delta[0] * -1;
+            self.scene.camera.position[0:2] += delta;
+            
+            self._prev_time = cur_time;
+                                    
+            if numpy.dot(self._pan_vel, self._pan_vel) < 100:
+                self._anim_state = GLWidget.ANIM_IDLE;
+            
+            self.updateGL();
     
     def updateFPS(self):
         cur_time = time.time();
@@ -78,7 +116,78 @@ class GLWidget(QtOpenGL.QGLWidget):
             
         self.last_time = cur_time;
     
+    def closeEvent(self, event):
+        # stop the animation loop
+        self._anim_state = GLWidget.ANIM_IDLE;
+    
+    def keyPressEvent(self, event):
+        pass
         
+    def keyReleaseEvent(self, event):
+        pass
+        
+    def mouseMoveEvent(self, event):
+        # update the camera position based on the movement from the previous position
+        # while dragging with the left mouse button
+        if event.buttons() & QtCore.Qt.LeftButton:
+            # update camera position
+            cur_time = time.time();
+            cur_pos = numpy.array([event.x(), event.y()], dtype=numpy.float32);
+            delta = (cur_pos - self._prev_pos) * self.scene.camera.pixel_size;
+            delta[0] = delta[0] * -1;
+            self.scene.camera.position[0:2] += delta;
+            
+            # compute pan velocity in camera pixels/second
+            self._pan_vel[:] = (cur_pos - self._prev_pos) / (cur_time - self._prev_time);
+            
+            self._prev_time = cur_time;
+            self._prev_pos = cur_pos;
+            self.updateGL();
+            event.accept();
+        else:
+            event.ignore();
+    
+    def mousePressEvent(self, event):
+        # start mouse-control panning the camera when the left button is pressed
+        if event.button() == QtCore.Qt.LeftButton:
+            self._anim_state = GLWidget.ANIM_IDLE;
+            self._prev_pos[0] = event.x();
+            self._prev_pos[1] = event.y();
+            self._prev_time = time.time();
+            self._pan_vel[:] = 0;
+            self.setCursor(QtCore.Qt.ClosedHandCursor)
+            event.accept();
+        else:
+            event.ignore();
+    
+    def mouseReleaseEvent(self, event):
+        # stop mouse-control panning the camera when the left button is released
+        # and start the animated panning
+        if event.button() == QtCore.Qt.LeftButton:
+            self._anim_state = GLWidget.ANIM_PAN;
+            self._initial_pan_vel[:] = self._pan_vel[:];
+            self._initial_pan_time = self._prev_time;
+            self._timer_animate.start()
+            self.setCursor(QtCore.Qt.OpenHandCursor)
+            event.accept();
+        else:
+            event.ignore();
+    
+    def wheelEvent(self, event):
+        # control speed based on modifiers (ctrl = slow)
+        if event.modifiers() == QtCore.Qt.ControlModifier:
+            speed = 0.05;
+        else:
+            speed = 0.2;
+        
+        if event.orientation() == QtCore.Qt.Vertical:
+            # zoom based on the mouse wheel
+            f = 1 - speed * float(event.delta())/120;
+            
+            self.scene.camera.setHeight(self.scene.camera.getHeight() * f);
+            self.updateGL();
+            event.accept();
+    
 class Window(QtGui.QWidget):
     def __init__(self, scene, *args, **kwargs):
         QtGui.QWidget.__init__(self, *args, **kwargs)
