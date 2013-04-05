@@ -1,9 +1,9 @@
 from __future__ import division, print_function
 import random
+import logging
+logging.basicConfig(level=logging.INFO)
 
-from freud import viz
-from freud.viz import window
-from freud import qtmanager
+from freud import viz, qt
 
 # generate random disks
 def gen_random_disks(N, w):
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     cam = viz.base.Camera(position=(0,0,1), look_at=(0,0,0), up=(0,1,0), aspect=4/3, height=18);
     scene = viz.base.Scene(camera=cam, groups=[group]);
     
-    w = window.GLWidget(scene)
+    w = viz.rt.GLWidget(scene)
     w.show()
 
-qtmanager.runEventLoop();
+qt.run();

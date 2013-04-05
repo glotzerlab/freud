@@ -1,16 +1,42 @@
 from __future__ import division, print_function
+
 import numpy
 import math
 import time
 from ctypes import c_void_p
-import OpenGL
+import logging
+logger = logging.getLogger(__name__);
+
+# pyside and OpenGL are required deps for this module (not for all of freud), but we don't want to burden user scripts
+# with lots of additional imports. So try and import them and throw a warning up to the parent module to handle
+try:
+    import OpenGL
+    from PySide import QtCore, QtGui, QtOpenGL
+except ImportError:
+    logger.warning('Either PySide or pyopengl is not available, aborting rt initialization');
+    raise ImportWarning('PySide or pyopengl not available');
+
+# set opengl options
 OpenGL.FORWARD_COMPATIBLE_ONLY = True
 OpenGL.ERROR_ON_COPY = True
-from OpenGL import GL as GL
-from PySide import QtCore, QtGui, QtOpenGL
+OpenGL.INFO_LOGGING = False
 
-from freud import qtmanager;
-from freud.viz.render import gl
+# force gl logger to emit only warnings and above
+gl_logger = logging.getLogger('OpenGL')
+gl_logger.setLevel(logging.WARNING)
+
+from OpenGL import GL as gl
+
+from freud import qt;
+from . import rastergl
+
+## \package freud.viz.rt
+#
+# Real-time visualization Qt widgets and rendering routines. 
+#
+# \note freud.viz.rt **requires** pyside and pyopengl. If these dependencies are not present, a warning is issued to the
+# logger, but execution continues with freud.viz.rt = None.
+#
 
 null = c_void_p(0)
 
@@ -27,22 +53,20 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.timer_fps.start(500)
         
     def resizeGL(self, w, h):
-        GL.glViewport(0, 0, w, h)
+        gl.glViewport(0, 0, w, h)
         self.scene.camera.setAspect(w/h);
         self.scene.camera.resolution = h;
         
     def paintGL(self):
-        # get framerate
         self.frame_count += 1;
         
-        GL.glClearColor(1.0, 1.0, 1.0, 0.0);
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        gl.glClearColor(1.0, 1.0, 1.0, 0.0);
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
         self.draw_gl.draw(self.scene);
 
     def initializeGL(self):
-        print("OpenGL version: ", GL.glGetString(GL.GL_VERSION))
-        print("Swap interval:  ", self.format().swapInterval())
-        self.draw_gl = gl.DrawGL();
+        logger.info('OpenGL version: ' + gl.glGetString(gl.GL_VERSION))
+        self.draw_gl = rastergl.DrawGL();
     
     def updateFPS(self):
         cur_time = time.time();
@@ -70,8 +94,11 @@ class Window(QtGui.QWidget):
 
 ##########################################
 ## Module init
-# initialize Qt and set the default GL format
-qtmanager.initApp();
+
+# initialize Qt application
+qt.init_app();
+
+# set the default GL format
 glFormat = QtOpenGL.QGLFormat();
 glFormat.setVersion(2, 1);
 glFormat.setProfile( QtOpenGL.QGLFormat.CompatibilityProfile );

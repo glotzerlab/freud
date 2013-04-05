@@ -1,15 +1,17 @@
 from __future__ import division, print_function
+
 import numpy
 import math
 from ctypes import c_void_p
 from OpenGL import GL as gl
-from freud.viz.render.gl import glprimitive
+
+from . import glprimitive
 
 null = c_void_p(0)
 
-## \package freud.viz.render.gl
+## \package freud.viz.rt.rastergl
 #
-# GL output for freud.viz
+# Real time GL rasterization for freud.viz
 #
 
 ## DrawGL draws scenes using OpenGL

@@ -3,7 +3,6 @@ import math
 import random
 
 from freud import viz
-from freud.viz.render import gle
 
 # generate random positions
 def gen_random_pos(N, w):
@@ -60,5 +59,5 @@ if __name__ == '__main__':
     cam = viz.base.Camera(position=(0,0,1), look_at=(0,0,0), up=(0,1,0), aspect=4/3, height=18);
     scene = viz.base.Scene(camera=cam, groups=[group]);
     
-    writer = gle.WriteGLE()
+    writer = viz.export.gle.WriteGLE()
     writer.write(open('gle_polys.gle', 'wb'), scene);

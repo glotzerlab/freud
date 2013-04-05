@@ -4,7 +4,6 @@ import random
 import numpy
 
 from freud import viz
-from freud.viz.render import gle
 
 if __name__ == '__main__':
     
@@ -18,5 +17,5 @@ if __name__ == '__main__':
     cam = viz.base.Camera(position=(5,5,1), look_at=(5,5,0), up=(0,1,0), aspect=1, height=12);
     scene = viz.base.Scene(camera=cam, groups=[group]);
     
-    writer = gle.WriteGLE()
+    writer = viz.export.gle.WriteGLE()
     writer.write(open('gle_image.gle', 'wb'), scene);

@@ -2,8 +2,15 @@ from __future__ import division, print_function
 
 import sys
 import logging
-from PySide import QtCore
-from PySide import QtGui
+logger = logging.getLogger(__name__);
+
+# user code imports qt all the time, gracefully handle unavailable PySide
+try:
+    from PySide import QtCore, QtGui
+except ImportError:
+    QtGui = None;
+    QtCore = None;
+    logger.info('PySide is not available, init_app and run are disabled');
 
 ## \package freud.qtmanager
 #
@@ -20,7 +27,7 @@ _own_app = False;
 
 ## \internal
 # \brief Test if inside ipython
-def _inIPython():
+def _in_ipython():
     try:
         __IPYTHON__
     except NameError:
@@ -30,13 +37,17 @@ def _inIPython():
 
 ## Initialize the QApplication
 #
-# Any module that uses Qt functionalities should call initApp() on module load. The first such call will initialize
-# the QApplication, and subsequent calls will do nothing. initApp() will also detect when ipython initializes the
+# Any module that uses Qt functionalities should call init_app() on module load. The first such call will initialize
+# the QApplication, and subsequent calls will do nothing. init_app() will also detect when ipython initializes the
 # application for us.
 #
-def initApp():
+def init_app():
     global app;
     global _own_app;
+    
+    # It is an error to try and initialize if QtCore or QtGui is not loaded
+    if QtCore is None or QtGui is None:
+        raise RuntimeError('Cannot init application when PySide is not installed');
     
     # first, check if we have already initialized
     if QtCore.QCoreApplication.instance() is None:
@@ -48,8 +59,8 @@ def initApp():
         app.processEvents();
         
         # if we are in ipython, warn the user that they ran ipython without the qt GUI
-        if _inIPython():
-            logging.warning('This script is run in ipython, but without --gui=qt');
+        if _in_ipython():
+            logger.warning('This script is run in ipython, but without --gui=qt');
     else:
         app = QtCore.QCoreApplication.instance();
 
@@ -59,10 +70,14 @@ def initApp():
 # is smart enough to return right away if inside a ipython with the qt GUI enabled. When running in a standard
 # python shell, or ipython without the qt GUI, this method blocks until the quit/exit signal is sent to qt.
 #
-def runEventLoop():
+def run():
+    global app;
     global _own_app;
     
-    if _inIPython() and not _own_app:
+    if app is None:
+        raise RuntimeError('init_app must be called before run');
+    
+    if _in_ipython() and not _own_app:
         return;
     else:
-        app.exec_();
+        return app.exec_();

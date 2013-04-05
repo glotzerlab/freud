@@ -1,11 +1,14 @@
 from __future__ import division, print_function
 import math
 import numpy
+import logging
+logger = logging.getLogger(__name__);
 
 try:
     from PySide import QtGui
 except ImportError:
     QtGui = None;
+    logger.info('PySide is not available, Image saving is disabled');
 
 from freud.viz import base
 from freud.viz import colorutil

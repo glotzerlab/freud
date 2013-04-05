@@ -2,7 +2,6 @@ from __future__ import division, print_function
 import random
 
 from freud import viz
-from freud.viz.render import gle
 
 # generate random disks
 def gen_random_disks(N, w):
@@ -58,5 +57,5 @@ if __name__ == '__main__':
     cam = viz.base.Camera(position=(0,0,1), look_at=(0,0,0), up=(0,1,0), aspect=4/3, height=18);
     scene = viz.base.Scene(camera=cam, groups=[group]);
     
-    writer = gle.WriteGLE()
+    writer = viz.export.gle.WriteGLE()
     writer.write(open('gle_disks.gle', 'wb'), scene);
