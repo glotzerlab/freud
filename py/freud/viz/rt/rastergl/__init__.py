@@ -16,6 +16,10 @@ null = c_void_p(0)
 
 ## DrawGL draws scenes using OpenGL
 #
+# DrawGL is intended for internal use by GLWidget, though it would be possible for advanced user code to use it
+# directly.
+# \warning The external interface of DrawGL is not guaranteed to remain stable.
+#
 # Instantiating a DrawGL loads shaders and performs other common init tasks. You can then call draw() as many times as
 # you want to draw GL frames.
 #
@@ -52,13 +56,15 @@ class DrawGL(object):
         # destroy cache
         self.cache.destroy();
 
-    ## Draws a primitive to the GL context
+    ## \internal
+    # \brief Draws a primitive to the GL context
     # \param prim Primitive to draw
     #
     def draw_Primitive(self, prim):
         raise RuntimeError('DrawGL encountered an unknown primitive type');
 
-    ## Draw an entire scene
+    ## \internal
+    # \brief Draw an entire scene
     # \param scene Scene to write
     #
     def draw_Scene(self, scene):
@@ -71,7 +77,8 @@ class DrawGL(object):
             for j,primitive in enumerate(group.primitives):
                 self.draw(primitive)
 
-    ## Draw disks
+    ## \internal
+    # \brief Draw disks
     # \param prim Disks to write
     #
     def draw_Disks(self, prim):
@@ -83,13 +90,15 @@ class DrawGL(object):
         glprim = self.cache.get(prim, cls);
         glprim.draw(program, self.camera);
 
-    ## Draw repeated polygons
+    ## \internal 
+    # \brief Draw repeated polygons
     # \param polygons Polygons to draw
     #
     def draw_RepeatedPolygons(self, polygons):
         pass
 
-    ## Write out image
+    ## \internal
+    # \brief Draw image
     # \param img Image to write
     #
     def draw_Image(self, img):
@@ -97,6 +106,7 @@ class DrawGL(object):
         
     ## Draw a viz element
     # \param obj Object to write
+    # \note There **must** be an active OpenGL context when draw is called.
     #
     def draw(self, obj):
         meth = None;
@@ -111,6 +121,7 @@ class DrawGL(object):
         return meth(obj);
 
 ## OpenGL program
+# \note Program is used internally by DrawGL and is not part of the public freud interface
 #
 # Lightweight class interface for initializing, querying, and setting parameters on OpenGL programs
 #

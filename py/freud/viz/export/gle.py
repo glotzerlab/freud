@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import numpy
 import math
 
-## \package freud.viz.render.gle
+## \package freud.viz.export.gle
 #
 # GLE output for freud.viz
 #
@@ -11,6 +11,7 @@ import math
 #
 # Instantiating a WriteGLE enables settings. You can then call write() as many times as you want to write GLE files.
 #
+# \internal
 # WriteGLE uses the visitor pattern to handle output methods for different primitives. 
 # The method used is described here: http://peter-hoffmann.com/2010/extrinsic-visitor-pattern-python-inheritance.html
 #
@@ -27,14 +28,16 @@ class WriteGLE(object):
         self.width_cm = width_cm;
         self.file_count = 0;
 
-    ## Writes a Primitive out to the GLE file
+    ## \internal
+    # \brief Writes a Primitive out to the GLE file
     # \param out Output stream
     # \param prim Primitive to write
     #
     def write_Primitive(self, out, prim):
         raise RuntimeError('WriteGLE encountered an unknown primitive type');
 
-    ## Write GLE output to a stream
+    ## \internal
+    # \brief Write GLE output to a stream
     # \param out Output stream
     # \param scene Scene to write
     #
@@ -56,7 +59,8 @@ class WriteGLE(object):
                 out.write('\n!Group {0}, primitive {1}\n'.format(i, j));
                 self.write(out, primitive)
 
-    ## Write out disks
+    ## \internal
+    # \brief Write out disks
     # \param out Output stream
     # \param disks Disks to write
     #
@@ -96,7 +100,8 @@ class WriteGLE(object):
             out.write('set color rgba(0, 0, 0, {0})\n'.format(color[3]));
             out.write('circle {0}\n'.format(diameter/2-a/2));
 
-    ## Write out repeated polygons
+    ## \internal
+    # \brief Write out repeated polygons
     # \param out Output stream
     # \param polygons Disks to polygons
     #
@@ -166,7 +171,8 @@ class WriteGLE(object):
             out.write('end rotate\n');
             out.write('end translate\n');
 
-    ## Write out image
+    ## \internal
+    # \brief Write out image
     # \param out Output stream
     # \param img Image to write
     #

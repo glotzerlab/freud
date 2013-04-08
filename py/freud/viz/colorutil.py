@@ -7,11 +7,12 @@ import math
 # Color conversion functions
 #
 
-## Gamma value
+## \internal
+# \brief Gamma value
 # Consider this a predefined constant and do not change it, sRGB is approximately gamma 2.2 (close enough that no one
 # will notice)
 #
-gamma = 2.2;
+_gamma = 2.2;
 
 ## \internal
 # \brief Unfold a MxNx...x4 array to Kx4
@@ -54,6 +55,8 @@ def _unfold(v):
 # modified (it is already linear)
 #
 def sRGBAtoLinear(v):
+    global _gamma;
+    
     # make a copy of v and convert to a numpy array if needed
     ret = numpy.array(v, dtype=numpy.float32);
     
@@ -65,7 +68,7 @@ def sRGBAtoLinear(v):
     u = _unfold(ret);
     
     # apply the correction to the colors
-    u[:,0:3] = u[:,0:3]**gamma;
+    u[:,0:3] = u[:,0:3]**_gamma;
     return ret
 
 ## Convert linear colors to sRGBA 
@@ -84,6 +87,8 @@ def sRGBAtoLinear(v):
 # modified (it is always linear)
 #
 def linearToSRGBA(u):
+    global _gamma;
+    
     # make a copy of u and convert to a numpy array if needed
     ret = numpy.array(u, dtype=numpy.float32);
     
@@ -95,7 +100,7 @@ def linearToSRGBA(u):
     v = _unfold(ret);
     
     # apply the correction to the colors
-    v[:,0:3] = v[:,0:3]**(1.0/gamma);
+    v[:,0:3] = v[:,0:3]**(1.0/_gamma);
     return ret
 
 ## Convert sRGBA to ARGB32

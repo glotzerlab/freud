@@ -6,7 +6,15 @@ from OpenGL import GL as gl
 
 null = c_void_p(0)
 
+## \internal
+# \package freud.viz.rt.rastergl.glprimitive
+#
+# Real time GL rasterization for freud.viz. Classes in glprimitive are for internal use by DrawGL only and their
+# interface may change at any time.
+#
+
 ## Cache manager
+# \note Cache is used internally by DrawGL and is not part of the public freud interface
 #
 # The cache manager takes care of initializing the GLPrimitive instances as needed and saving them for later use.
 #
@@ -40,7 +48,8 @@ class Cache(object):
         
         return self.cache[prim.ident];
 
-## Base class for cached GLPrimitive items
+## Base class for cached primitives
+# \note GLPrimitive is used internally by DrawGL and is not part of the public freud interface
 #
 # DrawGL stores openGL geometry in a cache. Each item stored in the cache derives from GLPrimitive and implements the same
 # interface. There are a few requirements. 1) GLPrimitives are only created or access while the OpenGL context is active.
@@ -90,6 +99,7 @@ class GLPrimitive(object):
         pass
 
 ## RepeatedPolygon geometry
+# \note GLRepeatedPolygons is used internally by DrawGL and is not part of the public freud interface
 #
 # Store and draws the OpenGL geometry for the RepeatedPolygon primitive
 #
@@ -108,6 +118,7 @@ class GLRepeatedPolygons(GLPrimitive):
         pass  
 
 ## Disk geometry
+# \note GLDisks is used internally by DrawGL and is not part of the public freud interface
 #
 # Store and draw the OpenGL geometry for the Disk primitive.
 #
