@@ -18,6 +18,14 @@ class Cache(object):
     def __init__(self):
         self.cache = {};
     
+    ## Destroy OpenGL resources
+    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
+    # resources can be released at a controlled time. (not whenever python decides to call __del__.
+    #
+    def destroy(self):
+        for c in self.cache.values():
+            c.destroy();
+    
     ## Load a value out of the cache
     # \param prim Primitive to load
     # \param typ Class type of the CacheItem
@@ -74,11 +82,11 @@ class GLPrimitive(object):
     def draw(self):
         pass
     
-    ## Release a cached GL primitive
-    # 
-    # Frees all OpenGL resources used by the primitive
+    ## Destroy OpenGL resources
+    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
+    # resources can be released at a controlled time. (not whenever python decides to call __del__.
     #
-    def __del__(self):
+    def destroy(self):
         pass
 
 ## RepeatedPolygon geometry
@@ -92,11 +100,11 @@ class GLRepeatedPolygons(GLPrimitive):
     def __init__(self, prim):
         CacheItem.__init__(self);
     
-    ## Release a cached GL primitive
-    # 
-    # Frees all OpenGL resources used by the primitive
+    ## Destroy OpenGL resources
+    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
+    # resources can be released at a controlled time. (not whenever python decides to call __del__.
     #
-    def __del__(self):
+    def destroy(self):
         pass  
 
 ## Disk geometry
@@ -321,10 +329,10 @@ void main()
         # restore state
         gl.glPopAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
     
-    ## Release a cached GL primitive
-    # 
-    # Frees all OpenGL resources used by the primitive
+    ## Destroy OpenGL resources
+    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
+    # resources can be released at a controlled time. (not whenever python decides to call __del__.
     #
-    def __del__(self):
+    def destroy(self):
         buf_list = numpy.array([self.buffer_position, self.buffer_mapcoord, self.buffer_color], dtype=numpy.uint32);
         gl.glDeleteBuffers(3, buf_list);

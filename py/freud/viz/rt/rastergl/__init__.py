@@ -40,6 +40,18 @@ class DrawGL(object):
         
         self.cache = glprimitive.Cache();
 
+    ## Destroy OpenGL resources
+    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
+    # resources can be released at a controlled time. (not whenever python decides to call __del__.
+    #
+    def destroy(self):
+        # destroy programs
+        for p in self.programs.values():
+            p.destroy();
+        
+        # destroy cache
+        self.cache.destroy();
+
     ## Draws a primitive to the GL context
     # \param prim Primitive to draw
     #
@@ -111,10 +123,11 @@ class Program(object):
     def __init__(self, glprim=None):
         self.program = self._initialize_program(glprim.vertex_shader, glprim.fragment_shader, glprim.attributes);
     
-    ## Clean up
-    # Release OpenGL resources
+    ## Destroy OpenGL resources
+    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
+    # resources can be released at a controlled time. (not whenever python decides to call __del__.
     #
-    def __del__(self):
+    def destroy(self):
         gl.glDeleteProgram(self.program);
     
     @staticmethod

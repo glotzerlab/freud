@@ -123,6 +123,10 @@ class GLWidget(QtOpenGL.QGLWidget):
     def closeEvent(self, event):
         # stop the animation loop
         self._anim_state = GLWidget.ANIM_IDLE;
+        
+        # make the gl context current and free resources
+        self.makeCurrent();
+        self.draw_gl.destroy();            
     
     def keyPressEvent(self, event):
         pass
