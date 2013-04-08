@@ -17,9 +17,10 @@ except ImportError:
 # Manages the Qt application object and other settings in a unified way
 #
 
-## Global access to the app
+## \internal
+# \brief Global access to the app
 # For use in later calls to the app
-app = None;
+_app = None;
 
 ## \internal
 # \brief False if we initialized out own application instance
@@ -37,12 +38,17 @@ def _in_ipython():
 
 ## Initialize the QApplication
 #
-# Any module that uses Qt functionalities should call init_app() on module load. The first such call will initialize
+# Any user script that uses Qt functionalities should call init_app() on start. The first such call will initialize
 # the QApplication, and subsequent calls will do nothing. init_app() will also detect when ipython initializes the
-# application for us.
+# application. See the documentation for classes and modules in Freud to see whether they require init_app to be
+# called before use.
+#
+# \warning If you fail to call init_app() when it is needed, expect to get error messages like
+# `QWidget: Must construct a QApplication before a QPaintDevice` and seg faults. Some freud classes might perform
+# checks and provide friendlier errors.
 #
 def init_app():
-    global app;
+    global _app;
     global _own_app;
     
     # It is an error to try and initialize if QtCore or QtGui is not loaded
@@ -51,18 +57,18 @@ def init_app():
     
     # first, check if we have already initialized
     if QtCore.QCoreApplication.instance() is None:
-        app = QtGui.QApplication(sys.argv);
+        _app = QtGui.QApplication(sys.argv);
         _own_app = True;
         
         # this version doesn't open a window and would be useful in batch scripts
-        #app = QtCore.QCoreApplication(sys.argv);
-        app.processEvents();
+        #_app = QtCore.QCoreApplication(sys.argv);
+        _app.processEvents();
         
         # if we are in ipython, warn the user that they ran ipython without the qt GUI
         if _in_ipython():
             logger.warning('This script is run in ipython, but without --gui=qt');
     else:
-        app = QtCore.QCoreApplication.instance();
+        _app = QtCore.QCoreApplication.instance();
 
 ## Run the Qt event loop
 #
@@ -71,13 +77,22 @@ def init_app():
 # python shell, or ipython without the qt GUI, this method blocks until the quit/exit signal is sent to qt.
 #
 def run():
-    global app;
+    global _app;
     global _own_app;
     
-    if app is None:
+    if _app is None:
         raise RuntimeError('init_app must be called before run');
     
     if _in_ipython() and not _own_app:
         return;
     else:
-        return app.exec_();
+        return _app.exec_();
+
+## Test if the application is initialized
+# \returns True if init_app() has already been called
+#
+def is_initialized():
+    if _app is None:
+        return False;
+    else:
+        return True;

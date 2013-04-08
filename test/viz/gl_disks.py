@@ -59,7 +59,8 @@ if __name__ == '__main__':
     cam = viz.base.Camera(position=(0,0,1), look_at=(0,0,0), up=(0,1,0), aspect=4/3, height=18);
     scene = viz.base.Scene(camera=cam, groups=[group]);
     
+    qt.init_app();
     w = viz.rt.GLWidget(scene)
     w.show()
 
-qt.run();
+    qt.run();

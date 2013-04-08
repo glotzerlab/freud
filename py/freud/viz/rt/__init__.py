@@ -33,7 +33,8 @@ from . import rastergl
 
 ## \package freud.viz.rt
 #
-# Real-time visualization Qt widgets and rendering routines. 
+# Real-time visualization Qt widgets and rendering routines. freud.qt.init_app() must be called prior to constructing 
+# any class in rt.
 #
 # \note freud.viz.rt **requires** pyside and pyopengl. If these dependencies are not present, a warning is issued to the
 # logger, but execution continues with freud.viz.rt = None.
@@ -48,6 +49,9 @@ class GLWidget(QtOpenGL.QGLWidget):
     
     
     def __init__(self, scene, *args, **kwargs):
+        if not qt.is_initialized():
+            raise RuntimeError('freud.qt.init_app() must be called before constructing a GLWidget');
+        
         QtOpenGL.QGLWidget.__init__(self, *args, **kwargs)
         self.scene = scene;
         
@@ -203,9 +207,6 @@ class Window(QtGui.QWidget):
 
 ##########################################
 ## Module init
-
-# initialize Qt application
-qt.init_app();
 
 # set the default GL format
 glFormat = QtOpenGL.QGLFormat();
