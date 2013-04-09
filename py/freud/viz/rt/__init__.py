@@ -80,6 +80,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.scene = scene;
         
         self.setCursor(QtCore.Qt.OpenHandCursor)
+        self.setAutoBufferSwap(False);
         
         # initialize state machine variables
         self._anim_state = GLWidget.ANIM_IDLE;
@@ -89,15 +90,17 @@ class GLWidget(QtOpenGL.QGLWidget):
         self._initial_pan_vel = numpy.array([0,0], dtype=numpy.float32);
         self._initial_pan_time = time.time();
         
-        # timers for FPS
-        self.last_time = time.time();
-        self.frame_count = 0;
+        # timers and state for FPS measurement
+        self._fps_last_time = time.time();
+        self._fps_frame_count = 0;
+        self._fps_measuring = False;
         self.timer_fps = QtCore.QTimer(self)
         self.timer_fps.timeout.connect(self.updateFPS)
-        #self.timer_fps.start(500)
         
+        # timer for the animation loop
         self._timer_animate = QtCore.QTimer(self)
         self._timer_animate.timeout.connect(self.animate)
+        self._timer_animate.start();
     
     ## \internal 
     # \brief Resize the GL viewport
@@ -115,11 +118,20 @@ class GLWidget(QtOpenGL.QGLWidget):
     # Clear the draw buffers and redraws the scene
     #
     def paintGL(self):
-        self.frame_count += 1;
+        self._fps_frame_count += 1;
+        
+        start_time = time.time();
         
         gl.glClearColor(1.0, 1.0, 1.0, 0.0);
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
         self.draw_gl.draw(self.scene);
+        self.swapBuffers();
+        
+        end_time = time.time();
+        elapsed_time = end_time - start_time;
+        
+        print(1 / elapsed_time, "FPS", elapsed_time);
+
 
     ## \internal
     # \brief Initialize the OpenGL renderer
@@ -138,17 +150,19 @@ class GLWidget(QtOpenGL.QGLWidget):
     # on an exponential curve.
     #
     # To start the animation loop, mouseReleaseEvent sets the initial velocity, initial time, previous time,
-    # and starts up the timer _timer_animate which calls this method on idle.
+    # and sets the animation state to ANIM_PAN. The timer _timer_animate calls animate() on idle.
     #
-    # Once the velocity reaches zero, _anim_state is set back to ANIM_IDLE and the timer is stopped.
+    # Once the velocity reaches zero, _anim_state is set back to ANIM_IDLE.
     #
     def animate(self):
         # If we are idle, stop the timer
         if self._anim_state == GLWidget.ANIM_IDLE:
-            self._timer_animate.stop();
+            # need to generate frames when measuring FPS
+            if self._fps_measuring:
+                self.updateGL();
         
         # If we are panning
-        if self._anim_state == GLWidget.ANIM_PAN:
+        elif self._anim_state == GLWidget.ANIM_PAN:
             # Decrease the pan velocity on an exponential curve
             cur_time = time.time();
             self._pan_vel = numpy.exp(-(cur_time - self._initial_pan_time)/0.1) * self._initial_pan_vel;
@@ -169,17 +183,18 @@ class GLWidget(QtOpenGL.QGLWidget):
     ## \internal
     # \brief Update FPS slot
     #
-    # Called at the completion of a benchmark run to update the FPS counter. Sets the fps public member variable.
+    # Sets _fps_measuring to True and records _fps_last_time for use in the animation loop to compute FPS.
     #
     def updateFPS(self):
         cur_time = time.time();
+        elapsed_time = cur_time - self._fps_last_time;
+        
+        print(self._fps_frame_count / elapsed_time, "FPS", self._fps_frame_count, elapsed_time);
 
-        if self.frame_count > 0:
-            elapsed_time = cur_time - self.last_time;
-            # print(self.frame_count / elapsed_time, "FPS");
-            self.frame_count = 0;
-            
-        self.last_time = cur_time;
+        self._fps_last_time = cur_time;
+        self._fps_measuring = False;
+        self._fps_frame_count = 0;
+        self.timer_fps.stop();
     
     ## \internal
     # \brief Close event
@@ -189,6 +204,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     def closeEvent(self, event):
         # stop the animation loop
         self._anim_state = GLWidget.ANIM_IDLE;
+        self._timer_animate.stop();
         
         # make the gl context current and free resources
         self.makeCurrent();
@@ -201,7 +217,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     #
     def keyPressEvent(self, event):
         pass
-
+    
     ## \internal
     # \brief Key released event
     #
@@ -267,11 +283,10 @@ class GLWidget(QtOpenGL.QGLWidget):
     #
     def mouseReleaseEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            # start the animation loop, set the initial pan vel and time, and update the cursor
+            # switch to the panning animation, set the initial pan vel and time, and update the cursor
             self._anim_state = GLWidget.ANIM_PAN;
             self._initial_pan_vel[:] = self._pan_vel[:];
             self._initial_pan_time = self._prev_time;
-            self._timer_animate.start()
             self.setCursor(QtCore.Qt.OpenHandCursor)
             event.accept();
         else:
