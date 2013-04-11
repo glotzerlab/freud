@@ -44,11 +44,11 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     for (unsigned int i = 1; i < m_nbins; i++)
         {
         float r = float(i) * m_dr;
-        float prevr = float(i-1) * m_dr;
+        float nextr = float(i+1) * m_dr;
         if (m_box.is2D())
-            m_vol_array[i] = M_PI * (r*r - prevr*prevr);
+            m_vol_array[i] = M_PI * (nextr*nextr - r*r);
         else
-            m_vol_array[i] = 4.0f / 3.0f * M_PI * (r*r*r - prevr*prevr*prevr);
+            m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
         }
     }
 
