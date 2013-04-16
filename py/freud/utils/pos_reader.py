@@ -55,12 +55,13 @@ class File:
         if filename is None:
             print("No input file assigned")
         else:
-            if isinstance(filename, file):
-                f = filename
-            elif isinstance(filename, list):
-                f = filename
-            else:
-                f = open(filename, 'rU')
+            #if isinstance(filename, file):
+            #    f = filename
+            #elif isinstance(filename, list):
+            #    f = filename
+            #else:
+            #   f = open(filename, 'rU')
+            f = open(filename, 'rU')
             i=0
             isdata=False
             self.particle_list.append([])
@@ -307,9 +308,9 @@ class File:
         i = 0
 
         tokens = re.split('\s+',line,maxsplit=1)
-        if self.definitions[-1].has_key(tokens[0]):
+        if tokens[0] in self.definitions[-1]:
             line = self.definitions[-1][tokens[0]] + ' ' + line.lstrip(tokens[0])+' '
-        if self.injavis_params.has_key(tokens[0]):
+        if tokens[0] in self.injavis_params:
             self.addInjavisParam(line)      
         elif re.match('^def',line):
             self.addDef(line)
