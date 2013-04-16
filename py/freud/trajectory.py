@@ -683,7 +683,8 @@ class TrajectoryPOS(Trajectory):
         Trajectory.__init__(self);
     
         # parse the POS file
-        pos_file = pos_reader.File(pos_fname);
+        pos_file = pos_reader.file(pos_fname);
+        pos_file.load();
    
     ## Get the number of particles in the trajectory
     # \returns Number of particles

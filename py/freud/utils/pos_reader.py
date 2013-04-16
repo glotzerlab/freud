@@ -6,7 +6,7 @@ import subprocess
 import time
 import string
 
-class File:
+class file:
     """
         object class to read/parse incsim output and/or distill data and position
     """
