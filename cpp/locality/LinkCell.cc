@@ -106,10 +106,10 @@ void LinkCell::computeCellNeighbors()
                         for (int neighi = (int)i-1; neighi <= (int)i+1; neighi++)
                             {
                             // wrap back into the box
-                            int wrapi = neighi % m_cell_index.getW();
-                            int wrapj = neighj % m_cell_index.getH();
-                            int wrapk = neighk % m_cell_index.getD();
-                            
+                            int wrapi = (m_cell_index.getW()+neighi) % m_cell_index.getW();
+                            int wrapj = (m_cell_index.getH()+neighj) % m_cell_index.getH();
+                            int wrapk = (m_cell_index.getD()+neighk) % m_cell_index.getD();              
+                        
                             unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
                             // add to the list
                             m_cell_neighbors[cur_cell].push_back(neigh_cell);
