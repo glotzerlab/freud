@@ -3,7 +3,7 @@ import numpy as np
 import numpy.testing as npt
 import unittest
 
-class TestCellList(unittest.TestCase):
+class TestLinkCell(unittest.TestCase):
     def test_unique_neighbors(self):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
