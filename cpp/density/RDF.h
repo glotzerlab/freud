@@ -27,18 +27,36 @@ class RDF
         //! Constructor
         RDF(const trajectory::Box& box, float rmax, float dr);
         
+        //! Destructor
+        ~RDF();
+
         //! Get the simulation box
         const trajectory::Box& getBox() const
             {
             return m_box;
             }
         
+        //! Check if a cell list should be used or not
+        bool useCells();
+
         //! Compute the RDF
         void compute(const float3 *ref_points,
                      unsigned int Nref,
                      const float3 *points,
                      unsigned int Np);
         
+        //! Compute the RDF
+	void computeWithoutCellList(const float3 *ref_points,
+				    unsigned int Nref,
+				    const float3 *points,
+				    unsigned int Np);
+
+	//! Compute the RDF
+	void computeWithCellList(const float3 *ref_points,
+				 unsigned int Nref,
+				 const float3 *points,
+				 unsigned int Np);
+
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array ref_points,
                        boost::python::numeric::array points);
@@ -85,7 +103,7 @@ class RDF
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
-        locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
+        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
         
         boost::shared_array<float> m_rdf_array;         //!< rdf array computed
