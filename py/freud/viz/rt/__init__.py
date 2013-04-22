@@ -129,8 +129,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         end_time = time.time();
         elapsed_time = end_time - start_time;
-        
-        print(1 / elapsed_time, "FPS", elapsed_time);
 
 
     ## \internal
