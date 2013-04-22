@@ -48,6 +48,13 @@ set(SOURCES trajectory/trajectory.cc
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} util/num_util.cc util/num_util.h module.cc)
 setup_pymodule(_freud)
+
+if (PYTHON_SITEDIR)
+    set(_sitedir ${PYTHON_SITEDIR})
+else()
+    set(_sitedir lib/python)
+endif()
+
 INSTALL(TARGETS _freud
-  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python
+  LIBRARY DESTINATION ${_sitedir}
   )
