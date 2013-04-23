@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hoomd_xml version="1.4">
-<configuration time_step="0" dimensions="3" vizsigma="1.5">
+<configuration time_step="15" dimensions="3" vizsigma="1.5">
 <box lx="5.1" ly="9.6" lz="15.8"/>
 <position num="3">
 -2.45 2.21 1.56

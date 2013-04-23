@@ -255,11 +255,12 @@ class Frame:
     #
     # \note  High level classes should not construct Frame classes directly. Instead create a Trajectory and query it 
     # to get frames
-    def __init__(self, traj, idx, dynamic_props, box):
+    def __init__(self, traj, idx, dynamic_props, box, time_step=0):
         self.traj = traj;
         self.frame = idx;
         self.dynamic_props = dynamic_props;
         self.box = box;
+        self.time_step = time_step
     
     ## Access particle properties at this frame
     #
@@ -388,8 +389,13 @@ class TrajectoryXML(Trajectory):
                 self.dynamic_props['typeid'] = _assign_typeid(self.dynamic_props['typename'])
             else:
                 self.dynamic_props[prop] = self._update(prop, configuration)
+                
+        if configuration.hasAttribute('time_step'):
+            curr_ts = int(configuration.getAttribute('time_step'))
+        else:
+            curr_ts = 3 
         
-        return Frame(self, self.idx, self.dynamic_props, self.box)
+        return Frame(self, self.idx, self.dynamic_props, self.box, time_step = curr_ts)
     
     
     def _parseXML(self, xml_filename):

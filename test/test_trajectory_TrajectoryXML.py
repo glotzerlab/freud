@@ -83,7 +83,18 @@ class TestTrajectoryXML(unittest.TestCase):
                          msg="type name: %s\n%s" % (frame.get('typename'), expected['typename']))
         self.assertEqual(frame.get('typeid'), expected['typeid'], 
                          msg="type name: %s\n%s" % (frame.get('typeid'), expected['typeid']))
+    
+    def test_time_step(self):
+        traj = TrajectoryXML(self.filenames)
+        expected = 0
+        frame = traj[0]
+        self.assertEqual(frame.time_step, expected)
         
+        expected = 15
+        frame = traj[1]
+        self.assertEqual(frame.time_step, expected)
+        
+            
     
     def test_exceptions(self):
         # When setting dynamic to unsupported properties
