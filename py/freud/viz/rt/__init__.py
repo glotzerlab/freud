@@ -44,7 +44,10 @@ null = c_void_p(0)
 
 ## Widget for rendering scenes in real-time
 #
-# GLWidget renders a Scene in real-time using OpenGL. It (currently) only offers 2D camera control. Updates to the
+# GLWidget renders a Scene in real-time using OpenGL. It is a low-level widget that can be embedded in other windows.
+# MainWindow embeds a central GLWidget around a feature-providing interface.
+# 
+# It (currently) only offers 2D camera control. Updates to the
 # camera are made directly in the reference scene, so code external to GLWidget that uses the same scene will render
 # the same point of view.
 #
@@ -58,7 +61,6 @@ null = c_void_p(0)
 # - *ctrl* is *command*
 # - *meta* is *control*
 #
-# TODO: rename class?
 # TODO: Add 3d in as an option, or a 2nd widget?
 # TODO: What about scenes that have both 2d and 3d geometry?
 #
@@ -308,19 +310,48 @@ class GLWidget(QtOpenGL.QGLWidget):
             # Redraw the GL view
             self.updateGL();
             event.accept();
-    
-class Window(QtGui.QWidget):
+
+    ## return a default size
+    def sizeHint(self):
+        return QtCore.QSize(1200,1200);
+
+
+## Animation controls
+#
+# Dock-able widget for animation control in freud
+#
+
+
+
+## Main window for freud viz
+#
+# MainWindow hosts a central GLWidget display with feature-providing menus, dock-able control panels, etc...
+#
+class MainWindow(QtGui.QMainWindow):
     def __init__(self, scene, *args, **kwargs):
-        QtGui.QWidget.__init__(self, *args, **kwargs)
+        QtGui.QMainWindow.__init__(self, *args, **kwargs)
 
         self.glWidget = GLWidget(scene)
+        self.setCentralWidget(self.glWidget)
 
-        mainLayout = QtGui.QHBoxLayout()
-        mainLayout.addWidget(self.glWidget)
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle("Hello World")
-
+        self.setWindowTitle('freud.viz')
+        self.statusBar().showMessage('Ready');
+        
+        self.createActions();
+        self.createMenus();
+    
+    ## Create the actions
+    def createActions(self):
+        self.action_close = QtGui.QAction('&Close', self)
+        self.action_close.setShortcut('Ctrl+W')
+        self.action_close.setStatusTip('Close window')
+        self.action_close.triggered.connect(self.close)
+    
+    ## Create the main window menus
+    def createMenus(self):
+        viz_menu = self.menuBar().addMenu('&Viz')
+        viz_menu.addAction(self.action_close);
+        print(viz_menu)
 
 ##########################################
 # Module init
