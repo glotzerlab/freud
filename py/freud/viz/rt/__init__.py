@@ -326,13 +326,15 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, scene, *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
 
+        self.scene = scene;
+
         # initialize the gl display
         self.glWidget = GLWidget(scene)
         self.setCentralWidget(self.glWidget)
         self.setWindowTitle('freud.viz')
 
         self.timer_animate = QtCore.QTimer(self)
-        self.timer_animate.timeout.connect(self._animate)
+        self.timer_animate.timeout.connect(self.gotoNextFrame)
 
         self.statusBar().showMessage('Ready');
         
@@ -340,6 +342,7 @@ class MainWindow(QtGui.QMainWindow):
         self.createToolbars();
         self.createSubWidgets();
         self.createMenus();
+        self.restoreSettings();
     
     ## Create the actions
     def createActions(self):
@@ -353,7 +356,27 @@ class MainWindow(QtGui.QMainWindow):
         self.action_play.setStatusTip('Play or pause the animation');
         self.action_play.setCheckable(True);
         self.action_play.triggered[bool].connect(self.play);
+
+        self.action_next = QtGui.QAction('&Next frame', self);
+        self.action_next.setShortcut('Right');
+        self.action_next.setStatusTip('Advance the animation to the next frame');
+        self.action_next.triggered.connect(self.gotoNextFrame);
+
+        self.action_prev = QtGui.QAction('Pre&v frame', self);
+        self.action_prev.setShortcut('Left');
+        self.action_prev.setStatusTip('Go to the previous animation frame');
+        self.action_prev.triggered.connect(self.gotoPrevFrame);
         
+        self.action_first = QtGui.QAction('&First frame', self);
+        self.action_first.setShortcut('Home');
+        self.action_first.setStatusTip('Go to the first animation frame');
+        self.action_first.triggered.connect(self.gotoFirstFrame);
+
+        self.action_last = QtGui.QAction('&Last frame', self);
+        self.action_last.setShortcut('End');
+        self.action_last.setStatusTip('Go to the last animation frame');
+        self.action_last.triggered.connect(self.gotoLastFrame);
+
     ## Create the main window menus
     def createMenus(self):
         viz_menu = self.menuBar().addMenu('&Viz')
@@ -365,6 +388,10 @@ class MainWindow(QtGui.QMainWindow):
         
         animate_menu = self.menuBar().addMenu('&Animate');
         animate_menu.addAction(self.action_play);
+        animate_menu.addAction(self.action_prev);
+        animate_menu.addAction(self.action_next);
+        animate_menu.addAction(self.action_first);
+        animate_menu.addAction(self.action_last);
         
     ## Create sub widgets
     def createSubWidgets(self):
@@ -382,21 +409,25 @@ class MainWindow(QtGui.QMainWindow):
         self.frame_slider = QtGui.QSlider(QtCore.Qt.Horizontal, self);
         self.frame_slider.valueChanged[int].connect(self.setFrame);
         self.frame_slider.setTickPosition(QtGui.QSlider.TicksBelow);
+        self.frame_slider.setTickInterval(10);
         self.frame_slider.setStatusTip('Select frame');
-        self.frame_slider.setFocusPolicy(QtCore.Qt.WheelFocus);
+        self.frame_slider.setFocusPolicy(QtCore.Qt.NoFocus);
+        self.frame_slider.setMaximum(self.scene.getNumFrames()-1);
         
         self.frame_spinbox = QtGui.QSpinBox(self);
         self.frame_spinbox.setStatusTip('Select frame');
         self.frame_spinbox.valueChanged[int].connect(self.setFrame)
         self.frame_spinbox.setWrapping(True);
-        self.frame_spinbox.setSuffix(' / 99');
+        self.frame_spinbox.setSuffix(' / '+str(self.scene.getNumFrames()));
+        self.frame_spinbox.setMaximum(self.scene.getNumFrames()-1);
         
         self.fps_spinbox = QtGui.QSpinBox(self);
         self.fps_spinbox.setRange(0,60);
         self.fps_spinbox.setStatusTip('Set maximum animation FPS (0 => unlimited)');
         self.fps_spinbox.valueChanged[int].connect(self.setFPS)
         
-        self.animation_control_toolbar = QtGui.QToolBar("Animation", self);
+        self.animation_control_toolbar = QtGui.QToolBar('Animation', self);
+        self.animation_control_toolbar.setObjectName('animation_control_toolbar');
         self.animation_control_toolbar.addAction(self.action_play);
         self.animation_control_toolbar.addWidget(self.frame_slider);
         self.animation_control_toolbar.addWidget(self.frame_spinbox);
@@ -406,6 +437,29 @@ class MainWindow(QtGui.QMainWindow):
         self.animation_control_toolbar.setAllowedAreas(QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea);
         
         self.addToolBar(self.animation_control_toolbar);
+    
+    ## restore saved settings
+    def restoreSettings(self):
+        settings = QtCore.QSettings("umich.edu", "freud.viz");
+        fps = settings.value('rt-MainWindow/fps');
+        if fps is not None:
+            self.setFPS(fps);
+            
+        geom = settings.value("rt-MainWindow/geometry");
+        if geom is not None:
+            self.restoreGeometry(geom);
+        
+        state = settings.value("rt-MainWindow/window_state");
+        if state is not None:
+            self.restoreState(state);
+
+    ## Save settings on close
+    def closeEvent(self, event):
+        settings = QtCore.QSettings("umich.edu", "freud.viz");
+        settings.setValue("rt-MainWindow/geometry", self.saveGeometry());
+        settings.setValue("rt-MainWindow/fps", self.fps_spinbox.value());
+        settings.setValue("rt-MainWindow/window_state", self.saveState());
+        QtGui.QMainWindow.closeEvent(self, event);
 
     ## Set the animation frame
     def setFrame(self, frame):
@@ -428,11 +482,23 @@ class MainWindow(QtGui.QMainWindow):
             self.timer_animate.start();
         else:
             self.timer_animate.stop();
-        
-    ## Drive the animation
-    def _animate(self):
+    
+    ## Advance to the next frame
+    def gotoNextFrame(self):
         self.frame_spinbox.stepUp();
-
+    
+    ## Go back one frame
+    def gotoPrevFrame(self):
+        self.frame_spinbox.stepDown();
+    
+    ## Go to start frame
+    def gotoFirstFrame(self):
+        self.frame_slider.setValue(0);
+    
+    ## Go to start frame
+    def gotoLastFrame(self):
+        self.frame_slider.setValue(self.frame_slider.maximum());
+    
 ##########################################
 # Module init
 
