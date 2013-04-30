@@ -103,6 +103,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self._timer_animate = QtCore.QTimer(self)
         self._timer_animate.timeout.connect(self.animate)
         self._timer_animate.start();
+        
+        self.setFocusPolicy(QtCore.Qt.ClickFocus);
     
     ## \internal 
     # \brief Resize the GL viewport
@@ -316,13 +318,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         return QtCore.QSize(1200,1200);
 
 
-## Animation controls
-#
-# Dock-able widget for animation control in freud
-#
-
-
-
 ## Main window for freud viz
 #
 # MainWindow hosts a central GLWidget display with feature-providing menus, dock-able control panels, etc...
@@ -331,27 +326,112 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, scene, *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
 
+        # initialize the gl display
         self.glWidget = GLWidget(scene)
         self.setCentralWidget(self.glWidget)
-
         self.setWindowTitle('freud.viz')
+
+        self.timer_animate = QtCore.QTimer(self)
+        self.timer_animate.timeout.connect(self._animate)
+
         self.statusBar().showMessage('Ready');
         
         self.createActions();
+        self.createToolbars();
+        self.createSubWidgets();
         self.createMenus();
     
     ## Create the actions
     def createActions(self):
-        self.action_close = QtGui.QAction('&Close', self)
-        self.action_close.setShortcut('Ctrl+W')
-        self.action_close.setStatusTip('Close window')
-        self.action_close.triggered.connect(self.close)
+        self.action_close = QtGui.QAction('&Close', self);
+        self.action_close.setShortcut('Ctrl+W');
+        self.action_close.setStatusTip('Close window');
+        self.action_close.triggered.connect(self.close);
     
+        self.action_play = QtGui.QAction('&Play', self);
+        self.action_play.setShortcut('Space');
+        self.action_play.setStatusTip('Play or pause the animation');
+        self.action_play.setCheckable(True);
+        self.action_play.triggered[bool].connect(self.play);
+        
     ## Create the main window menus
     def createMenus(self):
         viz_menu = self.menuBar().addMenu('&Viz')
         viz_menu.addAction(self.action_close);
-        print(viz_menu)
+        
+        popup = self.createPopupMenu();
+        popup.setTitle('View');
+        view_menu = self.menuBar().addMenu(popup);
+        
+        animate_menu = self.menuBar().addMenu('&Animate');
+        animate_menu.addAction(self.action_play);
+        
+    ## Create sub widgets
+    def createSubWidgets(self):
+        #self.anim_control = AnimationControl();
+        
+        #self.anim_control_dock = QtGui.QDockWidget("Animation", self)
+        #self.anim_control_dock.setAllowedAreas(QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        #self.anim_control_dock.setWidget(self.anim_control)
+        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.anim_control_dock)
+        pass;
+    
+    ## Create tool bars
+    def createToolbars(self):
+        # initialize the non tool button interface elements
+        self.frame_slider = QtGui.QSlider(QtCore.Qt.Horizontal, self);
+        self.frame_slider.valueChanged[int].connect(self.setFrame);
+        self.frame_slider.setTickPosition(QtGui.QSlider.TicksBelow);
+        self.frame_slider.setStatusTip('Select frame');
+        self.frame_slider.setFocusPolicy(QtCore.Qt.WheelFocus);
+        
+        self.frame_spinbox = QtGui.QSpinBox(self);
+        self.frame_spinbox.setStatusTip('Select frame');
+        self.frame_spinbox.valueChanged[int].connect(self.setFrame)
+        self.frame_spinbox.setWrapping(True);
+        self.frame_spinbox.setSuffix(' / 99');
+        
+        self.fps_spinbox = QtGui.QSpinBox(self);
+        self.fps_spinbox.setRange(0,60);
+        self.fps_spinbox.setStatusTip('Set maximum animation FPS (0 => unlimited)');
+        self.fps_spinbox.valueChanged[int].connect(self.setFPS)
+        
+        self.animation_control_toolbar = QtGui.QToolBar("Animation", self);
+        self.animation_control_toolbar.addAction(self.action_play);
+        self.animation_control_toolbar.addWidget(self.frame_slider);
+        self.animation_control_toolbar.addWidget(self.frame_spinbox);
+        self.animation_control_toolbar.addSeparator();
+        self.animation_control_toolbar.addWidget(QtGui.QLabel(text='FPS:', parent=self));
+        self.animation_control_toolbar.addWidget(self.fps_spinbox);
+        self.animation_control_toolbar.setAllowedAreas(QtCore.Qt.TopToolBarArea | QtCore.Qt.BottomToolBarArea);
+        
+        self.addToolBar(self.animation_control_toolbar);
+
+    ## Set the animation frame
+    def setFrame(self, frame):
+        print('Set frame', frame);
+        self.frame_slider.setValue(frame);
+        self.frame_spinbox.setValue(frame);
+    
+    ## Set the maximum FPS
+    def setFPS(self, fps):
+        self.fps_spinbox.setValue(fps);
+        
+        if fps == 0:
+            self.timer_animate.setInterval(0);
+        else:
+            self.timer_animate.setInterval(1000/fps);
+    
+    ## Play/pause the animation
+    def play(self, play=True):
+        if play:
+            self.timer_animate.start();
+        else:
+            self.timer_animate.stop();
+        
+    ## Drive the animation
+    def _animate(self):
+        self.frame_spinbox.stepUp();
 
 ##########################################
 # Module init
