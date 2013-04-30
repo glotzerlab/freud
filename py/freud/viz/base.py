@@ -36,10 +36,10 @@ class Scene(object):
     def setFrame(self, frame):
         self.camera.setFrame(frame);
         
-        for light in lights:
+        for light in self.lights:
             light.setFrame(frame);
         
-        for group in groups:
+        for group in self.groups:
             group.setFrame(frame);
     
     ## Get the number of frames in the scene's animation
@@ -47,11 +47,13 @@ class Scene(object):
     def getNumFrames(self):
         num_frames = self.camera.getNumFrames();
         
-        for light in lights:
+        for light in self.lights:
             num_frames = max(num_frames, light.getNumFrames());
         
-        for group in groups:
+        for group in self.groups:
             num_frames = max(num_frames, group.getNumFrames());
+        
+        return num_frames;
 
 ## Base class for the simplest renderable items
 #
@@ -243,6 +245,10 @@ class Camera(object):
             raise TypeError('position must be a 3-element vector')
         self.position = numpy.array(position);
     
+    ## Get the number of frames
+    def getNumFrames(self):
+        return 1;
+    
     ## 2D orthographic camera matrix
     # \returns A 4x4 numpy array with the camera matrix
     #
@@ -283,7 +289,9 @@ class Camera(object):
         
 ## Specify the location and properties of a light in the scene
 class Light(object):
-    pass
+    ## Get the number of frames
+    def getNumFrames(self):
+        return 1;
 
 ## Specify material properties applied to a Primitive
 class Material(object):
