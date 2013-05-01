@@ -1,4 +1,5 @@
 #include "HexOrderParameter.h"
+#include "ScopedGILRelease.h"
 
 #include <stdexcept>
 #include <complex>
@@ -15,6 +16,8 @@ HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax)
     
 void HexOrderParameter::compute(const float3 *points, unsigned int Np)
     {
+    util::ScopedGILRelease();
+    
     m_lc.computeCellList(points,Np);
     m_Np = Np;
     float rmaxsq = m_rmax * m_rmax;
@@ -54,9 +57,9 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
                     }
                 }
             }
-	// Don't divide by zero if the particle has no neighbors (this leaves psi at 0)
-	if(num_adjacent)
-	  m_psi_array[i] /= complex<double>(num_adjacent);  
+        // Don't divide by zero if the particle has no neighbors (this leaves psi at 0)
+	    if(num_adjacent)
+	       m_psi_array[i] /= complex<double>(num_adjacent);  
         }
     }
 

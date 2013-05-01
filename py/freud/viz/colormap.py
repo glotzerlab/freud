@@ -3,6 +3,7 @@ import numpy
 import math
 
 from freud.viz import colorutil
+import _freud;
 
 ## \package freud.viz.colormap
 #
@@ -40,5 +41,36 @@ def grayscale(u, alpha=1.0):
     cmap_u[:,1] = w_u[:];
     cmap_u[:,2] = w_u[:];
     cmap_u[:,3] = alpha;
+    
+    return colorutil.linearToSRGBA(cmap);
+
+## Hue colormap
+# \param u A numpy array (or something that converts to one) of 0.0-2*pi linear values
+# \param alpha The alpha value for the entire colormap is set to this value
+# 
+# The hue colormap maps u (interpreted as an angle in radians) to the hue colorwheel in the hsv color space.
+# s and v are fixed at 1.0.
+#
+# \note
+# \a u can be any shape - e.g. a 1-element array, an N-length array an MxN array, an LxMxN 
+# array .... 
+#
+# \returns
+# A numpy array the same size as \a v , with an added dimension of size 4 containing r,g,b,a values in the
+# sRGBA color space
+#
+def hue(u, alpha=1.0):
+    # make a copy of v and convert to a numpy array if needed
+    w = numpy.array(u, dtype=numpy.float32);
+    newshape = list(w.shape);
+    newshape.append(4);
+    cmap = numpy.zeros(shape=tuple(newshape), dtype=numpy.float32);
+        
+    # unfold the array
+    w_u = w.flatten();
+    cmap_u = colorutil._unfold(cmap);
+    
+    # compute the colormap
+    _freud.hue2RGBA(cmap, w_u, alpha);
     
     return colorutil.linearToSRGBA(cmap);

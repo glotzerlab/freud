@@ -302,7 +302,6 @@ class SceneUpdateManager(QtCore.QObject):
         if self._target_frame is None:
             self._timer.stop();
         else:
-            print('loading frame', self._target_frame);
             self.scene.setFrame(self._target_frame);
             self._target_frame = None;
             self.completed.emit();
