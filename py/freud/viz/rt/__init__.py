@@ -290,23 +290,28 @@ class SceneUpdateManager(QtCore.QObject):
     def __init__(self, scene):
         QtCore.QObject.__init__(self);
         self.scene = scene;
+
+    @QtCore.Slot()
+    def initialize(self):
+        print('Starting thread');
         self._target_frame = None;        
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.process)
 
     @QtCore.Slot()
     def process(self):
+        print('Processing', self._target_frame);
         if self._target_frame is None:
             self._timer.stop();
         else:
             print('Updating:', self._target_frame, QtCore.QThread.currentThread());
             self.scene.setFrame(self._target_frame);
-            self.completed.emit();
             self._target_frame = None;
+            self.completed.emit();
             print('Update complete:', self._target_frame, QtCore.QThread.currentThread());
     
     @QtCore.Slot()
-    def update(self, target_frame):
+    def gotoFrame(self, target_frame):
         print('Update request:', target_frame, QtCore.QThread.currentThread());
         self._target_frame = target_frame;
         self._timer.start();
@@ -316,11 +321,13 @@ class SceneUpdateManager(QtCore.QObject):
 # MainWindow hosts a central GLWidget display with feature-providing menus, dock-able control panels, etc...
 #
 class MainWindow(QtGui.QMainWindow):
+    goingToFrame = QtCore.Signal(int);
+    
     def __init__(self, scene, *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
 
         self.scene = scene;
-
+        
         # initialize the gl display
         self.glWidget = GLWidget(scene)
         self.setCentralWidget(self.glWidget)
@@ -330,6 +337,16 @@ class MainWindow(QtGui.QMainWindow):
         self.timer_animate.timeout.connect(self.gotoNextFrame)
 
         self.statusBar().showMessage('Ready');
+        
+        # initialize the scene update manager
+        print('Main thread:', QtCore.QThread.currentThread());
+        self.update_manager = SceneUpdateManager(scene);
+        self.update_thread = QtCore.QThread();
+        self.update_manager.moveToThread(self.update_thread);
+        self.update_thread.started.connect(self.update_manager.initialize);
+        self.update_manager.completed.connect(self.update);
+        self.goingToFrame.connect(self.update_manager.gotoFrame);
+        self.update_thread.start();
         
         self.createActions();
         self.createToolbars();
@@ -449,6 +466,7 @@ class MainWindow(QtGui.QMainWindow):
     ## Save settings on close
     def closeEvent(self, event):
         self.timer_animate.stop();
+        self.update_thread.quit();
         
         settings = QtCore.QSettings("umich.edu", "freud.viz");
         settings.setValue("rt-MainWindow/geometry", self.saveGeometry());
@@ -461,8 +479,9 @@ class MainWindow(QtGui.QMainWindow):
     def gotoFrame(self, frame):
         self.frame_slider.setValue(frame);
         self.frame_spinbox.setValue(frame);
-        self.scene.setFrame(frame);
-        self.update();
+        self.goingToFrame.emit(frame);
+        # self.scene.setFrame(frame);
+        # self.update();
     
     ## Set the maximum FPS
     @QtCore.Slot(int)
