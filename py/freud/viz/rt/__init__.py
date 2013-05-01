@@ -20,7 +20,7 @@ except ImportError:
 OpenGL.FORWARD_COMPATIBLE_ONLY = True
 OpenGL.ERROR_ON_COPY = True
 OpenGL.INFO_LOGGING = False
-# OpenGL.ERROR_CHECKING = False
+OpenGL.ERROR_CHECKING = False
 
 # force gl logger to emit only warnings and above
 gl_logger = logging.getLogger('OpenGL')
@@ -293,26 +293,22 @@ class SceneUpdateManager(QtCore.QObject):
 
     @QtCore.Slot()
     def initialize(self):
-        print('Starting thread');
         self._target_frame = None;        
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.process)
 
     @QtCore.Slot()
     def process(self):
-        print('Processing', self._target_frame);
         if self._target_frame is None:
             self._timer.stop();
         else:
-            print('Updating:', self._target_frame, QtCore.QThread.currentThread());
+            print('loading frame', self._target_frame);
             self.scene.setFrame(self._target_frame);
             self._target_frame = None;
             self.completed.emit();
-            print('Update complete:', self._target_frame, QtCore.QThread.currentThread());
     
     @QtCore.Slot()
-    def gotoFrame(self, target_frame):
-        print('Update request:', target_frame, QtCore.QThread.currentThread());
+    def loadFrame(self, target_frame):
         self._target_frame = target_frame;
         self._timer.start();
 
@@ -321,12 +317,14 @@ class SceneUpdateManager(QtCore.QObject):
 # MainWindow hosts a central GLWidget display with feature-providing menus, dock-able control panels, etc...
 #
 class MainWindow(QtGui.QMainWindow):
-    goingToFrame = QtCore.Signal(int);
+    frame_change = QtCore.Signal(int);
     
-    def __init__(self, scene, *args, **kwargs):
+    def __init__(self, scene, immediate=False, *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
 
         self.scene = scene;
+        self._frame = -1;
+        self._immediate = immediate;
         
         # initialize the gl display
         self.glWidget = GLWidget(scene)
@@ -339,14 +337,14 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage('Ready');
         
         # initialize the scene update manager
-        print('Main thread:', QtCore.QThread.currentThread());
-        self.update_manager = SceneUpdateManager(scene);
-        self.update_thread = QtCore.QThread();
-        self.update_manager.moveToThread(self.update_thread);
-        self.update_thread.started.connect(self.update_manager.initialize);
-        self.update_manager.completed.connect(self.update);
-        self.goingToFrame.connect(self.update_manager.gotoFrame);
-        self.update_thread.start();
+        if not self._immediate:
+            self.update_manager = SceneUpdateManager(scene);
+            self.update_thread = QtCore.QThread();
+            self.update_manager.moveToThread(self.update_thread);
+            self.update_thread.started.connect(self.update_manager.initialize);
+            self.update_manager.completed.connect(self.update);
+            self.frame_change.connect(self.update_manager.loadFrame);
+            self.update_thread.start();
         
         self.createActions();
         self.createToolbars();
@@ -466,7 +464,8 @@ class MainWindow(QtGui.QMainWindow):
     ## Save settings on close
     def closeEvent(self, event):
         self.timer_animate.stop();
-        self.update_thread.quit();
+        if not self._immediate:
+            self.update_thread.quit();
         
         settings = QtCore.QSettings("umich.edu", "freud.viz");
         settings.setValue("rt-MainWindow/geometry", self.saveGeometry());
@@ -477,11 +476,22 @@ class MainWindow(QtGui.QMainWindow):
     ## Set the animation frame
     @QtCore.Slot(int)
     def gotoFrame(self, frame):
+        # two separate controls call this, which means it often gets double updates
+        # check a stored frame counter here to see if we already set this frame
+        if frame == self._frame:
+            return;
+        self._frame = frame;
+        
+        # sync the two separate controls together
         self.frame_slider.setValue(frame);
         self.frame_spinbox.setValue(frame);
-        self.goingToFrame.emit(frame);
-        # self.scene.setFrame(frame);
-        # self.update();
+        
+        # update to the target frame
+        if self._immediate:
+            self.scene.setFrame(frame);
+            self.glWidget.updateGL();
+        
+        self.frame_change.emit(frame);
     
     ## Set the maximum FPS
     @QtCore.Slot(int)
