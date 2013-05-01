@@ -29,8 +29,6 @@ null = c_void_p(0)
 # Internally, GL geometry differs from the raw primitive data. DrawGL generates this geometry on the fly as needed
 # and stores it in a cache. The next draw call will reuse geometry data out of the cache for primitives that are
 # identical. This is why primitives encourage recreation of primitives and not changing the data. 
-# 
-# TODO - add some kind of dirty flag to primitives and set commands necessary to update values that set the flag.
 #
 class DrawGL(object):
     ## Initialize a DrawGL
@@ -43,6 +41,17 @@ class DrawGL(object):
             self.programs[cls] = Program(cls);
         
         self.cache = glprimitive.Cache();
+
+    ## Start a frame
+    # Notify the cache that a frame render is starting
+    def startFrame(self):
+        self.cache.startFrame();
+    
+    ## End a frame
+    # Notify the cache that a frame render has completed. The cache may choose to free OpenGL resources at this time.
+    # An OpenGL context must be active when calling endFrame();
+    def endFrame(self):
+        self.cache.endFrame();
 
     ## Destroy OpenGL resources
     # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that

@@ -18,17 +18,33 @@ null = c_void_p(0)
 #
 # The cache manager takes care of initializing the GLPrimitive instances as needed and saving them for later use.
 #
-# TODO: need some kind of frame start/stop mechanism so that the manager can tell when to free unused resources
+# startFrame() signifies the start of a new frame. stopFrame signifies the end of a frame. The cache uses information
+# about entities accessed during a frame to decide which ones to evict from the cache.
 #
 class Cache(object):
     ## Initialize the cache manager
     # Initially the manager is empty
     def __init__(self):
         self.cache = {};
+        self.accessed_ids = set();
     
+    ## Start a frame
+    # Notify the cache that a frame render is starting
+    def startFrame(self):
+        self.accessed_ids.clear()
+    
+    ## End a frame
+    # Notify the cache that a frame render has completed. The cache may choose to free OpenGL resources at this time.
+    # An OpenGL context must be active when calling endFrame();
+    def endFrame(self):
+        for ident in self.cache.keys():
+            if not ident in self.accessed_ids:
+                self.cache[ident].destroy();
+                del self.cache[ident];
+
     ## Destroy OpenGL resources
     # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
-    # resources can be released at a controlled time. (not whenever python decides to call __del__.
+    # resources can be released at a controlled time. (not whenever python decides to call __del__).
     #
     def destroy(self):
         for c in self.cache.values():
@@ -45,6 +61,8 @@ class Cache(object):
     def get(self, prim, typ):
         if prim.ident not in self.cache:
             self.cache[prim.ident] = typ(prim);
+        
+        self.accessed_ids.add(prim.ident);
         
         return self.cache[prim.ident];
 

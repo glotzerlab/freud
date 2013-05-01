@@ -95,6 +95,43 @@ class Group(object):
     # \returns Base class group only has 1 static frame
     def getNumFrames(self):
         return 1;
+
+## Group generated from a Trajectory
+#
+# GroupTrajectory is a Group that is closely tied with a single freud Trajectory. It selects a number of frames equal to the 
+# number of frames in the trajectory. It does not directly create geometry for each frame. Instead, a virtual function
+# buildPrimitives() is provided for subclasses to implement. buildPrimitives() is called whenever it is needed to build
+# primitives for a given frame index in the trajectory. This way, user code can generate whatever geometry it wishes to.
+#
+# \note buildPrimitives() output may be cached, so do not assume that a call to buildPrimitives() indicates a frame
+#       change
+#
+class GroupTrajectory(Group):
+    ## Initialize 
+    # \param primitives List of primitives (of type Primitive or inherited) to include in the group
+    def __init__(self, trajectory):
+        # default to no primitives
+        self.trajectory = trajectory;
+        self.primitives = [];
+    
+    ## Build primitives for the given frame
+    # \param frame Frame index
+    # \returns a list of primitives
+    # \note derived classes should reference self.trajectory and build the corresponding list of primitives
+    def buildPrimitives(self, frame):
+        pass;
+    
+    ## Sets the current animation frame
+    # \param frame Animation frame index to set
+    # The base class group does nothing
+    def setFrame(self, frame):
+        frame = frame % len(self.trajectory);
+        self.primitives = self.buildPrimitives(frame);
+    
+    ## Get the number of animation frames
+    # \returns Base class group only has 1 static frame
+    def getNumFrames(self):
+        return len(self.trajectory);
     
 ## Specify the camera from which the scene should be rendered
 #
@@ -249,6 +286,10 @@ class Camera(object):
     def getNumFrames(self):
         return 1;
     
+    ## Set the current frame
+    def setFrame(self, frame):
+        pass;
+    
     ## 2D orthographic camera matrix
     # \returns A 4x4 numpy array with the camera matrix
     #
@@ -292,6 +333,10 @@ class Light(object):
     ## Get the number of frames
     def getNumFrames(self):
         return 1;
+
+    ## Set the current frame
+    def setFrame(self, frame):
+        pass;
 
 ## Specify material properties applied to a Primitive
 class Material(object):

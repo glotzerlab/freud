@@ -82,7 +82,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.scene = scene;
         
         self.setCursor(QtCore.Qt.OpenHandCursor)
-        self.setAutoBufferSwap(False);
         
         # initialize state machine variables
         self._anim_state = GLWidget.ANIM_IDLE;
@@ -91,13 +90,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         self._pan_vel = numpy.array([0,0], dtype=numpy.float32);
         self._initial_pan_vel = numpy.array([0,0], dtype=numpy.float32);
         self._initial_pan_time = time.time();
-        
-        # timers and state for FPS measurement
-        self._fps_last_time = time.time();
-        self._fps_frame_count = 0;
-        self._fps_measuring = False;
-        self.timer_fps = QtCore.QTimer(self)
-        self.timer_fps.timeout.connect(self.updateFPS)
         
         # timer for the animation loop
         self._timer_animate = QtCore.QTimer(self)
@@ -122,18 +114,11 @@ class GLWidget(QtOpenGL.QGLWidget):
     # Clear the draw buffers and redraws the scene
     #
     def paintGL(self):
-        self._fps_frame_count += 1;
-        
-        start_time = time.time();
-        
         gl.glClearColor(1.0, 1.0, 1.0, 0.0);
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
+        self.draw_gl.startFrame();
         self.draw_gl.draw(self.scene);
-        self.swapBuffers();
-        
-        end_time = time.time();
-        elapsed_time = end_time - start_time;
-
+        self.draw_gl.endFrame();
 
     ## \internal
     # \brief Initialize the OpenGL renderer
@@ -159,9 +144,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     def animate(self):
         # If we are idle, stop the timer
         if self._anim_state == GLWidget.ANIM_IDLE:
-            # need to generate frames when measuring FPS
-            if self._fps_measuring:
-                self.updateGL();
+            self._timer_animate.stop();
         
         # If we are panning
         elif self._anim_state == GLWidget.ANIM_PAN:
@@ -183,22 +166,6 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.updateGL();
 
     ## \internal
-    # \brief Update FPS slot
-    #
-    # Sets _fps_measuring to True and records _fps_last_time for use in the animation loop to compute FPS.
-    #
-    def updateFPS(self):
-        cur_time = time.time();
-        elapsed_time = cur_time - self._fps_last_time;
-        
-        print(self._fps_frame_count / elapsed_time, "FPS", self._fps_frame_count, elapsed_time);
-
-        self._fps_last_time = cur_time;
-        self._fps_measuring = False;
-        self._fps_frame_count = 0;
-        self.timer_fps.stop();
-    
-    ## \internal
     # \brief Close event
     #
     # Releases OpenGL resources when the widget is closed. 
@@ -210,24 +177,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         # make the gl context current and free resources
         self.makeCurrent();
-        self.draw_gl.destroy();            
+        self.draw_gl.destroy();
 
-    ## \internal
-    # \brief Key pressed event
-    #
-    # Currently does nothing
-    #
-    def keyPressEvent(self, event):
-        pass
-    
-    ## \internal
-    # \brief Key released event
-    #
-    # Currently does nothing
-    #
-    def keyReleaseEvent(self, event):
-        pass
-    
     ## \internal
     # \brief Handle mouse move (while dragging) event
     #
@@ -287,6 +238,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         if event.button() == QtCore.Qt.LeftButton:
             # switch to the panning animation, set the initial pan vel and time, and update the cursor
             self._anim_state = GLWidget.ANIM_PAN;
+            self._timer_animate.start();
             self._initial_pan_vel[:] = self._pan_vel[:];
             self._initial_pan_time = self._prev_time;
             self.setCursor(QtCore.Qt.OpenHandCursor)
@@ -329,6 +281,7 @@ class MainWindow(QtGui.QMainWindow):
         self.scene = scene;
 
         # initialize the gl display
+        self.scene.setFrame(self.scene.getNumFrames()-1);
         self.glWidget = GLWidget(scene)
         self.setCentralWidget(self.glWidget)
         self.setWindowTitle('freud.viz')
@@ -455,6 +408,8 @@ class MainWindow(QtGui.QMainWindow):
 
     ## Save settings on close
     def closeEvent(self, event):
+        self.timer_animate.stop();
+        
         settings = QtCore.QSettings("umich.edu", "freud.viz");
         settings.setValue("rt-MainWindow/geometry", self.saveGeometry());
         settings.setValue("rt-MainWindow/fps", self.fps_spinbox.value());
@@ -463,9 +418,10 @@ class MainWindow(QtGui.QMainWindow):
 
     ## Set the animation frame
     def setFrame(self, frame):
-        print('Set frame', frame);
         self.frame_slider.setValue(frame);
         self.frame_spinbox.setValue(frame);
+        self.scene.setFrame(frame);
+        self.update();
     
     ## Set the maximum FPS
     def setFPS(self, fps):
