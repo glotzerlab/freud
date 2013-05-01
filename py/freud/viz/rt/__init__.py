@@ -269,6 +269,47 @@ class GLWidget(QtOpenGL.QGLWidget):
     def sizeHint(self):
         return QtCore.QSize(1200,1200);
 
+## Delayed scene update manager
+#
+# Setting frames in scenes may take a while when there is a lot of processing to do. This processing should not be done
+# in the main thread so the GUI remains responsive. The SceneUpdateManager updates the scene frame in the background.
+# It is designed to be assigned to a QThread.
+#
+# **Implementation details**
+# SceneUpdateManager starts a QTimer for idle processing. It tracks a single frame to update. When a new frame is
+# requested, it overrides the old one there. When the idle processing timer triggers, the scene is updated to the
+# currently requested frame and then the timer is stopped.
+#
+# The update manager has a signal which it emits when the frame is updated. TODO: somehow we need to make the
+# scene frame update atomic.... otherwise partially updated frames might be rendered. Not sure if a mutex is the right
+# solution, since that would just lock up the GUI if it attempts to draw the scene.....
+#
+class SceneUpdateManager(QtCore.QObject):
+    completed = QtCore.Signal();
+    
+    def __init__(self, scene):
+        QtCore.QObject.__init__(self);
+        self.scene = scene;
+        self._target_frame = None;        
+        self._timer = QtCore.QTimer(self)
+        self._timer.timeout.connect(self.process)
+
+    @QtCore.Slot()
+    def process(self):
+        if self._target_frame is None:
+            self._timer.stop();
+        else:
+            print('Updating:', self._target_frame, QtCore.QThread.currentThread());
+            self.scene.setFrame(self._target_frame);
+            self.completed.emit();
+            self._target_frame = None;
+            print('Update complete:', self._target_frame, QtCore.QThread.currentThread());
+    
+    @QtCore.Slot()
+    def update(self, target_frame):
+        print('Update request:', target_frame, QtCore.QThread.currentThread());
+        self._target_frame = target_frame;
+        self._timer.start();
 
 ## Main window for freud viz
 #
@@ -281,7 +322,6 @@ class MainWindow(QtGui.QMainWindow):
         self.scene = scene;
 
         # initialize the gl display
-        self.scene.setFrame(self.scene.getNumFrames()-1);
         self.glWidget = GLWidget(scene)
         self.setCentralWidget(self.glWidget)
         self.setWindowTitle('freud.viz')
@@ -360,7 +400,7 @@ class MainWindow(QtGui.QMainWindow):
     def createToolbars(self):
         # initialize the non tool button interface elements
         self.frame_slider = QtGui.QSlider(QtCore.Qt.Horizontal, self);
-        self.frame_slider.valueChanged[int].connect(self.setFrame);
+        self.frame_slider.valueChanged[int].connect(self.gotoFrame);
         self.frame_slider.setTickPosition(QtGui.QSlider.TicksBelow);
         self.frame_slider.setTickInterval(10);
         self.frame_slider.setStatusTip('Select frame');
@@ -369,7 +409,7 @@ class MainWindow(QtGui.QMainWindow):
         
         self.frame_spinbox = QtGui.QSpinBox(self);
         self.frame_spinbox.setStatusTip('Select frame');
-        self.frame_spinbox.valueChanged[int].connect(self.setFrame)
+        self.frame_spinbox.valueChanged[int].connect(self.gotoFrame)
         self.frame_spinbox.setWrapping(True);
         self.frame_spinbox.setSuffix(' / '+str(self.scene.getNumFrames()));
         self.frame_spinbox.setMaximum(self.scene.getNumFrames()-1);
@@ -417,13 +457,15 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.closeEvent(self, event);
 
     ## Set the animation frame
-    def setFrame(self, frame):
+    @QtCore.Slot(int)
+    def gotoFrame(self, frame):
         self.frame_slider.setValue(frame);
         self.frame_spinbox.setValue(frame);
         self.scene.setFrame(frame);
         self.update();
     
     ## Set the maximum FPS
+    @QtCore.Slot(int)
     def setFPS(self, fps):
         self.fps_spinbox.setValue(fps);
         
@@ -433,6 +475,7 @@ class MainWindow(QtGui.QMainWindow):
             self.timer_animate.setInterval(1000/fps);
     
     ## Play/pause the animation
+    @QtCore.Slot()
     def play(self, play=True):
         if play:
             self.timer_animate.start();
@@ -440,18 +483,22 @@ class MainWindow(QtGui.QMainWindow):
             self.timer_animate.stop();
     
     ## Advance to the next frame
+    @QtCore.Slot()
     def gotoNextFrame(self):
         self.frame_spinbox.stepUp();
     
     ## Go back one frame
+    @QtCore.Slot()
     def gotoPrevFrame(self):
         self.frame_spinbox.stepDown();
     
     ## Go to start frame
+    @QtCore.Slot()
     def gotoFirstFrame(self):
         self.frame_slider.setValue(0);
     
-    ## Go to start frame
+    ## Go to last frame
+    @QtCore.Slot()
     def gotoLastFrame(self):
         self.frame_slider.setValue(self.frame_slider.maximum());
     
