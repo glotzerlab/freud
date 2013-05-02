@@ -379,6 +379,10 @@ class file:
 
         #spheres are only shape without a quaternion; an empty array is append to quaternion_list to keep
         #all the lists aligned
+        
+        # Can get speed up through optimization here...
+        # Don't need to make a new object every time
+        
         if   shape == 'sphere':
             self.particle_list[-1].append(Sphere(float(tokens[1]),tokens[2]))
             self.position_list[-1].append(n.array([float(p) for p in tokens[3:6]]))
