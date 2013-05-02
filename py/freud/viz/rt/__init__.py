@@ -20,7 +20,7 @@ except ImportError:
 OpenGL.FORWARD_COMPATIBLE_ONLY = True
 OpenGL.ERROR_ON_COPY = True
 OpenGL.INFO_LOGGING = False
-OpenGL.ERROR_CHECKING = False
+# OpenGL.ERROR_CHECKING = False
 
 # force gl logger to emit only warnings and above
 gl_logger = logging.getLogger('OpenGL')
@@ -311,11 +311,11 @@ class SceneUpdateManager(QtCore.QObject):
         self._target_frame = target_frame;
         self._timer.start();
 
-## Main window for freud viz
+## Trajectory viewer window for freud viz
 #
-# MainWindow hosts a central GLWidget display with feature-providing menus, dock-able control panels, etc...
+# TrajectoryViewer hosts a central GLWidget display with feature-providing menus, dock-able control panels, etc...
 #
-class MainWindow(QtGui.QMainWindow):
+class TrajectoryViewer(QtGui.QMainWindow):
     frame_change = QtCore.Signal(int);
     
     def __init__(self, scene, immediate=False, *args, **kwargs):
@@ -350,6 +350,8 @@ class MainWindow(QtGui.QMainWindow):
         self.createSubWidgets();
         self.createMenus();
         self.restoreSettings();
+        
+        self.gotoFrame(0);
     
     ## Create the actions
     def createActions(self):
@@ -448,15 +450,15 @@ class MainWindow(QtGui.QMainWindow):
     ## restore saved settings
     def restoreSettings(self):
         settings = QtCore.QSettings("umich.edu", "freud.viz");
-        fps = settings.value('rt-MainWindow/fps');
+        fps = settings.value('rt-TrajectoryViewer/fps');
         if fps is not None:
             self.setFPS(fps);
             
-        geom = settings.value("rt-MainWindow/geometry");
+        geom = settings.value("rt-TrajectoryViewer/geometry");
         if geom is not None:
             self.restoreGeometry(geom);
         
-        state = settings.value("rt-MainWindow/window_state");
+        state = settings.value("rt-TrajectoryViewer/window_state");
         if state is not None:
             self.restoreState(state);
 
@@ -467,9 +469,9 @@ class MainWindow(QtGui.QMainWindow):
             self.update_thread.quit();
         
         settings = QtCore.QSettings("umich.edu", "freud.viz");
-        settings.setValue("rt-MainWindow/geometry", self.saveGeometry());
-        settings.setValue("rt-MainWindow/fps", self.fps_spinbox.value());
-        settings.setValue("rt-MainWindow/window_state", self.saveState());
+        settings.setValue("rt-TrajectoryViewer/geometry", self.saveGeometry());
+        settings.setValue("rt-TrajectoryViewer/fps", self.fps_spinbox.value());
+        settings.setValue("rt-TrajectoryViewer/window_state", self.saveState());
         QtGui.QMainWindow.closeEvent(self, event);
 
     ## Set the animation frame
