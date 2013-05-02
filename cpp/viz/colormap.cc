@@ -58,7 +58,12 @@ void hsv2RGBAPy(boost::python::numeric::array cmap,
     float* theta_raw = (float*)num_util::data(theta);
     float* s_raw = (float*)num_util::data(s);
     float* v_raw = (float*)num_util::data(v);
-    hsv2RGBA(cmap_raw, theta_raw, s_raw, v_raw, a, N);
+    
+        // compute the colormap with the GIL released
+        {
+        util::ScopedGILRelease gil;
+        hsv2RGBA(cmap_raw, theta_raw, s_raw, v_raw, a, N);
+        }
     }
 
 /*! \param cmap Output colormap (Nx4 float32 array)
@@ -74,7 +79,6 @@ void hsv2RGBA(float4 *cmap,
               float a,
               unsigned int N)
     {
-    util::ScopedGILRelease();
     for (unsigned int i = 0; i < N; i++)
         {
         // algorithm from http://en.wikipedia.org/wiki/HSL_and_HSV

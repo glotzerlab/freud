@@ -16,8 +16,6 @@ HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax)
     
 void HexOrderParameter::compute(const float3 *points, unsigned int Np)
     {
-    util::ScopedGILRelease();
-    
     m_lc.computeCellList(points,Np);
     m_Np = Np;
     float rmaxsq = m_rmax * m_rmax;
@@ -73,9 +71,14 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
     
-    // get the raw data pointers and compute the cell list
+    // get the raw data pointers and compute order parameter
     float3* points_raw = (float3*) num_util::data(points);
-    compute(points_raw, Np);
+        
+        // compute the order parameter with the GIL released
+        {
+        util::ScopedGILRelease gil;
+        compute(points_raw, Np);
+        }
     }
     
 void export_HexOrderParameter()
