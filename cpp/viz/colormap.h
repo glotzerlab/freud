@@ -10,15 +10,14 @@
 namespace freud { namespace colormap {
 
 /*! \internal
-    \brief Python wrapper for hue2RGBA
-*/
-void hue2RGBAPy(boost::python::numeric::array cmap, boost::python::numeric::array u, float a);
-
-/*! \internal
     \brief Helper function for HSV to RGB conversion
 */
-void hue2RGBA(float4 *cmap, const float *u, float a, unsigned int N);
-
+void hsv2RGBA(float4 *cmap,
+              const float *theta_array,
+              const float *s_array,
+              const float *v_array,
+              float a,
+              unsigned int N);
 
 /*! \internal
     \brief Exports all classes in this file to python 
