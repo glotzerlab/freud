@@ -9,8 +9,8 @@ using namespace boost::python;
 
 namespace freud { namespace order {
     
-HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax)
-    :m_box(box), m_rmax(rmax), m_lc(box, rmax)
+HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax, float k=6)
+    :m_box(box), m_rmax(rmax), m_k(k), m_lc(box, rmax)
     {
     }
     
@@ -50,7 +50,7 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
                     {
                     //compute psi for neighboring particle(only constructed for 2d)
                     double psi_ij = atan2(delta.y, delta.x);
-                    m_psi_array[i] += exp(complex<double>(0,6*psi_ij));
+                    m_psi_array[i] += exp(complex<double>(0,m_k*psi_ij));
                     num_adjacent++;
                     }
                 }
@@ -84,6 +84,7 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
 void export_HexOrderParameter()
     {
     class_<HexOrderParameter>("HexOrderParameter", init<trajectory::Box&, float>())
+        .def(init<trajectory::Box&, float, float>())
         .def("getBox", &HexOrderParameter::getBox, return_internal_reference<>())
         .def("compute", &HexOrderParameter::computePy)
         .def("getPsi", &HexOrderParameter::getPsiPy)

@@ -17,7 +17,7 @@ class HexOrderParameter
     {
     public:
         //! Constructor
-        HexOrderParameter(const trajectory::Box& box, float rmax);
+        HexOrderParameter(const trajectory::Box& box, float rmax, float k);
         
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -48,6 +48,7 @@ class HexOrderParameter
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
+        float m_k;                        //!< Multiplier in the exponent
         locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_Np;                //!< Last number of points computed
         
