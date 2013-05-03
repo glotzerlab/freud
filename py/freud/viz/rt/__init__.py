@@ -472,6 +472,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
         settings.setValue("rt-TrajectoryViewer/geometry", self.saveGeometry());
         settings.setValue("rt-TrajectoryViewer/fps", self.fps_spinbox.value());
         settings.setValue("rt-TrajectoryViewer/window_state", self.saveState());
+        self.centralWidget().closeEvent(event);
         QtGui.QMainWindow.closeEvent(self, event);
 
     ## Set the animation frame
