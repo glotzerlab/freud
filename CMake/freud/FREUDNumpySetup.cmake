@@ -1,19 +1,27 @@
 # sets the variable NUMPY_INCLUDE_DIR for using numpy with python
-find_package(PythonInterp REQUIRED)
 
-if(NOT NUMPY_INCLUDE_DIR)
-
+# macro for running python and getting output
+macro(run_python code result)
 execute_process(
     COMMAND
-    ${PYTHON_EXECUTABLE} -c "import numpy; print numpy.get_include()"
-    OUTPUT_VARIABLE NUMPY_INCLUDE_GUESS
-    RESULT_VARIABLE NUMPY_ERR
+    ${PYTHON_EXECUTABLE} -c ${code}
+    OUTPUT_VARIABLE ${result}
+    RESULT_VARIABLE PY_ERR
     OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
-if(NUMPY_ERR)
-    message(STATUS "Error while querying numpy include directory")
-endif(NUMPY_ERR)
+if(PY_ERR)
+    message(STATUS "Error while querying python for information")
+endif(PY_ERR)
+endmacro(run_python)
+
+if(NOT NUMPY_INCLUDE_DIR)
+
+if (PYTHON_VERSION VERSION_GREATER 3)
+    run_python("import numpy\; print(numpy.get_include())" NUMPY_INCLUDE_GUESS)
+else()
+    run_python("import numpy\; print numpy.get_include()" NUMPY_INCLUDE_GUESS)
+endif()
 
 # We use the full path name (including numpy on the end), but
 # Double-check that all is well with that choice.

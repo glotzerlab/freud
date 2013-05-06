@@ -358,7 +358,7 @@ class TrajectoryXML(Trajectory):
             self.static_props['body'] = self._update('body', configuration)
         if not 'charge' in self.dynamic_props:
             self.static_props['charge'] = self._update('charge', configuration)
-	self.setFrame(0)
+        self.setFrame(0)
 
     ## Get the number of particles in the trajectory
     # \returns Number of particles
