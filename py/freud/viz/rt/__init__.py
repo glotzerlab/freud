@@ -424,6 +424,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
         self.frame_slider.setMaximum(self.scene.getNumFrames()-1);
         
         self.frame_spinbox = QtGui.QSpinBox(self);
+        self.frame_spinbox.setKeyboardTracking(False);
         self.frame_spinbox.setStatusTip('Select frame');
         self.frame_spinbox.valueChanged[int].connect(self.gotoFrame)
         self.frame_spinbox.setWrapping(True);
