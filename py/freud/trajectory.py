@@ -5,6 +5,7 @@ except ImportError:
 
 import numpy
 import copy
+import threading
 import xml.dom.minidom
 try:
     import h5py
@@ -36,11 +37,6 @@ def Box_getinitargs(self):
     return (self.getLx(), self.getLy(), self.getLz(), self.is2D())
 Box.__getinitargs__ = Box_getinitargs
 
-# DCDLoader
-def DCDLoader_getinitargs(self):
-    return (self.getFileName(), )
-_freud.DCDLoader.__getinitargs__ = DCDLoader_getinitargs
-
 ## Base class Trajectory that defines a common interface for working with any trajectory
 #
 # A Trajectory represents a series of frames. Each frame consists of a set of properties on the particles, composite
@@ -63,11 +59,16 @@ _freud.DCDLoader.__getinitargs__ = DCDLoader_getinitargs
 # \endcode
 # The number of frames in a trajectory is len(traj).
 #
+# *Thread safety:*
+# All trajectories provide thread-safe read only access to all parameters. Indexing f = traj[n] is serialized so that it
+# can be performed in parallel by many threads.
+#
 class Trajectory:
     ## Initialize an empty trajectory
     def __init__(self):
         self.static_props = {};
         self.modifiable_props = {};
+        self._lock = threading.Lock();
     
     ## Test if a given particle property is modifiable
     # \param prop Property to check
@@ -123,8 +124,12 @@ class Trajectory:
         if idx < 0 or idx >= len(self):
             raise IndexError('Frame index out of range');
         
-        self._set_frame(idx);
-        return self._get_current_frame();
+        try:
+            self._lock.acquire();
+            self._set_frame(idx);
+            return self._get_current_frame();
+        finally:
+            self._lock.release();
     
     ## Iterate through frames
     def __iter__(self):
