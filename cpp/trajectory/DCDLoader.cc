@@ -21,6 +21,8 @@ DCDLoader::DCDLoader(const std::string &dcd_fname) : m_fname(dcd_fname), m_point
     molfile_dcdplugin_init();
     molfile_dcdplugin_register((void**)&dcdplugin, &plugin_register);
     
+    m_time_step = 0;
+    
     // initialize the dcd file handle
     loadDCD();
     }
@@ -90,6 +92,9 @@ void DCDLoader::readNextFrame()
     
     // record the box read from this time step
     m_box = Box(ts.A, ts.B, ts.C);
+    
+    // record the step
+    m_time_step = m_dcd->istart + (m_dcd->setsread-1) * m_dcd->nsavc;
     }
         
 /*! Initializes the DCD handle
@@ -120,6 +125,7 @@ void export_dcdloader()
         .def("getLastFrameNum", &DCDLoader::getLastFrameNum)
         .def("getFrameCount", &DCDLoader::getFrameCount)
         .def("getFileName", &DCDLoader::getFileName)
+        .def("getTimeStep", &DCDLoader::getTimeStep)
         .enable_pickling()
         ;
     }

@@ -674,7 +674,11 @@ class TrajectoryXMLDCD(Trajectory):
             dynamic_props['position'] = pos;
             box = self.dcd_loader.getBox();
             box.set2D(self.ndim == 2);
-            return Frame(self, self.dcd_loader.getLastFrameNum(), dynamic_props, box);
+            return Frame(self,
+                         self.dcd_loader.getLastFrameNum(),
+                         dynamic_props,
+                         box,
+                         time_step=self.dcd_loader.getTimeStep());
         else:   
             box = self.box;
             return Frame(self, 1, dynamic_props, box);

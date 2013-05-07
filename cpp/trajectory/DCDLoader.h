@@ -78,12 +78,19 @@ class DCDLoader
             {
             return m_fname;
             }
+        
+        //! Get the time step
+        unsigned int getTimeStep() const
+            {
+            return m_time_step;
+            }
 
         
     private:
         std::string m_fname;                        //!< File name of the DCD file
         Box m_box;                                  //!< The box read from the last readNextStep()
         boost::python::numeric::array m_points;     //!< Points read during the last readNextStep()
+        unsigned int m_time_step;                   //!< Time step value read
         
         //! Keep track of the dcd file
         dcdhandle *m_dcd;
