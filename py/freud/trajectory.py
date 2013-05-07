@@ -252,7 +252,7 @@ class Frame:
     # \note  High level classes should not construct Frame classes directly. Instead create a Trajectory and query it 
     # to get frames
     def __init__(self, traj, idx, dynamic_props, box, time_step=0):
-        self.traj = traj;
+        self.static_props = traj.static_props;
         self.frame = idx;
         self.dynamic_props = dynamic_props;
         self.box = box;
@@ -266,23 +266,10 @@ class Frame:
     def get(self, prop):
         if prop in self.dynamic_props:
             return self.dynamic_props[prop];
-        elif self.traj.isStatic(prop):
-            return self.traj.getStatic(prop);
+        elif prop in self.static_props:
+            return self.static_props[prop];
         else:
             raise KeyError('Particle property ' + prop + ' not found');
-    
-    ## Set properties for this frame
-    # \param prop Name of property to modify
-    # \param value New values to set for that property 
-    #
-    # Some types of properties can be set, depending on the Trajectory. For example, TrajectoryVMD allows setting of
-    # the user, user2, user3, and user4 flags. Check if a property is modifiable with Trajectory.isModifiable()
-    #
-    # Some types of Trajectories may provide other modifiable properties. See their documentation for details.
-    #
-    def set(self, prop, value):
-        self.traj._set_frame(self.frame);
-        self.traj.setProperty(prop, value);
 
 ## Trajectory information read from a list of XML files
 #
