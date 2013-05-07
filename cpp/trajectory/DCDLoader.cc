@@ -5,6 +5,8 @@
 using namespace boost::python;
 using namespace std;
 
+namespace freud { namespace trajectory {
+
 //! Simple plugin register takes a ** to the pointer to set
 static int plugin_register(void *p, vmdplugin_t *plugin)
     {
@@ -15,7 +17,7 @@ static int plugin_register(void *p, vmdplugin_t *plugin)
 
 /*! \param dcd_fname DCD file to read timestep data from
 */
-DCDLoader::DCDLoader(const std::string &dcd_fname) : m_fname(dcd_fname), m_points(num_util::makeNum(1, PyArray_FLOAT))
+DCDLoader::DCDLoader(const std::string &dcd_fname) : m_fname(dcd_fname)
     {
     // initialize the plugins
     molfile_dcdplugin_init();
@@ -78,7 +80,7 @@ void DCDLoader::readNextFrame()
     {
     // read the next timestep
     molfile_timestep_t ts;
-    ts.coords = (float*)num_util::data(m_points);
+    ts.coords = m_points.get();
     
     int err = dcdplugin->read_next_timestep((void *)m_dcd, m_dcd->natoms, &ts);
     if (err == MOLFILE_EOF)
@@ -106,19 +108,14 @@ void DCDLoader::loadDCD()
     if (m_dcd == NULL)
         throw runtime_error("Error loading dcd file");
     
-    // allocate the memory for the points
-    std::vector<intp> dims(2);
-    dims[0] = natoms;
-    dims[1] = 3;
-    
-    m_points = num_util::makeNum(dims, PyArray_FLOAT);
-    }        
+    m_points = boost::shared_array<float>(new float[natoms*3]);
+    }
 
 void export_dcdloader()
     {
     class_<DCDLoader>("DCDLoader", init<const string &>())
-        .def("jumpToFrame", &DCDLoader::jumpToFrame)
-        .def("readNextFrame", &DCDLoader::readNextFrame)
+        .def("jumpToFrame", &DCDLoader::jumpToFramePy)
+        .def("readNextFrame", &DCDLoader::readNextFramePy)
         .def("getPoints", &DCDLoader::getPoints)
         .def("getBox", &DCDLoader::getBox, return_internal_reference<>())
         .def("getNumParticles", &DCDLoader::getNumParticles)
@@ -129,3 +126,5 @@ void export_dcdloader()
         .enable_pickling()
         ;
     }
+
+}; }; // end namespace freud::trajectory

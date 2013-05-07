@@ -11,7 +11,9 @@
 #include <cassert>
 #include <string>
 
-using namespace freud::trajectory;
+#include "ScopedGILRelease.h"
+
+namespace freud { namespace trajectory {
 
 //! Class for loading DCD files into freud
 /*! The structure information is assumed to have been read in elsewhere.
@@ -39,10 +41,30 @@ class DCDLoader
         //! Read the next step in the file
         void readNextFrame();
         
+        //! Jump to a particular frame number in the file (call only from python)
+        void jumpToFramePy(int frame)
+            {
+            util::ScopedGILRelease gil;
+            jumpToFrame(frame);
+            }
+        
+        //! Read the next step in the file (call only from python)
+        void readNextFramePy()
+            {
+            util::ScopedGILRelease gil;
+            readNextFrame();
+            }
+
         //! Access the points read by the last step
         boost::python::numeric::array getPoints() const
             {
-            return m_points;
+            // allocate the memory for the points
+            std::vector<intp> dims(2);
+            dims[0] = getNumParticles();
+            dims[1] = 3;
+            
+            float *arr = m_points.get();
+            return num_util::makeNum(arr, dims);
             }
         
         //! Get the box
@@ -89,7 +111,7 @@ class DCDLoader
     private:
         std::string m_fname;                        //!< File name of the DCD file
         Box m_box;                                  //!< The box read from the last readNextStep()
-        boost::python::numeric::array m_points;     //!< Points read during the last readNextStep()
+        boost::shared_array<float> m_points;        //!< Points read during the last readNextStep()
         unsigned int m_time_step;                   //!< Time step value read
         
         //! Keep track of the dcd file
@@ -103,4 +125,7 @@ class DCDLoader
     };
     
 void export_dcdloader();
+
+}; }; // end namespace freud::trajectory
+
 #endif

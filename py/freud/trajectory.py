@@ -670,7 +670,7 @@ class TrajectoryXMLDCD(Trajectory):
 
         # get position
         if self.dcd_loader is not None:
-            pos = copy.copy(self.dcd_loader.getPoints());
+            pos = self.dcd_loader.getPoints();
             dynamic_props['position'] = pos;
             box = copy.copy(self.dcd_loader.getBox());
             box.set2D(self.ndim == 2);
