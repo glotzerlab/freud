@@ -100,19 +100,21 @@ class Trajectory:
     def __len__(self):
         return 0;
     
-    ## Sets the current frame
+    ## \internal
+    # \brief Sets the current frame
     # \param idx Index of the frame to seek to
     # \note The base class Trajectory doesn't load any particles, so calling this method will produce an error.
     #       Derived classes should override
-    def setFrame(self, idx):
-        raise RuntimeError("Trajectory.setFrame not implemented");
+    def _set_frame(self, idx):
+        raise RuntimeError("Trajectory._set_frame not implemented");
     
-    ## Get the current frame
+    ## \internal
+    # \brief Get the current frame
     # \returns A Frame containing the current frame data
     # \note The base class Trajectory doesn't load any particles, so calling this method will produce an error.
     #       Derived classes should override
-    def getCurrentFrame(self):
-        raise RuntimeError("Trajectory.getCurrentFrame not implemented");
+    def _get_current_frame(self):
+        raise RuntimeError("Trajectory._get_current_frame not implemented");
 
     ## Get the selected frame
     # \param idx Index of the frame to access
@@ -121,8 +123,8 @@ class Trajectory:
         if idx < 0 or idx >= len(self):
             raise IndexError('Frame index out of range');
         
-        self.setFrame(idx);
-        return self.getCurrentFrame();
+        self._set_frame(idx);
+        return self._get_current_frame();
     
     ## Iterate through frames
     def __iter__(self):
@@ -194,14 +196,10 @@ class TrajectoryVMD(Trajectory):
     def __len__(self):
         return self.mol.numFrames();
     
-    ## Sets the current frame
-    # \param idx Index of the frame to seek to
-    def setFrame(self, idx):
-        self.mol.setFrame(idx);
+    def _set_frame(self, idx):
+        self.mol._set_frame(idx);
     
-    ## Get the current frame
-    # \returns A Frame containing the current frame data
-    def getCurrentFrame(self):
+    def _get_current_frame(self):
         dynamic_props = {};
 
         # get position
@@ -283,7 +281,7 @@ class Frame:
     # Some types of Trajectories may provide other modifiable properties. See their documentation for details.
     #
     def set(self, prop, value):
-        self.traj.setFrame(self.frame);
+        self.traj._set_frame(self.frame);
         self.traj.setProperty(prop, value);
 
 ## Trajectory information read from a list of XML files
@@ -355,7 +353,7 @@ class TrajectoryXML(Trajectory):
             self.static_props['typename'] = self._update('type', configuration)
             self.static_props['typeid'] = _assign_typeid(self.static_props['typename'])
          
-        self.setFrame(0)
+        self._set_frame(0)
 
     ## Get the number of particles in the trajectory
     # \returns Number of particles
@@ -368,16 +366,12 @@ class TrajectoryXML(Trajectory):
     def __len__(self):
         return len(self.xml_list)
     
-    ## Sets the current frame
-    # \param idx Index of the frame to seek to
-    def setFrame(self, idx):
+    def _set_frame(self, idx):
         if idx >=  len(self.xml_list):
             raise RuntimeError("Invalid Frame Number")
         self.idx = idx
     
-    ## Get the current frame
-    # \returns A Frame containing the current frame data
-    def getCurrentFrame(self):
+    def _get_current_frame(self):
         # load the information for the current frame
         configuration = self._parseXML(self.xml_list[self.idx])
                 
@@ -670,9 +664,7 @@ class TrajectoryXMLDCD(Trajectory):
         else:
             return 1;
     
-    ## Sets the current frame
-    # \param idx Index of the frame to seek to
-    def setFrame(self, idx):
+    def _set_frame(self, idx):
         if self.dcd_loader is None and idx > 0:
             raise RuntimeError("No DCD file was loaded");
 
@@ -680,9 +672,7 @@ class TrajectoryXMLDCD(Trajectory):
             self.dcd_loader.jumpToFrame(idx);
             self.dcd_loader.readNextFrame();
     
-    ## Get the current frame
-    # \returns A Frame containing the current frame data
-    def getCurrentFrame(self):
+    def _get_current_frame(self):
         
         dynamic_props = {};
 
@@ -745,14 +735,10 @@ class TrajectoryHOOMD(Trajectory):
     def __len__(self):
         return 1;
     
-    ## Sets the current frame
-    # \param idx Index of the frame to seek to
-    def setFrame(self, idx):
+    def _set_frame(self, idx):
         pass;
     
-    ## Get the current frame
-    # \returns A Frame containing the current frame data
-    def getCurrentFrame(self):
+    def _get_current_frame(self):
         dynamic_props = {};
 
         # get position
@@ -793,14 +779,10 @@ class TrajectoryDISCMC(Trajectory):
     def __len__(self):
         return self.df["/traj/step"].shape[0];
     
-    ## Sets the current frame
-    # \param idx Index of the frame to seek to
-    def setFrame(self, idx):
+    def _set_frame(self, idx):
         self.cur_frame = idx;
     
-    ## Get the current frame
-    # \returns A Frame containing the current frame data
-    def getCurrentFrame(self):
+    def _get_current_frame(self):
         dynamic_props = {};
 
         # get position
