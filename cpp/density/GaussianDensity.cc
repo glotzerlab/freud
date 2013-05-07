@@ -1,9 +1,7 @@
 #include "GaussianDensity.h"
+#include "ScopedGILRelease.h"
 
 #include <stdexcept>
-#ifdef __SSE2__
-#include <emmintrin.h>
-#endif
 
 using namespace std;
 using namespace boost::python;
@@ -118,14 +116,18 @@ void GaussianDensity::computePy(boost::python::numeric::array points)
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3 - ??? Do I need this
+    // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers
     float3* points_raw = (float3*) num_util::data(points);
 
-    compute(points_raw, Np);
+        // compute with the GIL released
+        {
+        util::ScopedGILRelease gil;
+        compute(points_raw, Np);
+        }
     }
 
 void export_GaussianDensity()
