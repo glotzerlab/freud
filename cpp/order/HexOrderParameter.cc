@@ -1,4 +1,5 @@
 #include "HexOrderParameter.h"
+#include "ScopedGILRelease.h"
 
 #include <stdexcept>
 #include <complex>
@@ -72,7 +73,12 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
     
     // get the raw data pointers and compute the cell list
     float3* points_raw = (float3*) num_util::data(points);
-    compute(points_raw, Np);
+        
+        // compute the order parameter with the GIL released
+        {
+        util::ScopedGILRelease gil;
+        compute(points_raw, Np);
+        }
     }
     
 void export_HexOrderParameter()
