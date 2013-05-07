@@ -50,9 +50,10 @@ if __name__ == '__main__':
     a = gen_ordered_angles(21);
     c = gen_random_colors(len(p));
     
-    triangle = [[-0.5, -0.5], [0.5, -0.5], [0, 0.5]];
+    #triangle = [[-0.5, -0.5], [0.5, -0.5], [0, 0.5]];
+    my_poly = [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]];
     
-    polys = viz.primitive.RepeatedPolygons(positions=p, angles=a, polygon=triangle, colors=c, outline=0.05);
+    polys = viz.primitive.RepeatedPolygons(positions=p, angles=a, polygon=my_poly, colors=c, outline=0.05);
     # disks1 = viz.Disks(positions=gen_random_disks(100, 20), color=(0,0,1,1));
     
     group = viz.base.Group(primitives=[polys]); #, disks1]);

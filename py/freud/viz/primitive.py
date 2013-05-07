@@ -189,7 +189,9 @@ class RepeatedPolygons(Triangles):
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
     def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1):   
-        base.Primitive.__init__(self);
+        
+        from freud.util import triangulate
+        from freud.util import trimath
         
         # -----------------------------------------------------------------
         # set up positions
@@ -250,9 +252,34 @@ class RepeatedPolygons(Triangles):
 
             self.colors[:,:] = acolor;
         
+        tmp_poly = triangulate.triangulate(polygon)
+        tmp_poly.calculate()
+        t_verts = numpy.array(tmp_poly.getTriangles())
+        N_T = t_verts.shape[0]
+        #t_verts = tmp_poly.getTriangles()
+        #print(t_verts)
+        
+        # Need to take the triangle array and use it to populate
+        # A list for all particles
+        # Create the list of verts
+        vert_array = []
+        for i in range(N):
+            poly_plain_verts = []
+            for j in range(N_T):
+                rot_t = trimath.tri_rotate(t_verts[j], self.angles[i])
+                trans_t = rot_t + self.positions[i]
+                plain_t_arr = []
+                for k in range(3):
+                    plain_t_arr.append((trans_t[k][0], trans_t[k][1]))
+                vert_array.append(plain_t_arr)
+        vert_array = numpy.array(vert_array)
+        #print(vert_array)
+            # Need to rotate and move
+        
         # -----------------------------------------------------------------
         # set up outline
-        self.outline = outline;
+        Triangles.__init__(self, vert_array);
+        #self.outline = outline;
 
 ## Image
 #
