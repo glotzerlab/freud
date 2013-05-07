@@ -73,10 +73,13 @@ RDF::~RDF()
 bool RDF::useCells()
     {
     float l_min = fmin(m_box.getLx(), m_box.getLy());
-    if (m_box.is2D())
-	l_min = fmin(l_min, m_box.getLy());
+    
+    if (!m_box.is2D())
+        l_min = fmin(l_min, m_box.getLz());
+    
     if (m_rmax < l_min/3)
-	return true;
+        return true;
+    
     return false;
     }
 
@@ -86,9 +89,9 @@ void RDF::compute(const float3 *ref_points,
                   unsigned int Np)
     {
     if (useCells())
-	computeWithCellList(ref_points, Nref, points, Np);
+        computeWithCellList(ref_points, Nref, points, Np);
     else
-	computeWithoutCellList(ref_points, Nref, points, Np);
+        computeWithoutCellList(ref_points, Nref, points, Np);
     }
 
 void RDF::computeWithoutCellList(const float3 *ref_points,
