@@ -30,19 +30,16 @@ def _assign_typeid(typename):
     l.sort();
     return [l.index(t) for t in typename];
 
-class TrajectoryIter:
-    def __init__(self, traj):
-        self.traj = traj;
-        self.index = 0;
-    def __iter__(self):
-        return self;
-    def next(self):
-        if self.index == len(self.traj):
-            raise StopIteration;
-        
-        result = self.traj[self.index];
-        self.index += 1;
-        return result;
+## Enable pickling of internal classes
+# Box
+def Box_getinitargs(self):
+    return (self.getLx(), self.getLy(), self.getLz(), self.is2D())
+Box.__getinitargs__ = Box_getinitargs
+
+# DCDLoader
+def DCDLoader_getinitargs(self):
+    return (self.getFileName(), )
+_freud.DCDLoader.__getinitargs__ = DCDLoader_getinitargs
 
 ## Base class Trajectory that defines a common interface for working with any trajectory
 #
@@ -129,7 +126,8 @@ class Trajectory:
     
     ## Iterate through frames
     def __iter__(self):
-        return TrajectoryIter(self);
+        for idx in range(len(self)):
+            yield self[idx];
     
     ## Modify properties of the currently set frame
     # \param prop Name of property to modify
