@@ -107,15 +107,11 @@ class WriteGLE(object):
     #
     def write_Triangles(self, out, triangles):
         for verts,color in zip(triangles.vertices, triangles.colors):
+            transformed_verts = numpy.zeros(shape=verts.shape, dtype=numpy.float32);
+            
             # map the position into the view space
             for i in range(0,3):
-                print(verts[i]);
-                verts[i] = (verts[i] - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
-                print(verts[i]);
-                print()
-            
-            print(self.view_pos, self.width_height, self.sim_to_cm);
-            
+                transformed_verts[i] = (verts[i] - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
             
             # don't write out polygons that are off the edge
             #if verts[0][0] < 0 or verte-radius > self.width_cm:
@@ -125,11 +121,10 @@ class WriteGLE(object):
             
             out.write('begin path fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
             
-            out.write('amove {0} {1}\n'.format(*verts[0,:]*self.sim_to_cm));
-            for vert in verts[1:]:
-                vert_cm = vert * self.sim_to_cm;
-                out.write('aline {0} {1}\n'.format(*vert_cm));
-            out.write('amove {0} {1}\n'.format(*verts[0,:]*self.sim_to_cm));
+            out.write('amove {0} {1}\n'.format(*transformed_verts[0,:]));
+            for vert in transformed_verts[1:]:
+                out.write('aline {0} {1}\n'.format(*vert));
+            out.write('amove {0} {1}\n'.format(*transformed_verts[0,:]));
             
             out.write('closepath\n');
             out.write('end path\n');
