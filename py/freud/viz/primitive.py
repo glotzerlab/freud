@@ -103,12 +103,74 @@ class Disks(base.Primitive):
 class Lines(base.Primitive):
     pass
 
+
+## Triangle primitive
+#
+# Represent N triangles in 2D, each defined by vertices and a color.
+#
+class Triangles(base.Primitive):
+    ## Initialize a disk primitive
+    # \param vertices Nx3x2 array listing the vertices of each triangle (in distance units)
+    # \param colors Nx4 array listing the colors (rgba 0.0-1.0) of each triangle (in SRGB)
+    # \param color 4 element iterable listing the color to be applied to every triangle (in SRGB)
+    #              \a color overrides anything set by colors
+    #
+    # When colors is none, it defaults to (0,0,0,1) for each particle.
+    #
+    # \note N **must** be the same for each array
+    #
+    # After initialization, the instance will have members vertices and colors, each being a numpy
+    # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
+    # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
+    #
+    def __init__(self, vertices, colors=None, color=None):
+        base.Primitive.__init__(self);
+        
+        # -----------------------------------------------------------------
+        # set up vertices
+        # convert to a numpy array
+        self.vertices = numpy.array(vertices, dtype=numpy.float32);        
+        # error check the input
+        if len(self.vertices.shape) != 3:
+            raise TypeError("vertices must be a Nx3x2 array");
+        if self.vertices.shape[1] != 3:
+            raise ValueError("vertices must be a Nx3x2 array");
+        if self.vertices.shape[2] != 2:
+            raise ValueError("vertices must be a Nx3x2 array");
+
+        N = self.vertices.shape[0];
+        
+        # -----------------------------------------------------------------
+        # set up colors
+        if colors is None:
+            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
+            self.colors[:,3] = 1;
+        else:
+            self.colors = numpy.array(colors);
+        
+        # error check colors
+        if len(self.colors.shape) != 2:
+            raise TypeError("colors must be a Nx4 array");
+        if self.colors.shape[1] != 4:
+            raise ValueError("colors must be a Nx4 array");
+        if self.colors.shape[0] != N:
+            raise ValueError("colors must have N the same as positions");
+        
+        if color is not None:
+            acolor = numpy.array(color);
+            if len(acolor.shape) != 1:
+                raise TypeError("color must be a 4 element array");
+            if acolor.shape[0] != 4:
+                raise ValueError("color must be a 4 element array");
+
+            self.colors[:,:] = acolor;
+
 ## Repeated polygons
 #
 # Represent N instances of the same polygon in 2D, each at a different position, orientation, and color. Black edges
 # are drawn given a global outline width.
 #
-class RepeatedPolygons(base.Primitive):
+class RepeatedPolygons(Triangles):
     ## Initialize a disk primitive
     # \param positions Nx2 array listing the positions of each polygon (in distance units)
     # \param angles N array listing the rotation of the polygon about its center (in radians)

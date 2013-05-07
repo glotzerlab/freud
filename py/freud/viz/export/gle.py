@@ -101,75 +101,109 @@ class WriteGLE(object):
             out.write('circle {0}\n'.format(diameter/2-a/2));
 
     ## \internal
-    # \brief Write out repeated polygons
+    # \brief Write out triangles
     # \param out Output stream
-    # \param polygons Disks to polygons
+    # \param triangles Triangles to write
     #
-    def write_RepeatedPolygons(self, out, polygons):
-        # TODO: Update to do proper edge fills
-        # initial implementation use stroke and fill on a path to draw polygons. This has 2 issues : 1) The stroke
-        # goes outside the polygon and 2) The stroke overlaps the fill (looks bad with alpha rendering).
-        # An improved implementation would need to compute an inner set of vertices for the polygon and use two paths,
-        # one to fill and one to draw the edges, like so
-        # sub draw_box
-        # begin path fill rgba(0,0,0,1.0)
-        #     rline 1 0
-        #     rline 0 1
-        #     rline -1 0
-        #     rline 0 -1
-        #     rmove w w
-        #     rline 0 1-w*2
-        #     rline 1-w*2 0
-        #     rline 0 -(1-w*2)
-        #     rline -(1-w*2) 0
-        # end path
-        # rmove w w
-        # begin path fill rgba(1, 0, 0, 1.0)
-        #     rline 1.0-w*2 0
-        #     rline 0 1.0-w*2
-        #     rline -(1-w*2) 0
-        #     rline 0 -(1-w*2)
-        # end path
-        # end sub
-
-        out.write('set lwidth {0}\n'.format(polygons.outline*self.sim_to_cm));
-        
-        # first, generate a string that writes the whole polygon
-        fill_str = "amove {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
-        for vert in polygons.polygon[1:]:
-            vert_cm = vert * self.sim_to_cm;
-            fill_str += "aline {0} {1}\n".format(*vert_cm)
-        fill_str += "aline {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
-        
-        # compute the polygon's radius
-        radius = 0;
-        for vert in polygons.polygon:
-            r = math.sqrt(numpy.dot(vert, vert));
-            radius = max(radius, r);
-        
-        for position,angle,color in zip(polygons.positions, polygons.angles, polygons.colors):
+    def write_Triangles(self, out, triangles):
+        for verts,color in zip(triangles.vertices, triangles.colors):
             # map the position into the view space
-            position = (position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
+            for i in range(0,3):
+                print(verts[i]);
+                verts[i] = (verts[i] - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
+                print(verts[i]);
+                print()
+            
+            print(self.view_pos, self.width_height, self.sim_to_cm);
+            
             
             # don't write out polygons that are off the edge
-            if position[0]+radius < 0 or position[0]-radius > self.width_cm:
-                continue;
-            if position[1]+radius < 0 or position[1]-radius > self.height_cm:
-                continue;
+            #if verts[0][0] < 0 or verte-radius > self.width_cm:
+            #    continue;
+            #if position[1]+radius < 0 or position[1]-radius > self.height_cm:
+            #    continue;
             
-            out.write('begin translate {0} {1}\n'.format(*position));
-            out.write('begin rotate {0}\n'.format(180*angle/math.pi));
-
-            # for the outline color, chose black and the same alpha as the fill color
-            out.write('set color rgba(0, 0, 0, {0})\n'.format(color[3]));
-
-            out.write('begin path stroke fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
-            out.write(fill_str);
+            out.write('begin path fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
+            
+            out.write('amove {0} {1}\n'.format(*verts[0,:]*self.sim_to_cm));
+            for vert in verts[1:]:
+                vert_cm = vert * self.sim_to_cm;
+                out.write('aline {0} {1}\n'.format(*vert_cm));
+            out.write('amove {0} {1}\n'.format(*verts[0,:]*self.sim_to_cm));
+            
             out.write('closepath\n');
             out.write('end path\n');
 
-            out.write('end rotate\n');
-            out.write('end translate\n');
+    # ## \internal
+    # # \brief Write out repeated polygons
+    # # \param out Output stream
+    # # \param polygons Disks to polygons
+    # #
+    # def write_RepeatedPolygons(self, out, polygons):
+    #     # TODO: Update to do proper edge fills
+    #     # initial implementation use stroke and fill on a path to draw polygons. This has 2 issues : 1) The stroke
+    #     # goes outside the polygon and 2) The stroke overlaps the fill (looks bad with alpha rendering).
+    #     # An improved implementation would need to compute an inner set of vertices for the polygon and use two paths,
+    #     # one to fill and one to draw the edges, like so
+    #     # sub draw_box
+    #     # begin path fill rgba(0,0,0,1.0)
+    #     #     rline 1 0
+    #     #     rline 0 1
+    #     #     rline -1 0
+    #     #     rline 0 -1
+    #     #     rmove w w
+    #     #     rline 0 1-w*2
+    #     #     rline 1-w*2 0
+    #     #     rline 0 -(1-w*2)
+    #     #     rline -(1-w*2) 0
+    #     # end path
+    #     # rmove w w
+    #     # begin path fill rgba(1, 0, 0, 1.0)
+    #     #     rline 1.0-w*2 0
+    #     #     rline 0 1.0-w*2
+    #     #     rline -(1-w*2) 0
+    #     #     rline 0 -(1-w*2)
+    #     # end path
+    #     # end sub
+
+    #     out.write('set lwidth {0}\n'.format(polygons.outline*self.sim_to_cm));
+        
+    #     # first, generate a string that writes the whole polygon
+    #     fill_str = "amove {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
+    #     for vert in polygons.polygon[1:]:
+    #         vert_cm = vert * self.sim_to_cm;
+    #         fill_str += "aline {0} {1}\n".format(*vert_cm)
+    #     fill_str += "aline {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
+        
+    #     # compute the polygon's radius
+    #     radius = 0;
+    #     for vert in polygons.polygon:
+    #         r = math.sqrt(numpy.dot(vert, vert));
+    #         radius = max(radius, r);
+        
+    #     for position,angle,color in zip(polygons.positions, polygons.angles, polygons.colors):
+    #         # map the position into the view space
+    #         position = (position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
+            
+    #         # don't write out polygons that are off the edge
+    #         if position[0]+radius < 0 or position[0]-radius > self.width_cm:
+    #             continue;
+    #         if position[1]+radius < 0 or position[1]-radius > self.height_cm:
+    #             continue;
+            
+    #         out.write('begin translate {0} {1}\n'.format(*position));
+    #         out.write('begin rotate {0}\n'.format(180*angle/math.pi));
+
+    #         # for the outline color, chose black and the same alpha as the fill color
+    #         out.write('set color rgba(0, 0, 0, {0})\n'.format(color[3]));
+
+    #         out.write('begin path stroke fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
+    #         out.write(fill_str);
+    #         out.write('closepath\n');
+    #         out.write('end path\n');
+
+    #         out.write('end rotate\n');
+    #         out.write('end translate\n');
 
     ## \internal
     # \brief Write out image
