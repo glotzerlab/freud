@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hoomd_xml version="1.4">
+<configuration time_step="15" dimensions="3" vizsigma="1.5">
+<box lx="5.1" ly="9.6" lz="15.8"/>
+<position num="3">
+-2.45 2.21 1.56
+8.76 1.12 5.60
+5.67 8.30 4.77
+</position>
+<image>
+-12 -5 12
+18 22 -10
+13 -5 02
+</image>
+<velocity>
+-10.5 -1.2 0.4
+0.6 12.0 0.01
+-0.4 3.0 10.0
+</velocity>
+<acceleration>
+-1.25 -1.2 1.4
+0.6 2.25 0.41
+-0.4 3.5 2.20
+</acceleration>
+<mass>
+11.0
+2.0
+5.2
+</mass>
+<diameter>
+13.2
+2.0
+1.5
+</diameter>
+<charge>
+11.0
+2.3
+-3.0
+</charge>
+<orientation>
+1 2 0 0
+0.0333   -0.5667    0.1000    0.1333
+0.5 0.3 -1.9 1.1
+</orientation>
+<body>
+-11
+2
+0
+</body>
+<moment_inertia>
+1 2 0 2 0 3
+1 2 4 4 5 6
+2 3 4 5 3 2
+</moment_inertia>
+<type>
+B
+long_type_name
+A
+</type>
+</configuration>
+</hoomd_xml>
