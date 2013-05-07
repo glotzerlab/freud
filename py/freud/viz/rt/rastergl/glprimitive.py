@@ -365,3 +365,126 @@ void main()
     def destroy(self):
         buf_list = numpy.array([self.buffer_position, self.buffer_mapcoord, self.buffer_color], dtype=numpy.uint32);
         gl.glDeleteBuffers(3, buf_list);
+
+## Triangle geometry
+# \note GLTriangles is used internally by DrawGL and is not part of the public freud interface
+#
+# Store and draw the OpenGL geometry for the Triangles primitive.
+#
+# Triangles are drawn as-is. All vertices are specified directly in a triangle soup format. These are dumped into a
+# buffer and passed to glDrawArrays().
+#
+# All variables are directly accessible class members.
+#  - N: number of triangles
+#  - buffer_vertices: OpenGL buffer (N*3 2-element positions)
+#  - buffer_color: OpenGL buffer (N*3 4-element colors)
+#
+class GLTriangles(GLPrimitive):
+    ## Vertex shader for drawing triangles
+    #
+    # Transform the incoming verts by the camera and pass through everything else.
+    vertex_shader = """
+#version 120
+
+uniform mat4 camera;
+
+attribute vec4 position;
+attribute vec4 color;
+
+varying vec4 v_color;
+void main()
+    {
+    gl_Position = camera * position;
+    v_color = color;
+    }
+""";
+
+    ## Fragment shader for drawing triangles
+    #
+    # Triangles are currently rendered in 2D mode, so no gamma correction is needed (colors are just passed through
+    # directly).
+    fragment_shader = """
+#version 120
+
+varying vec4 v_color;
+void main()
+    {
+    gl_FragColor = v_color;
+    }
+""";
+    
+    ## Attributes for drawing disks
+    attributes = ['position', 'color'];
+    
+    ## Initialize a cached GL primitive
+    # \param prim base Primitive to represent
+    #
+    def __init__(self, prim):
+        GLPrimitive.__init__(self, prim);
+        
+        # simple scalar values
+        self.N = len(prim.vertices/3);
+        
+        # initialize values for buffers
+        color = numpy.zeros(shape=(self.N, 3, 4), dtype=numpy.float32);
+        
+        # start all coords at the center, with all the same color
+        for i in range(3):
+            color[:,i,:] = prim.colors;
+        
+        # generate OpenGL buffers and copy data
+        self.buffer_position = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.vertices, gl.GL_STATIC_DRAW);
+
+        self.buffer_color = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW);
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+    
+    ## Draw the primitive
+    # \param program OpenGL shader program
+    # \param camera The camera to use when drawing
+    #
+    def draw(self, program, camera):
+        # save state
+        gl.glPushAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
+        
+        # setup state
+        gl.glEnable(gl.GL_MULTISAMPLE);
+        gl.glEnable(gl.GL_BLEND);
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+        
+        gl.glUseProgram(program);
+        
+        # update the camera matrix
+        camera_uniform = gl.glGetUniformLocation(program, "camera");
+        gl.glUniformMatrix4fv(camera_uniform, 1, True, camera.ortho_2d_matrix);
+                
+        # bind everything and then draw the disks
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
+        gl.glEnableVertexAttribArray(0);
+        gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+        
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
+        gl.glEnableVertexAttribArray(1);
+        gl.glVertexAttribPointer(1, 4, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+        
+        gl.glDrawArrays(gl.GL_TRIANGLES, 0, self.N*3);
+
+        # unbind everything we bound
+        gl.glDisableVertexAttribArray(0);
+        gl.glDisableVertexAttribArray(1);
+        gl.glUseProgram(0);
+        
+        # restore state
+        gl.glPopAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
+    
+    ## Destroy OpenGL resources
+    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
+    # resources can be released at a controlled time. (not whenever python decides to call __del__.
+    #
+    def destroy(self):
+        buf_list = numpy.array([self.buffer_position, self.buffer_color], dtype=numpy.uint32);
+        gl.glDeleteBuffers(2, buf_list);
