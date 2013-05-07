@@ -1,4 +1,5 @@
 #include "RDF.h"
+#include "ScopedGILRelease.h"
 
 #include <stdexcept>
 #ifdef __SSE2__
@@ -260,7 +261,11 @@ void RDF::computePy(boost::python::numeric::array ref_points,
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
     float3* points_raw = (float3*) num_util::data(points);
 
-    compute(ref_points_raw, Nref, points_raw, Np);
+        // compute with the GIL released
+        {
+        util::ScopedGILRelease gil;
+        compute(ref_points_raw, Nref, points_raw, Np);
+        }
     }
 
 void export_RDF()
