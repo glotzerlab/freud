@@ -24,6 +24,8 @@ endif (_cmake_ver VERSION_GREATER 2.6.3)
 endif (NOT APPLE)
 #### End of OpenMP Setup
 
+find_library(TBB_LIBRARY tbb)
+
 include(FREUDCFlagsSetup)
 
 # setup boost
