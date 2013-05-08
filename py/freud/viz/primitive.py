@@ -13,6 +13,9 @@ except ImportError:
 from freud.viz import base
 from freud.viz import colorutil
 
+from freud.util import triangulate
+from freud.util import trimath
+
 ## \package freud.viz.primitive
 #
 # Definition of basic viz primitives
@@ -190,8 +193,7 @@ class RepeatedPolygons(Triangles):
     #
     def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1):   
         
-        from freud.util import triangulate
-        from freud.util import trimath
+        
         
         # -----------------------------------------------------------------
         # set up positions
