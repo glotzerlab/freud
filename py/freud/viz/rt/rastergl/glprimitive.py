@@ -1,6 +1,8 @@
 from __future__ import division, print_function
 import numpy
 import math
+import time
+import numba
 from ctypes import c_void_p
 from OpenGL import GL as gl
 
@@ -234,10 +236,40 @@ void main()
         mapcoord = numpy.zeros(shape=(self.N, 6, 3), dtype=numpy.float32);
         color = numpy.zeros(shape=(self.N, 6, 4), dtype=numpy.float32);
         
+        self.build_geometry(position, mapcoord, color, prim.positions, prim.colors, prim.diameters);
+        
+        # generate OpenGL buffers and copy data
+        self.buffer_position = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, position, gl.GL_STATIC_DRAW);
+
+        self.buffer_mapcoord = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_mapcoord);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, mapcoord, gl.GL_STATIC_DRAW);
+
+        self.buffer_color = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW);
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+    
+    ## Fast kernel to generate disk geometry
+    #
+    @staticmethod
+    @numba.jit('f4(f4[:,:,:], f4[:,:,:], f4[:,:,:], f4[:,:], f4[:,:], f4[:])', nopython=True)
+    def build_geometry(position, mapcoord, color, positions_in, colors_in, diameters_in):
+        N = position.shape[0]
+        
         # start all coords at the center, with all the same color
-        for i in range(6):
-            position[:,i,:] = prim.positions;
-            color[:,i,:] = prim.colors;
+        for i in range(N):
+            for j in range(6):
+                position[i,j,0] = positions_in[i,0];
+                position[i,j,1] = positions_in[i,1];
+                
+                color[i,j,0] = colors_in[i,0];
+                color[i,j,1] = colors_in[i,1];
+                color[i,j,2] = colors_in[i,2];
+                color[i,j,3] = colors_in[i,3];
         
         # Map of coords
         # 0 --- 2  5
@@ -254,41 +286,51 @@ void main()
         ex_factor = 1.05;
         
         # Update x coordinates
-        for i in [0,1,3]:
-            position[:,i,0] -= prim.diameters/2 * ex_factor;
-            mapcoord[:,i,0] = -prim.diameters/2 * ex_factor;
-            mapcoord[:,i,2] = prim.diameters;
+        for i in range(N):
+            position[i,0,0] -= diameters_in[i]/2 * ex_factor;
+            mapcoord[i,0,0] = -diameters_in[i]/2 * ex_factor;
+            mapcoord[i,0,2] = diameters_in[i];
         
-        for i in [2,4,5]:
-            position[:,i,0] += prim.diameters/2 * ex_factor;
-            mapcoord[:,i,0] = prim.diameters/2 * ex_factor;
-            mapcoord[:,i,2] = prim.diameters;
+            position[i,1,0] -= diameters_in[i]/2 * ex_factor;
+            mapcoord[i,1,0] = -diameters_in[i]/2 * ex_factor;
+            mapcoord[i,1,2] = diameters_in[i];
+             
+            position[i,3,0] -= diameters_in[i]/2 * ex_factor;
+            mapcoord[i,3,0] = -diameters_in[i]/2 * ex_factor;
+            mapcoord[i,3,2] = diameters_in[i];
         
-        # update y coordinates
-        for i in [0,2,5]:
-            position[:,i,1] += prim.diameters/2 * ex_factor;
-            mapcoord[:,i,1] = prim.diameters/2 * ex_factor;
-            mapcoord[:,i,2] = prim.diameters;
-
-        for i in [1,3,4]:
-            position[:,i,1] -= prim.diameters/2 * ex_factor;
-            mapcoord[:,i,1] = -prim.diameters/2 * ex_factor;
-            mapcoord[:,i,2] = prim.diameters;
+            position[i,2,0] += diameters_in[i]/2 * ex_factor;
+            mapcoord[i,2,0] = diameters_in[i]/2 * ex_factor;
+            mapcoord[i,2,2] = diameters_in[i];
         
-        # generate OpenGL buffers and copy data
-        self.buffer_position = gl.glGenBuffers(1);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
-        gl.glBufferData(gl.GL_ARRAY_BUFFER, position, gl.GL_STATIC_DRAW);
+            position[i,4,0] += diameters_in[i]/2 * ex_factor;
+            mapcoord[i,4,0] = diameters_in[i]/2 * ex_factor;
+            mapcoord[i,4,2] = diameters_in[i];
 
-        self.buffer_mapcoord = gl.glGenBuffers(1);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_mapcoord);
-        gl.glBufferData(gl.GL_ARRAY_BUFFER, mapcoord, gl.GL_STATIC_DRAW);
+            position[i,5,0] += diameters_in[i]/2 * ex_factor;
+            mapcoord[i,5,0] = diameters_in[i]/2 * ex_factor;
+            mapcoord[i,5,2] = diameters_in[i];
 
-        self.buffer_color = gl.glGenBuffers(1);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
-        gl.glBufferData(gl.GL_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW);
+            # # update y coordinates
+            position[i,0,1] += diameters_in[i]/2 * ex_factor;
+            mapcoord[i,0,1] = diameters_in[i]/2 * ex_factor;
 
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+            position[i,2,1] += diameters_in[i]/2 * ex_factor;
+            mapcoord[i,2,1] = diameters_in[i]/2 * ex_factor;
+
+            position[i,5,1] += diameters_in[i]/2 * ex_factor;
+            mapcoord[i,5,1] = diameters_in[i]/2 * ex_factor;
+
+            position[i,1,1] -= diameters_in[i]/2 * ex_factor;
+            mapcoord[i,1,1] = -diameters_in[i]/2 * ex_factor;
+
+            position[i,3,1] -= diameters_in[i]/2 * ex_factor;
+            mapcoord[i,3,1] = -diameters_in[i]/2 * ex_factor;
+    
+            position[i,4,1] -= diameters_in[i]/2 * ex_factor;
+            mapcoord[i,4,1] = -diameters_in[i]/2 * ex_factor;
+
+        return 0;
     
     ## Draw the primitive
     # \param program OpenGL shader program

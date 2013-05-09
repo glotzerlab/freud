@@ -23,6 +23,7 @@ void export_trajectory()
         .def("getLz", &Box::getLz)
         .def("getVolume", &Box::getVolume)
         .def("wrap", &Box::wrapPy)
+        .enable_pickling()
         /*.def("unwrap", &Box::unwrapPy)
         .def("makeunit", &Box::makeunitPy)*/
         ;

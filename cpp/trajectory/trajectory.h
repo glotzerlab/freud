@@ -53,7 +53,7 @@ class Box
             }
         
         //! Test if the box is 2D
-        bool is2D()
+        bool is2D() const
             {
             return m_2d;
             }

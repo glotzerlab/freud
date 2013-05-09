@@ -119,5 +119,7 @@ void export_dcdloader()
         .def("getNumParticles", &DCDLoader::getNumParticles)
         .def("getLastFrameNum", &DCDLoader::getLastFrameNum)
         .def("getFrameCount", &DCDLoader::getFrameCount)
+        .def("getFileName", &DCDLoader::getFileName)
+        .enable_pickling()
         ;
     }
