@@ -275,6 +275,9 @@ class RepeatedPolygons(Triangles):
         start = time.time()
         _freud.triangle_rotate(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
         print(time.time()-start)
+        start = time.time()
+        _freud.triangle_rotate_mat(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
+        print(time.time()-start)
         
         # -----------------------------------------------------------------
         # set up outline
