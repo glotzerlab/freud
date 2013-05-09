@@ -285,7 +285,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 # solution, since that would just lock up the GUI if it attempts to draw the scene.....
 #
 class SceneUpdateManager(QtCore.QObject):
-    completed = QtCore.Signal();
+    completed = QtCore.Signal(int);
     
     def __init__(self, scene):
         QtCore.QObject.__init__(self);
@@ -303,8 +303,8 @@ class SceneUpdateManager(QtCore.QObject):
             self._timer.stop();
         else:
             self.scene.setFrame(self._target_frame);
+            self.completed.emit(self._target_frame);
             self._target_frame = None;
-            self.completed.emit();
     
     @QtCore.Slot()
     def loadFrame(self, target_frame):
@@ -316,7 +316,8 @@ class SceneUpdateManager(QtCore.QObject):
 # TrajectoryViewer hosts a central GLWidget display with feature-providing menus, dock-able control panels, etc...
 #
 class TrajectoryViewer(QtGui.QMainWindow):
-    frame_change = QtCore.Signal(int);
+    frame_select = QtCore.Signal(int);
+    frame_display = QtCore.Signal(int);
     
     def __init__(self, scene, immediate=False, *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
@@ -341,8 +342,8 @@ class TrajectoryViewer(QtGui.QMainWindow):
             self.update_thread = QtCore.QThread();
             self.update_manager.moveToThread(self.update_thread);
             self.update_thread.started.connect(self.update_manager.initialize);
-            self.update_manager.completed.connect(self.update);
-            self.frame_change.connect(self.update_manager.loadFrame);
+            self.update_manager.completed[int].connect(self.presentFrame);
+            self.frame_select.connect(self.update_manager.loadFrame);
             self.update_thread.start();
         
         self.createActions();
@@ -352,6 +353,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
         self.restoreSettings();
         
         self.gotoFrame(0);
+
     
     ## Create the actions
     def createActions(self):
@@ -492,9 +494,10 @@ class TrajectoryViewer(QtGui.QMainWindow):
         # update to the target frame
         if self._immediate:
             self.scene.setFrame(frame);
-            self.glWidget.updateGL();
-        
-        self.frame_change.emit(frame);
+            self.frame_display.emit(frame);
+            self.glWidget.update();
+                        
+        self.frame_select.emit(frame);
     
     ## Set the maximum FPS
     @QtCore.Slot(int)
@@ -533,6 +536,13 @@ class TrajectoryViewer(QtGui.QMainWindow):
     @QtCore.Slot()
     def gotoLastFrame(self):
         self.frame_slider.setValue(self.frame_slider.maximum());
+    
+    ## Present a new frame
+    @QtCore.Slot()
+    def presentFrame(self, frame):
+        self.glWidget.update();
+        self.frame_display.emit(frame);
+        
     
 ##########################################
 # Module init
