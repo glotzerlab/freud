@@ -73,6 +73,13 @@ class DCDLoader
             return m_dcd->nsets;
             }
         
+        //! Get the original filename
+        std::string getFileName() const
+            {
+            return m_fname;
+            }
+
+        
     private:
         std::string m_fname;                        //!< File name of the DCD file
         Box m_box;                                  //!< The box read from the last readNextStep()

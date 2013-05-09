@@ -10,19 +10,22 @@ using namespace boost::python;
 
 namespace freud { namespace density {
 
-GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int nbins, float r_cut, float sigma)
-    : m_box(box), m_nbins(nbins), m_r_cut(r_cut), m_sigma(sigma)
+GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width, float r_cut, float sigma)
+    : m_box(box), m_width(width), m_r_cut(r_cut), m_sigma(sigma)
     {
-    if (nbins < 0)
-            throw invalid_argument("grid_size must be a positive integer");
-    if (r_cut < 0.0f)
+    if (width <= 0)
+            throw invalid_argument("width must be a positive integer");
+    if (r_cut <= 0.0f)
             throw invalid_argument("r_cut must be positive");
     
-    unsigned int binscube = m_nbins*m_nbins*m_nbins;
+    // index proper
+    if (m_box.is2D())
+        m_bi = Index3D(m_width, m_width, 1);
+    else
+        m_bi = Index3D(m_width, m_width, m_width);
 
-    assert(m_nbins > 0);
-    m_Density_array = boost::shared_array<float>(new float[binscube]);
-    memset((void*)m_Density_array.get(), 0, sizeof(float)*binscube);
+    m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
+    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
     }
 
 void GaussianDensity::compute(const float3 *points, unsigned int Np)
@@ -31,16 +34,15 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
     assert(Np > 0);
 
     // reset the memory so multiple Densities can be computed in 1 script
-    unsigned int binscube = m_nbins*m_nbins*m_nbins;
-    memset((void*)m_Density_array.get(), 0, sizeof(float)*binscube);
+    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
 
     float lx = m_box.getLx();
     float ly = m_box.getLy();
     float lz = m_box.getLz();
 
-    float grid_size_x = lx/m_nbins;
-    float grid_size_y = ly/m_nbins;
-    float grid_size_z = lz/m_nbins;
+    float grid_size_x = lx/m_width;
+    float grid_size_y = ly/m_width;
+    float grid_size_z = lz/m_width;
 
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
@@ -48,26 +50,36 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
         // find the distance of that particle to bins
         // will use this information to evaluate the Gaussian
         // Find the which bin the particle is in
-        int bin_x = int(points[particle].x/grid_size_x);
-        int bin_y = int(points[particle].y/grid_size_y);
-        int bin_z = int(points[particle].z/grid_size_z);
+        int bin_x = int((points[particle].x+lx/2.0f)/grid_size_x);
+        int bin_y = int((points[particle].y+ly/2.0f)/grid_size_y);
+        int bin_z = int((points[particle].z+lz/2.0f)/grid_size_z);
 
         // Find the number of bins within r_cut
         int bin_cut_x = int(m_r_cut/grid_size_x);
         int bin_cut_y = int(m_r_cut/grid_size_y);
         int bin_cut_z = int(m_r_cut/grid_size_z);
 
-        // Only evaluate over bins that are within the cut off to reduce the number of computations
-        for (int i = bin_x - bin_cut_x; i<= bin_x + bin_cut_x; i++)
+        // in 2D, only loop over the 0 z plane
+        if (m_box.is2D())
             {
+            bin_z = 0;
+            bin_cut_z = 0;
+            grid_size_z = 0;
+            }
+
+        // Only evaluate over bins that are within the cut off to reduce the number of computations
+        for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
+            {
+            float dz = float((grid_size_z*k + grid_size_z/2.0f) - points[particle].z - lz/2.0f);
+            
             for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
                 {
-                for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
+                float dy = float((grid_size_y*j + grid_size_y/2.0f) - points[particle].y - ly/2.0f);
+                
+                for (int i = bin_x - bin_cut_x; i<= bin_x + bin_cut_x; i++)        
                     {
                     // calculate the distance from the grid cell to particular particle
-                    float dx = float(((grid_size_x)*i + (grid_size_x)/2.0f) - points[particle].x);
-                    float dy = float(((grid_size_y)*j + (grid_size_y)/2.0f) - points[particle].y);
-                    float dz = float(((grid_size_z)*k + (grid_size_z)/2.0f) - points[particle].z);
+                    float dx = float((grid_size_x*i + grid_size_x/2.0f) - points[particle].x - lx/2.0f);
                     float3 delta = m_box.wrap(make_float3(dx, dy, dz));
 
                     float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
@@ -87,12 +99,12 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
                     
                         // Assure that out of range indices are corrected for storage in the array
                         // i.e. bin -1 is actually bin 29 for nbins = 30
-                        unsigned int ni = (i + m_nbins) % m_nbins;
-                        unsigned int nj = (j + m_nbins) % m_nbins;
-                        unsigned int nk = (k + m_nbins) % m_nbins;
-
+                        unsigned int ni = (i + m_width) % m_width;
+                        unsigned int nj = (j + m_width) % m_width;
+                        unsigned int nk = (k + m_width) % m_width;
+                        
                         // store the product of these values in an array - n[i, j, k] = gx*gy*gz
-                        m_Density_array[ni*m_nbins*m_nbins + nj*m_nbins + nk] += x_gaussian*y_gaussian*z_gaussian;
+                        m_Density_array[m_bi(ni, nj, nk)] += x_gaussian*y_gaussian*z_gaussian;
                         }
                     }
                 }
