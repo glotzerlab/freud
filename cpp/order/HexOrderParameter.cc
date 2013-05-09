@@ -56,6 +56,9 @@ class ComputeHexOrderParameter
                     locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                         {
+                    /*for (unsigned int k = i; k < i+6; k++)
+                        {
+                        unsigned int j = k % (1024*1024);*/
                         //compute r between the two particles
                         float dx = float(ref.x - points[j].x);
                         float dy = float(ref.y - points[j].y);
@@ -86,20 +89,44 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
     m_lc.computeCellList(points,Np);
     tick_count t1 = tick_count::now();
     cout << "lc build time: " << (t1-t0).seconds() << endl;
-    
+
+
+    t0 = tick_count::now();    
     m_Np = Np;
     float rmaxsq = m_rmax * m_rmax;
     m_psi_array = boost::shared_array<complex<double> >(new complex<double> [Np]);
     memset((void*)m_psi_array.get(), 0, sizeof(complex<double>)*Np);
-
-
-    t0 = tick_count::now();
-    
-    static affinity_partitioner ap;
-    parallel_for(blocked_range<size_t>(0,Np,2000000), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_lc, points), ap);
     
     t1 = tick_count::now();
-    cout << "compute time: " << (t1-t0).seconds() << endl;
+    cout << "allocate time: " << (t1-t0).seconds() << endl;
+
+
+    float base_time = 0;
+    
+    for (unsigned int nthreads=1; nthreads <= 8; nthreads++)
+        {
+        task_scheduler_init init(nthreads);
+        static affinity_partitioner ap;
+
+        parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_lc, points), ap);
+
+        t0 = tick_count::now();
+                
+        parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_lc, points), ap);
+        
+        t1 = tick_count::now();
+        float t = (t1-t0).seconds();
+        if (nthreads==1)
+            {
+            cout << "compute time 1: " << t << endl;
+            base_time = t;
+            }
+        else
+            {
+            cout << "compute time " << nthreads << ": " << t << " speedup=" << base_time/t << endl;
+            }
+        
+        }
 
     /*for (unsigned int i = 0; i<Np; i++)
         {
