@@ -12,7 +12,7 @@ using namespace tbb;
 namespace freud { namespace order {
     
 HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax)
-    :m_box(box), m_rmax(rmax), m_lc(box, rmax)
+    :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_Np(0)
     {
     }
 
@@ -41,6 +41,7 @@ class ComputeHexOrderParameter
             
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
+                m_psi_array[i] = 0;
                 //get cell point is in
                 float3 ref = points[i];
                 unsigned int ref_cell = m_lc.getCell(ref);
@@ -85,48 +86,20 @@ class ComputeHexOrderParameter
 
 void HexOrderParameter::compute(const float3 *points, unsigned int Np)
     {
-    tick_count t0 = tick_count::now();
+    // compute the cell list
     m_lc.computeCellList(points,Np);
-    tick_count t1 = tick_count::now();
-    cout << "lc build time: " << (t1-t0).seconds() << endl;
 
-
-    t0 = tick_count::now();    
-    m_Np = Np;
-    float rmaxsq = m_rmax * m_rmax;
-    m_psi_array = boost::shared_array<complex<float> >(new complex<float> [Np]);
-    memset((void*)m_psi_array.get(), 0, sizeof(complex<float>)*Np);
-    
-    t1 = tick_count::now();
-    cout << "allocate time: " << (t1-t0).seconds() << endl;
-
-
-    float base_time = 0;
-    
-    for (unsigned int nthreads=1; nthreads <= 8; nthreads++)
+    // reallocate the output array if it is not the right size
+    if (Np != m_Np)
         {
-        task_scheduler_init init(nthreads);
-        static affinity_partitioner ap;
-
-        parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_lc, points), ap);
-
-        t0 = tick_count::now();
-                
-        parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_lc, points), ap);
-        
-        t1 = tick_count::now();
-        float t = (t1-t0).seconds();
-        if (nthreads==1)
-            {
-            cout << "compute time 1: " << t << endl;
-            base_time = t;
-            }
-        else
-            {
-            cout << "compute time " << nthreads << ": " << t << " speedup=" << base_time/t << endl;
-            }
-        
+        m_psi_array = boost::shared_array<complex<float> >(new complex<float> [Np]);
         }
+    
+    // compute the order parameter
+    parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_lc, points));
+
+    // save the last computed number of particles
+    m_Np = Np;
     }
 
 void HexOrderParameter::computePy(boost::python::numeric::array points)
