@@ -23,9 +23,9 @@ class ComputeHexOrderParameter
         const float m_rmax;
         const locality::LinkCell& m_lc;
         const float3 *m_points;
-        std::complex<double> *m_psi_array;
+        std::complex<float> *m_psi_array;
     public:
-        ComputeHexOrderParameter(std::complex<double> *psi_array,
+        ComputeHexOrderParameter(std::complex<float> *psi_array,
                                  const trajectory::Box& box,
                                  const float rmax,
                                  const locality::LinkCell& lc,
@@ -69,8 +69,8 @@ class ComputeHexOrderParameter
                         if (rsq < rmaxsq && rsq > 1e-6)
                             {
                             //compute psi for neighboring particle(only constructed for 2d)
-                            double psi_ij = atan2(delta.y, delta.x);
-                            m_psi_array[i] += exp(complex<double>(0,6*psi_ij));
+                            float psi_ij = atan2f(delta.y, delta.x);
+                            m_psi_array[i] += exp(complex<float>(0,6*psi_ij));
                             num_adjacent++;
                             }
                         }
@@ -78,7 +78,7 @@ class ComputeHexOrderParameter
                 
                 // Don't divide by zero if the particle has no neighbors (this leaves psi at 0)
                 if(num_adjacent)
-                    m_psi_array[i] /= complex<double>(num_adjacent);                
+                    m_psi_array[i] /= complex<float>(num_adjacent);
                 }
             }
     };
@@ -94,8 +94,8 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
     t0 = tick_count::now();    
     m_Np = Np;
     float rmaxsq = m_rmax * m_rmax;
-    m_psi_array = boost::shared_array<complex<double> >(new complex<double> [Np]);
-    memset((void*)m_psi_array.get(), 0, sizeof(complex<double>)*Np);
+    m_psi_array = boost::shared_array<complex<float> >(new complex<float> [Np]);
+    memset((void*)m_psi_array.get(), 0, sizeof(complex<float>)*Np);
     
     t1 = tick_count::now();
     cout << "allocate time: " << (t1-t0).seconds() << endl;
@@ -127,45 +127,6 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
             }
         
         }
-
-    /*for (unsigned int i = 0; i<Np; i++)
-        {
-        //get cell point is in
-        float3 ref = points[i];
-        unsigned int ref_cell = m_lc.getCell(ref);
-        unsigned int num_adjacent = 0;
-        
-        //loop over neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-            {
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
-            //iterate over particles in cell
-            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
-                {
-                //compute r between the two particles
-                float dx = float(ref.x - points[j].x);
-                float dy = float(ref.y - points[j].y);
-                float dz = float(ref.z - points[j].z);
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                if (rsq < rmaxsq && rsq > 1e-6)
-                    {
-                    //compute psi for neighboring particle(only constructed for 2d)
-                    double psi_ij = atan2(delta.y, delta.x);
-                    m_psi_array[i] += exp(complex<double>(0,6*psi_ij));
-                    num_adjacent++;
-                    }
-                }
-            }
-        
-        // Don't divide by zero if the particle has no neighbors (this leaves psi at 0)
-        if(num_adjacent)
-            m_psi_array[i] /= complex<double>(num_adjacent);  
-        }*/
     }
 
 void HexOrderParameter::computePy(boost::python::numeric::array points)
