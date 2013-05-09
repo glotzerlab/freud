@@ -112,13 +112,6 @@ class DrawGL(object):
         glprim = self.cache.get(prim, cls);
         glprim.draw(program, self.camera);
 
-    ## \internal 
-    # \brief Draw repeated polygons
-    # \param polygons Polygons to draw
-    #
-    def draw_RepeatedPolygons(self, polygons):
-        pass
-
     ## \internal
     # \brief Draw image
     # \param img Image to write

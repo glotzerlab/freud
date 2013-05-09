@@ -47,6 +47,8 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.h
             viz/colormap.h
             viz/colormap.cc
+            viz/triangles.h
+            viz/triangles.cc
             )
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)

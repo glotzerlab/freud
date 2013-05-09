@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import time
 import math
 import numpy
 import logging
@@ -15,6 +16,8 @@ from freud.viz import colorutil
 
 from freud.util import triangulate
 from freud.util import trimath
+
+import _freud;
 
 ## \package freud.viz.primitive
 #
@@ -77,7 +80,7 @@ class Disks(base.Primitive):
             self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
             self.colors[:,3] = 1;
         else:
-            self.colors = numpy.array(colors);
+            self.colors = numpy.array(colors, dtype=numpy.float32);
         
         # error check colors
         if len(self.colors.shape) != 2:
@@ -128,7 +131,8 @@ class Triangles(base.Primitive):
     #
     def __init__(self, vertices, colors=None, color=None):
         base.Primitive.__init__(self);
-        
+        #print(vertices)
+        #print(colors)
         # -----------------------------------------------------------------
         # set up vertices
         # convert to a numpy array
@@ -149,7 +153,7 @@ class Triangles(base.Primitive):
             self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
             self.colors[:,3] = 1;
         else:
-            self.colors = numpy.array(colors);
+            self.colors = numpy.array(colors, dtype=numpy.float32);
         
         # error check colors
         if len(self.colors.shape) != 2:
@@ -209,7 +213,7 @@ class RepeatedPolygons(Triangles):
         
         # -----------------------------------------------------------------
         # set up angles
-        self.angles = numpy.array(angles);
+        self.angles = numpy.array(angles, dtype=numpy.float32);
         
         # error check angles
         if len(self.angles.shape) != 1:
@@ -235,7 +239,7 @@ class RepeatedPolygons(Triangles):
             self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
             self.colors[:,3] = 1;
         else:
-            self.colors = numpy.array(colors);
+            self.colors = numpy.array(colors, dtype=numpy.float32);
         
         # error check colors
         if len(self.colors.shape) != 2:
@@ -254,33 +258,27 @@ class RepeatedPolygons(Triangles):
 
             self.colors[:,:] = acolor;
         
+        # create a triangulation class
         tmp_poly = triangulate.triangulate(polygon)
+        # decompose the polygon into constituent triangles
         tmp_poly.calculate()
-        t_verts = numpy.array(tmp_poly.getTriangles())
-        N_T = t_verts.shape[0]
-        #t_verts = tmp_poly.getTriangles()
-        #print(t_verts)
+        # put the triangle vertices into a numpy array
+        triangle_array = numpy.array(tmp_poly.getTriangles())
+        N_T = triangle_array.shape[0]
+       
         
-        # Need to take the triangle array and use it to populate
-        # A list for all particles
-        # Create the list of verts
-        vert_array = []
-        for i in range(N):
-            poly_plain_verts = []
-            for j in range(N_T):
-                rot_t = trimath.tri_rotate(t_verts[j], self.angles[i])
-                trans_t = rot_t + self.positions[i]
-                plain_t_arr = []
-                for k in range(3):
-                    plain_t_arr.append((trans_t[k][0], trans_t[k][1]))
-                vert_array.append(plain_t_arr)
-        vert_array = numpy.array(vert_array)
-        #print(vert_array)
-            # Need to rotate and move
+        vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
+        color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
+        positions_array = self.positions
+        angles_array = self.angles
+        poly_color_array = self.colors
+        start = time.time()
+        _freud.triangle_rotate(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
+        print(time.time()-start)
         
         # -----------------------------------------------------------------
         # set up outline
-        Triangles.__init__(self, vert_array);
+        Triangles.__init__(self, vert_array, colors = color_array);
         #self.outline = outline;
 
 ## Image

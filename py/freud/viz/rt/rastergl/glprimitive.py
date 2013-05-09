@@ -116,25 +116,6 @@ class GLPrimitive(object):
     def destroy(self):
         pass
 
-## RepeatedPolygon geometry
-# \note GLRepeatedPolygons is used internally by DrawGL and is not part of the public freud interface
-#
-# Store and draws the OpenGL geometry for the RepeatedPolygon primitive
-#
-class GLRepeatedPolygons(GLPrimitive):
-    ## Initialize a cached GL primitive
-    # \param prim base Primitive to represent
-    #
-    def __init__(self, prim):
-        CacheItem.__init__(self);
-    
-    ## Destroy OpenGL resources
-    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
-    # resources can be released at a controlled time. (not whenever python decides to call __del__.
-    #
-    def destroy(self):
-        pass  
-
 ## Disk geometry
 # \note GLDisks is used internally by DrawGL and is not part of the public freud interface
 #
@@ -421,7 +402,6 @@ void main()
     #
     def __init__(self, prim):
         GLPrimitive.__init__(self, prim);
-        
         # simple scalar values
         self.N = len(prim.vertices/3);
         

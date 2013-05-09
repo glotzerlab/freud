@@ -46,12 +46,12 @@ def gen_random_colors(N):
     return colors;
 
 if __name__ == '__main__':
-    p = gen_ordered_pos(21);
-    a = gen_ordered_angles(21);
+    p = gen_ordered_pos(210);
+    a = gen_ordered_angles(210);
     c = gen_random_colors(len(p));
     
     #triangle = [[-0.5, -0.5], [0.5, -0.5], [0, 0.5]];
-    my_poly = [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]];
+    my_poly = [[-0.5, -0.5], [0.5, -0.5], [0.0, 0.0], [0.5, 0.5], [-0.5, 0.5]];
     
     polys = viz.primitive.RepeatedPolygons(positions=p, angles=a, polygon=my_poly, colors=c, outline=0.05);
     # disks1 = viz.Disks(positions=gen_random_disks(100, 20), color=(0,0,1,1));

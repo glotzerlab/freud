@@ -1,4 +1,6 @@
+from __future__ import division, print_function
 import numpy
+import _freud;
 
 def mag(v):
     return numpy.sqrt(numpy.dot(v, v))

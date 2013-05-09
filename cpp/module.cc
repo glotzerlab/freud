@@ -10,6 +10,7 @@
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
 #include "colormap.h"
+#include "triangles.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -54,4 +55,5 @@ BOOST_PYTHON_MODULE(_freud)
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
     colormap::export_colormap();
+    triangles::export_triangles();
     }

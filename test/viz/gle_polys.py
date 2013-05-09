@@ -51,7 +51,7 @@ if __name__ == '__main__':
     c = gen_random_colors(len(p));
     
     #triangle = [[-0.5, -0.5], [0.5, -0.5], [0, 0.5]];
-    my_poly = [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]];
+    my_poly = [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [0.0, 1.0], [-0.5, 0.5]];
     
     polys = viz.primitive.RepeatedPolygons(positions=p, angles=a, polygon=my_poly, colors=c, outline=0.05);
     # disks1 = viz.Disks(positions=gen_random_disks(100, 20), color=(0,0,1,1));
