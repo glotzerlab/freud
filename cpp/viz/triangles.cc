@@ -43,9 +43,7 @@ float4 quat_mult(float4 a, float4 b)
 
 float dot_prod(float4 a, float4 b)
     {
-    float c;
-    c = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-    return c;
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
 /*! \internal
@@ -63,10 +61,10 @@ float4 gen_q(float angle)
     axis.x = 0;
     axis.y = 0;
     axis.z = 1;
-    q.x = cos(0.5 * angle);
-    q.y = axis.x * sin(0.5 * angle);
-    q.z = axis.y * sin(0.5 * angle);
-    q.w = axis.z * sin(0.5 * angle);
+    q.x = cosf(0.5 * angle);
+    q.y = axis.x * sinf(0.5 * angle);
+    q.z = axis.y * sinf(0.5 * angle);
+    q.w = axis.z * sinf(0.5 * angle);
     float den = sqrt(dot_prod(q, q));
     q.x = q.x / den;
     q.y = q.y / den;
@@ -90,10 +88,10 @@ float4 gen_qs(float angle)
     axis.x = 0;
     axis.y = 0;
     axis.z = 1;
-    q.x = cos(0.5 * angle);
-    q.y = -1.0 * axis.x * sin(0.5 * angle);
-    q.z = -1.0 * axis.y * sin(0.5 * angle);
-    q.w = -1.0 * axis.z * sin(0.5 * angle);
+    q.x = cosf(0.5 * angle);
+    q.y = -1.0 * axis.x * sinf(0.5 * angle);
+    q.z = -1.0 * axis.y * sinf(0.5 * angle);
+    q.w = -1.0 * axis.z * sinf(0.5 * angle);
     float den = sqrt(dot_prod(q, q));
     q.x = q.x / den;
     q.y = q.y / den;
@@ -142,15 +140,9 @@ float2 q_rotate(float2 point, float angle)
 
 float2 mat_rotate(float2 point, float angle)
     {
-    
-    float2 mat[2];
     float2 rot;
-    mat[0].x = cos(angle);
-    mat[0].y = -1 * sin(angle);
-    mat[1].x = sin(angle);
-    mat[1].y = cos(angle);
-    rot.x = mat[0].x * point.x + mat[0].y * point.y;
-    rot.y = mat[1].x * point.x + mat[1].y * point.y;
+    rot.x = cosf(angle) * point.x + -sinf(angle) * point.y;
+    rot.y = sinf(angle) * point.x + cosf(angle) * point.y;
     return rot;
     }
 
@@ -224,7 +216,7 @@ void triangle_rotatePy(boost::python::numeric::array vert_array,
         
         {
         util::ScopedGILRelease gil;
-        //triangle_rotate(vert_array_raw, color_array_raw, position_array_raw, angle_array_raw, triangle_array_raw, poly_colors_raw, N, NT);
+        triangle_rotate(vert_array_raw, color_array_raw, position_array_raw, angle_array_raw, triangle_array_raw, poly_colors_raw, N, NT);
         }
     }
     

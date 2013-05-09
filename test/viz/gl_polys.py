@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import time
 import math
 import random
 
@@ -46,9 +47,11 @@ def gen_random_colors(N):
     return colors;
 
 if __name__ == '__main__':
-    p = gen_ordered_pos(210);
-    a = gen_ordered_angles(210);
+    start = time.time();
+    p = gen_ordered_pos(1000);
+    a = gen_ordered_angles(1000);
     c = gen_random_colors(len(p));
+    print(time.time()-start);
     
     #triangle = [[-0.5, -0.5], [0.5, -0.5], [0, 0.5]];
     my_poly = [[-0.5, -0.5], [0.5, -0.5], [0.0, 0.0], [0.5, 0.5], [-0.5, 0.5]];

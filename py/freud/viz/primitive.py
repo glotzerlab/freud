@@ -131,8 +131,7 @@ class Triangles(base.Primitive):
     #
     def __init__(self, vertices, colors=None, color=None):
         base.Primitive.__init__(self);
-        #print(vertices)
-        #print(colors)
+        
         # -----------------------------------------------------------------
         # set up vertices
         # convert to a numpy array
@@ -266,18 +265,23 @@ class RepeatedPolygons(Triangles):
         triangle_array = numpy.array(tmp_poly.getTriangles())
         N_T = triangle_array.shape[0]
        
+        # This is slow
+        # vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
+        # color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
+        # positions_array = self.positions
+        # angles_array = self.angles
+        # poly_color_array = self.colors
+        
+        # start = time.time()
+        # _freud.triangle_rotate(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
         
         vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
         color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
         positions_array = self.positions
         angles_array = self.angles
         poly_color_array = self.colors
-        start = time.time()
-        _freud.triangle_rotate(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
-        print(time.time()-start)
-        start = time.time()
+        
         _freud.triangle_rotate_mat(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
-        print(time.time()-start)
         
         # -----------------------------------------------------------------
         # set up outline
