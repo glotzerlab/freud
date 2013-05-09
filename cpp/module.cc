@@ -52,4 +52,5 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
+    localqi::export_LocalQi();
     }
