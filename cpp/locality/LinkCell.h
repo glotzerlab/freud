@@ -35,15 +35,17 @@ const unsigned int LINK_CELL_TERMINATOR = 0xffffffff;
     // do something with particle i
     }
 \endcode
+
+\note Behavior is undefined if an IteratorLinkCell is accessed after the parent LinkCell is destroyed.
 */
 class IteratorLinkCell
     {
     public:
-        IteratorLinkCell(boost::shared_array<unsigned int> cell_list,
+        IteratorLinkCell(const boost::shared_array<unsigned int>& cell_list,
                          unsigned int Np,
                          unsigned int Nc,
                          unsigned int cell)
-                         : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
+                         : m_cell_list(cell_list.get()), m_Np(Np), m_Nc(Nc)
             {
             assert(cell < Nc);
             assert(Np > 0);
@@ -79,7 +81,7 @@ class IteratorLinkCell
             }
         
     private:
-        boost::shared_array<unsigned int> m_cell_list;    //!< The cell list
+        const unsigned int *m_cell_list;                  //!< The cell list
         unsigned int m_Np;                                //!< Number of particles in the cell list
         unsigned int m_Nc;                                //!< Number of cells in the cell list
         unsigned int m_cur_idx;                           //!< Current index
