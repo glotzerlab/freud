@@ -1,4 +1,4 @@
-#include "LocalQi.h"
+#include "LocalQl.h"
 
 #include <stdexcept>
 #include <complex>
@@ -8,21 +8,23 @@
 using namespace std;
 using namespace boost::python;
 
-namespace freud { namespace localqi {
+namespace freud { namespace localql {
     
-LocalQi::LocalQi(const trajectory::Box& box, float rmax, unsigned int l)
+LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l)
     :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_l(l)
     {
     if (m_rmax < 0.0f)
-        throw invalid_argument("rmax must be positive");
+        throw invalid_argument("rmax must be positive!");
+    if (m_l < 2)
+        throw invalid_argument("l must be two or greater (and even)!");
     if (m_l%2 == 1)
         {
         fprintf(stderr,"Current value of m_l is %d\n",m_l);     
-        throw invalid_argument("This method requires even spherical harmonics!");
+        throw invalid_argument("This method requires even values of l!");
         }       
     }
    
-void LocalQi::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
+void LocalQl::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
     {
     if(Y.size() != 2*m_l+1) 
         Y.resize(2*m_l+1);
@@ -40,7 +42,7 @@ void LocalQi::Ylm(const double theta, const double phi, std::vector<std::complex
     
    
     
-void LocalQi::compute(const float3 *points, unsigned int Np) 
+void LocalQl::compute(const float3 *points, unsigned int Np) 
     {
 
     //Set local data size
@@ -91,7 +93,7 @@ void LocalQi::compute(const float3 *points, unsigned int Np)
                     double theta = acos(delta.z / sqrt(rsq)); //0..Pi
                     
                     std::vector<std::complex<double> > Y;
-                    LocalQi::Ylm(theta, phi,Y);  //Fill up Ylm vector
+                    LocalQl::Ylm(theta, phi,Y);  //Fill up Ylm vector
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
                         m_Qlmi[(2*m_l+1)*i+k]+=Y[k];
@@ -110,58 +112,8 @@ void LocalQi::compute(const float3 *points, unsigned int Np)
         m_Qli[i]=sqrt(m_Qli[i]);
         } //Ends loop over particles i for Qlmi calcs
     } 
-    
-/*
-void LocalQi::compute(const float3 *points, unsigned int Np)
-    {
-    m_lc.computeCellList(points,Np);
-    m_Np = Np;
-    float rmaxsq = m_rmax * m_rmax;
-    m_psi_array = boost::shared_array<complex<double> >(new complex<double> [Np]);
-    memset((void*)m_psi_array.get(), 0, sizeof(complex<double>)*Np);
-    
-    for (unsigned int i = 0; i<Np; i++)
-        {
-        //get cell point is in
-        float3 ref = points[i];
-        unsigned int ref_cell = m_lc.getCell(ref);
-        unsigned int num_adjacent = 0;
-        
-        //loop over neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-            {
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
-            //iterate over particles in cell
-            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
-                {
-                //compute r between the two particles
-                float dx = float(ref.x - points[j].x);
-                float dy = float(ref.y - points[j].y);
-                float dz = float(ref.z - points[j].z);
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                if (rsq < rmaxsq && rsq > 1e-6)
-                    {
-                    //compute psi for neighboring particle(only constructed for 2d)
-                    //double psi_ij = atan2(delta.y, delta.x);
-                    //m_psi_array[i] += exp(complex<double>(0,6*psi_ij));
-                    //num_adjacent++;
-                    }
-                }
-            }
-	// Don't divide by zero if the particle has no neighbors (this leaves psi at 0)
-	if(num_adjacent)
-	  m_psi_array[i] /= complex<double>(num_adjacent);  
-        }
-    }
-*/
 
-
-void LocalQi::computePy(boost::python::numeric::array points)
+void LocalQl::computePy(boost::python::numeric::array points)
     {
     //validate input type and rank
     num_util::check_type(points, PyArray_FLOAT);
@@ -176,12 +128,12 @@ void LocalQi::computePy(boost::python::numeric::array points)
     compute(points_raw, Np);
     }
     
-void export_LocalQi()
+void export_LocalQl()
     {
-    class_<LocalQi>("LocalQi", init<trajectory::Box&, float, unsigned int>())
-        .def("getBox", &LocalQi::getBox, return_internal_reference<>())
-        .def("compute", &LocalQi::computePy)
-        .def("getQli", &LocalQi::getQliPy)
+    class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int>())
+        .def("getBox", &LocalQl::getBox, return_internal_reference<>())
+        .def("compute", &LocalQl::computePy)
+        .def("getQl", &LocalQl::getQlPy)
         ;
     }
     

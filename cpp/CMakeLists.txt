@@ -15,7 +15,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/density
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
-                    ${CMAKE_CURRENT_SOURCE_DIR}/localqi
+                    ${CMAKE_CURRENT_SOURCE_DIR}/localql
                     )
 
 set(SOURCES trajectory/trajectory.cc
@@ -45,8 +45,8 @@ set(SOURCES trajectory/trajectory.cc
             molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
-            localqi/LocalQi.cc
-            localqi/LocalQi.h)
+            localql/LocalQl.cc
+            localql/LocalQl.h)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} util/num_util.cc util/num_util.h module.cc)
