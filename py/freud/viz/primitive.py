@@ -196,7 +196,7 @@ class RepeatedPolygons(Triangles):
     #
     def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1):   
         
-        
+        start = time.time()
         
         # -----------------------------------------------------------------
         # set up positions
@@ -262,7 +262,7 @@ class RepeatedPolygons(Triangles):
         # decompose the polygon into constituent triangles
         tmp_poly.calculate()
         # put the triangle vertices into a numpy array
-        triangle_array = numpy.array(tmp_poly.getTriangles())
+        triangle_array = tmp_poly.getTriangles()
         N_T = triangle_array.shape[0]
        
         # This is slow
@@ -272,7 +272,6 @@ class RepeatedPolygons(Triangles):
         # angles_array = self.angles
         # poly_color_array = self.colors
         
-        # start = time.time()
         # _freud.triangle_rotate(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
         
         vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
@@ -280,9 +279,10 @@ class RepeatedPolygons(Triangles):
         positions_array = self.positions
         angles_array = self.angles
         poly_color_array = self.colors
-        
+        print(time.time()-start)
+        start = time.time()
         _freud.triangle_rotate_mat(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
-        
+        print(time.time()-start)
         # -----------------------------------------------------------------
         # set up outline
         Triangles.__init__(self, vert_array, colors = color_array);

@@ -76,7 +76,7 @@ class triangulate:
                 for j in range(3):
                     tmp_t.append((t.vertices[j][0], t.vertices[j][1]))
                 t_arr.append(tmp_t)
-            return t_arr
+            return numpy.array(t_arr)
         else:
             raise TypeError("Triangulation has not yet been performed")
     # This was only used during debugging, a better function will be made to "export" the triangle set

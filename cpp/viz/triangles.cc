@@ -141,8 +141,10 @@ float2 q_rotate(float2 point, float angle)
 float2 mat_rotate(float2 point, float angle)
     {
     float2 rot;
-    rot.x = cosf(angle) * point.x + -sinf(angle) * point.y;
-    rot.y = sinf(angle) * point.x + cosf(angle) * point.y;
+    float mysin = sinf(angle);
+    float mycos = cosf(angle);
+    rot.x = mycos * point.x + -mysin * point.y;
+    rot.y = mysin * point.x + mycos * point.y;
     return rot;
     }
 
@@ -373,6 +375,9 @@ void triangle_rotate_mat(float2 *vert_array,
                     {
                     // This is the rotated and translated point
                     float2 new_vert;
+                    // Put in for benchmarking
+                    // for the love of god take out later
+                    
                     new_vert = mat_rotate(tri_array[j * 3 + k], angle_array[i]);
                     new_vert.x = new_vert.x + position_array[i].x;
                     new_vert.y = new_vert.y + position_array[i].y;
