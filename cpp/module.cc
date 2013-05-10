@@ -9,7 +9,7 @@
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
-
+#include "LocalQi.h"
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
 using namespace freud;

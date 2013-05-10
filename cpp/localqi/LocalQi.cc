@@ -16,9 +16,10 @@ LocalQi::LocalQi(const trajectory::Box& box, float rmax, unsigned int l)
     if (m_rmax < 0.0f)
         throw invalid_argument("rmax must be positive");
     if (m_l%2 == 1)
+        {
         fprintf(stderr,"Current value of m_l is %d\n",m_l);     
         throw invalid_argument("This method requires even spherical harmonics!");
-    
+        }       
     }
    
 void LocalQi::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
@@ -86,17 +87,17 @@ void LocalQi::compute(const float3 *points, unsigned int Np)
 
                 if (rsq < rmaxsq && rsq > 1e-6)  
                     {
-                    double phi = atan2(delta.y,delta.x);   //0..2Pi
+                    double phi = atan2(delta.y,delta.x);      //0..2Pi
                     double theta = acos(delta.z / sqrt(rsq)); //0..Pi
                     
                     std::vector<std::complex<double> > Y;
                     LocalQi::Ylm(theta, phi,Y);  //Fill up Ylm vector
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
-                        m_Qlmi[(2*m_l+1)*i+k]+=Y[k]; 
+                        m_Qlmi[(2*m_l+1)*i+k]+=Y[k];
                         }
-                    }
                     neighborcount++;
+                    }
                 }
             } //End loop going over neighbor cells (and thus all neighboring particles);
             //Normalize!
@@ -180,7 +181,7 @@ void export_LocalQi()
     class_<LocalQi>("LocalQi", init<trajectory::Box&, float, unsigned int>())
         .def("getBox", &LocalQi::getBox, return_internal_reference<>())
         .def("compute", &LocalQi::computePy)
-        .def("getQi", &LocalQi::getQliPy)
+        .def("getQli", &LocalQi::getQliPy)
         ;
     }
     
