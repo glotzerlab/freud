@@ -7,3 +7,4 @@ from freud import locality
 from freud import trajectory
 from freud import order
 from freud import interface
+from freud import complement

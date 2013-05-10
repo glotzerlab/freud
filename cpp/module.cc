@@ -10,6 +10,7 @@
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
 #include "LocalQl.h"
+#include "complement.h"
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
 using namespace freud;
@@ -53,4 +54,5 @@ BOOST_PYTHON_MODULE(_freud)
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
     localql::export_LocalQl();
+    complement::export_complement();
     }

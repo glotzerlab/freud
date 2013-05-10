@@ -16,6 +16,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/localql
+                    ${CMAKE_CURRENT_SOURCE_DIR}/complement
                     )
 
 set(SOURCES trajectory/trajectory.cc
@@ -46,7 +47,10 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
             localql/LocalQl.cc
-            localql/LocalQl.h)
+            localql/LocalQl.h
+            complement/complement.cc
+            complement/complement.h
+            )
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} util/num_util.cc util/num_util.h module.cc)
