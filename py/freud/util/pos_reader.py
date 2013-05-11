@@ -55,6 +55,8 @@ class file:
         if filename is None:
             print("No input file assigned")
         else:
+            # I got rid of all this; don't know how it affects functionality
+            
             #if isinstance(filename, file):
             #    f = filename
             #elif isinstance(filename, list):
@@ -64,14 +66,20 @@ class file:
             f = open(filename, 'rU')
             i=0
             isdata=False
+            # Need to get rid of appends
+            # Need to load directly into numpy arrays
             self.particle_list.append([])
             self.definitions.append(dict())
             self.position_list.append([])
             self.object_list.append([])
             self.quaternion_list.append([])
 
+# I think richmond is correct; I need to read through once to initialize size and stuff first
+# Count number of frames, number of particles, etc.
+
             pbuff=old_pbuff=[]
             pbuff_frame=old_pbuff_frame = 0
+            # This is the main loop
             for line in f:
                 #i+=1
                 if re.match('^//',line): 
@@ -79,20 +87,26 @@ class file:
                 elif re.match('#\[data\]', line):
                     #print("Found data header on line %i" % i)
                     if len(self.observables) == 0:
+                        # Takes the observables and puts in list
+                        # Self.data is a dict
+                        # probably want to change from list to numpy array
                         self.observables = re.split('\s+', line)[1:-1]
                         for col in self.observables:
                             self.data[col]=list()
                     isdata=True
                     
-                    #if the buff is full, enmpty it
+                    #if the buff is full, empty it
                     # if we reading all the frames
                     if len(pbuff)>0 and not only_last:
-                      self.frame_list.append(pbuff_frame)
-                      for lbuff in pbuff:
-                        self.addPosline(lbuff.strip())
+                        # Append is slow; change
+                        self.frame_list.append(pbuff_frame)
+                        for lbuff in pbuff:
+                            # I'm sure this is ridiculously slow
+                            self.addPosline(lbuff.strip())
 
-                    #otherwise save a copy of this buff incase the
+                    #otherwise save a copy of this buff in case the
                     #next frame is corrupt
+                    # Looks fine
                     else:
                       old_pbuff=list(pbuff)
                       old_pbuff_frame=pbuff_frame
@@ -105,6 +119,7 @@ class file:
                     isdata=False
                     continue
                 if isdata:
+                    # I'm sure this could be faster
                     self.addDataline(line)
                 else:
                   if ( re.match("^eof",line) ):
@@ -113,6 +128,7 @@ class file:
                     except:
                         i += 1
                         pbuff_frame = i 
+                  # This could be improved; append is slow
                   pbuff.append(line)
 
             #did the buffer end full?
@@ -155,7 +171,7 @@ class file:
                 f_out.write('%s\t%s\n'%(k,injavis_params[k]))
         if not boxMatrix_list is None:
           if not len(boxMatrix_list)==9:
-              raise RuntimeError('Box matrix must containt 9 elements') 
+              raise RuntimeError('Box matrix must contain 9 elements') 
           #write the box matrix
           f_out.write(string.join(['boxMatrix', string.join(['\t%5.8f'%(b) for b in boxMatrix_list]),'\n']))        
         d_list = dict();
@@ -399,7 +415,7 @@ class file:
         elif shape == 'poly':
             N = int(tokens[1])
             verts=n.array([float(p) for p in tokens[2:2+3*N]]).reshape(N,3) 
-            self.object_list[-1].append(Poly(vert,tokens[3*N+2]))
+            self.object_list[-1].append(Poly(verts,tokens[3*N+2]))
 
         elif shape == 'bond':
             self.object_list[-1].append(Bond(float(tokens[1]),tokens[2],n.array([float(p) for p in tokens[3::]])))    
@@ -650,41 +666,41 @@ class Simulation:
             self.proc.stdin.write(line)
             if not re.search('\n$', line): self.proc.stdin.write('\n')
             self.instructions.append(line)
-    def unpack(self, scale=0.99):
-        """
-            Run a few steps in NVT to set
-            packing fraction to 99% of it's current value.
-        """
-        if not self.initialized: self.initialize()
-        if self.proc is None:
-            raise RuntimeError('no simulation running')
-            return
-        if not isinstance(self.ofile, file):
-            raise RuntimeError("Don't know where to get results for unpack")
-            return
-        filename = self.ofile.name
-        self.ofile.flush()
-        output = open(filename, 'rU')
-        output.seek(0,2)
-        oldposition = output.tell()
-        oldsize = os.path.getsize(filename)
-        newsize = oldsize
-        self.send("steps 1 skip 1 NVT next")
-        self.flush()
-        # need to wait for output to appear...
-        # this is still a bit of a race condition and should be handled with
-        # queue objects from the threading library
-        while newsize == oldsize:
-            self.ofile.flush()
-            newsize = os.path.getsize(filename)
-            time.sleep(1)
-        output.seek(oldposition, 0)
-        datfile = File(output)
-        output.close()
-        data = datfile.getData("Packing")
-        pf = data['Packing'][len(data['Packing']) - 1 ]
-        pf *= scale
-        self.send("setpf %.3f next" % pf)
+    # def unpack(self, scale=0.99):
+    #     """
+    #         Run a few steps in NVT to set
+    #         packing fraction to 99% of it's current value.
+    #     """
+    #     if not self.initialized: self.initialize()
+    #     if self.proc is None:
+    #         raise RuntimeError('no simulation running')
+    #         return
+    #     if not isinstance(self.ofile, file):
+    #         raise RuntimeError("Don't know where to get results for unpack")
+    #         return
+    #     filename = self.ofile.name
+    #     self.ofile.flush()
+    #     output = open(filename, 'rU')
+    #     output.seek(0,2)
+    #     oldposition = output.tell()
+    #     oldsize = os.path.getsize(filename)
+    #     newsize = oldsize
+    #     self.send("steps 1 skip 1 NVT next")
+    #     self.flush()
+    #     # need to wait for output to appear...
+    #     # this is still a bit of a race condition and should be handled with
+    #     # queue objects from the threading library
+    #     while newsize == oldsize:
+    #         self.ofile.flush()
+    #         newsize = os.path.getsize(filename)
+    #         time.sleep(1)
+    #     output.seek(oldposition, 0)
+    #     datfile = File(output)
+    #     output.close()
+    #     data = datfile.getData("Packing")
+    #     pf = data['Packing'][len(data['Packing']) - 1 ]
+    #     pf *= scale
+    #     self.send("setpf %.3f next" % pf)
     def runfor(self, n=1, instructions=None):
         """
             Use as a simply looping construct to run instructions n times.
