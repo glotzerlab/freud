@@ -1,71 +1,123 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
-#include <boost/math/special_functions.hpp>
 
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
 
-#ifndef _COMPLEMENT_H__
-#define _COMPLEMENT_H__
+#ifndef _complement_H__
+#define _complement_H__
 
 namespace freud { namespace complement {
 
-//! Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points
-/*! 
- * Implements the local rotationally invariant Ql order parameter described by Steinhardt.  
- * For a particle i, we calculate the average Q_l by summing the spherical harmonics between particle i and its neighbors j in a local region:
- * \f$ \overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),\phi(\vec{r}_{ij})) \f$
- * 
- * This is then combined in a rotationally invariant fashion to remove local orientational order as follows:
- * \f$ Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }  \f$ 
- * 
- * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
+//! Computes the RDF (g(r)) for a given set of points
+/*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
+    Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
+    
+    The values of r to compute the rdf at are controlled by the rmax and dr parameters to the constructor. rmax
+    determins the maximum r at which to compute g(r) and dr is the step size for each bin.
+    
+    <b>2D:</b><br>
+    RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
+    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
 class complement
     {
     public:
-        //! LocalQl Class Constructor
-        /**Constructor for LocalQl  analysis class.
-        @param box A freud box object containing the dimensions of the box associated with the particles that will be fed into compute.
-        @param rmax Cutoff radius for running the local order parameter. Values near first minima of the rdf are recommended.
-        @param l Spherical harmonic quantum number l.  Must be a positive even number.
-        **/
-        complement(const trajectory::Box& box, float rmax);
+        //! Constructor
+        complement(const trajectory::Box& box, float rmax, float dr);
         
+        //! Destructor
+        ~complement();
+
         //! Get the simulation box
         const trajectory::Box& getBox() const
             {
             return m_box;
             }
         
-        //! Compute the local rotationally invariant Ql order parameter
-        void compute(const float2 *position,
-                         const float *angle,
-                         const float2 *polygon,
-                         const float *cavity,
-                         unsigned int N,
-                         unsigned int NV,
-                         unsigned int NC
-                    );
+        //! Check if a cell list should be used or not
+        bool useCells();
+
+        //! Compute the RDF
+        void compute(const float3 *ref_points,
+                     unsigned int Nref,
+                     const float3 *points,
+                     unsigned int Np);
         
-        //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
-        void computePy(boost::python::numeric::array position,
-                           boost::python::numeric::array angle,
-                           boost::python::numeric::array polygon,
-                           boost::python::numeric::array cavity
-                       );
+        //! Compute the RDF
+    void computeWithoutCellList(const float3 *ref_points,
+                    unsigned int Nref,
+                    const float3 *points,
+                    unsigned int Np);
+
+    //! Compute the RDF
+    void computeWithCellList(const float3 *ref_points,
+                 unsigned int Nref,
+                 const float3 *points,
+                 unsigned int Np);
+
+        //! Python wrapper for compute
+        void computePy(boost::python::numeric::array ref_points,
+                       boost::python::numeric::array points);
                        
+        //! Get a reference to the last computed rdf
+        boost::shared_array<float> getRDF()
+            {
+            return m_rdf_array;
+            }
         
+        //! Get a reference to the r array
+        boost::shared_array<float> getR()
+            {
+            return m_r_array;
+            }
+
+        //! Get a reference to the N_r array
+        boost::shared_array<float> getNr()
+            {
+            return m_N_r_array;
+            }
+        
+        //! Python wrapper for getRDF() (returns a copy)
+        boost::python::numeric::array getRDFPy()
+            {
+            float *arr = m_rdf_array.get();
+            return num_util::makeNum(arr, m_nbins);
+            }
+
+        //! Python wrapper for getR() (returns a copy)
+        boost::python::numeric::array getRPy()
+            {
+            float *arr = m_r_array.get();
+            return num_util::makeNum(arr, m_nbins);
+            }
+            
+        //! Python wrapper for getNr() (returns a copy)
+        boost::python::numeric::array getNrPy()
+            {
+            float *arr = m_N_r_array.get();
+            return num_util::makeNum(arr, m_nbins);
+            }
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
-        // Don't know if I actually need this or if I will calculate it
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
+        float m_rmax;                     //!< Maximum r at which to compute g(r)
+        float m_dr;                       //!< Step size for r in the computation
+        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
+        unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
+        
+        boost::shared_array<float> m_rdf_array;         //!< rdf array computed
+        boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+        boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
+        boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
+        boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
     };
 
-//! Exports all classes in this file to python
+/*! \internal
+    \brief Exports all classes in this file to python 
+*/
 void export_complement();
 
 }; }; // end namespace freud::complement
 
-#endif // #define _COMPLEMENT_H__
+#endif // _complement_H__
