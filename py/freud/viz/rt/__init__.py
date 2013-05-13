@@ -98,6 +98,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         self.setFocusPolicy(QtCore.Qt.ClickFocus);
     
+    ## Set a new scene
+    #
+    def setScene(self, scene):
+        self.scene = scene;
+        self._anim_state == GLWidget.ANIM_IDLE
+    
+    
     ## \internal 
     # \brief Resize the GL viewport
     #
@@ -105,8 +112,9 @@ class GLWidget(QtOpenGL.QGLWidget):
     #
     def resizeGL(self, w, h):
         gl.glViewport(0, 0, w, h)
-        self.scene.camera.setAspect(w/h);
-        self.scene.camera.resolution = h;
+        if self.scene is not None:
+            self.scene.camera.setAspect(w/h);
+            self.scene.camera.resolution = h;
     
     ## \internal
     # \brief Paint the GL scene
@@ -116,9 +124,10 @@ class GLWidget(QtOpenGL.QGLWidget):
     def paintGL(self):
         gl.glClearColor(1.0, 1.0, 1.0, 0.0);
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
-        self.draw_gl.startFrame();
-        self.draw_gl.draw(self.scene);
-        self.draw_gl.endFrame();
+        if self.scene is not None:
+            self.draw_gl.startFrame();
+            self.draw_gl.draw(self.scene);
+            self.draw_gl.endFrame();
 
     ## \internal
     # \brief Initialize the OpenGL renderer
@@ -143,7 +152,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     #
     def animate(self):
         # If we are idle, stop the timer
-        if self._anim_state == GLWidget.ANIM_IDLE:
+        if self._anim_state == GLWidget.ANIM_IDLE or self.scene is None:
             self._timer_animate.stop();
         
         # If we are panning
@@ -186,6 +195,9 @@ class GLWidget(QtOpenGL.QGLWidget):
     # button.
     #
     def mouseMoveEvent(self, event):
+        if self.scene is None:
+            event.ignore();
+            return;
 
         if event.buttons() & QtCore.Qt.LeftButton:
             # update camera position
@@ -214,6 +226,10 @@ class GLWidget(QtOpenGL.QGLWidget):
     # Start mouse-control panning the camera when the left button is pressed.
     #
     def mousePressEvent(self, event):
+        if self.scene is None:
+            event.ignore();
+            return;
+        
         if event.button() == QtCore.Qt.LeftButton:
             # stop any running pan animations
             self._anim_state = GLWidget.ANIM_IDLE;
@@ -235,6 +251,10 @@ class GLWidget(QtOpenGL.QGLWidget):
     # and start the animated panning
     #
     def mouseReleaseEvent(self, event):
+        if self.scene is None:
+            event.ignore();
+            return;
+        
         if event.button() == QtCore.Qt.LeftButton:
             # switch to the panning animation, set the initial pan vel and time, and update the cursor
             self._anim_state = GLWidget.ANIM_PAN;
@@ -250,6 +270,10 @@ class GLWidget(QtOpenGL.QGLWidget):
     # \brief Zoom in response to a mouse wheel event
     #
     def wheelEvent(self, event):
+        if self.scene is None:
+            event.ignore();
+            return;
+        
         # control speed based on modifiers (ctrl/cmd = slow)
         if event.modifiers() == QtCore.Qt.ControlModifier:
             speed = 0.05;
@@ -319,7 +343,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
     frame_select = QtCore.Signal(int);
     frame_display = QtCore.Signal(int);
     
-    def __init__(self, scene, immediate=False, *args, **kwargs):
+    def __init__(self, scene=None, immediate=False, *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
 
         self.scene = scene;
@@ -416,6 +440,11 @@ class TrajectoryViewer(QtGui.QMainWindow):
     
     ## Create tool bars
     def createToolbars(self):
+        if self.scene is None:
+            n_frames = 1;
+        else:
+            n_frames = self.scene.getNumFrames();
+        
         # initialize the non tool button interface elements
         self.frame_slider = QtGui.QSlider(QtCore.Qt.Horizontal, self);
         self.frame_slider.valueChanged[int].connect(self.gotoFrame);
@@ -423,15 +452,15 @@ class TrajectoryViewer(QtGui.QMainWindow):
         self.frame_slider.setTickInterval(10);
         self.frame_slider.setStatusTip('Select frame');
         self.frame_slider.setFocusPolicy(QtCore.Qt.NoFocus);
-        self.frame_slider.setMaximum(self.scene.getNumFrames()-1);
+        self.frame_slider.setMaximum(n_frames-1);
         
         self.frame_spinbox = QtGui.QSpinBox(self);
         self.frame_spinbox.setKeyboardTracking(False);
         self.frame_spinbox.setStatusTip('Select frame');
         self.frame_spinbox.valueChanged[int].connect(self.gotoFrame)
         self.frame_spinbox.setWrapping(True);
-        self.frame_spinbox.setSuffix(' / '+str(self.scene.getNumFrames()));
-        self.frame_spinbox.setMaximum(self.scene.getNumFrames()-1);
+        self.frame_spinbox.setSuffix(' / '+str(n_frames));
+        self.frame_spinbox.setMaximum(n_frames-1);
         
         self.fps_spinbox = QtGui.QSpinBox(self);
         self.fps_spinbox.setRange(0,60);
@@ -478,6 +507,26 @@ class TrajectoryViewer(QtGui.QMainWindow):
         self.centralWidget().closeEvent(event);
         QtGui.QMainWindow.closeEvent(self, event);
 
+    
+    ## Set the scene
+    def setScene(self, scene):
+        self.scene = scene;
+        self.update_manager.scene = scene;
+        self._frame = None;
+
+        if self.scene is None:
+            n_frames = 1;
+        else:
+            n_frames = self.scene.getNumFrames();
+
+        self.frame_slider.setMaximum(n_frames-1);
+        self.frame_spinbox.setSuffix(' / '+str(n_frames));
+        self.frame_spinbox.setMaximum(n_frames-1);
+        self.glWidget.setScene(scene);
+        
+        self.gotoFrame(0);
+    
+        
     ## Set the animation frame
     @QtCore.Slot(int)
     def gotoFrame(self, frame):
@@ -491,13 +540,14 @@ class TrajectoryViewer(QtGui.QMainWindow):
         self.frame_slider.setValue(frame);
         self.frame_spinbox.setValue(frame);
         
-        # update to the target frame
-        if self._immediate:
-            self.scene.setFrame(frame);
-            self.frame_display.emit(frame);
-            self.glWidget.update();
-                        
-        self.frame_select.emit(frame);
+        if self.scene is not None:
+            # update to the target frame
+            if self._immediate:
+                self.scene.setFrame(frame);
+                self.frame_display.emit(frame);
+                self.glWidget.updateGL();
+                            
+            self.frame_select.emit(frame);
     
     ## Set the maximum FPS
     @QtCore.Slot(int)
