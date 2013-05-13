@@ -382,6 +382,8 @@ class TrajectoryXML(Trajectory):
         configuration = self._parseXML(self.xml_list[self.idx])
                 
         for prop in self.dynamic_props.keys():
+            if prop == 'typename' or prop == 'typeid':
+                continue
             if prop == 'type':
                 self.dynamic_props['typename'] = self._update('type', configuration)
                 self.dynamic_props['typeid'] = _assign_typeid(self.dynamic_props['typename'])
@@ -391,7 +393,7 @@ class TrajectoryXML(Trajectory):
         if configuration.hasAttribute('time_step'):
             curr_ts = int(configuration.getAttribute('time_step'))
         else:
-            curr_ts = 3 
+            curr_ts = 0 
         
         return Frame(self, self.idx, self.dynamic_props, self.box, time_step = curr_ts)
     
