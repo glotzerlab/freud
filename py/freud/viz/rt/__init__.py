@@ -348,16 +348,13 @@ class TrajectoryViewer(QtGui.QMainWindow):
     frame_select = QtCore.Signal(int);
     frame_display = QtCore.Signal(int);
     
-    def __init__(self, scene=None, immediate=False, *args, **kwargs):
+    def __init__(self, scene=None, immediate=False, dock_widgets=[], toolbars=[], *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
 
         self.scene = scene;
         self._frame = -1;
         self._immediate = immediate;
         
-        # initialize the gl display
-        self.glWidget = GLWidget(scene)
-        self.setCentralWidget(self.glWidget)
         self.setWindowTitle('freud.viz')
 
         self.timer_animate = QtCore.QTimer(self)
@@ -374,12 +371,23 @@ class TrajectoryViewer(QtGui.QMainWindow):
             self.update_manager.completed[int].connect(self.presentFrame);
             self.frame_select.connect(self.update_manager.loadFrame);
             self.update_thread.start();
+
+        for toolbar in toolbars:
+            toolbar.setParent(self);
+            self.addToolBar(toolbar);
         
         self.createActions();
         self.createToolbars();
-        self.createSubWidgets();
+        
+        for widget in dock_widgets:
+            self.addDockWidget(QtCore.Qt.RightDockWidgetArea, widget);
+            
         self.createMenus();
         self.restoreSettings();
+        
+        # initialize the gl display
+        self.glWidget = GLWidget(scene)
+        self.setCentralWidget(self.glWidget)
         
         self.gotoFrame(0);
 
@@ -422,16 +430,17 @@ class TrajectoryViewer(QtGui.QMainWindow):
         viz_menu = self.menuBar().addMenu('&Viz')
         viz_menu.addAction(self.action_close);
         
-        popup = self.createPopupMenu();
-        popup.setTitle('View');
-        view_menu = self.menuBar().addMenu(popup);
-        
         animate_menu = self.menuBar().addMenu('&Animate');
         animate_menu.addAction(self.action_play);
         animate_menu.addAction(self.action_prev);
         animate_menu.addAction(self.action_next);
         animate_menu.addAction(self.action_first);
         animate_menu.addAction(self.action_last);
+
+        popup = self.createPopupMenu();
+        popup.setTitle('Window');
+        window_menu = self.menuBar().addMenu(popup);
+
         
     ## Create sub widgets
     def createSubWidgets(self):
@@ -516,7 +525,8 @@ class TrajectoryViewer(QtGui.QMainWindow):
     ## Set the scene
     def setScene(self, scene):
         self.scene = scene;
-        self.update_manager.scene = scene;
+        if not self._immediate:
+            self.update_manager.scene = scene;
         self._frame = None;
 
         if self.scene is None:
@@ -595,7 +605,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
     ## Present a new frame
     @QtCore.Slot()
     def presentFrame(self, frame):
-        self.glWidget.update();
+        self.update();
         self.frame_display.emit(frame);
         
     
