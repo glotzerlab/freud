@@ -104,6 +104,11 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.scene = scene;
         self._anim_state == GLWidget.ANIM_IDLE
     
+        if self.scene is not None:
+            w = self.width();
+            h = self.height();
+            self.scene.camera.setAspect(w/h);
+            self.scene.camera.resolution = h;
     
     ## \internal 
     # \brief Resize the GL viewport
