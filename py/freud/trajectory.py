@@ -711,7 +711,7 @@ class TrajectoryPOS(Trajectory):
         
         #Reader can handle changing num particles, but this doesn't
         # self.num_particles = len(self.pos_file.n_box_points[0])
-        self.num_particles = self.pos_file.n_box_points.shape[0]
+        self.num_particles = self.pos_file.n_box_points[0]
         
         # Update the static properties
         if not 'position' in self.dynamic_props:
@@ -785,10 +785,11 @@ class TrajectoryPOS(Trajectory):
             #        raise RuntimeError("wrong number of types found in xml file")
             #else:
             #    raise RuntimeError("type tag not found in xml file")
-            type_nodes = self.pos_file.type_names[frame_number]
+            type_key = self.pos_file.type_names[frame_number]
+            type_ID = self.pos_file.types[frame_number]
             type_names = []
-            for key in type_nodes:
-                type_names.append(key)
+            for i in type_ID:
+                type_names.append(type_key[i])
             return type_names
         
         # Need to have an error raised for mass cause I don't think that mass is here

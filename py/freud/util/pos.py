@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import numpy
 import re
 
@@ -256,14 +257,13 @@ class file:
                 n_box_dims = i
         self.box_positions = numpy.zeros(shape = (self.nbox, n_box_points, 3), dtype=numpy.float32);
         self.box_orientations = numpy.zeros(shape = (self.nbox, n_box_points, 4), dtype=numpy.float32);
-        self.types = numpy.zeros(shape = (self.nbox, n_box_points, 1), dtype=numpy.float32);
+        self.types = numpy.zeros(shape = (self.nbox, n_box_points, 1), dtype=numpy.int32);
         # I don't know how we are supposed to preserve type...
         f = open(self.fname)
         # Should this be nbox?
-        for i in range(self.ndata):
+        for i in range(self.nbox):
             f.seek(self.def_tell[i])
             for j in range(self.n_box_points[i]):
-                # Near as I can tell, my def_tell works!
                 line = f.readline();
                 tmp_box = re.split('\s+', line);
                 t, p, q = self.boxParse(tmp_box, i)
@@ -293,6 +293,7 @@ class file:
         self.type_names = frame_types
     def boxParse(self, box_string, frame):
         t = self.type_names[frame].index(box_string[0])
-        p = numpy.array([box_string[2], box_string[3], box_string[4]], dtype = numpy.float32)
-        q = numpy.array([box_string[5], box_string[6], box_string[7], box_string[8]], dtype = numpy.float32)
+        # Changing in order to handle string at end for now. Will make intelligent later
+        p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
+        q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
         return t, p, q
