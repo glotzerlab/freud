@@ -379,7 +379,7 @@ class TrajectoryXML(Trajectory):
         else:
             curr_ts = 3 
         
-        return Frame(self, self.idx, self.dynamic_props, self.box, time_step = curr_ts)
+        return Frame(self, self.idx, copy.deepcopy(self.dynamic_props), copy.copy(self.box), time_step = curr_ts)
     
     
     def _parseXML(self, xml_filename):
