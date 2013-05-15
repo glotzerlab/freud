@@ -716,6 +716,8 @@ class TrajectoryPOS(Trajectory):
         # Update the static properties
         if not 'position' in self.dynamic_props:
             self.static_props['position'] = self._update('position', 0)
+        if not 'orientation' in self.dynamic_props:
+            self.static_props['orientation'] = self._update('orientation', 0)
         #if not 'velocity' in self.dynamic_props:
         #   self.static_props['velocity'] = self._update('velocity', configuration)
         #if not 'mass' in self.dynamic_props:
@@ -776,6 +778,23 @@ class TrajectoryPOS(Trajectory):
                 pos[i,2] = float(position[i][2])
             return pos
         
+        if prop == 'orientation':
+            orientation = self.pos_file.box_orientations[frame_number]
+            #if len(position) != 1:
+            #    raise RuntimeError("position tag not found in xml file")
+            #else:
+            #    position = position[0]
+            #position_text = position.childNodes[0].data
+            #xyz = position_text.split()
+            
+            quat = numpy.zeros(shape=(self.numParticles(),4), dtype=numpy.float32)
+            for i in xrange(0,self.num_particles):
+                quat[i,0] = float(orientation[i][0])
+                quat[i,1] = float(orientation[i][1])
+                quat[i,2] = float(orientation[i][2])
+                quat[i,3] = float(orientation[i][3])
+            return quat
+
         if prop == 'type':
             #type_nodes = configuration.getElementsByTagName('type')
             #if len(type_nodes) == 1:
