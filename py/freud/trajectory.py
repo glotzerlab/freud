@@ -13,7 +13,8 @@ except ImportError:
 
 from _freud import Box;
 import _freud;
-from freud.utils import pos_reader
+#from freud.utils import pos_reader
+from freud.util import pos
 
 ## \package freud.trajectory
 #
@@ -687,24 +688,30 @@ class TrajectoryPOS(Trajectory):
             self.dynamic_props[prop] = {}
     
         # parse the POS file
-        self.pos_file = pos_reader.file(pos_fname);
-        self.pos_file.load();
+        # self.pos_file = pos_reader.file(pos_fname);
+        # self.pos_file.load();
+        self.pos_file = pos.file(pos_fname);
+        self.pos_file.grabBox();
         
         # Is there a place in the pos that specs the dims?
-        dim_test = len(self.pos_file.position_list[0][0])
+        # dim_test = len(self.pos_file.position_list[0][0])
+        dim_test = len(self.pos_file.box_positions[0][0])
         if dim_test == 2:
             self.ndim = 2;
         else:
             self.ndim = 3
         
         # Triclinic support will be needed here...
-        box_dims = self.pos_file.boxMatrix_list[0]
+        box_dims = self.pos_file.box_dims[0]
+        # I think this will barf if it isn't box_matrix
         lx = box_dims[0];
         ly = box_dims[4];
         lz = box_dims[8];
         self.box = Box(float(lx), float(ly), float(lz), self.ndim == 2);
         
-        self.num_particles = len(self.pos_file.position_list[0])
+        #Reader can handle changing num particles, but this doesn't
+        # self.num_particles = len(self.pos_file.n_box_points[0])
+        self.num_particles = self.pos_file.n_box_points.shape
         
         # Update the static properties
         if not 'position' in self.dynamic_props:
@@ -732,13 +739,13 @@ class TrajectoryPOS(Trajectory):
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
-        return len(self.pos_file.position_list);
+        return len(self.pos_file.box_positions);
     
     ## Sets the current frame
     # \param idx Index of the frame to seek to
     def setFrame(self, idx):
         # Does this offset the frame by 1?
-        if idx >=  len(self.pos_file.position_list):
+        if idx >=  len(self.pos_file.box_positions):
             raise RuntimeError("Invalid Frame Number")
         self.idx = idx
     
@@ -754,7 +761,7 @@ class TrajectoryPOS(Trajectory):
             
     def _update(self, prop, frame_number):
         if prop == 'position':
-            position = self.pos_file.position_list[frame_number]
+            position = self.pos_file.box_positions[frame_number]
             #if len(position) != 1:
             #    raise RuntimeError("position tag not found in xml file")
             #else:
@@ -778,7 +785,7 @@ class TrajectoryPOS(Trajectory):
             #        raise RuntimeError("wrong number of types found in xml file")
             #else:
             #    raise RuntimeError("type tag not found in xml file")
-            type_nodes = self.pos_file.definitions[frame_number]
+            type_nodes = self.pos_file.type_names[frame_number]
             type_names = []
             for key in type_nodes:
                 type_names.append(key)

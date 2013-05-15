@@ -229,7 +229,9 @@ class file:
 
     def grabBox(self):
         # We have a problem in which the box line is complex and shit and needs extra parsing
-        # Simple numpy array like for data will not cut it. 
+        # Simple numpy array like for data will not cut it.
+        # Need a test in case grabDefs already done...ugh more bools
+        self.grabDefs();
         self.n_box_points = numpy.zeros(self.nbox, dtype=numpy.int32)
         f = open(self.fname);
         for i in range(self.nbox):
@@ -252,18 +254,45 @@ class file:
         for i in self.n_box_dims:
             if i > n_box_dims:
                 n_box_dims = i
-        self.box = numpy.zeros(shape = (self.nbox, n_box_points, n_box_dims), dtype=numpy.float32);
+        self.box_positions = numpy.zeros(shape = (self.nbox, n_box_points, 3), dtype=numpy.float32);
+        self.box_orientations = numpy.zeros(shape = (self.nbox, n_box_points, 4), dtype=numpy.float32);
+        self.types = numpy.zeros(shape = (self.nbox, n_box_points, 1), dtype=numpy.float32);
+        # I don't know how we are supposed to preserve type...
         f = open(self.fname)
+        # Should this be nbox?
         for i in range(self.ndata):
             f.seek(self.def_tell[i])
             for j in range(self.n_box_points[i]):
                 # Near as I can tell, my def_tell works!
                 line = f.readline();
                 tmp_box = re.split('\s+', line);
-                # Need a super awesome function call here
-                self.boxParse(tmp_box)
-                # for k in range(self.n_box_dims[i]):
-                #     # Need the raw data here...
-                #     self.box[i][j][k] = tmp_box[k]
-    def boxParse(self, box_string):
-        print(box_string)
+                t, p, q = self.boxParse(tmp_box, i)
+                self.types[i][j][0] = t
+                for k in range(3):
+                    self.box_positions[i][j][k] = p[k]
+                for k in range(4):
+                    self.box_orientations[i][j][k] = q[k]
+    
+    def grabDefs(self):
+        self.n_types = numpy.zeros(self.nbox, dtype=numpy.int32)
+        f = open(self.fname);
+        self.types = []
+        frame_types = []
+        for i in range(self.nbox):
+            types = [];
+            f.seek(self.box_tell[i]);
+            position = self.box_tell[i]
+            while position < self.def_tell[i]:
+                line = f.readline();
+                position = f.tell();
+                tmp_def = re.split('\s+', line)[1:-1];
+                if not tmp_def[0] in types:
+                    types.append(tmp_def[0])
+            frame_types.append(types)
+            self.n_types[i] = len(types)
+        self.type_names = frame_types
+    def boxParse(self, box_string, frame):
+        t = self.type_names[frame].index(box_string[0])
+        p = numpy.array([box_string[2], box_string[3], box_string[4]], dtype = numpy.float32)
+        q = numpy.array([box_string[5], box_string[6], box_string[7], box_string[8]], dtype = numpy.float32)
+        return t, p, q
