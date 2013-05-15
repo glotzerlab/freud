@@ -21,6 +21,7 @@ class ComputeHexOrderParameter
     private:
         const trajectory::Box& m_box;
         const float m_rmax;
+        const float m_k;
         const locality::LinkCell& m_lc;
         const float3 *m_points;
         std::complex<float> *m_psi_array;
@@ -28,9 +29,10 @@ class ComputeHexOrderParameter
         ComputeHexOrderParameter(std::complex<float> *psi_array,
                                  const trajectory::Box& box,
                                  const float rmax,
+                                 const float k,
                                  const locality::LinkCell& lc,
                                  const float3 *points)
-            : m_box(box), m_rmax(rmax), m_lc(lc), m_points(points), m_psi_array(psi_array)
+            : m_box(box), m_rmax(rmax), m_k(k), m_lc(lc), m_points(points), m_psi_array(psi_array)
             {
             }
         
@@ -68,7 +70,7 @@ class ComputeHexOrderParameter
                             {
                             //compute psi for neighboring particle(only constructed for 2d)
                             float psi_ij = atan2f(delta.y, delta.x);
-                            m_psi_array[i] += exp(complex<float>(0,6*psi_ij));
+                            m_psi_array[i] += exp(complex<float>(0,m_k*psi_ij));
                             num_adjacent++;
                             }
                         }
@@ -93,7 +95,7 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
         }
     
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_lc, points));
+    parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_k, m_lc, points));
 
     // save the last computed number of particles
     m_Np = Np;
