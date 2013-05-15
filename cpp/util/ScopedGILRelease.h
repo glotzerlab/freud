@@ -1,4 +1,4 @@
-#include <python.h>
+#include <Python.h>
 
 #ifndef __SCOPED_GIL_RELEASE_H__
 #define __SCOPED_GIL_RELEASE_H__
