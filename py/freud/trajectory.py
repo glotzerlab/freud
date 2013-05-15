@@ -711,7 +711,7 @@ class TrajectoryPOS(Trajectory):
         
         #Reader can handle changing num particles, but this doesn't
         # self.num_particles = len(self.pos_file.n_box_points[0])
-        self.num_particles = self.pos_file.n_box_points.shape
+        self.num_particles = self.pos_file.n_box_points.shape[0]
         
         # Update the static properties
         if not 'position' in self.dynamic_props:
