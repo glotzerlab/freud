@@ -57,9 +57,6 @@ class ComputeHexOrderParameter
                     locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                         {
-                    /*for (unsigned int k = i; k < i+6; k++)
-                        {
-                        unsigned int j = k % (1024*1024);*/
                         //compute r between the two particles
                         float dx = float(ref.x - points[j].x);
                         float dy = float(ref.y - points[j].y);
