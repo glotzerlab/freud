@@ -80,6 +80,26 @@ bool complement::useCells()
     return false;
     }
 
+float2 complement::mat_rotate(float2 point, float angle)
+    {
+    float2 rot;
+    float mysin = sinf(angle);
+    float mycos = cosf(angle);
+    rot.x = mycos * point.x + -mysin * point.y;
+    rot.y = mysin * point.x + mycos * point.y;
+    return rot;
+    }
+    
+float2 complement::into_local(float2 ref_point, float2 point, float2 vert, float ref_angle, float angle)
+    {
+    float2 local;
+    // I think this may be backward
+    local = mat_rotate(mat_rotate(vert, -ref_angle), angle)
+    local.x = local.x + (ref_point.x - point.x)
+    local.y = local.y + (ref_point.y - point.y)
+    return local;
+    }
+
 void complement::compute(const float3 *ref_points,
                   unsigned int Nref,
                   const float3 *points,
@@ -193,6 +213,7 @@ void complement::computeWithCellList(const float3 *ref_points,
             locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
+                // I believe this is where I need to insert my code
                 // compute r between the two particles
                 float dx = float(ref.x - points[j].x);
                 float dy = float(ref.y - points[j].y);
@@ -238,26 +259,54 @@ void complement::computeWithCellList(const float3 *ref_points,
     }
 
 void complement::computePy(boost::python::numeric::array ref_points,
-                    boost::python::numeric::array points)
+                    boost::python::numeric::array ref_shape,
+                    boost::python::numeric::array ref_verts,
+                    boost::python::numeric::array points,
+                    boost::python::numeric::array shape,
+                    boost::python::numeric::array verts)
     {
     // validate input type and rank
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
+    num_util::check_type(ref_shape, PyArray_FLOAT);
+    num_util::check_rank(ref_shape, 2);
+    num_util::check_type(ref_verts, PyArray_FLOAT);
+    num_util::check_rank(ref_verts, 2);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
+    num_util::check_type(shape, PyArray_FLOAT);
+    num_util::check_rank(shape, 2);
+    num_util::check_type(verts, PyArray_FLOAT);
+    num_util::check_rank(verts, 2);
     
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
     
+    num_util::check_dim(shape, 1, 2);
+    unsigned int Ns = num_util::shape(shape)[0];
+    
+    num_util::check_dim(verts, 1, 2);
+    unsigned int Nv = num_util::shape(verts)[0];
+    
     num_util::check_dim(ref_points, 1, 3);
     unsigned int Nref = num_util::shape(ref_points)[0];
     
+    num_util::check_dim(ref_shape, 1, 3);
+    unsigned int Nref_s = num_util::shape(ref_shape)[0];
+    
+    num_util::check_dim(ref_verts, 1, 3);
+    unsigned int Nref_v = num_util::shape(ref_verts)[0];
+    
     // get the raw data pointers and compute the cell list
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    float2* ref_shape_raw = (float2*) num_util::data(ref_shape);
+    unsigned int* ref_verts_raw = (unsigned int*) num_util::data(ref_verts);
     float3* points_raw = (float3*) num_util::data(points);
+    float2* shape_raw = (float2*) num_util::data(shape);
+    unsigned int* verts_raw = (unsigned int*) num_util::data(verts);
 
-    compute(ref_points_raw, Nref, points_raw, Np);
+    compute(ref_points_raw, ref_shape_raw, ref_verts_raw, Nref, Nref_s, Nref_v, points_raw, shape_raw, verts_raw, Np, Ns, Nv);
     }
 
 void export_complement()
