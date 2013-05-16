@@ -10,9 +10,9 @@
 namespace freud { namespace viz {
 
 /*! \internal
-    \brief Helper function for linear to SRGBA conversion
+    \brief Helper function for linear to/from SRGBA conversion
 */
-void linearToSRGBA(float4 *cmap, unsigned int N);
+void linearToFromSRGBA(float4 *cmap, unsigned int N, float p);
 
 /*! \internal
     \brief Exports all classes in this file to python 

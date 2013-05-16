@@ -69,7 +69,7 @@ def sRGBAtoLinear(v):
     u = _unfold(ret);
     
     # apply the correction to the colors
-    u[:,0:3] = u[:,0:3]**_gamma;
+    _freud.linearToFromSRGBA(v, _gamma);
     return ret
 
 ## Convert linear colors to sRGBA 
@@ -103,7 +103,7 @@ def linearToSRGBA(u):
     # apply the correction to the colors
     # v[:,0:3] = v[:,0:3]**(1.0/_gamma);
     # call fast implementation in C
-    _freud.linearToSRGBA(v);
+    _freud.linearToFromSRGBA(v, 1.0/_gamma);
     
     return ret
 

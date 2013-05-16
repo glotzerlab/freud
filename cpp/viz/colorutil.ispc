@@ -8,7 +8,8 @@
 */
 export void viz_linearToSRGBA(uniform float cmap[],
                               uniform unsigned int start,
-                              uniform unsigned int end)
+                              uniform unsigned int end,
+                              uniform float p)
     {
     // cmap is a flattend Nx4 float array, expand the start and end indices out to their flattened values
     start = start * 4;
@@ -20,7 +21,7 @@ export void viz_linearToSRGBA(uniform float cmap[],
         // gamma correct RGB, but not A components
         if (i & 4 != 3)
             {
-            cmap[i] = pow(cmap[i], 1.0f/2.2f);
+            cmap[i] = pow(cmap[i], p);
             }
         }
     }

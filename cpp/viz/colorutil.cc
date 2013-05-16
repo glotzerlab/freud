@@ -16,11 +16,12 @@ using namespace tbb;
 namespace freud { namespace viz {
 
 /*! \internal
-    \brief Python wrapper for linearToSRGBA
+    \brief Python wrapper for linearToFromSRGBA
     
     \param cmap Input/Output colormap (Nx4 float32 array)
+    \param p Power to raise components by
 */
-void linearToSRGBAPy(boost::python::numeric::array cmap)
+void linearToFromSRGBAPy(boost::python::numeric::array cmap, float p)
     {
     //validate input type and rank
     num_util::check_type(cmap, PyArray_FLOAT);
@@ -36,43 +37,46 @@ void linearToSRGBAPy(boost::python::numeric::array cmap)
         // compute the colormap with the GIL released
         {
         util::ScopedGILRelease gil;
-        linearToSRGBA(cmap_raw, N);
+        linearToFromSRGBA(cmap_raw, N, p);
         }
     }
 
 //! \internal
 /*! \brief Helper class for parallel computation in linearToSRGBA
 */
-class ComputeLinearToSRGBA
+class ComputeLinearToFromSRGBA
     {
     private:
         float4 *m_cmap;
+        float m_p;
     public:
-        ComputeLinearToSRGBA(float4 *cmap)
-            : m_cmap(cmap)
+        ComputeLinearToFromSRGBA(float4 *cmap, float p)
+            : m_cmap(cmap), m_p(p)
             {
             }
         
         void operator()( const blocked_range<size_t>& r ) const
             {
-            ispc::viz_linearToSRGBA((float*)m_cmap, r.begin(), r.end());
+            ispc::viz_linearToSRGBA((float*)m_cmap, r.begin(), r.end(), m_p);
             }
     };
                 
 
 /*! \param cmap Input/Output colormap (Nx4 float32 array)
     \param N Number of entires in the map
+    \param p Power to raise components by
 */
-void linearToSRGBA(float4 *cmap,
-                   unsigned int N)
+void linearToFromSRGBA(float4 *cmap,
+                       unsigned int N,
+                       float p)
     {
     static affinity_partitioner ap;
-    parallel_for(blocked_range<size_t>(0,N,100), ComputeLinearToSRGBA(cmap), ap);
+    parallel_for(blocked_range<size_t>(0,N,100), ComputeLinearToFromSRGBA(cmap, p), ap);
     }
 
 void export_colorutil()
     {
-    def("linearToSRGBA", &linearToSRGBAPy);
+    def("linearToFromSRGBA", &linearToFromSRGBAPy);
     }
 
 }; }; // end namespace freud::viz
