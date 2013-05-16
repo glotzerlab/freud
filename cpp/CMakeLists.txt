@@ -7,6 +7,44 @@ target_link_libraries(${target} ${Boost_${UPPER_BOOST_PYTHON_COMPONENT}_LIBRARY}
 endmacro(setup_pymodule)
 #####################
 
+######################
+# Compile a list of ispc files
+# this is loosly based on FindCUDA.cmake
+macro(compile_ispc generated_files)
+# reset the output variable
+set(_compile_ispc_generated_files "")
+
+# Iterate over the macro arguments and create custom
+# commands for all the .ispc files.
+foreach(file ${ARGN})
+    get_filename_component( basename ${file} NAME )
+    set(generated_file_path ${CMAKE_CURRENT_BINARY_DIR})
+    set(generated_file_basename "${basename}")
+    set(generated_obj_file "${generated_file_path}/${generated_file_basename}.o")
+    set(generated_header_file "${generated_file_path}/${generated_file_basename}.h")
+
+    # Don't add CMAKE_CURRENT_SOURCE_DIR if the path is already an absolute path.
+    get_filename_component(file_path "${file}" PATH)
+    if(IS_ABSOLUTE "${file_path}")
+        set(source_file "${file}")
+    else()
+        set(source_file "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
+    endif()
+    
+    add_custom_command(OUTPUT ${generated_obj_file} ${generated_header_file}
+                       IMPLICIT_DEPENDS CXX
+                       DEPENDS ${source_file}
+                       COMMAND ${ISPC_EXECUTABLE} ${source_file} -o ${generated_obj_file} -h ${generated_header_file}
+                      )
+    
+    set_source_files_properties(${generated_obj_file} PROPERTIES GENERATED TRUE)
+    list(APPEND _compile_ispc_generated_files ${generated_obj_file})
+endforeach()
+
+# return the result
+set(${generated_files} ${_compile_ispc_generated_files})
+endmacro(compile_ispc)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/trajectory
                     ${CMAKE_CURRENT_SOURCE_DIR}/util
@@ -16,6 +54,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
+                    ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
 set(SOURCES trajectory/trajectory.cc
@@ -55,6 +94,7 @@ set(SOURCES trajectory/trajectory.cc
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} util/num_util.cc util/num_util.h module.cc)
+add_library(_freud MODULE ${ispc_generated_files} ${SOURCES} util/num_util.cc util/num_util.h module.cc)
 setup_pymodule(_freud)
 
 if (PYTHON_SITEDIR)

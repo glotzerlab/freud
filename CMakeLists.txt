@@ -5,6 +5,7 @@ project (FREUD)
 add_subdirectory(CMake)
 
 find_library(TBB_LIBRARY tbb)
+find_program(ISPC_EXECUTABLE ispc)
 
 include(FREUDCFlagsSetup)
 
