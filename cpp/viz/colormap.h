@@ -7,7 +7,7 @@
 #ifndef _COLORMAP_H__
 #define _COLORMAP_H__
 
-namespace freud { namespace colormap {
+namespace freud { namespace viz {
 
 /*! \internal
     \brief Helper function for HSV to RGB conversion
@@ -24,6 +24,6 @@ void hsv2RGBA(float4 *cmap,
 */
 void export_colormap();
     
-} } // end namespace freud::colormap
+} } // end namespace freud::viz
 
 #endif

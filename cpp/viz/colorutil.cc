@@ -12,7 +12,7 @@ using namespace std;
 using namespace boost::python;
 using namespace tbb;
 
-namespace freud { namespace colorutil {
+namespace freud { namespace viz {
 
 /*! \internal
     \brief Python wrapper for linearToSRGBA
@@ -81,4 +81,4 @@ void export_colorutil()
     def("linearToSRGBA", &linearToSRGBAPy);
     }
 
-}; }; // end namespace freud::colormap
+}; }; // end namespace freud::viz

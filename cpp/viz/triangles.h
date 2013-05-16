@@ -7,7 +7,7 @@
 #ifndef _TRIANGLES_H__
 #define _TRIANGLES_H__
 
-namespace freud { namespace triangles {
+namespace freud { namespace viz {
 
 /*! \internal
     \brief Helper function for triangles conversion
@@ -62,6 +62,6 @@ void triangle_rotate_mat(float2 *vert_array,
 */
 void export_triangles();
     
-} } // end namespace freud::colormap
+} } // end namespace freud::viz
 
 #endif

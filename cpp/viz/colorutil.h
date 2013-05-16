@@ -7,7 +7,7 @@
 #ifndef _COLORUTIL_H__
 #define _COLORUTIL_H__
 
-namespace freud { namespace colorutil {
+namespace freud { namespace viz {
 
 /*! \internal
     \brief Helper function for linear to SRGBA conversion
@@ -19,6 +19,6 @@ void linearToSRGBA(float4 *cmap, unsigned int N);
 */
 void export_colorutil();
     
-} } // end namespace freud::colorutil
+} } // end namespace freud::viz
 
 #endif

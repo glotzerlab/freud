@@ -11,7 +11,7 @@
 using namespace std;
 using namespace boost::python;
 
-namespace freud { namespace triangles {
+namespace freud { namespace viz {
 
 /*! \internal
     \quaternion multiplication function in c
@@ -399,4 +399,4 @@ void export_triangles()
     //def("quat_mult", &quat_multPy);
     }
 
-}; }; // end namespace freud::triangles
+}; }; // end namespace freud::viz

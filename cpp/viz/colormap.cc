@@ -10,7 +10,7 @@
 using namespace std;
 using namespace boost::python;
 
-namespace freud { namespace colormap {
+namespace freud { namespace viz {
 
 /*! \internal
     \brief Python wrapper for hue2RGBA
@@ -154,4 +154,4 @@ void export_colormap()
     def("hsv2RGBA", &hsv2RGBAPy);
     }
 
-}; }; // end namespace freud::colormap
+}; }; // end namespace freud::viz

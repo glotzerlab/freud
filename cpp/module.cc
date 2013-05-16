@@ -55,7 +55,7 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
-    colormap::export_colormap();
-    colorutil::export_colorutil();
-    triangles::export_triangles();
+    viz::export_colormap();
+    viz::export_colorutil();
+    viz::export_triangles();
     }
