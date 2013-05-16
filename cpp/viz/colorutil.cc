@@ -72,7 +72,8 @@ class ComputeLinearToSRGBA
 void linearToSRGBA(float4 *cmap,
                    unsigned int N)
     {
-    parallel_for(blocked_range<size_t>(0,N,100), ComputeLinearToSRGBA(cmap));
+    static affinity_partitioner ap;
+    parallel_for(blocked_range<size_t>(0,N,100), ComputeLinearToSRGBA(cmap), ap);
     }
 
 void export_colorutil()
