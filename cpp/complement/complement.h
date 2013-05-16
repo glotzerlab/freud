@@ -63,7 +63,7 @@ class complement
                             float ref_angle,
                             float angle);
 
-        float complement::cavity_depth(float2 t[]);
+        float cavity_depth(float2 t[]);
 
         //! Compute the complement function
         void compute(const float3 *ref_points,
@@ -169,6 +169,7 @@ class complement
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
+        unsigned int m_nmatch;             //!< Number of matches
         
         boost::shared_array<float> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array

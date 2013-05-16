@@ -242,7 +242,7 @@ void complement::computeWithoutCellList(const float3 *ref_points,
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
-    unsigned int raw_cnt = 0;
+    //unsigned int raw_cnt = 0;
     #pragma omp parallel
     {
 
@@ -282,7 +282,8 @@ void complement::computeWithoutCellList(const float3 *ref_points,
                     
                     if (test == true)
                         {
-                        raw_cnt++;
+                        //raw_cnt++;
+                        m_nmatch++;
                         // Calc the relative rdf
                         float dx = float(ref_points[i].x - points[j].x);
                         float dy = float(ref_points[i].y - points[j].y);
@@ -358,7 +359,7 @@ void complement::computeWithCellList(const float3 *ref_points,
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
-    unsigned int raw_cnt = 0;
+    //unsigned int raw_cnt = 0;
     #pragma omp parallel
     {
     
@@ -409,7 +410,8 @@ void complement::computeWithCellList(const float3 *ref_points,
                         if (test == true)
                             {
                         
-                            raw_cnt++;
+                            //raw_cnt++;
+                            m_nmatch++;
                             // Calc the relative rdf
                             float dx = float(ref_points[i].x - points[j].x);
                             float dy = float(ref_points[i].y - points[j].y);
@@ -533,6 +535,7 @@ void export_complement()
         .def("getRDF", &complement::getRDFPy)
         .def("getR", &complement::getRPy)
         .def("getNr", &complement::getNrPy)
+        //.def("getNmatch", &complement::getNmatchPy)
         ;
     }
 
