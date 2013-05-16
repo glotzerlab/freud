@@ -47,6 +47,8 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.h
             viz/colormap.h
             viz/colormap.cc
+            viz/colorutil.h
+            viz/colorutil.cc
             viz/triangles.h
             viz/triangles.cc
             )

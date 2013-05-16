@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import numpy
 import math
+import _freud;
 
 ## \package freud.viz.colorutil
 #
@@ -100,7 +101,10 @@ def linearToSRGBA(u):
     v = _unfold(ret);
     
     # apply the correction to the colors
-    v[:,0:3] = v[:,0:3]**(1.0/_gamma);
+    # v[:,0:3] = v[:,0:3]**(1.0/_gamma);
+    # call fast implementation in C
+    _freud.linearToSRGBA(v);
+    
     return ret
 
 ## Convert sRGBA to ARGB32
