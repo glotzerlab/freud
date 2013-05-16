@@ -4,6 +4,7 @@
 #include "num_util.h"
 #include "colorutil.h"
 #include "ScopedGILRelease.h"
+#include "colorutil.ispc.h"
 
 #include <iostream>
 #include <tbb/tbb.h>
@@ -54,14 +55,7 @@ class ComputeLinearToSRGBA
         
         void operator()( const blocked_range<size_t>& r ) const
             {
-            float4 *cmap = m_cmap;
-            
-            for(size_t i=r.begin(); i!=r.end(); ++i)
-                {
-                cmap[i].x = powf(cmap[i].x, 1.0f/2.2);
-                cmap[i].y = powf(cmap[i].y, 1.0f/2.2);
-                cmap[i].z = powf(cmap[i].z, 1.0f/2.2);
-                }
+            ispc::viz_linearToSRGBA((float*)m_cmap, r.begin(), r.end());
             }
     };
                 
