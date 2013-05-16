@@ -63,6 +63,8 @@ class complement
                             float ref_angle,
                             float angle);
 
+        float complement::cavity_depth(float2 t[]);
+
         //! Compute the complement function
         void compute(const float3 *ref_points,
                   const float *ref_angles,

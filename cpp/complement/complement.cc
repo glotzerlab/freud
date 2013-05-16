@@ -188,6 +188,20 @@ float2 complement::into_local(float3 ref_point,
     return local;
     }
 
+float complement::cavity_depth(float2 t[])
+    {
+    float m = (t[2].y - t[0].y)/(t[2].x - t[0].x);
+    float m_inv = (t[2].x - t[0].x)/(t[2].y - t[0].y);
+    float2 intersect;
+    intersect.x = (t[1].y - t[2].y + (t[1].x * m_inv) + (t[2].x * m)) * (1/(m + m_inv));
+    intersect.y = m * (intersect.x - t[0].x) + t[0].y;
+    float2 d_vec;
+    d_vec.x = intersect.x - t[1].x;
+    d_vec.y = intersect.y - t[1].y;
+    float mag = intersect.x * intersect.x + intersect.y * intersect.y;
+    return sqrt(mag);
+    }
+
 void complement::compute(const float3 *ref_points,
                   const float *ref_angles,
                   const float2 *ref_shape,
@@ -257,6 +271,8 @@ void complement::computeWithoutCellList(const float3 *ref_points,
                     cavity[1] = shape[cavity_index];
                     cavity[2] = shape[cavity_index + 1];
                     
+                    float depth = cavity_depth(cavity);
+                    
                     for (unsigned int m = 0; m < 3; m++)
                         {
                         cavity[m] = into_local(ref_points[i], points[j], cavity[m], ref_angles[i], angles[j]);
@@ -282,7 +298,7 @@ void complement::computeWithoutCellList(const float3 *ref_points,
                             float r = sqrtf(rsq);
 
                             // bin that r
-                            float binr = r * dr_inv;
+                            float binr = r * dr_inv / depth;
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
                                 unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
@@ -381,6 +397,8 @@ void complement::computeWithCellList(const float3 *ref_points,
                         cavity[1] = shape[cavity_index];
                         cavity[2] = shape[cavity_index + 1];
                         
+                        float depth = cavity_depth(cavity);
+                        
                         for (unsigned int m = 0; m < 3; m++)
                             {
                             cavity[m] = into_local(ref_points[i], points[j], cavity[m], ref_angles[i], angles[j]);
@@ -405,7 +423,7 @@ void complement::computeWithCellList(const float3 *ref_points,
                                 float r = sqrtf(rsq);
                 
                                 // bin that r
-                                float binr = r * dr_inv;
+                                float binr = r * dr_inv / depth;
                                 // fast float to int conversion with truncation
                                 #ifdef __SSE2__
                                     unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
