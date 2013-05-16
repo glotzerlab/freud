@@ -80,6 +80,89 @@ bool complement::useCells()
     return false;
     }
 
+bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
+    {
+    float3 BA;
+    float3 rA;
+    float3 pA;
+    
+    BA.x = B.x - A.x;
+    BA.y = B.y - A.y;
+    BA.z = B.z - A.z;
+    
+    rA.x = r.x - A.x;
+    rA.y = r.y - A.y;
+    rA.z = r.z - A.z;
+    
+    pA.x = p.x - A.x;
+    pA.y = p.y - A.y;
+    pA.z = p.z - A.z;
+    
+    float3 ref = cross(BA, rA);
+    float3 test = cross(BA, pA);
+    if (dot(ref, test) >= 0)
+        {
+        return true;
+        }
+    else
+        {
+        return false;
+        }
+    }
+
+bool complement::isInside(float2 t[], float2 p)
+    {
+    float3 A;
+    float3 B;
+    float3 C;
+    float3 P;
+    
+    A.x = t[0].x;
+    A.y = t[0].y;
+    A.z = 0;
+    
+    B.x = t[1].x;
+    B.y = t[1].y;
+    B.z = 0;
+    
+    C.x = t[2].x;
+    C.y = t[2].y;
+    C.z = 0;
+    
+    P.x = p.x;
+    P.y = p.y;
+    P.z = 0;
+    
+    bool BC = sameSide(B, C, A, P);
+    bool AC = sameSide(A, C, B, P);
+    bool AB = sameSide(A, B, C, P);
+    
+    if (AB && BC && AC)
+        {
+        return true;
+        }
+    else
+        {
+        return false;
+        }
+    
+    }
+
+float3 complement::cross(float3 v1, float3 v2)
+    {
+    float3 v;
+    v.x = (v1.y * v2.z) - (v2.y * v1.z);
+    v.y = (v2.x * v1.z) - (v1.x * v2.z);
+    v.z = (v1.x * v2.y) - (v2.x * v1.y);
+    return v;
+    }
+    
+float complement::dot(float3 v1, float3 v2)
+    {
+    float v;
+    return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+    }
+
 float2 complement::mat_rotate(float2 point, float angle)
     {
     float2 rot;
@@ -90,37 +173,62 @@ float2 complement::mat_rotate(float2 point, float angle)
     return rot;
     }
     
-float2 complement::into_local(float2 ref_point, float2 point, float2 vert, float ref_angle, float angle)
+float2 complement::into_local(float3 ref_point,
+                            float3 point,
+                            float2 vert,
+                            float ref_angle,
+                            float angle)
     {
     float2 local;
     // I think this may be backward
-    local = mat_rotate(mat_rotate(vert, -ref_angle), angle)
-    local.x = local.x + (ref_point.x - point.x)
-    local.y = local.y + (ref_point.y - point.y)
+    // Currently will only do 2 dimensions
+    local = mat_rotate(mat_rotate(vert, -ref_angle), angle);
+    local.x = local.x + (ref_point.x - point.x);
+    local.y = local.y + (ref_point.y - point.y);
     return local;
     }
 
 void complement::compute(const float3 *ref_points,
+                  const float *ref_angles,
+                  const float2 *ref_shape,
+                  unsigned int *ref_verts,
                   unsigned int Nref,
+                  unsigned int Nref_s,
+                  unsigned int Nref_v,
                   const float3 *points,
-                  unsigned int Np)
+                  const float *angles,
+                  const float2 *shape,
+                  unsigned int *verts,
+                  unsigned int Np,
+                  unsigned int Ns,
+                  unsigned int Nv)
     {
     if (useCells())
-    computeWithCellList(ref_points, Nref, points, Np);
+    computeWithCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv);
     else
-    computeWithoutCellList(ref_points, Nref, points, Np);
+    computeWithoutCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv);
     }
 
 void complement::computeWithoutCellList(const float3 *ref_points,
-                 unsigned int Nref,
-                 const float3 *points,
-                 unsigned int Np)
+                  const float *ref_angles,
+                  const float2 *ref_shape,
+                  unsigned int *ref_verts,
+                  unsigned int Nref,
+                  unsigned int Nref_s,
+                  unsigned int Nref_v,
+                  const float3 *points,
+                  const float *angles,
+                  const float2 *shape,
+                  unsigned int *verts,
+                  unsigned int Np,
+                  unsigned int Ns,
+                  unsigned int Nv)
     {
     // zero the bin counts for totaling
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
-
+    unsigned int raw_cnt = 0;
     #pragma omp parallel
     {
 
@@ -132,33 +240,66 @@ void complement::computeWithoutCellList(const float3 *ref_points,
         for (unsigned int j = 0; j < Np; j++)
             {
             // compute r between the two particles
-        float dx = float(ref_points[i].x - points[j].x);
-        float dy = float(ref_points[i].y - points[j].y);
-        float dz = float(ref_points[i].z - points[j].z);
+            // New code here
+            
+            for (unsigned int k = 0; k < Nref_v; k++)
+                {
+                unsigned int tooth_index = ref_verts[k];
+                float2 tooth = ref_shape[tooth_index];
+                // I think this will test against all cavities, not just the one
+                // If each were on k then it would be different
+                for (unsigned int l = 0; l < Nv; l++)
+                    {
+                    unsigned int cavity_index = verts[l];
+                    float2 cavity[3];
+                    
+                    cavity[0] = shape[cavity_index - 1];
+                    cavity[1] = shape[cavity_index];
+                    cavity[2] = shape[cavity_index + 1];
+                    
+                    for (unsigned int m = 0; m < 3; m++)
+                        {
+                        cavity[m] = into_local(ref_points[i], points[j], cavity[m], ref_angles[i], angles[j]);
+                        }
+                    
+                    bool test = isInside(cavity, tooth);
+                    
+                    if (test == true)
+                        {
+                        raw_cnt++;
+                        // Calc the relative rdf
+                        float dx = float(ref_points[i].x - points[j].x);
+                        float dy = float(ref_points[i].y - points[j].y);
+                        float dz = float(ref_points[i].z - points[j].z);
+                        
+                        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        
+                        // Need to scale by cavity depth
+                        
+                        float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                        if (rsq < rmaxsq)
+                            {
+                            float r = sqrtf(rsq);
 
-        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-
-        float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-        if (rsq < rmaxsq)
-        {
-        float r = sqrtf(rsq);
-
-        // bin that r
-        float binr = r * dr_inv;
-        // fast float to int conversion with truncation
-#ifdef __SSE2__
-        unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-#else
-        unsigned int bin = (unsigned int)(binr);
-#endif
-        #pragma omp atomic
-        m_bin_counts[bin]++;
+                            // bin that r
+                            float binr = r * dr_inv;
+                            // fast float to int conversion with truncation
+                            #ifdef __SSE2__
+                                unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+                            #else
+                                unsigned int bin = (unsigned int)(binr);
+                            #endif
+                            #pragma omp atomic
+                                m_bin_counts[bin]++;
+                            }
+                        }
+                    }
                 }
             }
         } // done looping over reference points
     } // End of parallel section
 
-    // now compute the complement
+    // now compute the "rdf"
     float ndens = float(Np) / m_box.getVolume();
     m_rdf_array[0] = 0.0f;
     m_N_r_array[0] = 0.0f;
@@ -175,9 +316,19 @@ void complement::computeWithoutCellList(const float3 *ref_points,
     }
 
 void complement::computeWithCellList(const float3 *ref_points,
+                  const float *ref_angles,
+                  const float2 *ref_shape,
+                  unsigned int *ref_verts,
                   unsigned int Nref,
+                  unsigned int Nref_s,
+                  unsigned int Nref_v,
                   const float3 *points,
-                  unsigned int Np)
+                  const float *angles,
+                  const float2 *shape,
+                  unsigned int *verts,
+                  unsigned int Np,
+                  unsigned int Ns,
+                  unsigned int Nv)
     {
     assert(ref_points);
     assert(points);
@@ -191,6 +342,7 @@ void complement::computeWithCellList(const float3 *ref_points,
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
+    unsigned int raw_cnt = 0;
     #pragma omp parallel
     {
     
@@ -215,27 +367,59 @@ void complement::computeWithCellList(const float3 *ref_points,
                 {
                 // I believe this is where I need to insert my code
                 // compute r between the two particles
-                float dx = float(ref.x - points[j].x);
-                float dy = float(ref.y - points[j].y);
-                float dz = float(ref.z - points[j].z);
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-
-                if (rsq < rmaxsq)
+                for (unsigned int k = 0; k < Nref_v; k++)
                     {
-                    float r = sqrtf(rsq);
+                    unsigned int tooth_index = ref_verts[k];
+                    float2 tooth = ref_shape[tooth_index];
+                    
+                    for (unsigned int l = 0; l < Nv; l++)
+                        {
+                        unsigned int cavity_index = verts[l];
+                        float2 cavity [3];
+                    
+                        cavity[0] = shape[cavity_index - 1];
+                        cavity[1] = shape[cavity_index];
+                        cavity[2] = shape[cavity_index + 1];
+                        
+                        for (unsigned int m = 0; m < 3; m++)
+                            {
+                            cavity[m] = into_local(ref_points[i], points[j], cavity[m], ref_angles[i], angles[j]);
+                            }
+                        
+                        bool test = isInside(cavity, tooth);
+                        
+                        if (test == true)
+                            {
+                        
+                            raw_cnt++;
+                            // Calc the relative rdf
+                            float dx = float(ref_points[i].x - points[j].x);
+                            float dy = float(ref_points[i].y - points[j].y);
+                            float dz = float(ref_points[i].z - points[j].z);
+                        
+                            float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                            float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                        
+                            if (rsq < rmaxsq)
+                                {
+                                float r = sqrtf(rsq);
                 
-                    // bin that r
-                    float binr = r * dr_inv;
-                    // fast float to int conversion with truncation
-#ifdef __SSE2__
-                    unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-#else
-                    unsigned int bin = (unsigned int)(binr);
-#endif
-                    #pragma omp atomic
-                    m_bin_counts[bin]++;
+                                // bin that r
+                                float binr = r * dr_inv;
+                                // fast float to int conversion with truncation
+                                #ifdef __SSE2__
+                                    unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+                                #else
+                                    unsigned int bin = (unsigned int)(binr);
+                                #endif
+                                #pragma omp atomic
+                                    m_bin_counts[bin]++;
+                                }
+                        
+                            }
+                        
+                        }
+                    
                     }
                 }
             }
@@ -254,26 +438,34 @@ void complement::computeWithCellList(const float3 *ref_points,
         m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
         
         if (bin+1 < m_nbins)
+            {
             m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+            }
         }
     }
 
 void complement::computePy(boost::python::numeric::array ref_points,
+                    boost::python::numeric::array ref_angles,
                     boost::python::numeric::array ref_shape,
                     boost::python::numeric::array ref_verts,
                     boost::python::numeric::array points,
+                    boost::python::numeric::array angles,
                     boost::python::numeric::array shape,
                     boost::python::numeric::array verts)
     {
     // validate input type and rank
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
+    num_util::check_type(ref_angles, PyArray_FLOAT);
+    num_util::check_rank(ref_angles, 2);
     num_util::check_type(ref_shape, PyArray_FLOAT);
     num_util::check_rank(ref_shape, 2);
     num_util::check_type(ref_verts, PyArray_FLOAT);
     num_util::check_rank(ref_verts, 2);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
+    num_util::check_type(angles, PyArray_FLOAT);
+    num_util::check_rank(angles, 2);
     num_util::check_type(shape, PyArray_FLOAT);
     num_util::check_rank(shape, 2);
     num_util::check_type(verts, PyArray_FLOAT);
@@ -282,6 +474,8 @@ void complement::computePy(boost::python::numeric::array ref_points,
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
+    
+    num_util::check_dim(angles, 1, 1);
     
     num_util::check_dim(shape, 1, 2);
     unsigned int Ns = num_util::shape(shape)[0];
@@ -292,6 +486,8 @@ void complement::computePy(boost::python::numeric::array ref_points,
     num_util::check_dim(ref_points, 1, 3);
     unsigned int Nref = num_util::shape(ref_points)[0];
     
+    num_util::check_dim(ref_angles, 1, 1);
+    
     num_util::check_dim(ref_shape, 1, 3);
     unsigned int Nref_s = num_util::shape(ref_shape)[0];
     
@@ -300,13 +496,15 @@ void complement::computePy(boost::python::numeric::array ref_points,
     
     // get the raw data pointers and compute the cell list
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    float* ref_angles_raw = (float*) num_util::data(ref_angles);
     float2* ref_shape_raw = (float2*) num_util::data(ref_shape);
     unsigned int* ref_verts_raw = (unsigned int*) num_util::data(ref_verts);
     float3* points_raw = (float3*) num_util::data(points);
+    float* angles_raw = (float*) num_util::data(angles);
     float2* shape_raw = (float2*) num_util::data(shape);
     unsigned int* verts_raw = (unsigned int*) num_util::data(verts);
 
-    compute(ref_points_raw, ref_shape_raw, ref_verts_raw, Nref, Nref_s, Nref_v, points_raw, shape_raw, verts_raw, Np, Ns, Nv);
+    compute(ref_points_raw, ref_angles_raw, ref_shape_raw, ref_verts_raw, Nref, Nref_s, Nref_v, points_raw, angles_raw, shape_raw, verts_raw, Np, Ns, Nv);
     }
 
 void export_complement()

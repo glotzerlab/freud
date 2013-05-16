@@ -39,27 +39,89 @@ class complement
         //! Check if a cell list should be used or not
         bool useCells();
 
-        //! Compute the RDF
+        // Some of these should be made private...
+
+        //! Check if a point is on the same side of a line as a reference point
+        bool sameSide(float3 A, float3 B, float3 r, float3 p);
+
+        //! Check if point p is inside triangle t
+        bool isInside(float2 *t, float2 p);
+        
+        //! Take the cross product of two float3 vectors
+        float3 cross(float3 v1, float3 v2);
+        
+        //! Take the dot product of two float3 vectors
+        float dot(float3 v1, float3 v2);
+        
+        //! Rotate a float2 point by angle angle
+        float2 mat_rotate(float2 point, float angle);
+        
+        // Take a vertex about point point and move into the local coords of the ref point
+        float2 into_local(float3 ref_point,
+                            float3 point,
+                            float2 vert,
+                            float ref_angle,
+                            float angle);
+
+        //! Compute the complement function
         void compute(const float3 *ref_points,
-                     unsigned int Nref,
-                     const float3 *points,
-                     unsigned int Np);
+                  const float *ref_angles,
+                  const float2 *ref_shape,
+                  unsigned int *ref_verts,
+                  unsigned int Nref,
+                  unsigned int Nref_s,
+                  unsigned int Nref_v,
+                  const float3 *points,
+                  const float *angles,
+                  const float2 *shape,
+                  unsigned int *verts,
+                  unsigned int Np,
+                  unsigned int Ns,
+                  unsigned int Nv);
         
         //! Compute the RDF
     void computeWithoutCellList(const float3 *ref_points,
-                    unsigned int Nref,
-                    const float3 *points,
-                    unsigned int Np);
+                  const float *ref_angles,
+                  const float2 *ref_shape,
+                  unsigned int *ref_verts,
+                  unsigned int Nref,
+                  unsigned int Nref_s,
+                  unsigned int Nref_v,
+                  const float3 *points,
+                  const float *angles,
+                  const float2 *shape,
+                  unsigned int *verts,
+                  unsigned int Np,
+                  unsigned int Ns,
+                  unsigned int Nv);
 
     //! Compute the RDF
     void computeWithCellList(const float3 *ref_points,
-                 unsigned int Nref,
-                 const float3 *points,
-                 unsigned int Np);
+                  const float *ref_angles,
+                  const float2 *ref_shape,
+                  unsigned int *ref_verts,
+                  unsigned int Nref,
+                  unsigned int Nref_s,
+                  unsigned int Nref_v,
+                  const float3 *points,
+                  const float *angles,
+                  const float2 *shape,
+                  unsigned int *verts,
+                  unsigned int Np,
+                  unsigned int Ns,
+                  unsigned int Nv);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array ref_points,
-                       boost::python::numeric::array points);
+                    boost::python::numeric::array ref_angles,
+                    boost::python::numeric::array ref_shape,
+                    boost::python::numeric::array ref_verts,
+                    boost::python::numeric::array points,
+                    boost::python::numeric::array angles,
+                    boost::python::numeric::array shape,
+                    boost::python::numeric::array verts);
+
+        //These names need changing...
                        
         //! Get a reference to the last computed rdf
         boost::shared_array<float> getRDF()
