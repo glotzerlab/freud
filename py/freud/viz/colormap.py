@@ -97,4 +97,4 @@ def hsv(theta, s=1.0, v=1.0, alpha=1.0):
     # compute the colormap
     _freud.hsv2RGBA(cmap, w_u, s_array_u, v_array_u, alpha);
     
-    return colorutil.linearToSRGBA(cmap);
+    return cmap;
