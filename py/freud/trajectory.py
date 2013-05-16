@@ -703,10 +703,16 @@ class TrajectoryPOS(Trajectory):
         
         # Triclinic support will be needed here...
         box_dims = self.pos_file.box_dims[0]
-        # I think this will barf if it isn't box_matrix
-        lx = box_dims[0];
-        ly = box_dims[4];
-        lz = box_dims[8];
+        # Changed to support box and boxmatrix...
+        # Could be handled in another way
+        if len(box_dims) == 3:
+            lx = box_dims[0];
+            ly = box_dims[1];
+            lz = box_dims[2];
+        else:
+            lx = box_dims[0];
+            ly = box_dims[4];
+            lz = box_dims[8];
         self.box = Box(float(lx), float(ly), float(lz), self.ndim == 2);
         
         #Reader can handle changing num particles, but this doesn't

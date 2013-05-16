@@ -227,6 +227,7 @@ class file:
                 for k in range(self.n_data_dims[i]):
                     # Need the raw data here...
                     self.data[i][j][k] = tmp_data[k]
+        self.isData = True
 
     def grabBox(self):
         # We have a problem in which the box line is complex and shit and needs extra parsing
@@ -272,7 +273,8 @@ class file:
                     self.box_positions[i][j][k] = p[k]
                 for k in range(4):
                     self.box_orientations[i][j][k] = q[k]
-    
+        self.isBox = True
+
     def grabDefs(self):
         self.n_types = numpy.zeros(self.nbox, dtype=numpy.int32)
         f = open(self.fname);
@@ -291,9 +293,19 @@ class file:
             frame_types.append(types)
             self.n_types[i] = len(types)
         self.type_names = frame_types
+        self.isDefs = True
     def boxParse(self, box_string, frame):
-        t = self.type_names[frame].index(box_string[0])
-        # Changing in order to handle string at end for now. Will make intelligent later
-        p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
-        q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
+        if box_string[0] in self.type_names[i]:
+            t = self.type_names[frame].index(box_string[0])
+        # Assuming that color is either in the second or last place:
+        test_color = box_string[1]
+        # Hopefully this works
+        try:
+            test_color = float(test_color)
+        except:
+            p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
+            q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
+        else:
+            p = numpy.array([box_string[2], box_string[3], box_string[4]], dtype = numpy.float32)
+            q = numpy.array([box_string[5], box_string[6], box_string[7], box_string[8]], dtype = numpy.float32)
         return t, p, q
