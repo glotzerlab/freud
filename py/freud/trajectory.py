@@ -427,7 +427,7 @@ class TrajectoryXML(Trajectory):
             xyz = data_text.split()
             
             data = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
-            for i in xrange(0,self.num_particles):
+            for i in range(0,self.num_particles):
                 data[i,0] = float(xyz[3*i])
                 data[i,1] = float(xyz[3*i+1])
                 data[i,2] = float(xyz[3*i+2])
@@ -444,7 +444,7 @@ class TrajectoryXML(Trajectory):
             xyz = data_text.split()
             
             data = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.int)
-            for i in xrange(0,self.num_particles):
+            for i in range(0,self.num_particles):
                 data[i,0] = int(xyz[3*i])
                 data[i,1] = int(xyz[3*i+1])
                 data[i,2] = int(xyz[3*i+2])
@@ -489,7 +489,7 @@ class TrajectoryXML(Trajectory):
             quat = data_text.split()
             
             data = numpy.zeros(shape=(self.numParticles(),4), dtype=numpy.float32)
-            for i in xrange(0,self.num_particles):
+            for i in range(0,self.num_particles):
                 for j in range(4):
                     data[i,j] = float(quat[4*i+j])
             return data
@@ -505,7 +505,7 @@ class TrajectoryXML(Trajectory):
             quat = data_text.split()
             
             data = numpy.zeros(shape=(self.numParticles(),6), dtype=numpy.int)
-            for i in xrange(0,self.num_particles):
+            for i in range(0,self.num_particles):
                 for j in range(6):
                     data[i,j] = int(quat[6*i+j])
             return data
@@ -579,7 +579,7 @@ class TrajectoryXMLDCD(Trajectory):
         self.num_particles = len(xyz)/3;
         if dcd_fname is None:
             pos = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32);
-            for i in xrange(0,self.num_particles):
+            for i in range(0,self.num_particles):
                 pos[i,0] = float(xyz[3*i]);
                 pos[i,1] = float(xyz[3*i+1]);
                 pos[i,2] = float(xyz[3*i+2]);         
@@ -741,6 +741,7 @@ class TrajectoryPOS(Trajectory):
             lx = box_dims[0];
             ly = box_dims[4];
             lz = box_dims[8];
+        #print("lx = {0} ly = {1} lz = {2}".format(*box_dims))
         self.box = Box(float(lx), float(ly), float(lz), self.ndim == 2);
         
         #Reader can handle changing num particles, but this doesn't
@@ -806,7 +807,7 @@ class TrajectoryPOS(Trajectory):
             #xyz = position_text.split()
             
             pos = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
-            for i in xrange(0,self.num_particles):
+            for i in range(0,self.num_particles):
                 pos[i,0] = float(position[i][0])
                 pos[i,1] = float(position[i][1])
                 pos[i,2] = float(position[i][2])
@@ -822,7 +823,7 @@ class TrajectoryPOS(Trajectory):
             #xyz = position_text.split()
             
             quat = numpy.zeros(shape=(self.numParticles(),4), dtype=numpy.float32)
-            for i in xrange(0,self.num_particles):
+            for i in range(0,self.num_particles):
                 quat[i,0] = float(orientation[i][0])
                 quat[i,1] = float(orientation[i][1])
                 quat[i,2] = float(orientation[i][2])
@@ -910,7 +911,7 @@ class TrajectoryPOS(Trajectory):
         #            raise RuntimeError("wrong number of velocities found in xml file")
             
         #        velocity_array = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
-        #        for i in xrange(0,self.num_particles):
+        #        for i in range(0,self.num_particles):
         #            velocity_array[i,0] = float(xyz[3*i])
         #            velocity_array[i,1] = float(xyz[3*i+1])
         #            velocity_array[i,2] = float(xyz[3*i+2])

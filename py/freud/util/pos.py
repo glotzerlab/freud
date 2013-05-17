@@ -51,7 +51,7 @@ class file:
         if not self.ndata_frames == self.nbox_frames:
             # This doesn't do anything as some pos files will not have both
             print("not all frames have matching data and box")
-            print("total of {0} data and {1} box frame detected")
+            print("total of {0} data and {1} box frame detected".format(ndata_frames, nbox_frames)
 
         print("initial read complete")
         print("ndata = {0} nbox = {1}".format(self.ndata_frames, self.nbox_frames))
@@ -138,9 +138,9 @@ class file:
         line = f.readline();
         while line:
             if re.match('^box', line):
-                box_dims = re.split('\s+', line)[1:-1];
-                n_box_dims.append(len(box_dims));
-                box_dims.append(box_dims);
+                box_line = re.split('\s+', line)[1:-1];
+                n_box_dims.append(len(box_line));
+                box_dims.append(box_line);
                 box_tell.append(f.tell());
                 nbox += 1;
                 def_count = 0;
@@ -295,17 +295,29 @@ class file:
         self.type_names = frame_types
         self.isDefs = True
     def boxParse(self, box_string, frame):
-        if box_string[0] in self.type_names[i]:
+        if box_string[0] in self.type_names[frame]:
             t = self.type_names[frame].index(box_string[0])
-        # Assuming that color is either in the second or last place:
-        test_color = box_string[1]
-        # Hopefully this works
-        try:
-            test_color = float(test_color)
-        except:
+        
+        # Check for empty space at the end of the string
+        while box_string[-1] == '':
+            box_string.pop(-1)
+        
+        # This is working for my files...not sure if it will hold up for others
+        # Check if there is a color in at all because there needs to be def and 7 nums:
+        if len(box_string) == 8:
             p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
             q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
         else:
-            p = numpy.array([box_string[2], box_string[3], box_string[4]], dtype = numpy.float32)
-            q = numpy.array([box_string[5], box_string[6], box_string[7], box_string[8]], dtype = numpy.float32)
+        
+            # Assuming that color is either in the second or last place:
+            test_color = box_string[1]
+            # Hopefully this works
+            try:
+                test_color = float(test_color)
+            except:
+                p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
+                q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
+            else:
+                p = numpy.array([box_string[2], box_string[3], box_string[4]], dtype = numpy.float32)
+                q = numpy.array([box_string[5], box_string[6], box_string[7], box_string[8]], dtype = numpy.float32)
         return t, p, q
