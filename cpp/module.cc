@@ -12,6 +12,7 @@
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
+#include "tbb_config.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -58,4 +59,5 @@ BOOST_PYTHON_MODULE(_freud)
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();
+    parallel::export_tbb_config();
     }

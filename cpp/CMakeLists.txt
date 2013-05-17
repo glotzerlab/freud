@@ -54,6 +54,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
+                    ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
@@ -90,6 +91,8 @@ set(SOURCES trajectory/trajectory.cc
             viz/colorutil.cc
             viz/triangles.h
             viz/triangles.cc
+            parallel/tbb_config.h
+            parallel/tbb_config.cc
             )
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 
