@@ -195,9 +195,6 @@ class RepeatedPolygons(Triangles):
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
     def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1):   
-        
-        start = time.time()
-        
         # -----------------------------------------------------------------
         # set up positions
         # convert to a numpy array
@@ -279,10 +276,8 @@ class RepeatedPolygons(Triangles):
         positions_array = self.positions
         angles_array = self.angles
         poly_color_array = self.colors
-        print(time.time()-start)
-        start = time.time()
+        
         _freud.triangle_rotate_mat(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
-        print(time.time()-start)
         # -----------------------------------------------------------------
         # set up outline
         Triangles.__init__(self, vert_array, colors = color_array);
