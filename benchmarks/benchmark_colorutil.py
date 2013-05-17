@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import division
 
-from freud import viz
+from freud import viz, parallel
 from benchmark import benchmark
 import numpy
 
@@ -23,6 +23,8 @@ if __name__ == '__main__':
     print('linearToSRGBA');
     b = benchmark_linearToSRGBA();
     b.run_size_scaling_benchmark([100, 1000, 10000, 100000, 1000000], number=10000);
+    print();
+    b.run_thread_scaling_benchmark([100, 1000, 10000, 100000, 1000000], number=10000);
     
     #print('\n profiling');
     #b.run_profile(100000);
@@ -32,6 +34,8 @@ if __name__ == '__main__':
     print('sRGBAtoLinear');
     b = benchmark_sRGBAtoLinear();
     b.run_size_scaling_benchmark([100, 1000, 10000, 100000, 1000000], number=10000);
+    print()
+    b.run_thread_scaling_benchmark([100, 1000, 10000, 100000, 1000000], number=10000);
     
     #print('\n profiling');
     #b.run_profile(100000);

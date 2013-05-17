@@ -5,6 +5,10 @@ import time
 import cProfile
 import pstats
 import sys
+import multiprocessing
+import numpy
+
+from freud import parallel
 
 ## Run a given method and print benchmark results
 #
@@ -91,7 +95,7 @@ class benchmark(object):
     # \param N_list list of the N values to execute the problem at
     # \param number Number of times to call run() at each the smallest problem size
     # \param print_stats Print the stats to stdout
-    # \returns A list of average run() times following N
+    # \returns A list of average run() times following N (in seconds)
     #
     # \note The size scaling benchmark autoscales number down linearly with problem size (down to a minimum of 1).
     #
@@ -103,11 +107,62 @@ class benchmark(object):
         size = number*N_list[0];
         
         # loop over N and run the benchmarks
+        results = [];
         for N in N_list:
             if print_stats:
                 print('{0:10d}'.format(N), end=': ');
                 sys.stdout.flush();
             
             current_number = max(int(size // N), 1);
-            self.run_benchmark(N, current_number, print_stats);
+            t = self.run_benchmark(N, current_number, print_stats);
+            results.append(t);
+        
+        return results;
 
+
+    ## Thread scaling benchmark
+    #
+    # \param N_list list of the N values to execute the problem at
+    # \param number Number of times to call run() at each the smallest problem size
+    # \param print_stats Print the stats to stdout
+    # \returns a numpy array Ncores x len(N_list) with all the per iteration timings (in seconds).
+    #
+    # \note The size scaling benchmark autoscales number down linearly with problem size (down to a minimum of 1).
+    #
+    def run_thread_scaling_benchmark(self, N_list, number=1000, print_stats=True):
+        if len(N_list) == 0:
+            raise TypeError('N_list must be iterable');
+        
+        # compute benchmark size
+        size = number*N_list[0];
+        
+        # print the header
+        if print_stats:
+            print('Threads ', end='');
+            for N in N_list:
+                print('{0:10d}'.format(N), end=' | ');
+            print();
+        
+        # loop over the cores
+        times = numpy.zeros(shape=(multiprocessing.cpu_count()+1, len(N_list)));
+        for ncores in range(1, multiprocessing.cpu_count()+1):
+            parallel.setNumThreads(ncores);
+
+            if print_stats:
+                print('{0:7d}'.format(ncores), end=' ');
+                        
+            # loop over N and run the benchmarks
+            for j,N in enumerate(N_list):
+                current_number = max(int(size // N), 1);
+                times[ncores,j] = self.run_benchmark(N, number=current_number, print_stats=False);
+               
+                if print_stats:
+                    t = times[ncores,j]/1e-3;
+                    speedup = times[1,j] / times[ncores,j];
+                    print('{0:9.2f}x'.format(speedup), end=' | ');
+                    # print('{0:10.2f}'.format(t), end=' | ');
+                    sys.stdout.flush();
+            
+            print();
+        
+        return times;
