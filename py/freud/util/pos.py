@@ -51,7 +51,7 @@ class file:
         if not self.ndata_frames == self.nbox_frames:
             # This doesn't do anything as some pos files will not have both
             print("not all frames have matching data and box")
-            print("total of {0} data and {1} box frame detected".format(ndata_frames, nbox_frames)
+            print("total of {0} data and {1} box frame detected".format(self.ndata_frames, self.nbox_frames))
 
         print("initial read complete")
         print("ndata = {0} nbox = {1}".format(self.ndata_frames, self.nbox_frames))
