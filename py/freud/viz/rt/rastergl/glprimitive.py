@@ -445,7 +445,7 @@ void main()
     def __init__(self, prim):
         GLPrimitive.__init__(self, prim);
         # simple scalar values
-        self.N = len(prim.vertices/3);
+        self.N = int(len(prim.vertices));
         
         # initialize values for buffers
         color = numpy.zeros(shape=(self.N, 3, 4), dtype=numpy.float32);
