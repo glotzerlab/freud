@@ -721,7 +721,8 @@ class TrajectoryPOS(Trajectory):
         self.pos_file = pos.file(pos_fname);
         self.pos_file.grabBox();
         
-        # Is there a place in the pos that specs the dims?
+        # This is gonna be a hack in the complement branch until I can figure out something
+        
         # dim_test = len(self.pos_file.position_list[0][0])
         dim_test = len(self.pos_file.box_positions[0][0])
         if dim_test == 2:
@@ -742,7 +743,9 @@ class TrajectoryPOS(Trajectory):
             ly = box_dims[4];
             lz = box_dims[8];
         #print("lx = {0} ly = {1} lz = {2}".format(*box_dims))
+        self.ndim = 2;
         self.box = Box(float(lx), float(ly), float(lz), self.ndim == 2);
+        #self.box = Box(float(lx), float(ly), self.ndim == 2);
         
         #Reader can handle changing num particles, but this doesn't
         # self.num_particles = len(self.pos_file.n_box_points[0])

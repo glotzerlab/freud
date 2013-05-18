@@ -25,8 +25,9 @@ complement::complement(const trajectory::Box& box, float rmax, float dr)
         throw invalid_argument("rmax must be greater than dr");
     if (rmax > box.getLx()/2 || rmax > box.getLy()/2)
     throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (rmax > box.getLz()/2 && !box.is2D())
-    throw invalid_argument("rmax must be smaller than half the smallest box size");
+    // Causing the rdf to not be run in 2D
+    //if (rmax > box.getLz()/2 && !box.is2D())
+    //throw invalid_argument("rmax must be smaller than half the smallest box size");
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
@@ -477,41 +478,41 @@ void complement::computePy(boost::python::numeric::array ref_points,
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_angles, PyArray_FLOAT);
-    num_util::check_rank(ref_angles, 2);
+    num_util::check_rank(ref_angles, 1);
     num_util::check_type(ref_shape, PyArray_FLOAT);
     num_util::check_rank(ref_shape, 2);
-    num_util::check_type(ref_verts, PyArray_FLOAT);
-    num_util::check_rank(ref_verts, 2);
+    num_util::check_type(ref_verts, PyArray_INT);
+    num_util::check_rank(ref_verts, 1);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
     num_util::check_type(angles, PyArray_FLOAT);
-    num_util::check_rank(angles, 2);
+    num_util::check_rank(angles, 1);
     num_util::check_type(shape, PyArray_FLOAT);
     num_util::check_rank(shape, 2);
-    num_util::check_type(verts, PyArray_FLOAT);
-    num_util::check_rank(verts, 2);
+    num_util::check_type(verts, PyArray_INT);
+    num_util::check_rank(verts, 1);
     
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
     
-    num_util::check_dim(angles, 1, 1);
+    //num_util::check_dim(angles, 0, 1);
     
     num_util::check_dim(shape, 1, 2);
     unsigned int Ns = num_util::shape(shape)[0];
     
-    num_util::check_dim(verts, 1, 2);
+    //num_util::check_dim(verts, 0, 1);
     unsigned int Nv = num_util::shape(verts)[0];
     
     num_util::check_dim(ref_points, 1, 3);
     unsigned int Nref = num_util::shape(ref_points)[0];
     
-    num_util::check_dim(ref_angles, 1, 1);
+    //num_util::check_dim(ref_angles, 0, 1);
     
-    num_util::check_dim(ref_shape, 1, 3);
+    num_util::check_dim(ref_shape, 1, 2);
     unsigned int Nref_s = num_util::shape(ref_shape)[0];
     
-    num_util::check_dim(ref_verts, 1, 3);
+    //num_util::check_dim(ref_verts, 0, 1);
     unsigned int Nref_v = num_util::shape(ref_verts)[0];
     
     // get the raw data pointers and compute the cell list
