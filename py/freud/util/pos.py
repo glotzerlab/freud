@@ -273,6 +273,9 @@ class file:
                     self.box_positions[i][j][k] = p[k]
                 for k in range(4):
                     self.box_orientations[i][j][k] = q[k]
+        # print("Box Orientations")
+        # print(self.box_orientations)
+        # Fine here
         self.isBox = True
 
     def grabDefs(self):
@@ -307,6 +310,7 @@ class file:
         if len(box_string) == 8:
             p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
             q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
+            # q is correct here...
         else:
         
             # Assuming that color is either in the second or last place:
