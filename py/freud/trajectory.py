@@ -708,7 +708,7 @@ class TrajectoryPOS(Trajectory):
     ## Initialize an POS trajectory for access
     # \param pos_fname File name of the POS file to read the structure from
     #
-    def __init__(self, pos_fname, dynamic=['position']):
+    def __init__(self, pos_fname, dynamic=['position', 'orientation']):
         Trajectory.__init__(self);
     
         self.dynamic_props = {}
@@ -720,6 +720,8 @@ class TrajectoryPOS(Trajectory):
         # self.pos_file.load();
         self.pos_file = pos.file(pos_fname);
         self.pos_file.grabBox();
+        print("Box orientation")
+        print(self.pos_file.box_orientations)
         
         # Is there a place in the pos that specs the dims?
         # dim_test = len(self.pos_file.position_list[0][0])
