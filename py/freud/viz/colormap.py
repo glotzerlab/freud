@@ -44,6 +44,37 @@ def grayscale(u, alpha=1.0):
     
     return colorutil.linearToSRGBA(cmap);
 
+## Jet colormap
+# \param u A numpy array (or something that converts to one) of 0.0-1.0 linear values
+# \param alpha The alpha value for the entire colormap is set to this value
+# 
+# The jet colormap maps 0 to blue, 1 to red and interpolates through green for intermediate values
+# values
+#
+# \note
+# \a u can be any shape - e.g. a 1-element array, an N-length array an MxN array, an LxMxN 
+# array .... 
+#
+# \returns
+# A numpy array the same size as \a v , with an added dimension of size 4 containing r,g,b,a grayscale values in the
+# sRGBA color space
+#
+def jet(u, alpha=1.0):
+    # make a copy of v and convert to a numpy array if needed
+    w = numpy.array(u, dtype=numpy.float32);
+    newshape = list(w.shape);
+    newshape.append(4);
+    cmap = numpy.zeros(shape=tuple(newshape), dtype=numpy.float32);
+        
+    # unfold the array
+    w_u = w.flatten();
+    cmap_u = colorutil._unfold(cmap);
+    
+    # compute the jet colormap
+    _freud.jet(cmap, w_u, alpha);
+    
+    return cmap;
+
 ## HSV colormap
 # \param theta numpy array (or something that converts to one) of 0.0-2*pi linear values (values outside this range
 #              are wrapped back into it)

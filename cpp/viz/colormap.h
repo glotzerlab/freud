@@ -20,6 +20,14 @@ void hsv2RGBA(float4 *cmap,
               unsigned int N);
 
 /*! \internal
+    \brief Helper function for jet colormap
+*/
+void jet(float4 *cmap,
+         const float *u_array,
+         float a,
+         unsigned int N);
+
+/*! \internal
     \brief Exports all classes in this file to python 
 */
 void export_colormap();

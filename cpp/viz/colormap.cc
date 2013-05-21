@@ -185,9 +185,116 @@ void hsv2RGBA(float4 *cmap,
     }
 
 
+/*! \internal
+    \brief Python wrapper for jet
+    
+    \param cmap Output colormap (Nx4 float32 array)
+    \param u Input values: linear in range 0-1 (N element float32 array)
+    \param a Alpha value
+*/
+void jetPy(boost::python::numeric::array cmap,
+           boost::python::numeric::array u,
+           float a)
+    {
+    //validate input type and rank
+    num_util::check_type(cmap, PyArray_FLOAT);
+    num_util::check_rank(cmap, 2);
+    
+    // validate that the 2nd dimension is 4
+    num_util::check_dim(cmap, 1, 4);
+    unsigned int N = num_util::shape(cmap)[0];
+    
+    // check that u is consistent
+    num_util::check_type(u, PyArray_FLOAT);
+    num_util::check_rank(u, 1);
+    if (num_util::shape(u)[0] != N)
+        throw std::invalid_argument("Input lengths for cmap and u must match");
+
+    // get the raw data pointers and compute conversion
+    float4* cmap_raw = (float4*) num_util::data(cmap);
+    float* u_raw = (float*)num_util::data(u);
+    
+        // compute the colormap with the GIL released
+        {
+        util::ScopedGILRelease gil;
+        jet(cmap_raw, u_raw, a, N);
+        }
+    }
+
+//! \internal
+/*! \brief Helper class for parallel computation in jet()
+*/
+class ComputeJet
+    {
+    private:
+        float4 *m_cmap;
+        const float *m_u_array;
+        const float m_a;
+    public:
+        ComputeJet(float4 *cmap,
+                        const float *u_array,
+                        const float a)
+            : m_cmap(cmap), m_u_array(u_array), m_a(a)
+            {
+            }
+        
+        void operator()( const blocked_range<size_t>& r ) const
+            {
+            float4 *cmap = m_cmap;
+            const float *u_array = m_u_array;
+                
+            for (size_t i = r.begin(); i < r.end(); ++i)
+                {
+                // clamp the input
+                float u = u_array[i];
+                u = max(0.0f, u);
+                u = min(1.0f, u);
+                                    
+                // compute jet map
+                float v = 4.0f * u_array[i];
+                float r = min(v - 1.5f, -v + 4.5f);
+                float g = min(v - 0.5f, -v + 3.5f);
+                float b = min(v + 0.5f, -v + 2.5f);
+ 
+                // clamp to range 0,1
+                r = max(0.0f, r);
+                r = min(1.0f, r);
+ 
+                g = max(0.0f, g);
+                g = min(1.0f, g);
+ 
+                b = max(0.0f, b);
+                b = min(1.0f, b);
+                     
+                /*cmap[i].x = powf(r, 1.0f/2.2f);
+                cmap[i].y = powf(g, 1.0f/2.2f);
+                cmap[i].z = powf(b, 1.0f/2.2f);*/
+                cmap[i].x = r;
+                cmap[i].y = g;
+                cmap[i].z = b;
+                cmap[i].w = m_a;
+                }
+            }
+    };
+
+
+/*! \param cmap Output colormap (Nx4 float32 array)
+    \param u_array Input values: linear values (N element float32 array)
+    \param a Alpha value
+*/
+void jet(float4 *cmap,
+         const float *u_array,
+         float a,
+         unsigned int N)
+    {
+    parallel_for(blocked_range<size_t>(0,N,100), ComputeJet(cmap, u_array, a));
+    }
+
+
 void export_colormap()
     {
     def("hsv2RGBA", &hsv2RGBAPy);
+    def("jet", &jetPy);
     }
 
 }; }; // end namespace freud::viz
