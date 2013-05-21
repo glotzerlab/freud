@@ -114,7 +114,7 @@ class complement
                   unsigned int Nv);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+    void computePy(boost::python::numeric::array ref_points,
                     boost::python::numeric::array ref_angles,
                     boost::python::numeric::array ref_shape,
                     boost::python::numeric::array ref_verts,
@@ -125,6 +125,11 @@ class complement
 
         //These names need changing...
                        
+        unsigned int getNpairPy()
+            {
+            return m_nmatch;
+            }
+        
         //! Get a reference to the last computed rdf
         boost::shared_array<float> getRDF()
             {

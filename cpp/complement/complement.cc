@@ -80,7 +80,7 @@ bool complement::useCells()
     return true;
     return false;
     }
-
+// Bad math
 bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
     {
     float3 BA;
@@ -113,6 +113,7 @@ bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
 
 bool complement::isInside(float2 t[], float2 p)
     {
+    // So fucked
     float3 A;
     float3 B;
     float3 C;
@@ -218,6 +219,7 @@ void complement::compute(const float3 *ref_points,
                   unsigned int Ns,
                   unsigned int Nv)
     {
+    m_nmatch = 0;
     // printf("computing\n");
     if (useCells())
         {
@@ -371,6 +373,7 @@ void complement::computeWithCellList(const float3 *ref_points,
     // zero the bin counts for totaling
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     float dr_inv = 1.0f / m_dr;
+    // I feel like this should be calculated here, or rather we know that it is 1 because it is normallized
     float rmaxsq = m_rmax * m_rmax;
     //unsigned int raw_cnt = 0;
     #pragma omp parallel
@@ -417,14 +420,17 @@ void complement::computeWithCellList(const float3 *ref_points,
                         cavity[2] = shape[cavity_index + 1];
                         
                         float depth = cavity_depth(cavity);
-                        // printf("%f\n", depth);
+                        
                         
                         for (unsigned int m = 0; m < 3; m++)
                             {
                             cavity[m] = into_local(ref_points[i], points[j], cavity[m], ref_angles[i], angles[j]);
                             }
                         
+                        // printf("%f %f %f %f %f %f\n", cavity[0].x, cavity[0].y, cavity[1].x, cavity[1].y, cavity[2].x, cavity[2].y);
                         // printf("testing if isInside\n");
+                        // return list of matching particles
+                        // This sounds like it isn't working
                         bool test = isInside(cavity, tooth);
                         
                         if (test == true)
@@ -440,13 +446,10 @@ void complement::computeWithCellList(const float3 *ref_points,
                             float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                             float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                         
-                            if (rsq < rmaxsq)
-                                {
-                                // printf("rsq < rmaxsq\n");
-                                // printf("error is in here?\n");
+                            // if (rsq < rmaxsq)
+                                // {
                                 float r = sqrtf(rsq);
-                                // printf("sqrtf\n");
-                                // bin that r
+                                // This selects the bin
                                 float binr = r * dr_inv / depth;
                                 // printf("binr %f\n", binr);
                                 // fast float to int conversion with truncation
@@ -464,7 +467,7 @@ void complement::computeWithCellList(const float3 *ref_points,
                                 #pragma omp atomic
                                     // printf("bin %i\n", bin);
                                     m_bin_counts[bin]++;
-                                }
+                                // }
                         
                             }
                         
@@ -573,6 +576,7 @@ void export_complement()
         .def("getRDF", &complement::getRDFPy)
         .def("getR", &complement::getRPy)
         .def("getNr", &complement::getNrPy)
+        .def("getNpair", &complement::getNpairPy)
         //.def("getNmatch", &complement::getNmatchPy)
         ;
     }
