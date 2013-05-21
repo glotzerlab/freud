@@ -471,6 +471,19 @@ void complement::computeWithCellList(const float3 *ref_points,
                         // return list of matching particles
                         // This sounds like it isn't working
                         bool test = isInside(cavity, tooth);
+                        // float3 m_cav [3];
+                        // for (int c_idx = 0; c_idx < 3; c_idx++)
+                        //     {
+                        //     m_cav[c_idx].x = cavity[c_idx].x;
+                        //     m_cav[c_idx].y = cavity[c_idx].y;
+                        //     m_cav[c_idx].z = 0;
+                        //     }
+                        // float3 m_t;
+                        // m_t.x = tooth.x;
+                        // m_t.y = tooth.y;
+                        // m_t.z = 0.0;
+                        // // No guarantee :(
+                        // bool test = sameSide(m_cav[0], m_cav[2], m_cav[1], m_t);
                         
                         if (test == true)
                             {
@@ -484,12 +497,15 @@ void complement::computeWithCellList(const float3 *ref_points,
                         
                             float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                             float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                            printf("%f\n", rsq);
                         
                             // if (rsq < rmaxsq)
                                 // {
                                 float r = sqrtf(rsq);
                                 // This selects the bin
-                                float binr = r * dr_inv / depth;
+                                // float binr = r * dr_inv / depth;
+                                float binr = r * dr_inv;
+                                printf("%f\n", binr);
                                 // printf("binr %f\n", binr);
                                 // fast float to int conversion with truncation
                                 // #ifdef __SSE2__
@@ -502,7 +518,9 @@ void complement::computeWithCellList(const float3 *ref_points,
                                 
                                 // Bug was there, not sure why/what
                                 
+                                
                                 unsigned int bin = (unsigned int)(binr);
+                                printf("%i\n", bin  );
                                 #pragma omp atomic
                                     // printf("bin %i\n", bin);
                                     m_bin_counts[bin]++;
@@ -519,6 +537,7 @@ void complement::computeWithCellList(const float3 *ref_points,
     } // End of parallel section
     // printf("starting to compute rdf\n");
     // now compute the rdf
+    // Um most of mine might be in the first bin...
     float ndens = float(Np) / m_box.getVolume();
     m_rdf_array[0] = 0.0f;
     m_N_r_array[0] = 0.0f;
