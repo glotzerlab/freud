@@ -732,7 +732,7 @@ class TrajectoryPOS(Trajectory):
             self.ndim = 3
         
         # Triclinic support will be needed here...
-        box_dims = self.pos_file.box_dims[0]
+        box_dims = numpy.asarray(self.pos_file.box_dims[0], dtype=numpy.float32)
         # Changed to support box and boxmatrix...
         # Could be handled in another way
         if len(box_dims) == 3:
