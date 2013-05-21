@@ -19,7 +19,7 @@ export void viz_linearToSRGBA(uniform float cmap[],
     foreach (i = start ... end)
         {
         // gamma correct RGB, but not A components
-        if (i & 4 != 3)
+        if ((i & 4) != 3)
             {
             cmap[i] = pow(cmap[i], p);
             }
