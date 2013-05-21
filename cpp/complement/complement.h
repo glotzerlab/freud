@@ -47,10 +47,9 @@ class complement
         //! Check if point p is inside triangle t
         bool isInside(float2 t[], float2 p);
         
-        bool insidePy(boost::python::numeric::array A,
-                        boost::python::numeric::array B,
-                        boost::python::numeric::array C,
-                        boost::python::numeric::array p);
+        void crossPy(boost::python::numeric::array v1,
+                        boost::python::numeric::array v2,
+                        boost::python::numeric::array v);
         
         float3 cross_check(float3 *v1, float3 *v2);
         
@@ -86,7 +85,8 @@ class complement
                   unsigned int *verts,
                   unsigned int Np,
                   unsigned int Ns,
-                  unsigned int Nv);
+                  unsigned int Nv,
+                  unsigned int *match);
         
         //! Compute the RDF
     void computeWithoutCellList(const float3 *ref_points,
@@ -102,7 +102,8 @@ class complement
                   unsigned int *verts,
                   unsigned int Np,
                   unsigned int Ns,
-                  unsigned int Nv);
+                  unsigned int Nv,
+                  unsigned int *match);
 
     //! Compute the RDF
     void computeWithCellList(const float3 *ref_points,
@@ -118,7 +119,8 @@ class complement
                   unsigned int *verts,
                   unsigned int Np,
                   unsigned int Ns,
-                  unsigned int Nv);
+                  unsigned int Nv,
+                  unsigned int *match);
 
         //! Python wrapper for compute
     void computePy(boost::python::numeric::array ref_points,
@@ -128,7 +130,8 @@ class complement
                     boost::python::numeric::array points,
                     boost::python::numeric::array angles,
                     boost::python::numeric::array shape,
-                    boost::python::numeric::array verts);
+                    boost::python::numeric::array verts,
+                    boost::python::numeric::array match);
 
         //These names need changing...
                        
@@ -148,7 +151,7 @@ class complement
             {
             return m_r_array;
             }
-
+        
         //! Get a reference to the N_r array
         boost::shared_array<float> getNr()
             {
@@ -182,6 +185,7 @@ class complement
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
         unsigned int m_nmatch;             //!< Number of matches
+        unsigned int m_nP;                  //!< Number of particles
         
         boost::shared_array<float> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array

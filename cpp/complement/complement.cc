@@ -150,23 +150,14 @@ bool complement::isInside(float2 t[], float2 p)
     
     }
 
-bool complement::insidePy(boost::python::numeric::array A,
-                        boost::python::numeric::array B,
-                        boost::python::numeric::array C,
-                        boost::python::numeric::array p)
+void complement::crossPy(boost::python::numeric::array v1,
+                        boost::python::numeric::array v2,
+                        boost::python::numeric::array v)
     {
-    float2* A_raw = (float2*) num_util::data(A);
-    float2* B_raw = (float2*) num_util::data(B);
-    float2* C_raw = (float2*) num_util::data(C);
-    float2 t [3];
-    t[0].x = A_raw[0].x;
-    t[0].y = A_raw[0].y;
-    t[1].x = B_raw[0].x;
-    t[1].y = B_raw[0].y;
-    t[2].x = C_raw[0].x;
-    t[2].y = C_raw[0].y;
-    float2* p_raw = (float2*) num_util::data(p);
-    return isInside(t, *p_raw);
+    float3* v1_raw = (float3*) num_util::data(v1);
+    float3* v2_raw = (float3*) num_util::data(v2);
+    float3* v_raw = (float3*) num_util::data(v);
+    *v_raw = cross(*v1_raw, *v2_raw);
     }
 
 float3 complement::cross_check(float3 *v1, float3 *v2)
@@ -256,19 +247,20 @@ void complement::compute(const float3 *ref_points,
                   unsigned int *verts,
                   unsigned int Np,
                   unsigned int Ns,
-                  unsigned int Nv)
+                  unsigned int Nv,
+                  unsigned int *match)
     {
     m_nmatch = 0;
     // printf("computing\n");
     if (useCells())
         {
         // printf("with cells\n");
-        computeWithCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv);
+        computeWithCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
         }
     else
         {
         // printf("without cells\n");
-        computeWithoutCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv);
+        computeWithoutCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
         }
     }
 
@@ -285,7 +277,8 @@ void complement::computeWithoutCellList(const float3 *ref_points,
                   unsigned int *verts,
                   unsigned int Np,
                   unsigned int Ns,
-                  unsigned int Nv)
+                  unsigned int Nv,
+                  unsigned int *match)
     {
     // zero the bin counts for totaling
     // printf("start\n");
@@ -400,17 +393,23 @@ void complement::computeWithCellList(const float3 *ref_points,
                   unsigned int *verts,
                   unsigned int Np,
                   unsigned int Ns,
-                  unsigned int Nv)
+                  unsigned int Nv,
+                  unsigned int *match)
     {
     assert(ref_points);
     assert(points);
     assert(Nref > 0);
     assert(Np > 0);
+    m_nP = Nref;
     // bin the x,y,z particles
     m_lc->computeCellList(points, Np);
     
     // zero the bin counts for totaling
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    // printf("I bet this is the seg fault\n");
+    // m_match_array = boost::shared_array<unsigned int>(new unsigned int[m_nP]);
+    // memset((void*)m_match_array.get(), 0, sizeof(unsigned int)*m_nP);
+    // printf("did it seg fault\n");
     float dr_inv = 1.0f / m_dr;
     // I feel like this should be calculated here, or rather we know that it is 1 because it is normallized
     float rmaxsq = m_rmax * m_rmax;
@@ -422,7 +421,7 @@ void complement::computeWithCellList(const float3 *ref_points,
     // for each reference point
     for (unsigned int i = 0; i < Nref; i++)
         {
-        
+        match[i] = 0;
         // get the cell the point is in
         // printf("particle %i\n", i);
         float3 ref = ref_points[i];
@@ -439,19 +438,24 @@ void complement::computeWithCellList(const float3 *ref_points,
             locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
-                    // printf("particle %i in %i\n", j, neigh_idx);
-                // I believe this is where I need to insert my code
-                // compute r between the two particles
+                // Does not compute with itself
+                if (i == j)
+                    {
+                    continue;
+                    }
+                // iterate over the verts in the ref particle
                 for (unsigned int k = 0; k < Nref_v; k++)
                     {
                     // printf("tooth %i\n", k);
                     unsigned int tooth_index = ref_verts[k];
                     float2 tooth = ref_shape[tooth_index];
                     
-                    for (unsigned int l = 0; l < Nv; l++)
-                        {
+                    // This would be for all of the cavities, just want the matching one
+                    // for (unsigned int l = 0; l < Nv; l++)
+                    //     {
                         // printf("cavity %i\n", l);
-                        unsigned int cavity_index = verts[l];
+                        // unsigned int cavity_index = verts[l];
+                        unsigned int cavity_index = verts[k];
                         float2 cavity [3];
                     
                         cavity[0] = shape[cavity_index - 1];
@@ -470,7 +474,7 @@ void complement::computeWithCellList(const float3 *ref_points,
                         // printf("testing if isInside\n");
                         // return list of matching particles
                         // This sounds like it isn't working
-                        bool test = isInside(cavity, tooth);
+                        // bool test = isInside(cavity, tooth);
                         // float3 m_cav [3];
                         // for (int c_idx = 0; c_idx < 3; c_idx++)
                         //     {
@@ -485,10 +489,12 @@ void complement::computeWithCellList(const float3 *ref_points,
                         // // No guarantee :(
                         // bool test = sameSide(m_cav[0], m_cav[2], m_cav[1], m_t);
                         
-                        if (test == true)
+                        if (isInside(cavity, tooth))
                             {
+                            match[i] = 1;
                             // printf("shit was inside\n");
                             //raw_cnt++;
+                            // printf("value of match array[%i] = %i\n", i, m_match_array[i]);
                             m_nmatch++;
                             // Calc the relative rdf
                             float dx = float(ref_points[i].x - points[j].x);
@@ -497,7 +503,6 @@ void complement::computeWithCellList(const float3 *ref_points,
                         
                             float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                             float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                            printf("%f\n", rsq);
                         
                             // if (rsq < rmaxsq)
                                 // {
@@ -505,7 +510,6 @@ void complement::computeWithCellList(const float3 *ref_points,
                                 // This selects the bin
                                 // float binr = r * dr_inv / depth;
                                 float binr = r * dr_inv;
-                                printf("%f\n", binr);
                                 // printf("binr %f\n", binr);
                                 // fast float to int conversion with truncation
                                 // #ifdef __SSE2__
@@ -520,7 +524,6 @@ void complement::computeWithCellList(const float3 *ref_points,
                                 
                                 
                                 unsigned int bin = (unsigned int)(binr);
-                                printf("%i\n", bin  );
                                 #pragma omp atomic
                                     // printf("bin %i\n", bin);
                                     m_bin_counts[bin]++;
@@ -528,7 +531,7 @@ void complement::computeWithCellList(const float3 *ref_points,
                         
                             }
                         
-                        }
+                        // }
                     
                     }
                 }
@@ -562,7 +565,8 @@ void complement::computePy(boost::python::numeric::array ref_points,
                     boost::python::numeric::array points,
                     boost::python::numeric::array angles,
                     boost::python::numeric::array shape,
-                    boost::python::numeric::array verts)
+                    boost::python::numeric::array verts,
+                    boost::python::numeric::array match)
     {
     // validate input type and rank
     num_util::check_type(ref_points, PyArray_FLOAT);
@@ -581,6 +585,8 @@ void complement::computePy(boost::python::numeric::array ref_points,
     num_util::check_rank(shape, 2);
     num_util::check_type(verts, PyArray_INT);
     num_util::check_rank(verts, 1);
+    num_util::check_type(match, PyArray_INT);
+    num_util::check_rank(match, 1);
     // printf("done with rank checks\n");
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
@@ -621,9 +627,10 @@ void complement::computePy(boost::python::numeric::array ref_points,
     float2* shape_raw = (float2*) num_util::data(shape);
     // printf("shape\n");
     unsigned int* verts_raw = (unsigned int*) num_util::data(verts);
+    unsigned int* match_raw = (unsigned int*) num_util::data(match);
     // printf("verts\n");
 
-    compute(ref_points_raw, ref_angles_raw, ref_shape_raw, ref_verts_raw, Nref, Nref_s, Nref_v, points_raw, angles_raw, shape_raw, verts_raw, Np, Ns, Nv);
+    compute(ref_points_raw, ref_angles_raw, ref_shape_raw, ref_verts_raw, Nref, Nref_s, Nref_v, points_raw, angles_raw, shape_raw, verts_raw, Np, Ns, Nv, match_raw);
     }
 
 void export_complement()
@@ -635,7 +642,7 @@ void export_complement()
         .def("getR", &complement::getRPy)
         .def("getNr", &complement::getNrPy)
         .def("getNpair", &complement::getNpairPy)
-        .def("inside", &complement::insidePy)
+        .def("cross", &complement::crossPy)
         //.def("getNmatch", &complement::getNmatchPy)
         ;
     }
