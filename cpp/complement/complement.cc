@@ -80,7 +80,7 @@ bool complement::useCells()
     return true;
     return false;
     }
-// Bad math
+//checks out
 bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
     {
     float3 BA;
@@ -111,9 +111,9 @@ bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
         }
     }
 
+//Checks out
 bool complement::isInside(float2 t[], float2 p)
     {
-    // So fucked
     float3 A;
     float3 B;
     float3 C;
@@ -150,6 +150,44 @@ bool complement::isInside(float2 t[], float2 p)
     
     }
 
+bool complement::insidePy(boost::python::numeric::array A,
+                        boost::python::numeric::array B,
+                        boost::python::numeric::array C,
+                        boost::python::numeric::array p)
+    {
+    float2* A_raw = (float2*) num_util::data(A);
+    float2* B_raw = (float2*) num_util::data(B);
+    float2* C_raw = (float2*) num_util::data(C);
+    float2 t [3];
+    t[0].x = A_raw[0].x;
+    t[0].y = A_raw[0].y;
+    t[1].x = B_raw[0].x;
+    t[1].y = B_raw[0].y;
+    t[2].x = C_raw[0].x;
+    t[2].y = C_raw[0].y;
+    float2* p_raw = (float2*) num_util::data(p);
+    return isInside(t, *p_raw);
+    }
+
+float3 complement::cross_check(float3 *v1, float3 *v2)
+    {
+    //float3 v;
+    float3 m_v1 = *v1;
+    float3 m_v2 = *v2;
+    float3 v;
+    printf("%f %f %f\n", m_v1.x, m_v1.y, m_v1.z);
+    printf("%f %f %f\n", m_v2.x, m_v2.y, m_v2.z);
+    // float m_v = *v;
+    v.x = (m_v1.y * m_v2.z) - (m_v2.y * m_v1.z);
+    v.y = (m_v2.x * m_v1.z) - (m_v1.x * m_v2.z);
+    v.z = (m_v1.x * m_v2.y) - (m_v2.x * m_v1.y);
+    printf("%f %f %f\n", v.x, v.y, v.z);
+    return v;
+    // *v = (m_v1.x * m_v2.x) + (m_v1.y * m_v2.y) + (m_v1.z * m_v2.z);
+    // printf("%f\n", *v);
+    }
+
+// Checks out
 float3 complement::cross(float3 v1, float3 v2)
     {
     float3 v;
@@ -158,13 +196,15 @@ float3 complement::cross(float3 v1, float3 v2)
     v.z = (v1.x * v2.y) - (v2.x * v1.y);
     return v;
     }
-    
+
+//Checks out
 float complement::dot(float3 v1, float3 v2)
     {
     float v;
     return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
     }
 
+//checks out
 float2 complement::mat_rotate(float2 point, float angle)
     {
     float2 rot;
@@ -174,7 +214,8 @@ float2 complement::mat_rotate(float2 point, float angle)
     rot.y = mysin * point.x + mycos * point.y;
     return rot;
     }
-    
+
+// checks out
 float2 complement::into_local(float3 ref_point,
                             float3 point,
                             float2 vert,
@@ -182,8 +223,6 @@ float2 complement::into_local(float3 ref_point,
                             float angle)
     {
     float2 local;
-    // I think this may be backward
-    // Currently will only do 2 dimensions
     local = mat_rotate(mat_rotate(vert, -ref_angle), angle);
     local.x = local.x + (ref_point.x - point.x);
     local.y = local.y + (ref_point.y - point.y);
@@ -577,6 +616,7 @@ void export_complement()
         .def("getR", &complement::getRPy)
         .def("getNr", &complement::getNrPy)
         .def("getNpair", &complement::getNpairPy)
+        .def("inside", &complement::insidePy)
         //.def("getNmatch", &complement::getNmatchPy)
         ;
     }

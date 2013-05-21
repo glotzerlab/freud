@@ -720,8 +720,8 @@ class TrajectoryPOS(Trajectory):
         # self.pos_file.load();
         self.pos_file = pos.file(pos_fname);
         self.pos_file.grabBox();
-        print("Box orientation")
-        print(self.pos_file.box_orientations)
+        # print("Box orientation")
+        # print(self.pos_file.box_orientations)
         
         # This is gonna be a hack in the complement branch until I can figure out something
         

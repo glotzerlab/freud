@@ -45,7 +45,14 @@ class complement
         bool sameSide(float3 A, float3 B, float3 r, float3 p);
 
         //! Check if point p is inside triangle t
-        bool isInside(float2 *t, float2 p);
+        bool isInside(float2 t[], float2 p);
+        
+        bool insidePy(boost::python::numeric::array A,
+                        boost::python::numeric::array B,
+                        boost::python::numeric::array C,
+                        boost::python::numeric::array p);
+        
+        float3 cross_check(float3 *v1, float3 *v2);
         
         //! Take the cross product of two float3 vectors
         float3 cross(float3 v1, float3 v2);
