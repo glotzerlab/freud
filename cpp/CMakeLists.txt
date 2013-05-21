@@ -68,6 +68,8 @@ set(SOURCES trajectory/trajectory.cc
             density/RDF.h
             density/GaussianDensity.cc
             density/GaussianDensity.h
+            density/LocalDensity.h
+            density/LocalDensity.cc
             cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h
