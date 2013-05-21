@@ -541,6 +541,13 @@ class TrajectoryViewer(QtGui.QMainWindow):
         
         self.gotoFrame(0);
     
+    ## Forcibly reload the current animation frame
+    def reloadFrame(self):
+        frame = self._frame;
+        if self._frame is not None:
+            self._frame = None;
+            self.gotoFrame(frame);
+    
         
     ## Set the animation frame
     @QtCore.Slot(int)
