@@ -5,6 +5,7 @@
 #include "LinkCell.h"
 #include "Cluster.h"
 #include "GaussianDensity.h"
+#include "LocalDensity.h"
 #include "RDF.h"
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
@@ -52,6 +53,7 @@ BOOST_PYTHON_MODULE(_freud)
     locality::export_LinkCell();
     density::export_RDF();
     density::export_GaussianDensity();
+    density::export_LocalDensity();
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();

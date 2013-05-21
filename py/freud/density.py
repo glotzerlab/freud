@@ -4,4 +4,5 @@
 #
 
 from _freud import GaussianDensity;
+from _freud import LocalDensity;
 from _freud import RDF;
