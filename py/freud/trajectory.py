@@ -782,21 +782,25 @@ class TrajectoryPOS(Trajectory):
     
     ## Sets the current frame
     # \param idx Index of the frame to seek to
-    def setFrame(self, idx):
+    def _set_frame(self, idx):
         # Does this offset the frame by 1?
         if idx >=  len(self.pos_file.box_positions):
             raise RuntimeError("Invalid Frame Number")
         self.idx = idx
-    
+    def setFrame(self, idx):
+        return self._set_frame(idx)
+
     ## Get the current frame
     # \returns A Frame containing the current frame data
-    def getCurrentFrame(self):
+    def _get_current_frame(self):
         dynamic_props = {};
         # get position
         for prop in self.dynamic_props.keys():
             self.dynamic_props[prop] = self._update(prop, self.idx)
         
         return Frame(self, self.idx, self.dynamic_props, self.box)
+    def getCurrentFrame(self):
+        return self._get_current_frame()
             
     def _update(self, prop, frame_number):
         if prop == 'position':
