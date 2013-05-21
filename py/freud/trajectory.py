@@ -733,7 +733,7 @@ class TrajectoryPOS(Trajectory):
             self.ndim = 3
         
         # Triclinic support will be needed here...
-        box_dims = self.pos_file.box_dims[0]
+        box_dims = numpy.asarray(self.pos_file.box_dims[0], dtype=numpy.float32)
         # Changed to support box and boxmatrix...
         # Could be handled in another way
         if len(box_dims) == 3:
@@ -785,21 +785,25 @@ class TrajectoryPOS(Trajectory):
     
     ## Sets the current frame
     # \param idx Index of the frame to seek to
-    def setFrame(self, idx):
+    def _set_frame(self, idx):
         # Does this offset the frame by 1?
         if idx >=  len(self.pos_file.box_positions):
             raise RuntimeError("Invalid Frame Number")
         self.idx = idx
-    
+    def setFrame(self, idx):
+        return self._set_frame(idx)
+
     ## Get the current frame
     # \returns A Frame containing the current frame data
-    def getCurrentFrame(self):
+    def _get_current_frame(self):
         dynamic_props = {};
         # get position
         for prop in self.dynamic_props.keys():
             self.dynamic_props[prop] = self._update(prop, self.idx)
         
         return Frame(self, self.idx, self.dynamic_props, self.box)
+    def getCurrentFrame(self):
+        return self._get_current_frame()
             
     def _update(self, prop, frame_number):
         if prop == 'position':
