@@ -283,8 +283,10 @@ class file:
         f = open(self.fname);
         self.types = []
         frame_types = []
+        frame_class = []
         for i in range(self.nbox):
             types = [];
+            pos_class = {};
             f.seek(self.box_tell[i]);
             position = self.box_tell[i]
             while position < self.def_tell[i]:
@@ -293,29 +295,42 @@ class file:
                 tmp_def = re.split('\s+', line)[1:-1];
                 if not tmp_def[0] in types:
                     types.append(tmp_def[0])
+                    # This is not tested could be bad...
+                    pos_class[tmp_def[0]] = tmp_def[1]
+                    # pos_class.append(tmp_def[1])
             frame_types.append(types)
+            frame_class.append(pos_class)
             self.n_types[i] = len(types)
         self.type_names = frame_types
+        self.class_names = frame_class
         self.isDefs = True
     def boxParse(self, box_string, frame):
         if box_string[0] in self.type_names[frame]:
             t = self.type_names[frame].index(box_string[0])
+            # probably could use a dictionary...
+            c = self.class_names[frame][box_string[0]]
         
         # Check for empty space at the end of the string
+        if c == '"poly3d':
+            p, q = self.parsePoly3D(box_string)
+        # Currently expects a quaternion...probably shouldn't have it expect but whatever
+        
+        return t, p, q
+            
+        
+    def parsePoly3D(self, box_string):
         while box_string[-1] == '':
             box_string.pop(-1)
         
-        # This is working for my files...not sure if it will hold up for others
-        # Check if there is a color in at all because there needs to be def and 7 nums:
         if len(box_string) == 8:
             p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
             q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
             # q is correct here...
         else:
-        
-            # Assuming that color is either in the second or last place:
+    
+        # Assuming that color is either in the second or last place:
             test_color = box_string[1]
-            # Hopefully this works
+        # Hopefully this works
             try:
                 test_color = float(test_color)
             except:
@@ -324,4 +339,4 @@ class file:
             else:
                 p = numpy.array([box_string[2], box_string[3], box_string[4]], dtype = numpy.float32)
                 q = numpy.array([box_string[5], box_string[6], box_string[7], box_string[8]], dtype = numpy.float32)
-        return t, p, q
+        return p, q
