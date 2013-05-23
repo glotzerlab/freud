@@ -42,6 +42,11 @@ class complement
         // Some of these should be made private...
 
         //! Check if a point is on the same side of a line as a reference point
+        bool _sameSidePy(boost::python::numeric::array A,
+                            boost::python::numeric::array B,
+                            boost::python::numeric::array r,
+                            boost::python::numeric::array p);
+        
         bool sameSide(float3 A, float3 B, float3 r, float3 p);
 
         //! Check if point p is inside triangle t

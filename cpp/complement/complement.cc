@@ -81,6 +81,33 @@ bool complement::useCells()
     return false;
     }
 //checks out
+
+bool complement::_sameSidePy(boost::python::numeric::array A,
+                            boost::python::numeric::array B,
+                            boost::python::numeric::array r,
+                            boost::python::numeric::array p)
+    {
+    num_util::check_type(A, PyArray_FLOAT);
+    num_util::check_rank(A, 1);
+    num_util::check_dim(A, 0, 3);
+    num_util::check_type(B, PyArray_FLOAT);
+    num_util::check_rank(B, 1);
+    num_util::check_dim(B, 0, 3);
+    num_util::check_type(r, PyArray_FLOAT);
+    num_util::check_rank(r, 1);
+    num_util::check_dim(r, 0, 3);
+    num_util::check_type(p, PyArray_FLOAT);
+    num_util::check_rank(p, 1);
+    num_util::check_dim(p, 0, 3);
+    
+    float3* A_raw = (float3*) num_util::data(A);
+    float3* B_raw = (float3*) num_util::data(B);
+    float3* r_raw = (float3*) num_util::data(r);
+    float3* p_raw = (float3*) num_util::data(p);
+    
+    return sameSide(*A_raw, *B_raw, *r_raw, *p_raw);
+    }
+
 bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
     {
     float3 BA;
@@ -643,6 +670,7 @@ void export_complement()
         .def("getNr", &complement::getNrPy)
         .def("getNpair", &complement::getNpairPy)
         .def("cross", &complement::crossPy)
+        .def("_sameSide", &complement::_sameSidePy)
         //.def("getNmatch", &complement::getNmatchPy)
         ;
     }
