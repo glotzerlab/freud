@@ -138,7 +138,25 @@ bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
         }
     }
 
-//Checks out
+bool complement::_isInsidePy(boost::python::numeric::array t,
+                            boost::python::numeric::array p)
+    {
+    num_util::check_type(t, PyArray_FLOAT);
+    num_util::check_rank(t, 2);
+    num_util::check_dim(t, 0, 3);
+    num_util::check_dim(t, 1, 2);
+    num_util::check_type(p, PyArray_FLOAT);
+    num_util::check_rank(p, 1);
+    num_util::check_dim(p, 0, 2);
+    
+    float2* t_raw = (float2*) num_util::data(t);
+    
+    float2* p_raw = (float2*) num_util::data(p);
+    
+    return isInside(t_raw, *p_raw);
+    }
+
+
 bool complement::isInside(float2 t[], float2 p)
     {
     float3 A;
@@ -175,6 +193,25 @@ bool complement::isInside(float2 t[], float2 p)
         return false;
         }
     
+    }
+    
+bool complement::_crossPy(boost::python::numeric::array v1,
+                            boost::python::numeric::array v2,
+                            boost::python::numeric::array v)
+    {
+    num_util::check_type(t, PyArray_FLOAT);
+    num_util::check_rank(t, 2);
+    num_util::check_dim(t, 0, 3);
+    num_util::check_dim(t, 1, 2);
+    num_util::check_type(p, PyArray_FLOAT);
+    num_util::check_rank(p, 1);
+    num_util::check_dim(p, 0, 2);
+    
+    float2* t_raw = (float2*) num_util::data(t);
+    
+    float2* p_raw = (float2*) num_util::data(p);
+    
+    return isInside(t_raw, *p_raw);
     }
 
 void complement::crossPy(boost::python::numeric::array v1,
@@ -671,6 +708,7 @@ void export_complement()
         .def("getNpair", &complement::getNpairPy)
         .def("cross", &complement::crossPy)
         .def("_sameSide", &complement::_sameSidePy)
+        .def("_isInside", &complement::_isInsidePy)
         //.def("getNmatch", &complement::getNmatchPy)
         ;
     }
