@@ -108,6 +108,7 @@ bool complement::_sameSidePy(boost::python::numeric::array A,
     return sameSide(*A_raw, *B_raw, *r_raw, *p_raw);
     }
 
+// Need to cite this
 bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
     {
     float3 BA;
@@ -128,7 +129,7 @@ bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
     
     float3 ref = cross(BA, rA);
     float3 test = cross(BA, pA);
-    if (dot(ref, test) >= 0)
+    if (dot3(ref, test) >= 0)
         {
         return true;
         }
@@ -195,51 +196,24 @@ bool complement::isInside(float2 t[], float2 p)
     
     }
     
-bool complement::_crossPy(boost::python::numeric::array v1,
-                            boost::python::numeric::array v2,
-                            boost::python::numeric::array v)
+void complement::_crossPy(boost::python::numeric::array v,
+                        boost::python::numeric::array v1,
+                        boost::python::numeric::array v2)
     {
-    num_util::check_type(t, PyArray_FLOAT);
-    num_util::check_rank(t, 2);
-    num_util::check_dim(t, 0, 3);
-    num_util::check_dim(t, 1, 2);
-    num_util::check_type(p, PyArray_FLOAT);
-    num_util::check_rank(p, 1);
-    num_util::check_dim(p, 0, 2);
+    num_util::check_type(v, PyArray_FLOAT);
+    num_util::check_rank(v, 1);
+    num_util::check_dim(v, 0, 3);
+    num_util::check_type(v1, PyArray_FLOAT);
+    num_util::check_rank(v1, 1);
+    num_util::check_dim(v1, 0, 3);
+    num_util::check_type(v2, PyArray_FLOAT);
+    num_util::check_rank(v2, 1);
+    num_util::check_dim(v2, 0, 3);
     
-    float2* t_raw = (float2*) num_util::data(t);
-    
-    float2* p_raw = (float2*) num_util::data(p);
-    
-    return isInside(t_raw, *p_raw);
-    }
-
-void complement::crossPy(boost::python::numeric::array v1,
-                        boost::python::numeric::array v2,
-                        boost::python::numeric::array v)
-    {
+    float3* v_raw = (float3*) num_util::data(v);
     float3* v1_raw = (float3*) num_util::data(v1);
     float3* v2_raw = (float3*) num_util::data(v2);
-    float3* v_raw = (float3*) num_util::data(v);
     *v_raw = cross(*v1_raw, *v2_raw);
-    }
-
-float3 complement::cross_check(float3 *v1, float3 *v2)
-    {
-    //float3 v;
-    float3 m_v1 = *v1;
-    float3 m_v2 = *v2;
-    float3 v;
-    printf("%f %f %f\n", m_v1.x, m_v1.y, m_v1.z);
-    printf("%f %f %f\n", m_v2.x, m_v2.y, m_v2.z);
-    // float m_v = *v;
-    v.x = (m_v1.y * m_v2.z) - (m_v2.y * m_v1.z);
-    v.y = (m_v2.x * m_v1.z) - (m_v1.x * m_v2.z);
-    v.z = (m_v1.x * m_v2.y) - (m_v2.x * m_v1.y);
-    printf("%f %f %f\n", v.x, v.y, v.z);
-    return v;
-    // *v = (m_v1.x * m_v2.x) + (m_v1.y * m_v2.y) + (m_v1.z * m_v2.z);
-    // printf("%f\n", *v);
     }
 
 // Checks out
@@ -252,14 +226,46 @@ float3 complement::cross(float3 v1, float3 v2)
     return v;
     }
 
-//Checks out
-float complement::dot(float3 v1, float3 v2)
+float complement::_dotPy(boost::python::numeric::array v1,
+                        boost::python::numeric::array v2)
     {
-    float v;
+    num_util::check_type(v1, PyArray_FLOAT);
+    num_util::check_rank(v1, 1);
+    num_util::check_dim(v1, 0, 3);
+    num_util::check_type(v2, PyArray_FLOAT);
+    num_util::check_rank(v2, 1);
+    num_util::check_dim(v2, 0, 3);
+    
+    float3* v1_raw = (float3*) num_util::data(v1);
+    float3* v2_raw = (float3*) num_util::data(v2);
+    return dot3(*v1_raw, *v2_raw);
+    }
+
+//Checks out
+float complement::dot3(float3 v1, float3 v2)
+    {
     return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
     }
 
 //checks out
+void complement::_mat_rotPy(boost::python::numeric::array p_rot,
+                        boost::python::numeric::array p,
+                        float angle)
+    {
+    
+    num_util::check_type(p_rot, PyArray_FLOAT);
+    num_util::check_rank(p_rot, 1);
+    num_util::check_dim(p_rot, 0, 2);
+    
+    num_util::check_type(p, PyArray_FLOAT);
+    num_util::check_rank(p, 1);
+    num_util::check_dim(p, 0, 2);
+    
+    float2* p_rot_raw = (float2*) num_util::data(p_rot);
+    float2* p_raw = (float2*) num_util::data(p);
+    *p_rot_raw = mat_rotate(*p_raw, angle);
+    }
+
 float2 complement::mat_rotate(float2 point, float angle)
     {
     float2 rot;
@@ -270,7 +276,38 @@ float2 complement::mat_rotate(float2 point, float angle)
     return rot;
     }
 
-// checks out
+void complement::_into_localPy(boost::python::numeric::array local,
+                        boost::python::numeric::array p_ref,
+                        boost::python::numeric::array p,
+                        boost::python::numeric::array vert,
+                        float a_ref,
+                        float a)
+    {
+    
+    num_util::check_type(local, PyArray_FLOAT);
+    num_util::check_rank(local, 1);
+    num_util::check_dim(local, 0, 2);
+    
+    num_util::check_type(p_ref, PyArray_FLOAT);
+    num_util::check_rank(p_ref, 1);
+    num_util::check_dim(p_ref, 0, 3);
+    
+    num_util::check_type(p, PyArray_FLOAT);
+    num_util::check_rank(p, 1);
+    num_util::check_dim(p, 0, 3);
+    
+    num_util::check_type(vert, PyArray_FLOAT);
+    num_util::check_rank(vert, 1);
+    num_util::check_dim(vert, 0, 2);
+    
+    float2* local_raw = (float2*) num_util::data(local);
+    float3* p_ref_raw = (float3*) num_util::data(p_ref);
+    float3* p_raw = (float3*) num_util::data(p);
+    float2* vert_raw = (float2*) num_util::data(vert);
+    *local_raw = into_local(*p_ref_raw, *p_raw, *vert_raw, a_ref, a);
+    }
+
+// btw i need to actually make all the dimensions self-consistent
 float2 complement::into_local(float3 ref_point,
                             float3 point,
                             float2 vert,
@@ -706,9 +743,12 @@ void export_complement()
         .def("getR", &complement::getRPy)
         .def("getNr", &complement::getNrPy)
         .def("getNpair", &complement::getNpairPy)
-        .def("cross", &complement::crossPy)
         .def("_sameSide", &complement::_sameSidePy)
         .def("_isInside", &complement::_isInsidePy)
+        .def("_cross", &complement::_crossPy)
+        .def("_dot3", &complement::_dotPy)
+        .def("_mat_rot", &complement::_mat_rotPy)
+        .def("_into_local", &complement::_into_localPy)
         //.def("getNmatch", &complement::getNmatchPy)
         ;
     }

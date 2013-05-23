@@ -55,20 +55,32 @@ class complement
         
         bool isInside(float2 t[], float2 p);
         
-        void crossPy(boost::python::numeric::array v1,
-                        boost::python::numeric::array v2,
-                        boost::python::numeric::array v);
-        
-        float3 cross_check(float3 *v1, float3 *v2);
+        void _crossPy(boost::python::numeric::array v,
+                        boost::python::numeric::array v1,
+                        boost::python::numeric::array v2);
         
         //! Take the cross product of two float3 vectors
         float3 cross(float3 v1, float3 v2);
         
+        float _dotPy(boost::python::numeric::array v1,
+                        boost::python::numeric::array v2);
+        
         //! Take the dot product of two float3 vectors
-        float dot(float3 v1, float3 v2);
+        float dot3(float3 v1, float3 v2);
+        
+        void _mat_rotPy(boost::python::numeric::array p_rot,
+                        boost::python::numeric::array p,
+                        float angle);
         
         //! Rotate a float2 point by angle angle
         float2 mat_rotate(float2 point, float angle);
+        
+        void _into_localPy(boost::python::numeric::array local,
+                        boost::python::numeric::array p_ref,
+                        boost::python::numeric::array p,
+                        boost::python::numeric::array vert,
+                        float a_ref,
+                        float a);
         
         // Take a vertex about point point and move into the local coords of the ref point
         float2 into_local(float3 ref_point,
