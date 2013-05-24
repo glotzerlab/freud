@@ -150,20 +150,42 @@ bool complement::_isInsidePy(boost::python::numeric::array t,
     num_util::check_rank(p, 1);
     num_util::check_dim(p, 0, 2);
     
-    float2* t_raw = (float2*) num_util::data(t);
+    float3* t_raw = (float3*) num_util::data(t);
     
-    float2* p_raw = (float2*) num_util::data(p);
+    float3* p_raw = (float3*) num_util::data(p);
     
     return isInside(t_raw, *p_raw);
     }
 
-
 bool complement::isInside(float2 t[], float2 p)
+    {
+    float3 nt [3];
+    float3 np;
+    
+    for (unsigned int i = 0; i < 3; i++)
+        {
+        nt[i].x = t[i].x;
+        nt[i].y = t[i].y;
+        nt[i].z = 0;
+        }
+    
+    np.x = p.x;
+    np.y = p.y;
+    np.z = 0;
+    
+    return isInside(nt, np);
+      
+    }
+
+bool complement::isInside(float3 t[], float3 p)
     {
     float3 A;
     float3 B;
     float3 C;
     float3 P;
+    
+    // Even though float threes are taken in, the z component is assumed zero
+    // i.e. all in the same plane
     
     A.x = t[0].x;
     A.y = t[0].y;
@@ -271,7 +293,7 @@ float2 complement::mat_rotate(float2 point, float angle)
     float2 rot;
     float mysin = sinf(angle);
     float mycos = cosf(angle);
-    rot.x = mycos * point.x + -mysin * point.y;
+    rot.x = mycos * point.x - mysin * point.y;
     rot.y = mysin * point.x + mycos * point.y;
     return rot;
     }
@@ -290,26 +312,26 @@ void complement::_into_localPy(boost::python::numeric::array local,
     
     num_util::check_type(p_ref, PyArray_FLOAT);
     num_util::check_rank(p_ref, 1);
-    num_util::check_dim(p_ref, 0, 3);
+    num_util::check_dim(p_ref, 0, 2);
     
     num_util::check_type(p, PyArray_FLOAT);
     num_util::check_rank(p, 1);
-    num_util::check_dim(p, 0, 3);
+    num_util::check_dim(p, 0, 2);
     
     num_util::check_type(vert, PyArray_FLOAT);
     num_util::check_rank(vert, 1);
     num_util::check_dim(vert, 0, 2);
     
     float2* local_raw = (float2*) num_util::data(local);
-    float3* p_ref_raw = (float3*) num_util::data(p_ref);
-    float3* p_raw = (float3*) num_util::data(p);
+    float2* p_ref_raw = (float2*) num_util::data(p_ref);
+    float2* p_raw = (float2*) num_util::data(p);
     float2* vert_raw = (float2*) num_util::data(vert);
     *local_raw = into_local(*p_ref_raw, *p_raw, *vert_raw, a_ref, a);
     }
 
 // btw i need to actually make all the dimensions self-consistent
-float2 complement::into_local(float3 ref_point,
-                            float3 point,
+float2 complement::into_local(float2 ref_point,
+                            float2 point,
                             float2 vert,
                             float ref_angle,
                             float angle)
@@ -424,7 +446,13 @@ void complement::computeWithoutCellList(const float3 *ref_points,
                     for (unsigned int m = 0; m < 3; m++)
                         {
                         // printf("m\n");
-                        cavity[m] = into_local(ref_points[i], points[j], cavity[m], ref_angles[i], angles[j]);
+                        float2 ref_2D;
+                        float2 point_2D;
+                        ref_2D.x = ref_points[i].x;
+                        ref_2D.y = ref_points[i].y;
+                        point_2D.x = points[j].x;
+                        point_2D.y = points[j].y;
+                        cavity[m] = into_local(ref_2D, point_2D, cavity[m], ref_angles[i], angles[j]);
                         }
                     
                     bool test = isInside(cavity, tooth);
@@ -568,7 +596,13 @@ void complement::computeWithCellList(const float3 *ref_points,
                         
                         for (unsigned int m = 0; m < 3; m++)
                             {
-                            cavity[m] = into_local(ref_points[i], points[j], cavity[m], ref_angles[i], angles[j]);
+                            float2 ref_2D;
+                            float2 point_2D;
+                            ref_2D.x = ref_points[i].x;
+                            ref_2D.y = ref_points[i].y;
+                            point_2D.x = points[j].x;
+                            point_2D.y = points[j].y;
+                            cavity[m] = into_local(ref_2D, point_2D, cavity[m], ref_angles[i], angles[j]);
                             }
                         
                         // printf("%f %f %f %f %f %f\n", cavity[0].x, cavity[0].y, cavity[1].x, cavity[1].y, cavity[2].x, cavity[2].y);

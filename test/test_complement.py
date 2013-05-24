@@ -69,18 +69,19 @@ class TestMatRot(unittest.TestCase):
         
 class TestIntoLocal(unittest.TestCase):
     def test_into_local(self):
-        verts = numpy.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
-        local = numpy.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
+        verts = numpy.array([[-1, -1], [1, -1], [1, 1], [-1, 1]], dtype=numpy.float32)
+        local = numpy.array([[0, 0], [0, 0], [0, 0], [0, 0]], dtype=numpy.float32)
         p1 = numpy.array([1.0, 1.0], dtype=numpy.float32)
-        p2 = numpy.array([-1.0, 1.0], dtype=numpy.float32)
+        p2 = numpy.array([1.0, -1.0], dtype=numpy.float32)
         a1 = float(numpy.pi/8.0)
-        a1 = float(-numpy.pi/8.0)
+        a2 = float(-numpy.pi/8.0)
         comp = complement.complement(trajectory.Box(10.0), 1.0, 0.1)
         nv = len(verts)
         for i in range(nv):
             comp._into_local(local[i], p1, p2, verts[i], a1, a2)
-        # Ugh gotta do real math...
-        npt.assert_array_almost_equal(p_rot, ans, decimal = 3)
+            print(local[i])
+        ans = numpy.array([[ -1.41421366e+00,  -2.00000000e+00], [ -1.38695135e-08,  -3.41421366e+00], [  1.41421366e+00,  -2.00000000e+00], [  1.38695135e-08,  -5.85786343e-01]], dtype=numpy.float32)
+        npt.assert_array_almost_equal(local, ans, decimal = 3)
 
 if __name__ == '__main__':
     unittest.main()

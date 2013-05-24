@@ -55,6 +55,8 @@ class complement
         
         bool isInside(float2 t[], float2 p);
         
+        bool isInside(float3 t[], float3 p);
+        
         void _crossPy(boost::python::numeric::array v,
                         boost::python::numeric::array v1,
                         boost::python::numeric::array v2);
@@ -83,8 +85,8 @@ class complement
                         float a);
         
         // Take a vertex about point point and move into the local coords of the ref point
-        float2 into_local(float3 ref_point,
-                            float3 point,
+        float2 into_local(float2 ref_point,
+                            float2 point,
                             float2 vert,
                             float ref_angle,
                             float angle);
