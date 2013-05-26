@@ -338,8 +338,12 @@ float2 complement::into_local(float2 ref_point,
     {
     float2 local;
     local = mat_rotate(mat_rotate(vert, -ref_angle), angle);
-    local.x = local.x + (ref_point.x - point.x);
-    local.y = local.y + (ref_point.y - point.y);
+    float2 vec;
+    vec.x = (ref_point.x - point.x);
+    vec.y = (ref_point.y - point.y);
+    vec = mat_rotate(vec, -ref_angle);
+    local.x = local.x + vec.x;
+    local.y = local.y + vec.y;
     return local;
     }
 
