@@ -79,8 +79,8 @@ class TestIntoLocal(unittest.TestCase):
         nv = len(verts)
         for i in range(nv):
             comp._into_local(local[i], p1, p2, verts[i], a1, a2)
-            print(local[i])
-        ans = numpy.array([[ -1.41421366e+00,  -2.00000000e+00], [ -1.38695135e-08,  -3.41421366e+00], [  1.41421366e+00,  -2.00000000e+00], [  1.38695135e-08,  -5.85786343e-01]], dtype=numpy.float32)
+        ans = numpy.array([[-2.17958045, -1.84775901], [-0.76536685, -3.26197267], [0.64884681, -1.84775901], [-0.76536685, -0.43354535]], dtype=numpy.float32)
+        # ans = numpy.array([[ -1.41421366e+00,  -2.00000000e+00], [ -1.38695135e-08,  -3.41421366e+00], [  1.41421366e+00,  -2.00000000e+00], [  1.38695135e-08,  -5.85786343e-01]], dtype=numpy.float32)
         npt.assert_array_almost_equal(local, ans, decimal = 3)
 
 if __name__ == '__main__':
