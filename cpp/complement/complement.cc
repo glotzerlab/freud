@@ -238,6 +238,19 @@ void complement::_crossPy(boost::python::numeric::array v,
     *v_raw = cross(*v1_raw, *v2_raw);
     }
 
+float3 complement::cross(float2 v1, float2 v2)
+    {
+    float3 v1_n;
+    float3 v2_n;
+    v1_n.x = v1.x;
+    v1_n.y = v1.y;
+    v1_n.z = 0;
+    v2_n.x = v2.x;
+    v2_n.y = v2.y;
+    v2_n.z = 0;
+    return cross(v1_n, v2_n);
+    }
+
 // Checks out
 float3 complement::cross(float3 v1, float3 v2)
     {
@@ -261,6 +274,11 @@ float complement::_dotPy(boost::python::numeric::array v1,
     float3* v1_raw = (float3*) num_util::data(v1);
     float3* v2_raw = (float3*) num_util::data(v2);
     return dot3(*v1_raw, *v2_raw);
+    }
+
+float complement::dot2(float2 v1, float2 v2)
+    {
+    return (v1.x * v2.x) + (v1.y * v2.y);
     }
 
 //Checks out
@@ -339,8 +357,10 @@ float2 complement::into_local(float2 ref_point,
     float2 local;
     local = mat_rotate(mat_rotate(vert, -ref_angle), angle);
     float2 vec;
-    vec.x = (ref_point.x - point.x);
-    vec.y = (ref_point.y - point.y);
+    // vec.x = (ref_point.x - point.x);
+    // vec.y = (ref_point.y - point.y);
+    vec.x = point.x - ref_point.x;
+    vec.y = point.y - ref_point.y;
     vec = mat_rotate(vec, -ref_angle);
     local.x = local.x - vec.x;
     local.y = local.y - vec.y;
@@ -349,16 +369,20 @@ float2 complement::into_local(float2 ref_point,
 
 float complement::cavity_depth(float2 t[])
     {
-    float m = (t[2].y - t[0].y)/(t[2].x - t[0].x);
-    float m_inv = (t[2].x - t[0].x)/(t[2].y - t[0].y);
-    float2 intersect;
-    intersect.x = (t[1].y - t[2].y + (t[1].x * m_inv) + (t[2].x * m)) * (1/(m + m_inv));
-    intersect.y = m * (intersect.x - t[0].x) + t[0].y;
-    float2 d_vec;
-    d_vec.x = intersect.x - t[1].x;
-    d_vec.y = intersect.y - t[1].y;
-    float mag = intersect.x * intersect.x + intersect.y * intersect.y;
-    return sqrt(mag);
+        
+    // base on cross product
+    float2 v_mouth;
+    float2 v_side;
+    
+    v_mouth.x = t[0].x - t[2].x;
+    v_mouth.y = t[0].y - t[2].y;
+    float m_mouth = sqrt(dot2(v_mouth, v_mouth));
+    v_side.x = t[1].x - t[2].x;
+    v_side.y = t[1].y - t[2].y;
+    
+    float3 a_vec = cross(v_mouth, v_side);
+    float area = sqrt(dot3(a_vec, a_vec));
+    return area/m_mouth;
     }
 
 void complement::compute(const float3 *ref_points,

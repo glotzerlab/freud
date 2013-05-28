@@ -62,12 +62,17 @@ class complement
                         boost::python::numeric::array v2);
         
         //! Take the cross product of two float3 vectors
+        
+        float3 cross(float2 v1, float2 v2);
+        
         float3 cross(float3 v1, float3 v2);
         
         float _dotPy(boost::python::numeric::array v1,
                         boost::python::numeric::array v2);
         
         //! Take the dot product of two float3 vectors
+        float dot2(float2 v1, float2 v2);
+        
         float dot3(float3 v1, float3 v2);
         
         void _mat_rotPy(boost::python::numeric::array p_rot,
