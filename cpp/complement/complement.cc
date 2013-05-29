@@ -403,16 +403,17 @@ void complement::compute(const float3 *ref_points,
     {
     m_nmatch = 0;
     // printf("computing\n");
-    if (useCells())
-        {
-        // printf("with cells\n");
-        computeWithCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
-        }
-    else
-        {
-        // printf("without cells\n");
-        computeWithoutCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
-        }
+    computeWithCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
+    // if (useCells())
+    //     {
+    //     // printf("with cells\n");
+    //     computeWithCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
+    //     }
+    // else
+    //     {
+    //     // printf("without cells\n");
+    //     computeWithoutCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
+    //     }
     }
 
 void complement::computeWithoutCellList(const float3 *ref_points,
@@ -558,7 +559,11 @@ void complement::computeWithCellList(const float3 *ref_points,
     assert(Nref > 0);
     assert(Np > 0);
     m_nP = Nref;
+    // Is it not getting the other particle
     // bin the x,y,z particles
+    
+    printf("Nref = %i Np = %i\n", Nref, Np);
+    
     m_lc->computeCellList(points, Np);
     
     // zero the bin counts for totaling
@@ -595,14 +600,20 @@ void complement::computeWithCellList(const float3 *ref_points,
             locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
+                printf("i = %i j = %i\n", i, j);
                 // Does not compute with itself
+                // Is this broken?
+                
                 if (i == j)
                     {
+                    printf("%i==%i...\n", i, j);
                     continue;
                     }
+                
                 // iterate over the verts in the ref particle
                 for (unsigned int k = 0; k < Nref_v; k++)
                     {
+                    printf("tooth/cavity = %i\n", k);
                     // printf("tooth %i\n", k);
                     unsigned int tooth_index = ref_verts[k];
                     float2 tooth = ref_shape[tooth_index];
@@ -621,7 +632,6 @@ void complement::computeWithCellList(const float3 *ref_points,
                         
                         float depth = cavity_depth(cavity);
                         
-                        
                         for (unsigned int m = 0; m < 3; m++)
                             {
                             float2 ref_2D;
@@ -631,6 +641,7 @@ void complement::computeWithCellList(const float3 *ref_points,
                             point_2D.x = points[j].x;
                             point_2D.y = points[j].y;
                             cavity[m] = into_local(ref_2D, point_2D, cavity[m], ref_angles[i], angles[j]);
+                            printf("%f %f\n", cavity[m].x, cavity[m].y);
                             }
                         
                         // printf("%f %f %f %f %f %f\n", cavity[0].x, cavity[0].y, cavity[1].x, cavity[1].y, cavity[2].x, cavity[2].y);
@@ -654,6 +665,7 @@ void complement::computeWithCellList(const float3 *ref_points,
                         
                         if (isInside(cavity, tooth))
                             {
+                            printf("particle %i is inside particle %i\n", j, i);
                             match[i] = 1;
                             // printf("shit was inside\n");
                             //raw_cnt++;
