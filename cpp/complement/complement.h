@@ -150,14 +150,14 @@ class complement
                   unsigned int *match);
 
         //! Python wrapper for compute
-    void computePy(boost::python::numeric::array ref_points,
-                    boost::python::numeric::array ref_angles,
-                    boost::python::numeric::array ref_shape,
-                    boost::python::numeric::array ref_verts,
-                    boost::python::numeric::array points,
-                    boost::python::numeric::array angles,
-                    boost::python::numeric::array shape,
-                    boost::python::numeric::array verts,
+    void computePy(boost::python::numeric::array points,
+                    boost::python::numeric::array types,
+                    boost::python::numeric::array A_angles,
+                    boost::python::numeric::array A_shape,
+                    boost::python::numeric::array A_verts,
+                    boost::python::numeric::array B_angles,
+                    boost::python::numeric::array B_shape,
+                    boost::python::numeric::array B_verts,
                     boost::python::numeric::array match);
 
         //These names need changing...
@@ -209,7 +209,7 @@ class complement
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
+        locality::LinkCell* m_lc;       //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
         unsigned int m_nmatch;             //!< Number of matches
         unsigned int m_nP;                  //!< Number of particles

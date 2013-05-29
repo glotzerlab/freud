@@ -733,27 +733,21 @@ void complement::computeWithCellList(const float3 *ref_points,
         }
     }
 
-void complement::computePy(boost::python::numeric::array ref_points,
-                    boost::python::numeric::array ref_angles,
-                    boost::python::numeric::array ref_shape,
-                    boost::python::numeric::array ref_verts,
-                    boost::python::numeric::array points,
-                    boost::python::numeric::array angles,
-                    boost::python::numeric::array shape,
-                    boost::python::numeric::array verts,
+void complement::computePy(boost::python::numeric::array points,
+                    boost::python::numeric::array types,
+                    boost::python::numeric::array A_angles,
+                    boost::python::numeric::array A_shape,
+                    boost::python::numeric::array A_verts,
+                    boost::python::numeric::array B_angles,
+                    boost::python::numeric::array B_shape,
+                    boost::python::numeric::array B_verts,
                     boost::python::numeric::array match)
     {
     // validate input type and rank
-    num_util::check_type(ref_points, PyArray_FLOAT);
-    num_util::check_rank(ref_points, 2);
-    num_util::check_type(ref_angles, PyArray_FLOAT);
-    num_util::check_rank(ref_angles, 1);
-    num_util::check_type(ref_shape, PyArray_FLOAT);
-    num_util::check_rank(ref_shape, 2);
-    num_util::check_type(ref_verts, PyArray_INT);
-    num_util::check_rank(ref_verts, 1);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
+    num_util::check_type(types, PyArray_INT);
+    num_util::check_rank(types, 1);
     num_util::check_type(angles, PyArray_FLOAT);
     num_util::check_rank(angles, 1);
     num_util::check_type(shape, PyArray_FLOAT);
@@ -769,27 +763,20 @@ void complement::computePy(boost::python::numeric::array ref_points,
     
     //num_util::check_dim(angles, 0, 1);
     
-    num_util::check_dim(shape, 1, 2);
-    unsigned int Ns = num_util::shape(shape)[0];
+    num_util::check_dim(A_shape, 1, 2);
+    unsigned int A_Ns = num_util::shape(A_shape)[0];
+    num_util::check_dim(B_shape, 1, 2);
+    unsigned int B_Ns = num_util::shape(B_shape)[0];
     
     //num_util::check_dim(verts, 0, 1);
-    unsigned int Nv = num_util::shape(verts)[0];
+    unsigned int A_Nv = num_util::shape(A_verts)[0];
+    unsigned int B_Nv = num_util::shape(B_verts)[0];
     
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
-    
-    //num_util::check_dim(ref_angles, 0, 1);
-    
-    num_util::check_dim(ref_shape, 1, 2);
-    unsigned int Nref_s = num_util::shape(ref_shape)[0];
-    
-    //num_util::check_dim(ref_verts, 0, 1);
-    unsigned int Nref_v = num_util::shape(ref_verts)[0];
     // printf("done with dim checks\n");
     // get the raw data pointers and compute the cell list
-    float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    float3* points_raw = (float3*) num_util::data(points);
     // printf("ref_points\n");
-    float* ref_angles_raw = (float*) num_util::data(ref_angles);
+    float* A_angles_raw = (float*) num_util::data(A_angles);
     // printf("ref_angles\n");
     float2* ref_shape_raw = (float2*) num_util::data(ref_shape);
     // printf("ref_shape\n");
