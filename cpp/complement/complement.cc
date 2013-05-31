@@ -385,184 +385,184 @@ float complement::cavity_depth(float2 t[])
     return area/m_mouth;
     }
 
-void complement::compute(const float3 *ref_points,
-                  const float *ref_angles,
-                  const float2 *ref_shape,
-                  unsigned int *ref_verts,
-                  unsigned int Nref,
-                  unsigned int Nref_s,
-                  unsigned int Nref_v,
-                  const float3 *points,
-                  const float *angles,
-                  const float2 *shape,
-                  unsigned int *verts,
-                  unsigned int Np,
-                  unsigned int Ns,
-                  unsigned int Nv,
-                  unsigned int *match)
+void complement::compute(unsigned int* match,
+                float3* points,
+                unsigned int* types,
+                float* angles,
+                float2* shapes,
+                unsigned int* ref_list,
+                unsigned int* check_list,
+                unsigned int* ref_verts,
+                unsigned int* check_verts,
+                unsigned int Np,
+                unsigned int Nt,
+                unsigned int Nmaxverts,
+                unsigned int Nref,
+                unsigned int Ncheck,
+                unsigned int Nmaxrefverts,
+                unsigned int Nmaxcheckverts)
     {
     m_nmatch = 0;
-    // printf("computing\n");
-    computeWithCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
+    computeWithCellList(match, points, types, angles, shapes, ref_list, check_list, ref_verts, check_verts, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts);
     // if (useCells())
     //     {
     //     // printf("with cells\n");
-    //     computeWithCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
+    //     computeWithCellList(match_raw, points_raw, types_raw, angles_raw, shapes_raw, ref_list_raw, check_list_raw, ref_verts_raw, check_verts_raw, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts);
     //     }
     // else
     //     {
     //     // printf("without cells\n");
-    //     computeWithoutCellList(ref_points, ref_angles, ref_shape, ref_verts, Nref, Nref_s, Nref_v, points, angles, shape, verts, Np, Ns, Nv, match);
+    //     computeWithoutCellList(match_raw, points_raw, types_raw, angles_raw, shapes_raw, ref_list_raw, check_list_raw, ref_verts_raw, check_verts_raw, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts);
     //     }
     }
 
-void complement::computeWithoutCellList(const float3 *ref_points,
-                  const float *ref_angles,
-                  const float2 *ref_shape,
-                  unsigned int *ref_verts,
-                  unsigned int Nref,
-                  unsigned int Nref_s,
-                  unsigned int Nref_v,
-                  const float3 *points,
-                  const float *angles,
-                  const float2 *shape,
-                  unsigned int *verts,
-                  unsigned int Np,
-                  unsigned int Ns,
-                  unsigned int Nv,
-                  unsigned int *match)
-    {
-    // zero the bin counts for totaling
-    // printf("start\n");
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-    // printf("memset done\n");
-    float dr_inv = 1.0f / m_dr;
-    // printf("m_dr done\n");
-    float rmaxsq = m_rmax * m_rmax;
-    //unsigned int raw_cnt = 0;
-    #pragma omp parallel
-    {
+// void complement::computeWithoutCellList(unsigned int* match,
+//                 float3* points,
+//                 unsigned int* types,
+//                 float* angles,
+//                 float2* shapes,
+//                 unsigned int* ref_list,
+//                 unsigned int* check_list,
+//                 unsigned int* ref_verts,
+//                 unsigned int* check_verts,
+//                 unsigned int Np,
+//                 unsigned int Nt,
+//                 unsigned int Nmaxverts,
+//                 unsigned int Nref,
+//                 unsigned int Ncheck,
+//                 unsigned int Nmaxrefverts,
+//                 unsigned int Nmaxcheckverts)
+//     {
+//     // zero the bin counts for totaling
+//     // printf("start\n");
+//     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+//     // printf("memset done\n");
+//     float dr_inv = 1.0f / m_dr;
+//     // printf("m_dr done\n");
+//     float rmaxsq = m_rmax * m_rmax;
+//     //unsigned int raw_cnt = 0;
+//     #pragma omp parallel
+//     {
 
-    #pragma omp for schedule(guided)
-    // for each reference point
-    for (unsigned int i = 0; i < Nref; i++)
-        {
-        // printf("i\n");
-        for (unsigned int j = 0; j < Np; j++)
-            {
-            // compute r between the two particles
-            // New code here
-            // printf("j\n");
-            for (unsigned int k = 0; k < Nref_v; k++)
-                {
-                // printf("k\n");
-                unsigned int tooth_index = ref_verts[k];
-                float2 tooth = ref_shape[tooth_index];
-                // I think this will test against all cavities, not just the one
-                // If each were on k then it would be different
-                for (unsigned int l = 0; l < Nv; l++)
-                    {
-                    // printf("l\n");
-                    unsigned int cavity_index = verts[l];
-                    float2 cavity[3];
+//     #pragma omp for schedule(guided)
+//     // for each reference point
+//     for (unsigned int i = 0; i < Nref; i++)
+//         {
+//         // printf("i\n");
+//         for (unsigned int j = 0; j < Np; j++)
+//             {
+//             // compute r between the two particles
+//             // New code here
+//             // printf("j\n");
+//             for (unsigned int k = 0; k < Nref_v; k++)
+//                 {
+//                 // printf("k\n");
+//                 unsigned int tooth_index = ref_verts[k];
+//                 float2 tooth = ref_shape[tooth_index];
+//                 // I think this will test against all cavities, not just the one
+//                 // If each were on k then it would be different
+//                 for (unsigned int l = 0; l < Nv; l++)
+//                     {
+//                     // printf("l\n");
+//                     unsigned int cavity_index = verts[l];
+//                     float2 cavity[3];
                     
-                    cavity[0] = shape[cavity_index - 1];
-                    cavity[1] = shape[cavity_index];
-                    cavity[2] = shape[cavity_index + 1];
+//                     cavity[0] = shape[cavity_index - 1];
+//                     cavity[1] = shape[cavity_index];
+//                     cavity[2] = shape[cavity_index + 1];
                     
-                    float depth = cavity_depth(cavity);
+//                     float depth = cavity_depth(cavity);
                     
-                    for (unsigned int m = 0; m < 3; m++)
-                        {
-                        // printf("m\n");
-                        float2 ref_2D;
-                        float2 point_2D;
-                        ref_2D.x = ref_points[i].x;
-                        ref_2D.y = ref_points[i].y;
-                        point_2D.x = points[j].x;
-                        point_2D.y = points[j].y;
-                        cavity[m] = into_local(ref_2D, point_2D, cavity[m], ref_angles[i], angles[j]);
-                        }
+//                     for (unsigned int m = 0; m < 3; m++)
+//                         {
+//                         // printf("m\n");
+//                         float2 ref_2D;
+//                         float2 point_2D;
+//                         ref_2D.x = ref_points[i].x;
+//                         ref_2D.y = ref_points[i].y;
+//                         point_2D.x = points[j].x;
+//                         point_2D.y = points[j].y;
+//                         cavity[m] = into_local(ref_2D, point_2D, cavity[m], ref_angles[i], angles[j]);
+//                         }
                     
-                    bool test = isInside(cavity, tooth);
+//                     bool test = isInside(cavity, tooth);
                     
-                    if (test == true)
-                        {
-                        //raw_cnt++;
-                        m_nmatch++;
-                        // Calc the relative rdf
-                        float dx = float(ref_points[i].x - points[j].x);
-                        float dy = float(ref_points[i].y - points[j].y);
-                        float dz = float(ref_points[i].z - points[j].z);
+//                     if (test == true)
+//                         {
+//                         //raw_cnt++;
+//                         m_nmatch++;
+//                         // Calc the relative rdf
+//                         float dx = float(ref_points[i].x - points[j].x);
+//                         float dy = float(ref_points[i].y - points[j].y);
+//                         float dz = float(ref_points[i].z - points[j].z);
                         
-                        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+//                         float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                         
-                        // Need to scale by cavity depth
+//                         // Need to scale by cavity depth
                         
-                        float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                        if (rsq < rmaxsq)
-                            {
-                            float r = sqrtf(rsq);
+//                         float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+//                         if (rsq < rmaxsq)
+//                             {
+//                             float r = sqrtf(rsq);
 
-                            // bin that r
-                            float binr = r * dr_inv / depth;
-                            // fast float to int conversion with truncation
-                            #ifdef __SSE2__
-                                unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                            #else
-                                unsigned int bin = (unsigned int)(binr);
-                            #endif
-                            #pragma omp atomic
-                                m_bin_counts[bin]++;
-                            }
-                        }
-                    }
-                }
-            }
-        } // done looping over reference points
-    } // End of parallel section
+//                             // bin that r
+//                             float binr = r * dr_inv / depth;
+//                             // fast float to int conversion with truncation
+//                             #ifdef __SSE2__
+//                                 unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+//                             #else
+//                                 unsigned int bin = (unsigned int)(binr);
+//                             #endif
+//                             #pragma omp atomic
+//                                 m_bin_counts[bin]++;
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         } // done looping over reference points
+//     } // End of parallel section
 
-    // now compute the "rdf"
-    float ndens = float(Np) / m_box.getVolume();
-    m_rdf_array[0] = 0.0f;
-    m_N_r_array[0] = 0.0f;
-    m_N_r_array[1] = 0.0f;
+//     // now compute the "rdf"
+//     float ndens = float(Np) / m_box.getVolume();
+//     m_rdf_array[0] = 0.0f;
+//     m_N_r_array[0] = 0.0f;
+//     m_N_r_array[1] = 0.0f;
 
-    for (unsigned int bin = 1; bin < m_nbins; bin++)
-        {
-        float avg_counts = m_bin_counts[bin] / float(Nref);
-        m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
+//     for (unsigned int bin = 1; bin < m_nbins; bin++)
+//         {
+//         float avg_counts = m_bin_counts[bin] / float(Nref);
+//         m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
 
-        if (bin+1 < m_nbins)
-            m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
-        }
-    }
+//         if (bin+1 < m_nbins)
+//             m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+//         }
+//     }
 
-void complement::computeWithCellList(const float3 *ref_points,
-                  const float *ref_angles,
-                  const float2 *ref_shape,
-                  unsigned int *ref_verts,
-                  unsigned int Nref,
-                  unsigned int Nref_s,
-                  unsigned int Nref_v,
-                  const float3 *points,
-                  const float *angles,
-                  const float2 *shape,
-                  unsigned int *verts,
-                  unsigned int Np,
-                  unsigned int Ns,
-                  unsigned int Nv,
-                  unsigned int *match)
+void complement::computeWithCellList(unsigned int* match,
+                float3* points,
+                unsigned int* types,
+                float* angles,
+                float2* shapes,
+                unsigned int* ref_list,
+                unsigned int* check_list,
+                unsigned int* ref_verts,
+                unsigned int* check_verts,
+                unsigned int Np,
+                unsigned int Nt,
+                unsigned int Nmaxverts,
+                unsigned int Nref,
+                unsigned int Ncheck,
+                unsigned int Nmaxrefverts,
+                unsigned int Nmaxcheckverts)
     {
-    assert(ref_points);
-    assert(points);
-    assert(Nref > 0);
-    assert(Np > 0);
-    m_nP = Nref;
+    // assert(ref_points);
+    // assert(points);
+    // assert(Nref > 0);
+    // assert(Np > 0);
+    m_nP = Np;
     // Is it not getting the other particle
-    // bin the x,y,z particles
     
-    printf("Nref = %i Np = %i\n", Nref, Np);
     
     m_lc->computeCellList(points, Np);
     
@@ -584,10 +584,25 @@ void complement::computeWithCellList(const float3 *ref_points,
     for (unsigned int i = 0; i < Nref; i++)
         {
         match[i] = 0;
+        // need to set up the mask
+        float3 point = points[i];
+        unsigned int type = types[i];
+        // find if type in refs
+        bool in_refs = false;
+        for (unsigned int ref_idx = 0; ref_idx < Nref; ref_idx++)
+            {
+            if (ref_list[ref_idx] == type)
+                {
+                in_refs = true;
+                }
+            }
+        if (in_refs != true)
+            {
+            continue;
+            }
         // get the cell the point is in
         // printf("particle %i\n", i);
-        float3 ref = ref_points[i];
-        unsigned int ref_cell = m_lc->getCell(ref);
+        unsigned int ref_cell = m_lc->getCell(point);
         
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
@@ -601,9 +616,24 @@ void complement::computeWithCellList(const float3 *ref_points,
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
                 printf("i = %i j = %i\n", i, j);
-                // Does not compute with itself
-                // Is this broken?
                 
+                float3 check = points[j];
+                unsigned int check_type = types[j];
+                // find if type in refs
+                bool in_check = false;
+                for (unsigned int check_idx = 0; check_idx < Ncheck; check_idx++)
+                    {
+                    if (check_list[check_idx] == check_type)
+                        {
+                        in_check = true;
+                        }
+                    }
+                if (in_check != true)
+                    {
+                    continue;
+                    }
+                
+                // I bet that I don't need this now that it won't check the bad ones...
                 if (i == j)
                     {
                     printf("%i==%i...\n", i, j);
@@ -611,38 +641,41 @@ void complement::computeWithCellList(const float3 *ref_points,
                     }
                 
                 // iterate over the verts in the ref particle
-                for (unsigned int k = 0; k < Nref_v; k++)
+                for (unsigned int k = 0; k < Nmaxrefverts; k++)
                     {
+                    // I do believe there will be an issue if diff amount of teeth
                     printf("tooth/cavity = %i\n", k);
-                    // printf("tooth %i\n", k);
                     unsigned int tooth_index = ref_verts[k];
-                    float2 tooth = ref_shape[tooth_index];
+                    // What is shape?
+                    float2 shape = shapes[i];
+                    float2 tooth = shape[tooth_index];
                     
                     // This would be for all of the cavities, just want the matching one
                     // for (unsigned int l = 0; l < Nv; l++)
                     //     {
                         // printf("cavity %i\n", l);
                         // unsigned int cavity_index = verts[l];
-                        unsigned int cavity_index = verts[k];
-                        float2 cavity [3];
+                    unsigned int cavity_index = check_verts[k];
+                    float2 cav_shape = shapes[j];
+                    float2 cavity [3];
+                
+                    cavity[0] = cav_shape[cavity_index - 1];
+                    cavity[1] = cav_shape[cavity_index];
+                    cavity[2] = cav_shape[cavity_index + 1];
                     
-                        cavity[0] = shape[cavity_index - 1];
-                        cavity[1] = shape[cavity_index];
-                        cavity[2] = shape[cavity_index + 1];
-                        
-                        float depth = cavity_depth(cavity);
-                        
-                        for (unsigned int m = 0; m < 3; m++)
-                            {
-                            float2 ref_2D;
-                            float2 point_2D;
-                            ref_2D.x = ref_points[i].x;
-                            ref_2D.y = ref_points[i].y;
-                            point_2D.x = points[j].x;
-                            point_2D.y = points[j].y;
-                            cavity[m] = into_local(ref_2D, point_2D, cavity[m], ref_angles[i], angles[j]);
-                            printf("%f %f\n", cavity[m].x, cavity[m].y);
-                            }
+                    float depth = cavity_depth(cavity);
+                    
+                    for (unsigned int m = 0; m < 3; m++)
+                        {
+                        float2 ref_2D;
+                        float2 point_2D;
+                        ref_2D.x = point.x;
+                        ref_2D.y = point.y;
+                        point_2D.x = check.x;
+                        point_2D.y = check.y;
+                        cavity[m] = into_local(ref_2D, point_2D, cavity[m], angles[i], angles[j]);
+                        printf("%f %f\n", cavity[m].x, cavity[m].y);
+                        }
                         
                         // printf("%f %f %f %f %f %f\n", cavity[0].x, cavity[0].y, cavity[1].x, cavity[1].y, cavity[2].x, cavity[2].y);
                         // printf("testing if isInside\n");
@@ -672,19 +705,19 @@ void complement::computeWithCellList(const float3 *ref_points,
                             // printf("value of match array[%i] = %i\n", i, m_match_array[i]);
                             m_nmatch++;
                             // Calc the relative rdf
-                            float dx = float(ref_points[i].x - points[j].x);
-                            float dy = float(ref_points[i].y - points[j].y);
-                            float dz = float(ref_points[i].z - points[j].z);
+                            float dx = float(point.x - check.x);
+                            float dy = float(point.y - check.y);
+                            float dz = float(point.z - check.z);
                         
                             float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                             float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                         
                             // if (rsq < rmaxsq)
                                 // {
-                                float r = sqrtf(rsq);
+                            float r = sqrtf(rsq);
                                 // This selects the bin
                                 // float binr = r * dr_inv / depth;
-                                float binr = r * dr_inv;
+                            float binr = r * dr_inv;
                                 // printf("binr %f\n", binr);
                                 // fast float to int conversion with truncation
                                 // #ifdef __SSE2__
@@ -698,10 +731,10 @@ void complement::computeWithCellList(const float3 *ref_points,
                                 // Bug was there, not sure why/what
                                 
                                 
-                                unsigned int bin = (unsigned int)(binr);
-                                #pragma omp atomic
-                                    // printf("bin %i\n", bin);
-                                    m_bin_counts[bin]++;
+                            unsigned int bin = (unsigned int)(binr);
+                            #pragma omp atomic
+                                // printf("bin %i\n", bin);
+                                m_bin_counts[bin]++;
                                 // }
                         
                             }
@@ -735,64 +768,76 @@ void complement::computeWithCellList(const float3 *ref_points,
 
 void complement::computePy(boost::python::numeric::array points,
                     boost::python::numeric::array types,
-                    boost::python::numeric::array A_angles,
-                    boost::python::numeric::array A_shape,
-                    boost::python::numeric::array A_verts,
-                    boost::python::numeric::array B_angles,
-                    boost::python::numeric::array B_shape,
-                    boost::python::numeric::array B_verts,
+                    boost::python::numeric::array angles,
+                    boost::python::numeric::array shapes,
+                    boost::python::numeric::array ref_list,
+                    boost::python::numeric::array check_list,
+                    boost::python::numeric::array ref_verts,
+                    boost::python::numeric::array check_verts,
                     boost::python::numeric::array match)
     {
-    // validate input type and rank
+    // points contains all the particle positions; Np x 3
+    // types contains all the types; Np (x 1)
+    // angles contains the angle of each particle; Np (x1)
+    // shapes contains the verticies of each type; Nt x Nv_max
+    //      where any unpop'd vertices are nan
+    // ref_list contains the types of shapes that will be referenced
+    // check_list contains the types of shapes that will be checked
+    // ref_verts contains the vert index that will be checked
+    // check_verts contains the vert index that will be checked
+    // match will contain the particle index of the ref that is matched
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
     num_util::check_type(types, PyArray_INT);
     num_util::check_rank(types, 1);
     num_util::check_type(angles, PyArray_FLOAT);
     num_util::check_rank(angles, 1);
-    num_util::check_type(shape, PyArray_FLOAT);
-    num_util::check_rank(shape, 2);
-    num_util::check_type(verts, PyArray_INT);
-    num_util::check_rank(verts, 1);
+    num_util::check_type(shapes, PyArray_FLOAT);
+    num_util::check_rank(shapes, 3);
+    num_util::check_type(ref_list, PyArray_INT);
+    num_util::check_rank(ref_list, 1);
+    num_util::check_type(check_list, PyArray_INT);
+    num_util::check_rank(check_list, 1);
+    num_util::check_type(ref_verts, PyArray_INT);
+    num_util::check_rank(ref_verts, 1);
+    num_util::check_type(check_verts, PyArray_INT);
+    num_util::check_rank(check_verts, 1);
     num_util::check_type(match, PyArray_INT);
     num_util::check_rank(match, 1);
     // printf("done with rank checks\n");
     // validate that the 2nd dimension is only 3
+    
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
     
-    //num_util::check_dim(angles, 0, 1);
+    num_util::check_dim(types, 0, Np);
+    num_util::check_dim(angles, 0, Np);
     
-    num_util::check_dim(A_shape, 1, 2);
-    unsigned int A_Ns = num_util::shape(A_shape)[0];
-    num_util::check_dim(B_shape, 1, 2);
-    unsigned int B_Ns = num_util::shape(B_shape)[0];
+    num_util::check_dim(shapes, 3, 2);
+    unsigned int Nt = num_util::shape(shapes)[0];
+    unsigned int Nmaxverts = num_util::shape(shapes)[1];
     
-    //num_util::check_dim(verts, 0, 1);
-    unsigned int A_Nv = num_util::shape(A_verts)[0];
-    unsigned int B_Nv = num_util::shape(B_verts)[0];
+    unsigned int Nref = num_util::shape(ref_list)[0];
+    unsigned int Ncheck = num_util::shape(check_list)[0];
     
-    // printf("done with dim checks\n");
+    num_util::check_dim(ref_verts, 0, Nref);
+    num_util::check_dim(check_verts, 0, Ncheck);
+    
+    unsigned int Nmaxrefverts = num_util::shape(ref_verts)[1];
+    unsigned int Nmaxcheckverts = num_util::shape(check_verts)[1];
+    
     // get the raw data pointers and compute the cell list
     float3* points_raw = (float3*) num_util::data(points);
-    // printf("ref_points\n");
-    float* A_angles_raw = (float*) num_util::data(A_angles);
-    // printf("ref_angles\n");
-    float2* ref_shape_raw = (float2*) num_util::data(ref_shape);
-    // printf("ref_shape\n");
-    unsigned int* ref_verts_raw = (unsigned int*) num_util::data(ref_verts);
-    // printf("ref_verts\n");
-    float3* points_raw = (float3*) num_util::data(points);
-    // printf("points\n");
+    unsigned int* types_raw = (unsigned int*) num_util::data(types);
     float* angles_raw = (float*) num_util::data(angles);
-    // printf("angles\n");
-    float2* shape_raw = (float2*) num_util::data(shape);
-    // printf("shape\n");
-    unsigned int* verts_raw = (unsigned int*) num_util::data(verts);
+    float2* shapes_raw = (float2*) num_util::data(shapes);
+    unsigned int* ref_list_raw = (unsigned int*) num_util::data(ref_list);
+    unsigned int* check_list_raw = (unsigned int*) num_util::data(check_list);
+    unsigned int* ref_verts_raw = (unsigned int*) num_util::data(ref_verts);
+    unsigned int* check_verts_raw = (unsigned int*) num_util::data(check_verts);
     unsigned int* match_raw = (unsigned int*) num_util::data(match);
-    // printf("verts\n");
 
-    compute(ref_points_raw, ref_angles_raw, ref_shape_raw, ref_verts_raw, Nref, Nref_s, Nref_v, points_raw, angles_raw, shape_raw, verts_raw, Np, Ns, Nv, match_raw);
+    compute(match_raw, points_raw, types_raw, angles_raw, shapes_raw, ref_list_raw, check_list_raw, ref_verts_raw, check_verts_raw, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts);
     }
 
 void export_complement()
