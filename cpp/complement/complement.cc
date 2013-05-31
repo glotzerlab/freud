@@ -561,6 +561,7 @@ void complement::computeWithCellList(unsigned int* match,
     // assert(Nref > 0);
     // assert(Np > 0);
     m_nP = Np;
+    printf("%i\n", Nref);
     // Is it not getting the other particle
     
     
@@ -581,7 +582,7 @@ void complement::computeWithCellList(unsigned int* match,
     
     #pragma omp for schedule(guided)
     // for each reference point
-    for (unsigned int i = 0; i < Nref; i++)
+    for (unsigned int i = 0; i < Np; i++)
         {
         match[i] = 0;
         // need to set up the mask
@@ -646,9 +647,9 @@ void complement::computeWithCellList(unsigned int* match,
                     // I do believe there will be an issue if diff amount of teeth
                     printf("tooth/cavity = %i\n", k);
                     unsigned int tooth_index = ref_verts[k];
-                    // What is shape?
-                    float2 shape = shapes[i];
-                    float2 tooth = shape[tooth_index];
+                    // This may not be the greatest way to get the shape...or I may need another function
+                    // float2 shape = shapes[type];
+                    float2 tooth = shapes[type * Nmaxverts + tooth_index];
                     
                     // This would be for all of the cavities, just want the matching one
                     // for (unsigned int l = 0; l < Nv; l++)
@@ -656,12 +657,11 @@ void complement::computeWithCellList(unsigned int* match,
                         // printf("cavity %i\n", l);
                         // unsigned int cavity_index = verts[l];
                     unsigned int cavity_index = check_verts[k];
-                    float2 cav_shape = shapes[j];
                     float2 cavity [3];
                 
-                    cavity[0] = cav_shape[cavity_index - 1];
-                    cavity[1] = cav_shape[cavity_index];
-                    cavity[2] = cav_shape[cavity_index + 1];
+                    cavity[0] = shapes[check_type * Nmaxverts + cavity_index - 1];
+                    cavity[1] = shapes[check_type * Nmaxverts + cavity_index];
+                    cavity[2] = shapes[check_type * Nmaxverts + cavity_index + 1];
                     
                     float depth = cavity_depth(cavity);
                     
@@ -766,15 +766,15 @@ void complement::computeWithCellList(unsigned int* match,
         }
     }
 
-void complement::computePy(boost::python::numeric::array points,
+void complement::computePy(boost::python::numeric::array match,
+                    boost::python::numeric::array points,
                     boost::python::numeric::array types,
                     boost::python::numeric::array angles,
                     boost::python::numeric::array shapes,
                     boost::python::numeric::array ref_list,
                     boost::python::numeric::array check_list,
                     boost::python::numeric::array ref_verts,
-                    boost::python::numeric::array check_verts,
-                    boost::python::numeric::array match)
+                    boost::python::numeric::array check_verts)
     {
     // points contains all the particle positions; Np x 3
     // types contains all the types; Np (x 1)
@@ -813,7 +813,7 @@ void complement::computePy(boost::python::numeric::array points,
     num_util::check_dim(types, 0, Np);
     num_util::check_dim(angles, 0, Np);
     
-    num_util::check_dim(shapes, 3, 2);
+    num_util::check_dim(shapes, 2, 2);
     unsigned int Nt = num_util::shape(shapes)[0];
     unsigned int Nmaxverts = num_util::shape(shapes)[1];
     
@@ -823,8 +823,8 @@ void complement::computePy(boost::python::numeric::array points,
     num_util::check_dim(ref_verts, 0, Nref);
     num_util::check_dim(check_verts, 0, Ncheck);
     
-    unsigned int Nmaxrefverts = num_util::shape(ref_verts)[1];
-    unsigned int Nmaxcheckverts = num_util::shape(check_verts)[1];
+    unsigned int Nmaxrefverts = num_util::shape(ref_verts)[0];
+    unsigned int Nmaxcheckverts = num_util::shape(check_verts)[0];
     
     // get the raw data pointers and compute the cell list
     float3* points_raw = (float3*) num_util::data(points);

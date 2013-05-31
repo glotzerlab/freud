@@ -153,15 +153,15 @@ class complement
                 unsigned int Nmaxcheckverts);
 
         //! Python wrapper for compute
-    void computePy(boost::python::numeric::array points,
+    void computePy(boost::python::numeric::array match,
+                    boost::python::numeric::array points,
                     boost::python::numeric::array types,
-                    boost::python::numeric::array A_angles,
-                    boost::python::numeric::array A_shape,
-                    boost::python::numeric::array A_verts,
-                    boost::python::numeric::array B_angles,
-                    boost::python::numeric::array B_shape,
-                    boost::python::numeric::array B_verts,
-                    boost::python::numeric::array match);
+                    boost::python::numeric::array angles,
+                    boost::python::numeric::array shapes,
+                    boost::python::numeric::array ref_list,
+                    boost::python::numeric::array check_list,
+                    boost::python::numeric::array ref_verts,
+                    boost::python::numeric::array check_verts);
 
         //These names need changing...
                        
