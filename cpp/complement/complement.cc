@@ -584,7 +584,7 @@ void complement::computeWithCellList(unsigned int* match,
     // for each reference point
     for (unsigned int i = 0; i < Np; i++)
         {
-        match[i] = 0;
+        // match[i] = 0;
         // need to set up the mask
         float3 point = points[i];
         unsigned int type = types[i];
@@ -700,6 +700,7 @@ void complement::computeWithCellList(unsigned int* match,
                             {
                             printf("particle %i is inside particle %i\n", j, i);
                             match[i] = 1;
+                            match[j] = 1;
                             // printf("shit was inside\n");
                             //raw_cnt++;
                             // printf("value of match array[%i] = %i\n", i, m_match_array[i]);
