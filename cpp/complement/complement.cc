@@ -556,43 +556,29 @@ void complement::computeWithCellList(unsigned int* match,
                 unsigned int Nmaxrefverts,
                 unsigned int Nmaxcheckverts)
     {
-    // assert(ref_points);
-    // assert(points);
-    // assert(Nref > 0);
-    // assert(Np > 0);
     m_nP = Np;
-    printf("%i\n", Nref);
-    // Is it not getting the other particle
-    
-    
-    m_lc->computeCellList(points, Np);
+    m_lc->computeCellList(points, m_nP);
     
     // zero the bin counts for totaling
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-    // printf("I bet this is the seg fault\n");
-    // m_match_array = boost::shared_array<unsigned int>(new unsigned int[m_nP]);
-    // memset((void*)m_match_array.get(), 0, sizeof(unsigned int)*m_nP);
-    // printf("did it seg fault\n");
     float dr_inv = 1.0f / m_dr;
-    // I feel like this should be calculated here, or rather we know that it is 1 because it is normallized
+    // I feel like this should be calculated here, or rather we know that it is 1 because it is normalized
     float rmaxsq = m_rmax * m_rmax;
-    //unsigned int raw_cnt = 0;
     #pragma omp parallel
     {
-    
     #pragma omp for schedule(guided)
-    // for each reference point
+    // for each particle
     for (unsigned int i = 0; i < Np; i++)
         {
-        // match[i] = 0;
-        // need to set up the mask
+        // grab point and type
+        // might be eliminated later for efficiency
         float3 point = points[i];
-        unsigned int type = types[i];
+        unsigned int ref_type = types[i];
         // find if type in refs
         bool in_refs = false;
         for (unsigned int ref_idx = 0; ref_idx < Nref; ref_idx++)
             {
-            if (ref_list[ref_idx] == type)
+            if (ref_list[ref_idx] == ref_type)
                 {
                 in_refs = true;
                 }
@@ -602,22 +588,16 @@ void complement::computeWithCellList(unsigned int* match,
             continue;
             }
         // get the cell the point is in
-        // printf("particle %i\n", i);
         unsigned int ref_cell = m_lc->getCell(point);
-        
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
         for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
             {
-            // printf("neighbor %i\n", neigh_idx);
             unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
             // iterate over the particles in that cell
             locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
-                printf("i = %i j = %i\n", i, j);
-                
                 float3 check = points[j];
                 unsigned int check_type = types[j];
                 // find if type in refs
@@ -633,32 +613,26 @@ void complement::computeWithCellList(unsigned int* match,
                     {
                     continue;
                     }
-                
-                // I bet that I don't need this now that it won't check the bad ones...
+                // retained for self-complementary particles
+                // will skip same particle
                 if (i == j)
                     {
-                    printf("%i==%i...\n", i, j);
                     continue;
                     }
-                
                 // iterate over the verts in the ref particle
                 for (unsigned int k = 0; k < Nmaxrefverts; k++)
                     {
-                    // I do believe there will be an issue if diff amount of teeth
-                    printf("tooth/cavity = %i\n", k);
+                    // requires that the size of the two arrays are the same
+                    // ok because it's supposed to be perfect match
                     unsigned int tooth_index = ref_verts[k];
-                    // This may not be the greatest way to get the shape...or I may need another function
-                    // float2 shape = shapes[type];
                     float2 tooth = shapes[type * Nmaxverts + tooth_index];
-                    
-                    // This would be for all of the cavities, just want the matching one
-                    // for (unsigned int l = 0; l < Nv; l++)
-                    //     {
-                        // printf("cavity %i\n", l);
-                        // unsigned int cavity_index = verts[l];
+                    // allows for different vertex'd shapes to run with dummies at the end
+                    if (tooth.x == nan)
+                        {
+                        continue;
+                        }
                     unsigned int cavity_index = check_verts[k];
                     float2 cavity [3];
-                
                     cavity[0] = shapes[check_type * Nmaxverts + cavity_index - 1];
                     cavity[1] = shapes[check_type * Nmaxverts + cavity_index];
                     cavity[2] = shapes[check_type * Nmaxverts + cavity_index + 1];
@@ -674,36 +648,12 @@ void complement::computeWithCellList(unsigned int* match,
                         point_2D.x = check.x;
                         point_2D.y = check.y;
                         cavity[m] = into_local(ref_2D, point_2D, cavity[m], angles[i], angles[j]);
-                        printf("%f %f\n", cavity[m].x, cavity[m].y);
                         }
-                        
-                        // printf("%f %f %f %f %f %f\n", cavity[0].x, cavity[0].y, cavity[1].x, cavity[1].y, cavity[2].x, cavity[2].y);
-                        // printf("testing if isInside\n");
-                        // return list of matching particles
-                        // This sounds like it isn't working
-                        // bool test = isInside(cavity, tooth);
-                        // float3 m_cav [3];
-                        // for (int c_idx = 0; c_idx < 3; c_idx++)
-                        //     {
-                        //     m_cav[c_idx].x = cavity[c_idx].x;
-                        //     m_cav[c_idx].y = cavity[c_idx].y;
-                        //     m_cav[c_idx].z = 0;
-                        //     }
-                        // float3 m_t;
-                        // m_t.x = tooth.x;
-                        // m_t.y = tooth.y;
-                        // m_t.z = 0.0;
-                        // // No guarantee :(
-                        // bool test = sameSide(m_cav[0], m_cav[2], m_cav[1], m_t);
                         
                         if (isInside(cavity, tooth))
                             {
-                            printf("particle %i is inside particle %i\n", j, i);
                             match[i] = 1;
                             match[j] = 1;
-                            // printf("shit was inside\n");
-                            //raw_cnt++;
-                            // printf("value of match array[%i] = %i\n", i, m_match_array[i]);
                             m_nmatch++;
                             // Calc the relative rdf
                             float dx = float(point.x - check.x);
@@ -717,8 +667,8 @@ void complement::computeWithCellList(unsigned int* match,
                                 // {
                             float r = sqrtf(rsq);
                                 // This selects the bin
-                                // float binr = r * dr_inv / depth;
-                            float binr = r * dr_inv;
+                            float binr = r * dr_inv / depth;
+                            // float binr = r * dr_inv;
                                 // printf("binr %f\n", binr);
                                 // fast float to int conversion with truncation
                                 // #ifdef __SSE2__
@@ -734,19 +684,15 @@ void complement::computeWithCellList(unsigned int* match,
                                 
                             unsigned int bin = (unsigned int)(binr);
                             #pragma omp atomic
-                                // printf("bin %i\n", bin);
                                 m_bin_counts[bin]++;
-                                // }
                         
                             }
-                        
-                        // }
                     
+                        }
                     }
                 }
-            }
-        } // done looping over reference points
-    } // End of parallel section
+            } // done looping over reference points
+        } // End of parallel section
     // printf("starting to compute rdf\n");
     // now compute the rdf
     // Um most of mine might be in the first bin...
@@ -805,24 +751,30 @@ void complement::computePy(boost::python::numeric::array match,
     num_util::check_rank(check_verts, 1);
     num_util::check_type(match, PyArray_INT);
     num_util::check_rank(match, 1);
-    // printf("done with rank checks\n");
-    // validate that the 2nd dimension is only 3
     
+    // get the number of particles
+    // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
     
+    //validate that the types and angles coming in are the correct size
     num_util::check_dim(types, 0, Np);
     num_util::check_dim(angles, 0, Np);
     
+    // validate that the shapes array is 3d
     num_util::check_dim(shapes, 2, 2);
+    // establish the number of types
     unsigned int Nt = num_util::shape(shapes)[0];
+    // establish the max number of verts
     unsigned int Nmaxverts = num_util::shape(shapes)[1];
     
+    // establish the number of reference and check particles
     unsigned int Nref = num_util::shape(ref_list)[0];
     unsigned int Ncheck = num_util::shape(check_list)[0];
     
-    num_util::check_dim(ref_verts, 0, Nref);
-    num_util::check_dim(check_verts, 0, Ncheck);
+    // This isn't quite right
+    // num_util::check_dim(ref_verts, 0, Nref);
+    // num_util::check_dim(check_verts, 0, Ncheck);
     
     unsigned int Nmaxrefverts = num_util::shape(ref_verts)[0];
     unsigned int Nmaxcheckverts = num_util::shape(check_verts)[0];
