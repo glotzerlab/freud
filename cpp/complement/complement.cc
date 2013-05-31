@@ -625,12 +625,12 @@ void complement::computeWithCellList(unsigned int* match,
                     // requires that the size of the two arrays are the same
                     // ok because it's supposed to be perfect match
                     unsigned int tooth_index = ref_verts[k];
-                    float2 tooth = shapes[type * Nmaxverts + tooth_index];
+                    float2 tooth = shapes[ref_type * Nmaxverts + tooth_index];
                     // allows for different vertex'd shapes to run with dummies at the end
-                    if (tooth.x == nan)
-                        {
-                        continue;
-                        }
+                    // if (tooth.x == nan)
+                    //     {
+                    //     continue;
+                    //     }
                     unsigned int cavity_index = check_verts[k];
                     float2 cavity [3];
                     cavity[0] = shapes[check_type * Nmaxverts + cavity_index - 1];
