@@ -777,6 +777,8 @@ void complement::computePy(boost::python::numeric::array match,
     // num_util::check_dim(check_verts, 0, Ncheck);
     
     unsigned int Nmaxrefverts = num_util::shape(ref_verts)[0];
+    // This is expressly for the same number of cavities
+    num_util::check_dim(check_verts, 0, Nmaxrefverts);
     unsigned int Nmaxcheckverts = num_util::shape(check_verts)[0];
     
     // get the raw data pointers and compute the cell list
