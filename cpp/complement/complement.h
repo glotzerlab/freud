@@ -10,7 +10,7 @@
 
 namespace freud { namespace complement {
 
-//! Computes the RDF (g(r)) for a given set of points
+//! Computes the number of matches and strength of match histogram for a given set of points
 /*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
     Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
     
@@ -162,8 +162,6 @@ class complement
                     boost::python::numeric::array check_list,
                     boost::python::numeric::array ref_verts,
                     boost::python::numeric::array check_verts);
-
-        //These names need changing...
                        
         unsigned int getNpairPy()
             {
@@ -171,9 +169,9 @@ class complement
             }
         
         //! Get a reference to the last computed rdf
-        boost::shared_array<float> getRDF()
+        boost::shared_array<float> getSoM()
             {
-            return m_rdf_array;
+            return m_SoM_array;
             }
         
         //! Get a reference to the r array
@@ -189,9 +187,9 @@ class complement
             }
         
         //! Python wrapper for getRDF() (returns a copy)
-        boost::python::numeric::array getRDFPy()
+        boost::python::numeric::array getSoMPy()
             {
-            float *arr = m_rdf_array.get();
+            float *arr = m_SoM_array.get();
             return num_util::makeNum(arr, m_nbins);
             }
 
@@ -217,7 +215,7 @@ class complement
         unsigned int m_nmatch;             //!< Number of matches
         unsigned int m_nP;                  //!< Number of particles
         
-        boost::shared_array<float> m_rdf_array;         //!< rdf array computed
+        boost::shared_array<float> m_SoM_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
         boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at

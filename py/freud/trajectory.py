@@ -726,11 +726,11 @@ class TrajectoryPOS(Trajectory):
         # This is gonna be a hack in the complement branch until I can figure out something
         
         # dim_test = len(self.pos_file.position_list[0][0])
-        dim_test = len(self.pos_file.box_positions[0][0])
-        if dim_test == 2:
-            self.ndim = 2;
-        else:
-            self.ndim = 3
+        # if dim_test == 2:
+        #     self.ndim = 2;
+        # else:
+        #     self.ndim = 3;
+        self.ndim = 2;
         
         # Triclinic support will be needed here...
         box_dims = numpy.asarray(self.pos_file.box_dims[0], dtype=numpy.float32)
@@ -744,12 +744,9 @@ class TrajectoryPOS(Trajectory):
             lx = box_dims[0];
             ly = box_dims[4];
             lz = box_dims[8];
-        #print("lx = {0} ly = {1} lz = {2}".format(*box_dims))
-        self.ndim = 2;
         self.box = Box(float(lx), float(ly), float(lz), self.ndim == 2);
-        #self.box = Box(float(lx), float(ly), self.ndim == 2);
         
-        #Reader can handle changing num particles, but this doesn't
+        # Reader can handle changing num particles, but this doesn't
         # self.num_particles = len(self.pos_file.n_box_points[0])
         self.num_particles = self.pos_file.n_box_points[0]
         
