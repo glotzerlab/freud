@@ -73,7 +73,15 @@ def bisector(p):
     v2 = p[2] - p[1]
     v1 = v1/norm(v1)
     v2 = v2/norm(v2)
-    b = v1 + v2
-    return b / norm(b)
+    v1 = numpy.array([v1[0], v1[1], 0], dtype=numpy.float32)
+    v2 = numpy.array([v2[0], v2[1], 0], dtype=numpy.float32)
+    sign = sinecheck(v1, v2)
+    if (sign < 0):
+        b = v1 + v2
+    else:
+        b = -(  v1 + v2)
+    b = b / norm(b)
+    b = numpy.array([b[0], b[1]], dtype=numpy.float32)
+    return b
      
     
