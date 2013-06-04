@@ -255,12 +255,14 @@ class RepeatedPolygons(Triangles):
             self.colors[:,:] = acolor;
         
         # create a triangulation class
-        tmp_poly = triangulate.triangulate(polygon)
+        tmp_poly = triangulate.triangulate(polygon, outline)
         # decompose the polygon into constituent triangles
         tmp_poly.calculate()
         # put the triangle vertices into a numpy array
         triangle_array = tmp_poly.getTriangles()
+        outline_array = tmp_poly.getOutline()
         N_T = triangle_array.shape[0]
+        N_O = outline_array.shape[0]
        
         # This is slow
         # vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
@@ -273,11 +275,18 @@ class RepeatedPolygons(Triangles):
         
         vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
         color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
+        overt_array = numpy.zeros(shape=tuple([N * N_O, 3, 2]), dtype=numpy.float32)
+        ocolor_array = numpy.zeros(shape=tuple([N * N_O, 4]), dtype=numpy.float32)
         positions_array = self.positions
         angles_array = self.angles
         poly_color_array = self.colors
+        out_color_array = numpy.zeros(shape=tuple([N, 4]), dtype=numpy.float32)
+        out_color_array[:,:] = numpy.array([0.0, 0.0, 0.0, 1.0], dtype=numpy.float32)
         
         _freud.triangle_rotate_mat(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
+        _freud.triangle_rotate_mat(overt_array, ocolor_array, positions_array, angles_array, outline_array, out_color_array)
+        vert_array = numpy.concatenate([vert_array, overt_array])
+        color_array = numpy.concatenate([color_array, ocolor_array])
         # -----------------------------------------------------------------
         # set up outline
         Triangles.__init__(self, vert_array, colors = color_array);

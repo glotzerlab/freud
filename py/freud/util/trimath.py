@@ -2,13 +2,13 @@ from __future__ import division, print_function
 import numpy
 import _freud;
 
-def mag(v):
+def norm(v):
     return numpy.sqrt(numpy.dot(v, v))
 
 def sinecheck(e1, e2):
     cross = numpy.cross(e1, e2)
     k = cross[2]
-    sine = k / (mag(e1) * mag(e2))
+    sine = k / (norm(e1) * norm(e2))
     return sine
 
 def quat_mult(a, b):
@@ -67,3 +67,13 @@ def isInside(t, p):
         return True
     else:
         return False
+
+def bisector(p):
+    v1 = p[0] - p[1]
+    v2 = p[2] - p[1]
+    v1 = v1/norm(v1)
+    v2 = v2/norm(v2)
+    b = v1 + v2
+    return b / norm(b)
+     
+    

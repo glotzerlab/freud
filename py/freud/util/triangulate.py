@@ -5,9 +5,29 @@ from freud.util import trimath
 class triangulate:
     # constructed this way so that triangulate can be called directly without previously creating the polygon
     # Also constructed so that you can create a polygon and it isn't destroyed through triangulation
-    def __init__(self, verts):
-        self.polygon = shapes.polygon(verts)
+    def __init__(self, verts, outline=0.1):
+        # adding in code that will create the outline...will be simple
+        v_copy = numpy.zeros(verts.shape, dtype=numpy.float32)
+        for v in range(verts.shape[0]):
+            v_copy[v] = verts[v]
+        for v in range(v_copy.shape[0]):
+            points = numpy.zeros((3, 2), dtype=numpy.float32)
+            if v == 0:
+                points[0] = v_copy[v_copy.shape[0] - 1]
+            else:
+                points[0] = v_copy[v - 1]
+            points[1] = v_copy[v]
+            if v == (v_copy.shape[0] - 1):
+                points[2] = v_copy[0]
+            else:
+                points[2] = v_copy[v + 1]
+            b = trimath.bisector(points)
+            v_copy[v] = v_copy[v] + b * outline
+        # self.polygon = shapes.polygon(verts)
+        self.polygon = shapes.polygon(v_copy)
         self.triangles = []
+        self.outline = shapes.outline(verts, v_copy)
+        self.toutline = []
 
         # What about storing the vertex indices kinda like pointers instead of the whole triangle set
         # Probably doesn't matter
@@ -45,6 +65,20 @@ class triangulate:
                         i = 0
                     else:
                         i += 1
+        
+        for i in range(self.outline.n):
+            if i == (self.outline.n - 1):
+                j = 0
+            else:
+                j = i + 1
+            verts1 = [(self.outline.vertsB[i][0], self.outline.vertsB[i][1]), (self.outline.vertsA[i][0], self.outline.vertsA[i][1]), (self.outline.vertsA[j][0], self.outline.vertsA[j][1])]
+            verts2 = [(self.outline.vertsB[i][0], self.outline.vertsB[i][1]), (self.outline.vertsA[j][0], self.outline.vertsA[j][1]), (self.outline.vertsB[j][0], self.outline.vertsB[j][1])]
+            t1 = shapes.triangle(verts1)
+            t2 = shapes.triangle(verts2)
+            self.toutline.append(t1)
+            self.toutline.append(t2)
+        
+        
 
     def cut(self, i, j, k, nv):
         A = self.polygon.vertices[i]
@@ -72,6 +106,19 @@ class triangulate:
             t_arr = []
             for i in range(len(self.triangles)):
                 t = self.triangles[i]
+                tmp_t = []
+                for j in range(3):
+                    tmp_t.append((t.vertices[j][0], t.vertices[j][1]))
+                t_arr.append(tmp_t)
+            return numpy.array(t_arr)
+        else:
+            raise TypeError("Triangulation has not yet been performed")
+            
+    def getOutline(self):
+        if self.outline:
+            t_arr = []
+            for i in range(len(self.toutline)):
+                t = self.toutline[i]
                 tmp_t = []
                 for j in range(3):
                     tmp_t.append((t.vertices[j][0], t.vertices[j][1]))
