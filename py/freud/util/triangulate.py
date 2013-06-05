@@ -5,34 +5,37 @@ from freud.util import trimath
 class triangulate:
     # constructed this way so that triangulate can be called directly without previously creating the polygon
     # Also constructed so that you can create a polygon and it isn't destroyed through triangulation
-    def __init__(self, verts, outline=0.1):
-        # adding in code that will create the outline...will be simple
+    def __init__(self, verts, outline):
+        verts = numpy.asarray(verts)
         v_copy = numpy.zeros(verts.shape, dtype=numpy.float32)
         for v in range(verts.shape[0]):
             v_copy[v] = verts[v]
-        for v in range(v_copy.shape[0]):
+        for v in range(verts.shape[0]):
             points = numpy.zeros((3, 2), dtype=numpy.float32)
+            
             if v == 0:
-                points[0] = v_copy[v_copy.shape[0] - 1]
+                points[0] = verts[verts.shape[0] - 1]
             else:
-                points[0] = v_copy[v - 1]
-            points[1] = v_copy[v]
-            if v == (v_copy.shape[0] - 1):
-                points[2] = v_copy[0]
+                points[0] = verts[v - 1]
+            points[1] = verts[v]
+            if v == (verts.shape[0] - 1):
+                points[2] = verts[0]
             else:
-                points[2] = v_copy[v + 1]
-            b = trimath.bisector(points)
-            v_copy[v] = v_copy[v] + b * outline
-        # self.polygon = shapes.polygon(verts)
+                points[2] = verts[v + 1]
+
+            b, theta = trimath.bisector(points)
+
+            if (theta > (numpy.pi/2.0)):
+                phi = numpy.pi - theta
+            else:
+                phi = theta
+            a = outline/numpy.sin(phi)
+            v_copy[v] += b * numpy.sqrt(2.0 * (a)**2 * (1.0 - numpy.cos(numpy.pi - theta)))
         self.polygon = shapes.polygon(v_copy)
         self.triangles = []
         self.outline = shapes.outline(verts, v_copy)
         self.toutline = []
 
-        # What about storing the vertex indices kinda like pointers instead of the whole triangle set
-        # Probably doesn't matter
-
-    # This is the main loop
     def calculate(self):
         if self.polygon.n == 3:
             #print("polygon is already a triangle")

@@ -79,9 +79,37 @@ def bisector(p):
     if (sign < 0):
         b = v1 + v2
     else:
-        b = -(  v1 + v2)
+        b = -(v1 + v2)
     b = b / norm(b)
     b = numpy.array([b[0], b[1]], dtype=numpy.float32)
-    return b
+    angle = numpy.arccos(numpy.dot(v1, v2))
+    return b, angle
+
+# def bisector(p):
+#     v1 = p[0] - p[1]
+#     v2 = p[2] - p[1]
+#     v1 = numpy.array([v1[0], v1[1], 0], dtype=numpy.float32)
+#     v2 = numpy.array([v2[0], v2[1], 0], dtype=numpy.float32)
+#     v1 = v1/norm(v1)
+#     v2 = v2/norm(v2)
+#     theta1 = numpy.arctan2(v1[1], v1[0])
+#     theta2 = numpy.arctan2(v2[1], v2[0])
+#     theta = (theta1 + theta2)/2.0
+#     angle = numpy.abs(theta2 - theta1)
+#     # angle = numpy.arccos(numpy.dot(v1, v2))
+#     b = numpy.array([numpy.cos(theta), numpy.sin(theta)], dtype=numpy.float32)
+#     b = b / norm(b)
+#     mag = norm(p[1])
+#     if mag == float(0):
+#         point = p[1]
+#     else:
+#         point = p[1]/norm(p[1])
+#     # Only guaranteed for convex
+#     sign =  numpy.dot(b, point)
+#     if (sign < 0):
+#         b = b
+#     else:
+#         b = -b
+#     return b, angle
      
     
