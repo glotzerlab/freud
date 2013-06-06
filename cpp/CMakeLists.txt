@@ -53,6 +53,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/density
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
+                    ${CMAKE_CURRENT_SOURCE_DIR}/localql
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_BINARY_DIR}
@@ -86,6 +87,9 @@ set(SOURCES trajectory/trajectory.cc
             molfile/molfile_plugins.h
             molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
+            interface/InterfaceMeasure.h
+            localql/LocalQl.cc
+            localql/LocalQl.h
             interface/InterfaceMeasure.h
             viz/colormap.h
             viz/colormap.cc

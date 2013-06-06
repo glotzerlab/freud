@@ -10,6 +10,7 @@
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
+#include "LocalQl.h"
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
@@ -58,6 +59,7 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
+    localql::export_LocalQl();
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();
