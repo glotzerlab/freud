@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import numpy
 import math
 import time
-import numba
+# import numba
 from ctypes import c_void_p
 from OpenGL import GL as gl
 
@@ -256,7 +256,7 @@ void main()
     ## Fast kernel to generate disk geometry
     #
     @staticmethod
-    @numba.jit('f4(f4[:,:,:], f4[:,:,:], f4[:,:,:], f4[:,:], f4[:,:], f4[:])', nopython=True)
+    # @numba.jit('f4(f4[:,:,:], f4[:,:,:], f4[:,:,:], f4[:,:], f4[:,:], f4[:])', nopython=True)
     def build_geometry(position, mapcoord, color, positions_in, colors_in, diameters_in):
         N = position.shape[0]
         
