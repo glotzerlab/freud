@@ -382,6 +382,11 @@ class TrajectoryXML(Trajectory):
     def getCurrentFrame(self):
         # load the information for the current frame
         configuration = self._parseXML(self.xml_list[self.idx])
+        
+        # Update box 
+        box_config = configuration.getElementsByTagName('box')[0]
+        self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
+        
                 
         for prop in self.dynamic_props.keys():
             if prop == 'type':
