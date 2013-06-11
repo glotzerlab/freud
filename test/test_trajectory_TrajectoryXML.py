@@ -7,7 +7,8 @@ import unittest
 class TestTrajectoryXML(unittest.TestCase):
     def setUp(self):
         self.filenames = ["./data_trajectory_TrajectoryXML/full_output_1.xml",
-                          "./data_trajectory_TrajectoryXML/full_output_2.xml"]
+                          "./data_trajectory_TrajectoryXML/full_output_2.xml",
+                          "./data_trajectory_TrajectoryXML/full_output_3.xml"]
         
         self.expected = {}
         self.expected['position'] = np.asarray([[-1.45, 2.21, 1.56], [8.76, 1.02, 5.60], [5.67, 8.30, 4.67]])
@@ -23,7 +24,6 @@ class TestTrajectoryXML(unittest.TestCase):
         self.expected['typename'] = ["A", "long_type_name", "A"]
         self.expected['typeid'] = [0, 1, 0]
         
-    
     def test_single_file(self):
         traj = TrajectoryXML(self.filenames[0:1])
         frame = traj[0]
@@ -94,12 +94,21 @@ class TestTrajectoryXML(unittest.TestCase):
         frame = traj[1]
         self.assertEqual(frame.time_step, expected)
         
-            
-    
     def test_exceptions(self):
         # When setting dynamic to unsupported properties
         self.assertRaises(KeyError, TrajectoryXML, [""], dynamic=["not_supported"])
         
+    def test_dynamic_box(self):
+        traj = TrajectoryXML(self.filenames)
+        frame = traj[0]
+        npt.assert_almost_equal(frame.box.getLx(), 5.1, decimal=5)
+        npt.assert_almost_equal(frame.box.getLy(), 9.6, decimal=5)
+        npt.assert_almost_equal(frame.box.getLz(), 15.8, decimal=5)
+        
+        frame = traj[2]
+        npt.assert_almost_equal(frame.box.getLx(), 10.0, decimal=5)
+        npt.assert_almost_equal(frame.box.getLy(), 18.0, decimal=5)
+        npt.assert_almost_equal(frame.box.getLz(), 30.0, decimal=5)
         
 if __name__ == '__main__':
     unittest.main()       
