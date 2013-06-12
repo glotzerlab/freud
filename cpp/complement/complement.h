@@ -114,7 +114,8 @@ class complement
                 unsigned int Nref,
                 unsigned int Ncheck,
                 unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts);
+                unsigned int Nmaxcheckverts,
+                float depth);
         
         //! Compute the RDF
     void computeWithoutCellList(unsigned int* match,
@@ -132,7 +133,8 @@ class complement
                 unsigned int Nref,
                 unsigned int Ncheck,
                 unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts);
+                unsigned int Nmaxcheckverts,
+                float depth);
 
     //! Compute the RDF
     void computeWithCellList(unsigned int* match,
@@ -150,7 +152,8 @@ class complement
                 unsigned int Nref,
                 unsigned int Ncheck,
                 unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts);
+                unsigned int Nmaxcheckverts,
+                float depth);
 
         //! Python wrapper for compute
     void computePy(boost::python::numeric::array match,
@@ -161,7 +164,8 @@ class complement
                     boost::python::numeric::array ref_list,
                     boost::python::numeric::array check_list,
                     boost::python::numeric::array ref_verts,
-                    boost::python::numeric::array check_verts);
+                    boost::python::numeric::array check_verts,
+                    float depth);
                        
         unsigned int getNpairPy()
             {

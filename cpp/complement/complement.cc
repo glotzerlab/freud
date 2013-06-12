@@ -393,19 +393,20 @@ void complement::compute(unsigned int* match,
                 unsigned int Nref,
                 unsigned int Ncheck,
                 unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts)
+                unsigned int Nmaxcheckverts,
+                float depth)
     {
     m_nmatch = 0;
     // computeWithCellList(match, points, types, angles, shapes, ref_list, check_list, ref_verts, check_verts, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts);
     if (useCells())
         {
         // printf("with cells\n");
-        computeWithCellList(match, points, types, angles, shapes, ref_list, check_list, ref_verts, check_verts, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts);
+        computeWithCellList(match, points, types, angles, shapes, ref_list, check_list, ref_verts, check_verts, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts, depth);
         }
     else
         {
         // printf("without cells\n");
-        computeWithoutCellList(match, points, types, angles, shapes, ref_list, check_list, ref_verts, check_verts, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts);
+        computeWithoutCellList(match, points, types, angles, shapes, ref_list, check_list, ref_verts, check_verts, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts, depth);
         }
     }
 
@@ -424,7 +425,8 @@ void complement::computeWithoutCellList(unsigned int* match,
                 unsigned int Nref,
                 unsigned int Ncheck,
                 unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts)
+                unsigned int Nmaxcheckverts,
+                float depth)
     {
     m_nP = Np;
     // zero the bin counts for totaling
@@ -487,8 +489,6 @@ void complement::computeWithoutCellList(unsigned int* match,
                 cavity[0] = shapes[check_type * Nmaxverts + cavity_index - 1];
                 cavity[1] = shapes[check_type * Nmaxverts + cavity_index];
                 cavity[2] = shapes[check_type * Nmaxverts + cavity_index + 1];
-                
-                float depth = cavity_depth(cavity);
                     
                 for (unsigned int m = 0; m < 3; m++)
                     {
@@ -514,7 +514,7 @@ void complement::computeWithoutCellList(unsigned int* match,
                     float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                     float r = sqrtf(rsq);
                     // bin that r
-                    float binr = r * dr_inv / depth;
+                    float binr = r * dr_inv; // / depth;
                     // fast float to int conversion with truncation
                     // #ifdef __SSE2__
                     //     unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
@@ -536,7 +536,7 @@ void complement::computeWithoutCellList(unsigned int* match,
     m_N_r_array[0] = 0.0f;
     m_N_r_array[1] = 0.0f;
 
-    for (unsigned int bin = 1; bin < m_nbins; bin++)
+    for (unsigned int bin = 0; bin < m_nbins; bin++)
         {
         float avg_counts = m_bin_counts[bin] / float(m_nP);
         m_SoM_array[bin] = avg_counts / m_vol_array[bin] / ndens;
@@ -561,7 +561,8 @@ void complement::computeWithCellList(unsigned int* match,
                 unsigned int Nref,
                 unsigned int Ncheck,
                 unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts)
+                unsigned int Nmaxcheckverts,
+                float depth)
     {
     m_nP = Np;
     m_lc->computeCellList(points, m_nP);
@@ -643,8 +644,6 @@ void complement::computeWithCellList(unsigned int* match,
                     cavity[1] = shapes[check_type * Nmaxverts + cavity_index];
                     cavity[2] = shapes[check_type * Nmaxverts + cavity_index + 1];
                     
-                    float depth = cavity_depth(cavity);
-                    
                     for (unsigned int m = 0; m < 3; m++)
                         {
                         float2 ref_2D;
@@ -673,7 +672,7 @@ void complement::computeWithCellList(unsigned int* match,
                                 // {
                             float r = sqrtf(rsq);
                                 // This selects the bin
-                            float binr = r * dr_inv / depth;
+                            float binr = r * dr_inv; // / depth;
                             // float binr = r * dr_inv;
                                 // printf("binr %f\n", binr);
                                 // fast float to int conversion with truncation
@@ -708,7 +707,7 @@ void complement::computeWithCellList(unsigned int* match,
     m_N_r_array[1] = 0.0f;
     
     // This might not be working right as it zeros the first bin...
-    for (unsigned int bin = 1; bin < m_nbins; bin++)
+    for (unsigned int bin = 0; bin < m_nbins; bin++)
         {
         float avg_counts = m_bin_counts[bin] / float(m_nP);
         m_SoM_array[bin] = avg_counts / m_vol_array[bin] / ndens;
@@ -728,7 +727,8 @@ void complement::computePy(boost::python::numeric::array match,
                     boost::python::numeric::array ref_list,
                     boost::python::numeric::array check_list,
                     boost::python::numeric::array ref_verts,
-                    boost::python::numeric::array check_verts)
+                    boost::python::numeric::array check_verts,
+                    float depth)
     {
     // points contains all the particle positions; Np x 3
     // types contains all the types; Np (x 1)
@@ -799,7 +799,7 @@ void complement::computePy(boost::python::numeric::array match,
     unsigned int* check_verts_raw = (unsigned int*) num_util::data(check_verts);
     unsigned int* match_raw = (unsigned int*) num_util::data(match);
 
-    compute(match_raw, points_raw, types_raw, angles_raw, shapes_raw, ref_list_raw, check_list_raw, ref_verts_raw, check_verts_raw, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts);
+    compute(match_raw, points_raw, types_raw, angles_raw, shapes_raw, ref_list_raw, check_list_raw, ref_verts_raw, check_verts_raw, Np, Nt, Nmaxverts, Nref, Ncheck, Nmaxrefverts, Nmaxcheckverts, depth);
     }
 
 void export_complement()
