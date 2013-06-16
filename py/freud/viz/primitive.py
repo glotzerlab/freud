@@ -370,13 +370,28 @@ class Spheropolygons(RepeatedPolygons):
 
         # Now interleave the pieces
         result = []
-        for (start, end, curve, dtheta) in zip(absStarts, absEnds, curves, dthetas):
-            result.append(start)
-            result.append(end)
-            result.append(curve)
+        for (end, curve, start, vert, dtheta) in zip(absEnds, curves,
+                                                     numpy.roll(absStarts, -1, axis=0),
+                                                     numpy.roll(vertices, -1, axis=0),
+                                                     dthetas):
+            # convex case: add the end of the last straight line
+            # segment, the curved edge, then the start of the next
+            # straight line segment.
+            if dtheta <= numpy.pi:
+                result.append(end)
+                result.append(curve)
+                result.append(start)
+            # concave case: don't use the curved region, just find the
+            # intersection and add that point.
+            else:
+                l = radius/numpy.cos(dtheta/2)
+                p = start + end - 2*vert
+                p /= trimath.norm(p)
+                result.append(vert + p*l)
+
         result = numpy.vstack(result)
 
-        return(result)
+        return result
 
 ## Image
 #
