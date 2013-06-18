@@ -15,6 +15,7 @@
 #include "colorutil.h"
 #include "triangles.h"
 #include "tbb_config.h"
+#include "WeightedRDF.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -53,6 +54,7 @@ BOOST_PYTHON_MODULE(_freud)
     trajectory::export_trajectory();
     locality::export_LinkCell();
     density::export_RDF();
+    density::export_WeightedRDF();
     density::export_GaussianDensity();
     density::export_LocalDensity();
     cluster::export_Cluster();
