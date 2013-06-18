@@ -522,7 +522,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
 
         settings = QtCore.QSettings("umich.edu", "freud.viz");
         settings.setValue("rt-TrajectoryViewer/geometry", self.saveGeometry());
-        settings.setValue("rt-TrajectoryViewer/fps", self.fps_spinbox.value());
+        settings.setValue("rt-TrajectoryViewer/fps", int(self.fps_spinbox.value()));
         settings.setValue("rt-TrajectoryViewer/window_state", self.saveState());
         self.centralWidget().closeEvent(event);
         QtGui.QMainWindow.closeEvent(self, event);
