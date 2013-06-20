@@ -631,6 +631,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
     @QtCore.Slot()
     def presentFrame(self, frame):
         self.update();
+        self.glWidget.updateGL();
         self.frame_display.emit(frame);
 
 
