@@ -348,13 +348,13 @@ void main()
         gl.glUseProgram(program);
         
         # update the camera matrix
-        camera_uniform = gl.glGetUniformLocation(program, "camera");
+        camera_uniform = gl.glGetUniformLocation(program, b'camera');
         gl.glUniformMatrix4fv(camera_uniform, 1, True, camera.ortho_2d_matrix);
                 
-        outline_uniform = gl.glGetUniformLocation(program, "outline");
+        outline_uniform = gl.glGetUniformLocation(program, b'outline');
         gl.glUniform1f(outline_uniform, self.outline);
 
-        pixel_size_uniform = gl.glGetUniformLocation(program, "pixel_size");
+        pixel_size_uniform = gl.glGetUniformLocation(program, b'pixel_size');
         gl.glUniform1f(pixel_size_uniform, camera.pixel_size);
 
         # bind everything and then draw the disks
@@ -481,7 +481,7 @@ void main()
         gl.glUseProgram(program);
         
         # update the camera matrix
-        camera_uniform = gl.glGetUniformLocation(program, "camera");
+        camera_uniform = gl.glGetUniformLocation(program, b'camera');
         gl.glUniformMatrix4fv(camera_uniform, 1, True, camera.ortho_2d_matrix);
                 
         # bind everything and then draw the disks

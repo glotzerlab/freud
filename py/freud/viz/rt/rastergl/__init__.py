@@ -2,6 +2,7 @@ from __future__ import division, print_function
 
 import numpy
 import math
+import six
 from ctypes import c_void_p
 from OpenGL import GL as gl
 
@@ -190,7 +191,7 @@ class Program(object):
         program = gl.glCreateProgram();
         
         for i,attrib in enumerate(attributes):
-            gl.glBindAttribLocation(program, i, attrib);
+            gl.glBindAttribLocation(program, i, six.b(attrib));
         
         for shader in shaders:
             gl.glAttachShader(program, shader);
