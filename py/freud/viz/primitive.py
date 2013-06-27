@@ -385,7 +385,7 @@ class Spheropolygons(RepeatedPolygons):
             # intersection and add that point.
             else:
                 l = radius/numpy.cos(dtheta/2)
-                p = start + end - 2*vert
+                p = 2*vert - start - end
                 p /= trimath.norm(p)
                 result.append(vert + p*l)
 
