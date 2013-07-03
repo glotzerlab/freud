@@ -2,7 +2,6 @@ from __future__ import division, print_function
 import numpy
 import math
 import time
-# import numba
 from ctypes import c_void_p
 from OpenGL import GL as gl
 
