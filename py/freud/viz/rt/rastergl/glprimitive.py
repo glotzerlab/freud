@@ -468,6 +468,24 @@ void main()
     # \param program OpenGL shader program
     # \param camera The camera to use when drawing
     #
+    
+    def TexFromPNG(self, filename):
+        img = Image.open(filename)
+        img_data = numpy.array(list(img.getdata()), numpy.uint8)
+        
+        texture = glGenTextures(1)
+        glPixelStorei(GL_UNPACK_ALIGNMENT,1)
+        glBindTexture(GL_TEXTURE_2D, texture)
+        
+        # Texture parameters are part of the texture object, so you need to 
+        # specify them only once for a given texture object.
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.size[0], img.size[1], 0, GL_RGB, GL_UNSIGNED_BYTE, img_data)
+        return texture
+    
     def draw(self, program, camera):
         # save state
         gl.glPushAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
