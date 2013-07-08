@@ -4,6 +4,7 @@ import math
 import time
 from ctypes import c_void_p
 from OpenGL import GL as gl
+from PySide import QtGui
 
 null = c_void_p(0)
 
@@ -412,12 +413,15 @@ uniform mat4 camera;
 
 attribute vec4 position;
 attribute vec4 color;
+attribute vec2 texcoord;
 
 varying vec4 v_color;
+varying vec2 v_texcoord;
 void main()
     {
     gl_Position = camera * position;
     v_color = color;
+    v_texcoord = texcoord;
     }
 """;
 
@@ -428,15 +432,28 @@ void main()
     fragment_shader = """
 #version 120
 
+uniform int enable_tex;
+
+uniform sampler2D tex;
+
 varying vec4 v_color;
+varying vec4 v_texcoord;
+
 void main()
     {
-    gl_FragColor = v_color;
+    if (enable_tex && !(v_color.r == 0.0f && v_color.g == 0.0f && v_color.b == 0.0f))
+        {
+        gl_FragColor = texture(tex, v_texcoord);
+        }
+    else
+        {
+        gl_FragColor = v_color;
+        }
     }
 """;
     
     ## Attributes for drawing disks
-    attributes = ['position', 'color'];
+    attributes = ['position', 'color', 'texcoord'];
     
     ## Initialize a cached GL primitive
     # \param prim base Primitive to represent
@@ -462,13 +479,46 @@ void main()
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
         gl.glBufferData(gl.GL_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW);
 
+        self.buffer_texcoord = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoord);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.texcoord, gl.GL_STATIC_DRAW);
+
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+
+        if prim.tex_fname is not None:
+            # load texture
+            tex_img = QtGui.QImage(prim.tex_fname);
+            tex_img.convertToFormat(QtGui.QImage.Format_ARGB32);
+            img_data = numpy.array(tex_img.constBits());
+
+            # remap to RGBA
+            rgba_data = img_data.copy();
+            rgba_data = rgba_data.reshape(shape=(tex_image.width()*tex_image.height(), 4));
+            img_data = img_data.reshape(shape=(tex_image.width()*tex_image.height(), 4));
+            rgba_data[:,0:3] = img_data[:,1:4];
+            rgba_data[:,3] = img_data[:,0];
+
+            # setup texture object
+            self.texture_object = gl.glGenTextures(1);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_object);
+
+            # Texture parameters are part of the texture object, so you need to
+            # specify them only once for a given texture object.
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_BASE_LEVEL, 0);
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAX_LEVEL, 0);
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, tex_image.width(), tex_image.height(), 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, rgba_data);
+
+            gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+
     
     ## Draw the primitive
     # \param program OpenGL shader program
     # \param camera The camera to use when drawing
     #
-    
     def draw(self, program, camera):
         # save state
         gl.glPushAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
@@ -483,7 +533,19 @@ void main()
         # update the camera matrix
         camera_uniform = gl.glGetUniformLocation(program, b'camera');
         gl.glUniformMatrix4fv(camera_uniform, 1, True, camera.ortho_2d_matrix);
-                
+
+        # set whether textures are enabled
+        enable_tex_uniform = gl.glGetUniformLocation(program, b'enable_tex');
+        if prim.tex_fname is None:
+            gl.glUniform1i(enable_tex_uniform, 0);
+        else:
+            gl.glUniform1i(enable_tex_uniform, 1);
+
+            tex_unit = gl.glGetUniformLocation(program, b'tex');
+            gl.glUniform1i(tex_unit, 0);
+            gl.glActiveTexture(gl.GL_TEXTURE0);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_object);
+
         # bind everything and then draw the disks
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
         gl.glEnableVertexAttribArray(0);
@@ -492,7 +554,11 @@ void main()
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
         gl.glEnableVertexAttribArray(1);
         gl.glVertexAttribPointer(1, 4, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
-        
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoord);
+        gl.glEnableVertexAttribArray(2);
+        gl.glVertexAttribPointer(2, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, self.N*3);
 
         # unbind everything we bound
