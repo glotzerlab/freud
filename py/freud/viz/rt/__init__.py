@@ -141,6 +141,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     #
     def initializeGL(self):
         logger.info('OpenGL version: ' + str(gl.glGetString(gl.GL_VERSION)))
+        logger.info('Shader version: ' + str(gl.glGetString(gl.GL_SHADING_LANGUAGE_VERSION)));
         self.draw_gl = rastergl.DrawGL();
 
     ## \internal
