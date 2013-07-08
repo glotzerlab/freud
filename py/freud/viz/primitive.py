@@ -11,6 +11,8 @@ except ImportError:
     QtGui = None;
     logger.info('PySide is not available, Image saving is disabled');
 
+from PIL import Image
+
 from freud.viz import base
 from freud.viz import colorutil
 
@@ -129,7 +131,7 @@ class Triangles(base.Primitive):
     # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
-    def __init__(self, vertices, colors=None, color=None):
+    def __init__(self, vertices, N_T, N_O, tex_file, colors=None, color=None):
         base.Primitive.__init__(self);
 
         # -----------------------------------------------------------------
@@ -145,6 +147,9 @@ class Triangles(base.Primitive):
             raise ValueError("vertices must be a Nx3x2 array");
 
         N = self.vertices.shape[0];
+        self.N_T = N_T
+        self.N_O = N_O
+        self.tex_file = tex_file
 
         # -----------------------------------------------------------------
         # set up colors
@@ -194,7 +199,7 @@ class RepeatedPolygons(Triangles):
     # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
-    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1):
+    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1, tex=False, tex_file=None):
         # -----------------------------------------------------------------
         # set up positions
         # convert to a numpy array
@@ -253,7 +258,6 @@ class RepeatedPolygons(Triangles):
                 raise ValueError("color must be a 4 element array");
 
             self.colors[:,:] = acolor;
-
         # create a triangulation class
         tmp_poly = triangulate.triangulate(polygon, outline)
         # decompose the polygon into constituent triangles
@@ -289,8 +293,10 @@ class RepeatedPolygons(Triangles):
         color_array = numpy.concatenate([color_array, ocolor_array])
         # -----------------------------------------------------------------
         # set up outline
-        Triangles.__init__(self, vert_array, colors = color_array);
+        Triangles.__init__(self, vert_array, N_T, N_O, tex_file, colors = color_array);
         #self.outline = outline;
+            # img = Image.open(tex_file)
+
 
 ## Approximated Spheropolygons
 #
