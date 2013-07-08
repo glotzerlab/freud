@@ -483,8 +483,6 @@ void main()
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoord);
         gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.texcoords, gl.GL_STATIC_DRAW);
 
-        print(prim.texcoords[0:4,:]);
-
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
 
         if prim.tex_fname is not None:
