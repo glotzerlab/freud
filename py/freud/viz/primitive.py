@@ -145,23 +145,20 @@ class Triangles(base.Primitive):
             raise ValueError("vertices must be a Nx3x2 array");
 
         N = self.vertices.shape[0];
-        
+
         if texcoords is None:
             self.texcoords = numpy.zeros(shape=self.vertices.shape(), dtype=numpy.float32)
         else:
             self.texcoords = numpy.array(texcoords, dtype=numpy.float32)
-            
+
         if len(self.texcoords.shape) != 3:
             raise TypeError("texcoords must be a Nx3x2 array");
         if self.texcoords.shape[1] != 3:
             raise ValueError("texcoords must be a Nx3x2 array");
         if self.texcoords.shape[2] != 2:
             raise ValueError("texcoords must be a Nx3x2 array");
-            
-        if tex_fname is None:
-            self.tex_fname = None
-        else:
-            self.tex_fname = tex_fname
+
+        self.tex_fname = tex_fname
 
         # -----------------------------------------------------------------
         # set up colors
