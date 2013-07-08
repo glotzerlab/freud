@@ -441,7 +441,7 @@ varying vec4 v_texcoord;
 
 void main()
     {
-    if (enable_tex && !(v_color.r == 0.0f && v_color.g == 0.0f && v_color.b == 0.0f))
+    if ((enable_tex == 1) && !(v_color.r == 0.0f && v_color.g == 0.0f && v_color.b == 0.0f))
         {
         gl_FragColor = texture(tex, v_texcoord);
         }

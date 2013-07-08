@@ -181,7 +181,7 @@ class Program(object):
         status = gl.glGetShaderiv(shader, gl.GL_COMPILE_STATUS, None);
         if status == gl.GL_FALSE:
             msg = gl.glGetShaderInfoLog(shader);
-            err = "Error compiling shader: " + msg;
+            err = "Error compiling shader: " + str(msg);
             raise RuntimeError(err);
 
         return shader;
