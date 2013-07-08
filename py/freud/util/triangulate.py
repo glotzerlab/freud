@@ -136,8 +136,8 @@ class triangulate:
                     max_y = j[1]
         for i in range(len(t_arr)):
             for j in range(3):
-                t_arr[i][j][0] = (t_arr[i][j][0] - min_x) / max_x
-                t_arr[i][j][1] = (t_arr[i][j][1] - min_y) / max_y
+                t_arr[i][j][0] = (t_arr[i][j][0] - min_x) / (max_x -  min_x)
+                t_arr[i][j][1] = (t_arr[i][j][1] - min_y) / (max_y - min_y)
         return numpy.array(t_arr)
             
     def getOutline(self):
