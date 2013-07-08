@@ -437,13 +437,13 @@ uniform int enable_tex;
 uniform sampler2D tex;
 
 varying vec4 v_color;
-varying vec4 v_texcoord;
+varying vec2 v_texcoord;
 
 void main()
     {
     if ((enable_tex == 1) && !(v_color.r == 0.0f && v_color.g == 0.0f && v_color.b == 0.0f))
         {
-        gl_FragColor = texture(tex, v_texcoord);
+        gl_FragColor = texture2D(tex, v_texcoord);
         }
     else
         {
@@ -481,22 +481,27 @@ void main()
 
         self.buffer_texcoord = gl.glGenBuffers(1);
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoord);
-        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.texcoord, gl.GL_STATIC_DRAW);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.texcoords, gl.GL_STATIC_DRAW);
+
+        print(prim.texcoords[0:4,:]);
 
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
 
         if prim.tex_fname is not None:
             # load texture
             tex_img = QtGui.QImage(prim.tex_fname);
-            tex_img.convertToFormat(QtGui.QImage.Format_ARGB32);
-            img_data = numpy.array(tex_img.constBits());
+            tex_argb_img = tex_img.convertToFormat(QtGui.QImage.Format_ARGB32);
+            img_data = numpy.array(tex_argb_img.constBits());
 
             # remap to RGBA
-            rgba_data = img_data.copy();
-            rgba_data = rgba_data.reshape(shape=(tex_image.width()*tex_image.height(), 4));
-            img_data = img_data.reshape(shape=(tex_image.width()*tex_image.height(), 4));
-            rgba_data[:,0:3] = img_data[:,1:4];
-            rgba_data[:,3] = img_data[:,0];
+            rgba_data = numpy.zeros(shape=(tex_argb_img.width() * tex_argb_img.height(), 4), dtype=numpy.uint8);
+            rgba_data = rgba_data.reshape((tex_img.width()*tex_img.height(), 4));
+            img_data = img_data.reshape((tex_img.width()*tex_img.height(), 4));
+
+            rgba_data[:,0] = img_data[:,2];
+            rgba_data[:,1] = img_data[:,1];
+            rgba_data[:,2] = img_data[:,0];
+            rgba_data[:,3] = img_data[:,3];
 
             # setup texture object
             self.texture_object = gl.glGenTextures(1);
@@ -510,9 +515,11 @@ void main()
             gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_BASE_LEVEL, 0);
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAX_LEVEL, 0);
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, tex_image.width(), tex_image.height(), 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, rgba_data);
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, tex_argb_img.width(), tex_argb_img.height(), 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, rgba_data);
 
             gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+        else:
+            self.texture_object = None;
 
     
     ## Draw the primitive
@@ -536,7 +543,7 @@ void main()
 
         # set whether textures are enabled
         enable_tex_uniform = gl.glGetUniformLocation(program, b'enable_tex');
-        if prim.tex_fname is None:
+        if self.texture_object is None:
             gl.glUniform1i(enable_tex_uniform, 0);
         else:
             gl.glUniform1i(enable_tex_uniform, 1);
