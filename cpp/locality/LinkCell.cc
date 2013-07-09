@@ -4,6 +4,7 @@
 
 #include "num_util.h"
 #include "LinkCell.h"
+#include "ScopedGILRelease.h"
 
 using namespace std;
 using namespace boost::python;
@@ -46,7 +47,11 @@ void LinkCell::computeCellListPy(boost::python::numeric::array points)
     // get the raw data pointers and compute the cell list
     float3* points_raw = (float3*) num_util::data(points);
     
-    computeCellList(points_raw, Np);
+        // compute the cell list with the GIL released
+        {
+        util::ScopedGILRelease gil;
+        computeCellList(points_raw, Np);
+        }
     }
 
 void LinkCell::computeCellList(const float3 *points, unsigned int Np)

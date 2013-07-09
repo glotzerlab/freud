@@ -5,11 +5,18 @@
 #include "LinkCell.h"
 #include "Cluster.h"
 #include "GaussianDensity.h"
+#include "LocalDensity.h"
 #include "RDF.h"
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
 #include "LocalQl.h"
+#include "colormap.h"
+#include "colorutil.h"
+#include "triangles.h"
+#include "tbb_config.h"
+#include "WeightedRDF.h"
+
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
 using namespace freud;
@@ -47,10 +54,16 @@ BOOST_PYTHON_MODULE(_freud)
     trajectory::export_trajectory();
     locality::export_LinkCell();
     density::export_RDF();
+    density::export_WeightedRDF();
     density::export_GaussianDensity();
+    density::export_LocalDensity();
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
     localql::export_LocalQl();
+    viz::export_colormap();
+    viz::export_colorutil();
+    viz::export_triangles();
+    parallel::export_tbb_config();
     }
