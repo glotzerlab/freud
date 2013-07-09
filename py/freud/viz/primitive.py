@@ -147,7 +147,7 @@ class Triangles(base.Primitive):
         N = self.vertices.shape[0];
 
         if texcoords is None:
-            self.texcoords = numpy.zeros(shape=self.vertices.shape(), dtype=numpy.float32)
+            self.texcoords = numpy.zeros(shape=self.vertices.shape, dtype=numpy.float32)
         else:
             self.texcoords = numpy.array(texcoords, dtype=numpy.float32)
 
@@ -312,123 +312,6 @@ class RepeatedPolygons(Triangles):
         else:
             Triangles.__init__(self, vert_array, colors = color_array);
 
-
-class TexturedPolygons(Triangles):
-    ## Initialize a disk primitive
-    # \param positions Nx2 array listing the positions of each polygon (in distance units)
-    # \param angles N array listing the rotation of the polygon about its center (in radians)
-    # \param polygon Kx2 array listing the coordinates of each polygon in its local frame (in distance units)
-    # \param colors Nx4 array listing the colors (rgba 0.0-1.0) of each polygon (in SRGB)
-    # \param color 4 element iterable listing the color to be applied to every polygon (in SRGB)
-    #              \a color overrides anything set by colors
-    # \param outline Outline width (in distance units)
-    #
-    # When colors is none, it defaults to (0,0,0,1) for each particle.
-    #
-    # \note N **must** be the same for each array
-    #
-    # After initialization, the instance will have members positions, angles, polygon and colors, each being a numpy
-    # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
-    # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
-    #
-    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1, tex=False, tex_file=None):
-        # -----------------------------------------------------------------
-        # set up positions
-        # convert to a numpy array
-        self.positions = numpy.array(positions, dtype=numpy.float32);
-        # error check the input
-        if len(self.positions.shape) != 2:
-            raise TypeError("positions must be a Nx2 array");
-        if self.positions.shape[1] != 2:
-            raise ValueError("positions must be a Nx2 array");
-
-        N = self.positions.shape[0];
-
-        # -----------------------------------------------------------------
-        # set up angles
-        self.angles = numpy.array(angles, dtype=numpy.float32);
-
-        # error check angles
-        if len(self.angles.shape) != 1:
-            raise TypeError("angles must be a single dimension array");
-        if self.angles.shape[0] != N:
-            raise ValueError("angles must have N the same as positions");
-
-        # -----------------------------------------------------------------
-        # set up polygon
-        self.polygon = numpy.array(polygon);
-
-        # error check polygon
-        if len(self.polygon.shape) != 2:
-            raise TypeError("polygon must be a Kx2 array");
-        if self.polygon.shape[0] < 3:
-            raise ValueError("polygon must have at least 3 vertices");
-        if self.polygon.shape[1] < 2:
-            raise ValueError("polygon must be a Kx2 array");
-
-        # -----------------------------------------------------------------
-        # set up colors
-        if colors is None:
-            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
-            self.colors[:,3] = 1;
-        else:
-            self.colors = numpy.array(colors, dtype=numpy.float32);
-
-        # error check colors
-        if len(self.colors.shape) != 2:
-            raise TypeError("colors must be a Nx4 array");
-        if self.colors.shape[1] != 4:
-            raise ValueError("colors must have N the same as positions");
-        if self.colors.shape[0] != N:
-            raise ValueError("colors must have N the same as positions");
-
-        if color is not None:
-            acolor = numpy.array(color);
-            if len(acolor.shape) != 1:
-                raise TypeError("color must be a 4 element array");
-            if acolor.shape[0] != 4:
-                raise ValueError("color must be a 4 element array");
-
-            self.colors[:,:] = acolor;
-        # create a triangulation class
-        tmp_poly = triangulate.triangulate(polygon, outline)
-        # decompose the polygon into constituent triangles
-        tmp_poly.calculate()
-        # put the triangle vertices into a numpy array
-        triangle_array = tmp_poly.getTriangles()
-        outline_array = tmp_poly.getOutline()
-        N_T = triangle_array.shape[0]
-        N_O = outline_array.shape[0]
-
-        # This is slow
-        # vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
-        # color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
-        # positions_array = self.positions
-        # angles_array = self.angles
-        # poly_color_array = self.colors
-
-        # _freud.triangle_rotate(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
-
-        vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
-        color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
-        overt_array = numpy.zeros(shape=tuple([N * N_O, 3, 2]), dtype=numpy.float32)
-        ocolor_array = numpy.zeros(shape=tuple([N * N_O, 4]), dtype=numpy.float32)
-        positions_array = self.positions
-        angles_array = self.angles
-        poly_color_array = self.colors
-        out_color_array = numpy.zeros(shape=tuple([N, 4]), dtype=numpy.float32)
-        out_color_array[:,:] = numpy.array([0.0, 0.0, 0.0, 1.0], dtype=numpy.float32)
-
-        _freud.triangle_rotate_mat(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
-        _freud.triangle_rotate_mat(overt_array, ocolor_array, positions_array, angles_array, outline_array, out_color_array)
-        vert_array = numpy.concatenate([vert_array, overt_array])
-        color_array = numpy.concatenate([color_array, ocolor_array])
-        # -----------------------------------------------------------------
-        # set up outline
-        Triangles.__init__(self, vert_array, N_T, N_O, tex_file, colors = color_array);
-        #self.outline = outline;
-            # img = Image.open(tex_file)
-
 ## Approximated Spheropolygons
 #
 # Represent N instances of a spheropolygon in 2D. For this, the
@@ -454,10 +337,13 @@ class Spheropolygons(RepeatedPolygons):
     # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
-    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1, radius=1.0, granularity=5):
+    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1, radius=1.0, granularity=5, tex_fname=None):
         polygon = self.roundCorners(polygon, radius, granularity)
 
-        super(Spheropolygons, self).__init__(positions, angles, polygon, colors, color, outline)
+        if tex_fname is not None:
+            super(Spheropolygons, self).__init__(positions, angles, polygon, colors, color, outline, tex_fname = tex_fname)
+        else:
+            super(Spheropolygons, self).__init__(positions, angles, polygon, colors, color, outline)
 
     ## Round a polygon by a given radius
     # \param vertices Nx2 array or list-like object of points in the polygon

@@ -416,7 +416,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
         self.action_next.setStatusTip('Advance the animation to the next frame');
         self.action_next.triggered.connect(self.gotoNextFrame);
 
-        self.action_prev = QtGui.QAction('Pre&v frame', self);
+        self.action_prev = QtGui.QAction('&Prev frame', self);
         self.action_prev.setShortcut('Left');
         self.action_prev.setStatusTip('Go to the previous animation frame');
         self.action_prev.triggered.connect(self.gotoPrevFrame);
@@ -599,6 +599,8 @@ class TrajectoryViewer(QtGui.QMainWindow):
         if filename:
             img = self.glWidget.grabFrameBuffer();
             img.save(filename);
+            
+    ## Save a snapshot of the current scene with supplied filename
 
     ## Play/pause the animation
     @QtCore.Slot()
