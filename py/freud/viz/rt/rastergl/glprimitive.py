@@ -39,9 +39,14 @@ class Cache(object):
     # Notify the cache that a frame render has completed. The cache may choose to free OpenGL resources at this time.
     # An OpenGL context must be active when calling endFrame();
     def endFrame(self):
+        to_delete = [];
+
         for ident in self.cache.keys():
             if not ident in self.accessed_ids:
                 self.cache[ident].destroy();
+                to_delete.append(ident);
+
+        for ident in to_delete:
                 del self.cache[ident];
 
     ## Destroy OpenGL resources
@@ -51,7 +56,9 @@ class Cache(object):
     def destroy(self):
         for c in self.cache.values():
             c.destroy();
-    
+
+        self.cache = {};
+
     ## Load a value out of the cache
     # \param prim Primitive to load
     # \param typ Class type of the CacheItem
