@@ -640,8 +640,8 @@ class TrajectoryViewer(QtGui.QMainWindow):
 
 # set the default GL format
 glFormat = QtOpenGL.QGLFormat();
-glFormat.setVersion(2, 1);
-glFormat.setProfile( QtOpenGL.QGLFormat.CompatibilityProfile );
+glFormat.setVersion(3, 0);
+glFormat.setProfile( QtOpenGL.QGLFormat.CoreProfile );
 glFormat.setSampleBuffers(True);
-glFormat.setSwapInterval(0);
+glFormat.setSwapInterval(1);
 QtOpenGL.QGLFormat.setDefaultFormat(glFormat);
