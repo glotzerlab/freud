@@ -731,9 +731,20 @@ class TrajectoryPOS(Trajectory):
             ly = box_dims[1];
             lz = box_dims[2];
         else:
-            lx = box_dims[0];
-            ly = box_dims[4];
-            lz = box_dims[8];
+            # This whole bit is kludgey and in need of some standardization.
+            # Store original box matrix as a static property.
+            e1 = box_dims[[0,3,6]]
+            e2 = box_dims[[1,4,7]]
+            e3 = box_dims[[2,5,8]]
+            if not 'boxMatrix' in self.dynamic_props:
+                self.static_props['boxMatrix'] = numpy.asarray([e1, e2, e3]).transpose()
+            # Enlarge tetragonal box to include all of triclinic box. It would be best if
+            # the box matrix were upper triangular and right-handed.
+            diagonal = e1 + e2 + e3
+            box_vecs = numpy.asarray([e1, e2, e3, [0, 0, 0], diagonal])
+            lx = box_vecs[:,0].max() - box_vecs[:,0].min()
+            ly = box_vecs[:,1].max() - box_vecs[:,1].min()
+            lz = box_vecs[:,2].max() - box_vecs[:,2].min()
         #print("lx = {0} ly = {1} lz = {2}".format(*box_dims))
         self.box = Box(float(lx), float(ly), float(lz), self.ndim == 2);
         
