@@ -309,11 +309,15 @@ class file:
             t = self.type_names[frame].index(box_string[0])
             # probably could use a dictionary...
             c = self.class_names[frame][box_string[0]]
+        else:
+            raise Warning("Don't know how to parse string:\n{0}".format(box_string))
+            return None, None, None
         
-        # Check for empty space at the end of the string
-        if c == '"poly3d':
+        if c.strip('"') == 'sphere':
+            p, q = self.parseSphere3D(box_string)
+        else:
+            # Assume that all of the orientable shapes will work similarly
             p, q = self.parsePoly3D(box_string)
-        # Currently expects a quaternion...probably shouldn't have it expect but whatever
         
         return t, p, q
             
@@ -339,4 +343,11 @@ class file:
             else:
                 p = numpy.array([box_string[2], box_string[3], box_string[4]], dtype = numpy.float32)
                 q = numpy.array([box_string[5], box_string[6], box_string[7], box_string[8]], dtype = numpy.float32)
+        return p, q
+
+    def parseSphere3D(self, box_string):
+        while box_string[-1] == '':
+            box_string.pop(-1)
+        p = numpy.array([box_string[-3], box_string[-2], box_string[-1]], dtype = numpy.float32)
+        q = numpy.array([1, 0, 0, 0], dtype = numpy.float32)
         return p, q
