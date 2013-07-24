@@ -96,6 +96,10 @@ void WeightedRDF<T>::compute(const float3 *ref_points,
                              const T *point_values,
                              unsigned int Np)
     {
+    // zero the bin counts for totaling
+    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    for(size_t i(0); i < m_nbins; ++i)
+        m_rdf_array[i] = T();
     if (useCells())
         computeWithCellList(ref_points, ref_values, Nref, points, point_values, Np);
     else
@@ -110,9 +114,6 @@ void WeightedRDF<T>::computeWithoutCellList(const float3 *ref_points,
                  const T *point_values,
                  unsigned int Np)
     {
-    // zero the bin counts for totaling
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
 
@@ -178,8 +179,6 @@ void WeightedRDF<T>::computeWithCellList(const float3 *ref_points,
     // bin the x,y,z particles
     m_lc->computeCellList(points, Np);
 
-    // zero the bin counts for totaling
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
 
