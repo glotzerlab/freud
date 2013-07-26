@@ -14,6 +14,7 @@
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
+#include "split.h"
 #include "tbb_config.h"
 #include "WeightedRDF.h"
 
@@ -65,5 +66,6 @@ BOOST_PYTHON_MODULE(_freud)
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();
+    viz::export_split();
     parallel::export_tbb_config();
     }
