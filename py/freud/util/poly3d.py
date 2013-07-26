@@ -173,11 +173,16 @@ class Hull:
                     break
         return numpy.array(new_neighbors)
     
-    #! Find surface area of polyhedron
-    def getArea(self):
+    #! Find surface area of polyhedron or a face
+    #! \param facet facet to calculate area of (default sum all facet area)
+    def getArea(self, facet=None):
+        if facet is None:
+            facet_list = range(self.nfacets)
+        else:
+            facet_list = list([facet])
         A = 0.0
         # for each face
-        for i in xrange(self.nfacets):
+        for i in facet_list:
             face = self.facets[i]
             #print(face)
             n = self.equations[i, 0:3]
@@ -318,9 +323,15 @@ if __name__ == '__main__':
         passed = False
 
     # Check getArea
-    area = mypoly.getArea()
+    success = True
     tolerance = 1e-6
-    if abs(area - 6.0) < tolerance:
+    area = mypoly.getArea()
+    if abs(area - 6.0) > tolerance:
+        success = False
+    area = mypoly.getArea(1)
+    if abs(area - 1.0) > tolerance:
+        success = False
+    if success:
         print('getArea seems to work')
     else:
         print('getArea found area {a} when it should be 6.0'.format(a=area))
