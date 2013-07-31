@@ -29,12 +29,12 @@ class Cache(object):
     def __init__(self):
         self.cache = {};
         self.accessed_ids = set();
-    
+
     ## Start a frame
     # Notify the cache that a frame render is starting
     def startFrame(self):
         self.accessed_ids.clear()
-    
+
     ## End a frame
     # Notify the cache that a frame render has completed. The cache may choose to free OpenGL resources at this time.
     # An OpenGL context must be active when calling endFrame();
@@ -70,9 +70,9 @@ class Cache(object):
     def get(self, prim, typ):
         if prim.ident not in self.cache:
             self.cache[prim.ident] = typ(prim);
-        
+
         self.accessed_ids.add(prim.ident);
-        
+
         return self.cache[prim.ident];
 
 ## Base class for cached primitives
@@ -82,42 +82,42 @@ class Cache(object):
 # interface. There are a few requirements. 1) GLPrimitives are only created or access while the OpenGL context is active.
 # 2) They initialize their geometry (or other OpenGL entities) on initialization. 3) The __del__() method
 # releases all of the OpenGL entities. 4) They provide a class static vertex_shader, fragment_shader, and attributes.
-# 5) They have a draw() method which draws the primitive. 
+# 5) They have a draw() method which draws the primitive.
 #
 # Other than that, GLPrimitives are free-form and can be implemented however needed for the specific primitive. Typical
 # use-cases will probably just store a few buffers as member variables to be directly accessed by DrawGL calls.
 #
-# Putting the code for shaders, geometry generation, and drawing here keeps it compartmentalized separately from 
-# everything else. Since DrawGL has one method per primitive type, the arguments and interface to draw() can 
+# Putting the code for shaders, geometry generation, and drawing here keeps it compartmentalized separately from
+# everything else. Since DrawGL has one method per primitive type, the arguments and interface to draw() can
 # even differ from primitive to primitive - though there should be some generic standard that most follow for
 # consistency. That generic model will evolve as we add cameras, lights, and materials.
 #
 # Shaders are stored as class static variables. DrawGL compiles and stores all shader programs on initialization.
 # The program index is passed to the draw() method for use in querying parameters, setting the program, etc...
-# 
+#
 class GLPrimitive(object):
     ## The vertex shader for this primitive type
     vertex_shader = '';
-    
+
     ## The fragment shader for this primitive type
     fragment_shader = '';
-    
+
     ## List of attributes for this primitive type's shaders
     # list the attributes (in order) for each type of shader program
     # The order is important, because it defines the order of indices passed to glVertexAttribPointer
     attributes = [];
-    
+
     ## Initialize a cached GL primitive
     # \param prim base Primitive to represent
     #
     def __init__(self, prim):
         pass
-    
+
     ## Draw the primitive
     #
     def draw(self):
         pass
-    
+
     ## Destroy OpenGL resources
     # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
     # resources can be released at a controlled time. (not whenever python decides to call __del__.
@@ -193,10 +193,10 @@ void main()
     vec2 p = v_mapcoord.xy / pixel_size;
     float r = sqrt(dot(p,p));
     float disk_r = v_mapcoord.z/2.0f / pixel_size;
-    
+
     // determine the edges of the various colors
     float color_r = disk_r - outline / pixel_size;
-    
+
     // color the output fragment appropriately
     vec4 color_inside = v_color;
     vec4 color_edge = vec4(0,0,0,v_color.a);
@@ -224,27 +224,27 @@ void main()
         discard;
     }
 """;
-    
+
     ## Attributes for drawing disks
     attributes = ['position', 'mapcoord', 'color'];
-    
+
     ## Initialize a cached GL primitive
     # \param prim base Primitive to represent
     #
     def __init__(self, prim):
         GLPrimitive.__init__(self, prim);
-        
+
         # simple scalar values
         self.N = len(prim.positions);
         self.outline = prim.outline;
-        
+
         # initialize values for buffers
         position = numpy.zeros(shape=(self.N, 6, 2), dtype=numpy.float32);
         mapcoord = numpy.zeros(shape=(self.N, 6, 3), dtype=numpy.float32);
         color = numpy.zeros(shape=(self.N, 6, 4), dtype=numpy.float32);
-        
+
         self.build_geometry(position, mapcoord, color, prim.positions, prim.colors, prim.diameters);
-        
+
         # generate OpenGL buffers and copy data
         self.buffer_position = gl.glGenBuffers(1);
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
@@ -259,25 +259,25 @@ void main()
         gl.glBufferData(gl.GL_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW);
 
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
-    
+
     ## Fast kernel to generate disk geometry
     #
     @staticmethod
     # @numba.jit('f4(f4[:,:,:], f4[:,:,:], f4[:,:,:], f4[:,:], f4[:,:], f4[:])', nopython=True)
     def build_geometry(position, mapcoord, color, positions_in, colors_in, diameters_in):
         N = position.shape[0]
-        
+
         # start all coords at the center, with all the same color
         for i in range(N):
             for j in range(6):
                 position[i,j,0] = positions_in[i,0];
                 position[i,j,1] = positions_in[i,1];
-                
+
                 color[i,j,0] = colors_in[i,0];
                 color[i,j,1] = colors_in[i,1];
                 color[i,j,2] = colors_in[i,2];
                 color[i,j,3] = colors_in[i,3];
-        
+
         # Map of coords
         # 0 --- 2  5
         # |    /  /|
@@ -287,29 +287,29 @@ void main()
         # |/  /    |
         # 1  3 --- 4
         #
-        
+
         # Expand the size of the quad by 5% to leave room for anti-alias pixel rendering on the edge
         # this doesn't guarantee that enough will be rendered, but should work in most cases
         ex_factor = 1.05;
-        
+
         # Update x coordinates
         for i in range(N):
             position[i,0,0] -= diameters_in[i]/2 * ex_factor;
             mapcoord[i,0,0] = -diameters_in[i]/2 * ex_factor;
             mapcoord[i,0,2] = diameters_in[i];
-        
+
             position[i,1,0] -= diameters_in[i]/2 * ex_factor;
             mapcoord[i,1,0] = -diameters_in[i]/2 * ex_factor;
             mapcoord[i,1,2] = diameters_in[i];
-             
+
             position[i,3,0] -= diameters_in[i]/2 * ex_factor;
             mapcoord[i,3,0] = -diameters_in[i]/2 * ex_factor;
             mapcoord[i,3,2] = diameters_in[i];
-        
+
             position[i,2,0] += diameters_in[i]/2 * ex_factor;
             mapcoord[i,2,0] = diameters_in[i]/2 * ex_factor;
             mapcoord[i,2,2] = diameters_in[i];
-        
+
             position[i,4,0] += diameters_in[i]/2 * ex_factor;
             mapcoord[i,4,0] = diameters_in[i]/2 * ex_factor;
             mapcoord[i,4,2] = diameters_in[i];
@@ -333,12 +333,12 @@ void main()
 
             position[i,3,1] -= diameters_in[i]/2 * ex_factor;
             mapcoord[i,3,1] = -diameters_in[i]/2 * ex_factor;
-    
+
             position[i,4,1] -= diameters_in[i]/2 * ex_factor;
             mapcoord[i,4,1] = -diameters_in[i]/2 * ex_factor;
 
         return 0;
-    
+
     ## Draw the primitive
     # \param program OpenGL shader program
     # \param camera The camera to use when drawing
@@ -346,18 +346,18 @@ void main()
     def draw(self, program, camera):
         # save state
         gl.glPushAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
-        
+
         # setup state
         gl.glDisable(gl.GL_MULTISAMPLE);
         gl.glEnable(gl.GL_BLEND);
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
-        
+
         gl.glUseProgram(program);
-        
+
         # update the camera matrix
         camera_uniform = gl.glGetUniformLocation(program, b'camera');
         gl.glUniformMatrix4fv(camera_uniform, 1, True, camera.ortho_2d_matrix);
-                
+
         outline_uniform = gl.glGetUniformLocation(program, b'outline');
         gl.glUniform1f(outline_uniform, self.outline);
 
@@ -368,7 +368,7 @@ void main()
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
         gl.glEnableVertexAttribArray(0);
         gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
-        
+
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_mapcoord);
         gl.glEnableVertexAttribArray(1);
         gl.glVertexAttribPointer(1, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
@@ -376,7 +376,7 @@ void main()
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
         gl.glEnableVertexAttribArray(2);
         gl.glVertexAttribPointer(2, 4, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
-        
+
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, self.N*6);
 
         # unbind everything we bound
@@ -384,10 +384,10 @@ void main()
         gl.glDisableVertexAttribArray(1);
         gl.glDisableVertexAttribArray(2);
         gl.glUseProgram(0);
-        
+
         # restore state
         gl.glPopAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
-    
+
     ## Destroy OpenGL resources
     # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
     # resources can be released at a controlled time. (not whenever python decides to call __del__.
@@ -442,10 +442,10 @@ void main()
     gl_FragColor = v_color;
     }
 """;
-    
+
     ## Attributes for drawing disks
     attributes = ['position', 'color'];
-    
+
     ## Initialize a cached GL primitive
     # \param prim base Primitive to represent
     #
@@ -453,14 +453,14 @@ void main()
         GLPrimitive.__init__(self, prim);
         # simple scalar values
         self.N = int(len(prim.vertices));
-        
+
         # initialize values for buffers
         color = numpy.zeros(shape=(self.N, 3, 4), dtype=numpy.float32);
-        
+
         # start all coords at the center, with all the same color
         for i in range(3):
             color[:,i,:] = prim.colors;
-        
+
         # generate OpenGL buffers and copy data
         self.buffer_position = gl.glGenBuffers(1);
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
@@ -471,7 +471,7 @@ void main()
         gl.glBufferData(gl.GL_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW);
 
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
-    
+
     ## Draw the primitive
     # \param program OpenGL shader program
     # \param camera The camera to use when drawing
@@ -479,37 +479,37 @@ void main()
     def draw(self, program, camera):
         # save state
         gl.glPushAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
-        
+
         # setup state
         gl.glEnable(gl.GL_MULTISAMPLE);
         gl.glEnable(gl.GL_BLEND);
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
-        
+
         gl.glUseProgram(program);
-        
+
         # update the camera matrix
         camera_uniform = gl.glGetUniformLocation(program, b'camera');
         gl.glUniformMatrix4fv(camera_uniform, 1, True, camera.ortho_2d_matrix);
-                
+
         # bind everything and then draw the disks
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
         gl.glEnableVertexAttribArray(0);
         gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
-        
+
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
         gl.glEnableVertexAttribArray(1);
         gl.glVertexAttribPointer(1, 4, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
-        
+
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, self.N*3);
 
         # unbind everything we bound
         gl.glDisableVertexAttribArray(0);
         gl.glDisableVertexAttribArray(1);
         gl.glUseProgram(0);
-        
+
         # restore state
         gl.glPopAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
-    
+
     ## Destroy OpenGL resources
     # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
     # resources can be released at a controlled time. (not whenever python decides to call __del__.

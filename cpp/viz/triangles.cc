@@ -11,15 +11,19 @@
 using namespace std;
 using namespace boost::python;
 
+/*! \file triangles.cc
+    \brief Helper routines for generating triangle geometry
+*/
+
 namespace freud { namespace viz {
 
 /*! \internal
     \quaternion multiplication function in c
-    
+
     \param a Input value: quaternion a (float4)
     \param b Input value: quaternion b (float4)
     \param c Return value: quaternion c (float4)
-    
+
 */
 
 float4 quat_mult(float4 a, float4 b)
@@ -34,11 +38,11 @@ float4 quat_mult(float4 a, float4 b)
 
 /*! \internal
     \float4 dot product function in c
-    
+
     \param a Input value: a (float4)
     \param b Input value: b (float4)
     \param c Return value: c (float)
-    
+
 */
 
 float dot_prod(float4 a, float4 b)
@@ -48,10 +52,10 @@ float dot_prod(float4 a, float4 b)
 
 /*! \internal
     \float4 generates q for quaternion multiplication. Assumes 2D
-    
+
     \param angle Input value: angle to rotate (float)
     \param q Return value: q (float4)
-    
+
 */
 
 float4 gen_q(float angle)
@@ -75,10 +79,10 @@ float4 gen_q(float angle)
 
 /*! \internal
     \float4 generates qs for quaternion multiplication. Assumes 2D
-    
+
     \param angle Input value: angle to rotate (float)
     \param qs Return value: qs (float4)
-    
+
 */
 
 float4 gen_qs(float angle)
@@ -102,16 +106,16 @@ float4 gen_qs(float angle)
 
 /*! \internal
     \float2 rotation function in c based on quaternions
-    
+
     \param point Input value: point to be rotated (float2)
     \param angle Input value: angle to be rotated (float)
     \param rot Return value: rot (float2)
-    
+
 */
 
 float2 q_rotate(float2 point, float angle)
     {
-    
+
     float4 q = gen_q(angle);
     float4 qs = gen_qs(angle);
     float4 tp;
@@ -131,11 +135,11 @@ float2 q_rotate(float2 point, float angle)
 
 /*! \internal
     \float2 rotation function in c based on quaternions
-    
+
     \param point Input value: point to be rotated (float2)
     \param angle Input value: angle to be rotated (float)
     \param rot Return value: rot (float2)
-    
+
 */
 
 float2 mat_rotate(float2 point, float angle)
@@ -150,14 +154,14 @@ float2 mat_rotate(float2 point, float angle)
 
 /*! \internal
     \brief Python wrapper for triangle_rotate
-    
+
     \param vert_array Output triangle vertices (N*NTx3x2 float32 array)
     \param color_array Output triangle colors (N*NTx4 float32 array)
     \param position_array Input values: positions (N element float32 array)
     \param angle_array Input values: angles (N element float32 array)
     \param triangle_array Input values: array of triangle vertices in local coordinates (NTx3x2 element float32 array)
     \param poly_colors Input polygon color array (Nx4 float32 array)
-    
+
 */
 
 void triangle_rotatePy(boost::python::numeric::array vert_array,
@@ -171,14 +175,14 @@ void triangle_rotatePy(boost::python::numeric::array vert_array,
     //ugh I can't remember which is input and which is output...
     //validate input type and rank
     //
-    
+
     num_util::check_type(vert_array, PyArray_FLOAT);
     num_util::check_rank(vert_array, 3);
-    
+
     // validate that the 2nd dimension is 4
     num_util::check_dim(vert_array, 2, 2);
     //unsigned int N = num_util::shape(vert_array)[0];
-    
+
     // check that u is consistent
     num_util::check_type(position_array, PyArray_FLOAT);
     num_util::check_rank(position_array, 2);
@@ -191,13 +195,13 @@ void triangle_rotatePy(boost::python::numeric::array vert_array,
     num_util::check_rank(angle_array, 1);
     if (num_util::shape(angle_array)[0] != N)
         throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
-    
+
     // check that v is consistent
     num_util::check_type(triangle_array, PyArray_FLOAT);
     // I think this should be N_Tx3X2
     num_util::check_rank(triangle_array, 3);
     unsigned int NT = num_util::shape(triangle_array)[0];
-    
+
     num_util::check_type(poly_colors, PyArray_FLOAT);
     // I think this should be N_Tx3X2
     num_util::check_rank(poly_colors, 2);
@@ -205,7 +209,7 @@ void triangle_rotatePy(boost::python::numeric::array vert_array,
         throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
     if (num_util::shape(poly_colors)[1] != 4)
         throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
-    
+
     // get the raw data pointers and compute conversion
     float2* vert_array_raw = (float2*) num_util::data(vert_array);
     float4* color_array_raw = (float4*) num_util::data(color_array);
@@ -213,25 +217,25 @@ void triangle_rotatePy(boost::python::numeric::array vert_array,
     float* angle_array_raw = (float*) num_util::data(angle_array);
     float2* triangle_array_raw = (float2*) num_util::data(triangle_array);
     float4* poly_colors_raw = (float4*) num_util::data(poly_colors);
-    
+
         // compute the colormap with the GIL released
-        
+
         {
         util::ScopedGILRelease gil;
         triangle_rotate(vert_array_raw, color_array_raw, position_array_raw, angle_array_raw, triangle_array_raw, poly_colors_raw, N, NT);
         }
     }
-    
+
 /*! \internal
     \brief Python wrapper for triangle_rotate
-    
+
     \param vert_array Output triangle vertices (N*NTx3x2 float32 array)
     \param color_array Output triangle colors (N*NTx4 float32 array)
     \param position_array Input values: positions (N element float32 array)
     \param angle_array Input values: angles (N element float32 array)
     \param triangle_array Input values: array of triangle vertices in local coordinates (NTx3x2 element float32 array)
     \param poly_colors Input polygon color array (Nx4 float32 array)
-    
+
 */
 
 void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
@@ -245,14 +249,14 @@ void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
     //ugh I can't remember which is input and which is output...
     //validate input type and rank
     //
-    
+
     num_util::check_type(vert_array, PyArray_FLOAT);
     num_util::check_rank(vert_array, 3);
-    
+
     // validate that the 2nd dimension is 4
     num_util::check_dim(vert_array, 2, 2);
     //unsigned int N = num_util::shape(vert_array)[0];
-    
+
     // check that u is consistent
     num_util::check_type(position_array, PyArray_FLOAT);
     num_util::check_rank(position_array, 2);
@@ -265,13 +269,13 @@ void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
     num_util::check_rank(angle_array, 1);
     if (num_util::shape(angle_array)[0] != N)
         throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
-    
+
     // check that v is consistent
     num_util::check_type(triangle_array, PyArray_FLOAT);
     // I think this should be N_Tx3X2
     num_util::check_rank(triangle_array, 3);
     unsigned int NT = num_util::shape(triangle_array)[0];
-    
+
     num_util::check_type(poly_colors, PyArray_FLOAT);
     // I think this should be N_Tx3X2
     num_util::check_rank(poly_colors, 2);
@@ -279,7 +283,7 @@ void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
         throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
     if (num_util::shape(poly_colors)[1] != 4)
         throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
-    
+
     // get the raw data pointers and compute conversion
     float2* vert_array_raw = (float2*) num_util::data(vert_array);
     float4* color_array_raw = (float4*) num_util::data(color_array);
@@ -287,9 +291,9 @@ void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
     float* angle_array_raw = (float*) num_util::data(angle_array);
     float2* triangle_array_raw = (float2*) num_util::data(triangle_array);
     float4* poly_colors_raw = (float4*) num_util::data(poly_colors);
-    
+
         // compute the colormap with the GIL released
-        
+
         {
         util::ScopedGILRelease gil;
         triangle_rotate_mat(vert_array_raw, color_array_raw, position_array_raw, angle_array_raw, triangle_array_raw, poly_colors_raw, N, NT);
@@ -302,10 +306,10 @@ void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
     \param v_array Input values: intensity (N element float32 array)
     \param a Alpha value
 */
-    
+
 /*! \internal
     \brief Python wrapper for triangle_rotate
-    
+
     \param vert_array Output triangle vertices (N*NTx3x2 float32 array)
     \param color_array Output triangle colors (N*NTx4 float32 array)
     \param position_array Input values: positions (N element float32 array)
@@ -314,7 +318,7 @@ void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
     \param poly_colors Input polygon color array (Nx4 float32 array)
     \param N Input: number of polygons (unsigned int)
     \param NT Input: number of triangles per polygon (unsigned int)
-    
+
 */
 
 void triangle_rotate(float2 *vert_array,
@@ -326,9 +330,9 @@ void triangle_rotate(float2 *vert_array,
               unsigned int N,
               unsigned int NT)
     {
-    
+
     // For every polygon aka position
-    
+
     for (unsigned int i = 0; i < N; i++)
         {
         // for every triangle in that polygon
@@ -347,9 +351,9 @@ void triangle_rotate(float2 *vert_array,
                 //translate
                 //put in array
                 color_array[i * NT + j] = poly_colors[i];
-                
+
             }
-        
+
         }
     }
 
@@ -362,9 +366,9 @@ void triangle_rotate_mat(float2 *vert_array,
               unsigned int N,
               unsigned int NT)
     {
-    
+
     // For every polygon aka position
-    
+
     for (unsigned int i = 0; i < N; i++)
         {
         // for every triangle in that polygon
@@ -377,7 +381,7 @@ void triangle_rotate_mat(float2 *vert_array,
                     float2 new_vert;
                     // Put in for benchmarking
                     // for the love of god take out later
-                    
+
                     new_vert = mat_rotate(tri_array[j * 3 + k], angle_array[i]);
                     new_vert.x = new_vert.x + position_array[i].x;
                     new_vert.y = new_vert.y + position_array[i].y;
@@ -386,9 +390,9 @@ void triangle_rotate_mat(float2 *vert_array,
                 //translate
                 //put in array
                 color_array[i * NT + j] = poly_colors[i];
-                
+
             }
-        
+
         }
     }
 

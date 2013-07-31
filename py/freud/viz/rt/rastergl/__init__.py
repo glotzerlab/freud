@@ -24,12 +24,12 @@ null = c_void_p(0)
 # Instantiating a DrawGL loads shaders and performs other common init tasks. You can then call draw() as many times as
 # you want to draw GL frames.
 #
-# DrawGL uses the visitor pattern to handle output methods for different primitives. 
+# DrawGL uses the visitor pattern to handle output methods for different primitives.
 # The method used is described here: http://peter-hoffmann.com/2010/extrinsic-visitor-pattern-python-inheritance.html
 #
 # Internally, GL geometry differs from the raw primitive data. DrawGL generates this geometry on the fly as needed
 # and stores it in a cache. The next draw call will reuse geometry data out of the cache for primitives that are
-# identical. This is why primitives encourage recreation of primitives and not changing the data. 
+# identical. This is why primitives encourage recreation of primitives and not changing the data.
 #
 class DrawGL(object):
     ## Initialize a DrawGL
@@ -40,14 +40,14 @@ class DrawGL(object):
         self.programs = {};
         for cls in class_list:
             self.programs[cls] = Program(cls);
-        
+
         self.cache = glprimitive.Cache();
 
     ## Start a frame
     # Notify the cache that a frame render is starting
     def startFrame(self):
         self.cache.startFrame();
-    
+
     ## End a frame
     # Notify the cache that a frame render has completed. The cache may choose to free OpenGL resources at this time.
     # An OpenGL context must be active when calling endFrame();
@@ -62,7 +62,7 @@ class DrawGL(object):
         # destroy programs
         for p in self.programs.values():
             p.destroy();
-        
+
         # destroy cache
         self.cache.destroy();
 
@@ -80,7 +80,7 @@ class DrawGL(object):
     def draw_Scene(self, scene):
         # setup the camera
         self.camera = scene.camera;
-        
+
         # loop through the render primitives and write out each one
         for i,group in enumerate(scene.groups):
             # apply the group transformation matrix
@@ -95,7 +95,7 @@ class DrawGL(object):
         # shorthand for the class type of the GLPrimitive
         cls = glprimitive.GLDisks;
         program = self.programs[cls].program;
-        
+
         # get the geometry from the cache and draw it
         glprim = self.cache.get(prim, cls);
         glprim.draw(program, self.camera);
@@ -108,7 +108,7 @@ class DrawGL(object):
         # shorthand for the class type of the GLPrimitive
         cls = glprimitive.GLTriangles;
         program = self.programs[cls].program;
-        
+
         # get the geometry from the cache and draw it
         glprim = self.cache.get(prim, cls);
         glprim.draw(program, self.camera);
@@ -119,7 +119,7 @@ class DrawGL(object):
     #
     def draw_Image(self, img):
         pass
-        
+
     ## Draw a viz element
     # \param obj Object to write
     # \note There **must** be an active OpenGL context when draw is called.
@@ -149,35 +149,35 @@ class Program(object):
     #
     def __init__(self, glprim=None):
         self.program = self._initialize_program(glprim.vertex_shader, glprim.fragment_shader, glprim.attributes);
-    
+
     ## Destroy OpenGL resources
     # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
     # resources can be released at a controlled time. (not whenever python decides to call __del__.
     #
     def destroy(self):
         gl.glDeleteProgram(self.program);
-    
+
     @staticmethod
     def _initialize_program(vertex_shader, fragment_shader, attributes):
         shaders = [];
-        
+
         shaders.append(Program._create_shader(gl.GL_VERTEX_SHADER, vertex_shader));
         shaders.append(Program._create_shader(gl.GL_FRAGMENT_SHADER, fragment_shader));
-        
+
         program = Program._create_program(shaders, attributes);
 
         for shader in shaders:
             gl.glDeleteShader(shader);
-        
+
         return program;
 
     @staticmethod
     def _create_shader(stype, source):
         shader = gl.glCreateShader(stype);
         gl.glShaderSource(shader, source);
-        
+
         gl.glCompileShader(shader);
-        
+
         status = gl.glGetShaderiv(shader, gl.GL_COMPILE_STATUS, None);
         if status == gl.GL_FALSE:
             msg = gl.glGetShaderInfoLog(shader);
@@ -189,22 +189,22 @@ class Program(object):
     @staticmethod
     def _create_program(shaders, attributes):
         program = gl.glCreateProgram();
-        
+
         for i,attrib in enumerate(attributes):
             gl.glBindAttribLocation(program, i, six.b(attrib));
-        
+
         for shader in shaders:
             gl.glAttachShader(program, shader);
-        
+
         gl.glLinkProgram(program);
-        
+
         status = gl.glGetProgramiv(program, gl.GL_LINK_STATUS, None);
         if status == gl.GL_FALSE:
             msg = gl.glGetProgramInfoLog(shader);
             err = "Error compiling shader: " + msg;
             raise RuntimeError(err);
-        
+
         for shader in shaders:
             gl.glDetachShader(program, shader);
-        
+
         return program;

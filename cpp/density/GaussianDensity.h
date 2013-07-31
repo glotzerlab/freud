@@ -8,12 +8,16 @@
 #ifndef _GaussianDensity_H__
 #define _GaussianDensity_H__
 
+/*! \file GaussianDensity.h
+    \brief Routines for computing Gaussian smeared densities from points
+*/
+
 namespace freud { namespace density {
 
 //! Computes the the density of a system on a grid.
-/*! Replaces particle positions with a gaussian and calculates the 
+/*! Replaces particle positions with a gaussian and calculates the
         contribution from the grid based upon the the distance of the grid cell
-        from the center of the Gaussian. 
+        from the center of the Gaussian.
 */
 class GaussianDensity
     {
@@ -49,7 +53,7 @@ class GaussianDensity
                 dims.push_back(m_width);
                 if (!m_box.is2D())
                     dims.push_back(m_width);
-                
+
                 return num_util::makeNum(arr, dims);
                 }
     private:

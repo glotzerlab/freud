@@ -266,28 +266,28 @@ class TestLocalQl(unittest.TestCase):
     def test_qlfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661); 
-        
+        box = trajectory.Box(17.661,17.661,17.661);
+
         localq4 = localql.LocalQl(box, rcut, 4);
         localq4.compute(testpoints);
         q4vals = localq4.getQl();
         meanq4 = np.mean(q4vals);
-        
+
         localq6 = localql.LocalQl(box, rcut, 6);
         localq6.compute(testpoints);
         q6vals = localq6.getQl();
         meanq6 = np.mean(q6vals);
-        
+
         localq8 = localql.LocalQl(box, rcut, 8);
         localq8.compute(testpoints);
         q8vals = localq8.getQl();
         meanq8 = np.mean(q8vals);
-        
+
         localq10 = localql.LocalQl(box, rcut, 10);
         localq10.compute(testpoints);
         q10vals = localq10.getQl();
         meanq10 = np.mean(q10vals);
-        
+
         #Assert these tests have same value as literature
         #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
         #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
@@ -296,11 +296,11 @@ class TestLocalQl(unittest.TestCase):
         npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="Q8fail")
         npt.assert_almost_equal(meanq10, 0.09, decimal=2, err_msg="Q10fail")
 
-        
-        
-        
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
-        
-        
+
+

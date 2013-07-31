@@ -22,6 +22,10 @@ using namespace boost::python;
 namespace bnp=boost::python::numeric;
 using namespace freud;
 
+/*! \file module.cc
+    \brief _freud.so python exports
+*/
+
 /* numpy is terrible (see /opt/local/Library/Frameworks/Python.framework/Versions/2.7/
 lib/python2.7/site-packages/numpy/core/generate_numpy_array.py)
 The following #defines help get around this

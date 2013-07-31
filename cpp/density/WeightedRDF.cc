@@ -15,6 +15,10 @@ using namespace std;
 using namespace boost::python;
 using namespace freud;
 
+/*! \file WeightedRDF.cc
+    \brief Weighted radial density functions
+*/
+
 template<typename T>
 WeightedRDF<T>::WeightedRDF(const trajectory::Box& box, float rmax, float dr)
     : m_box(box), m_rmax(rmax), m_dr(dr)

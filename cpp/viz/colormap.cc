@@ -12,11 +12,15 @@ using namespace std;
 using namespace boost::python;
 using namespace tbb;
 
+/*! \file colormap.cc
+    \brief Colormap build routines
+*/
+
 namespace freud { namespace viz {
 
 /*! \internal
     \brief Python wrapper for hsv2RGBA
-    
+
     \param cmap Output colormap (Nx4 float32 array)
     \param theta Input values: hue angle (N element float32 array)
     \param s Input values: saturation (N element float32 array)
@@ -32,11 +36,11 @@ void hsv2RGBAPy(boost::python::numeric::array cmap,
     //validate input type and rank
     num_util::check_type(cmap, PyArray_FLOAT);
     num_util::check_rank(cmap, 2);
-    
+
     // validate that the 2nd dimension is 4
     num_util::check_dim(cmap, 1, 4);
     unsigned int N = num_util::shape(cmap)[0];
-    
+
     // check that u is consistent
     num_util::check_type(theta, PyArray_FLOAT);
     num_util::check_rank(theta, 1);
@@ -48,19 +52,19 @@ void hsv2RGBAPy(boost::python::numeric::array cmap,
     num_util::check_rank(s, 1);
     if (num_util::shape(s)[0] != N)
         throw std::invalid_argument("Input lengths for cmap and s must match");
-    
+
     // check that v is consistent
     num_util::check_type(v, PyArray_FLOAT);
     num_util::check_rank(v, 1);
     if (num_util::shape(v)[0] != N)
         throw std::invalid_argument("Input lengths for cmap and v must match");
-    
+
     // get the raw data pointers and compute conversion
     float4* cmap_raw = (float4*) num_util::data(cmap);
     float* theta_raw = (float*)num_util::data(theta);
     float* s_raw = (float*)num_util::data(s);
     float* v_raw = (float*)num_util::data(v);
-    
+
         // compute the colormap with the GIL released
         {
         util::ScopedGILRelease gil;
@@ -88,7 +92,7 @@ class ComputeHSV2RGBA
             : m_cmap(cmap), m_theta_array(theta_array), m_s_array(s_array), m_v_array(v_array), m_a(a)
             {
             }
-        
+
         void operator()( const blocked_range<size_t>& r ) const
             {
             float4 *cmap = m_cmap;
@@ -96,7 +100,7 @@ class ComputeHSV2RGBA
             const float *s_array = m_s_array;
             const float *v_array = m_v_array;
             const float a = m_a;
-                
+
             for (size_t i = r.begin(); i < r.end(); ++i)
                 {
                 // algorithm from http://en.wikipedia.org/wiki/HSL_and_HSV
@@ -104,24 +108,24 @@ class ComputeHSV2RGBA
                 float chroma;
                 float Hprime;
                 float X;
-                
+
                 // fix s and V to 1.0 for now.
                 float v = v_array[i];
                 float s = s_array[i];
-                
+
                 // temporary holders for r,g,b
                 float r=0.0f, g=0.0f, b=0.0f;
-                
+
                 // map angle to 0-2pi range
                 float theta = fmodf(theta_array[i],M_PI*2.0f);
                 if (theta < 0.0f)
                     theta += M_PI*2.0f;
 
-                // compute rgb from hue angle             
+                // compute rgb from hue angle
                 chroma = s*v;
                 Hprime = theta / (M_PI / 3.0f);
                 X = chroma * (1.0f - fabsf(fmodf(Hprime, 2.0f) - 1.0f));
-             
+
                 if(Hprime < 1.0f)
                     {
                     r = chroma;
@@ -152,13 +156,13 @@ class ComputeHSV2RGBA
                     r = chroma;
                     b = X;
                     }
-             
+
                 min = v - chroma;
-             
+
                 r += min;
                 g += min;
                 b += min;
-                
+
                 cmap[i].x = powf(r, 1.0f/2.2f);
                 cmap[i].y = powf(g, 1.0f/2.2f);
                 cmap[i].z = powf(b, 1.0f/2.2f);
@@ -187,7 +191,7 @@ void hsv2RGBA(float4 *cmap,
 
 /*! \internal
     \brief Python wrapper for jet
-    
+
     \param cmap Output colormap (Nx4 float32 array)
     \param u Input values: linear in range 0-1 (N element float32 array)
     \param a Alpha value
@@ -199,11 +203,11 @@ void jetPy(boost::python::numeric::array cmap,
     //validate input type and rank
     num_util::check_type(cmap, PyArray_FLOAT);
     num_util::check_rank(cmap, 2);
-    
+
     // validate that the 2nd dimension is 4
     num_util::check_dim(cmap, 1, 4);
     unsigned int N = num_util::shape(cmap)[0];
-    
+
     // check that u is consistent
     num_util::check_type(u, PyArray_FLOAT);
     num_util::check_rank(u, 1);
@@ -213,7 +217,7 @@ void jetPy(boost::python::numeric::array cmap,
     // get the raw data pointers and compute conversion
     float4* cmap_raw = (float4*) num_util::data(cmap);
     float* u_raw = (float*)num_util::data(u);
-    
+
         // compute the colormap with the GIL released
         {
         util::ScopedGILRelease gil;
@@ -237,35 +241,35 @@ class ComputeJet
             : m_cmap(cmap), m_u_array(u_array), m_a(a)
             {
             }
-        
+
         void operator()( const blocked_range<size_t>& r ) const
             {
             float4 *cmap = m_cmap;
             const float *u_array = m_u_array;
-                
+
             for (size_t i = r.begin(); i < r.end(); ++i)
                 {
                 // clamp the input
                 float u = u_array[i];
                 u = max(0.0f, u);
                 u = min(1.0f, u);
-                                    
+
                 // compute jet map
                 float v = 4.0f * u_array[i];
                 float r = min(v - 1.5f, -v + 4.5f);
                 float g = min(v - 0.5f, -v + 3.5f);
                 float b = min(v + 0.5f, -v + 2.5f);
- 
+
                 // clamp to range 0,1
                 r = max(0.0f, r);
                 r = min(1.0f, r);
- 
+
                 g = max(0.0f, g);
                 g = min(1.0f, g);
- 
+
                 b = max(0.0f, b);
                 b = min(1.0f, b);
-                     
+
                 /*cmap[i].x = powf(r, 1.0f/2.2f);
                 cmap[i].y = powf(g, 1.0f/2.2f);
                 cmap[i].z = powf(b, 1.0f/2.2f);*/

@@ -8,6 +8,10 @@
 #ifndef _WEIGHTEDRDF_H__
 #define _WEIGHTEDRDF_H__
 
+/*! \file WeightedRDF.cc
+    \brief Weighted radial density functions
+*/
+
 namespace freud { namespace density {
 
 //! Computes the RDF (g(r)) for a given set of points, weighted by the product of values associated with each point.

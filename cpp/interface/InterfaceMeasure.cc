@@ -3,6 +3,10 @@
 using namespace std;
 using namespace boost::python;
 
+/*! \file InterfaceMeasure.h
+    \brief Compute the size of an interface between two point clouds
+*/
+
 namespace freud { namespace interface {
 
 InterfaceMeasure::InterfaceMeasure(const trajectory::Box& box, float r_cut)
@@ -22,7 +26,7 @@ unsigned int InterfaceMeasure::compute(const float3 *ref_points,
     assert(Nref > 0);
     assert(Np > 0);
 
-    // bin the second set of points 
+    // bin the second set of points
     m_lc.computeCellList(points, Np);
 
     unsigned int interfaceCount = 0;
@@ -79,7 +83,7 @@ unsigned int InterfaceMeasure::computePy(boost::python::numeric::array ref_point
     // validate input type
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_type(points, PyArray_FLOAT);
-    
+
     // validate input rank
     num_util::check_rank(ref_points, 2);
     num_util::check_rank(points, 2);

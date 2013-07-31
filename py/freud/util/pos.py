@@ -19,14 +19,14 @@ class file:
         self.ndone = 0;
         self.nbox = 0;
         self.neof = 0;
-        
+
         # Creates dictionaries for the data dims at each frame
         # The number of data dims at each frame
         # Number of data points at each frame
         self.data_dims = [];
         self.n_data_dims = [];
         self.n_data_points = [];
-        
+
         self.box_dims = [];
         self.n_box_dims = [];
         self.n_def_count = [];
@@ -37,7 +37,7 @@ class file:
         self.done_tell = [];
         self.box_tell = [];
         self.eof_tell = [];
-        
+
         #Dictionary that will hold the data, position numpy arrays at each frame
         #self.data = {};
         #self.position = {};
@@ -193,7 +193,7 @@ class file:
         self.def_tell = def_tell
         self.eof_tell = eof_tell
         self.neof = neof
-    
+
     def grabData(self):
         self.n_data_points = numpy.zeros(self.ndata, dtype=numpy.int32)
         # print(self.n_data_points.shape)
@@ -312,26 +312,26 @@ class file:
         else:
             raise Warning("Don't know how to parse string:\n{0}".format(box_string))
             return None, None, None
-        
+
         if c.strip('"') == 'sphere':
             p, q = self.parseSphere3D(box_string)
         else:
             # Assume that all of the orientable shapes will work similarly
             p, q = self.parsePoly3D(box_string)
-        
+
         return t, p, q
-            
-        
+
+
     def parsePoly3D(self, box_string):
         while box_string[-1] == '':
             box_string.pop(-1)
-        
+
         if len(box_string) == 8:
             p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
             q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
             # q is correct here...
         else:
-    
+
         # Assuming that color is either in the second or last place:
             test_color = box_string[1]
         # Hopefully this works

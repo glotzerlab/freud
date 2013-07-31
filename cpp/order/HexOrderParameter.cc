@@ -9,8 +9,12 @@ using namespace std;
 using namespace boost::python;
 using namespace tbb;
 
+/*! \file HexOrderParameter.h
+    \brief Compute the hexatic order parameter for each particle
+*/
+
 namespace freud { namespace order {
-    
+
 HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax, float k=6)
     :m_box(box), m_rmax(rmax), m_k(k), m_lc(box, rmax), m_Np(0)
     {
@@ -35,12 +39,12 @@ class ComputeHexOrderParameter
             : m_box(box), m_rmax(rmax), m_k(k), m_lc(lc), m_points(points), m_psi_array(psi_array)
             {
             }
-        
+
         void operator()( const blocked_range<size_t>& r ) const
             {
             const float3 *points = m_points;
             float rmaxsq = m_rmax * m_rmax;
-            
+
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
                 m_psi_array[i] = 0;
@@ -48,13 +52,13 @@ class ComputeHexOrderParameter
                 float3 ref = points[i];
                 unsigned int ref_cell = m_lc.getCell(ref);
                 unsigned int num_adjacent = 0;
-                
+
                 //loop over neighboring cells
                 const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
                 for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
                     {
                     unsigned int neigh_cell = neigh_cells[neigh_idx];
-                    
+
                     //iterate over particles in cell
                     locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
@@ -64,7 +68,7 @@ class ComputeHexOrderParameter
                         float dy = float(ref.y - points[j].y);
                         float dz = float(ref.z - points[j].z);
                         float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                        
+
                         float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                         if (rsq < rmaxsq && rsq > 1e-6)
                             {
@@ -75,7 +79,7 @@ class ComputeHexOrderParameter
                             }
                         }
                     }
-                
+
                 // Don't divide by zero if the particle has no neighbors (this leaves psi at 0)
                 if(num_adjacent)
                     m_psi_array[i] /= complex<float>(num_adjacent);
@@ -93,7 +97,7 @@ void HexOrderParameter::compute(const float3 *points, unsigned int Np)
         {
         m_psi_array = boost::shared_array<complex<float> >(new complex<float> [Np]);
         }
-    
+
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_k, m_lc, points));
 
@@ -106,21 +110,21 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
     //validate input type and rank
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
-    
+
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
-    
+
     // get the raw data pointers and compute order parameter
     float3* points_raw = (float3*) num_util::data(points);
-        
+
         // compute the order parameter with the GIL released
         {
         util::ScopedGILRelease gil;
         compute(points_raw, Np);
         }
     }
-    
+
 void export_HexOrderParameter()
     {
     class_<HexOrderParameter>("HexOrderParameter", init<trajectory::Box&, float>())
@@ -130,7 +134,7 @@ void export_HexOrderParameter()
         .def("getPsi", &HexOrderParameter::getPsiPy)
         ;
     }
-    
+
 }; }; // end namespace freud::order
 
 

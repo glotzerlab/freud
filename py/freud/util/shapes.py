@@ -99,7 +99,7 @@ class triangle:
             raise TypeError("positions must be an 3x2 array")
         self.n = 3
         self.is_cclockwise()
-    
+
     def is_cclockwise(self):
         sign_sum = 0.0
         for j in range(self.n):

@@ -12,7 +12,7 @@ class triangulate:
             v_copy[v] = verts[v]
         for v in range(verts.shape[0]):
             points = numpy.zeros((3, 2), dtype=numpy.float32)
-            
+
             if v == 0:
                 points[0] = verts[verts.shape[0] - 1]
             else:
@@ -45,7 +45,7 @@ class triangulate:
             verts = [(self.polygon.vertices[i][0], self.polygon.vertices[i][1]), (self.polygon.vertices[j][0], self.polygon.vertices[j][1]), (self.polygon.vertices[k][0], self.polygon.vertices[k][1])]
             t = shapes.triangle(verts)
             self.triangles.append(t)
-        
+
         else:
             # polygon gets divided into n - 2 triangles
             nv = self.polygon.n
@@ -68,7 +68,7 @@ class triangulate:
                         i = 0
                     else:
                         i += 1
-        
+
         for i in range(self.outline.n):
             if i == (self.outline.n - 1):
                 j = 0
@@ -80,8 +80,8 @@ class triangulate:
             t2 = shapes.triangle(verts2)
             self.toutline.append(t1)
             self.toutline.append(t2)
-        
-        
+
+
 
     def cut(self, i, j, k, nv):
         A = self.polygon.vertices[i]
@@ -116,7 +116,7 @@ class triangulate:
             return numpy.array(t_arr)
         else:
             raise TypeError("Triangulation has not yet been performed")
-            
+
     def getOutline(self):
         if self.outline:
             t_arr = []

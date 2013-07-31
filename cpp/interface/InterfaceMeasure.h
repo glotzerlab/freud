@@ -8,15 +8,19 @@
 #ifndef _INTERFACEMEASURE_H_
 #define _INTERFACEMEASURE_H_
 
+/*! \file InterfaceMeasure.h
+    \brief Compute the size of an interface between two point clouds
+*/
+
 namespace freud { namespace interface {
 
 //! Computes the amount of interface for two given sets of points
-/*! Given two sets of points, calculates the amount of points in the first set (reference) that are within a 
- *  cutoff distance from any point in the second set. 
+/*! Given two sets of points, calculates the amount of points in the first set (reference) that are within a
+ *  cutoff distance from any point in the second set.
  *
  *  <b>2D:</b><br>
- *  InterfaceMeasure properly handles 2D boxes. As with everything else in freud, 2D points must be passed in 
- *  as 3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior. 
+ *  InterfaceMeasure properly handles 2D boxes. As with everything else in freud, 2D points must be passed in
+ *  as 3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
  */
 class InterfaceMeasure
 {

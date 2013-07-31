@@ -102,7 +102,7 @@ class Hull:
             self.facets[i, :self.nverts[i]] = numpy.array(list(facet_verts[i]))
             self.neighbors[i, :(self.nverts[i])] = numpy.array(list(neighbors[i]))
         self.equations = numpy.array(list(equations))
-            
+
     #! Use a list of vertices and a outward face normal and return a right-handed ordered list of vertex indices
     #! \param iface index of facet to process
     def rhFace(self, iface):
@@ -110,7 +110,7 @@ class Hull:
         n = numpy.asarray(self.equations[iface, 0:3])
         facet = numpy.asarray(self.facets[iface])
         points = numpy.asarray(self.points)
-        
+
         Ni = len(facet) # number of vertices in facet
         facet = numpy.asarray(facet)
         z = numpy.array([0., 0., 1.])
@@ -150,7 +150,7 @@ class Hull:
             idx_srt.insert(new_i, facet[i])
             a_srt.insert(new_i, a)
         return numpy.array(idx_srt)
-    
+
     #! Use the list of vertices for a face to order a list of neighbors, given their vertices
     #! \param iface index of facet to process
     def rhNeighbor(self, iface):
@@ -172,7 +172,7 @@ class Hull:
                     #del neighbor_verts[j]
                     break
         return numpy.array(new_neighbors)
-    
+
     #! Find surface area of polyhedron or a face
     #! \param facet facet to calculate area of (default sum all facet area)
     def getArea(self, facet=None):
@@ -196,7 +196,7 @@ class Hull:
                     #print(cp)
                     A += abs(numpy.dot(cp, n)) / 2.0
         return A
-    
+
     #! Find the volume of the polyhedron
     def getVolume(self):
         V = 0.0
@@ -345,7 +345,7 @@ if __name__ == '__main__':
     else:
         print('getVolume found volume {v} when it should be 1.0'.format(v=volume))
         passed = False
-    
+
     if passed:
         print("Tests passed")
     else:

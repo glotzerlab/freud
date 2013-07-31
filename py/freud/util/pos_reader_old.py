@@ -20,13 +20,13 @@ class File:
         self.steps = list() # list of ints
         self.definitions = []
         self.shape_prefix = ''
-        self.particle_list = [] # list of 'Shape' objects with hold particle attributes 
+        self.particle_list = [] # list of 'Shape' objects with hold particle attributes
         self.object_list = [] # list of bonds and polys (Non-particle objects)
         self.position_list = []
         self.quaternion_list = []
         self.boxMatrix_list = []
         self.frame_list = [] # list of ints
-        
+
         #a bunch of Injavis environment variables
         self.injavis_params=dict()
         self.injavis_params['translation']=None
@@ -73,7 +73,7 @@ class File:
             pbuff_frame=old_pbuff_frame = 0
             for line in f:
                 #i+=1
-                if re.match('^//',line): 
+                if re.match('^//',line):
                     continue
                 elif re.match('#\[data\]', line):
                     #print "Found data header on line %i" % i
@@ -82,7 +82,7 @@ class File:
                         for col in self.observables:
                             self.data[col]=list()
                     isdata=True
-                    
+
                     #if the buff is full, enmpty it
                     # if we reading all the frames
                     if len(pbuff)>0 and not only_last:
@@ -98,7 +98,7 @@ class File:
 
                     #clear the pos buffer
                     pbuff = []
-                    
+
                     continue
                 elif re.match('#\[done\]', line):
                     isdata=False
@@ -111,7 +111,7 @@ class File:
                         pbuff_frame = self.steps[len(self.steps)-1]
                     except:
                         i += 1
-                        pbuff_frame = i 
+                        pbuff_frame = i
                   pbuff.append(line)
 
             #did the buffer end full?
@@ -131,7 +131,7 @@ class File:
                   self.addPosline(lbuff.strip())
                 self.frame_list.append(old_pbuff_frame)
             elif only_last:
-              #read in the last buffer, this file was 
+              #read in the last buffer, this file was
               #truncated in a data section
               for lbuff in old_pbuff:
                 self.addPosline(lbuff.strip())
@@ -141,29 +141,29 @@ class File:
             self.object_list.pop()
             self.quaternion_list.pop()
             self.definitions.pop()
-    
+
     def writePos(self,filename,boxMatrix_list,position_list,quaternion_list,particle_list,injavis_params=None,object_list=None,comment=None):
         if os.path.exists(filename):
-            pass    
+            pass
         f_out = open(filename,'w+')
         if not comment is None:
             f_out.write('//%s\n'%(comment))
-         
+
         if not injavis_params is None:
             for k in injavis_params.keys():
                 f_out.write('%s\t%s\n'%(k,injavis_params[k]))
         if not boxMatrix_list is None:
           if not len(boxMatrix_list)==9:
-              raise RuntimeError('Box matrix must containt 9 elements') 
+              raise RuntimeError('Box matrix must containt 9 elements')
           #write the box matrix
-          f_out.write(string.join(['boxMatrix', string.join(['\t%5.8f'%(b) for b in boxMatrix_list]),'\n']))        
+          f_out.write(string.join(['boxMatrix', string.join(['\t%5.8f'%(b) for b in boxMatrix_list]),'\n']))
         d_list = dict();
         counter=0
         for p in particle_list:
             if (not any([p==k for k in d_list.keys()]) or counter==0):
                 d_list[p] = 'shape%d'%(counter)
-                counter+=1 
-           
+                counter+=1
+
         for k in d_list.keys():
             f_out.write('def\t%s\t%s\n'%(d_list[k],k.definition))
 
@@ -178,7 +178,7 @@ class File:
         if not object_list is None:
             for obj in object_list:
                 f_out.write('%s\n'%(obj.definition))
-        
+
         f_out.write('eof')
         f_out.close()
     def dumpData(self, filename=None):
@@ -217,8 +217,8 @@ class File:
         for p in self.particle_list[frame]:
             if (not any([p==k for k in d_list.keys()]) or counter==0):
                 d_list[p] = 'shape%d'%(counter)
-                counter+=1 
-           
+                counter+=1
+
         for k in d_list.keys():
             output.append('def\t%s\t%s\n'%(d_list[k],k.definition))
 
@@ -310,7 +310,7 @@ class File:
         if self.definitions[-1].has_key(tokens[0]):
             line = self.definitions[-1][tokens[0]] + ' ' + line.lstrip(tokens[0])+' '
         if self.injavis_params.has_key(tokens[0]):
-            self.addInjavisParam(line)      
+            self.addInjavisParam(line)
         elif re.match('^def',line):
             self.addDef(line)
         elif re.match('^shape\s+',line):
@@ -330,7 +330,7 @@ class File:
             self.particle_list.append([])
             self.position_list.append([])
             self.quaternion_list.append([])
-            self.object_list.append([])         
+            self.object_list.append([])
         else:
             self.addParticle(self.shape_prefix + line)
 
@@ -362,7 +362,7 @@ class File:
     def setShapePrefix(self,line):
         tokens = re.split('\s+',line,maxsplit=1)
         shape = tokens[1].strip('"')
-        self.shape_prefix = shape+' ' 
+        self.shape_prefix = shape+' '
         if len(self.definitions[-1])>0:
             raise RuntimeError('Cannot use \'shape\' and \'def\' macros in the same pos frame')
 
@@ -371,7 +371,7 @@ class File:
         var = tokens[0]
         val = tokens[1].strip('\"')
         self.injavis_params[var]=val
-    
+
     def addParticle(self,line):
         tokens = re.split('\s+',line.strip())
         shape = tokens[0]
@@ -382,7 +382,7 @@ class File:
             self.particle_list[-1].append(Sphere(float(tokens[1]),tokens[2]))
             self.position_list[-1].append(n.array([float(p) for p in tokens[3:6]]))
             self.quaternion_list[-1].append(n.array([]))
-            
+
         elif shape == 'jsphere':
             self.particle_list[-1].append(JanusSphere(float(tokens[1]),float(tokens[2]),tokens[3:5]))
             self.position_list[-1].append(n.array([float(p) for p in tokens[5:8]]))
@@ -390,18 +390,18 @@ class File:
 
         elif shape == 'poly3d':
             N = int(tokens[1])
-            verts=n.array([float(p) for p in tokens[2:2+3*N]]).reshape(N,3) 
+            verts=n.array([float(p) for p in tokens[2:2+3*N]]).reshape(N,3)
             self.particle_list[-1].append(Poly3D(verts,tokens[3*N+2]))
             self.position_list[-1].append(n.array([float(p) for p in tokens[3*(N+1):3*(N+2)]]))
             self.quaternion_list[-1].append(n.array([float(p) for p in tokens[3*(N+2)::]]))
 
         elif shape == 'poly':
             N = int(tokens[1])
-            verts=n.array([float(p) for p in tokens[2:2+3*N]]).reshape(N,3) 
+            verts=n.array([float(p) for p in tokens[2:2+3*N]]).reshape(N,3)
             self.object_list[-1].append(Poly(vert,tokens[3*N+2]))
 
         elif shape == 'bond':
-            self.object_list[-1].append(Bond(float(tokens[1]),tokens[2],n.array([float(p) for p in tokens[3::]])))    
+            self.object_list[-1].append(Bond(float(tokens[1]),tokens[2],n.array([float(p) for p in tokens[3::]])))
 
         elif shape == 'ellipsoid':
             self.particle_list[-1].append(Ellipsoid(n.array([float(p) for p in tokens[1:4]]),tokens[4]))
@@ -439,7 +439,7 @@ class Shape(object):
         self.hash = int(n.prod([n.abs(ord(c))+1 for c in list(self.definition)])+n.sum([ord(c) for c in list(self.definition)]))
 
 class Sphere(Shape):
-    def __init__(self,size,color):  
+    def __init__(self,size,color):
         self.size = size
         self.definition ='"sphere %5.8f %s "'%(size, color)
         self.calc_hash()
@@ -496,7 +496,7 @@ class PolySphere(Shape):
         self.size = size
         self.N = N
         self.verts = verts
-        self.definition = '"polySphere %5.8f %d '%(self.size,len(verts)) 
+        self.definition = '"polySphere %5.8f %d '%(self.size,len(verts))
         for v in verts:
           self.definition += ' %5.8f %5.8f %5.8f '%(v[0],v[1],v[2])
         self.definition += ' %s "'%(color)

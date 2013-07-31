@@ -49,7 +49,7 @@ Box.__getinitargs__ = Box_getinitargs
 # Trajectory exposes properties as numpy arrays. Properties loaded for the first frame only are called \b static
 # properties. The method isStatic() returns true if a given property is static.
 #
-# The Frame class provides access to the properties at any given frame. You can access a Frame by indexing a 
+# The Frame class provides access to the properties at any given frame. You can access a Frame by indexing a
 # Trajectory directly:
 # \code
 # f = traj[frame_idx];
@@ -71,7 +71,7 @@ class Trajectory:
         self.static_props = {};
         self.modifiable_props = {};
         self._lock = threading.Lock();
-    
+
     ## Test if a given particle property is modifiable
     # \param prop Property to check
     # \returns True if \a prop is modifiable
@@ -83,7 +83,7 @@ class Trajectory:
     # \returns True if \a prop is static
     def isStatic(self, prop):
         return prop in self.static_props;
-    
+
     ## Get a static property of the particles
     # \param prop Property name to get
     def getStatic(self, prop):
@@ -102,7 +102,7 @@ class Trajectory:
     #       should override.
     def __len__(self):
         return 0;
-    
+
     ## \internal
     # \brief Sets the current frame
     # \param idx Index of the frame to seek to
@@ -110,7 +110,7 @@ class Trajectory:
     #       Derived classes should override
     def _set_frame(self, idx):
         raise RuntimeError("Trajectory._set_frame not implemented");
-    
+
     ## \internal
     # \brief Get the current frame
     # \returns A Frame containing the current frame data
@@ -125,19 +125,19 @@ class Trajectory:
     def __getitem__(self, idx):
         if idx < 0 or idx >= len(self):
             raise IndexError('Frame index out of range');
-        
+
         try:
             self._lock.acquire();
             self._set_frame(idx);
             return self._get_current_frame();
         finally:
             self._lock.release();
-    
+
     ## Iterate through frames
     def __iter__(self):
         for idx in range(len(self)):
             yield self[idx];
-    
+
     ## Modify properties of the currently set frame
     # \param prop Name of property to modify
     # \param value New values to set for that property
@@ -170,7 +170,7 @@ class TrajectoryVMD(Trajectory):
     # When \a mol_id is set to None, the 'top' molecule is accessed
     def __init__(self, mol_id=None):
         Trajectory.__init__(self);
-    
+
         # check that VMD is loaded
         if VMD is None:
             raise RuntimeError('VMD is not loaded')
@@ -189,23 +189,23 @@ class TrajectoryVMD(Trajectory):
         self.static_props['typeid'] = _assign_typeid(self.static_props['typename']);
         self.static_props['body'] = numpy.array(self.all.get('resid'), dtype=numpy.int32);
         self.static_props['charge'] = numpy.array(self.all.get('charge'), dtype=numpy.float32);
-        
+
         self.modifiable_props = ['user', 'user2', 'user3', 'user4'];
-        
-   
+
+
     ## Get the number of particles in the trajectory
     # \returns Number of particles
     def numParticles(self):
         return len(self.all);
-    
+
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
         return self.mol.numFrames();
-    
+
     def _set_frame(self, idx):
         self.mol._set_frame(idx);
-    
+
     def _get_current_frame(self):
         dynamic_props = {};
 
@@ -215,27 +215,27 @@ class TrajectoryVMD(Trajectory):
         pos[:,1] = numpy.array(self.all.get('y'));
         pos[:,2] = numpy.array(self.all.get('z'));
         dynamic_props['position'] = pos;
-        
+
         # get user flags
         for prop in ['user', 'user2', 'user3', 'user4']:
             dynamic_props[prop] = numpy.array(self.all.get(prop), dtype=numpy.float32)
-        
+
         vmdbox = VMD.molecule.get_periodic(self.mol_id, self.mol.curFrame())
         box = Box(vmdbox['a'], vmdbox['b'], vmdbox['c']);
-        
+
         # detect if the box should be 2D
         if abs(pos[:,2]).max() < 1e-3:
             box.set2D(True);
-        
+
         return Frame(self, self.mol.curFrame(), dynamic_props, box);
-    
+
     ## Modify properties of the currently set frame
     # \param prop Name of property to modify
     # \param value New values to set for that property
     def setProperty(self, prop, value):
         # error check
         Trajectory.setProperty(self, prop, value);
-        
+
         self.all.set(prop, list(value));
 
 ## Frame information representing the system state at a specific frame in a Trajectory
@@ -256,7 +256,7 @@ class Frame:
     # \param dynamic_props Dictionary of dynamic properties accessible in this frame
     # \param box the simulation Box for this frame
     #
-    # \note  High level classes should not construct Frame classes directly. Instead create a Trajectory and query it 
+    # \note  High level classes should not construct Frame classes directly. Instead create a Trajectory and query it
     # to get frames
     def __init__(self, traj, idx, dynamic_props, box, time_step=0):
         self.static_props = traj.static_props;
@@ -264,7 +264,7 @@ class Frame:
         self.dynamic_props = dynamic_props;
         self.box = box;
         self.time_step = time_step
-    
+
     ## Access particle properties at this frame
     #
     # Properties are queried by name. See the documentation of the specific Trajectory you load to see which
@@ -285,40 +285,40 @@ class Frame:
 class TrajectoryXML(Trajectory):
     ## Initialize a list of XMLs trajectory for access
     # /param xml_fname_list File names of the XML files to be read
-    # /param dynamic List of dynamic properties in the trajectory 
+    # /param dynamic List of dynamic properties in the trajectory
     def __init__(self, xml_fname_list, dynamic=['position']):
         Trajectory.__init__(self)
-        
+
         # All properties implemented
-        self.supported_props = ['position', 'image', 'velocity', 'acceleration', 'mass', 'diameter', 
+        self.supported_props = ['position', 'image', 'velocity', 'acceleration', 'mass', 'diameter',
                                 'charge', 'type', 'body', 'orientation', 'moment_inertia']
         for prop in dynamic:
             if prop not in self.supported_props:
                 raise KeyError('Dynamic property "%s" not supported' % prop)
-        
+
         self.xml_list = xml_fname_list
-        
+
         # initialize dynamic list
         self.dynamic_props = {}
         for prop in dynamic:
             self.dynamic_props[prop] = {}
-        
+
         # parse the initial XML file
         if len(xml_fname_list) == 0:
             raise RuntimeError("no filenames passed to TrajectoryXML")
-        
+
         configuration = self._parseXML(self.xml_list[0])
-                
+
         # determine the number of dimensions
         if configuration.hasAttribute('dimensions'):
             self.ndim = int(configuration.getAttribute('dimensions'))
         else:
             self.ndim = 3
-            
-        # read box 
+
+        # read box
         box_config = configuration.getElementsByTagName('box')[0]
         self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
-        
+
         # Set the number of particles from the positions attribute
         position = configuration.getElementsByTagName('position')
         if len(position) != 1:
@@ -328,52 +328,52 @@ class TrajectoryXML(Trajectory):
         position_text = position.childNodes[0].data
         xyz = position_text.split()
         self.num_particles = len(xyz)/3
-        
+
         # Update the static properties if available in xml
         for prop in self.supported_props:
             # type has a special case
             if prop == "type": continue
-            
+
             # Check if the xml has a data for the property
             if len(configuration.getElementsByTagName(prop)) == 1:
                 prop_in_xml = True
             else:
                 prop_in_xml = False
-                
+
             if prop not in self.dynamic_props and prop_in_xml:
                 self.static_props[prop] = self._update(prop, configuration)
-                        
+
         if 'type' not in self.dynamic_props and len(configuration.getElementsByTagName('type')) == 1:
             self.static_props['typename'] = self._update('type', configuration)
             self.static_props['typeid'] = _assign_typeid(self.static_props['typename'])
-         
+
         self._set_frame(0)
 
     ## Get the number of particles in the trajectory
     # \returns Number of particles
     def numParticles(self):
         return self.num_particles
-    
-    
+
+
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
         return len(self.xml_list)
-    
+
     def _set_frame(self, idx):
         if idx >=  len(self.xml_list):
             raise RuntimeError("Invalid Frame Number")
         self.idx = idx
-    
+
     def _get_current_frame(self):
         # load the information for the current frame
         configuration = self._parseXML(self.xml_list[self.idx])
-        
-        # Update box 
+
+        # Update box
         box_config = configuration.getElementsByTagName('box')[0]
         self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
-        
-                
+
+
         for prop in self.dynamic_props.keys():
             if prop == 'typename' or prop == 'typeid':
                 continue
@@ -382,30 +382,30 @@ class TrajectoryXML(Trajectory):
                 self.dynamic_props['typeid'] = _assign_typeid(self.dynamic_props['typename'])
             else:
                 self.dynamic_props[prop] = self._update(prop, configuration)
-                
+
         if configuration.hasAttribute('time_step'):
             curr_ts = int(configuration.getAttribute('time_step'))
         else:
-            curr_ts = 0 
-        
+            curr_ts = 0
+
         return Frame(self, self.idx, copy.deepcopy(self.dynamic_props), copy.copy(self.box), time_step = curr_ts)
-    
-    
+
+
     def _parseXML(self, xml_filename):
         dom = xml.dom.minidom.parse(xml_filename)
-        
+
         hoomd_xml = dom.getElementsByTagName('hoomd_xml')
         if len(hoomd_xml) != 1:
             raise RuntimeError("hoomd_xml tag not found in xml file")
         else:
             hoomd_xml = hoomd_xml[0]
-        
+
         configuration = hoomd_xml.getElementsByTagName('configuration')
         if len(configuration) != 1:
             raise RuntimeError("configuration tag not found in xml file")
         else:
             return configuration[0]
-        
+
     def _update(self, prop, configuration):
         # Data structure 3xFloatxNparticles
         if prop in ['position', 'velocity', 'acceleration']:
@@ -416,14 +416,14 @@ class TrajectoryXML(Trajectory):
                 raw_data = raw_element[0]
             data_text = raw_data.childNodes[0].data
             xyz = data_text.split()
-            
+
             data = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
             for i in range(0,self.num_particles):
                 data[i,0] = float(xyz[3*i])
                 data[i,1] = float(xyz[3*i+1])
                 data[i,2] = float(xyz[3*i+2])
             return data
-        
+
         # Data structure 3xIntxNparticles
         if prop in ['image']:
             raw_element = configuration.getElementsByTagName(prop)
@@ -433,14 +433,14 @@ class TrajectoryXML(Trajectory):
                 raw_data = raw_element[0]
             data_text = raw_data.childNodes[0].data
             xyz = data_text.split()
-            
+
             data = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.int)
             for i in range(0,self.num_particles):
                 data[i,0] = int(xyz[3*i])
                 data[i,1] = int(xyz[3*i+1])
                 data[i,2] = int(xyz[3*i+2])
             return data
-            
+
         # Data structure: 1xFloatxNparticles
         if prop in ['mass', 'diameter','charge']:
             raw_element = configuration.getElementsByTagName(prop)
@@ -452,9 +452,9 @@ class TrajectoryXML(Trajectory):
             x = data_text.split()
             if len(x) != self.num_particles:
                 raise RuntimeError("wrong number of %s values found in xml file" % prop)
-            data = numpy.array([float(m) for m in x], dtype=numpy.float32)            
+            data = numpy.array([float(m) for m in x], dtype=numpy.float32)
             return data
-        
+
          # Data structure: 1xIntxNparticles
         if prop in ['body']:
             raw_element = configuration.getElementsByTagName(prop)
@@ -466,9 +466,9 @@ class TrajectoryXML(Trajectory):
             x = data_text.split()
             if len(x) != self.num_particles:
                 raise RuntimeError("wrong number of %s values found in xml file" % prop)
-            data = numpy.array([int(m) for m in x], dtype=numpy.int)            
+            data = numpy.array([int(m) for m in x], dtype=numpy.int)
             return data
-        
+
         # Data structure: 4xFloatxNparticles
         if prop in ['orientation']:
             raw_element = configuration.getElementsByTagName(prop)
@@ -478,13 +478,13 @@ class TrajectoryXML(Trajectory):
                 raw_data = raw_element[0]
             data_text = raw_data.childNodes[0].data
             quat = data_text.split()
-            
+
             data = numpy.zeros(shape=(self.numParticles(),4), dtype=numpy.float32)
             for i in range(0,self.num_particles):
                 for j in range(4):
                     data[i,j] = float(quat[4*i+j])
             return data
-        
+
         # Data structure: 6xIntxNparticles
         if prop in ['moment_inertia']:
             raw_element = configuration.getElementsByTagName(prop)
@@ -494,14 +494,14 @@ class TrajectoryXML(Trajectory):
                 raw_data = raw_element[0]
             data_text = raw_data.childNodes[0].data
             quat = data_text.split()
-            
+
             data = numpy.zeros(shape=(self.numParticles(),6), dtype=numpy.int)
             for i in range(0,self.num_particles):
                 for j in range(6):
                     data[i,j] = int(quat[6*i+j])
             return data
-        
-        
+
+
         if prop == 'type':
             type_nodes = configuration.getElementsByTagName('type')
             if len(type_nodes) == 1:
@@ -512,8 +512,8 @@ class TrajectoryXML(Trajectory):
             else:
                 raise RuntimeError("type tag not found in xml file")
             return type_names
-       
-        
+
+
 ## Trajectory information read from an XML/DCD file combination
 #
 # TrajectoryXMLDCD reads structure information in from the provided XML file (typenames, bonds, rigid bodies, etc...)
@@ -522,7 +522,7 @@ class TrajectoryXML(Trajectory):
 # \note Always read DCD frames in increasing order for the best possible performance.
 # While the Trajectory interface does allow for random access of specific frames, actually doing so
 # is extremely inefficient for the DCD file format. To rewind to a previous frame, the file must be closed
-# and every frame read from the beginning until the desired frame is reached! 
+# and every frame read from the beginning until the desired frame is reached!
 #
 # 2D input will set the frame box appropriately.
 class TrajectoryXMLDCD(Trajectory):
@@ -532,7 +532,7 @@ class TrajectoryXMLDCD(Trajectory):
     #
     def __init__(self, xml_fname, dcd_fname):
         Trajectory.__init__(self);
-    
+
         # parse the XML file
         dom = xml.dom.minidom.parse(xml_fname);
         hoomd_xml = dom.getElementsByTagName('hoomd_xml');
@@ -540,21 +540,21 @@ class TrajectoryXMLDCD(Trajectory):
             raise RuntimeError("hoomd_xml tag not found in xml file")
         else:
             hoomd_xml = hoomd_xml[0];
-            
+
         configuration = hoomd_xml.getElementsByTagName('configuration');
         if len(configuration) != 1:
             raise RuntimeError("configuration tag not found in xml file")
         else:
             configuration = configuration[0];
-        
+
         # determine the number of dimensions
         if configuration.hasAttribute('dimensions'):
             self.ndim = int(configuration.getAttribute('dimensions'));
         else:
             self.ndim = 3;
-        
+
         # if there is no dcd file, read box
-        if dcd_fname is None:        
+        if dcd_fname is None:
             box_config = configuration.getElementsByTagName('box')[0];
             self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
 
@@ -573,8 +573,8 @@ class TrajectoryXMLDCD(Trajectory):
             for i in range(0,self.num_particles):
                 pos[i,0] = float(xyz[3*i]);
                 pos[i,1] = float(xyz[3*i+1]);
-                pos[i,2] = float(xyz[3*i+2]);         
-        
+                pos[i,2] = float(xyz[3*i+2]);
+
         # parse the particle types
         type_nodes = configuration.getElementsByTagName('type');
         if len(type_nodes) == 1:
@@ -596,7 +596,7 @@ class TrajectoryXMLDCD(Trajectory):
         else:
             # default to a mass of 1.0, like hoomd
             mass_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32);
-        
+
         # parse the particle diameters
         diam_nodes = configuration.getElementsByTagName('diameter');
         if len(diam_nodes) == 1:
@@ -642,8 +642,8 @@ class TrajectoryXMLDCD(Trajectory):
         self.static_props['charge'] = charge_array;
         if dcd_fname is None:
             self.static_props['position'] = pos;
-       
-        
+
+
         # load in the DCD file
         if dcd_fname is not None:
             self.dcd_loader = _freud.DCDLoader(dcd_fname);
@@ -651,12 +651,12 @@ class TrajectoryXMLDCD(Trajectory):
                 raise RuntimeError("number of particles in the DCD file doesn't match the number in the XML file");
         else:
             self.dcd_loader = None;
-   
+
     ## Get the number of particles in the trajectory
     # \returns Number of particles
     def numParticles(self):
         return self.num_particles;
-    
+
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
@@ -664,7 +664,7 @@ class TrajectoryXMLDCD(Trajectory):
             return self.dcd_loader.getFrameCount();
         else:
             return 1;
-    
+
     def _set_frame(self, idx):
         if self.dcd_loader is None and idx > 0:
             raise RuntimeError("No DCD file was loaded");
@@ -672,9 +672,9 @@ class TrajectoryXMLDCD(Trajectory):
         if self.dcd_loader is not None and not(self.dcd_loader.getLastFrameNum() == idx):
             self.dcd_loader.jumpToFrame(idx);
             self.dcd_loader.readNextFrame();
-    
+
     def _get_current_frame(self):
-        
+
         dynamic_props = {};
 
         # get position
@@ -688,7 +688,7 @@ class TrajectoryXMLDCD(Trajectory):
                          dynamic_props,
                          box,
                          time_step=self.dcd_loader.getTimeStep());
-        else:   
+        else:
             box = self.box;
             return Frame(self, 1, dynamic_props, box);
 
@@ -701,11 +701,11 @@ class TrajectoryPOS(Trajectory):
     #
     def __init__(self, pos_fname, dynamic=['position', 'orientation']):
         Trajectory.__init__(self);
-    
+
         self.dynamic_props = {}
         for prop in dynamic:
             self.dynamic_props[prop] = {}
-    
+
         # parse the POS file
         # self.pos_file = pos_reader.file(pos_fname);
         # self.pos_file.load();
@@ -713,7 +713,7 @@ class TrajectoryPOS(Trajectory):
         self.pos_file.grabBox();
         print("Box orientation")
         print(self.pos_file.box_orientations)
-        
+
         # Is there a place in the pos that specs the dims?
         # dim_test = len(self.pos_file.position_list[0][0])
         dim_test = len(self.pos_file.box_positions[0][0])
@@ -721,7 +721,7 @@ class TrajectoryPOS(Trajectory):
             self.ndim = 2;
         else:
             self.ndim = 3
-        
+
         # Triclinic support will be needed here...
         box_dims = numpy.asarray(self.pos_file.box_dims[0], dtype=numpy.float32)
         # Changed to support box and boxmatrix...
@@ -747,11 +747,11 @@ class TrajectoryPOS(Trajectory):
             lz = box_vecs[:,2].max() - box_vecs[:,2].min()
         #print("lx = {0} ly = {1} lz = {2}".format(*box_dims))
         self.box = Box(float(lx), float(ly), float(lz), self.ndim == 2);
-        
+
         #Reader can handle changing num particles, but this doesn't
         # self.num_particles = len(self.pos_file.n_box_points[0])
         self.num_particles = self.pos_file.n_box_points[0]
-        
+
         # Update the static properties
         if not 'position' in self.dynamic_props:
             self.static_props['position'] = self._update('position', 0)
@@ -771,17 +771,17 @@ class TrajectoryPOS(Trajectory):
         #if not 'charge' in self.dynamic_props:
         #    self.static_props['charge'] = self._update('charge', configuration)
         self.setFrame(0)
-   
+
     ## Get the number of particles in the trajectory
     # \returns Number of particles
     def numParticles(self):
         return self.num_particles;
-    
+
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
         return len(self.pos_file.box_positions);
-    
+
     ## Sets the current frame
     # \param idx Index of the frame to seek to
     def _set_frame(self, idx):
@@ -799,11 +799,11 @@ class TrajectoryPOS(Trajectory):
         # get position
         for prop in self.dynamic_props.keys():
             self.dynamic_props[prop] = self._update(prop, self.idx)
-        
+
         return Frame(self, self.idx, self.dynamic_props, self.box)
     def getCurrentFrame(self):
         return self._get_current_frame()
-            
+
     def _update(self, prop, frame_number):
         if prop == 'position':
             position = self.pos_file.box_positions[frame_number]
@@ -813,14 +813,14 @@ class TrajectoryPOS(Trajectory):
             #    position = position[0]
             #position_text = position.childNodes[0].data
             #xyz = position_text.split()
-            
+
             pos = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
             for i in range(0,self.num_particles):
                 pos[i,0] = float(position[i][0])
                 pos[i,1] = float(position[i][1])
                 pos[i,2] = float(position[i][2])
             return pos
-        
+
         if prop == 'orientation':
             orientation = self.pos_file.box_orientations[frame_number]
             #if len(position) != 1:
@@ -829,7 +829,7 @@ class TrajectoryPOS(Trajectory):
             #    position = position[0]
             #position_text = position.childNodes[0].data
             #xyz = position_text.split()
-            
+
             quat = numpy.zeros(shape=(self.numParticles(),4), dtype=numpy.float32)
             for i in range(0,self.num_particles):
                 quat[i,0] = float(orientation[i][0])
@@ -853,9 +853,9 @@ class TrajectoryPOS(Trajectory):
             for i in type_ID:
                 type_names.append(type_key[i])
             return type_names
-        
+
         # Need to have an error raised for mass cause I don't think that mass is here
-        
+
         #if prop == 'mass':
         #    mass_nodes = configuration.getElementsByTagName('mass')
         #    if len(mass_nodes) == 1:
@@ -868,7 +868,7 @@ class TrajectoryPOS(Trajectory):
                 # default to a mass of 1.0, like hoomd
         #        mass_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32)
         #        return mass_array
-        
+
         # This is going to be complicated because this will involve shape def...
         #if prop == 'diameter':
         #   diam_nodes = configuration.getElementsByTagName('diameter')
@@ -882,7 +882,7 @@ class TrajectoryPOS(Trajectory):
                 # default to a diameter of 1.0, like hoomd
         #        diameter_array = numpy.ones(shape=(1,self.num_particles), dtype=numpy.float32)
         #    return diameter_array
-        
+
         #if prop == 'body':
         #    body_nodes = configuration.getElementsByTagName('body')
         #    if len(body_nodes) == 1:
@@ -895,7 +895,7 @@ class TrajectoryPOS(Trajectory):
                 # default to a body of -1, like hoomd
         #        body_array = -1 * numpy.ones(shape=(1,self.num_particles), dtype=numpy.int32)
         #    return body_array
-        
+
         #if prop == 'charge':
         #    charge_nodes = configuration.getElementsByTagName('charge')
         #    if len(charge_nodes) == 1:
@@ -908,7 +908,7 @@ class TrajectoryPOS(Trajectory):
                 # default to a charge of 0.0, like hoomd
         #        charge_array = numpy.zeros(shape=(1,self.num_particles), dtype=numpy.float32)
         #    return charge_array
-        
+
         #if prop == 'velocity':
         #    velocity = configuration.getElementsByTagName('velocity')
         #    if len(velocity) == 1:
@@ -917,7 +917,7 @@ class TrajectoryPOS(Trajectory):
         #        xyz = velocity_text.split()
         #        if len(xyz)/3 != self.num_particles:
         #            raise RuntimeError("wrong number of velocities found in xml file")
-            
+
         #        velocity_array = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
         #        for i in range(0,self.num_particles):
         #            velocity_array[i,0] = float(xyz[3*i])
@@ -926,7 +926,7 @@ class TrajectoryPOS(Trajectory):
         #    else:
                 # default to zero
         #        velocity_array = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
-        #    return velocity_array    
+        #    return velocity_array
 
 
 ## Trajectory information obtained from within a running hoomd instance
@@ -934,7 +934,7 @@ class TrajectoryPOS(Trajectory):
 # TrajectoryHOOMD reads structure information and dynamic data in from a live, currently running hoomd simulation.
 # In principle, much of the structure (i.e. particle types, bonds, etc...) could be changing as well. However,
 # this first implementation will assume the most common case (that which TrajectoryXMLDCD and TrajectoryVMD follow)
-# which is that mass, types, bonds, charges, and diameters remain constant and only position/velocity change from 
+# which is that mass, types, bonds, charges, and diameters remain constant and only position/velocity change from
 # step to step. These assumptions may be relaxed in a later version.
 #
 # TrajectoryHOOMD works a little different from the others in one respect. Because it is accessing the current
@@ -949,7 +949,7 @@ class TrajectoryHOOMD(Trajectory):
     def __init__(self, sysdef):
         Trajectory.__init__(self);
         self.sysdef = sysdef;
-    
+
         # extract "static" values
         mass_array = numpy.array([p.mass for p in self.sysdef.particles], dtype=numpy.float32);
         diameter_array = numpy.array([p.diameter for p in self.sysdef.particles], dtype=numpy.float32);
@@ -965,20 +965,20 @@ class TrajectoryHOOMD(Trajectory):
         self.static_props['typeid'] = typeid_array;
         # self.static_props['body'] = body_array;  # unsupported in hoomd currently
         self.static_props['charge'] = charge_array;
-        
+
     ## Get the number of particles in the trajectory
     # \returns Number of particles
     def numParticles(self):
         return len(self.sysdef.particles);
-    
+
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
         return 1;
-    
+
     def _set_frame(self, idx):
         pass;
-    
+
     def _get_current_frame(self):
         dynamic_props = {};
 
@@ -990,12 +990,12 @@ class TrajectoryHOOMD(Trajectory):
         dynamic_props['position'] = pos;
         dynamic_props['image'] = image;
         dynamic_props['velocity'] = velocity;
-        
+
         hoomd_box = self.sysdef.box;
         box = Box(hoomd_box[0], hoomd_box[1], hoomd_box[2], self.sysdef.dimensions == 2);
 
         return Frame(self, 0, dynamic_props, box);
-    
+
 
 ## Trajectory information loaded from a discmc ouptut file
 #
@@ -1005,24 +1005,24 @@ class TrajectoryDISCMC(Trajectory):
     #
     def __init__(self, fname):
         Trajectory.__init__(self);
-        
+
         if h5py is None:
             raise RuntimeError('h5py not found')
         self.df = h5py.File(fname, 'r')
-    
+
     ## Get the number of particles in the trajectory
     # \returns Number of particles
     def numParticles(self):
         return self.df["/param/N"][0];
-    
+
     ## Get the number of frames in the trajectory
     # \returns Number of frames
     def __len__(self):
         return self.df["/traj/step"].shape[0];
-    
+
     def _set_frame(self, idx):
         self.cur_frame = idx;
-    
+
     def _get_current_frame(self):
         dynamic_props = {};
 
@@ -1040,18 +1040,18 @@ class TrajectoryDISCMC(Trajectory):
             pos[:,0] -= L/2.0;
             pos[:,1] -= L/2.0;
             dynamic_props['position'] = pos;
-        
+
         dynamic_props['rho'] = float(self.numParticles())/(L*L)
         dynamic_props['m'] = m;
         dynamic_props['w'] = w;
-        
+
         # extract M(r) data
         if "/param/dr" in self.df:
             dynamic_props['dr'] = self.df["/param/dr"][0];
             Mr = numpy.zeros(self.df["/traj/Mr"].shape[0]);
             Mr = self.df["/traj/Mr"][self.cur_frame,:];
             dynamic_props['Mr'] = Mr;
-        
+
         box = Box(L, L, 0, True);
 
         return Frame(self, 0, dynamic_props, box);

@@ -28,7 +28,3 @@ print 'avg time per frame:', (end-start)/float(n)
 r = rdf.getR();
 pyplot.plot(r, total_rdf/n)
 pyplot.show();
-
-
-    
-    

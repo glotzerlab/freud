@@ -9,8 +9,8 @@
 
 namespace freud { namespace viz {
 
-/*! \internal
-    \brief Helper function for splitting one shape into n shapes
+/*! \file split.cc
+    \brief Helper routines for splitting particles
 */
 
 void split(float3 *split_array,
@@ -31,10 +31,10 @@ void splitPy(boost::python::numeric::array split_array,
                 );
 
 /*! \internal
-    \brief Exports all classes in this file to python 
+    \brief Exports all classes in this file to python
 */
 void export_split();
-    
+
 } } // end namespace freud::viz
 
 #endif

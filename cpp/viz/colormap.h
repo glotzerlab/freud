@@ -7,6 +7,10 @@
 #ifndef _COLORMAP_H__
 #define _COLORMAP_H__
 
+/*! \file colormap.h
+    \brief Colormap build routines
+*/
+
 namespace freud { namespace viz {
 
 /*! \internal
@@ -28,10 +32,10 @@ void jet(float4 *cmap,
          unsigned int N);
 
 /*! \internal
-    \brief Exports all classes in this file to python 
+    \brief Exports all classes in this file to python
 */
 void export_colormap();
-    
+
 } } // end namespace freud::viz
 
 #endif

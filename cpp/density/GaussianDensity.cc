@@ -6,6 +6,10 @@
 using namespace std;
 using namespace boost::python;
 
+/*! \file GaussianDensity.cc
+    \brief Routines for computing Gaussian smeared densities from points
+*/
+
 namespace freud { namespace density {
 
 GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width, float r_cut, float sigma)
@@ -15,7 +19,7 @@ GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width,
             throw invalid_argument("width must be a positive integer");
     if (r_cut <= 0.0f)
             throw invalid_argument("r_cut must be positive");
-    
+
     // index proper
     if (m_box.is2D())
         m_bi = Index3D(m_width, m_width, 1);
@@ -69,12 +73,12 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
         for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
             {
             float dz = float((grid_size_z*k + grid_size_z/2.0f) - points[particle].z - lz/2.0f);
-            
+
             for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
                 {
                 float dy = float((grid_size_y*j + grid_size_y/2.0f) - points[particle].y - ly/2.0f);
-                
-                for (int i = bin_x - bin_cut_x; i<= bin_x + bin_cut_x; i++)        
+
+                for (int i = bin_x - bin_cut_x; i<= bin_x + bin_cut_x; i++)
                     {
                     // calculate the distance from the grid cell to particular particle
                     float dx = float((grid_size_x*i + grid_size_x/2.0f) - points[particle].x - lx/2.0f);
@@ -94,13 +98,13 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
                         float x_gaussian = A*exp((-1.0f)*(delta.x*delta.x)/(2.0f*sigmasq));
                         float y_gaussian = A*exp((-1.0f)*(delta.y*delta.y)/(2.0f*sigmasq));
                         float z_gaussian = A*exp((-1.0f)*(delta.z*delta.z)/(2.0f*sigmasq));
-                    
+
                         // Assure that out of range indices are corrected for storage in the array
                         // i.e. bin -1 is actually bin 29 for nbins = 30
                         unsigned int ni = (i + m_width) % m_width;
                         unsigned int nj = (j + m_width) % m_width;
                         unsigned int nk = (k + m_width) % m_width;
-                        
+
                         // store the product of these values in an array - n[i, j, k] = gx*gy*gz
                         m_Density_array[m_bi(ni, nj, nk)] += x_gaussian*y_gaussian*z_gaussian;
                         }

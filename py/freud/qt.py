@@ -50,20 +50,20 @@ def _in_ipython():
 def init_app():
     global _app;
     global _own_app;
-    
+
     # It is an error to try and initialize if QtCore or QtGui is not loaded
     if QtCore is None or QtGui is None:
         raise RuntimeError('Cannot init application when PySide is not installed');
-    
+
     # first, check if we have already initialized
     if QtCore.QCoreApplication.instance() is None:
         _app = QtGui.QApplication(sys.argv);
         _own_app = True;
-        
+
         # this version doesn't open a window and would be useful in batch scripts
         #_app = QtCore.QCoreApplication(sys.argv);
         _app.processEvents();
-        
+
         # if we are in ipython, warn the user that they ran ipython without the qt GUI
         if _in_ipython():
             logger.warning('This script is run in ipython, but without --gui=qt');
@@ -79,10 +79,10 @@ def init_app():
 def run():
     global _app;
     global _own_app;
-    
+
     if _app is None:
         raise RuntimeError('init_app must be called before run');
-    
+
     if _in_ipython() and not _own_app:
         return;
     else:
