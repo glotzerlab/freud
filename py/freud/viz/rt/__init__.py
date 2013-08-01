@@ -589,11 +589,12 @@ class TrajectoryViewer(QtGui.QMainWindow):
 
     ## Save a snapshot of the current scene
     @QtCore.Slot()
-    def snapshot(self):
-        # getSaveFileName() returns a tuple of (filename, selected_filter)
-        filename = QtGui.QFileDialog.getSaveFileName(
-            self, caption='Select the image location',
-            filter='Images (*.png *.jpg)')[0];
+    def snapshot(self, filename=None):
+        if filename is None:
+            # getSaveFileName() returns a tuple of (filename, selected_filter)
+            filename = QtGui.QFileDialog.getSaveFileName(
+                self, caption='Select the image location',
+                filter='Images (*.png *.jpg)')[0];
 
         if filename:
             img = self.glWidget.grabFrameBuffer();
