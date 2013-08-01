@@ -7,6 +7,10 @@
 #ifndef _COLORUTIL_H__
 #define _COLORUTIL_H__
 
+/*! \file colorutil.h
+    \brief Misc color utility functions
+*/
+
 namespace freud { namespace viz {
 
 /*! \internal
@@ -15,10 +19,10 @@ namespace freud { namespace viz {
 void linearToFromSRGBA(float4 *cmap, unsigned int N, float p);
 
 /*! \internal
-    \brief Exports all classes in this file to python 
+    \brief Exports all classes in this file to python
 */
 void export_colorutil();
-    
+
 } } // end namespace freud::viz
 
 #endif

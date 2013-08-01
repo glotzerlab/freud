@@ -6,20 +6,24 @@
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
 
+/*! \file trajectory.h
+    \brief Helper routines for trajectory
+*/
+
 namespace freud { namespace trajectory {
 
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box
 /*! Box stores a standard hoomd simulation box that goes from -L/2 to L/2 in each dimension, with the possibility
     or assigning \a Lx, \a Ly, and \a Lz independantly. All angles in the box are pi/2 radians.
-    
+
     A number of utility functions are provided to work with coordinates in boxes. These are provided as inlined methods
     in the header file so they can be called in inner loops without sacrificing performance.
      - wrap()
      - unwrap()
-    
+
     For performance reasons assuming that many millions of calls to wrap will be made, 1.0 / L is precomputed when
     the box is created
-    
+
     A Box can represent either a two or three dimensional box. By default, a Box is 3D, but can be set as 2D with the
     method set2D(), or via an arugment to the constructor. is2D() queries if a Box is 2D or not.
     2D boxes have a "volume" of Lx * Ly, and Lz is set to 0. To keep programming simple, all inputs and outputs are
@@ -33,7 +37,7 @@ class Box
             {
             setup();
             }
-            
+
         //! Construct a cubic box
         Box(float L, bool _2d=false) : m_Lx(L), m_Ly(L), m_Lz(L), m_2d(_2d)
             {
@@ -44,20 +48,20 @@ class Box
             {
             setup();
             }
-        
+
         //! Set the box to 2D mode
         void set2D(bool _2d)
             {
             m_2d = _2d;
             setup();
             }
-        
+
         //! Test if the box is 2D
         bool is2D() const
             {
             return m_2d;
             }
-            
+
         //! Get the value of Lx
         float getLx() const
             {
@@ -81,11 +85,11 @@ class Box
             else
                 return m_Lx*m_Ly*m_Lz;
             }
-        
+
         //! Wrap a given vector back into the box
         /*! \param p point to wrap
             \returns The wrapped coordinates
-            
+
             Vectors are wrapped following the minimum image convention. \b Any x,y,z, no matter how far outside of the
             box, will be wrapped back into the range [-L/2, L/2]
         */
@@ -106,14 +110,14 @@ class Box
             {
             // validate input type and dimensions
             num_util::check_type(vecs, PyArray_FLOAT);
-            
+
             // if this is a rank 1 array, then it must be a simple 3-vector of points
             if (num_util::rank(vecs) == 1)
                 {
                 // validate that the 1st dimension is only 3
                 num_util::check_dim(vecs, 0, 3);
                 float3* vecs_raw = (float3*) num_util::data(vecs);
-                
+
                 // wrap the single vector back
                 vecs_raw[0] = wrap(vecs_raw[0]);
                 }
@@ -124,7 +128,7 @@ class Box
                 num_util::check_dim(vecs, 1, 3);
                 unsigned int Np = num_util::shape(vecs)[0];
                 float3* vecs_raw = (float3*) num_util::data(vecs);
-                
+
                 // wrap all the vecs back
                 for (unsigned int i = 0; i < Np; i++)
                     vecs_raw[i] = wrap(vecs_raw[i]);
@@ -153,11 +157,11 @@ class Box
 
         // Python wrapper for unwrap (TODO - possibly write as an array method that will handle many poitns in a single
         // call
-        
+
         //! Compute the position of the particle in box relative coordinates
         /*! \param p point
             \returns alpha
-            
+
             alpha.x is 0 when \a x is on the far left side of the box and 1.0 when it is on the far right. If x is
             outside of the box in either direction, it will go larger than 1 or less than 0 keeping the same scaling.
             Similar for y and z.
@@ -170,9 +174,9 @@ class Box
             newp.z = p.z * m_Lz_inv + 0.5f;
             return newp;
             }
-        
+
         // TODO -makeunit wrapper for python
-        
+
     private:
         //! Precomputes 1.0/L for performance
         void setup()
@@ -184,14 +188,14 @@ class Box
             else
                 m_Lz_inv = 1.0f / m_Lz;
             }
-        
+
         float m_Lx, m_Ly, m_Lz;
         float m_Lx_inv, m_Ly_inv, m_Lz_inv;
         bool m_2d;
     };
 
 /*! \internal
-    \brief Exports all classes in this file to python 
+    \brief Exports all classes in this file to python
 */
 void export_trajectory();
 

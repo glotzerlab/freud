@@ -9,6 +9,10 @@ using namespace std;
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
 
+/*! \file trajectory.h
+    \brief Helper routines for trajectory
+*/
+
 namespace freud { namespace trajectory {
 
 void export_trajectory()

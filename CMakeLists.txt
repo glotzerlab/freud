@@ -4,8 +4,24 @@ project (FREUD)
 
 add_subdirectory(CMake)
 
-find_library(TBB_LIBRARY tbb)
+# find TBB lib and includes
+find_library(TBB_LIBRARY tbb
+             PATHS ENV TBB_LINK)
+find_path(TBB_INCLUDE_DIR tbb/tbb.h
+          PATHS ENV TBB_INC)
+include_directories(${TBB_INCLUDE_DIR})
+if (TBB_LIBRARY)
+    mark_as_advanced(TBB_LIBRARY)
+endif()
+if (TBB_INCLUDE_DIR)
+    mark_as_advanced(TBB_INCLUDE_DIR)
+endif()
+
+# find ISPC
 find_program(ISPC_EXECUTABLE ispc)
+if (ISPC_EXECUTABLE)
+    mark_as_advanced(ISPC_EXECUTABLE)
+endif()
 
 include(FREUDCFlagsSetup)
 

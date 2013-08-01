@@ -13,6 +13,10 @@
 using namespace std;
 using namespace boost::python;
 
+/*! \file RDF.cc
+    \brief Routines for computing radial density functions
+*/
+
 namespace freud { namespace density {
 
 RDF::RDF(const trajectory::Box& box, float rmax, float dr)
@@ -37,7 +41,7 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
-    
+
     // precompute the bin center positions
     m_r_array = boost::shared_array<float>(new float[m_nbins]);
     for (unsigned int i = 0; i < m_nbins; i++)
@@ -46,7 +50,7 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
         float nextr = float(i+1) * m_dr;
         m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
-    
+
     // precompute cell volumes
     m_vol_array = boost::shared_array<float>(new float[m_nbins]);
     for (unsigned int i = 0; i < m_nbins; i++)
@@ -74,13 +78,13 @@ RDF::~RDF()
 bool RDF::useCells()
     {
     float l_min = fmin(m_box.getLx(), m_box.getLy());
-    
+
     if (!m_box.is2D())
         l_min = fmin(l_min, m_box.getLz());
-    
+
     if (m_rmax < l_min/3.0f)
         return true;
-    
+
     return false;
     }
 
@@ -162,10 +166,10 @@ void RDF::computeWithCellList(const float3 *ref_points,
     assert(points);
     assert(Nref > 0);
     assert(Np > 0);
-    
+
     // bin the x,y,z particles
     m_lc->computeCellList(points, Np);
-    
+
     // zero the bin counts for totaling
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     float dr_inv = 1.0f / m_dr;
@@ -177,13 +181,13 @@ void RDF::computeWithCellList(const float3 *ref_points,
         // get the cell the point is in
         float3 ref = ref_points[i];
         unsigned int ref_cell = m_lc->getCell(ref);
-        
+
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
         for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
             {
             unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
+
             // iterate over the particles in that cell
             locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
@@ -193,13 +197,13 @@ void RDF::computeWithCellList(const float3 *ref_points,
                 float dy = float(ref.y - points[j].y);
                 float dz = float(ref.z - points[j].z);
                 float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                
+
                 float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
 
                 if (rsq < rmaxsq)
                     {
                     float r = sqrtf(rsq);
-                
+
                     // bin that r
                     float binr = r * dr_inv;
                     // fast float to int conversion with truncation
@@ -208,7 +212,7 @@ void RDF::computeWithCellList(const float3 *ref_points,
                     #else
                     unsigned int bin = (unsigned int)(binr);
                     #endif
-                    
+
                     m_bin_counts[bin]++;
                     }
                 }
@@ -225,7 +229,7 @@ void RDF::computeWithCellList(const float3 *ref_points,
         {
         float avg_counts = m_bin_counts[bin] / float(Nref);
         m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
-        
+
         if (bin+1 < m_nbins)
             m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
         }
@@ -239,14 +243,14 @@ void RDF::computePy(boost::python::numeric::array ref_points,
     num_util::check_rank(ref_points, 2);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
-    
+
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
-    
+
     num_util::check_dim(ref_points, 1, 3);
     unsigned int Nref = num_util::shape(ref_points)[0];
-    
+
     // get the raw data pointers and compute the cell list
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
     float3* points_raw = (float3*) num_util::data(points);

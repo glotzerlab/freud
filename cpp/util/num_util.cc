@@ -3,6 +3,10 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+/*! \file num_util.cc
+    \brief Helper routines for numpy arrays
+*/
+
 #define PY_ARRAY_UNIQUE_SYMBOL PyArrayHandle
 #define NO_IMPORT_ARRAY
 #include "num_util.h"
@@ -88,7 +92,7 @@ namespace num_util{
   {
     return PyArray_DOUBLE;
   }
-    
+
   template <>
   PyArray_TYPES getEnum<long double>(void)
   {
@@ -146,7 +150,7 @@ KindCharMapEntry kindCharMapEntries[] =
     KindCharMapEntry(PyArray_CDOUBLE,'D'),
     KindCharMapEntry(PyArray_OBJECT, 'O')
   };
-  
+
 typedef KindTypeMap::value_type  KindTypeMapEntry;
 KindTypeMapEntry kindTypeMapEntries[] =
   {
@@ -162,14 +166,14 @@ KindTypeMapEntry kindTypeMapEntries[] =
     KindTypeMapEntry('O',PyArray_OBJECT)
   };
 
-  
+
 int numStringEntries = sizeof(kindStringMapEntries)/sizeof(KindStringMapEntry);
 int numCharEntries = sizeof(kindCharMapEntries)/sizeof(KindCharMapEntry);
 int numTypeEntries = sizeof(kindTypeMapEntries)/sizeof(KindTypeMapEntry);
 
 
 using namespace boost::python;
-  
+
 static KindStringMap kindstrings(kindStringMapEntries,
                                    kindStringMapEntries + numStringEntries);
 
@@ -188,7 +192,7 @@ numeric::array makeNum(object x){
   object obj(handle<>
          (PyArray_ContiguousFromObject(x.ptr(),PyArray_NOTYPE,0,0)));
   check_PyArrayElementType(obj);
-  return extract<numeric::array>(obj); 
+  return extract<numeric::array>(obj);
 }
 
 //Create a one-dimensional Numeric array of length n and Numeric type t
@@ -198,9 +202,9 @@ numeric::array makeNum(intp n, PyArray_TYPES t=PyArray_DOUBLE){
   memset(arr_data, 0, PyArray_ITEMSIZE((PyArrayObject*) obj.ptr()) * n);
   return extract<numeric::array>(obj);
 }
-  
+
 //Create a Numeric array with dimensions dimens and Numeric type t
-numeric::array makeNum(std::vector<intp> dimens, 
+numeric::array makeNum(std::vector<intp> dimens,
                PyArray_TYPES t=PyArray_DOUBLE){
   intp total = std::accumulate(dimens.begin(),dimens.end(),1,std::multiplies<intp>());
   object obj(handle<>(PyArray_SimpleNew(dimens.size(), &dimens[0], t)));
@@ -213,13 +217,13 @@ numeric::array makeNum(const numeric::array& arr){
   //Returns a reference of arr by calling numeric::array copy constructor.
   //The copy constructor increases arr's reference count.
   return numeric::array(arr);
-} 
+}
 
 PyArray_TYPES type(numeric::array arr){
   return PyArray_TYPES(PyArray_TYPE(arr.ptr()));
 }
 
-void check_type(boost::python::numeric::array arr, 
+void check_type(boost::python::numeric::array arr,
         PyArray_TYPES expected_type){
   PyArray_TYPES actual_type = type(arr);
   if (actual_type != expected_type) {
@@ -246,7 +250,7 @@ void check_rank(boost::python::numeric::array arr, int expected_rank){
   int actual_rank = rank(arr);
   if (actual_rank != expected_rank) {
     std::ostringstream stream;
-    stream << "expected rank " << expected_rank 
+    stream << "expected rank " << expected_rank
        << ", found rank " << actual_rank << std::ends;
     PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());
     throw_error_already_set();
@@ -267,7 +271,7 @@ void check_size(boost::python::numeric::array arr, intp expected_size){
   intp actual_size = size(arr);
   if (actual_size != expected_size) {
     std::ostringstream stream;
-    stream << "expected size " << expected_size 
+    stream << "expected size " << expected_size
        << ", found size " << actual_size << std::ends;
     PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());
     throw_error_already_set();
@@ -296,7 +300,7 @@ intp get_dim(boost::python::numeric::array arr, int dimnum){
     std::ostringstream stream;
     stream << "Error: asked for length of dimension ";
     stream << dimnum << " but rank of array is " << the_rank << std::ends;
-    PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());       
+    PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());
     throw_error_already_set();
   }
   std::vector<intp> actual_dims = shape(arr);
@@ -322,7 +326,7 @@ void check_dim(boost::python::numeric::array arr, int dimnum, intp dimsize){
     stream << "Error: expected dimension number ";
     stream << dimnum << " to be length " << dimsize;
     stream << ", but found length " << actual_dims[dimnum]  << std::ends;
-    PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());       
+    PyErr_SetString(PyExc_RuntimeError, stream.str().c_str());
     throw_error_already_set();
   }
   return;
@@ -359,7 +363,7 @@ void copy_data(boost::python::numeric::array arr, char* new_data){
     arr_data[i] = new_data[i];
   }
   return;
-} 
+}
 
 //Return a clone of this array
 numeric::array clone(numeric::array arr){
@@ -367,7 +371,7 @@ numeric::array clone(numeric::array arr){
   return makeNum(obj);
 }
 
-  
+
 //Return a clone of this array with a new type
 numeric::array astype(boost::python::numeric::array arr, PyArray_TYPES t){
   return (numeric::array) arr.astype(type2char(t));
@@ -396,7 +400,7 @@ void check_PyArrayElementType(object newo){
   if(theType == PyArray_OBJECT){
       std::ostringstream stream;
       stream << "array elments have been cast to PyArray_OBJECT, "
-             << "numhandle can only accept arrays with numerical elements" 
+             << "numhandle can only accept arrays with numerical elements"
          << std::ends;
       PyErr_SetString(PyExc_TypeError, stream.str().c_str());
       throw_error_already_set();

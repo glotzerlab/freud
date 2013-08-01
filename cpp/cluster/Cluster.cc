@@ -7,6 +7,10 @@
 using namespace std;
 using namespace boost::python;
 
+/*! \file Cluster.cc
+    \brief Routines for clustering points
+*/
+
 namespace freud { namespace cluster {
 
 /*! \param n Number of initial sets
@@ -77,31 +81,31 @@ void Cluster::computeClusters(const float3 *points,
     {
     assert(points);
     assert(Np > 0);
-    
+
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (Np != m_num_particles)
         m_cluster_idx = boost::shared_array<unsigned int>(new unsigned int[Np]);
-    
+
     m_num_particles = Np;
     float rmaxsq = m_rcut * m_rcut;
     DisjointSet dj(m_num_particles);
-    
+
     // bin the particles
     m_lc.computeCellList(points, m_num_particles);
-    
+
     // for each point
     for (unsigned int i = 0; i < m_num_particles; i++)
         {
         // get the cell the point is in
         float3 p = points[i];
         unsigned int cell = m_lc.getCell(p);
-        
+
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
             {
             unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
+
             // iterate over the particles in that cell
             locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
@@ -113,7 +117,7 @@ void Cluster::computeClusters(const float3 *points,
                     float dy = float(p.y - points[j].y);
                     float dz = float(p.z - points[j].z);
                     float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                
+
                     float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                     if (rsq < rmaxsq)
                         {
@@ -127,10 +131,10 @@ void Cluster::computeClusters(const float3 *points,
                 }
             }
         }
-    
+
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;
-    
+
     // go over every point
     uint32_t cur_set = 0;
     for (uint32_t i = 0; i < m_num_particles; i++)
@@ -147,7 +151,7 @@ void Cluster::computeClusters(const float3 *points,
         // label this point in cluster_idx
         m_cluster_idx[i] = label_map[s];
         }
-    
+
     // cur_set is now the number of clusters
     m_num_clusters = cur_set;
     }
@@ -157,11 +161,11 @@ void Cluster::computeClustersPy(boost::python::numeric::array points)
     // validate input type and rank
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
-    
+
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
-    
+
     // get the raw data pointers and compute the cell list
     float3* points_raw = (float3*) num_util::data(points);
 
@@ -172,19 +176,19 @@ void Cluster::computeClustersPy(boost::python::numeric::array points)
 
     Loops overa all particles and adds them to a list of sets. Each set contains all the keys that are part of that
     cluster.
-    
+
     Get the computed list with getClusterKeys().
-    
+
     \note The length of keys is assumed to be the same length as the particles in the last call to computeClusters().
 */
 void Cluster::computeClusterMembership(const unsigned int *keys)
     {
     // clear the membership
     m_cluster_keys.resize(m_num_clusters);
-    
+
     for (unsigned int i = 0; i < m_num_clusters; i++)
         m_cluster_keys[i].clear();
-    
+
     // add members to the sets
     for (unsigned int i = 0; i < m_num_particles; i++)
         {
@@ -205,10 +209,10 @@ void Cluster::computeClusterMembershipPy(boost::python::numeric::array keys)
     // validate input type and rank
     num_util::check_type(keys, PyArray_UINT32);
     num_util::check_rank(keys, 1);
-    
+
     // Check that there is one key per point
     unsigned int Np = num_util::shape(keys)[0];
-    
+
     if (!(Np == m_num_particles))
         throw invalid_argument("Number of keys must be equal to the number of particles last handled by compute()");
 
@@ -228,7 +232,7 @@ boost::python::object Cluster::getClusterKeysPy()
         set<unsigned int>::iterator k;
         for (k = m_cluster_keys[i].begin(); k != m_cluster_keys[i].end(); ++k)
             members.append(*k);
-        
+
         cluster_keys_py.append(members);
         }
     return cluster_keys_py;

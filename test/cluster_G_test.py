@@ -16,7 +16,7 @@ c = 5
 for i in xrange(0,N):
     u = random.random()*2.0 - 1.0;
     theta = random.random() * 2.0 * math.pi;
-    
+
     points[i][0] = a * math.cos(theta) * math.sqrt(1 - u*u)
     points[i][1] = b * math.sin(theta) * math.sqrt(1 - u*u);
     points[i][2] = c * u

@@ -7,6 +7,10 @@
 #ifndef _TRIANGLES_H__
 #define _TRIANGLES_H__
 
+/*! \file triangles.h
+    \brief Helper routines for generating triangle geometry
+*/
+
 namespace freud { namespace viz {
 
 /*! \internal
@@ -58,10 +62,10 @@ void triangle_rotate_mat(float2 *vert_array,
               unsigned int NT);
 
 /*! \internal
-    \brief Exports all classes in this file to python 
+    \brief Exports all classes in this file to python
 */
 void export_triangles();
-    
+
 } } // end namespace freud::viz
 
 #endif

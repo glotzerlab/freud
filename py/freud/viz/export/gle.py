@@ -12,7 +12,7 @@ import math
 # Instantiating a WriteGLE enables settings. You can then call write() as many times as you want to write GLE files.
 #
 # \internal
-# WriteGLE uses the visitor pattern to handle output methods for different primitives. 
+# WriteGLE uses the visitor pattern to handle output methods for different primitives.
 # The method used is described here: http://peter-hoffmann.com/2010/extrinsic-visitor-pattern-python-inheritance.html
 #
 # write can be used to write a Scene which will then recursively call write for all scene elements. Currently, this
@@ -49,9 +49,9 @@ class WriteGLE(object):
         self.width_height = numpy.array([width_sim, height_sim], dtype=numpy.float32);
         self.sim_to_cm = self.width_cm / width_sim;
         self.height_cm = height_sim * self.sim_to_cm;
-        
+
         out.write('size {0} {1}\n'.format(self.width_cm, self.height_cm));
-        
+
         # loop through the render primitives and write out each one
         for i,group in enumerate(scene.groups):
             out.write('\n!Group {0}\n'.format(i));
@@ -66,18 +66,18 @@ class WriteGLE(object):
     #
     def write_Disks(self, out, disks):
         out.write('set lwidth 0\n');
-        
+
         for position,diameter,color in zip(disks.positions, disks.diameters, disks.colors):
             # map the position into the view space
             position = (position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
             diameter = diameter * self.sim_to_cm;
-            
+
             # don't write out disks that are off the edge
             if position[0]+diameter/2 < 0 or position[0]-diameter/2 > self.width_cm:
                 continue;
             if position[1]+diameter/2 < 0 or position[1]-diameter/2 > self.height_cm:
                 continue;
-            
+
             # This is how to draw a circle with an outline in GLE such that the circle and outline do not overlap
             # and the edge of the outline is entirely within the circle (a is the line width)
             # set color rgba(0,0,0,0.5)
@@ -85,16 +85,16 @@ class WriteGLE(object):
             #    arc 2.0-a 0 360
             # end path
             # circle 2.0-a/2
-            
+
             # compute outline width
             a = disks.outline * self.sim_to_cm;
-            
+
             out.write('amove {0} {1}\n'.format(*position));
 
             out.write('begin path fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
             out.write('    arc {0} 0 360\n'.format(diameter/2-a))
             out.write('end path\n');
-            
+
             out.write('set lwidth {0}\n'.format(a));
             # for the outline color, chose black and the same alpha as the fill color
             out.write('set color rgba(0, 0, 0, {0})\n'.format(color[3]));
@@ -108,24 +108,24 @@ class WriteGLE(object):
     def write_Triangles(self, out, triangles):
         for verts,color in zip(triangles.vertices, triangles.colors):
             transformed_verts = numpy.zeros(shape=verts.shape, dtype=numpy.float32);
-            
+
             # map the position into the view space
             for i in range(0,3):
                 transformed_verts[i] = (verts[i] - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
-            
+
             # don't write out polygons that are off the edge
             #if verts[0][0] < 0 or verte-radius > self.width_cm:
             #    continue;
             #if position[1]+radius < 0 or position[1]-radius > self.height_cm:
             #    continue;
-            
+
             out.write('begin path fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
-            
+
             out.write('amove {0} {1}\n'.format(*transformed_verts[0,:]));
             for vert in transformed_verts[1:]:
                 out.write('aline {0} {1}\n'.format(*vert));
             out.write('amove {0} {1}\n'.format(*transformed_verts[0,:]));
-            
+
             out.write('closepath\n');
             out.write('end path\n');
 
@@ -162,30 +162,30 @@ class WriteGLE(object):
     #     # end sub
 
     #     out.write('set lwidth {0}\n'.format(polygons.outline*self.sim_to_cm));
-        
+
     #     # first, generate a string that writes the whole polygon
     #     fill_str = "amove {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
     #     for vert in polygons.polygon[1:]:
     #         vert_cm = vert * self.sim_to_cm;
     #         fill_str += "aline {0} {1}\n".format(*vert_cm)
     #     fill_str += "aline {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
-        
+
     #     # compute the polygon's radius
     #     radius = 0;
     #     for vert in polygons.polygon:
     #         r = math.sqrt(numpy.dot(vert, vert));
     #         radius = max(radius, r);
-        
+
     #     for position,angle,color in zip(polygons.positions, polygons.angles, polygons.colors):
     #         # map the position into the view space
     #         position = (position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
-            
+
     #         # don't write out polygons that are off the edge
     #         if position[0]+radius < 0 or position[0]-radius > self.width_cm:
     #             continue;
     #         if position[1]+radius < 0 or position[1]-radius > self.height_cm:
     #             continue;
-            
+
     #         out.write('begin translate {0} {1}\n'.format(*position));
     #         out.write('begin rotate {0}\n'.format(180*angle/math.pi));
 
@@ -209,26 +209,26 @@ class WriteGLE(object):
         # map the position into the view space
         position = (img.position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
         size = img.size * self.sim_to_cm;
-        
+
         # don't write out images that are off the edge
         if position[0]+size[0]/2 < 0 or position[0]-size[0]/2 > self.width_cm:
             return;
         if position[1]+size[1]/2 < 0 or position[1]-size[1]/2 > self.height_cm:
             return;
-        
+
         # save the image to a file
         if img.filename is not None:
             fname = img.filename;
         else:
             fname = 'img{0}.png'.format(self.file_count);
             self.file_count += 1;
-        
+
         img.save(fname);
-        
-        # write out the GLE code to place the image    
+
+        # write out the GLE code to place the image
         out.write('amove {0} {1}\n'.format(*position));
         out.write('bitmap {0} {1} {2}\n'.format(fname, size[0], size[1]));
-    
+
     ## Write a viz element to a GLE stream
     # \param out Output stream
     # \param obj Object to write

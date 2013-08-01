@@ -1,6 +1,6 @@
 from freud import locality
 from freud import trajectory
-from freud import cluster 
+from freud import cluster
 import numpy
 
 # place particles 0, 1, and 4 next to each other

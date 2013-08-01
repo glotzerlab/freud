@@ -14,12 +14,17 @@
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
+#include "split.h"
 #include "tbb_config.h"
 #include "WeightedRDF.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
 using namespace freud;
+
+/*! \file module.cc
+    \brief _freud.so python exports
+*/
 
 /* numpy is terrible (see /opt/local/Library/Frameworks/Python.framework/Versions/2.7/
 lib/python2.7/site-packages/numpy/core/generate_numpy_array.py)
@@ -65,5 +70,6 @@ BOOST_PYTHON_MODULE(_freud)
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();
+    viz::export_split();
     parallel::export_tbb_config();
     }

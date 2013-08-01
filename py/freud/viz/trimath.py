@@ -58,7 +58,7 @@ class triangulate(RepeatedPolygons):
             verts = [(self.verts.vertices[i][0], self.verts.vertices[i][1]), (self.verts.vertices[j][0], self.verts.vertices[j][1]), (self.verts.vertices[k][0], self.verts.vertices[k][1])]
             t = shapes.triangle(verts)
             self.triangles.append(t)
-        
+
         else:
             # verts gets divided into n - 2 triangles
             nv = self.verts.n

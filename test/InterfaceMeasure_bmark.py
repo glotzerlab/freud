@@ -1,6 +1,6 @@
 from freud import trajectory
 from freud import interface
-import random 
+import random
 import numpy
 import time
 

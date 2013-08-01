@@ -8,30 +8,34 @@
 #ifndef _LOCAL_DENSITY_H__
 #define _LOCAL_DENSITY_H__
 
+/*! \file LocalDensity.h
+    \brief Routines for computing local density around a point
+*/
+
 namespace freud { namespace density {
 
 //! Compute the local density at each point
-/*! 
+/*!
 */
 class LocalDensity
     {
     public:
         //! Constructor
         LocalDensity(const trajectory::Box& box, float r_cut, float volume);
-                
+
         //! Compute the local density
         void compute(const float3 *points,
                      unsigned int Np);
-        
+
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array points);
-                       
+
         //! Get a reference to the last computed density
         boost::shared_array< float > getDensity()
             {
             return m_density_array;
             }
-        
+
         //! Python wrapper for getDensity() (returns a copy)
         boost::python::numeric::array getDensityPy()
             {
@@ -44,21 +48,21 @@ class LocalDensity
             {
             return m_num_neighbors_array;
             }
-        
+
         //! Python wrapper for getDensity() (returns a copy)
         boost::python::numeric::array getNumNeighborsPy()
             {
             float *arr = m_num_neighbors_array.get();
             return num_util::makeNum(arr, m_Np);
             }
-        
+
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_Np;                //!< Last number of points computed
-        
+
         boost::shared_array< float > m_density_array;         //!< density array computed
         boost::shared_array< float > m_num_neighbors_array;   //!< number of neighbors array computed
     };

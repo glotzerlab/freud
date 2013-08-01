@@ -97,6 +97,8 @@ set(SOURCES trajectory/trajectory.cc
             viz/colorutil.cc
             viz/triangles.h
             viz/triangles.cc
+            viz/split.h
+            viz/split.cc
             parallel/tbb_config.h
             parallel/tbb_config.cc
             )

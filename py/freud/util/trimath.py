@@ -34,7 +34,7 @@ def q_rotate(point, angle):
     tp = numpy.array([0.0, point[0], point[1], 0.0], dtype=numpy.float32)
     ps = quat_mult(quat_mult(q, tp), qs)
     return numpy.array([ps[1], ps[2]], dtype=numpy.float32)
-    
+
 def tri_rotate(triangle, angle):
     point_array = []
     for i in range(3):
@@ -111,5 +111,5 @@ def bisector(p):
 #     else:
 #         b = -b
 #     return b, angle
-     
-    
+
+

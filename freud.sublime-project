@@ -18,7 +18,7 @@
         "smart_indent": false,
         "spell_check": true,
         "translate_tabs_to_spaces": true,
-        "trim_automatic_white_space": false,
+        "trim_automatic_white_space": true,
         "rulers": [120],
         "detect_indentation": false
     },
@@ -32,17 +32,17 @@
             // then it matches strings like: filename:line message OR filename(line): message
             // the first is output by g++, the latter by nvcc
             "file_regex": "^(?!citelist)(..[^:(]*)[:(]([0-9]+)[:)]?([0-9]+)?:? (.*)$",
-            
+
             // include latex and macports on the path in osx
             "osx":
             {
                 "path": "/opt/local/bin:/opt/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/X11/bin:/usr/texbin"
             },
-            
+
             // add a make clean option
-            "variants": 
+            "variants":
             [
-                { 
+                {
                     "cmd": ["make", "clean"],
                     "name": "Clean"
                 }
