@@ -80,6 +80,12 @@ class WeightedRDF
             return m_rdf_array;
             }
 
+        //! Get a reference to the bin counts array
+        boost::shared_array<unsigned int> getCounts()
+            {
+            return m_bin_counts;
+            }
+
         //! Get a reference to the r array
         boost::shared_array<float> getR()
             {
@@ -90,6 +96,13 @@ class WeightedRDF
         boost::python::numeric::array getRDFPy()
             {
             T *arr = m_rdf_array.get();
+            return num_util::makeNum(arr, m_nbins);
+            }
+
+        //! Python wrapper for getCounts() (returns a copy)
+        boost::python::numeric::array getCountsPy()
+            {
+            unsigned int *arr = m_bin_counts.get();
             return num_util::makeNum(arr, m_nbins);
             }
 

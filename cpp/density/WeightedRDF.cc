@@ -285,6 +285,7 @@ void export_WeightedRDF()
         .def("getBox", &ComplexWRDF::getBox, return_internal_reference<>())
         .def("compute", &ComplexWRDF::computePy)
         .def("getRDF", &ComplexWRDF::getRDFPy)
+        .def("getCounts", &ComplexWRDF::getCountsPy)
         .def("getR", &ComplexWRDF::getRPy)
         ;
     typedef WeightedRDF<float> FloatWRDF;
@@ -292,6 +293,7 @@ void export_WeightedRDF()
         .def("getBox", &FloatWRDF::getBox, return_internal_reference<>())
         .def("compute", &FloatWRDF::computePy)
         .def("getRDF", &FloatWRDF::getRDFPy)
+        .def("getCounts", &FloatWRDF::getCountsPy)
         .def("getR", &FloatWRDF::getRPy)
         ;
     }
