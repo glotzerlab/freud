@@ -317,10 +317,12 @@ class Spheropolygons(RepeatedPolygons):
     # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
-    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1, radius=1.0, granularity=5):
+    def __init__(self, positions, angles, polygon, colors=None, color=None,
+                 outline=0.1, radius=1.0, granularity=5, *args, **kwargs):
         polygon = self.roundCorners(polygon, radius, granularity)
 
-        super(Spheropolygons, self).__init__(positions, angles, polygon, colors, color, outline)
+        super(Spheropolygons, self).__init__(positions, angles, polygon, colors,
+                                             color, outline, *args, **kwargs)
 
     ## Round a polygon by a given radius
     # \param vertices Nx2 array or list-like object of points in the polygon
