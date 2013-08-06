@@ -171,6 +171,157 @@ class Triangles(base.Primitive):
 
             self.colors[:,:] = acolor;
 
+
+## Arrows
+#
+# Represent N arrows in 2D with different positions, orientations,
+# lengths, line widths, and colors.
+class Arrows(Triangles):
+    ## Initialize an arrow primitive
+    # \param positions Nx2 array listing the origin position of each arrow (in distance units)
+    # \param widths N array or single value listing the line width of each arrow
+    # \param lengths N array or single value listing the length of each arrow
+    # \param angles N array or single value listing the orientation of each arrow (in radians)
+    # \param colors Nx4 array listing the colors (rgba 0.0-1.0) of each polygon (in SRGB)
+    # \param color 4 element iterable listing the color to be applied to every polygon (in SRGB)
+    #              \a color overrides anything set by colors
+    # \param aspectRatio Real length of a basic arrow of virtual length 1
+    #
+    # When colors is None, it defaults to (0,0,0,1) for each particle.
+    #
+    # \note N **must** be the same for each array
+    #
+    # After initialization, the instance will have members positions,
+    # widths, lengths, angles, and colors, each being a numpy array of
+    # the appropriate size and dtype float32. Users should not modify
+    # these directly, they are intended for use only by
+    # renderers. Instead, users should create a new primitive from
+    # scratch to rebuild geometry.
+    def __init__(self, positions, widths, lengths, angles, colors=None, color=None, aspectRatio=5.):
+        # -----------------------------------------------------------------
+        # set up positions
+        # convert to a numpy array
+        self.positions = numpy.array(positions, dtype=numpy.float32);
+        # error check the input
+        if len(self.positions.shape) != 2:
+            raise TypeError("positions must be a Nx2 array");
+        if self.positions.shape[1] != 2:
+            raise ValueError("positions must be a Nx2 array");
+
+        N = self.positions.shape[0];
+
+        # -----------------------------------------------------------------
+        # set up widths
+        self.widths = numpy.array(widths, dtype=numpy.float32);
+        if len(self.widths.shape) == 0:
+            self.widths = numpy.repeat(self.widths, N);
+
+        # error check widths
+        if len(self.widths.shape) != 1:
+            raise TypeError("widths must be a scalar or single dimension array");
+        if self.widths.shape[0] != N:
+            raise ValueError("widths must have N the same as positions or 1");
+
+        # -----------------------------------------------------------------
+        # set up lengths
+        self.lengths = numpy.array(lengths, dtype=numpy.float32);
+        if len(self.lengths.shape) == 0:
+            self.lengths = numpy.repeat(self.lengths, N);
+
+        # error check lengths
+        if len(self.lengths.shape) != 1:
+            raise TypeError("lengths must be a scalar or single dimension array");
+        if self.lengths.shape[0] != N:
+            raise ValueError("lengths must have N the same as positions or 1");
+
+        # -----------------------------------------------------------------
+        # set up angles
+        self.angles = numpy.array(angles, dtype=numpy.float32);
+
+        # error check angles
+        if len(self.angles.shape) not in [0, 1]:
+            raise TypeError("angles must be a scalar or single dimension array");
+        if len(self.angles.shape) and self.angles.shape[0] != N:
+            raise ValueError("angles must have N the same as positions or 1");
+
+        # -----------------------------------------------------------------
+        # set up colors
+        if colors is None:
+            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
+            self.colors[:,3] = 1;
+        else:
+            self.colors = numpy.array(colors, dtype=numpy.float32);
+
+        # error check colors
+        if len(self.colors.shape) != 2:
+            raise TypeError("colors must be a Nx4 array");
+        if self.colors.shape[1] != 4:
+            raise ValueError("colors must be a Nx4 array");
+        if self.colors.shape[0] != N:
+            raise ValueError("colors must have N the same as positions");
+
+        if color is not None:
+            acolor = numpy.array(color);
+            if len(acolor.shape) != 1:
+                raise TypeError("color must be a 4 element array");
+            if acolor.shape[0] != 4:
+                raise ValueError("color must be a 4 element array");
+
+            self.colors[:,:] = acolor;
+
+        # stem0 and stem1 are the two triangles for the rectangular
+        # "stem" of the arrow
+        stem0 = numpy.array([[[0, -.5], [0, .5], [aspectRatio, .5]]],
+                            dtype=numpy.float32);
+        stem1 = numpy.array([[[0, -.5], [aspectRatio, .5], [aspectRatio, -.5]]],
+                            dtype=numpy.float32);
+        # equilateral triangle tip
+        # l is the height of an equilateral triangle of side length 3
+        l = 1.5*numpy.sqrt(3);
+        tip = numpy.array([[[0, 1.5], [l, 0], [0, -1.5]]], dtype=numpy.float32);
+
+        stem0 = numpy.repeat(stem0, N, axis=0);
+        stem1 = numpy.repeat(stem1, N, axis=0);
+        tip = numpy.repeat(tip, N, axis=0);
+
+        # scale the width of stem and the size of the tip by the given line widths
+        stem0[:, :, 1] *= self.widths[:, numpy.newaxis];
+        stem1[:, :, 1] *= self.widths[:, numpy.newaxis];
+        tip *= self.widths[:, numpy.newaxis, numpy.newaxis];
+
+        # scale the length of stem by the given line lengths
+        stem0[:, 2, 0] *= self.lengths;
+        stem1[:, 1:, 0] *= self.lengths[:, numpy.newaxis];
+
+        # shrink the stem to just touch the tip
+        stem0[:, 2, 0] -= tip[:, 2, 0];
+        stem1[:, 1:, 0] -= tip[:, 2, 0][:, numpy.newaxis];
+
+        # shift the tip to the end of the stem
+        delta = aspectRatio*self.lengths - tip[:, 2, 0];
+        tip[:, :, 0] += delta[:, numpy.newaxis];
+
+        # rotate the vertices into the correct orientation
+        rmat = numpy.empty((N, 2, 2));
+        rmat[:, 0, 0] = rmat[:, 1, 1] = numpy.cos(self.angles);
+        rmat[:, 1, 0] = numpy.sin(self.angles);
+        rmat[:, 0, 1] = -rmat[:, 1, 0];
+
+        stem0 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem0.reshape(N, 3, 1, 2), axis=3);
+        stem1 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem1.reshape(N, 3, 1, 2), axis=3);
+        tip = numpy.sum(rmat[:, numpy.newaxis, :, :]*tip.reshape(N, 3, 1, 2), axis=3);
+
+        # put the triangles in the appropriate positions
+        stem0 += self.positions[:, numpy.newaxis, :];
+        stem1 += self.positions[:, numpy.newaxis, :];
+        tip += self.positions[:, numpy.newaxis, :];
+
+        colors = numpy.repeat(self.colors, 3, axis=0);
+        vertices = numpy.concatenate([stem0, stem1, tip], axis=0);
+
+        super(Arrows, self).__init__(vertices, colors=colors, color=color);
+
+
 ## Repeated polygons
 #
 # Represent N instances of the same polygon in 2D, each at a different position, orientation, and color. Black edges
@@ -317,10 +468,12 @@ class Spheropolygons(RepeatedPolygons):
     # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
-    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1, radius=1.0, granularity=5):
-        polygon = self.roundCorners(polygon, radius, granularity)
+    def __init__(self, positions, angles, polygon, colors=None, color=None,
+                 outline=0.1, radius=1.0, granularity=5, *args, **kwargs):
+        polygon = self.roundCorners(polygon, radius, granularity);
 
-        super(Spheropolygons, self).__init__(positions, angles, polygon, colors, color, outline)
+        super(Spheropolygons, self).__init__(positions, angles, polygon, colors,
+                                             color, outline, *args, **kwargs);
 
     ## Round a polygon by a given radius
     # \param vertices Nx2 array or list-like object of points in the polygon
@@ -333,43 +486,43 @@ class Spheropolygons(RepeatedPolygons):
     #
     def roundCorners(self, vertices, radius=1.0, granularity=5):
         # Make 3D unit vectors drs from each vertex i to its neighbor i+1
-        vertices = numpy.array(vertices)
-        drs = numpy.roll(vertices, -1, axis=0) - vertices
-        drs /= numpy.sqrt(numpy.sum(drs*drs, axis=1))[:, numpy.newaxis]
-        drs = numpy.hstack([drs, numpy.zeros((drs.shape[0], 1))])
+        vertices = numpy.array(vertices);
+        drs = numpy.roll(vertices, -1, axis=0) - vertices;
+        drs /= numpy.sqrt(numpy.sum(drs*drs, axis=1))[:, numpy.newaxis];
+        drs = numpy.hstack([drs, numpy.zeros((drs.shape[0], 1))]);
 
         # relStarts and relEnds are the offsets relative to the first and
         # second point of each line segment in the polygon.
-        rvec = numpy.array([[0, 0, -1]])*radius
-        relStarts = numpy.cross(rvec, drs)[:, :2]
-        relEnds =  numpy.cross(rvec, drs)[:, :2]
+        rvec = numpy.array([[0, 0, -1]])*radius;
+        relStarts = numpy.cross(rvec, drs)[:, :2];
+        relEnds =  numpy.cross(rvec, drs)[:, :2];
 
         # absStarts and absEnds are the beginning and end points for each
         # straight line segment.
-        absStarts = vertices + relStarts
-        absEnds = numpy.roll(vertices, -1, axis=0) + relEnds
+        absStarts = vertices + relStarts;
+        absEnds = numpy.roll(vertices, -1, axis=0) + relEnds;
 
-        relStarts = numpy.roll(relStarts, -1, axis=0)
+        relStarts = numpy.roll(relStarts, -1, axis=0);
 
         # We will join each of these segments by a round cap; this will be
         # done by tracing an arc with the given radius, centered at each
         # vertex from an end of a line segment to a beginning of the next
-        theta1s = numpy.arctan2(relEnds[:, 1], relEnds[:, 0])
-        theta2s = numpy.arctan2(relStarts[:, 1], relStarts[:, 0])
-        dthetas = (theta2s - theta1s) % (2*numpy.pi)
+        theta1s = numpy.arctan2(relEnds[:, 1], relEnds[:, 0]);
+        theta2s = numpy.arctan2(relStarts[:, 1], relStarts[:, 0]);
+        dthetas = (theta2s - theta1s) % (2*numpy.pi);
 
         # thetas are the angles at which we'll place points for each
         # vertex; curves are the points on the approximate curves on the
         # corners.
-        thetas = numpy.zeros((vertices.shape[0], granularity))
+        thetas = numpy.zeros((vertices.shape[0], granularity));
         for i, (theta1, dtheta) in enumerate(zip(theta1s, dthetas)):
-            thetas[i] = theta1 + numpy.linspace(0, dtheta, 2 + granularity)[1:-1]
-        curves = radius*numpy.vstack([numpy.cos(thetas).flat, numpy.sin(thetas).flat]).T
-        curves = curves.reshape((-1, granularity, 2))
-        curves += numpy.roll(vertices, -1, axis=0)[:, numpy.newaxis, :]
+            thetas[i] = theta1 + numpy.linspace(0, dtheta, 2 + granularity)[1:-1];
+        curves = radius*numpy.vstack([numpy.cos(thetas).flat, numpy.sin(thetas).flat]).T;
+        curves = curves.reshape((-1, granularity, 2));
+        curves += numpy.roll(vertices, -1, axis=0)[:, numpy.newaxis, :];
 
         # Now interleave the pieces
-        result = []
+        result = [];
         for (end, curve, start, vert, dtheta) in zip(absEnds, curves,
                                                      numpy.roll(absStarts, -1, axis=0),
                                                      numpy.roll(vertices, -1, axis=0),
@@ -378,20 +531,20 @@ class Spheropolygons(RepeatedPolygons):
             # segment, the curved edge, then the start of the next
             # straight line segment.
             if dtheta <= numpy.pi:
-                result.append(end)
-                result.append(curve)
-                result.append(start)
+                result.append(end);
+                result.append(curve);
+                result.append(start);
             # concave case: don't use the curved region, just find the
             # intersection and add that point.
             else:
-                l = radius/numpy.cos(dtheta/2)
-                p = 2*vert - start - end
-                p /= trimath.norm(p)
-                result.append(vert + p*l)
+                l = radius/numpy.cos(dtheta/2);
+                p = 2*vert - start - end;
+                p /= trimath.norm(p);
+                result.append(vert + p*l);
 
-        result = numpy.vstack(result)
+        result = numpy.vstack(result);
 
-        return result
+        return result;
 
 ## Image
 #
