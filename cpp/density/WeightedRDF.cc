@@ -160,8 +160,10 @@ void WeightedRDF<T>::computeWithoutCellList(const float3 *ref_points,
 
     for (unsigned int bin = 1; bin < m_nbins; bin++)
         {
-        float avg_counts = m_bin_counts[bin] / float(Nref);
-        m_rdf_array[bin] *= avg_counts/m_vol_array[bin]/ndens;
+        if (m_bin_counts[bin])
+            {
+            m_rdf_array[bin] /= m_bin_counts[bin];
+            }
         }
     }
 
@@ -237,8 +239,10 @@ void WeightedRDF<T>::computeWithCellList(const float3 *ref_points,
 
     for (unsigned int bin = 1; bin < m_nbins; bin++)
         {
-        float avg_counts = m_bin_counts[bin] / float(Nref);
-        m_rdf_array[bin] *= avg_counts/m_vol_array[bin]/ndens;
+        if (m_bin_counts[bin])
+            {
+            m_rdf_array[bin] /= m_bin_counts[bin];
+            }
         }
     }
 
