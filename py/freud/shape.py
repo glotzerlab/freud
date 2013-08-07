@@ -9,22 +9,30 @@ except ImportError:
     logger.warning(msg)
     #raise ImportWarning(msg)
 
-#! ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
-#! Attributes:
-#!
-#!    npoints number of input points
-#!    ndim number of dimensions of input points (should be 3)
-#!    points ndarray (npoints, ndim) input points
-#!    nfacets number of facets
-#!    nverts ndarray (nfacets,) of number of vertices per facet
-#!    facets ndarray (nfacets, max(nverts)) vertex indices for each facet. values for facets[i, j > nverts[i]] are undefined
-#!    neighbors (nfacets, max(nverts)) neighbor k shares vertices k and k+1 with face. values for neighbors[i, k > nverts[i] - 1] are undefined
-#!    equations (nfacets, ndim+1) [normal, offset] for corresponding facet
-#!    simplicial scipy.spatial.ConvexHull object initialized from points containing data based on simplicial facets
-#!
-#!
-#!
+## \package freud.shape
+#
+# Classes to manage shape data.
+#
+# \note freud.shape.ConvexPolyhedron requires scipy.spatil.ConvexHull (as of scipy 0.12.0).
+
+## Provides data structures and calculation methods for working with convex polyhedra generated as the hull of a list of vertices.
+# ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
+#
+# ### Attributes:
+#
+# - npoints number of input points
+# - ndim number of dimensions of input points (should be 3)
+# - points ndarray (npoints, ndim) input points
+# - nfacets number of facets
+# - nverts ndarray (nfacets,) of number of vertices per facet
+# - facets ndarray (nfacets, max(nverts)) vertex indices for each facet. values for facets[i, j > nverts[i]] are undefined
+# - neighbors (nfacets, max(nverts)) neighbor k shares vertices k and k+1 with face. values for neighbors[i, k > nverts[i] - 1] are undefined
+# - equations (nfacets, ndim+1) [normal, offset] for corresponding facet
+# - simplicial scipy.spatial.ConvexHull object initialized from points containing data based on simplicial facets
+#
 class ConvexPolyhedron:
+    ## Create a ConvexPolyhedron object from a list of points
+    # \param points Nx3 list of vertices from which to construct the convex hull
     def __init__(self, points):
         if ConvexHull is None:
             logger.error('Cannot initialize ConvexPolyhedron because scipy.spatial.ConvexHull is not available.')
@@ -46,6 +54,8 @@ class ConvexPolyhedron:
             self.facets[i] = self.rhFace(i)
         for i in xrange(self.nfacets):
             self.neighbors[i] = self.rhNeighbor(i)
+    ## \internal
+    # Merge coplanar simplicial facets
     def mergeFaces(self):
         Nf = self.nfacets
         facet_verts = [ set(self.facets[i]) for i in xrange(len(self.facets)) ]
@@ -93,7 +103,8 @@ class ConvexPolyhedron:
                 # correct for changing face list length
                 Nf -= 1
                 # note that all facet indices > merged_neighbor have to be decremented. This is going to be slow...
-                # Optimize later by instead making a translation table during processing to be applied later.
+                # Maybe optimize by instead making a translation table during processing to be applied later.
+		# A better optimization would be a c++ module to access qhull directly rather than through scipy.spatial
                 if merged_neighbor < face:
                     face -= 1
                 for i in xrange(len(neighbors)):
@@ -113,8 +124,8 @@ class ConvexPolyhedron:
             self.neighbors[i, :(self.nverts[i])] = numpy.array(list(neighbors[i]))
         self.equations = numpy.array(list(equations))
 
-    #! Use a list of vertices and a outward face normal and return a right-handed ordered list of vertex indices
-    #! \param iface index of facet to process
+    ## Use a list of vertices and a outward face normal and return a right-handed ordered list of vertex indices
+    # \param iface index of facet to process
     def rhFace(self, iface):
         #n = numpy.asarray(normal)
         n = numpy.asarray(self.equations[iface, 0:3])
@@ -161,8 +172,8 @@ class ConvexPolyhedron:
             a_srt.insert(new_i, a)
         return numpy.array(idx_srt)
 
-    #! Use the list of vertices for a face to order a list of neighbors, given their vertices
-    #! \param iface index of facet to process
+    ## Use the list of vertices for a face to order a list of neighbors, given their vertices
+    # \param iface index of facet to process
     def rhNeighbor(self, iface):
         facet = list(self.facets[iface])
         Ni = len(facet)
@@ -183,13 +194,13 @@ class ConvexPolyhedron:
                     break
         return numpy.array(new_neighbors)
 
-    #! Find surface area of polyhedron or a face
-    #! \param facet facet to calculate area of (default sum all facet area)
-    def getArea(self, facet=None):
-        if facet is None:
+    ## Find surface area of polyhedron or a face
+    # \param iface index of facet to calculate area of (default sum all facet area)
+    def getArea(self, iface=None):
+        if iface is None:
             facet_list = range(self.nfacets)
         else:
-            facet_list = list([facet])
+            facet_list = list([iface])
         A = 0.0
         # for each face
         for i in facet_list:
@@ -207,7 +218,7 @@ class ConvexPolyhedron:
                     A += abs(numpy.dot(cp, n)) / 2.0
         return A
 
-    #! Find the volume of the polyhedron
+    ## Find the volume of the polyhedron
     def getVolume(self):
         V = 0.0
         # for each face, calculate area -> volume, and accumulate
@@ -229,6 +240,7 @@ class ConvexPolyhedron:
             V += d * A / 3.0
         return V
 
+## 3D rotation of a vector by a quaternion
 # from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
 # a suggested method for 15 mults and 15 adds to rotate vector b by quaternion a:
 # return b + cross( (Real(2) * a.v), (cross(a.v,b) + (a.s * b)) );
