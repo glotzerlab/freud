@@ -36,7 +36,13 @@ class ConvexPolyhedron:
     def __init__(self, points):
         if ConvexHull is None:
             logger.error('Cannot initialize ConvexPolyhedron because scipy.spatial.ConvexHull is not available.')
+
         self.simplicial = ConvexHull(points)
+        # Make self.simplicial look like a ConvexPolyhedron object so rhFace and rhNeighbor can be used.
+        self.simplicial.facets = self.simplicial.simplices
+        self.simplicial.nfacets = self.simplicial.nsimplex
+        self.simplicial.nverts = self.simplicial.ndim * numpy.ones((self.simplicial.nfacets,), dtype=int)
+
         self.points = numpy.asarray(self.simplicial.points)
         self.npoints = len(self.points)
         pshape = points.shape
@@ -132,7 +138,7 @@ class ConvexPolyhedron:
         facet = numpy.asarray(self.facets[iface])
         points = numpy.asarray(self.points)
 
-        Ni = len(facet) # number of vertices in facet
+        Ni = self.nverts[iface] # number of vertices in facet
         facet = numpy.asarray(facet)
         z = numpy.array([0., 0., 1.])
         theta = numpy.arccos(n[2])
@@ -176,7 +182,7 @@ class ConvexPolyhedron:
     # \param iface index of facet to process
     def rhNeighbor(self, iface):
         facet = list(self.facets[iface])
-        Ni = len(facet)
+        Ni = self.nverts[iface]
         # for convenience, apply the periodic boundary condition
         facet.append(facet[0])
         old_neighbors = list(self.neighbors[iface])
