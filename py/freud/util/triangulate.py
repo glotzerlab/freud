@@ -117,6 +117,29 @@ class triangulate:
         else:
             raise TypeError("Triangulation has not yet been performed")
 
+    def getTexTriangles(self):
+        t_arr = self.getTriangles()
+        # get the min/max for x, y in triangles
+        min_x = t_arr[0][0][0]
+        min_y = t_arr[0][0][1]
+        max_x = 0.0
+        max_y = 0.0
+        for i in t_arr:
+            for j in i:
+                if j[0] < min_x:
+                    min_x = j[0]
+                if j[0] > max_x:
+                    max_x = j[0]
+                if j[1] < min_y:
+                    min_y = j[1]
+                if j[1] > max_y:
+                    max_y = j[1]
+        for i in range(len(t_arr)):
+            for j in range(3):
+                t_arr[i][j][0] = (t_arr[i][j][0] - min_x) / (max_x -  min_x)
+                t_arr[i][j][1] = (t_arr[i][j][1] - min_y) / (max_y - min_y)
+        return numpy.array(t_arr)
+
     def getOutline(self):
         if self.outline:
             t_arr = []
