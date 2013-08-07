@@ -1,7 +1,15 @@
 import numpy
-from scipy.spatial import ConvexHull
+import logging
+logger = logging.getLogger(__name__)
+try:
+    from scipy.spatial import ConvexHull
+except ImportError:
+    ConvexHull = None
+    msg = 'scipy.spatial.ConvexHull is not available, so freud.shape.ConvexPolyhedron is not available.'
+    logger.warning(msg)
+    #raise ImportWarning(msg)
 
-#! Hull objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
+#! ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
 #! Attributes:
 #!
 #!    npoints number of input points
@@ -16,8 +24,10 @@ from scipy.spatial import ConvexHull
 #!
 #!
 #!
-class Hull:
+class ConvexPolyhedron:
     def __init__(self, points):
+        if ConvexHull is None:
+            logger.error('Cannot initialize ConvexPolyhedron because scipy.spatial.ConvexHull is not available.')
         self.simplicial = ConvexHull(points)
         self.points = numpy.asarray(self.simplicial.points)
         self.npoints = len(self.points)
@@ -236,10 +246,11 @@ def quatrot(q, v):
 
 # Run tests if invoked directly.
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     passed = True
     tetrahedron = numpy.array([[0.5, -0.5, -0.5], [0.5, 0.5, 0.5], [-0.5, 0.5, -0.5], [-0.5, -0.5, 0.5]])
     cube = numpy.concatenate((tetrahedron, -tetrahedron))
-    mypoly = Hull(cube)
+    mypoly = ConvexPolyhedron(cube)
 
     # Check quatrot
     success = True
