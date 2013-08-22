@@ -147,7 +147,17 @@ class Polygon:
         print(numpy.abs(numpy.diff(sortIdx)) == 1)
         print(self.vertices[sortIdx])
 
-    def triangulate(self):
+    @property
+    def triangles(self):
+        """A cached property of an Ntx3x2 numpy array of points, where
+        Nt is the number of triangles in this polygon."""
+        try:
+            return self._triangles
+        except AttributeError:
+            self._triangles = self._triangulate()
+        return self._triangles
+
+    def _triangulate(self):
         """Return a list of triangles for the 3 2D points of Nt
         triangles."""
 
@@ -155,24 +165,31 @@ class Polygon:
             return [tuple(self.vertices)]
 
         result = []
-        remaining = deque(self.vertices)
+        remaining = self.vertices
 
         # step around the shape and grab ears until only 4 vertices are left
         while len(remaining) > 4:
-            cross = any(linesCross((remaining[-1], remaining[1]), line)
-                        for line in zip(islice(remaining, 2, len(remaining) - 2),
-                                        islice(remaining, 3, len(remaining) - 1)))
+            signs = []
+            for vert in (remaining[-1], remaining[1]):
+                arms1 = remaining[2:-2] - vert
+                arms2 = vert - remaining[3:-1]
+                signs.append(numpy.sign(arms1[:, 1]*arms2[:, 0] - arms2[:, 1]*arms1[:, 0]))
+            for rest in (remaining[2:-2], remaining[3:-1]):
+                arms1 = remaining[-1] - rest
+                arms2 = rest - remaining[1]
+                signs.append(numpy.sign(arms1[:, 1]*arms2[:, 0] - arms2[:, 1]*arms1[:, 0]))
+
+            cross = numpy.any(numpy.bitwise_and(signs[0] != signs[1], signs[2] != signs[3]))
             if not cross and twiceTriangleArea(remaining[-1], remaining[0], remaining[1]) > 0.:
                 # triangle [-1, 0, 1] is a good one, cut it out
-                result.append((remaining[-1], remaining[0], remaining[1]))
-
-                remaining.popleft()
+                result.append((remaining[-1].copy(), remaining[0].copy(), remaining[1].copy()))
+                remaining = remaining[1:]
             else:
-                remaining.rotate(1)
+                remaining = numpy.roll(remaining, 1, axis=0)
 
         # there must now be 0 or 1 concave vertices left; find the
         # concave vertex (or a vertex) and fan out from it
-        vertices = numpy.array(remaining)
+        vertices = remaining
         shiftedUp = vertices - numpy.roll(vertices, 1, axis=0)
         shiftedBack = numpy.roll(vertices, -1, axis=0) - vertices
 
@@ -182,12 +199,13 @@ class Polygon:
         concave = numpy.where(areas < 0.)[0]
 
         fan = (concave[0] if len(concave) else 0)
-        remaining.rotate(fan)
-        fan = remaining.popleft()
-        result.extend([(fan, remaining[0], remaining[1]),
-                       (fan, remaining[1], remaining[2])])
+        fanVert = remaining[fan]
+        remaining = numpy.roll(remaining, -fan, axis=0)[1:]
 
-        return result
+        result.extend([(fanVert, remaining[0], remaining[1]),
+                       (fanVert, remaining[1], remaining[2])])
+
+        return numpy.array(result)
 
 class triangle:
 
