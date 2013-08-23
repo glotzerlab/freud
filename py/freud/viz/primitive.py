@@ -268,7 +268,7 @@ class RotatedTriangles(base.Primitive):
         # -----------------------------------------------------------------
         # set up colors
         if colors is None:
-            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
+            self.colors = numpy.zeros(shape=(3*Np*Nt,4), dtype=numpy.float32);
             self.colors[:,3] = 1;
         else:
             self.colors = numpy.array(colors, dtype=numpy.float32);
