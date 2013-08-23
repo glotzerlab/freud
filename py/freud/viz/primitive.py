@@ -187,6 +187,121 @@ class Triangles(base.Primitive):
             self.colors[:,:] = acolor;
 
 
+## Rotated Triangle primitive
+#
+# Represent N shapes in 2D specified by positions, orientations, a set
+# of triangles with local vertex images, and a color.
+#
+class RotatedTriangles(base.Primitive):
+    ## Initialize a rotated triangle primitive
+    # \param image Ntx3x2 array listing the local vertices of a shape
+    # \param positions Npx2 array listing the positions of each particle
+    # \param orientations Np-length array listing the orientation angle of each shape
+    # \param colors Npx4 array listing the colors (rgba 0.0-1.0) of each shape (in SRGB)
+    # \param color 4 element iterable listing the color to be applied to every triangle (in SRGB)
+    #              \a color overrides anything set by colors
+    #
+    # When colors is none, it defaults to (0,0,0,1) for each particle.
+    #
+    # \note Np **must** be the same for each array
+    #
+    # After initialization, the instance will have members positions,
+    # orientations, images, and colors, each being a numpy array of
+    # the appropriate size and dtype float32. Users should not modify
+    # these directly, they are intended for use only by
+    # renderers. Instead, users should create a new primitive from
+    # scratch to rebuild geometry.
+    #
+    def __init__(self, image, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None):
+        base.Primitive.__init__(self);
+
+        # -----------------------------------------------------------------
+        # set up image
+        # convert to a numpy array
+        self.image = numpy.array(image, dtype=numpy.float32);
+        # error check the input
+        if len(self.image.shape) != 3:
+            raise TypeError("image must be a Ntx3x2 array");
+        if self.image.shape[1] != 3:
+            raise ValueError("image must be a Ntx3x2 array");
+        if self.image.shape[2] != 2:
+            raise ValueError("image must be a Ntx3x2 array");
+
+        Nt = self.image.shape[0];
+
+        # -----------------------------------------------------------------
+        # set up positions
+        # convert to a numpy array
+        self.positions = numpy.array(positions, dtype=numpy.float32);
+        # error check the input
+        if len(self.positions.shape) != 2:
+            raise TypeError("positions must be a Npx2 array");
+        if self.positions.shape[1] != 2:
+            raise ValueError("positions must be a Npx2 array");
+
+        Np = self.positions.shape[0];
+
+        # -----------------------------------------------------------------
+        # set up orientations
+        # convert to a numpy array
+        self.orientations = numpy.array(orientations, dtype=numpy.float32);
+        # error check the input
+        if len(self.orientations.shape) != 1:
+            raise TypeError("orientations must be a Np-length array");
+        if len(self.orientations) != Np:
+            raise ValueError("Must have the same number of orientations as positions");
+
+        if texcoords is None:
+            self.texcoords = numpy.zeros(shape=(3*Np*Nt, 3, 2), dtype=numpy.float32)
+        else:
+            self.texcoords = numpy.array(texcoords, dtype=numpy.float32)
+
+        if len(self.texcoords.shape) != 3:
+            raise TypeError("texcoords must be a Nx3x2 array");
+        if self.texcoords.shape[1] != 3:
+            raise ValueError("texcoords must be a Nx3x2 array");
+        if self.texcoords.shape[2] != 2:
+            raise ValueError("texcoords must be a Nx3x2 array");
+
+        self.tex_fname = tex_fname
+
+        # -----------------------------------------------------------------
+        # set up colors
+        if colors is None:
+            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
+            self.colors[:,3] = 1;
+        else:
+            self.colors = numpy.array(colors, dtype=numpy.float32);
+
+        # error check colors
+        if len(self.colors.shape) != 2:
+            raise TypeError("colors must be a Npx4 array");
+        if self.colors.shape[1] != 4:
+            raise ValueError("colors must be a Npx4 array");
+        if self.colors.shape[0] != Np:
+            raise ValueError("colors must have N the same as positions");
+
+        if color is not None:
+            acolor = numpy.array(color);
+            if len(acolor.shape) != 1:
+                raise TypeError("color must be a 4 element array");
+            if acolor.shape[0] != 4:
+                raise ValueError("color must be a 4 element array");
+
+            self.colors[:,:] = acolor;
+
+        # -----------------------------------------------------------------
+        # broadcast data into the correct form
+        finalSize = lambda k: (3*Np*Nt, k)
+        self.images = numpy.tile(self.image, (Np, 1, 1)).reshape(finalSize(2))
+        self.positions = numpy.tile(
+            self.positions[:, numpy.newaxis, :], (1, 3*Nt, 1)).reshape(finalSize(2))
+        self.colors = numpy.tile(
+            self.colors[:, numpy.newaxis, :], (1, 3*Nt, 1)).reshape(finalSize(4))
+        self.orientations = numpy.tile(
+            self.orientations[:, numpy.newaxis], (1, 3*Nt)).reshape(finalSize(1))
+
+
 ## Arrows
 #
 # Represent N arrows in 2D with different positions, orientations,

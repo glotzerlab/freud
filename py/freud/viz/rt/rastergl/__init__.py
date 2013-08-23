@@ -36,7 +36,7 @@ class DrawGL(object):
     #
     def __init__(self):
         # initialize programs
-        class_list = [glprimitive.GLDisks, glprimitive.GLTriangles];
+        class_list = [glprimitive.GLDisks, glprimitive.GLTriangles, glprimitive.GLRotatedTriangles];
         self.programs = {};
         for cls in class_list:
             self.programs[cls] = Program(cls);
@@ -107,6 +107,19 @@ class DrawGL(object):
     def draw_Triangles(self, prim):
         # shorthand for the class type of the GLPrimitive
         cls = glprimitive.GLTriangles;
+        program = self.programs[cls].program;
+
+        # get the geometry from the cache and draw it
+        glprim = self.cache.get(prim, cls);
+        glprim.draw(program, self.camera);
+
+    ## \internal
+    # \brief Draw triangle
+    # \param prim Triangles to write
+    #
+    def draw_RotatedTriangles(self, prim):
+        # shorthand for the class type of the GLPrimitive
+        cls = glprimitive.GLRotatedTriangles;
         program = self.programs[cls].program;
 
         # get the geometry from the cache and draw it
