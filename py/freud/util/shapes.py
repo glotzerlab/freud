@@ -51,53 +51,6 @@ def twiceTriangleArea(p0, p1, p2):
     p2 = p2 - p0
     return p1[0]*p2[1] - p2[0]*p1[1]
 
-def linesCross(line1, line2, tol=1e-5):
-    """Returns true if two lines (specified as pairs of 2D numpy
-    points) cross. Also takes a tolerance cutoff for [twice] the area
-    between three colinear points"""
-    # sign of triangle (line1[0], line2[0], line2[1])
-    area1 = twiceTriangleArea(line1[0], line2[0], line2[1])
-    sign1 = numpy.abs(area1) > tol and int(numpy.sign(area1))
-
-    # sign of triangle (line1[1], line2[0], line2[1])
-    area2 = twiceTriangleArea(line1[1], line2[0], line2[1])
-    sign2 = numpy.abs(area2) > tol and int(numpy.sign(area2))
-
-    # sign of triangle (line2[0], line1[0], line1[1])
-    area3 = twiceTriangleArea(line2[0], line1[0], line1[1])
-    sign3 = numpy.abs(area3) > tol and int(numpy.sign(area3))
-
-    # sign of triangle (line2[1], line1[0], line1[1])
-    area4 = twiceTriangleArea(line2[1], line1[0], line1[1])
-    sign4 = numpy.abs(area4) > tol and int(numpy.sign(area4))
-
-    # specify that if two lines share a vertex (one of the areas is
-    # 0), they don't cross
-    return all([sign1, sign2, sign3, sign4, (sign1 != sign2), (sign3 != sign4)])
-
-def linesTouch(line1, line2):
-    """Returns true if two lines (specified as pairs of 2D numpy
-    points) touch, including sharing a vertex at two endpoints. Also
-    takes a tolerance cutoff for [twice] the area between three
-    colinear points"""
-    # sign of triangle (line1[0], line2[0], line2[1])
-    area1 = twiceTriangleArea(line1[0], line2[0], line2[1])
-    sign1 = numpy.sign(area1)
-
-    # sign of triangle (line1[1], line2[0], line2[1])
-    area2 = twiceTriangleArea(line1[1], line2[0], line2[1])
-    sign2 = numpy.sign(area2)
-
-    # sign of triangle (line2[0], line1[0], line1[1])
-    area3 = twiceTriangleArea(line2[0], line1[0], line1[1])
-    sign3 = numpy.sign(area3)
-
-    # sign of triangle (line2[1], line1[0], line1[1])
-    area4 = twiceTriangleArea(line2[1], line1[0], line1[1])
-    sign4 = numpy.sign(area4)
-
-    return (sign1 != sign2) and (sign3 != sign4)
-
 class Polygon:
     """Basic class to hold a set of points for a 2D polygon"""
     def __init__(self, verts):
@@ -138,15 +91,6 @@ class Polygon:
         for vert in self.vertices:
             print("vertex {}".format(vert))
 
-    def splitMonotone(self):
-        """Returns a list of subpolygons of this polygon where each
-        subpolygon is guaranteed to be monotone with respect to any
-        vertical line."""
-        sortIdx = numpy.argsort(self.vertices[:, 0], kind='mergesort')
-        print(numpy.diff(sortIdx))
-        print(numpy.abs(numpy.diff(sortIdx)) == 1)
-        print(self.vertices[sortIdx])
-
     @property
     def triangles(self):
         """A cached property of an Ntx3x2 numpy array of points, where
@@ -154,12 +98,22 @@ class Polygon:
         try:
             return self._triangles
         except AttributeError:
-            self._triangles = self._triangulate()
+            self._triangles = self._triangulation()
         return self._triangles
 
-    def _triangulate(self):
-        """Return a list of triangles for the 3 2D points of Nt
-        triangles."""
+    @property
+    def normalizedTriangles(self):
+        try:
+            return self._normalizedTriangles
+        except AttributeError:
+            self._normalizedTriangles = self._triangles.copy()
+            self._normalizedTriangles -= numpy.min(self._triangles)
+            self._normalizedTriangles /= numpy.max(self._normalizedTriangles)
+        return self._normalizedTriangles
+
+    def _triangulation(self):
+        """Return a numpy array of triangles with shape (Nt, 3, 2) for
+        the 3 2D points of Nt triangles."""
 
         if self.n <= 3:
             return [tuple(self.vertices)]
@@ -205,7 +159,55 @@ class Polygon:
         result.extend([(fanVert, remaining[0], remaining[1]),
                        (fanVert, remaining[1], remaining[2])])
 
-        return numpy.array(result)
+        return numpy.array(result, dtype=numpy.float32)
+
+class Outline(object):
+    def __init__(self, polygon, width):
+        """Initialize an outline of a given Polygon object. Takes the
+        polygon in question and the outline width to inset."""
+        self.polygon = polygon
+        self.width = width
+
+    @property
+    def width(self):
+        """Property for the width of the outline. Updates the
+        triangulation when set."""
+        return self._width
+
+    @width.setter
+    def width(self, width):
+        self._width = width
+        self._triangulate()
+
+    def _triangulate(self):
+        """Triangulates an Outline object. Sets the triangles field to
+        a Ntx3x2 numpy array of triangles."""
+        drs = numpy.roll(self.polygon.vertices, -1, axis=0) - self.polygon.vertices
+        ns = drs/numpy.sqrt(numpy.sum(drs*drs, axis=1)).reshape((len(drs), 1))
+        thetas = numpy.arctan2(drs[:, 1], drs[:, 0])
+        dthetas = (thetas - numpy.roll(thetas, 1))%(2*numpy.pi)
+
+        concave = dthetas > numpy.pi
+        convex = concave == False
+
+        hs = numpy.repeat(self.width, len(drs))
+        hs[convex] /= numpy.cos(dthetas[convex]/2)
+        # flip the concave bisectors
+        hs[concave] *= -1
+        hs[concave] /= numpy.sin(dthetas[concave]/2)
+        hs = hs.reshape((len(hs), 1))
+
+        bisectors = ns - numpy.roll(ns, 1, axis=0)
+        bisectors /= numpy.sqrt(numpy.sum(bisectors*bisectors, axis=1)).reshape((len(ns), 1))
+
+        inners = self.polygon.vertices + hs.reshape((len(ns), 1))*bisectors
+
+        result = numpy.empty((2, self.polygon.n, 3, 2), dtype=numpy.float32)
+        result[:, :, 0, :] = (self.polygon.vertices, inners)
+        result[:, :, 1, :] = numpy.roll(self.polygon.vertices, -1, axis=0)
+        result[:, :, 2, :] = (inners, numpy.roll(inners, -1, axis=0))
+
+        self.triangles = result.reshape((2*self.polygon.n, 3, 2))
 
 class triangle:
 

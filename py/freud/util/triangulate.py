@@ -31,7 +31,7 @@ class triangulate:
                 phi = theta
             a = outline/numpy.sin(phi)
             v_copy[v] += b * numpy.sqrt(2.0 * (a)**2 * (1.0 - numpy.cos(numpy.pi - theta)))
-        self.polygon = shapes.polygon(v_copy)
+        self.polygon = shapes.Polygon(v_copy)
         self.triangles = []
         self.outline = shapes.outline(verts, v_copy)
         self.toutline = []
