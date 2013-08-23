@@ -588,3 +588,201 @@ void main()
     def destroy(self):
         buf_list = numpy.array([self.buffer_position, self.buffer_color], dtype=numpy.uint32);
         gl.glDeleteBuffers(2, buf_list);
+
+## Rotated Triangle geometry
+# \note GLRotatedTriangles is used internally by DrawGL and is not part of the public freud interface
+#
+# Store and draw the OpenGL geometry for the Triangles primitive.
+#
+# Triangles are drawn as-is. All vertices are specified directly in a triangle soup format. These are dumped into a
+# buffer and passed to glDrawArrays().
+#
+# All variables are directly accessible class members.
+#  - N: number of triangles
+#  - buffer_vertices: OpenGL buffer (N*3 2-element positions)
+#  - buffer_color: OpenGL buffer (N*3 4-element colors)
+#
+class GLRotatedTriangles(GLTriangles):
+    ## Vertex shader for drawing triangles
+    #
+    # Transform the incoming verts by the camera and pass through everything else.
+    vertex_shader = """
+#version 120
+
+uniform mat4 camera;
+
+attribute vec4 position;
+attribute float orientation;
+attribute vec2 image;
+attribute vec4 color;
+attribute vec2 texcoord;
+
+varying vec4 v_color;
+varying vec2 v_texcoord;
+
+void main()
+    {
+    float stheta = sin(orientation);
+    float ctheta = cos(orientation);
+
+    // rotate the image point into the correct orientation
+    gl_Position.x = image.x*ctheta - image.y*stheta;
+    gl_Position.y = image.x*stheta + image.y*ctheta;
+
+    // shift into position
+    gl_Position += position;
+
+    // transform to screen coordinates
+    gl_Position = camera * gl_Position;
+    v_color = color;
+    v_texcoord = texcoord;
+    }
+""";
+
+    ## Attributes for drawing rotated triangles
+    attributes = ['position', 'orientation', 'image', 'color', 'texcoord'];
+
+    ## Initialize a cached GL primitive
+    # \param prim base Primitive to represent
+    #
+    def __init__(self, prim):
+        GLPrimitive.__init__(self, prim);
+        # simple scalar values
+        self.N = int(len(prim.positions));
+
+        # initialize values for buffers
+        color = numpy.zeros(shape=(self.N, 3, 4), dtype=numpy.float32);
+
+        # start all coords at the center, with all the same color
+        for i in range(3):
+            color[:,i,:] = prim.colors;
+
+        # generate OpenGL buffers and copy data
+        self.buffer_position = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.positions, gl.GL_STATIC_DRAW);
+
+        self.buffer_orientation = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_orientation);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.orientations, gl.GL_STATIC_DRAW);
+
+        self.buffer_image = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_image);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.images, gl.GL_STATIC_DRAW);
+
+        self.buffer_color = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW);
+
+        self.buffer_texcoord = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoord);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.texcoords, gl.GL_STATIC_DRAW);
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+
+        if prim.tex_fname is not None:
+            # load texture
+            tex_img = QtGui.QImage(prim.tex_fname);
+            tex_argb_img = tex_img.convertToFormat(QtGui.QImage.Format_ARGB32);
+            img_data = numpy.array(tex_argb_img.constBits());
+
+            # remap to RGBA
+            rgba_data = numpy.zeros(shape=(tex_argb_img.width() * tex_argb_img.height(), 4), dtype=numpy.uint8);
+            rgba_data = rgba_data.reshape((tex_img.width()*tex_img.height(), 4));
+            img_data = img_data.reshape((tex_img.width()*tex_img.height(), 4));
+
+            rgba_data[:,0] = img_data[:,2];
+            rgba_data[:,1] = img_data[:,1];
+            rgba_data[:,2] = img_data[:,0];
+            rgba_data[:,3] = img_data[:,3];
+
+            # setup texture object
+            self.texture_object = gl.glGenTextures(1);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_object);
+
+            # Texture parameters are part of the texture object, so you need to
+            # specify them only once for a given texture object.
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_BASE_LEVEL, 0);
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAX_LEVEL, 0);
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, tex_argb_img.width(), tex_argb_img.height(), 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, rgba_data);
+
+            gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+        else:
+            self.texture_object = None;
+
+
+    ## Draw the primitive
+    # \param program OpenGL shader program
+    # \param camera The camera to use when drawing
+    #
+    def draw(self, program, camera):
+        # save state
+        gl.glPushAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
+
+        # setup state
+        gl.glEnable(gl.GL_MULTISAMPLE);
+        gl.glEnable(gl.GL_BLEND);
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+
+        gl.glUseProgram(program);
+
+        # update the camera matrix
+        camera_uniform = gl.glGetUniformLocation(program, b'camera');
+        gl.glUniformMatrix4fv(camera_uniform, 1, True, camera.ortho_2d_matrix);
+
+        # set whether textures are enabled
+        enable_tex_uniform = gl.glGetUniformLocation(program, b'enable_tex');
+        if self.texture_object is None:
+            gl.glUniform1i(enable_tex_uniform, 0);
+        else:
+            gl.glUniform1i(enable_tex_uniform, 1);
+
+            tex_unit = gl.glGetUniformLocation(program, b'tex');
+            gl.glUniform1i(tex_unit, 0);
+            gl.glActiveTexture(gl.GL_TEXTURE0);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_object);
+
+        # bind everything and then draw the triangles
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
+        gl.glEnableVertexAttribArray(0);
+        gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_orientation);
+        gl.glEnableVertexAttribArray(0);
+        gl.glVertexAttribPointer(1, 1, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_image);
+        gl.glEnableVertexAttribArray(2);
+        gl.glVertexAttribPointer(2, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
+        gl.glEnableVertexAttribArray(3);
+        gl.glVertexAttribPointer(3, 4, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoord);
+        gl.glEnableVertexAttribArray(4);
+        gl.glVertexAttribPointer(4, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
+
+        gl.glDrawArrays(gl.GL_TRIANGLES, 0, self.N*3);
+
+        # unbind everything we bound
+        gl.glDisableVertexAttribArray(0);
+        gl.glDisableVertexAttribArray(1);
+        gl.glUseProgram(0);
+
+        # restore state
+        gl.glPopAttrib(gl.GL_ENABLE_BIT | gl.GL_COLOR_BUFFER_BIT);
+
+    ## Destroy OpenGL resources
+    # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
+    # resources can be released at a controlled time. (not whenever python decides to call __del__.
+    #
+    def destroy(self):
+        buf_list = numpy.array([self.buffer_position, self.buffer_orientation,
+                                self.buffer_image, self.buffer_color,
+                                self.buffer_texcoord], dtype=numpy.uint32);
+        gl.glDeleteBuffers(5, buf_list);
