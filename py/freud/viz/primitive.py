@@ -16,6 +16,7 @@ from freud.viz import colorutil
 
 from freud.util import triangulate
 from freud.util import trimath
+from freud.util.shapes import Polygon, Outline
 
 import _freud;
 
@@ -384,15 +385,7 @@ class RepeatedPolygons(Triangles):
 
         # -----------------------------------------------------------------
         # set up polygon
-        self.polygon = numpy.array(polygon);
-
-        # error check polygon
-        if len(self.polygon.shape) != 2:
-            raise TypeError("polygon must be a Kx2 array");
-        if self.polygon.shape[0] < 3:
-            raise ValueError("polygon must have at least 3 vertices");
-        if self.polygon.shape[1] < 2:
-            raise ValueError("polygon must be a Kx2 array");
+        self.polygon = Polygon(polygon);
 
         # -----------------------------------------------------------------
         # set up colors
@@ -419,13 +412,14 @@ class RepeatedPolygons(Triangles):
 
             self.colors[:,:] = acolor;
         # create a triangulation class
-        tmp_poly = triangulate.triangulate(polygon, outline)
+        #        tmp_poly = triangulate.triangulate(polygon, outline)
         # decompose the polygon into constituent triangles
-        tmp_poly.calculate()
+        #        tmp_poly.calculate()
         # put the triangle vertices into a numpy array
-        triangle_array = tmp_poly.getTriangles()
-        textriangle_array = tmp_poly.getTexTriangles()
-        outline_array = tmp_poly.getOutline()
+        triangle_array = self.polygon.triangles
+        textriangle_array = self.polygon.normalizedTriangles
+        self.outline = Outline(self.polygon, outline)
+        outline_array = self.outline.triangles
         N_T = triangle_array.shape[0]
         N_O = outline_array.shape[0]
 
