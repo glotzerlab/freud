@@ -51,6 +51,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/locality
                     ${CMAKE_CURRENT_SOURCE_DIR}/cluster
                     ${CMAKE_CURRENT_SOURCE_DIR}/density
+                    ${CMAKE_CURRENT_SOURCE_DIR}/kspace
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/localql
@@ -71,6 +72,8 @@ set(SOURCES trajectory/trajectory.cc
             density/GaussianDensity.h
             density/LocalDensity.h
             density/LocalDensity.cc
+            kspace/kspace.h
+            kspace/kspace.cc
             cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h

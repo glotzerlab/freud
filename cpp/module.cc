@@ -6,6 +6,7 @@
 #include "Cluster.h"
 #include "GaussianDensity.h"
 #include "LocalDensity.h"
+#include "kspace.h"
 #include "RDF.h"
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
@@ -62,6 +63,7 @@ BOOST_PYTHON_MODULE(_freud)
     density::export_WeightedRDF();
     density::export_GaussianDensity();
     density::export_LocalDensity();
+    kspace::export_kspace();
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
