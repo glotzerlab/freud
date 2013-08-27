@@ -24,7 +24,7 @@ except ImportError:
 # - ndim number of dimensions of input points (should be 3)
 # - points ndarray (npoints, ndim) input points
 # - nfacets number of facets
-# - nverts ndarray (nfacets,) of number of vertices per facet
+# - nverts ndarray (nfacets,) of number of vertices and neighbors per facet
 # - facets ndarray (nfacets, max(nverts)) vertex indices for each facet. values for facets[i, j > nverts[i]] are undefined
 # - neighbors (nfacets, max(nverts)) neighbor k shares vertices k and k+1 with face. values for neighbors[i, k > nverts[i] - 1] are undefined
 # - equations (nfacets, ndim+1) [normal, offset] for corresponding facet
@@ -57,15 +57,15 @@ class ConvexPolyhedron:
         self.equations = numpy.array(self.simplicial.equations)
         self.mergeFaces()
         for i in xrange(self.nfacets):
-            self.facets[i] = self.rhFace(i)
+            self.facets[i, 0:self.nverts[i]] = self.rhFace(i)
         for i in xrange(self.nfacets):
-            self.neighbors[i] = self.rhNeighbor(i)
+            self.neighbors[i, 0:self.nverts[i]] = self.rhNeighbor(i)
     ## \internal
     # Merge coplanar simplicial facets
     def mergeFaces(self):
         Nf = self.nfacets
-        facet_verts = [ set(self.facets[i]) for i in xrange(len(self.facets)) ]
-        neighbors = [ set(self.neighbors[i]) for i in xrange(len(self.neighbors)) ]
+        facet_verts = [ set(self.facets[i, 0:self.nverts[i]]) for i in xrange(self.nfacets) ]
+        neighbors = [ set(self.neighbors[i, 0:self.nverts[i]]) for i in xrange(self.nfacets) ]
         equations = list(self.equations)
         normals = list(self.equations[:,0:3])
         nverts = list(self.nverts)
@@ -74,6 +74,7 @@ class ConvexPolyhedron:
         while face < Nf:
             n0 = normals[face]
             merge_list = list()
+            # need to handle neighbors of neighbors...
             for neighbor in neighbors[face]:
                 n1 = normals[neighbor]
                 d = numpy.dot(n0, n1)
@@ -86,14 +87,18 @@ class ConvexPolyhedron:
             #  update other neighbor lists
             #  prune neighbors, equations, normals, facet_verts, nverts
             #  update Nf
+            #  update neighbors and merge_list references
             #  check next face
-            for merged_neighbor in merge_list:
+            for m in xrange(len(merge_list)):
+                merged_neighbor = merge_list[m]
                 # merge in points from neighboring facet
                 facet_verts[face] |= facet_verts[merged_neighbor]
-                # remove neighbor from neighbor list
-                neighbors[face].remove(merged_neighbor)
+                # update nverts
+                nverts[face] = len(facet_verts[face])
                 # merge in neighbors from neighboring facet
                 neighbors[face] |= neighbors[merged_neighbor]
+                # remove self and neighbor from neighbor list
+                neighbors[face].remove(merged_neighbor)
                 neighbors[face].remove(face)
                 # update other neighbor lists: replace occurences of neighbor with face
                 for i in xrange(len(neighbors)):
@@ -108,9 +113,15 @@ class ConvexPolyhedron:
                 del nverts[merged_neighbor]
                 # correct for changing face list length
                 Nf -= 1
+                # Deal with changed indices for merge_list and neighbors
+                # update merge_list
+                for i in xrange(m+1, len(merge_list)):
+                    if merge_list[i] > merged_neighbor:
+                        merge_list[i] -= 1
+                # update neighbors
                 # note that all facet indices > merged_neighbor have to be decremented. This is going to be slow...
                 # Maybe optimize by instead making a translation table during processing to be applied later.
-		# A better optimization would be a c++ module to access qhull directly rather than through scipy.spatial
+                # A better optimization would be a c++ module to access qhull directly rather than through scipy.spatial
                 if merged_neighbor < face:
                     face -= 1
                 for i in xrange(len(neighbors)):
@@ -122,7 +133,7 @@ class ConvexPolyhedron:
             face += 1
         # write updated data to self.facets, self.equations, self.neighbors, self.nfacets, self.nverts
         self.nfacets = len(facet_verts)
-        self.nverts = numpy.array([len(verts) for verts in facet_verts])
+        self.nverts = numpy.array(nverts)
         self.facets = numpy.empty((self.nfacets, max(self.nverts)), dtype=int)
         self.neighbors = numpy.empty((self.nfacets, max(self.nverts)), dtype=int)
         for i in xrange(self.nfacets):
@@ -134,12 +145,11 @@ class ConvexPolyhedron:
     # \param iface index of facet to process
     def rhFace(self, iface):
         #n = numpy.asarray(normal)
-        n = numpy.asarray(self.equations[iface, 0:3])
-        facet = numpy.asarray(self.facets[iface])
-        points = numpy.asarray(self.points)
-
         Ni = self.nverts[iface] # number of vertices in facet
-        facet = numpy.asarray(facet)
+        n = self.equations[iface, 0:3]
+        facet = self.facets[iface, 0:Ni]
+        points = self.points
+
         z = numpy.array([0., 0., 1.])
         theta = numpy.arccos(n[2])
         if numpy.dot(n, z) == 1.0:
@@ -181,13 +191,20 @@ class ConvexPolyhedron:
     ## Use the list of vertices for a face to order a list of neighbors, given their vertices
     # \param iface index of facet to process
     def rhNeighbor(self, iface):
-        facet = list(self.facets[iface])
         Ni = self.nverts[iface]
+        facet = list(self.facets[iface, 0:Ni])
         # for convenience, apply the periodic boundary condition
         facet.append(facet[0])
-        old_neighbors = list(self.neighbors[iface])
+
+        # get a list of sets of vertices for each neighbor
+        old_neighbors = list(self.neighbors[iface, 0:Ni])
+        neighbor_verts = list()
+        for i in xrange(Ni):
+            neighbor = old_neighbors[i]
+            verts_set = set(self.facets[neighbor, 0:self.nverts[neighbor]])
+            neighbor_verts.append(verts_set)
+
         new_neighbors = list()
-        neighbor_verts = [ set(self.facets[neighbor]) for neighbor in old_neighbors ]
         for i in xrange(Ni):
             # Check each pair of edge points in turn
             edge = set([facet[i], facet[i+1]])
