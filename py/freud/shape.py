@@ -55,13 +55,22 @@ class ConvexPolyhedron:
         self.nverts = self.ndim * numpy.ones((self.nfacets,), dtype=int)
         self.neighbors = numpy.array(self.simplicial.neighbors)
         self.equations = numpy.array(self.simplicial.equations)
-        self.mergeFacets()
+        # mergeFacets does not merge all coplanar facets when there are a lot of neighboring coplanar facets,
+        # but repeated calls will do the job.
+        # If performance is ever an issue, this should really all be replaced with our own qhull wrapper...
+        old_nfacets = 0
+        new_nfacets = self.nfacets
+        while new_nfacets != old_nfacets:
+            self.mergeFacets()
+            old_nfacets = new_nfacets
+            new_nfacets = self.nfacets
         for i in xrange(self.nfacets):
             self.facets[i, 0:self.nverts[i]] = self.rhFace(i)
         for i in xrange(self.nfacets):
             self.neighbors[i, 0:self.nverts[i]] = self.rhNeighbor(i)
     ## \internal
     # Merge coplanar simplicial facets
+    # Requires multiple iterations when many non-adjacent coplanar facets exist.
     def mergeFacets(self):
         Nf = self.nfacets
         facet_verts = [ set(self.facets[i, 0:self.nverts[i]]) for i in xrange(self.nfacets) ]
@@ -74,7 +83,6 @@ class ConvexPolyhedron:
         while face < Nf:
             n0 = normals[face]
             merge_list = list()
-            # need to handle neighbors of neighbors...
             for neighbor in neighbors[face]:
                 n1 = normals[neighbor]
                 d = numpy.dot(n0, n1)
