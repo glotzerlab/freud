@@ -570,6 +570,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
         self.frame_spinbox.setValue(frame);
 
         if self.scene is not None:
+            #            self.glWidget.draw_gl.cache.destroy()
             # update to the target frame
             if self._immediate:
                 self.scene.setFrame(frame);

@@ -244,7 +244,8 @@ class Outline(object):
 
     def _triangulate(self):
         """Triangulates an Outline object. Sets the triangles field to
-        a Ntx3x2 numpy array of triangles."""
+        a Ntx3x2 numpy array of triangles and the inner field to a
+        Polygon that is the interior polygon."""
         drs = numpy.roll(self.polygon.vertices, -1, axis=0) - self.polygon.vertices
         ns = drs/numpy.sqrt(numpy.sum(drs*drs, axis=1)).reshape((len(drs), 1))
         thetas = numpy.arctan2(drs[:, 1], drs[:, 0])
@@ -264,6 +265,7 @@ class Outline(object):
         bisectors /= numpy.sqrt(numpy.sum(bisectors*bisectors, axis=1)).reshape((len(ns), 1))
 
         inners = self.polygon.vertices + hs.reshape((len(ns), 1))*bisectors
+        self.inner = Polygon(inners)
 
         result = numpy.empty((2, self.polygon.n, 3, 2), dtype=numpy.float32)
         result[:, :, 0, :] = (self.polygon.vertices, inners)
