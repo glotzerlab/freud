@@ -55,14 +55,14 @@ class ConvexPolyhedron:
         self.nverts = self.ndim * numpy.ones((self.nfacets,), dtype=int)
         self.neighbors = numpy.array(self.simplicial.neighbors)
         self.equations = numpy.array(self.simplicial.equations)
-        self.mergeFaces()
+        self.mergeFacets()
         for i in xrange(self.nfacets):
             self.facets[i, 0:self.nverts[i]] = self.rhFace(i)
         for i in xrange(self.nfacets):
             self.neighbors[i, 0:self.nverts[i]] = self.rhNeighbor(i)
     ## \internal
     # Merge coplanar simplicial facets
-    def mergeFaces(self):
+    def mergeFacets(self):
         Nf = self.nfacets
         facet_verts = [ set(self.facets[i, 0:self.nverts[i]]) for i in xrange(self.nfacets) ]
         neighbors = [ set(self.neighbors[i, 0:self.nverts[i]]) for i in xrange(self.nfacets) ]
@@ -311,11 +311,11 @@ if __name__ == '__main__':
         print("quatrot broken")
         passed = False
 
-    # Check mergeFaces
+    # Check mergeFacets
     if mypoly.nfacets == 6:
-        print("mergeFaces produces the right number of faces for a cube")
+        print("mergeFacets produces the right number of faces for a cube")
     else:
-        print("mergeFaces did not produce the right number of faces for a cube")
+        print("mergeFacets did not produce the right number of faces for a cube")
         passed = False
 
     # Check rhFace
