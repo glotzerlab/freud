@@ -212,8 +212,11 @@ class RotatedTriangles(base.Primitive):
     # renderers. Instead, users should create a new primitive from
     # scratch to rebuild geometry.
     #
-    def __init__(self, image, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None):
+    def __init__(self, image, positions, orientations, *args, **kwargs):
         base.Primitive.__init__(self);
+        self.update(image, positions, orientations, *args, **kwargs);
+
+    def update(self, image, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None):
 
         # -----------------------------------------------------------------
         # set up image
@@ -252,16 +255,17 @@ class RotatedTriangles(base.Primitive):
             raise ValueError("Must have the same number of orientations as positions");
 
         if texcoords is None:
-            self.texcoords = numpy.zeros(shape=(3*Np*Nt, 3, 2), dtype=numpy.float32)
+            self.texcoords = numpy.zeros(shape=(3*Np*Nt, 2), dtype=numpy.float32)
         else:
             self.texcoords = numpy.array(texcoords, dtype=numpy.float32)
 
-        if len(self.texcoords.shape) != 3:
-            raise TypeError("texcoords must be a Nx3x2 array");
-        if self.texcoords.shape[1] != 3:
-            raise ValueError("texcoords must be a Nx3x2 array");
-        if self.texcoords.shape[2] != 2:
-            raise ValueError("texcoords must be a Nx3x2 array");
+        # TODO: fix logic here
+        # if len(self.texcoords.shape) != 3:
+        #     raise TypeError("texcoords must be a Nx3x2 array");
+        # if self.texcoords.shape[1] != 3:
+        #     raise ValueError("texcoords must be a Nx3x2 array");
+        # if self.texcoords.shape[2] != 2:
+            # raise ValueError("texcoords must be a Nx3x2 array");
 
         self.tex_fname = tex_fname
 
@@ -293,6 +297,7 @@ class RotatedTriangles(base.Primitive):
         # -----------------------------------------------------------------
         # broadcast data into the correct form
         finalSize = lambda k: (3*Np*Nt, k)
+
         self.images = numpy.tile(self.image, (Np, 1, 1)).reshape(finalSize(2))
         self.positions = numpy.tile(
             self.positions[:, numpy.newaxis, :], (1, 3*Nt, 1)).reshape(finalSize(2))
@@ -300,6 +305,7 @@ class RotatedTriangles(base.Primitive):
             self.colors[:, numpy.newaxis, :], (1, 3*Nt, 1)).reshape(finalSize(4))
         self.orientations = numpy.tile(
             self.orientations[:, numpy.newaxis], (1, 3*Nt)).reshape(finalSize(1))
+        self.updated = ['images', 'positions', 'colors', 'orientations']
 
 
 ## Arrows

@@ -47,7 +47,7 @@ class Cache(object):
                 to_delete.append(ident);
 
         for ident in to_delete:
-                del self.cache[ident];
+            del self.cache[ident]
 
     ## Destroy OpenGL resources
     # OpenGL calls need to be made when a context is active. This class provides an explicit destroy() method so that
@@ -70,10 +70,13 @@ class Cache(object):
     def get(self, prim, typ):
         if prim.ident not in self.cache:
             self.cache[prim.ident] = typ(prim);
+        elif prim.updated:
+            self.cache[prim.ident].update(prim, prim.updated)
 
         self.accessed_ids.add(prim.ident);
 
         return self.cache[prim.ident];
+
 
 ## Base class for cached primitives
 # \note GLPrimitive is used internally by DrawGL and is not part of the public freud interface
@@ -640,7 +643,12 @@ void main()
 """;
 
     ## Attributes for drawing rotated triangles
-    attributes = ['position', 'orientation', 'image', 'color', 'texcoord'];
+    attributes = ['position', 'orientation', 'images', 'color', 'texcoords'];
+    # buffer_position = None
+    # buffer_orientation = None
+    # buffer_image = None
+    # buffer_color = None
+    # buffer_texcoord = None
 
     ## Initialize a cached GL primitive
     # \param prim base Primitive to represent
@@ -650,32 +658,25 @@ void main()
         # simple scalar values
         self.N = int(len(prim.positions));
 
-        # initialize values for buffers
-        color = numpy.zeros(shape=(self.N, 3, 4), dtype=numpy.float32);
-
-        # start all coords at the center, with all the same color
-        for i in range(3):
-            color[:,i,:] = prim.colors;
-
         # generate OpenGL buffers and copy data
-        self.buffer_position = gl.glGenBuffers(1);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
+        self.buffer_positions = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_positions);
         gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.positions, gl.GL_STATIC_DRAW);
 
-        self.buffer_orientation = gl.glGenBuffers(1);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_orientation);
+        self.buffer_orientations = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_orientations);
         gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.orientations, gl.GL_STATIC_DRAW);
 
-        self.buffer_image = gl.glGenBuffers(1);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_image);
+        self.buffer_images = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_images);
         gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.images, gl.GL_STATIC_DRAW);
 
-        self.buffer_color = gl.glGenBuffers(1);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
-        gl.glBufferData(gl.GL_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW);
+        self.buffer_colors = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_colors);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.colors, gl.GL_STATIC_DRAW);
 
-        self.buffer_texcoord = gl.glGenBuffers(1);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoord);
+        self.buffer_texcoords = gl.glGenBuffers(1);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoords);
         gl.glBufferData(gl.GL_ARRAY_BUFFER, prim.texcoords, gl.GL_STATIC_DRAW);
 
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
@@ -714,6 +715,50 @@ void main()
         else:
             self.texture_object = None;
 
+    ## Update the primitive with new values
+    # \param prim base Primitive to represent
+    #
+    def update(self, prim, updated):
+
+        for prop in updated:
+            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, getattr(self, 'buffer_{}'.format(prop)));
+            gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, None, getattr(prim, prop));
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+
+        if prim.tex_fname is not None:
+            # load texture
+            tex_img = QtGui.QImage(prim.tex_fname);
+            tex_argb_img = tex_img.convertToFormat(QtGui.QImage.Format_ARGB32);
+            img_data = numpy.array(tex_argb_img.constBits());
+
+            # remap to RGBA
+            rgba_data = numpy.zeros(shape=(tex_argb_img.width() * tex_argb_img.height(), 4), dtype=numpy.uint8);
+            rgba_data = rgba_data.reshape((tex_img.width()*tex_img.height(), 4));
+            img_data = img_data.reshape((tex_img.width()*tex_img.height(), 4));
+
+            rgba_data[:,0] = img_data[:,2];
+            rgba_data[:,1] = img_data[:,1];
+            rgba_data[:,2] = img_data[:,0];
+            rgba_data[:,3] = img_data[:,3];
+
+            # setup texture object
+            self.texture_object = gl.glGenTextures(1);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_object);
+
+            # Texture parameters are part of the texture object, so you need to
+            # specify them only once for a given texture object.
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_BASE_LEVEL, 0);
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAX_LEVEL, 0);
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, tex_argb_img.width(), tex_argb_img.height(), 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, rgba_data);
+
+            gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+        else:
+            self.texture_object = None;
 
     ## Draw the primitive
     # \param program OpenGL shader program
@@ -747,23 +792,23 @@ void main()
             gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_object);
 
         # bind everything and then draw the triangles
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_positions);
         gl.glEnableVertexAttribArray(0);
         gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
 
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_orientation);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_orientations);
         gl.glEnableVertexAttribArray(0);
         gl.glVertexAttribPointer(1, 1, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
 
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_image);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_images);
         gl.glEnableVertexAttribArray(2);
         gl.glVertexAttribPointer(2, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
 
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_colors);
         gl.glEnableVertexAttribArray(3);
         gl.glVertexAttribPointer(3, 4, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
 
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoord);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_texcoords);
         gl.glEnableVertexAttribArray(4);
         gl.glVertexAttribPointer(4, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
 
@@ -782,7 +827,7 @@ void main()
     # resources can be released at a controlled time. (not whenever python decides to call __del__.
     #
     def destroy(self):
-        buf_list = numpy.array([self.buffer_position, self.buffer_orientation,
-                                self.buffer_image, self.buffer_color,
-                                self.buffer_texcoord], dtype=numpy.uint32);
+        buf_list = numpy.array([self.buffer_positions, self.buffer_orientations,
+                                self.buffer_images, self.buffer_colors,
+                                self.buffer_texcoords], dtype=numpy.uint32);
         gl.glDeleteBuffers(5, buf_list);
