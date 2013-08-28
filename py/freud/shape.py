@@ -271,6 +271,17 @@ class ConvexPolyhedron:
             V += d * A / 3.0
         return V
 
+    ## Get circumsphere radius
+    def getCircumSphereRadius(self):
+        # get R2[i] = dot(points[i], points[i]) by getting the diagonal (i=j) of the array of dot products dot(points[i], points[j])
+        R2 = numpy.diag(numpy.dot(self.points, self.points.T))
+        return numpy.sqrt(R2.max())
+
+    ## Get insphere radius
+    def getInSphereRadius(self):
+        facetDistances = self.equations[:,3]
+        return abs(facetDistances.max())
+
 ## 3D rotation of a vector by a quaternion
 # from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
 # a suggested method for 15 mults and 15 adds to rotate vector b by quaternion a:
@@ -400,7 +411,30 @@ if __name__ == '__main__':
         print('getVolume found volume {v} when it should be 1.0'.format(v=volume))
         passed = False
 
-    if passed:
-        print("Tests passed")
+    # Check getInSphereRadius
+    rectangularBox = numpy.array(cube)
+    rectangularBox[:,2] *= 2
+    isrShouldBe = 0.5
+    mypoly = ConvexPolyhedron(rectangularBox)
+    isr = mypoly.getInSphereRadius()
+    if abs(isr - isrShouldBe) < tolerance:
+        print('getInSphereRadius seems to work')
     else:
-        print("One or more tests failed")
+        print('getInSphereRadius found {r1} when it should be 0.5'.format(r1=isr))
+        passed = False
+
+    # Check getCircumSphereRadius
+    rectangularBox = numpy.array(cube)
+    rectangularBox[:,2] *= 2
+    osrShouldBe = numpy.sqrt(1.0*1.0 + 0.5*0.5 + 0.5*0.5)
+    osr = mypoly.getCircumSphereRadius()
+    if abs(osr - osrShouldBe) < tolerance:
+        print('getCircumSphereRadius seems to work')
+    else:
+        print('getCircumSphereRadius found {r1} when it should be 0.5'.format(r1=osr))
+        passed = False
+
+    if passed:
+        print("All tests passed.")
+    else:
+        print("One or more tests failed.")
