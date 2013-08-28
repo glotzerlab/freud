@@ -282,6 +282,23 @@ class ConvexPolyhedron:
         facetDistances = self.equations[:,3]
         return abs(facetDistances.max())
 
+    ## Scale polyhedron to fit a given circumsphere radius
+    # Does not alter original data in self.simplicial. Should it?
+    # \param radius new circumsphere radius
+    def setCircumSphereRadius(self, radius):
+        oldradius = self.getCircumSphereRadius()
+        scale_factor = radius / oldradius
+        self.points *= scale_factor
+        self.equations[:,3] *= scale_factor
+
+    ## Scale polyhedron to fit a given circumsphere radius
+    # Does not alter original data in self.simplicial. Should it?
+    def setInSphereRadius(self, radius):
+        oldradius = self.getInSphereRadius()
+        scale_factor = radius / oldradius
+        self.points *= scale_factor
+        self.equations[:,3] *= scale_factor
+
 ## 3D rotation of a vector by a quaternion
 # from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
 # a suggested method for 15 mults and 15 adds to rotate vector b by quaternion a:
@@ -434,6 +451,31 @@ if __name__ == '__main__':
         print('getCircumSphereRadius found {r1} when it should be 0.5'.format(r1=osr))
         passed = False
 
+    # Check setInSphereRadius
+    rectangularBox = numpy.array(cube)
+    rectangularBox[:,2] *= 2
+    mypoly = ConvexPolyhedron(rectangularBox)
+    mypoly.setInSphereRadius(1.0)
+    isr = mypoly.getInSphereRadius()
+    if abs(isr - 1.0) < tolerance:
+        print('setInSphereRadius seems to work')
+    else:
+        print('setInSphereRadius resulted in {r1} when it should be 1.0'.format(r1=isr))
+        passed = False
+
+    # Check setCircumSphereRadius
+    rectangularBox = numpy.array(cube)
+    rectangularBox[:,2] *= 2
+    mypoly= ConvexPolyhedron(rectangularBox)
+    mypoly.setCircumSphereRadius(1.0)
+    osr = mypoly.getCircumSphereRadius()
+    if abs(osr - 1.0) < tolerance:
+        print('setCircumSphereRadius seems to work')
+    else:
+        print('setCircumSphereRadius resulted in {r1} when it should be 1.0'.format(r1=osr))
+        passed = False
+
+    # Overall test status
     if passed:
         print("All tests passed.")
     else:
