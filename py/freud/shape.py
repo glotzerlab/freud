@@ -347,14 +347,14 @@ if __name__ == '__main__':
         print("quatrot broken")
         passed = False
 
-    # Check mergeFacets
+    # Check ConvexPolyhedron.mergeFacets
     if mypoly.nfacets == 6:
-        print("mergeFacets produces the right number of faces for a cube")
+        print("ConvexPolyhedron.mergeFacets produces the right number of faces for a cube")
     else:
-        print("mergeFacets did not produce the right number of faces for a cube")
+        print("ConvexPolyhedron.mergeFacets did not produce the right number of faces for a cube")
         passed = False
 
-    # Check rhFace
+    # Check ConvexPolyhedron.rhFace
     success = True
     for i in xrange(mypoly.nfacets):
         normal = mypoly.equations[i, 0:3]
@@ -372,12 +372,12 @@ if __name__ == '__main__':
                             ))
                 success = False
     if success:
-        print("rhFace seems to work")
+        print("ConvexPolyhedron.rhFace seems to work")
     else:
-        print("rhFace failed")
+        print("ConvexPolyhedron.rhFace failed")
         passed = False
 
-    # Check rhNeighbor
+    # Check ConvexPolyhedron.rhNeighbor
     # The kth neighbor of facet i should share vertices mypoly.facets[i, [k, k+1]]
     success = True
     for i in xrange(mypoly.nfacets):
@@ -399,12 +399,12 @@ if __name__ == '__main__':
                                 ))
                 success = False
     if success:
-        print('rhNeighbor seems to work')
+        print('ConvexPolyhedron.rhNeighbor seems to work')
     else:
-        print('rhNeighbor is wrong')
+        print('ConvexPolyhedron.rhNeighbor is wrong')
         passed = False
 
-    # Check getArea
+    # Check ConvexPolyhedron.getArea
     success = True
     tolerance = 1e-6
     area = mypoly.getArea()
@@ -419,60 +419,60 @@ if __name__ == '__main__':
         print('getArea found area {a} when it should be 6.0'.format(a=area))
         passed = False
 
-    # Check getVolume
+    # Check ConvexPolyhedron.getVolume
     volume = mypoly.getVolume()
     tolerance = 1e-6
     if abs(volume - 1.0) < tolerance:
-        print('getVolume seems to work')
+        print('ConvexPolyhedron.getVolume seems to work')
     else:
-        print('getVolume found volume {v} when it should be 1.0'.format(v=volume))
+        print('ConvexPolyhedron.getVolume found volume {v} when it should be 1.0'.format(v=volume))
         passed = False
 
-    # Check getInsphereRadius
+    # Check ConvexPolyhedron.getInsphereRadius
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     isrShouldBe = 0.5
     mypoly = ConvexPolyhedron(rectangularBox)
     isr = mypoly.getInsphereRadius()
     if abs(isr - isrShouldBe) < tolerance:
-        print('getInsphereRadius seems to work')
+        print('ConvexPolyhedron.getInsphereRadius seems to work')
     else:
-        print('getInsphereRadius found {r1} when it should be 0.5'.format(r1=isr))
+        print('ConvexPolyhedron.getInsphereRadius found {r1} when it should be 0.5'.format(r1=isr))
         passed = False
 
-    # Check getCircumsphereRadius
+    # Check ConvexPolyhedron.getCircumsphereRadius
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     osrShouldBe = numpy.sqrt(1.0*1.0 + 0.5*0.5 + 0.5*0.5)
     osr = mypoly.getCircumsphereRadius()
     if abs(osr - osrShouldBe) < tolerance:
-        print('getCircumsphereRadius seems to work')
+        print('ConvexPolyhedron.getCircumsphereRadius seems to work')
     else:
-        print('getCircumsphereRadius found {r1} when it should be 0.5'.format(r1=osr))
+        print('ConvexPolyhedron.getCircumsphereRadius found {r1} when it should be 0.5'.format(r1=osr))
         passed = False
 
-    # Check setInsphereRadius
+    # Check ConvexPolyhedron.setInsphereRadius
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     mypoly = ConvexPolyhedron(rectangularBox)
     mypoly.setInsphereRadius(1.0)
     isr = mypoly.getInsphereRadius()
     if abs(isr - 1.0) < tolerance:
-        print('setInsphereRadius seems to work')
+        print('ConvexPolyhedron.setInsphereRadius seems to work')
     else:
-        print('setInsphereRadius resulted in {r1} when it should be 1.0'.format(r1=isr))
+        print('ConvexPolyhedron.setInsphereRadius resulted in {r1} when it should be 1.0'.format(r1=isr))
         passed = False
 
-    # Check setCircumsphereRadius
+    # Check ConvexPolyhedron.setCircumsphereRadius
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     mypoly= ConvexPolyhedron(rectangularBox)
     mypoly.setCircumsphereRadius(1.0)
     osr = mypoly.getCircumsphereRadius()
     if abs(osr - 1.0) < tolerance:
-        print('setCircumsphereRadius seems to work')
+        print('ConvexPolyhedron.setCircumsphereRadius seems to work')
     else:
-        print('setCircumsphereRadius resulted in {r1} when it should be 1.0'.format(r1=osr))
+        print('ConvexPolyhedron.setCircumsphereRadius resulted in {r1} when it should be 1.0'.format(r1=osr))
         passed = False
 
     # Overall test status
