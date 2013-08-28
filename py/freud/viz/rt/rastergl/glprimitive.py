@@ -594,7 +594,7 @@ void main()
         gl.glDeleteBuffers(2, buf_list);
 
 ## Rotated Triangle geometry
-# \note GLRotatedTriangles is used internally by DrawGL and is not part of the public freud interface
+# \note GLPolygons is used internally by DrawGL and is not part of the public freud interface
 #
 # Store and draw the OpenGL geometry for the Triangles primitive.
 #
@@ -606,7 +606,7 @@ void main()
 #  - buffer_vertices: OpenGL buffer (N*3 2-element positions)
 #  - buffer_color: OpenGL buffer (N*3 4-element colors)
 #
-class GLRotatedTriangles(GLTriangles):
+class GLPolygons(GLTriangles):
     ## Vertex shader for drawing triangles
     #
     # Transform the incoming verts by the camera and pass through everything else.

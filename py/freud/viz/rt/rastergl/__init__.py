@@ -36,7 +36,7 @@ class DrawGL(object):
     #
     def __init__(self):
         # initialize programs
-        class_list = [glprimitive.GLDisks, glprimitive.GLTriangles, glprimitive.GLRotatedTriangles];
+        class_list = [glprimitive.GLDisks, glprimitive.GLTriangles, glprimitive.GLPolygons];
         self.programs = {};
         for cls in class_list:
             self.programs[cls] = Program(cls);
@@ -117,9 +117,9 @@ class DrawGL(object):
     # \brief Draw triangle
     # \param prim Triangles to write
     #
-    def draw_RotatedTriangles(self, prim):
+    def draw_Polygons(self, prim):
         # shorthand for the class type of the GLPrimitive
-        cls = glprimitive.GLRotatedTriangles;
+        cls = glprimitive.GLPolygons;
         program = self.programs[cls].program;
 
         # get the geometry from the cache and draw it
