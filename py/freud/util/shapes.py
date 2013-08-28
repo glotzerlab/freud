@@ -258,7 +258,7 @@ class Outline(object):
         hs[convex] /= numpy.cos(dthetas[convex]/2)
         # flip the concave bisectors
         hs[concave] *= -1
-        hs[concave] /= numpy.sin(dthetas[concave]/2)
+        hs[concave] /= numpy.sin((dthetas[concave]-numpy.pi)/2)
         hs = hs.reshape((len(hs), 1))
 
         bisectors = ns - numpy.roll(ns, 1, axis=0)
