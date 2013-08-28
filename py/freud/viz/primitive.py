@@ -192,7 +192,7 @@ class Triangles(base.Primitive):
 # Represent N shapes in 2D specified by positions, orientations, a set
 # of triangles with local vertex images, and a color.
 #
-class RotatedTriangles(base.Primitive):
+class Polygons(base.Primitive):
     ## Initialize a rotated triangle primitive
     # \param image Ntx3x2 array listing the local vertices of a shape
     # \param positions Npx2 array listing the positions of each particle
@@ -238,7 +238,7 @@ class RotatedTriangles(base.Primitive):
             try:
                 self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*Nt, 2))
                 if Nt != self.Nt:
-                    raise RuntimeError('RotatedTriangles.update() does not '
+                    raise RuntimeError('Polygons.update() does not '
                                        'support changing the number of shapes')
             except AttributeError:
                 # we're actually inside the constructor since self.Nt
@@ -265,7 +265,7 @@ class RotatedTriangles(base.Primitive):
 
             try:
                 if Np != self.Np:
-                    raise RuntimeError('RotatedTriangles.update() does not '
+                    raise RuntimeError('Polygons.update() does not '
                                        'support changing the number of shapes')
             except AttributeError:
                 # we're actually inside the constructor since self.Np
