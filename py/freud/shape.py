@@ -43,18 +43,18 @@ class ConvexPolyhedron:
         self.simplicial.nfacets = self.simplicial.nsimplex
         self.simplicial.nverts = self.simplicial.ndim * numpy.ones((self.simplicial.nfacets,), dtype=int)
 
-        self.points = numpy.asarray(self.simplicial.points)
+        self.points = numpy.array(self.simplicial.points) # get copy rather than reference
         self.npoints = len(self.points)
         pshape = points.shape
         if (len(pshape) != 2) or pshape[1] != 3:
             raise ValueError("points parameter must be an Nx3 array of points")
         self.ndim = pshape[1]
-        self.facets = numpy.array(self.simplicial.simplices)
+        self.facets = numpy.array(self.simplicial.simplices) # get a copy rather than a reference
         self.nfacets = len(self.facets)
         # trust that simplices won't have other than ndim vertices in future scipy releases
         self.nverts = self.ndim * numpy.ones((self.nfacets,), dtype=int)
-        self.neighbors = numpy.array(self.simplicial.neighbors)
-        self.equations = numpy.array(self.simplicial.equations)
+        self.neighbors = numpy.array(self.simplicial.neighbors) # get copy rather than reference
+        self.equations = numpy.array(self.simplicial.equations) # get copy rather than reference
         # mergeFacets does not merge all coplanar facets when there are a lot of neighboring coplanar facets,
         # but repeated calls will do the job.
         # If performance is ever an issue, this should really all be replaced with our own qhull wrapper...
