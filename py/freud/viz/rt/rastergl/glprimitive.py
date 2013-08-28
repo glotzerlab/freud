@@ -72,6 +72,7 @@ class Cache(object):
             self.cache[prim.ident] = typ(prim);
         elif prim.updated:
             self.cache[prim.ident].update(prim, prim.updated)
+            prim.updated = []
 
         self.accessed_ids.add(prim.ident);
 
