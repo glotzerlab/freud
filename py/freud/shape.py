@@ -272,29 +272,29 @@ class ConvexPolyhedron:
         return V
 
     ## Get circumsphere radius
-    def getCircumSphereRadius(self):
+    def getCircumsphereRadius(self):
         # get R2[i] = dot(points[i], points[i]) by getting the diagonal (i=j) of the array of dot products dot(points[i], points[j])
         R2 = numpy.diag(numpy.dot(self.points, self.points.T))
         return numpy.sqrt(R2.max())
 
     ## Get insphere radius
-    def getInSphereRadius(self):
+    def getInsphereRadius(self):
         facetDistances = self.equations[:,3]
         return abs(facetDistances.max())
 
     ## Scale polyhedron to fit a given circumsphere radius
     # Does not alter original data in self.simplicial. Should it?
     # \param radius new circumsphere radius
-    def setCircumSphereRadius(self, radius):
-        oldradius = self.getCircumSphereRadius()
+    def setCircumsphereRadius(self, radius):
+        oldradius = self.getCircumsphereRadius()
         scale_factor = radius / oldradius
         self.points *= scale_factor
         self.equations[:,3] *= scale_factor
 
     ## Scale polyhedron to fit a given circumsphere radius
     # Does not alter original data in self.simplicial. Should it?
-    def setInSphereRadius(self, radius):
-        oldradius = self.getInSphereRadius()
+    def setInsphereRadius(self, radius):
+        oldradius = self.getInsphereRadius()
         scale_factor = radius / oldradius
         self.points *= scale_factor
         self.equations[:,3] *= scale_factor
@@ -428,51 +428,51 @@ if __name__ == '__main__':
         print('getVolume found volume {v} when it should be 1.0'.format(v=volume))
         passed = False
 
-    # Check getInSphereRadius
+    # Check getInsphereRadius
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     isrShouldBe = 0.5
     mypoly = ConvexPolyhedron(rectangularBox)
-    isr = mypoly.getInSphereRadius()
+    isr = mypoly.getInsphereRadius()
     if abs(isr - isrShouldBe) < tolerance:
-        print('getInSphereRadius seems to work')
+        print('getInsphereRadius seems to work')
     else:
-        print('getInSphereRadius found {r1} when it should be 0.5'.format(r1=isr))
+        print('getInsphereRadius found {r1} when it should be 0.5'.format(r1=isr))
         passed = False
 
-    # Check getCircumSphereRadius
+    # Check getCircumsphereRadius
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     osrShouldBe = numpy.sqrt(1.0*1.0 + 0.5*0.5 + 0.5*0.5)
-    osr = mypoly.getCircumSphereRadius()
+    osr = mypoly.getCircumsphereRadius()
     if abs(osr - osrShouldBe) < tolerance:
-        print('getCircumSphereRadius seems to work')
+        print('getCircumsphereRadius seems to work')
     else:
-        print('getCircumSphereRadius found {r1} when it should be 0.5'.format(r1=osr))
+        print('getCircumsphereRadius found {r1} when it should be 0.5'.format(r1=osr))
         passed = False
 
-    # Check setInSphereRadius
+    # Check setInsphereRadius
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     mypoly = ConvexPolyhedron(rectangularBox)
-    mypoly.setInSphereRadius(1.0)
-    isr = mypoly.getInSphereRadius()
+    mypoly.setInsphereRadius(1.0)
+    isr = mypoly.getInsphereRadius()
     if abs(isr - 1.0) < tolerance:
-        print('setInSphereRadius seems to work')
+        print('setInsphereRadius seems to work')
     else:
-        print('setInSphereRadius resulted in {r1} when it should be 1.0'.format(r1=isr))
+        print('setInsphereRadius resulted in {r1} when it should be 1.0'.format(r1=isr))
         passed = False
 
-    # Check setCircumSphereRadius
+    # Check setCircumsphereRadius
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     mypoly= ConvexPolyhedron(rectangularBox)
-    mypoly.setCircumSphereRadius(1.0)
-    osr = mypoly.getCircumSphereRadius()
+    mypoly.setCircumsphereRadius(1.0)
+    osr = mypoly.getCircumsphereRadius()
     if abs(osr - 1.0) < tolerance:
-        print('setCircumSphereRadius seems to work')
+        print('setCircumsphereRadius seems to work')
     else:
-        print('setCircumSphereRadius resulted in {r1} when it should be 1.0'.format(r1=osr))
+        print('setCircumsphereRadius resulted in {r1} when it should be 1.0'.format(r1=osr))
         passed = False
 
     # Overall test status
