@@ -233,7 +233,7 @@ class Triangles(base.Primitive):
 #
 class Polygons(base.Primitive):
     ## Initialize a rotated triangle primitive
-    # \param image Ntx3x2 array listing the local vertices of a shape
+    # \param polygon Polygon object containing the local vertices of a shape
     # \param positions Npx2 array listing the positions of each particle
     # \param orientations Np-length array listing the orientation angle of each shape
     # \param colors Npx4 array listing the colors (rgba 0.0-1.0) of each shape (in SRGB)
@@ -251,25 +251,28 @@ class Polygons(base.Primitive):
     # renderers. Instead, users should create a new primitive from
     # scratch to rebuild geometry.
     #
-    def __init__(self, image, positions, orientations, *args, **kwargs):
+    def __init__(self, polygon, positions, orientations, *args, **kwargs):
         base.Primitive.__init__(self);
-        self.update(image, positions, orientations, *args, **kwargs);
+        self.update(polygon, positions, orientations, *args, **kwargs);
 
-    def update(self, image=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None):
+    def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None):
         updated = set()
 
-        if image is not None:
+        if polygon is not None:
             # -----------------------------------------------------------------
             # set up image
             # convert to a numpy array
-            self.image = numpy.array(image, dtype=numpy.float32);
+            self.image = numpy.array(polygon.triangles, dtype=numpy.float32);
             # error check the input
             if len(self.image.shape) != 3:
-                raise TypeError("image must be a Ntx3x2 array");
+                raise TypeError("image must be a Ntx3x2 array; Polygon's "
+                                "triangles must have been corrupted!");
             if self.image.shape[1] != 3:
-                raise ValueError("image must be a Ntx3x2 array");
+                raise ValueError("image must be a Ntx3x2 array; Polygon's "
+                                 "triangles must have been corrupted!");
             if self.image.shape[2] != 2:
-                raise ValueError("image must be a Ntx3x2 array");
+                raise ValueError("image must be a Ntx3x2 array; Polygon's "
+                                 "triangles must have been corrupted!");
 
             Nt = self.image.shape[0];
             updated.add('images')
