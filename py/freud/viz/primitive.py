@@ -150,50 +150,69 @@ class Triangles(base.Primitive):
     #
     def __init__(self, vertices, texcoords=None, colors=None, color=None, tex_fname=None):
         base.Primitive.__init__(self);
+        self.update(vertices=vertices, texcoords=texcoords, colors=colors,
+                    color=color, tex_fname=tex_fname)
+
+    def update(self, vertices=None, texcoords=None, colors=None, color=None,
+               tex_fname=None):
+        updated = set()
 
         # -----------------------------------------------------------------
         # set up vertices
         # convert to a numpy array
-        self.vertices = numpy.array(vertices, dtype=numpy.float32);
-        # error check the input
-        if len(self.vertices.shape) != 3:
-            raise TypeError("vertices must be a Nx3x2 array");
-        if self.vertices.shape[1] != 3:
-            raise ValueError("vertices must be a Nx3x2 array");
-        if self.vertices.shape[2] != 2:
-            raise ValueError("vertices must be a Nx3x2 array");
+        if vertices is not None:
+            self.vertices = numpy.array(vertices, dtype=numpy.float32);
+            # error check the input
+            if len(self.vertices.shape) != 3:
+                raise TypeError("vertices must be a Nx3x2 array");
+            if self.vertices.shape[1] != 3:
+                raise ValueError("vertices must be a Nx3x2 array");
+            if self.vertices.shape[2] != 2:
+                raise ValueError("vertices must be a Nx3x2 array");
 
-        N = self.vertices.shape[0];
+            self.N = self.vertices.shape[0];
+            updated.add('position')
 
-        if texcoords is None:
-            self.texcoords = numpy.zeros(shape=self.vertices.shape, dtype=numpy.float32)
-        else:
+        # -----------------------------------------------------------------
+        # set up texcoords
+        if texcoords is not None:
             self.texcoords = numpy.array(texcoords, dtype=numpy.float32)
 
-        if len(self.texcoords.shape) != 3:
-            raise TypeError("texcoords must be a Nx3x2 array");
-        if self.texcoords.shape[1] != 3:
-            raise ValueError("texcoords must be a Nx3x2 array");
-        if self.texcoords.shape[2] != 2:
-            raise ValueError("texcoords must be a Nx3x2 array");
+            if len(self.texcoords.shape) != 3:
+                raise TypeError("texcoords must be a Nx3x2 array");
+            if self.texcoords.shape[1] != 3:
+                raise ValueError("texcoords must be a Nx3x2 array");
+            if self.texcoords.shape[2] != 2:
+                raise ValueError("texcoords must be a Nx3x2 array");
+
+            updated.add('texcoord')
+        try:
+            self.texcoords
+        except AttributeError:
+            self.texcoords = numpy.zeros(shape=self.vertices.shape, dtype=numpy.float32)
+            updated.add('texcoord')
 
         self.tex_fname = tex_fname
 
         # -----------------------------------------------------------------
         # set up colors
-        if colors is None:
-            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
-            self.colors[:,3] = 1;
-        else:
+        if colors is not None:
             self.colors = numpy.array(colors, dtype=numpy.float32);
 
-        # error check colors
-        if len(self.colors.shape) != 2:
-            raise TypeError("colors must be a Nx4 array");
-        if self.colors.shape[1] != 4:
-            raise ValueError("colors must be a Nx4 array");
-        if self.colors.shape[0] != N:
-            raise ValueError("colors must have N the same as positions");
+            # error check colors
+            if len(self.colors.shape) != 2:
+                raise TypeError("colors must be a Nx4 array");
+            if self.colors.shape[1] != 4:
+                raise ValueError("colors must be a Nx4 array");
+            if self.colors.shape[0] != self.N:
+                raise ValueError("colors must have N the same as positions");
+            updated.add('color')
+        try:
+            self.colors
+        except AttributeError:
+            self.colors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
+            self.colors[:,3] = 1;
+            updated.add('color')
 
         if color is not None:
             acolor = numpy.array(color);
@@ -203,7 +222,9 @@ class Triangles(base.Primitive):
                 raise ValueError("color must be a 4 element array");
 
             self.colors[:,:] = acolor;
+            updated.add('color')
 
+        self.updated = list(updated)
 
 ## Rotated Triangle primitive
 #
@@ -685,6 +706,7 @@ class Image(base.Primitive):
             raise ValueError("data must be a NxMx4 array");
 
         self.filename = filename;
+        self.updated = []
 
     ## Save the image to a png file
     # \param filename Filename to save to (must end in .png)
