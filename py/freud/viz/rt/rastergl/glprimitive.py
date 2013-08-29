@@ -716,51 +716,6 @@ void main()
         else:
             self.texture_object = None;
 
-    ## Update the primitive with new values
-    # \param prim base Primitive to represent
-    #
-    def update(self, prim, updated):
-
-        for prop in updated:
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, getattr(self, 'buffer_{}'.format(prop)));
-            gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, None, getattr(prim, prop));
-
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
-
-        if prim.tex_fname is not None:
-            # load texture
-            tex_img = QtGui.QImage(prim.tex_fname);
-            tex_argb_img = tex_img.convertToFormat(QtGui.QImage.Format_ARGB32);
-            img_data = numpy.array(tex_argb_img.constBits());
-
-            # remap to RGBA
-            rgba_data = numpy.zeros(shape=(tex_argb_img.width() * tex_argb_img.height(), 4), dtype=numpy.uint8);
-            rgba_data = rgba_data.reshape((tex_img.width()*tex_img.height(), 4));
-            img_data = img_data.reshape((tex_img.width()*tex_img.height(), 4));
-
-            rgba_data[:,0] = img_data[:,2];
-            rgba_data[:,1] = img_data[:,1];
-            rgba_data[:,2] = img_data[:,0];
-            rgba_data[:,3] = img_data[:,3];
-
-            # setup texture object
-            self.texture_object = gl.glGenTextures(1);
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_object);
-
-            # Texture parameters are part of the texture object, so you need to
-            # specify them only once for a given texture object.
-            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
-            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
-            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_BASE_LEVEL, 0);
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAX_LEVEL, 0);
-            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, tex_argb_img.width(), tex_argb_img.height(), 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, rgba_data);
-
-            gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
-        else:
-            self.texture_object = None;
-
     ## Draw the primitive
     # \param program OpenGL shader program
     # \param camera The camera to use when drawing
@@ -832,3 +787,49 @@ void main()
                                 self.buffer_images, self.buffer_colors,
                                 self.buffer_texcoords], dtype=numpy.uint32);
         gl.glDeleteBuffers(5, buf_list);
+
+    ## Update the primitive with new values
+    # \param prim base Primitive to represent
+    # \param updated list of properties that were updated
+    #
+    def update(self, prim, updated):
+
+        for prop in updated:
+            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, getattr(self, 'buffer_{}'.format(prop)));
+            gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, None, getattr(prim, prop));
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+
+        if prim.tex_fname is not None:
+            # load texture
+            tex_img = QtGui.QImage(prim.tex_fname);
+            tex_argb_img = tex_img.convertToFormat(QtGui.QImage.Format_ARGB32);
+            img_data = numpy.array(tex_argb_img.constBits());
+
+            # remap to RGBA
+            rgba_data = numpy.zeros(shape=(tex_argb_img.width() * tex_argb_img.height(), 4), dtype=numpy.uint8);
+            rgba_data = rgba_data.reshape((tex_img.width()*tex_img.height(), 4));
+            img_data = img_data.reshape((tex_img.width()*tex_img.height(), 4));
+
+            rgba_data[:,0] = img_data[:,2];
+            rgba_data[:,1] = img_data[:,1];
+            rgba_data[:,2] = img_data[:,0];
+            rgba_data[:,3] = img_data[:,3];
+
+            # setup texture object
+            self.texture_object = gl.glGenTextures(1);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_object);
+
+            # Texture parameters are part of the texture object, so you need to
+            # specify them only once for a given texture object.
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+            gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_BASE_LEVEL, 0);
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAX_LEVEL, 0);
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, tex_argb_img.width(), tex_argb_img.height(), 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, rgba_data);
+
+            gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+        else:
+            self.texture_object = None;
