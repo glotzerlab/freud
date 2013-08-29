@@ -48,48 +48,67 @@ class Disks(base.Primitive):
     #
     def __init__(self, positions, diameters=None, colors=None, color=None, outline=0.1):
         base.Primitive.__init__(self);
+        self.update(positions=positions, diameters=diameters, colors=colors, color=color, outline=outline)
 
         # -----------------------------------------------------------------
-        # set up positions
-        # convert to a numpy array
-        self.positions = numpy.array(positions, dtype=numpy.float32);
-        # error check the input
-        if len(self.positions.shape) != 2:
-            raise TypeError("positions must be a Nx2 array");
-        if self.positions.shape[1] != 2:
-            raise ValueError("positions must be a Nx2 array");
+        # set up outline
+        self.outline = outline;
 
-        N = self.positions.shape[0];
 
-        # -----------------------------------------------------------------
-        # set up diameters
-        if diameters is None:
-            self.diameters = numpy.zeros(shape=(N,), dtype=numpy.float32);
+    def update(self, positions=None, diameters=None, colors=None, color=None, outline=0.1):
+        updated = set()
+
+        if positions is not None:
+            # -----------------------------------------------------------------
+            # set up positions
+            # convert to a numpy array
+            self.positions = numpy.array(positions, dtype=numpy.float32);
+            # error check the input
+            if len(self.positions.shape) != 2:
+                raise TypeError("positions must be a Nx2 array");
+            if self.positions.shape[1] != 2:
+                raise ValueError("positions must be a Nx2 array");
+
+            self.N = self.positions.shape[0];
+            updated.add('position')
+
+        try:
+            self.diameters
+        except AttributeError:
+            self.diameters = numpy.zeros(shape=(self.N,), dtype=numpy.float32);
             self.diameters[:] = 1;
-        else:
+            updated.add('diameter')
+        if diameters is not None:
+            # -----------------------------------------------------------------
+            # set up diameters
             self.diameters = numpy.array(diameters);
 
-        # error check diameters
-        if len(self.diameters.shape) != 1:
-            raise TypeError("diameters must be a single dimension array");
-        if self.diameters.shape[0] != N:
-            raise ValueError("diameters must have N the same as positions");
+            # error check diameters
+            if len(self.diameters.shape) != 1:
+                raise TypeError("diameters must be a single dimension array");
+            if self.diameters.shape[0] != self.N:
+                raise ValueError("diameters must have N the same as positions");
+            updated.add('diameter')
 
-        # -----------------------------------------------------------------
-        # set up colors
-        if colors is None:
-            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
+        try:
+            self.colors
+        except AttributeError:
+            self.colors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
             self.colors[:,3] = 1;
-        else:
+            updated.add('color')
+        if colors is not None:
+            # -----------------------------------------------------------------
+            # set up colors
             self.colors = numpy.array(colors, dtype=numpy.float32);
 
-        # error check colors
-        if len(self.colors.shape) != 2:
-            raise TypeError("colors must be a Nx4 array");
-        if self.colors.shape[1] != 4:
-            raise ValueError("colors must have N the same as positions");
-        if self.colors.shape[0] != N:
-            raise ValueError("colors must have N the same as positions");
+            # error check colors
+            if len(self.colors.shape) != 2:
+                raise TypeError("colors must be a Nx4 array");
+            if self.colors.shape[1] != 4:
+                raise ValueError("colors must have N the same as positions");
+            if self.colors.shape[0] != self.N:
+                raise ValueError("colors must have N the same as positions");
+            updated.add('color')
 
         if color is not None:
             acolor = numpy.array(color);
@@ -99,10 +118,9 @@ class Disks(base.Primitive):
                 raise ValueError("color must be a 4 element array");
 
             self.colors[:,:] = acolor;
+            updated.add('color')
 
-        # -----------------------------------------------------------------
-        # set up outline
-        self.outline = outline;
+        self.updated = list(updated)
 
 ## Line primitive
 #

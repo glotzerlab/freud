@@ -400,6 +400,30 @@ void main()
         buf_list = numpy.array([self.buffer_position, self.buffer_mapcoord, self.buffer_color], dtype=numpy.uint32);
         gl.glDeleteBuffers(3, buf_list);
 
+    ## Update the primitive with new values
+    # \param prim base Primitive to represent
+    # \param updated list of properties that were updated
+    #
+    def update(self, prim, updated):
+        if any(prop in updated for prop in ['position', 'diameter', 'color']):
+            position = numpy.zeros(shape=(self.N, 6, 2), dtype=numpy.float32);
+            mapcoord = numpy.zeros(shape=(self.N, 6, 3), dtype=numpy.float32);
+            color = numpy.zeros(shape=(self.N, 6, 4), dtype=numpy.float32);
+
+            self.build_geometry(position, mapcoord, color, prim.positions,
+                                prim.colors, prim.diameters);
+
+            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_position);
+            gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, None, position);
+
+            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_mapcoord);
+            gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, None, mapcoord);
+
+            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_color);
+            gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, None, color);
+
+            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+
 ## Triangle geometry
 # \note GLTriangles is used internally by DrawGL and is not part of the public freud interface
 #
