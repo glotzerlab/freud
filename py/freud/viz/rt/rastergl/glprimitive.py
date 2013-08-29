@@ -617,6 +617,19 @@ void main()
         buf_list = numpy.array([self.buffer_position, self.buffer_color], dtype=numpy.uint32);
         gl.glDeleteBuffers(2, buf_list);
 
+    ## Update the primitive with new values
+    # \param prim base Primitive to represent
+    # \param updated list of properties that were updated
+    #
+    def update(self, prim, updated):
+        propmap = {'position': 'vertices', 'texcoord': 'texcoords', 'color': 'colors'}
+        for prop in updated:
+            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, getattr(self, 'buffer_{}'.format(prop)));
+            gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, None, getattr(prim, propmap[prop]));
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+
+
 ## Rotated Triangle geometry
 # \note GLPolygons is used internally by DrawGL and is not part of the public freud interface
 #
