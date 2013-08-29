@@ -790,7 +790,7 @@ void main()
         gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
 
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_orientations);
-        gl.glEnableVertexAttribArray(0);
+        gl.glEnableVertexAttribArray(1);
         gl.glVertexAttribPointer(1, 1, gl.GL_FLOAT, gl.GL_FALSE, 0, c_void_p(0));
 
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.buffer_images);
