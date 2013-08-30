@@ -42,6 +42,8 @@ class ConvexPolyhedron:
         self.simplicial.facets = self.simplicial.simplices
         self.simplicial.nfacets = self.simplicial.nsimplex
         self.simplicial.nverts = self.simplicial.ndim * numpy.ones((self.simplicial.nfacets,), dtype=int)
+        self.simplicial.originalpoints = numpy.array(self.simplicial.points)
+        self.simplicial.originalequations = numpy.array(self.simplicial.equations)
 
         self.points = numpy.array(self.simplicial.points) # get copy rather than reference
         self.npoints = len(self.points)
@@ -68,6 +70,8 @@ class ConvexPolyhedron:
             self.facets[i, 0:self.nverts[i]] = self.rhFace(i)
         for i in xrange(self.nfacets):
             self.neighbors[i, 0:self.nverts[i]] = self.rhNeighbor(i)
+        self.originalpoints = numpy.array(self.points)
+        self.originalequations = numpy.array(self.equations)
     ## \internal
     # Merge coplanar simplicial facets
     # Requires multiple iterations when many non-adjacent coplanar facets exist.
@@ -272,32 +276,46 @@ class ConvexPolyhedron:
         return V
 
     ## Get circumsphere radius
-    def getCircumsphereRadius(self):
+    # \param original True means to retrieve the original points before any subsequent rescaling (default False)
+    def getCircumsphereRadius(self, original=False):
         # get R2[i] = dot(points[i], points[i]) by getting the diagonal (i=j) of the array of dot products dot(points[i], points[j])
-        R2 = numpy.diag(numpy.dot(self.points, self.points.T))
+        if original:
+            points = self.originalpoints
+        else:
+            points = self.points
+        R2 = numpy.diag(numpy.dot(points, points.T))
         return numpy.sqrt(R2.max())
 
     ## Get insphere radius
-    def getInsphereRadius(self):
-        facetDistances = self.equations[:,3]
+    # \param original True means to retrieve the original points before any subsequent rescaling (default False)
+    def getInsphereRadius(self, original=False):
+        if original:
+            equations = self.originalequations
+        else:
+            equations = self.equations
+        facetDistances = equations[:,3]
         return abs(facetDistances.max())
 
     ## Scale polyhedron to fit a given circumsphere radius
-    # Does not alter original data in self.simplicial. Should it?
     # \param radius new circumsphere radius
     def setCircumsphereRadius(self, radius):
-        oldradius = self.getCircumsphereRadius()
-        scale_factor = radius / oldradius
-        self.points *= scale_factor
-        self.equations[:,3] *= scale_factor
+        # use unscaled data from original to avoid accumulated errors
+        oradius = self.getCircumsphereRadius(original=True)
+        scale_factor = radius / oradius
+        self.points = self.originalpoints * scale_factor
+        self.equations[:,3] = self.originalequations[:,3] * scale_factor
+        self.simplicial.points = self.simplicial.originalpoints * scale_factor
+        self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
 
     ## Scale polyhedron to fit a given circumsphere radius
-    # Does not alter original data in self.simplicial. Should it?
+    # \param radius new insphere radius
     def setInsphereRadius(self, radius):
-        oldradius = self.getInsphereRadius()
-        scale_factor = radius / oldradius
+        oradius = self.getInsphereRadius(original=True)
+        scale_factor = radius / oradius
         self.points *= scale_factor
         self.equations[:,3] *= scale_factor
+        self.simplicial.points = self.simplicial.originalpoints * scale_factor
+        self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
 
     ## Test if a point is inside the shape
     # \param point 3D coordinates of test point
