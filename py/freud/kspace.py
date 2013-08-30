@@ -698,8 +698,8 @@ def mkFCCcoords(nx, ny, nz):
 # \param u rotation axis
 # \param theta rotation angle
 def rotate(v, u, theta):
-    v = numpy.asarray(v)
-    u = numpy.asarray(u)
+    v = numpy.array(v) # need an actual array and not a view
+    u = numpy.array(u)
     v.resize((3,))
     u.resize((3,))
     vx, vy, vz = v
