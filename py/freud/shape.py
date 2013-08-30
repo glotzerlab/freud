@@ -299,6 +299,16 @@ class ConvexPolyhedron:
         self.points *= scale_factor
         self.equations[:,3] *= scale_factor
 
+    ## Test if a point is inside the shape
+    # \param point 3D coordinates of test point
+    def isInside(self, point):
+        v = numpy.asarray(point)
+        for i in xrange(self.nfacets):
+            d = numpy.dot(v, self.equations[i, 0:3])
+            if d + self.equations[i, 3] > 0:
+                return False
+        return True
+
 ## 3D rotation of a vector by a quaternion
 # from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
 # a suggested method for 15 mults and 15 adds to rotate vector b by quaternion a:
@@ -474,6 +484,22 @@ if __name__ == '__main__':
     else:
         print('ConvexPolyhedron.setCircumsphereRadius resulted in {r1} when it should be 1.0'.format(r1=osr))
         passed = False
+
+    # Check ConvexPolyhedron.isInside
+    mypoly = ConvexPolyhedron(cube)
+    v1 = (-0.4, 0.1, 0.49)
+    v2 = (0.5, 0.1, 0.51)
+    yes1 = mypoly.isInside(v1)
+    yes2 = mypoly.isInside(v2)
+    if yes1 and not yes2:
+        print('ConvexPolyhedron.isInside seems to work')
+    else:
+        if not yes1:
+            print('ConvexPolyhedron.isInside does not return True when it should')
+            passed = False
+        if yes2:
+            print('ConvexPolyhedron.isInside does not return False when it should')
+            passed = False
 
     # Overall test status
     if passed:
