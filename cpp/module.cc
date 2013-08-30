@@ -5,15 +5,27 @@
 #include "LinkCell.h"
 #include "Cluster.h"
 #include "GaussianDensity.h"
+#include "LocalDensity.h"
 #include "RDF.h"
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
 #include "LocalQl.h"
 #include "complement.h"
+#include "colormap.h"
+#include "colorutil.h"
+#include "triangles.h"
+#include "split.h"
+#include "tbb_config.h"
+#include "WeightedRDF.h"
+
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
 using namespace freud;
+
+/*! \file module.cc
+    \brief _freud.so python exports
+*/
 
 /* numpy is terrible (see /opt/local/Library/Frameworks/Python.framework/Versions/2.7/
 lib/python2.7/site-packages/numpy/core/generate_numpy_array.py)
@@ -48,11 +60,18 @@ BOOST_PYTHON_MODULE(_freud)
     trajectory::export_trajectory();
     locality::export_LinkCell();
     density::export_RDF();
+    density::export_WeightedRDF();
     density::export_GaussianDensity();
+    density::export_LocalDensity();
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
     localql::export_LocalQl();
     complement::export_complement();
+    viz::export_colormap();
+    viz::export_colorutil();
+    viz::export_triangles();
+    viz::export_split();
+    parallel::export_tbb_config();
     }

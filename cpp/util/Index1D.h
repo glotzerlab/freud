@@ -39,10 +39,6 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// $Id$
-// $URL$
-// Maintainer: joaander
-
 #ifndef __INDEX1D_H__
 #define __INDEX1D_H__
 
@@ -73,13 +69,13 @@ class Index2D
         /*! \param w Width of the square 2D array
         */
         HOSTDEVICE inline Index2D(unsigned int w) : m_w(w), m_h(w) {}
-        
+
         //! Contstructor
         /*! \param w Width of the rectangular 2D array
             \param h Height of the rectangular 2D array
         */
         HOSTDEVICE inline Index2D(unsigned int w, unsigned int h) : m_w(w), m_h(h) {}
-        
+
         //! Calculate an index
         /*! \param i column index
             \param j row index
@@ -89,7 +85,7 @@ class Index2D
             {
             return j*m_w + i;
             }
-            
+
         //! Get the number of 1D elements stored
         /*! \returns Number of elements stored in the underlying 1D array
         */
@@ -97,7 +93,7 @@ class Index2D
             {
             return m_w*m_h;
             }
-            
+
     private:
         unsigned int m_w;   //!< Width of the 2D array
         unsigned int m_h;   //!< Height of the 2D array
@@ -117,7 +113,7 @@ class Index2DUpperTriangular
             {
             m_term = 2*m_w - 1;
             }
-            
+
         //! Calculate an index
         /*! \param i column index
             \param j row index
@@ -135,7 +131,7 @@ class Index2DUpperTriangular
                 }
             return j * (m_term - j) / 2 + i;
             }
-            
+
         //! Get the number of 1D elements stored
         /*! \returns Number of elements stored in the underlying 1D array
         */
@@ -143,7 +139,7 @@ class Index2DUpperTriangular
             {
             return m_w*(m_w+1) / 2;
             }
-            
+
     private:
         unsigned int m_w;     //!< Width of the 2D upper triangular array
         unsigned int m_term;  //!< Precomputed term of the equation for efficiency
@@ -160,14 +156,14 @@ class Index3D
         /*! \param w Width of the cubic 3D array
         */
         HOSTDEVICE inline Index3D(unsigned int w=0) : m_w(w), m_h(w), m_d(w) {}
-        
+
         //! Contstructor
         /*! \param w Width of the 3D array
             \param h Height of the 3D array
             \param d Depth of the 3D array
         */
         HOSTDEVICE inline Index3D(unsigned int w, unsigned int h, unsigned int d) : m_w(w), m_h(h), m_d(d) {}
-        
+
         //! Calculate an index
         /*! \param i index along the width
             \param j index up the height
@@ -178,7 +174,7 @@ class Index3D
             {
             return k*m_w*m_h + j*m_w + i;
             }
-            
+
         //! Get the number of 1D elements stored
         /*! \returns Number of elements stored in the underlying 1D array
         */
@@ -186,7 +182,7 @@ class Index3D
             {
             return m_w * m_h * m_d;
             }
-            
+
         //! Get the width of the 3D array
         HOSTDEVICE inline unsigned int getW() const
             {
@@ -198,13 +194,13 @@ class Index3D
             {
             return m_h;
             }
-        
+
         //! Get the depth of the 3D array
         HOSTDEVICE inline unsigned int getD() const
             {
             return m_d;
             }
-        
+
     private:
         unsigned int m_w;   //!< Width of the 3D array
         unsigned int m_h;   //!< Height of the 3D array

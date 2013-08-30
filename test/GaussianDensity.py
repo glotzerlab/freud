@@ -12,7 +12,7 @@ f    = traj[0]
 #set up the particle positions of each type
 pos = f.get('position')
 
-#calculate the Density 
+#calculate the Density
 #GaussianDensity(box, n_bins[per side], r_cut, sigma)
 #compute(array with positions)
 gdens = density.GaussianDensity(f.box, 90, 2.15, 0.5)
