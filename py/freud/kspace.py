@@ -541,17 +541,17 @@ class FTdelta(FTbase):
         self.FTobj.set_K(self.K)
     def set_scale(self, scale):
         FTbase.set_scale(self, scale)
-        self.FTobj.set_scale(self.scale)
+        self.FTobj.set_scale(float(self.scale))
     def set_density(self, density):
         FTbase.set_density(self, density)
-        self.FTobj.set_density(self.density)
+        self.FTobj.set_density(complex(self.density))
     def set_rq(self, r, q):
         FTbase.set_rq(self, r, q)
         self.FTobj.set_rq(r, q)
     ## Compute FT
     # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
     def compute(self, *args, **kwargs):
-        self.FTobj.compute(self.K, self.position, self.orientation, float(self.scale), complex(self.density))
+        self.FTobj.compute()
         self.S = self.FTobj.getFT()
 
 ## Fourier transform a list of delta functions

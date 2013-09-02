@@ -69,11 +69,11 @@ class FTdelta
             float4* q_raw = (float4*) num_util::data(orientation);
             set_rq(Np, r_raw, q_raw);
             }
-        void set_scale(float scale)
+        void set_scale(const float scale)
             {
             m_scale = scale;
             }
-        void set_density(std::complex<float> density)
+        void set_density(const std::complex<float> density)
             {
             m_density_Re = density.real();
             m_density_Im = density.imag();
@@ -90,15 +90,7 @@ class FTdelta
         \param density_Re Real component of the scattering density
         \param density_Im Imaginary component of the scattering density
         */
-        virtual void compute(const float3 *K,
-                     const unsigned int NK,
-                     const float3 *r,
-                     const float4 *q,
-                     const unsigned int Np,
-                     const float scale,
-                     const float density_Re,
-                     const float density_Im
-                     );
+        virtual void compute();
 
         //! Python wrapper for compute method
         /*! Provide a consistent interface for the Python module.
@@ -108,12 +100,7 @@ class FTdelta
             \param scale scaling factor to apply to r
             \param density complex valued scattering density
         */
-        virtual void computePy(boost::python::numeric::array K,
-                       boost::python::numeric::array r,
-                       boost::python::numeric::array orientation,
-                       float scale,
-                       std::complex<float> density
-                       );
+        virtual void computePy();
 
         //! C++ interface to return the FT values
         boost::shared_array< std::complex<float> > getFT()
