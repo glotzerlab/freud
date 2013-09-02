@@ -9,7 +9,7 @@ using namespace boost::python;
 
 namespace freud { namespace kspace {
 
-FTdelta::FTdelta()
+FTdelta::FTdelta() : m_NK(0), m_Np(0)
     {
     }
 
@@ -96,6 +96,10 @@ void export_kspace()
     class_<FTdelta>("FTdelta")
         .def("compute", &FTdelta::computePy)
         .def("getFT", &FTdelta::getFTPy)
+        .def("set_K", &FTdelta::set_K_Py)
+        .def("set_rq", &FTdelta::set_rq_Py)
+        .def("set_scale", &FTdelta::set_scale)
+        .def("set_density", &FTdelta::set_density)
         ;
     }
 
