@@ -24,11 +24,29 @@ class FTdelta
         //! Destructor
         virtual ~FTdelta();
 
+
+
+        //! Python wrapper for compute method
+        /*! Provide a consistent interface for the Python module.
+            \param K Nx3 ndarray of K points
+            \param r Nx3 ndarray of particle positions
+            \param orientation Nx4 ndarray of orientation quaternions (unused)
+            \param scale scaling factor to apply to r
+            \param density complex valued scattering density
+        */
+
+        /*! Set K points to be evaluated
+        \param K NK x 3 array of K values to evaluate
+        \param NK Number of K values in array
+        */
         void set_K(float3* K, unsigned int NK)
             {
             m_K = K;
             m_NK = NK;
             }
+        /*! Python wrapper to set_K
+        \param K NK x 3 ndarray of K values to evaluate
+        */
         void set_K_Py(boost::python::numeric::array K)
             {
             // validate input type and rank
@@ -41,12 +59,21 @@ class FTdelta
             float3* K_raw = (float3*) num_util::data(K);
             set_K(K_raw, NK);
             }
+        /*! Set particle positions and orientations
+        \param position Np x 3 Array of particle position vectors
+        \param orientation Np x 4 Array of particle orientation quaternions
+        \param Np Number of particles
+        */
         void set_rq(unsigned int Np, float3* position, float4* orientation)
             {
             m_Np = Np;
             m_r = position;
             m_q = orientation;
             }
+        /*! Python wrapper to set_rq
+        \param position Np x 3 ndrray of particle position vectors
+        \param orientation Np x 4 ndrray of particle orientation quaternions
+        */
         void set_rq_Py(boost::python::numeric::array position,
                     boost::python::numeric::array orientation)
             {
@@ -69,10 +96,16 @@ class FTdelta
             float4* q_raw = (float4*) num_util::data(orientation);
             set_rq(Np, r_raw, q_raw);
             }
+        /*! Set length scale
+        \param scale Scaling factor to apply to lengths and distances
+        */
         void set_scale(const float scale)
             {
             m_scale = scale;
             }
+        /*! Set scattering density
+        \param density complex value of scattering density
+        */
         void set_density(const std::complex<float> density)
             {
             m_density_Re = density.real();
@@ -80,26 +113,9 @@ class FTdelta
             }
 
         //! Perform transform and store result internally
-        /*
-        \param K Array of K values to evaluate
-        \param NK Number of K values
-        \param r Np x 3 Array of particle position vectors
-        \param q Np x 4 Array of particle orientation quaternions
-        \param Np Number of particles
-        \param scale Scaling factor to apply to r
-        \param density_Re Real component of the scattering density
-        \param density_Im Imaginary component of the scattering density
-        */
         virtual void compute();
 
         //! Python wrapper for compute method
-        /*! Provide a consistent interface for the Python module.
-            \param K Nx3 ndarray of K points
-            \param r Nx3 ndarray of particle positions
-            \param orientation Nx4 ndarray of orientation quaternions (unused)
-            \param scale scaling factor to apply to r
-            \param density complex valued scattering density
-        */
         virtual void computePy();
 
         //! C++ interface to return the FT values
@@ -130,9 +146,9 @@ class FTdelta
         boost::shared_array<float> m_S_Im;  //!< Imaginary component of structure factor
         unsigned int m_NK;                  //!< number of K points evaluated
         unsigned int m_Np;                  //!< number of particles (length of r and q arrays)
-        float3* m_K;                    //!< array of K points
-        float3* m_r;                    //!< array of particle positions
-        float4* m_q;                    //!< array of particle orientations
+        float3* m_K;                        //!< array of K points
+        float3* m_r;                        //!< array of particle positions
+        float4* m_q;                        //!< array of particle orientations
         float m_scale;                      //!< length scale (to be multiplied by spatial dimensions)
         float m_density_Re;                 //!< real component of the scattering density
         float m_density_Im;                 //!< imaginary component of the scattering density
