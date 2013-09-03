@@ -20,7 +20,8 @@ FTdelta::FTdelta()
 
 FTdelta::~FTdelta()
     {
-    // S_Re and S_Im are boost::shared_array which need to be passed to Python and which should clean up after themselves
+    // S_Re and S_Im are boost::shared_array which need to be passed to Python and which should clean up after themselves.
+    // m_K, m_r, and m_q should point to arrays managed by the calling code.
     }
 
 void FTdelta::compute()

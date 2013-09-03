@@ -24,21 +24,6 @@ class FTdelta
         //! Destructor
         virtual ~FTdelta();
 
-
-
-        //! Python wrapper for compute method
-        /*! Provide a consistent interface for the Python module.
-            \param K Nx3 ndarray of K points
-            \param r Nx3 ndarray of particle positions
-            \param orientation Nx4 ndarray of orientation quaternions (unused)
-            \param scale scaling factor to apply to r
-            \param density complex valued scattering density
-        */
-
-        /*! Set K points to be evaluated
-        \param K NK x 3 array of K values to evaluate
-        \param NK Number of K values in array
-        */
         void set_K(float3* K, unsigned int NK)
             {
             m_K = K;
