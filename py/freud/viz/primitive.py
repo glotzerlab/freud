@@ -46,6 +46,7 @@ class Disks(base.Primitive):
     #
     def __init__(self, positions, diameters=None, colors=None, color=None, outline=0.1):
         base.Primitive.__init__(self);
+        self.updated = [];
         self.update(positions=positions, diameters=diameters, colors=colors, color=color, outline=outline);
 
         # -----------------------------------------------------------------
@@ -54,7 +55,7 @@ class Disks(base.Primitive):
 
 
     def update(self, positions=None, diameters=None, colors=None, color=None, outline=0.1):
-        updated = set();
+        updated = set(self.updated);
 
         # -----------------------------------------------------------------
         # set up positions
@@ -149,12 +150,13 @@ class Triangles(base.Primitive):
     #
     def __init__(self, vertices, texcoords=None, colors=None, color=None, tex_fname=None):
         base.Primitive.__init__(self);
+        self.updated = [];
         self.update(vertices=vertices, texcoords=texcoords, colors=colors,
                     color=color, tex_fname=tex_fname);
 
     def update(self, vertices=None, texcoords=None, colors=None, color=None,
                tex_fname=None):
-        updated = set();
+        updated = set(self.updated);
 
         # -----------------------------------------------------------------
         # set up vertices
@@ -254,10 +256,11 @@ class Polygons(base.Primitive):
     #
     def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None):
         base.Primitive.__init__(self);
+        self.updated = [];
         self.update(polygon, positions, orientations, texcoords=texcoords, colors=colors, color=color, tex_fname=tex_fname);
 
     def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None):
-        updated = set();
+        updated = set(self.updated);
 
         # -----------------------------------------------------------------
         # set up polygon image
@@ -412,13 +415,14 @@ class Arrows(Triangles):
     # scratch to rebuild geometry.
     def __init__(self, positions, widths, lengths, angles, colors=None, color=None, aspectRatio=5.):
         base.Primitive.__init__(self);
+        self.updated = [];
         self.update(positions=positions, widths=widths, lengths=lengths,
                     angles=angles, colors=colors, color=color, aspectRatio=aspectRatio);
 
 
     def update(self, positions=None, widths=None, lengths=None, angles=None,
                colors=None, color=None, aspectRatio=5.):
-        updated = set();
+        updated = set(self.updated);
 
         # -----------------------------------------------------------------
         # set up positions
