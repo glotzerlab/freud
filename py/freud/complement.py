@@ -8,7 +8,7 @@ from _freud import complement
 
 class Pair:
     ## Create a Pair object from a list of points, orientations, and shapes
-    def __init__(self, box, positions, orientations, shapes, types, ntypes=None):
+    def __init__(self, box, positions=None, orientations=None, shapes=None, types=None, ntypes=None):
         self.box = box
         self.positions = positions
         self.orientations = orientations
@@ -25,13 +25,13 @@ class Pair:
         self.points = {}
         self.cavities = {}
 
-    def update(self, positions, orientations, types):
+    def update(self, positions, orientations):
         self.positions = positions
         self.orientations = orientations
+
+    def update_static(self, shapes, types):
+        self.shapes = shapes
         self.types = types
-        if len(self.positions) != len(self.orientations):
-            raise RuntimeError("length of positions and orientations must be the same")
-        self.np = len(self.positions)
 
 # points must be set in the same order as their corresponding cavity for perfect match
     def set_points(self, shape, points):
@@ -54,10 +54,10 @@ class Pair:
                 raise RuntimeError("Impossible Cavity Specified")
         self.cavities[shape] = cavity_list
 
-    def perfect_match(self, rmax, ref_types, check_types):
+    def single_match(self, rmax, ref_type, check_type):
         if not len(self.shapes) == len(self.cavities):
             raise RuntimeError("perfect_match can't be called on unequal sized lists")
-        pmatch = complement(self.box, rmax)
+        smatch = complement(self.box, rmax)
         match_list = numpy.zeros(self.np, dtype=numpy.int32)
         type_list = numpy.zeros(self.np, dtype=numpy.int32)
         cnt = 0
@@ -69,18 +69,22 @@ class Pair:
             cnt += 1
         shape_list = numpy.array([self.shapes[i] for i in range(len(self.shapes))])
 
-        ref_nums = []
-        for i in range(len(ref_types)):
-            if ref_types[i] == 'A':
-                ref_nums.append(0)
-            elif ref_types[i] == 'B':
-                ref_nums.append(1)
+        if ref_type == A:
+            ref_num = 0
+        elif ref_type == B:
+            ref_num = 1
 
-        check_nums = []
-        for i in range(len(check_types)):
-            if check_types[i] == 'A':
-                check_nums.append(0)
-            elif check_types[i] == 'B':
-                check_nums.append(1)
+        if check_type == A:
+            check_num = 0
+        elif check_type == B:
+            check_num = 1
+
+        ref_verts = numpy.array(self.points[ref_type])
+
+        check_verts = numpy.array(self.points[check_type])
+
+        smatch.compute(match_list, self.positions, type_list, self.orientations, self.shapes, ref_num, check_num, ref_verts, check_verts)
+
+        self.match_list = match_list
 
 # It will get tricky here as I have to individually go through all shapes and combine their output
