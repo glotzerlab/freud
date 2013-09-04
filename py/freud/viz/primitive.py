@@ -14,8 +14,6 @@ except ImportError:
 from freud.viz import base
 from freud.viz import colorutil
 
-from freud.util import triangulate
-from freud.util import trimath
 from freud.util.shapes import Polygon, Outline
 
 import _freud;
