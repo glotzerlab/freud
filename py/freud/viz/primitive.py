@@ -14,8 +14,6 @@ except ImportError:
 from freud.viz import base
 from freud.viz import colorutil
 
-from freud.util import triangulate
-from freud.util import trimath
 from freud.util.shapes import Polygon, Outline
 
 import _freud;
@@ -48,7 +46,8 @@ class Disks(base.Primitive):
     #
     def __init__(self, positions, diameters=None, colors=None, color=None, outline=0.1):
         base.Primitive.__init__(self);
-        self.update(positions=positions, diameters=diameters, colors=colors, color=color, outline=outline)
+        self.updated = [];
+        self.update(positions=positions, diameters=diameters, colors=colors, color=color, outline=outline);
 
         # -----------------------------------------------------------------
         # set up outline
@@ -56,12 +55,12 @@ class Disks(base.Primitive):
 
 
     def update(self, positions=None, diameters=None, colors=None, color=None, outline=0.1):
-        updated = set()
+        updated = set(self.updated);
 
+        # -----------------------------------------------------------------
+        # set up positions
+        # convert to a numpy array
         if positions is not None:
-            # -----------------------------------------------------------------
-            # set up positions
-            # convert to a numpy array
             self.positions = numpy.array(positions, dtype=numpy.float32);
             # error check the input
             if len(self.positions.shape) != 2:
@@ -70,17 +69,17 @@ class Disks(base.Primitive):
                 raise ValueError("positions must be a Nx2 array");
 
             self.N = self.positions.shape[0];
-            updated.add('position')
+            updated.add('position');
 
+        # -----------------------------------------------------------------
+        # set up diameters
         try:
-            self.diameters
+            self.diameters;
         except AttributeError:
             self.diameters = numpy.zeros(shape=(self.N,), dtype=numpy.float32);
             self.diameters[:] = 1;
-            updated.add('diameter')
+            updated.add('diameter');
         if diameters is not None:
-            # -----------------------------------------------------------------
-            # set up diameters
             self.diameters = numpy.array(diameters);
 
             # error check diameters
@@ -88,17 +87,17 @@ class Disks(base.Primitive):
                 raise TypeError("diameters must be a single dimension array");
             if self.diameters.shape[0] != self.N:
                 raise ValueError("diameters must have N the same as positions");
-            updated.add('diameter')
+            updated.add('diameter');
 
+        # -----------------------------------------------------------------
+        # set up colors
         try:
             self.colors
         except AttributeError:
             self.colors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
             self.colors[:,3] = 1;
-            updated.add('color')
+            updated.add('color');
         if colors is not None:
-            # -----------------------------------------------------------------
-            # set up colors
             self.colors = numpy.array(colors, dtype=numpy.float32);
 
             # error check colors
@@ -108,7 +107,7 @@ class Disks(base.Primitive):
                 raise ValueError("colors must have N the same as positions");
             if self.colors.shape[0] != self.N:
                 raise ValueError("colors must have N the same as positions");
-            updated.add('color')
+            updated.add('color');
 
         if color is not None:
             acolor = numpy.array(color);
@@ -118,9 +117,10 @@ class Disks(base.Primitive):
                 raise ValueError("color must be a 4 element array");
 
             self.colors[:,:] = acolor;
-            updated.add('color')
+            updated.add('color');
 
-        self.updated = list(updated)
+        self.updated = list(updated);
+
 
 ## Line primitive
 #
@@ -150,12 +150,13 @@ class Triangles(base.Primitive):
     #
     def __init__(self, vertices, texcoords=None, colors=None, color=None, tex_fname=None):
         base.Primitive.__init__(self);
+        self.updated = [];
         self.update(vertices=vertices, texcoords=texcoords, colors=colors,
-                    color=color, tex_fname=tex_fname)
+                    color=color, tex_fname=tex_fname);
 
     def update(self, vertices=None, texcoords=None, colors=None, color=None,
                tex_fname=None):
-        updated = set()
+        updated = set(self.updated);
 
         # -----------------------------------------------------------------
         # set up vertices
@@ -171,12 +172,12 @@ class Triangles(base.Primitive):
                 raise ValueError("vertices must be a Nx3x2 array");
 
             self.N = self.vertices.shape[0];
-            updated.add('position')
+            updated.add('position');
 
         # -----------------------------------------------------------------
         # set up texcoords
         if texcoords is not None:
-            self.texcoords = numpy.array(texcoords, dtype=numpy.float32)
+            self.texcoords = numpy.array(texcoords, dtype=numpy.float32);
 
             if len(self.texcoords.shape) != 3:
                 raise TypeError("texcoords must be a Nx3x2 array");
@@ -185,14 +186,14 @@ class Triangles(base.Primitive):
             if self.texcoords.shape[2] != 2:
                 raise ValueError("texcoords must be a Nx3x2 array");
 
-            updated.add('texcoord')
+            updated.add('texcoord');
         try:
-            self.texcoords
+            self.texcoords;
         except AttributeError:
-            self.texcoords = numpy.zeros(shape=self.vertices.shape, dtype=numpy.float32)
-            updated.add('texcoord')
+            self.texcoords = numpy.zeros(shape=self.vertices.shape, dtype=numpy.float32);
+            updated.add('texcoord');
 
-        self.tex_fname = tex_fname
+        self.tex_fname = tex_fname;
 
         # -----------------------------------------------------------------
         # set up colors
@@ -206,13 +207,14 @@ class Triangles(base.Primitive):
                 raise ValueError("colors must be a Nx4 array");
             if self.colors.shape[0] != self.N:
                 raise ValueError("colors must have N the same as positions");
-            updated.add('color')
+            updated.add('color');
+
         try:
-            self.colors
+            self.colors;
         except AttributeError:
             self.colors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
             self.colors[:,3] = 1;
-            updated.add('color')
+            updated.add('color');
 
         if color is not None:
             acolor = numpy.array(color);
@@ -222,9 +224,10 @@ class Triangles(base.Primitive):
                 raise ValueError("color must be a 4 element array");
 
             self.colors[:,:] = acolor;
-            updated.add('color')
+            updated.add('color');
 
-        self.updated = list(updated)
+        self.updated = list(updated);
+
 
 ## Rotated Triangle primitive
 #
@@ -251,17 +254,18 @@ class Polygons(base.Primitive):
     # renderers. Instead, users should create a new primitive from
     # scratch to rebuild geometry.
     #
-    def __init__(self, polygon, positions, orientations, *args, **kwargs):
+    def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None):
         base.Primitive.__init__(self);
-        self.update(polygon, positions, orientations, *args, **kwargs);
+        self.updated = [];
+        self.update(polygon, positions, orientations, texcoords=texcoords, colors=colors, color=color, tex_fname=tex_fname);
 
     def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None):
-        updated = set()
+        updated = set(self.updated);
 
+        # -----------------------------------------------------------------
+        # set up polygon image
+        # convert to a numpy array
         if polygon is not None:
-            # -----------------------------------------------------------------
-            # set up image
-            # convert to a numpy array
             self.image = numpy.array(polygon.triangles, dtype=numpy.float32);
             # error check the input
             if len(self.image.shape) != 3:
@@ -275,23 +279,23 @@ class Polygons(base.Primitive):
                                  "triangles must have been corrupted!");
 
             Nt = self.image.shape[0];
-            updated.add('images')
+            updated.add('images');
 
             try:
-                self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*Nt, 2))
+                self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*Nt, 2));
                 if Nt != self.Nt:
                     raise RuntimeError('Polygons.update() does not '
-                                       'support changing the number of shapes')
+                                       'support changing the number of shapes');
             except AttributeError:
                 # we're actually inside the constructor since self.Nt
                 # doesn't exist yet; we will re-set self.images in a
                 # few lines, after we set self.Np
-                self.Nt = Nt
+                self.Nt = Nt;
 
+        # -----------------------------------------------------------------
+        # set up positions
+        # convert to a numpy array
         if positions is not None:
-            # -----------------------------------------------------------------
-            # set up positions
-            # convert to a numpy array
             self.positions = numpy.array(positions, dtype=numpy.float32);
 
             # error check the input
@@ -301,28 +305,28 @@ class Polygons(base.Primitive):
                 raise ValueError("positions must be a Npx2 array");
 
             Np = self.positions.shape[0];
-            updated.add('positions')
+            updated.add('positions');
             self.positions = numpy.tile(
-                self.positions[:, numpy.newaxis, :], (1, 3*self.Nt, 1)).reshape((3*Np*self.Nt, 2))
+                self.positions[:, numpy.newaxis, :], (1, 3*self.Nt, 1)).reshape((3*Np*self.Nt, 2));
 
             try:
                 if Np != self.Np:
                     raise RuntimeError('Polygons.update() does not '
-                                       'support changing the number of shapes')
+                                       'support changing the number of shapes');
             except AttributeError:
                 # we're actually inside the constructor since self.Np
                 # doesn't exist yet
-                self.Np = Np
-                self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*self.Nt, 2))
-                self.colors = numpy.zeros((3*self.Np*self.Nt, 4), dtype=numpy.float32)
-                self.colors[:, 3] = 1.
-                updated.add('images')
-                updated.add('colors')
+                self.Np = Np;
+                self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*self.Nt, 2));
+                self.colors = numpy.zeros((3*self.Np*self.Nt, 4), dtype=numpy.float32);
+                self.colors[:, 3] = 1.0;
+                updated.add('images');
+                updated.add('colors');
 
+        # -----------------------------------------------------------------
+        # set up orientations
+        # convert to a numpy array
         if orientations is not None:
-            # -----------------------------------------------------------------
-            # set up orientations
-            # convert to a numpy array
             self.orientations = numpy.array(orientations, dtype=numpy.float32);
 
             # error check the input
@@ -331,28 +335,28 @@ class Polygons(base.Primitive):
             if len(self.orientations) != self.Np:
                 raise ValueError("Must have the same number of orientations as positions");
 
-            updated.add('orientations')
+            updated.add('orientations');
             self.orientations = numpy.tile(
-                self.orientations[:, numpy.newaxis], (1, 3*self.Nt)).reshape((3*self.Np*self.Nt, 1))
+                self.orientations[:, numpy.newaxis], (1, 3*self.Nt)).reshape((3*self.Np*self.Nt, 1));
 
         if texcoords is not None:
-            self.texcoords = numpy.array(texcoords, dtype=numpy.float32)
+            self.texcoords = numpy.array(texcoords, dtype=numpy.float32);
 
-            # TODO: fix logic here
-            # if len(self.texcoords.shape) != 3:
-            #     raise TypeError("texcoords must be a Nx3x2 array");
-            # if self.texcoords.shape[1] != 3:
-            #     raise ValueError("texcoords must be a Nx3x2 array");
-            # if self.texcoords.shape[2] != 2:
-            #     raise ValueError("texcoords must be a Nx3x2 array");
+            if len(self.texcoords.shape) != 3:
+                raise TypeError("texcoords must be a Nx3x2 array");
+            if self.texcoords.shape[1] != 3:
+                raise ValueError("texcoords must be a Nx3x2 array");
+            if self.texcoords.shape[2] != 2:
+                raise ValueError("texcoords must be a Nx3x2 array");
 
-            updated.add('texcoords')
+            updated.add('texcoords');
+
         try:
-            self.texcoords
+            self.texcoords;
         except AttributeError:
-            self.texcoords = numpy.zeros(shape=(3*self.Np*self.Nt, 2), dtype=numpy.float32)
-            self.tex_fname = tex_fname
-            updated.add('texcoords')
+            self.texcoords = numpy.zeros(shape=(self.Np*self.Nt, 3, 2), dtype=numpy.float32);
+            self.tex_fname = tex_fname;
+            updated.add('texcoords');
 
         # -----------------------------------------------------------------
         # set up colors
@@ -365,10 +369,10 @@ class Polygons(base.Primitive):
             if colors.shape[0] != self.Np:
                 raise ValueError("colors must have N the same as positions");
 
-            colors = numpy.asarray(colors, dtype=numpy.float32)
+            colors = numpy.asarray(colors, dtype=numpy.float32);
             self.colors = numpy.tile(colors[:, numpy.newaxis, :],
-                                     (1, 3*self.Nt, 1)).reshape((3*self.Np*self.Nt, 4))
-            updated.add('colors')
+                                     (1, 3*self.Nt, 1)).reshape((3*self.Np*self.Nt, 4));
+            updated.add('colors');
 
         if color is not None:
             acolor = numpy.array(color, dtype=numpy.float32);
@@ -377,11 +381,12 @@ class Polygons(base.Primitive):
             if acolor.shape[0] != 4:
                 raise ValueError("color must be a 4 element array");
 
-            self.colors = numpy.tile(acolor[numpy.newaxis, :], (3*self.Np*self.Nt, 1))
+            self.colors = numpy.tile(acolor[numpy.newaxis, :], (3*self.Np*self.Nt, 1));
 
-            updated.add('colors')
+            updated.add('colors');
 
-        self.updated = list(updated)
+        self.updated = list(updated);
+
 
 ## Arrows
 #
@@ -409,67 +414,93 @@ class Arrows(Triangles):
     # renderers. Instead, users should create a new primitive from
     # scratch to rebuild geometry.
     def __init__(self, positions, widths, lengths, angles, colors=None, color=None, aspectRatio=5.):
+        base.Primitive.__init__(self);
+        self.updated = [];
+        self.update(positions=positions, widths=widths, lengths=lengths,
+                    angles=angles, colors=colors, color=color, aspectRatio=aspectRatio);
+
+
+    def update(self, positions=None, widths=None, lengths=None, angles=None,
+               colors=None, color=None, aspectRatio=5.):
+        updated = set(self.updated);
+
         # -----------------------------------------------------------------
         # set up positions
         # convert to a numpy array
-        self.positions = numpy.array(positions, dtype=numpy.float32);
-        # error check the input
-        if len(self.positions.shape) != 2:
-            raise TypeError("positions must be a Nx2 array");
-        if self.positions.shape[1] != 2:
-            raise ValueError("positions must be a Nx2 array");
+        if positions is not None:
+            self.positions = numpy.array(positions, dtype=numpy.float32);
+            # error check the input
+            if len(self.positions.shape) != 2:
+                raise TypeError("positions must be a Nx2 array");
+            if self.positions.shape[1] != 2:
+                raise ValueError("positions must be a Nx2 array");
 
-        N = self.positions.shape[0];
+            self.N = self.positions.shape[0];
+            updated.add('position');
 
         # -----------------------------------------------------------------
         # set up widths
-        self.widths = numpy.array(widths, dtype=numpy.float32);
-        if len(self.widths.shape) == 0:
-            self.widths = numpy.repeat(self.widths, N);
+        if widths is not None:
+            self.widths = numpy.array(widths, dtype=numpy.float32);
+            if len(self.widths.shape) == 0:
+                self.widths = numpy.repeat(self.widths, self.N);
 
-        # error check widths
-        if len(self.widths.shape) != 1:
-            raise TypeError("widths must be a scalar or single dimension array");
-        if self.widths.shape[0] != N:
-            raise ValueError("widths must have N the same as positions or 1");
+            # error check widths
+            if len(self.widths.shape) != 1:
+                raise TypeError("widths must be a scalar or single dimension array");
+            if self.widths.shape[0] != self.N:
+                raise ValueError("widths must have N the same as positions or 1");
+
+            updated.add('position');
 
         # -----------------------------------------------------------------
         # set up lengths
-        self.lengths = numpy.array(lengths, dtype=numpy.float32);
-        if len(self.lengths.shape) == 0:
-            self.lengths = numpy.repeat(self.lengths, N);
+        if lengths is not None:
+            self.lengths = numpy.array(lengths, dtype=numpy.float32);
+            if len(self.lengths.shape) == 0:
+                self.lengths = numpy.repeat(self.lengths, self.N);
 
-        # error check lengths
-        if len(self.lengths.shape) != 1:
-            raise TypeError("lengths must be a scalar or single dimension array");
-        if self.lengths.shape[0] != N:
-            raise ValueError("lengths must have N the same as positions or 1");
+            # error check lengths
+            if len(self.lengths.shape) != 1:
+                raise TypeError("lengths must be a scalar or single dimension array");
+            if self.lengths.shape[0] != self.N:
+                raise ValueError("lengths must have N the same as positions or 1");
+
+            updated.add('position');
 
         # -----------------------------------------------------------------
         # set up angles
-        self.angles = numpy.array(angles, dtype=numpy.float32);
+        if angles is not None:
+            self.angles = numpy.array(angles, dtype=numpy.float32);
 
-        # error check angles
-        if len(self.angles.shape) not in [0, 1]:
-            raise TypeError("angles must be a scalar or single dimension array");
-        if len(self.angles.shape) and self.angles.shape[0] != N:
-            raise ValueError("angles must have N the same as positions or 1");
+            # error check angles
+            if len(self.angles.shape) not in [0, 1]:
+                raise TypeError("angles must be a scalar or single dimension array");
+            if len(self.angles.shape) and self.angles.shape[0] != self.N:
+                raise ValueError("angles must have N the same as positions or 1");
+
+            updated.add('position');
 
         # -----------------------------------------------------------------
         # set up colors
-        if colors is None:
-            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
-            self.colors[:,3] = 1;
-        else:
-            self.colors = numpy.array(colors, dtype=numpy.float32);
+        try:
+            self.arrColors;
+        except AttributeError:
+            self.arrColors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
+            self.arrColors[:,3] = 1;
 
-        # error check colors
-        if len(self.colors.shape) != 2:
-            raise TypeError("colors must be a Nx4 array");
-        if self.colors.shape[1] != 4:
-            raise ValueError("colors must be a Nx4 array");
-        if self.colors.shape[0] != N:
-            raise ValueError("colors must have N the same as positions");
+        if colors is not None:
+            self.arrColors = numpy.array(colors, dtype=numpy.float32);
+
+            # error check colors
+            if len(self.arrColors.shape) != 2:
+                raise TypeError("colors must be a Nx4 array");
+            if self.arrColors.shape[1] != 4:
+                raise ValueError("colors must be a Nx4 array");
+            if self.arrColors.shape[0] != self.N:
+                raise ValueError("colors must have N the same as positions");
+
+            updated.add('color');
 
         if color is not None:
             acolor = numpy.array(color);
@@ -478,67 +509,70 @@ class Arrows(Triangles):
             if acolor.shape[0] != 4:
                 raise ValueError("color must be a 4 element array");
 
-            self.colors[:,:] = acolor;
-
-        # stem0 and stem1 are the two triangles for the rectangular
-        # "stem" of the arrow
-        stem0 = numpy.array([[[0, -.5], [0, .5], [aspectRatio, .5]]],
-                            dtype=numpy.float32);
-        stem1 = numpy.array([[[0, -.5], [aspectRatio, .5], [aspectRatio, -.5]]],
-                            dtype=numpy.float32);
-        # equilateral triangle tip
-        # l is the height of an equilateral triangle of side length 3
-        l = 1.5*numpy.sqrt(3);
-        tip = numpy.array([[[0, 1.5], [l, 0], [0, -1.5]]], dtype=numpy.float32);
-
-        stem0 = numpy.repeat(stem0, N, axis=0);
-        stem1 = numpy.repeat(stem1, N, axis=0);
-        tip = numpy.repeat(tip, N, axis=0);
-
-        # scale the width of stem and the size of the tip by the given line widths
-        stem0[:, :, 1] *= self.widths[:, numpy.newaxis];
-        stem1[:, :, 1] *= self.widths[:, numpy.newaxis];
-        tip *= self.widths[:, numpy.newaxis, numpy.newaxis];
-
-        # scale the length of stem by the given line lengths
-        stem0[:, 2, 0] *= self.lengths;
-        stem1[:, 1:, 0] *= self.lengths[:, numpy.newaxis];
-
-        # shrink the stem to just touch the tip
-        stem0[:, 2, 0] -= tip[:, 2, 0];
-        stem1[:, 1:, 0] -= tip[:, 2, 0][:, numpy.newaxis];
-
-        # shift the tip to the end of the stem
-        delta = aspectRatio*self.lengths - tip[:, 2, 0];
-        tip[:, :, 0] += delta[:, numpy.newaxis];
-
-        # rotate the vertices into the correct orientation
-        rmat = numpy.empty((N, 2, 2));
-        rmat[:, 0, 0] = rmat[:, 1, 1] = numpy.cos(self.angles);
-        rmat[:, 1, 0] = numpy.sin(self.angles);
-        rmat[:, 0, 1] = -rmat[:, 1, 0];
-
-        stem0 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem0.reshape(N, 3, 1, 2), axis=3);
-        stem1 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem1.reshape(N, 3, 1, 2), axis=3);
-        tip = numpy.sum(rmat[:, numpy.newaxis, :, :]*tip.reshape(N, 3, 1, 2), axis=3);
-
-        # put the triangles in the appropriate positions
-        stem0 += self.positions[:, numpy.newaxis, :];
-        stem1 += self.positions[:, numpy.newaxis, :];
-        tip += self.positions[:, numpy.newaxis, :];
-
-        colors = numpy.repeat(self.colors, 3, axis=0);
-        vertices = numpy.concatenate([stem0, stem1, tip], axis=0);
-
-        super(Arrows, self).__init__(vertices, colors=colors, color=color);
+            updated.add('color');
 
 
-## Repeated polygons
+        if 'position' in updated:
+            # stem0 and stem1 are the two triangles for the rectangular
+            # "stem" of the arrow
+            stem0 = numpy.array([[[0, -.5], [0, .5], [aspectRatio, .5]]],
+                                dtype=numpy.float32);
+            stem1 = numpy.array([[[0, -.5], [aspectRatio, .5], [aspectRatio, -.5]]],
+                                dtype=numpy.float32);
+            # equilateral triangle tip
+            # l is the height of an equilateral triangle of side length 3
+            l = 1.5*numpy.sqrt(3);
+            tip = numpy.array([[[0, 1.5], [l, 0], [0, -1.5]]], dtype=numpy.float32);
+
+            stem0 = numpy.repeat(stem0, self.N, axis=0);
+            stem1 = numpy.repeat(stem1, self.N, axis=0);
+            tip = numpy.repeat(tip, self.N, axis=0);
+
+            # scale the width of stem and the size of the tip by the given line widths
+            stem0[:, :, 1] *= self.widths[:, numpy.newaxis];
+            stem1[:, :, 1] *= self.widths[:, numpy.newaxis];
+            tip *= self.widths[:, numpy.newaxis, numpy.newaxis];
+
+            # scale the length of stem by the given line lengths
+            stem0[:, 2, 0] *= self.lengths;
+            stem1[:, 1:, 0] *= self.lengths[:, numpy.newaxis];
+
+            # shrink the stem to just touch the tip
+            stem0[:, 2, 0] -= tip[:, 2, 0];
+            stem1[:, 1:, 0] -= tip[:, 2, 0][:, numpy.newaxis];
+
+            # shift the tip to the end of the stem
+            delta = aspectRatio*self.lengths - tip[:, 2, 0];
+            tip[:, :, 0] += delta[:, numpy.newaxis];
+
+            # rotate the vertices into the correct orientation
+            rmat = numpy.empty((self.N, 2, 2));
+            rmat[:, 0, 0] = rmat[:, 1, 1] = numpy.cos(self.angles);
+            rmat[:, 1, 0] = numpy.sin(self.angles);
+            rmat[:, 0, 1] = -rmat[:, 1, 0];
+
+            stem0 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem0.reshape(self.N, 3, 1, 2), axis=3);
+            stem1 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem1.reshape(self.N, 3, 1, 2), axis=3);
+            tip = numpy.sum(rmat[:, numpy.newaxis, :, :]*tip.reshape(self.N, 3, 1, 2), axis=3);
+
+            # put the triangles in the appropriate positions
+            stem0 += self.positions[:, numpy.newaxis, :];
+            stem1 += self.positions[:, numpy.newaxis, :];
+            tip += self.positions[:, numpy.newaxis, :];
+
+            vertices = numpy.concatenate([stem0, stem1, tip], axis=0);
+
+        if 'color' in updated:
+            colors = numpy.repeat(self.arrColors, 3, axis=0);
+
+        super(Arrows, self).update(vertices=vertices, colors=colors, color=color);
+
+
+## Repeated polygons shim for compatibility
 #
-# Represent N instances of the same polygon in 2D, each at a different position, orientation, and color. Black edges
-# are drawn given a global outline width.
+# Represent N instances of the same polygon in 2D, each at a different position, orientation, and color.
 #
-class RepeatedPolygons(Triangles):
+class RepeatedPolygons(Polygons):
     ## Initialize a disk primitive
     # \param positions Nx2 array listing the positions of each polygon (in distance units)
     # \param angles N array listing the rotation of the polygon about its center (in radians)
@@ -556,102 +590,22 @@ class RepeatedPolygons(Triangles):
     # array of the appropriate size and dtype float32. Users should not modify these directly, they are intended for
     # use only by renderers. Instead, users should create a new primitive from scratch to rebuild geometry.
     #
-    def __init__(self, positions, angles, polygon, colors=None, color=None, outline=0.1, tex_fname=None):
-        # -----------------------------------------------------------------
-        # set up positions
-        # convert to a numpy array
-        self.positions = numpy.array(positions, dtype=numpy.float32);
-        # error check the input
-        if len(self.positions.shape) != 2:
-            raise TypeError("positions must be a Nx2 array");
-        if self.positions.shape[1] != 2:
-            raise ValueError("positions must be a Nx2 array");
+    def __init__(self, positions, angles, polygon, colors=None, color=None,
+                 outline=0.1, tex_fname=None):
+        self.polygon = Polygon(polygon);
+        super(RepeatedPolygons, self).__init__(
+            positions=positions, orientations=angles, polygon=self.polygon,
+            colors=colors, color=color, tex_fname=tex_fname);
 
-        N = self.positions.shape[0];
 
-        # -----------------------------------------------------------------
-        # set up angles
-        self.angles = numpy.array(angles, dtype=numpy.float32);
-
-        # error check angles
-        if len(self.angles.shape) != 1:
-            raise TypeError("angles must be a single dimension array");
-        if self.angles.shape[0] != N:
-            raise ValueError("angles must have N the same as positions");
-
-        # -----------------------------------------------------------------
-        # set up polygon
-        self.polygon = polygon;
-        self.outline = outline;
-
-        # -----------------------------------------------------------------
-        # set up colors
-        if colors is None:
-            self.colors = numpy.zeros(shape=(N,4), dtype=numpy.float32);
-            self.colors[:,3] = 1;
-        else:
-            self.colors = numpy.array(colors, dtype=numpy.float32);
-
-        # error check colors
-        if len(self.colors.shape) != 2:
-            raise TypeError("colors must be a Nx4 array");
-        if self.colors.shape[1] != 4:
-            raise ValueError("colors must have N the same as positions");
-        if self.colors.shape[0] != N:
-            raise ValueError("colors must have N the same as positions");
-
-        if color is not None:
-            acolor = numpy.array(color);
-            if len(acolor.shape) != 1:
-                raise TypeError("color must be a 4 element array");
-            if acolor.shape[0] != 4:
-                raise ValueError("color must be a 4 element array");
-
-            self.colors[:,:] = acolor;
-        # create a triangulation class
-        #        tmp_poly = triangulate.triangulate(polygon, outline)
-        # decompose the polygon into constituent triangles
-        #        tmp_poly.calculate()
-        # put the triangle vertices into a numpy array
-        triangle_array = self.polygon.triangles
-        textriangle_array = self.polygon.normalizedTriangles
-        outline_array = self.outline.triangles
-        N_T = triangle_array.shape[0]
-        N_O = outline_array.shape[0]
-
-        # This is slow
-        # vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
-        # color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
-        # positions_array = self.positions
-        # angles_array = self.angles
-        # poly_color_array = self.colors
-
-        # _freud.triangle_rotate(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
-
-        vert_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
-        color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
-        overt_array = numpy.zeros(shape=tuple([N * N_O, 3, 2]), dtype=numpy.float32)
-        ocolor_array = numpy.zeros(shape=tuple([N * N_O, 4]), dtype=numpy.float32)
-        tex_array = numpy.zeros(shape=tuple([N * N_T, 3, 2]), dtype=numpy.float32)
-        tex_color_array = numpy.zeros(shape=tuple([N * N_T, 4]), dtype=numpy.float32)
-        positions_array = self.positions
-        dummy_positions = numpy.zeros(shape=self.positions.shape, dtype=numpy.float32)
-        dummy_angles = numpy.zeros(shape=self.angles.shape, dtype=numpy.float32)
-        angles_array = self.angles
-        poly_color_array = self.colors
-        out_color_array = numpy.zeros(shape=tuple([N, 4]), dtype=numpy.float32)
-        out_color_array[:,:] = numpy.array([0.0, 0.0, 0.0, 1.0], dtype=numpy.float32)
-# Need to broadcast the N_T tex coords into a N*N_T array...would rather not have to do it in C...
-        _freud.triangle_rotate_mat(vert_array, color_array, positions_array, angles_array, triangle_array, poly_color_array)
-        _freud.triangle_rotate_mat(overt_array, ocolor_array, positions_array, angles_array, outline_array, out_color_array)
-        _freud.triangle_rotate_mat(tex_array, tex_color_array, dummy_positions, dummy_angles, textriangle_array, poly_color_array)
-        vert_array = numpy.concatenate([vert_array, overt_array])
-        color_array = numpy.concatenate([color_array, ocolor_array])
-        # -----------------------------------------------------------------
-        if tex_fname is not None:
-            Triangles.__init__(self, vert_array, texcoords = tex_array, colors = color_array, tex_fname = tex_fname);
-        else:
-            Triangles.__init__(self, vert_array, colors = color_array);
+## Spheropolygons shim for compatibility
+class Spheropolygons(RepeatedPolygons):
+    def __init__(self, positions, angles, polygon, colors=None, color=None,
+                 outline=0.1, radius=1., tex_fname=None):
+        self.polygon = Polygon(polygon).getRounded(radius);
+        super(Spheropolygons, self).__init__(
+            positions, angles, self.polygon.vertices, colors=colors,
+            color=color, outline=outline, tex_fname=tex_fname);
 
 
 ## Image
