@@ -339,20 +339,19 @@ class Polygons(base.Primitive):
         if texcoords is not None:
             self.texcoords = numpy.array(texcoords, dtype=numpy.float32);
 
-            # TODO: fix logic here
-            # if len(self.texcoords.shape) != 3:
-            #     raise TypeError("texcoords must be a Nx3x2 array");
-            # if self.texcoords.shape[1] != 3:
-            #     raise ValueError("texcoords must be a Nx3x2 array");
-            # if self.texcoords.shape[2] != 2:
-            #     raise ValueError("texcoords must be a Nx3x2 array");
+            if len(self.texcoords.shape) != 3:
+                raise TypeError("texcoords must be a Nx3x2 array");
+            if self.texcoords.shape[1] != 3:
+                raise ValueError("texcoords must be a Nx3x2 array");
+            if self.texcoords.shape[2] != 2:
+                raise ValueError("texcoords must be a Nx3x2 array");
 
             updated.add('texcoords');
 
         try:
             self.texcoords;
         except AttributeError:
-            self.texcoords = numpy.zeros(shape=(3*self.Np*self.Nt, 2), dtype=numpy.float32);
+            self.texcoords = numpy.zeros(shape=(self.Np*self.Nt, 3, 2), dtype=numpy.float32);
             self.tex_fname = tex_fname;
             updated.add('texcoords');
 
