@@ -14,7 +14,7 @@ except ImportError:
 from freud.viz import base
 from freud.viz import colorutil
 
-from freud.util.shapes import Polygon, Outline
+from freud.shape import Polygon
 
 import _freud;
 
