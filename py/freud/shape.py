@@ -347,6 +347,53 @@ class Polyhedron:
                 return False
         return True
 
+    ## Get the signed dihedral angle between two facets. Theta == 0 implies faces a and b form a convex blade.
+    # Theta == pi implies faces a and b are parallel. Theta == 2 pi implies faces a and b form a concave blade.
+    # \param a index of first facet
+    # \param b index of second facet (must be a neighbor of a)
+    # \returns theta angle on [0, 2 pi)
+    def getDihedral(self, a, b):
+        # Find which neighbor b is
+        neighbors = list(self.neighbors[a])
+        try:
+            k = neighbors.index(b)
+        except ValueError:
+            raise ValueError("b must be a neighbor of a")
+
+        # Find path e1 -> e2 -> e3, where e2 is an edge shared by both faces, e1 lies in a and e3 lies in b.
+        # Note that to find interior angle, e1 -> e2 are in the left-handed direction of a while e2 -> e3 are in the
+        # right-handed direction of b.
+        # Denote the path as points p0 -> p1 -> p2 -> p3
+        nextk = k+1
+        if nextk >= self.nverts[a]:
+            nextk = 0
+        nextnextk = nextk + 1
+        if nextnextk >= self.nverts[a]:
+            nextnextk = 0
+        p0 = self.facets[a, nextnextk]
+        p1 = self.facets[a, nextk]
+        p2 = self.facets[a, k]
+        k_new = list(self.facets[b]).index(self.facets[a, k])
+        # Check for logic error
+        if (p2 != self.facets[b,k_new]):
+            raise RuntimeError("Logic error finding k_new from p2")
+        nextk = k_new + 1
+        if nextk >= self.nverts[b]:
+            nextk = 0
+        p3 = self.facets[b, nextk]
+
+        # Get vectors along path
+        v1 = self.points[p1] - self.points[p0]
+        v2 = self.points[p2] - self.points[p1]
+        v3 = self.points[p3] - self.points[p2]
+
+        cp12 = numpy.cross(v1, v2)
+        cp23 = numpy.cross(v2, v3)
+        x1_vec = numpy.cross(cp12, cp23)
+        x1 = numpy.sqrt(numpy.dot(x1_vec, x1_vec))
+        x2 = numpy.dot(cp12, cp23)
+        return numpy.arctan2(x1, x2)
+
 ## Store and compute data associated with a convex polyhedron, calculated as the convex hull of a set of input points.
 # ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
 # \note freud.shape.ConvexPolyhedron requires scipy.spatil.ConvexHull (as of scipy 0.12.0).
@@ -713,6 +760,19 @@ if __name__ == '__main__':
         print('ConvexPolyhedron.getVolume seems to work')
     else:
         print('ConvexPolyhedron.getVolume found volume {v} when it should be 1.0'.format(v=volume))
+        passed = False
+
+    # Check Polyhedron.getDihedral
+    mypoly = ConvexPolyhedron(tetrahedron)
+    success = True
+    for i in xrange(1, mypoly.nfacets):
+        dihedral = mypoly.getDihedral(0,i)
+        if dihedral < 0 or dihedral > numpy.pi/2.:
+            success = False
+    if success == True:
+        print('Polyhedron.getDihedral seems to work')
+    else:
+        print('Polyhedron.getDihedral found one or more bogus angles for tetrahedron')
         passed = False
 
     # Check ConvexPolyhedron.getInsphereRadius
