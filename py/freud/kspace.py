@@ -536,16 +536,23 @@ class FTdelta(FTbase):
     def __init__(self, *args, **kwargs):
         FTbase.__init__(self)
         self.FTobj = _FTdelta()
+    def set_K(self, K):
+        FTbase.set_K(self, K)
+        self.FTobj.set_K(self.K)
+    def set_scale(self, scale):
+        FTbase.set_scale(self, scale)
+        self.FTobj.set_scale(float(self.scale))
+    def set_density(self, density):
+        FTbase.set_density(self, density)
+        self.FTobj.set_density(complex(self.density))
+    def set_rq(self, r, q):
+        FTbase.set_rq(self, r, q)
+        self.FTobj.set_rq(r, q)
     ## Compute FT
     # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
     def compute(self, *args, **kwargs):
-        #self.outputShape = (self.K.shape[0],)
-        self.FTobj.compute(self.K, self.position, self.orientation, float(self.scale), complex(self.density))
+        self.FTobj.compute()
         self.S = self.FTobj.getFT()
-        #self.S = numpy.zeros(self.outputShape, dtype=numpy.complex64)
-        #for r in self.position:
-        #    self.S += numpy.exp(numpy.dot(self.K, r) * -1.j)
-        #self.S *= self.density
 
 ## Fourier transform a list of delta functions
 class FTsphere(FTbase):

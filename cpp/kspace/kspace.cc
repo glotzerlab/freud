@@ -10,29 +10,34 @@ using namespace boost::python;
 namespace freud { namespace kspace {
 
 FTdelta::FTdelta()
+    : m_NK(0),
+      m_Np(0),
+      m_scale(1.0),
+      m_density_Im(0),
+      m_density_Re(1)
     {
     }
 
 FTdelta::~FTdelta()
     {
-    // S_Re and S_Im are boost::shared_array which need to be passed to Python and which should clean up after themselves
+    // S_Re and S_Im are boost::shared_array which need to be passed to Python and which should clean up after themselves.
+    // m_K, m_r, and m_q should point to arrays managed by the calling code.
     }
 
-void FTdelta::compute(const float3 *K,
-                 const unsigned int NK,
-                 const float3 *r,
-                 const float4 *q,
-                 const unsigned int Np,
-                 const float scale,
-                 const float density_Re,
-                 const float density_Im
-                 )
+void FTdelta::compute()
     {
     /* S += e**(-i * dot(K, r))
        -> S_Re += cos(dot(K, r))
        -> S_Im += - sin(dot(K, r))
     */
-    m_NK = NK;
+    unsigned int NK = m_NK;
+    unsigned int Np = m_Np;
+    float3* K = m_K;
+    float3* r = m_r;
+    float4* q = m_q;
+    float scale = m_scale;
+    float density_Im = m_density_Im;
+    float density_Re = m_density_Re;
     m_S_Re = boost::shared_array<float>(new float[NK]);
     m_S_Im = boost::shared_array<float>(new float[NK]);
     memset((void*)m_S_Re.get(), 0, sizeof(float) * NK);
@@ -54,41 +59,11 @@ void FTdelta::compute(const float3 *K,
         }
     }
 
-void FTdelta::computePy(boost::python::numeric::array K,
-                        boost::python::numeric::array r,
-                        boost::python::numeric::array q,
-                        const float scale,
-                        const std::complex<float> density
-                        )
+void FTdelta::computePy()
     {
-    // validate input type and rank
-    num_util::check_type(K, PyArray_FLOAT);
-    num_util::check_rank(K, 2);
-    num_util::check_type(r, PyArray_FLOAT);
-    num_util::check_rank(r, 2);
-    num_util::check_type(q, PyArray_FLOAT);
-    num_util::check_rank(q, 2);
-
-    // validate width of the 2nd dimension
-    num_util::check_dim(K, 1, 3);
-    unsigned int NK = num_util::shape(K)[0];
-
-    num_util::check_dim(r, 1, 3);
-    unsigned int Np = num_util::shape(r)[0];
-
-    num_util::check_dim(q, 1, 4);
-    num_util::check_dim(q, 0, Np);
-
-    // get the raw data pointers
-    float3* K_raw = (float3*) num_util::data(K);
-    float3* r_raw = (float3*) num_util::data(r);
-    float4* q_raw = (float4*) num_util::data(q);
-
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        compute(K_raw, NK, r_raw, q_raw, Np, scale, density.real(), density.imag());
-        }
+    // compute with the GIL released
+    util::ScopedGILRelease gil;
+    compute();
     }
 
 void export_kspace()
@@ -96,6 +71,10 @@ void export_kspace()
     class_<FTdelta>("FTdelta")
         .def("compute", &FTdelta::computePy)
         .def("getFT", &FTdelta::getFTPy)
+        .def("set_K", &FTdelta::set_K_Py)
+        .def("set_rq", &FTdelta::set_rq_Py)
+        .def("set_scale", &FTdelta::set_scale)
+        .def("set_density", &FTdelta::set_density)
         ;
     }
 
