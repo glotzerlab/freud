@@ -30,7 +30,7 @@ except ImportError:
 # - equations (nfacets, ndim+1) [normal, offset] for corresponding facet
 # - simplicial scipy.spatial.ConvexHull object initialized from points containing data based on simplicial facets
 #
-class ConvexPolyhedron:
+class Polyhedron:
     ## Create a ConvexPolyhedron object from a list of points
     # \param points Nx3 list of vertices from which to construct the convex hull
     def __init__(self, points):
@@ -327,6 +327,51 @@ class ConvexPolyhedron:
                 return False
         return True
 
+## Store and compute data associated with a convex polyhedron, calculated as the convex hull of a set of input points.
+# Inherits from class Polyhedron
+#
+class ConvexPolyhedron(Polyhedron):
+    ## Create a ConvexPolyhedron object from a list of points
+    # \param points Nx3 list of vertices from which to construct the convex hull
+    def __init__(self, points):
+        if ConvexHull is None:
+            logger.error('Cannot initialize ConvexPolyhedron because scipy.spatial.ConvexHull is not available.')
+
+        self.simplicial = ConvexHull(points)
+        # Make self.simplicial look like a ConvexPolyhedron object so rhFace and rhNeighbor can be used.
+        self.simplicial.facets = self.simplicial.simplices
+        self.simplicial.nfacets = self.simplicial.nsimplex
+        self.simplicial.nverts = self.simplicial.ndim * numpy.ones((self.simplicial.nfacets,), dtype=int)
+        self.simplicial.originalpoints = numpy.array(self.simplicial.points)
+        self.simplicial.originalequations = numpy.array(self.simplicial.equations)
+
+        self.points = numpy.array(self.simplicial.points) # get copy rather than reference
+        self.npoints = len(self.points)
+        pshape = points.shape
+        if (len(pshape) != 2) or pshape[1] != 3:
+            raise ValueError("points parameter must be an Nx3 array of points")
+        self.ndim = pshape[1]
+        self.facets = numpy.array(self.simplicial.simplices) # get a copy rather than a reference
+        self.nfacets = len(self.facets)
+        # trust that simplices won't have other than ndim vertices in future scipy releases
+        self.nverts = self.ndim * numpy.ones((self.nfacets,), dtype=int)
+        self.neighbors = numpy.array(self.simplicial.neighbors) # get copy rather than reference
+        self.equations = numpy.array(self.simplicial.equations) # get copy rather than reference
+        # mergeFacets does not merge all coplanar facets when there are a lot of neighboring coplanar facets,
+        # but repeated calls will do the job.
+        # If performance is ever an issue, this should really all be replaced with our own qhull wrapper...
+        old_nfacets = 0
+        new_nfacets = self.nfacets
+        while new_nfacets != old_nfacets:
+            self.mergeFacets()
+            old_nfacets = new_nfacets
+            new_nfacets = self.nfacets
+        for i in xrange(self.nfacets):
+            self.facets[i, 0:self.nverts[i]] = self.rhFace(i)
+        for i in xrange(self.nfacets):
+            self.neighbors[i, 0:self.nverts[i]] = self.rhNeighbor(i)
+        self.originalpoints = numpy.array(self.points)
+        self.originalequations = numpy.array(self.equations)
 
 ## Compute basic properties of a polygon, stored as a list of adjacent vertices
 #
@@ -511,7 +556,6 @@ class Polygon:
                        (fanVert, remaining[1], remaining[2])]);
 
         return numpy.array(result, dtype=numpy.float32);
-
 
 ## 3D rotation of a vector by a quaternion
 # from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
