@@ -13,10 +13,8 @@ except ImportError:
 #
 # Classes to manage shape data.
 #
-# \note freud.shape.ConvexPolyhedron requires scipy.spatil.ConvexHull (as of scipy 0.12.0).
 
-## Provides data structures and calculation methods for working with convex polyhedra generated as the hull of a list of vertices.
-# ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
+## Provides data structures and calculation methods for working with polyhedra with nice data structures.
 #
 # ### Attributes:
 #
@@ -27,54 +25,74 @@ except ImportError:
 # - nverts ndarray (nfacets,) of number of vertices and neighbors per facet
 # - facets ndarray (nfacets, max(nverts)) vertex indices for each facet. values for facets[i, j > nverts[i]] are undefined
 # - neighbors (nfacets, max(nverts)) neighbor k shares vertices k and k+1 with face. values for neighbors[i, k > nverts[i] - 1] are undefined
-# - equations (nfacets, ndim+1) [normal, offset] for corresponding facet
-# - simplicial scipy.spatial.ConvexHull object initialized from points containing data based on simplicial facets
+# - equations (nfacets, ndim+1) [n, d] for corresponding facet where n is the 3D normal vector and d the offset from the origin.
+#   Satisfies the hyperplane equation \f$ \bar v \cdot \hat n + d < 0 \f$ for points v enclosed by the surface.
+# - simplicial reference to another Polygon object containing data based on simplicial facets
+#
+# The Polyhedron methods assume facet vertices and neighbor lists have right-handed ordering. If input data is not
+# available at instantiation, you can use some helper functions to reorder the data.
+#
+# Example:
+# \code
+# mypoly = Polyhedron(points, nverts, facets, neighbors, equations)
+# for i in xrange(mypoly.nfacets):
+#   mypoly.facets[i, 0:mypoly.nverts[i]] = mypoly.rhFace(i)
+# for i in xrange(mypoly.nfacets):
+#   mypoly.neighbors[i, 0:mypoly.nverts[i]] = mypoly.rhNeighbor(i)
+# \endcode
 #
 class Polyhedron:
     ## Create a ConvexPolyhedron object from a list of points
-    # \param points Nx3 list of vertices from which to construct the convex hull
-    def __init__(self, points):
-        if ConvexHull is None:
-            logger.error('Cannot initialize ConvexPolyhedron because scipy.spatial.ConvexHull is not available.')
-
-        self.simplicial = ConvexHull(points)
-        # Make self.simplicial look like a ConvexPolyhedron object so rhFace and rhNeighbor can be used.
-        self.simplicial.facets = self.simplicial.simplices
-        self.simplicial.nfacets = self.simplicial.nsimplex
-        self.simplicial.nverts = self.simplicial.ndim * numpy.ones((self.simplicial.nfacets,), dtype=int)
-        self.simplicial.originalpoints = numpy.array(self.simplicial.points)
-        self.simplicial.originalequations = numpy.array(self.simplicial.equations)
-
-        self.points = numpy.array(self.simplicial.points) # get copy rather than reference
+    # \param points (Np, 3) list of vertices ordered such that indices are used by other data structures
+    # \param nverts (Nf,) list of numbers of vertices for correspondingly indexed facet
+    # \param facets (Nf, max(nverts)) array of vertex indices associated with each facet
+    # \param neighbors (Nf, max(nverts)) array of facet neighbor information.
+    #                  For neighbors[i,k], neighbor k shares points[[k, k+1]] with facet i.
+    # \param equations (Nf, ndim + 1) list of lists of hyperplane parameters of the form [[n[0], n[1], n[2], d], ...]
+    #                  where n, d satisfy the hyperplane equation \f$ \bar v \cdot \hat n + d < 0 \f$
+    #                  for points v enclosed by the surface.
+    # \param simplicial_facets (Nsf, 3) List of simplices (triangular facets in 3D)
+    # \param simplicial_neighbors (Nsf, 3) List of neighboring simplices for each simplicial facet
+    # \param simplicial_equations (Nsf, ndim+1) hyperplane equation coefficients for simplicial facets
+    #
+    def __init__(self, points, nverts, facets, neighbors, equations, simplicial_facets=None, simplicial_neighbors=None, simplicial_equations=None):
+        self.points = numpy.array(points)
         self.npoints = len(self.points)
         pshape = points.shape
         if (len(pshape) != 2) or pshape[1] != 3:
             raise ValueError("points parameter must be an Nx3 array of points")
         self.ndim = pshape[1]
-        self.facets = numpy.array(self.simplicial.simplices) # get a copy rather than a reference
-        self.nfacets = len(self.facets)
-        # trust that simplices won't have other than ndim vertices in future scipy releases
-        self.nverts = self.ndim * numpy.ones((self.nfacets,), dtype=int)
-        self.neighbors = numpy.array(self.simplicial.neighbors) # get copy rather than reference
-        self.equations = numpy.array(self.simplicial.equations) # get copy rather than reference
-        # mergeFacets does not merge all coplanar facets when there are a lot of neighboring coplanar facets,
-        # but repeated calls will do the job.
-        # If performance is ever an issue, this should really all be replaced with our own qhull wrapper...
-        old_nfacets = 0
-        new_nfacets = self.nfacets
-        while new_nfacets != old_nfacets:
-            self.mergeFacets()
-            old_nfacets = new_nfacets
-            new_nfacets = self.nfacets
-        for i in xrange(self.nfacets):
-            self.facets[i, 0:self.nverts[i]] = self.rhFace(i)
-        for i in xrange(self.nfacets):
-            self.neighbors[i, 0:self.nverts[i]] = self.rhNeighbor(i)
+
+        self.nverts = numpy.array(nverts, dtype=int)
+        self.facets = numpy.array(facets, dtype=int)
+        self.nfacets = len(facets)
+        self.neighbors = numpy.array(neighbors, dtype=int)
+        self.equations = numpy.array(equations)
+        # Should put in some error checking here...
+
         self.originalpoints = numpy.array(self.points)
         self.originalequations = numpy.array(self.equations)
+
+        if not (simplicial_facets is None or simplicial_equations is None or simplicial_neighbors is None):
+            nfacets = len(simplicial_facets)
+            self.simplicial = Polyhedron(points, [self.ndim]*nfacets, simplicial_facets, simplicial_neighbors, simplicial_equations)
+        else:
+            self.simplicial = None
+
     ## \internal
     # Merge coplanar simplicial facets
     # Requires multiple iterations when many non-adjacent coplanar facets exist.
+    # If performance is ever an issue, this should really all be replaced with our own qhull wrapper...
+    #
+    # Example:
+    # \code
+    # old_nfacets = 0
+    # new_nfacets = self.nfacets
+    # while new_nfacets != old_nfacets:
+    #   mypoly.mergeFacets()
+    #   old_nfacets = new_nfacets
+    #   new_nfacets = mypoly.nfacets
+    #
     def mergeFacets(self):
         Nf = self.nfacets
         facet_verts = [ set(self.facets[i, 0:self.nverts[i]]) for i in xrange(self.nfacets) ]
@@ -304,8 +322,9 @@ class Polyhedron:
         scale_factor = radius / oradius
         self.points = self.originalpoints * scale_factor
         self.equations[:,3] = self.originalequations[:,3] * scale_factor
-        self.simplicial.points = self.simplicial.originalpoints * scale_factor
-        self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
+        if not self.simplicial is None:
+            self.simplicial.points = self.simplicial.originalpoints * scale_factor
+            self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
 
     ## Scale polyhedron to fit a given circumsphere radius
     # \param radius new insphere radius
@@ -314,8 +333,9 @@ class Polyhedron:
         scale_factor = radius / oradius
         self.points *= scale_factor
         self.equations[:,3] *= scale_factor
-        self.simplicial.points = self.simplicial.originalpoints * scale_factor
-        self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
+        if not self.simplicial is None:
+            self.simplicial.points = self.simplicial.originalpoints * scale_factor
+            self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
 
     ## Test if a point is inside the shape
     # \param point 3D coordinates of test point
@@ -328,6 +348,9 @@ class Polyhedron:
         return True
 
 ## Store and compute data associated with a convex polyhedron, calculated as the convex hull of a set of input points.
+# ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
+# \note freud.shape.ConvexPolyhedron requires scipy.spatil.ConvexHull (as of scipy 0.12.0).
+#
 # Inherits from class Polyhedron
 #
 class ConvexPolyhedron(Polyhedron):
@@ -337,26 +360,23 @@ class ConvexPolyhedron(Polyhedron):
         if ConvexHull is None:
             logger.error('Cannot initialize ConvexPolyhedron because scipy.spatial.ConvexHull is not available.')
 
-        self.simplicial = ConvexHull(points)
-        # Make self.simplicial look like a ConvexPolyhedron object so rhFace and rhNeighbor can be used.
-        self.simplicial.facets = self.simplicial.simplices
-        self.simplicial.nfacets = self.simplicial.nsimplex
-        self.simplicial.nverts = self.simplicial.ndim * numpy.ones((self.simplicial.nfacets,), dtype=int)
-        self.simplicial.originalpoints = numpy.array(self.simplicial.points)
-        self.simplicial.originalequations = numpy.array(self.simplicial.equations)
+        simplicial = ConvexHull(points)
+        facets = simplicial.simplices
+        neighbors = simplicial.neighbors
+        equations = simplicial.equations
 
-        self.points = numpy.array(self.simplicial.points) # get copy rather than reference
-        self.npoints = len(self.points)
+        points = simplicial.points
         pshape = points.shape
         if (len(pshape) != 2) or pshape[1] != 3:
             raise ValueError("points parameter must be an Nx3 array of points")
-        self.ndim = pshape[1]
-        self.facets = numpy.array(self.simplicial.simplices) # get a copy rather than a reference
-        self.nfacets = len(self.facets)
-        # trust that simplices won't have other than ndim vertices in future scipy releases
-        self.nverts = self.ndim * numpy.ones((self.nfacets,), dtype=int)
-        self.neighbors = numpy.array(self.simplicial.neighbors) # get copy rather than reference
-        self.equations = numpy.array(self.simplicial.equations) # get copy rather than reference
+
+        nfacets = len(facets)
+        ndim = pshape[1]
+        nverts = [ndim] * nfacets
+
+        # Call base class constructor
+        Polyhedron.__init__(self, points, nverts, facets, neighbors, equations, facets, neighbors, equations)
+
         # mergeFacets does not merge all coplanar facets when there are a lot of neighboring coplanar facets,
         # but repeated calls will do the job.
         # If performance is ever an issue, this should really all be replaced with our own qhull wrapper...
