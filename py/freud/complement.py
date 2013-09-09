@@ -35,6 +35,12 @@ class Pair:
                 raise RuntimeError("Impossible Point Specified")
         self.points[shape] = point_list
 
+    def clear_points(self):
+        self.points = {}
+
+    def clear_cavities(self):
+        self.cavities = {}
+
     def set_cavities(self, shape, cavities):
         tmp_shape = self.shapes[shape]
         cavity_list = []
