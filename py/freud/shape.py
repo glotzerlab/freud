@@ -276,20 +276,8 @@ class Polyhedron:
         V = 0.0
         # for each face, calculate area -> volume, and accumulate
         for i in xrange(len(self.facets)):
-            face = self.facets[i]
-            #print(face)
-            n = self.equations[i, 0:3] # face normal
             d = -1* self.equations[i, 3] # distance from centroid
-            #print(n)
-            Ni = self.nverts[i] # number of points on the facet)
-            A = 0.0
-            # for each triangle on the face, sum up the area
-            for j in xrange(1, Ni-1):
-                    r1 = self.points[face[j]] - self.points[face[0]]
-                    r2 = self.points[face[j+1]] - self.points[face[0]]
-                    cp = numpy.cross(r1, r2)
-                    #print(cp)
-                    A += abs(numpy.dot(cp, n)) / 2.0
+            A = self.getArea(i)
             V += d * A / 3.0
         return V
 
@@ -331,8 +319,8 @@ class Polyhedron:
     def setInsphereRadius(self, radius):
         oradius = self.getInsphereRadius(original=True)
         scale_factor = radius / oradius
-        self.points *= scale_factor
-        self.equations[:,3] *= scale_factor
+        self.points = self.originalpoints * scale_factor
+        self.equations[:,3] = self.originalequations[:,3] * scale_factor
         if not self.simplicial is None:
             self.simplicial.points = self.simplicial.originalpoints * scale_factor
             self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
@@ -803,6 +791,8 @@ if __name__ == '__main__':
     rectangularBox[:,2] *= 2
     mypoly = ConvexPolyhedron(rectangularBox)
     mypoly.setInsphereRadius(1.0)
+    mypoly.setInsphereRadius(3.33)
+    mypoly.setInsphereRadius(1.0)
     isr = mypoly.getInsphereRadius()
     if abs(isr - 1.0) < tolerance:
         print('ConvexPolyhedron.setInsphereRadius seems to work')
@@ -814,6 +804,8 @@ if __name__ == '__main__':
     rectangularBox = numpy.array(cube)
     rectangularBox[:,2] *= 2
     mypoly= ConvexPolyhedron(rectangularBox)
+    mypoly.setCircumsphereRadius(1.0)
+    mypoly.setCircumsphereRadius(4.0)
     mypoly.setCircumsphereRadius(1.0)
     osr = mypoly.getCircumsphereRadius()
     if abs(osr - 1.0) < tolerance:
