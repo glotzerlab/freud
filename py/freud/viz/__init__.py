@@ -9,6 +9,7 @@ from . import colorutil
 from . import colormap
 from . import export
 from . import split
+from Outline import Outline
 
 # handle optional import of rt based on availability of dependencies
 try:
