@@ -428,6 +428,146 @@ class ConvexPolyhedron(Polyhedron):
         self.originalpoints = numpy.array(self.points)
         self.originalequations = numpy.array(self.equations)
 
+## Store and compute data associated with a convex spheropolyhedron, calculated as the convex hull of a set of input
+# points plus a rounding radius.
+#
+# Inherits from ConvexPolyhedron but replaces several methods.
+#
+class ConvexSpheropolyhedron(ConvexPolyhedron):
+    ## Create a ConvexPolyhedron object from a list of points and a rounding radius.
+    # \param points Nx3 list of vertices from which to construct the convex hull
+    # \param R rounding radius by which to extend the polyhedron boundary
+    def __init__(self, points, R=0.0):
+        ConvexPolyhedron.__init__(self, points)
+        self.R = float(R)
+        self.originalR = self.R
+    ## Find surface area of spheropolyhedron.
+    def getArea(self):
+        R = self.R
+        facet_list = range(self.nfacets)
+        Aface = 0.0
+        Acyl = 0.0
+        Asphere = 4. * numpy.pi * R * R
+        # for each face
+        for i in facet_list:
+            face = self.facets[i]
+            n = self.equations[i, 0:3]
+            Ni = self.nverts[i] # number of points on the facet)
+            # for each triangle on the face, sum up the area
+            for j in xrange(1, Ni-1):
+                r1 = self.points[face[j]] - self.points[face[0]]
+                r2 = self.points[face[j+1]] - self.points[face[0]]
+                cp = numpy.cross(r1, r2)
+                Aface += abs(numpy.dot(cp, n)) / 2.0
+            # for each edge on the face get length and dihedral to calculate cylinder contribution
+            for j in xrange(0, Ni):
+                p1 = self.points[face[j]]
+                if j >= Ni-1:
+                    p2 = self.points[face[0]]
+                else:
+                    p2 = self.points[face[j+1]]
+                edge = p2 - p1
+                edge_length = numpy.sqrt(numpy.dot(edge, edge))
+                angle = numpy.pi - self.getDihedral(i, self.neighbors[i, j])
+                # divide partial cylinder area by 2 because edges are double-counted
+                Acyl += edge_length * angle * R / 2.0
+        return Aface + Acyl + Asphere
+
+    ## Find the volume of the spheropolyhedron
+    def getVolume(self):
+        R = self.R
+        Vpoly = 0.0
+        Vcyl = 0.0
+        Vsphere = 4. * numpy.pi * R * R * R / 3.
+        # for each face, calculate area -> volume, and accumulate
+        for i in xrange(len(self.facets)):
+            face = self.facets[i]
+            Ni = self.nverts[i]
+            d = -1* self.equations[i, 3] # distance from centroid
+            A = Polyhedron.getArea(self, i)
+            # add volume of polyhedral wedge for the interior polyhedron
+            Vpoly += d * A / 3.0
+            # add volume for the polygonal plate due to R
+            Vpoly += R * A
+            # for each edge on the face get length and dihedral to calculate cylinder contribution
+            for j in xrange(0, Ni):
+                p1 = self.points[face[j]]
+                if j >= Ni-1:
+                    p2 = self.points[face[0]]
+                else:
+                    p2 = self.points[face[j+1]]
+                edge = p2 - p1
+                edge_length = numpy.sqrt(numpy.dot(edge, edge))
+                angle = numpy.pi - self.getDihedral(i, self.neighbors[i, j])
+                # divide partial cylinder volume by 2 because edges are double-counted
+                Vcyl += edge_length * angle * R * R / 4.0
+        return Vpoly + Vcyl + Vsphere
+
+    ## Get circumsphere radius
+    # \param original True means to retrieve the original points before any subsequent rescaling (default False)
+    def getCircumsphereRadius(self, original=False):
+        # get R2[i] = dot(points[i], points[i]) by getting the diagonal (i=j) of the array of dot products dot(points[i], points[j])
+        if original:
+            points = self.originalpoints
+        else:
+            points = self.points
+        R2 = numpy.diag(numpy.dot(points, points.T))
+        d = numpy.sqrt(R2.max())
+        if original:
+            d += self.originalR
+        else:
+            d += self.R
+        return d
+
+    ## Get insphere radius
+    # \param original True means to retrieve the original points before any subsequent rescaling (default False)
+    def getInsphereRadius(self, original=False):
+        if original:
+            equations = self.originalequations
+        else:
+            equations = self.equations
+        facetDistances = equations[:,3]
+        d = abs(facetDistances.max())
+        if original:
+            d += self.originalR
+        else:
+            d += self.R
+        return d
+
+    ## Scale spheropolyhedron to fit a given circumsphere radius.
+    # \param radius new circumsphere radius
+    # Scales points and R. To scale just the underlying polyhedron, use the base class method.
+    def setCircumsphereRadius(self, radius):
+        # use unscaled data from original to avoid accumulated errors
+        oradius = ConvexSpheropolyhedron.getCircumsphereRadius(self, original=True)
+        scale_factor = radius / oradius
+        self.points = self.originalpoints * scale_factor
+        self.equations[:,3] = self.originalequations[:,3] * scale_factor
+        self.R = self.originalR * scale_factor
+        self.simplicial.points = self.simplicial.originalpoints * scale_factor
+        self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
+
+    ## Scale polyhedron to fit a given circumsphere radius
+    # \param radius new insphere radius
+    def setInsphereRadius(self, radius):
+        oradius = ConvexSpheropolyhedron.getInsphereRadius(self, original=True)
+        scale_factor = radius / oradius
+        self.points = self.originalpoints * scale_factor
+        self.equations[:,3] = self.originalequations[:,3] * scale_factor
+        self.R = self.originalR * scale_factor
+        self.simplicial.points = self.simplicial.originalpoints * scale_factor
+        self.simplicial.equations[:,3] = self.simplicial.originalequations[:,3] * scale_factor
+
+    ## Test if a point is inside the shape
+    # \param point 3D coordinates of test point
+    def isInside(self, point):
+        v = numpy.asarray(point)
+        for i in xrange(self.nfacets):
+            d = numpy.dot(v, self.equations[i, 0:3])
+            if d + self.equations[i, 3] > self.R:
+                return False
+        return True
+
 ## Compute basic properties of a polygon, stored as a list of adjacent vertices
 #
 # ### Attributes:
@@ -828,6 +968,105 @@ if __name__ == '__main__':
             passed = False
         if yes2:
             print('ConvexPolyhedron.isInside does not return False when it should')
+            passed = False
+
+    # Check ConvexSpheropolyhedron.getArea
+    success = True
+    tolerance = 1e-6
+    R = 1.0
+    L = 1.0
+    mypoly = ConvexSpheropolyhedron(cube, R)
+    ConvexPolyhedron.setInsphereRadius(mypoly, L/2.)
+    Aface = L*L
+    Asphere = 4.0 * numpy.pi * R * R
+    Acyl = L * 2.0 * numpy.pi * R
+    area_should_be = 6*Aface + 3*Acyl + Asphere
+    area = mypoly.getArea()
+    if abs(area - area_should_be) > tolerance:
+        success = False
+    if success:
+        print('ConvexSpheropolyhedron.getArea seems to work')
+    else:
+        print('ConvexSpheropolyhedron.getArea found area {0} when it should be {1}'.format(area, area_should_be))
+        passed = False
+
+    # Check ConvexSpheropolyhedron.getVolume
+    success = True
+    tolerance = 1e-6
+    R = 1.0
+    L = 1.0
+    mypoly = ConvexSpheropolyhedron(cube, R)
+    ConvexPolyhedron.setInsphereRadius(mypoly, L/2.)
+    Vpoly = L*L*L
+    Vplate = L*L*R
+    Vcyl = L * numpy.pi * R * R
+    Vsphere = 4.0 * numpy.pi * R * R * R / 3.0
+    volume_should_be = Vpoly + 6*Vplate + 3*Vcyl + Vsphere
+    volume = mypoly.getVolume()
+    if abs(volume - volume_should_be) < tolerance:
+        print('ConvexSpheropolyhedron.getVolume seems to work')
+    else:
+        print('ConvexSpheroolyhedron.getVolume found volume {0} when it should be {1}'.format(volume, volume_should_be))
+        passed = False
+
+    # Check ConvexSpheropolyhedron.setInsphereRadius
+    R = 1.0
+    R_target = R*2
+    mypoly = ConvexSpheropolyhedron(cube, R)
+    insphereR = mypoly.getInsphereRadius()
+    isr_target = insphereR * 2
+    mypoly.setInsphereRadius(1.0)
+    mypoly.setInsphereRadius(3.33)
+    mypoly.setInsphereRadius(insphereR * 2)
+    isr = mypoly.getInsphereRadius()
+    checkTol = abs(isr - isr_target) < tolerance
+    checkR = abs(mypoly.R - R_target) < tolerance
+    if checkTol and checkR:
+        print('ConvexSpheropolyhedron.setInsphereRadius seems to work')
+    else:
+        print('ConvexSpheropolyhedron.setInsphereRadius produce isr={0} (vs. {1}) and R={2} (vs. {3})'.format(
+                    isr,
+                    isr_target,
+                    R,
+                    R_target))
+        passed = False
+
+    # Check ConvexSpheropolyhedron.setCircumsphereRadius
+    R = 1.0
+    R_target = R*2
+    mypoly = ConvexSpheropolyhedron(cube, R)
+    osphereR = mypoly.getCircumsphereRadius()
+    osr_target = osphereR * 2
+    mypoly.setCircumsphereRadius(1.0)
+    mypoly.setCircumsphereRadius(3.33)
+    mypoly.setCircumsphereRadius(osphereR * 2)
+    osr = mypoly.getCircumsphereRadius()
+    checkTol = abs(osr - osr_target) < tolerance
+    checkR = abs(mypoly.R - R_target) < tolerance
+    if checkTol and checkR:
+        print('ConvexSpheropolyhedron.setCircumsphereRadius seems to work')
+    else:
+        print('ConvexSpheropolyhedron.setCircumsphereRadius produce isr={0} (vs. {1}) and R={2} (vs. {3})'.format(
+                    osr,
+                    osr_target,
+                    R,
+                    R_target))
+        passed = False
+
+    # Check ConvexSpheropolyhedron.isInside
+    mypoly = ConvexSpheropolyhedron(cube)
+    v1 = (-0.4, 0.1, 0.49)
+    v2 = (0.5, 0.1, 0.51)
+    yes1 = mypoly.isInside(v1)
+    yes2 = mypoly.isInside(v2)
+    if yes1 and not yes2:
+        print('ConvexSpheropolyhedron.isInside seems to work')
+    else:
+        if not yes1:
+            print('ConvexSpheropolyhedron.isInside does not return True when it should')
+            passed = False
+        if yes2:
+            print('ConvexSpheropolyhedron.isInside does not return False when it should')
             passed = False
 
     # Overall test status
