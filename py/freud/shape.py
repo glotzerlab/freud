@@ -277,7 +277,7 @@ class Polyhedron:
         # for each face, calculate area -> volume, and accumulate
         for i in xrange(len(self.facets)):
             d = -1* self.equations[i, 3] # distance from centroid
-            A = self.getArea(i)
+            A = Polyhedron.getArea(self, i)
             V += d * A / 3.0
         return V
 
@@ -306,7 +306,7 @@ class Polyhedron:
     # \param radius new circumsphere radius
     def setCircumsphereRadius(self, radius):
         # use unscaled data from original to avoid accumulated errors
-        oradius = self.getCircumsphereRadius(original=True)
+        oradius = Polyhedron.getCircumsphereRadius(self, original=True)
         scale_factor = radius / oradius
         self.points = self.originalpoints * scale_factor
         self.equations[:,3] = self.originalequations[:,3] * scale_factor
@@ -317,7 +317,7 @@ class Polyhedron:
     ## Scale polyhedron to fit a given circumsphere radius
     # \param radius new insphere radius
     def setInsphereRadius(self, radius):
-        oradius = self.getInsphereRadius(original=True)
+        oradius = Polyhedron.getInsphereRadius(self, original=True)
         scale_factor = radius / oradius
         self.points = self.originalpoints * scale_factor
         self.equations[:,3] = self.originalequations[:,3] * scale_factor
