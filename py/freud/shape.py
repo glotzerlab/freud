@@ -668,7 +668,7 @@ class Polygon:
             else:
                 l = radius/numpy.cos(dtheta/2);
                 p = 2*vert - start - end;
-                p /= trimath.norm(p);
+                p /= numpy.sqrt(numpy.dot(p, p));
                 result.append(vert + p*l);
 
         result = numpy.vstack(result);
