@@ -752,6 +752,134 @@ class Polygon:
 
         return numpy.array(result, dtype=numpy.float32);
 
+class ConvexSpheropolygon:
+    """Basic class to hold a set of points for a 2D Convex Spheropolygon.
+       The behavior for concave inputs is not defined"""
+    def __init__(self, verts, radius):
+        """Initialize a polygon with a counterclockwise list of 2D
+        points and checks that they are ordered counter-clockwise"""
+        self.vertices = numpy.array(verts, dtype=numpy.float32);
+
+        if len(self.vertices[1]) != 2:
+            raise TypeError("positions must be an Nx2 array");
+        self.n = len(self.vertices);
+        self.radius=radius
+
+        # This actually checks that the majority of the polygon is
+        # listed in counter-clockwise order, but seems like it should
+        # be sufficient for common use cases. Non-simple polygons can
+        # still sneak in clockwise vertices.
+        if self.getArea() < 0:
+            raise RuntimeError("Spheropolygon was given with some clockwise vertices, "
+                               "but it requires that vertices be listed in "
+                               "counter-clockwise order");
+
+    def getArea(self):
+        """Calculate and return the signed area of the polygon with
+        counterclockwise shapes having positive area"""
+        #circle
+        if (self.n<=1):
+          return numpy.pi*(self.radius**2)
+        #circly-rod
+        elif (self.n==2):
+          dr = self.vertices[0]-self.vertices[1]
+          return numpy.pi*(self.radius**2) + numpy.sqrt(numpy.dot(dr,dr))*self.radius*2.0
+        #proper spheropolygon
+        else:
+          #first calculate the area of the underlying polygon
+          shifted = numpy.roll(self.vertices, -1, axis=0);
+          # areas is twice the signed area of each triangle in the shape
+          areas = self.vertices[:, 0]*shifted[:, 1] - shifted[:, 0]*self.vertices[:, 1];
+          
+          poly_area = numpy.sum(areas)/2;
+          
+          drs = shifted-self.vertices
+          edge_area = numpy.sum(numpy.sqrt(numpy.diag(numpy.dot(drs,drs.transpose()))))*self.radius
+          #add edge, poly and vertex area
+          return poly_area + edge_area + numpy.pi* self.radius**2
+
+    def center(self):
+        """Center this polygon around (0, 0)"""
+        self.vertices -= numpy.mean(self.vertices, axis=0);
+
+    @property
+    def triangles(self):
+        """A cached property of an Ntx3x2 numpy array of points, where
+        Nt is the number of triangles in this polygon."""
+        try:
+            return self._triangles;
+        except AttributeError:
+            self._triangles = self._triangulation();
+        return self._triangles;
+
+    @property
+    def normalizedTriangles(self):
+        """A cached property of the same shape as triangles, but
+        normalized such that all coordinates are bounded on [0, 1]."""
+        try:
+            return self._normalizedTriangles;
+        except AttributeError:
+            self._normalizedTriangles = self._triangles.copy();
+            self._normalizedTriangles -= numpy.min(self._triangles);
+            self._normalizedTriangles /= numpy.max(self._normalizedTriangles);
+        return self._normalizedTriangles;
+
+    #left over from Polygon, I assume this is for freud viz
+    def _triangulation(self):
+        """Return a numpy array of triangles with shape (Nt, 3, 2) for
+        the 3 2D points of Nt triangles."""
+
+        if self.n <= 3:
+            return [tuple(self.vertices)];
+
+        result = [];
+        remaining = self.vertices;
+
+        # step around the shape and grab ears until only 4 vertices are left
+        while len(remaining) > 4:
+            signs = [];
+            for vert in (remaining[-1], remaining[1]):
+                arms1 = remaining[2:-2] - vert;
+                arms2 = vert - remaining[3:-1];
+                signs.append(numpy.sign(arms1[:, 1]*arms2[:, 0] -
+                                        arms2[:, 1]*arms1[:, 0]));
+            for rest in (remaining[2:-2], remaining[3:-1]):
+                arms1 = remaining[-1] - rest;
+                arms2 = rest - remaining[1];
+                signs.append(numpy.sign(arms1[:, 1]*arms2[:, 0] -
+                                        arms2[:, 1]*arms1[:, 0]));
+
+            cross = numpy.any(numpy.bitwise_and(signs[0] != signs[1],
+                                                signs[2] != signs[3]));
+            if not cross and twiceTriangleArea(remaining[-1], remaining[0],
+                                               remaining[1]) > 0.:
+                # triangle [-1, 0, 1] is a good one, cut it out
+                result.append((remaining[-1].copy(), remaining[0].copy(),
+                               remaining[1].copy()));
+                remaining = remaining[1:];
+            else:
+                remaining = numpy.roll(remaining, 1, axis=0);
+
+        # there must now be 0 or 1 concave vertices left; find the
+        # concave vertex (or a vertex) and fan out from it
+        vertices = remaining;
+        shiftedUp = vertices - numpy.roll(vertices, 1, axis=0);
+        shiftedBack = numpy.roll(vertices, -1, axis=0) - vertices;
+
+        # signed area for each triangle (i-1, i, i+1) for vertex i
+        areas = shiftedBack[:, 1]*shiftedUp[:, 0] - shiftedUp[:, 1]*shiftedBack[:, 0];
+
+        concave = numpy.where(areas < 0.)[0];
+
+        fan = (concave[0] if len(concave) else 0);
+        fanVert = remaining[fan];
+        remaining = numpy.roll(remaining, -fan, axis=0)[1:];
+
+        result.extend([(fanVert, remaining[0], remaining[1]),
+                       (fanVert, remaining[1], remaining[2])]);
+
+        return numpy.array(result, dtype=numpy.float32);
+
 ## 3D rotation of a vector by a quaternion
 # from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
 # a suggested method for 15 mults and 15 adds to rotate vector b by quaternion a:
