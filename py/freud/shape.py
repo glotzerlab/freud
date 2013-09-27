@@ -760,7 +760,7 @@ class ConvexSpheropolygon:
         points and checks that they are ordered counter-clockwise"""
         self.vertices = numpy.array(verts, dtype=numpy.float32);
 
-        if len(self.vertices[1]) != 2:
+        if len(self.vertices[0]) != 2:
             raise TypeError("positions must be an Nx2 array");
         self.n = len(self.vertices);
         self.radius=radius
