@@ -438,22 +438,25 @@ void complement::computeWithCellList(unsigned int* match,
                     float c_angle = angles[j];
                     // will skip same particle
                     // is this necessary?
-                    // if (i == j)
-                    //     {
-                    //     continue;
-                    //     }
+                    if (i == j)
+                        {
+                        continue;
+                        }
 
                     // new code here
+                    float2 r_ij;
+                    r_ij.x = point.x - check.x;
+                    r_ij.y = point.y - check.y;
                     float2 theta_i;
                     float2 theta_j;
-                    theta_i.x = cosf(p_angle);
-                    theta_i.y = sinf(p_angle);
-                    theta_j.x = cosf(c_angle);
-                    theta_j.y = sinf(c_angle);
+                    theta_i.x = cos(p_angle);
+                    theta_i.y = sin(p_angle);
+                    theta_j.x = cos(c_angle);
+                    theta_j.y = sin(c_angle);
 
+                    float d_ij = dot2(r_ij, r_ij);
                     float theta_ij = dot2(theta_i, theta_j);
-
-                    if ((theta_ij > (m_dot_target - m_dot_tol)) && (theta_ij < (m_dot_target + m_dot_tol)))
+                    if ((d_ij < rmaxsq) && (theta_ij > (m_dot_target - m_dot_tol)) && (theta_ij < (m_dot_target + m_dot_tol)))
                         {
                         match[i] = 1;
                         match[j] = 1;
