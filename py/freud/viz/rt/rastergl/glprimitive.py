@@ -669,6 +669,8 @@ void main()
     // rotate the image point into the correct orientation
     gl_Position.x = image.x*ctheta - image.y*stheta;
     gl_Position.y = image.x*stheta + image.y*ctheta;
+    gl_Position.z = 0;
+    gl_Position.w = 1;
 
     // shift into position
     gl_Position += position;

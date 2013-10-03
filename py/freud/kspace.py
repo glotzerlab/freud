@@ -640,7 +640,8 @@ class FTconvexPolyhedron(FTbase):
             S = self.hull.getArea(i) * self.scale**2
         else:
             S = 0.0
-            verts = list(self.hull.facets[i])
+            nverts = self.hull.nverts[i]
+            verts = list(self.hull.facets[i, 0:nverts])
             # apply periodic boundary condition for convenience
             verts.append(verts[0])
             points = self.hull.points * self.scale
