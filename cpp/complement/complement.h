@@ -25,7 +25,7 @@ class complement
     {
     public:
         //! Constructor
-        complement(const trajectory::Box& box, float rmax);
+        complement(const trajectory::Box& box, float rmax, float dot_target, float dot_tol);
 
         //! Destructor
         ~complement();
@@ -98,70 +98,28 @@ class complement
 
         float cavity_depth(float2 t[]);
 
-        //! Compute the complement function
-        void compute(unsigned int* match,
-                float3* points,
-                unsigned int* types,
-                float* angles,
-                float2* shapes,
-                unsigned int* ref_list,
-                unsigned int* check_list,
-                unsigned int* ref_verts,
-                unsigned int* check_verts,
-                unsigned int Np,
-                unsigned int Nt,
-                unsigned int Nmaxverts,
-                unsigned int Nref,
-                unsigned int Ncheck,
-                unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts);
+    //! Compute the complement function
+    void compute(unsigned int* match_raw,
+                float3* points_raw,
+                float* angles_raw,
+                unsigned int Np);
 
         //! Compute the RDF
     void computeWithoutCellList(unsigned int* match,
                 float3* points,
-                unsigned int* types,
                 float* angles,
-                float2* shapes,
-                unsigned int* ref_list,
-                unsigned int* check_list,
-                unsigned int* ref_verts,
-                unsigned int* check_verts,
-                unsigned int Np,
-                unsigned int Nt,
-                unsigned int Nmaxverts,
-                unsigned int Nref,
-                unsigned int Ncheck,
-                unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts);
+                unsigned int Np);
 
     //! Compute the RDF
     void computeWithCellList(unsigned int* match,
                 float3* points,
-                unsigned int* types,
                 float* angles,
-                float2* shapes,
-                unsigned int* ref_list,
-                unsigned int* check_list,
-                unsigned int* ref_verts,
-                unsigned int* check_verts,
-                unsigned int Np,
-                unsigned int Nt,
-                unsigned int Nmaxverts,
-                unsigned int Nref,
-                unsigned int Ncheck,
-                unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts);
+                unsigned int Np);
 
-        //! Python wrapper for compute
+    //! Python wrapper for compute
     void computePy(boost::python::numeric::array match,
                     boost::python::numeric::array points,
-                    boost::python::numeric::array types,
-                    boost::python::numeric::array angles,
-                    boost::python::numeric::array shapes,
-                    boost::python::numeric::array ref_list,
-                    boost::python::numeric::array check_list,
-                    boost::python::numeric::array ref_verts,
-                    boost::python::numeric::array check_verts);
+                    boost::python::numeric::array angles);
 
         unsigned int getNpairPy()
             {
@@ -171,6 +129,8 @@ class complement
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
+        float m_dot_target;                     //!< Maximum r at which to compute g(r)
+        float m_dot_tol;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;       //!< LinkCell to bin particles for the computation
         unsigned int m_nmatch;             //!< Number of matches

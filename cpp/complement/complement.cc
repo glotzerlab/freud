@@ -14,8 +14,8 @@ using namespace boost::python;
 
 namespace freud { namespace complement {
 
-complement::complement(const trajectory::Box& box, float rmax)
-    : m_box(box), m_rmax(rmax)
+complement::complement(const trajectory::Box& box, float rmax, float dot_target, float dot_tol)
+    : m_box(box), m_rmax(rmax), m_dot_target(dot_target), m_dot_tol(dot_tol)
     {
     if (rmax < 0.0f)
         throw invalid_argument("rmax must be positive");
@@ -339,78 +339,30 @@ float complement::cavity_depth(float2 t[])
 
 void complement::compute(unsigned int* match,
                 float3* points,
-                unsigned int* types,
                 float* angles,
-                float2* shapes,
-                unsigned int* ref_list,
-                unsigned int* check_list,
-                unsigned int* ref_verts,
-                unsigned int* check_verts,
-                unsigned int Np,
-                unsigned int Nt,
-                unsigned int Nmaxverts,
-                unsigned int Nref,
-                unsigned int Ncheck,
-                unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts)
+                unsigned int Np)
     {
     m_nmatch = 0;
     if (useCells())
         {
         computeWithCellList(match,
                             points,
-                            types,
                             angles,
-                            shapes,
-                            ref_list,
-                            check_list,
-                            ref_verts,
-                            check_verts,
-                            Np,
-                            Nt,
-                            Nmaxverts,
-                            Nref,
-                            Ncheck,
-                            Nmaxrefverts,
-                            Nmaxcheckverts);
+                            Np);
         }
     else
         {
         computeWithoutCellList(match,
                             points,
-                            types,
                             angles,
-                            shapes,
-                            ref_list,
-                            check_list,
-                            ref_verts,
-                            check_verts,
-                            Np,
-                            Nt,
-                            Nmaxverts,
-                            Nref,
-                            Ncheck,
-                            Nmaxrefverts,
-                            Nmaxcheckverts);
+                            Np);
         }
     }
 
 void complement::computeWithoutCellList(unsigned int* match,
                 float3* points,
-                unsigned int* types,
                 float* angles,
-                float2* shapes,
-                unsigned int* ref_list,
-                unsigned int* check_list,
-                unsigned int* ref_verts,
-                unsigned int* check_verts,
-                unsigned int Np,
-                unsigned int Nt,
-                unsigned int Nmaxverts,
-                unsigned int Nref,
-                unsigned int Ncheck,
-                unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts)
+                unsigned int Np)
     {
     m_nP = Np;
     float rmaxsq = m_rmax * m_rmax;
@@ -423,91 +375,40 @@ void complement::computeWithoutCellList(unsigned int* match,
             // grab point and type
             // might be eliminated later for efficiency
             float3 point = points[i];
-            unsigned int ref_type = types[i];
-            // find if type in refs
-            bool in_refs = false;
-            for (unsigned int ref_idx = 0; ref_idx < Nref; ref_idx++)
-                {
-                if (ref_list[ref_idx] == ref_type)
-                    {
-                    in_refs = true;
-                    }
-                }
-            if (in_refs != true)
-                {
-                continue;
-                }
+            float p_angle = angles[i];
             for (unsigned int j = 0; j < m_nP; j++)
                 {
                 float3 check = points[j];
-                unsigned int check_type = types[j];
-                // find if type in refs
-                bool in_check = false;
-                for (unsigned int check_idx = 0; check_idx < Ncheck; check_idx++)
-                    {
-                    if (check_list[check_idx] == check_type)
-                        {
-                        in_check = true;
-                        }
-                    }
-                if (in_check != true)
-                    {
-                    continue;
-                    }
-                // retained for self-complementary particles
-                // will skip same particle
-                if (i == j)
-                    {
-                    continue;
-                    }
-                // iterate over the verts in the ref particle
-                for (unsigned int k = 0; k < Nmaxrefverts; k++)
-                    {
-                    unsigned int tooth_index = ref_verts[k];
-                    float2 tooth = shapes[ref_type * Nmaxverts + tooth_index];
-                    unsigned int cavity_index = check_verts[k];
-                    float2 cavity [3];
-                    cavity[0] = shapes[check_type * Nmaxverts + cavity_index - 1];
-                    cavity[1] = shapes[check_type * Nmaxverts + cavity_index];
-                    cavity[2] = shapes[check_type * Nmaxverts + cavity_index + 1];
+                float c_angle = angles[j];
 
-                    for (unsigned int m = 0; m < 3; m++)
-                        {
-                        float2 ref_2D;
-                        float2 point_2D;
-                        ref_2D.x = point.x;
-                        ref_2D.y = point.y;
-                        point_2D.x = check.x;
-                        point_2D.y = check.y;
-                        cavity[m] = into_local(ref_2D, point_2D, cavity[m], angles[i], angles[j]);
-                        }
+                float2 r_ij;
+                r_ij.x = point.x - check.x;
+                r_ij.y = point.y - check.y;
+                float2 theta_i;
+                float2 theta_j;
+                theta_i.x = cosf(p_angle);
+                theta_i.y = sinf(p_angle);
+                theta_j.x = cosf(c_angle);
+                theta_j.y = sinf(c_angle);
 
-                    if (isInside(cavity, tooth))
-                        {
-                        m_nmatch++;
-                        }
+                float d_ij = dot2(r_ij, r_ij);
+                float theta_ij = dot2(theta_i, theta_j);
+
+                if ((d_ij < rmaxsq) && (theta_ij > (m_dot_target - m_dot_tol)) && (theta_ij < (m_dot_target + m_dot_tol)))
+                    {
+                    match[i] = 1;
+                    match[j] = 1;
+                    m_nmatch++;
                     }
-                }
-            } // done looping over reference points
+                } // done looping over check
+            } //done looping over ref
         } // End of parallel section
     }
 
 void complement::computeWithCellList(unsigned int* match,
                 float3* points,
-                unsigned int* types,
                 float* angles,
-                float2* shapes,
-                unsigned int* ref_list,
-                unsigned int* check_list,
-                unsigned int* ref_verts,
-                unsigned int* check_verts,
-                unsigned int Np,
-                unsigned int Nt,
-                unsigned int Nmaxverts,
-                unsigned int Nref,
-                unsigned int Ncheck,
-                unsigned int Nmaxrefverts,
-                unsigned int Nmaxcheckverts)
+                unsigned int Np)
     {
     m_nP = Np;
     m_lc->computeCellList(points, m_nP);
@@ -521,20 +422,7 @@ void complement::computeWithCellList(unsigned int* match,
             // grab point and type
             // might be eliminated later for efficiency
             float3 point = points[i];
-            unsigned int ref_type = types[i];
-            // find if type in refs
-            bool in_refs = false;
-            for (unsigned int ref_idx = 0; ref_idx < Nref; ref_idx++)
-                {
-                if (ref_list[ref_idx] == ref_type)
-                    {
-                    in_refs = true;
-                    }
-                }
-            if (in_refs != true)
-                {
-                continue;
-                }
+            float p_angle = angles[i];
             // get the cell the point is in
             unsigned int ref_cell = m_lc->getCell(point);
             // loop over all neighboring cells
@@ -547,77 +435,39 @@ void complement::computeWithCellList(unsigned int* match,
                 for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                     {
                     float3 check = points[j];
-                    unsigned int check_type = types[j];
-                    // find if type in refs
-                    bool in_check = false;
-                    for (unsigned int check_idx = 0; check_idx < Ncheck; check_idx++)
-                        {
-                        if (check_list[check_idx] == check_type)
-                            {
-                            in_check = true;
-                            }
-                        }
-                    if (in_check != true)
-                        {
-                        continue;
-                        }
-                    // retained for self-complementary particles
+                    float c_angle = angles[j];
                     // will skip same particle
-                    if (i == j)
-                        {
-                        continue;
-                        }
-                    // iterate over the verts in the ref particle
-                    for (unsigned int k = 0; k < Nmaxrefverts; k++)
-                        {
-                        // requires that the size of the two arrays are the same
-                        // ok because it's supposed to be perfect match
-                        unsigned int tooth_index = ref_verts[k];
-                        float2 tooth = shapes[ref_type * Nmaxverts + tooth_index];
-                        // allows for different vertex'd shapes to run with dummies at the end
-                        // if (tooth.x == nan)
-                        //     {
-                        //     continue;
-                        //     }
-                        unsigned int cavity_index = check_verts[k];
-                        float2 cavity [3];
-                        cavity[0] = shapes[check_type * Nmaxverts + cavity_index - 1];
-                        cavity[1] = shapes[check_type * Nmaxverts + cavity_index];
-                        cavity[2] = shapes[check_type * Nmaxverts + cavity_index + 1];
+                    // is this necessary?
+                    // if (i == j)
+                    //     {
+                    //     continue;
+                    //     }
 
-                        for (unsigned int m = 0; m < 3; m++)
-                            {
-                            float2 ref_2D;
-                            float2 point_2D;
-                            ref_2D.x = point.x;
-                            ref_2D.y = point.y;
-                            point_2D.x = check.x;
-                            point_2D.y = check.y;
-                            cavity[m] = into_local(ref_2D, point_2D, cavity[m], angles[i], angles[j]);
-                            }
+                    // new code here
+                    float2 theta_i;
+                    float2 theta_j;
+                    theta_i.x = cosf(p_angle);
+                    theta_i.y = sinf(p_angle);
+                    theta_j.x = cosf(c_angle);
+                    theta_j.y = sinf(c_angle);
 
-                            if (isInside(cavity, tooth))
-                                {
-                                match[i] = 1;
-                                match[j] = 1;
-                                m_nmatch++;
-                                }
+                    float theta_ij = dot2(theta_i, theta_j);
+
+                    if ((theta_ij > (m_dot_target - m_dot_tol)) && (theta_ij < (m_dot_target + m_dot_tol)))
+                        {
+                        match[i] = 1;
+                        match[j] = 1;
+                        m_nmatch++;
                         }
-                    } // done looping over neighbor cells
-                }
+                    } // done looping over neighbors
+                } // done looping over neighbor cells
             } // done looping over reference points
         } // End of parallel section
     }
 
 void complement::computePy(boost::python::numeric::array match,
                     boost::python::numeric::array points,
-                    boost::python::numeric::array types,
-                    boost::python::numeric::array angles,
-                    boost::python::numeric::array shapes,
-                    boost::python::numeric::array ref_list,
-                    boost::python::numeric::array check_list,
-                    boost::python::numeric::array ref_verts,
-                    boost::python::numeric::array check_verts)
+                    boost::python::numeric::array angles)
     {
     // points contains all the particle positions; Np x 3
     // types contains all the types; Np (x 1)
@@ -629,24 +479,12 @@ void complement::computePy(boost::python::numeric::array match,
     // ref_verts contains the vert index that will be checked
     // check_verts contains the vert index that will be checked
     // match will contain the particle index of the ref that is matched
-    num_util::check_type(points, PyArray_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(types, PyArray_INT);
-    num_util::check_rank(types, 1);
-    num_util::check_type(angles, PyArray_FLOAT);
-    num_util::check_rank(angles, 1);
-    num_util::check_type(shapes, PyArray_FLOAT);
-    num_util::check_rank(shapes, 3);
-    num_util::check_type(ref_list, PyArray_INT);
-    num_util::check_rank(ref_list, 1);
-    num_util::check_type(check_list, PyArray_INT);
-    num_util::check_rank(check_list, 1);
-    num_util::check_type(ref_verts, PyArray_INT);
-    num_util::check_rank(ref_verts, 1);
-    num_util::check_type(check_verts, PyArray_INT);
-    num_util::check_rank(check_verts, 1);
     num_util::check_type(match, PyArray_INT);
     num_util::check_rank(match, 1);
+    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_rank(points, 2);
+    num_util::check_type(angles, PyArray_FLOAT);
+    num_util::check_rank(angles, 1);
 
     // get the number of particles
     // validate that the 2nd dimension is only 3
@@ -654,61 +492,22 @@ void complement::computePy(boost::python::numeric::array match,
     unsigned int Np = num_util::shape(points)[0];
 
     //validate that the types and angles coming in are the correct size
-    num_util::check_dim(types, 0, Np);
     num_util::check_dim(angles, 0, Np);
 
-    // validate that the shapes array is 3d
-    num_util::check_dim(shapes, 2, 2);
-    // establish the number of types
-    unsigned int Nt = num_util::shape(shapes)[0];
-    // establish the max number of verts
-    unsigned int Nmaxverts = num_util::shape(shapes)[1];
-
-    // establish the number of reference and check particles
-    unsigned int Nref = num_util::shape(ref_list)[0];
-    unsigned int Ncheck = num_util::shape(check_list)[0];
-
-    // This isn't quite right
-    // num_util::check_dim(ref_verts, 0, Nref);
-    // num_util::check_dim(check_verts, 0, Ncheck);
-
-    unsigned int Nmaxrefverts = num_util::shape(ref_verts)[0];
-    // This is expressly for the same number of cavities
-    num_util::check_dim(check_verts, 0, Nmaxrefverts);
-    unsigned int Nmaxcheckverts = num_util::shape(check_verts)[0];
-
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
-    unsigned int* types_raw = (unsigned int*) num_util::data(types);
-    float* angles_raw = (float*) num_util::data(angles);
-    float2* shapes_raw = (float2*) num_util::data(shapes);
-    unsigned int* ref_list_raw = (unsigned int*) num_util::data(ref_list);
-    unsigned int* check_list_raw = (unsigned int*) num_util::data(check_list);
-    unsigned int* ref_verts_raw = (unsigned int*) num_util::data(ref_verts);
-    unsigned int* check_verts_raw = (unsigned int*) num_util::data(check_verts);
     unsigned int* match_raw = (unsigned int*) num_util::data(match);
+    float3* points_raw = (float3*) num_util::data(points);
+    float* angles_raw = (float*) num_util::data(angles);
 
     compute(match_raw,
             points_raw,
-            types_raw,
             angles_raw,
-            shapes_raw,
-            ref_list_raw,
-            check_list_raw,
-            ref_verts_raw,
-            check_verts_raw,
-            Np,
-            Nt,
-            Nmaxverts,
-            Nref,
-            Ncheck,
-            Nmaxrefverts,
-            Nmaxcheckverts);
+            Np);
     }
 
 void export_complement()
     {
-    class_<complement>("complement", init<trajectory::Box&, float>())
+    class_<complement>("complement", init<trajectory::Box&, float, float, float>())
         .def("getBox", &complement::getBox, return_internal_reference<>())
         .def("compute", &complement::computePy)
         .def("getNpair", &complement::getNpairPy)
