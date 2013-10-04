@@ -14,8 +14,9 @@ using namespace boost::python;
 
 namespace freud { namespace complement {
 
-complement::complement(const trajectory::Box& box, float rmax, float dot_target, float dot_tol)
-    : m_box(box), m_rmax(rmax), m_dot_target(dot_target), m_dot_tol(dot_tol)
+complement::complement(const trajectory::Box& box, float rmax,
+                        float shape_dot_target, float shape_dot_tol, float comp_dot_target, float comp_dot_tol)
+    : m_box(box), m_rmax(rmax), m_shape_dot_target(dot_target), m_shape_dot_tol(dot_tol), m_comp_dot_target(dot_target), m_comp_dot_tol(dot_tol)
     {
     if (rmax < 0.0f)
         throw invalid_argument("rmax must be positive");
@@ -339,7 +340,8 @@ float complement::cavity_depth(float2 t[])
 
 void complement::compute(unsigned int* match,
                 float3* points,
-                float* angles,
+                float* shape_angles,
+                float* comp_angles,
                 unsigned int Np)
     {
     m_nmatch = 0;
@@ -347,21 +349,24 @@ void complement::compute(unsigned int* match,
         {
         computeWithCellList(match,
                             points,
-                            angles,
+                            shape_angles,
+                            comp_angles,
                             Np);
         }
     else
         {
         computeWithoutCellList(match,
                             points,
-                            angles,
+                            shape_angles,
+                            comp_angles,
                             Np);
         }
     }
 
 void complement::computeWithoutCellList(unsigned int* match,
                 float3* points,
-                float* angles,
+                float* shape_angles,
+                float* comp_angles,
                 unsigned int Np)
     {
     m_nP = Np;
@@ -407,7 +412,8 @@ void complement::computeWithoutCellList(unsigned int* match,
 
 void complement::computeWithCellList(unsigned int* match,
                 float3* points,
-                float* angles,
+                float* shape_angles,
+                float* comp_angles,
                 unsigned int Np)
     {
     m_nP = Np;
@@ -421,8 +427,9 @@ void complement::computeWithCellList(unsigned int* match,
             {
             // grab point and type
             // might be eliminated later for efficiency
-            float3 point = points[i];
-            float p_angle = angles[i];
+            float3 r_i = points[i];
+            float angle_s_i = shape_angles[i];
+            float angle_c_i = comp_angles[i];
             // get the cell the point is in
             unsigned int ref_cell = m_lc->getCell(point);
             // loop over all neighboring cells
@@ -434,29 +441,40 @@ void complement::computeWithCellList(unsigned int* match,
                 locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                 for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                     {
-                    float3 check = points[j];
-                    float c_angle = angles[j];
+                    float3 r_j = points[j];
+                    float angle_s_j = shape_angles[j];
+                    float angle_c_j = comp_angles[j];
                     // will skip same particle
-                    // is this necessary?
                     if (i == j)
                         {
                         continue;
                         }
 
-                    // new code here
                     float2 r_ij;
-                    r_ij.x = point.x - check.x;
-                    r_ij.y = point.y - check.y;
-                    float2 theta_i;
-                    float2 theta_j;
-                    theta_i.x = cos(p_angle);
-                    theta_i.y = sin(p_angle);
-                    theta_j.x = cos(c_angle);
-                    theta_j.y = sin(c_angle);
+                    r_ij = r_j - r_i;
+                    float2 theta_s_i;
+                    float2 theta_s_j;
+                    float2 theta_c_i;
+                    float2 theta_c_j;
+                    theta_s_i.x = cos(angle_s_i);
+                    theta_s_i.y = sin(angle_s_i);
+                    theta_s_j.x = cos(angle_s_j);
+                    theta_s_j.y = sin(angle_s_j);
+                    theta_c_i.x = cos(angle_c_i);
+                    theta_c_i.y = sin(angle_c_i);
+                    theta_c_j.x = cos(angle_c_j);
+                    theta_c_j.y = sin(angle_c_j);
 
                     float d_ij = dot2(r_ij, r_ij);
-                    float theta_ij = dot2(theta_i, theta_j);
-                    if ((d_ij < rmaxsq) && (theta_ij > (m_dot_target - m_dot_tol)) && (theta_ij < (m_dot_target + m_dot_tol)))
+                    float theta_s_ij = dot2(theta_s_i, theta_s_j);
+                    float theta_c_ij = dot2(theta_c_i, theta_c_j);
+                    float v_ij = dot2(r_ij, theta_c_i);
+                    if ((d_ij < rmaxsq) &&
+                        (theta_s_ij > (m_shape_dot_target - m_shape_dot_tol)) &&
+                        (theta_s_ij < (m_shape_dot_target + m_shape_dot_tol)) &&
+                        (theta_c_ij > (m_comp_dot_target - m_comp_dot_tol)) &&
+                        (theta_c_ij < (m_comp_dot_target + m_comp_dot_tol))
+                       )
                         {
                         match[i] = 1;
                         match[j] = 1;
@@ -470,7 +488,8 @@ void complement::computeWithCellList(unsigned int* match,
 
 void complement::computePy(boost::python::numeric::array match,
                     boost::python::numeric::array points,
-                    boost::python::numeric::array angles)
+                    boost::python::numeric::array shape_angles,
+                    boost::python::numeric::array comp_angles)
     {
     // points contains all the particle positions; Np x 3
     // types contains all the types; Np (x 1)
@@ -486,8 +505,10 @@ void complement::computePy(boost::python::numeric::array match,
     num_util::check_rank(match, 1);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
-    num_util::check_type(angles, PyArray_FLOAT);
-    num_util::check_rank(angles, 1);
+    num_util::check_type(shape_angles, PyArray_FLOAT);
+    num_util::check_rank(shape_angles, 1);
+    num_util::check_type(comp_angles, PyArray_FLOAT);
+    num_util::check_rank(comp_angles, 1);
 
     // get the number of particles
     // validate that the 2nd dimension is only 3
@@ -495,16 +516,19 @@ void complement::computePy(boost::python::numeric::array match,
     unsigned int Np = num_util::shape(points)[0];
 
     //validate that the types and angles coming in are the correct size
-    num_util::check_dim(angles, 0, Np);
+    num_util::check_dim(shape_angles, 0, Np);
+    num_util::check_dim(comp_angles, 0, Np);
 
     // get the raw data pointers and compute the cell list
     unsigned int* match_raw = (unsigned int*) num_util::data(match);
     float3* points_raw = (float3*) num_util::data(points);
-    float* angles_raw = (float*) num_util::data(angles);
+    float* shape_angles_raw = (float*) num_util::data(shape_angles);
+    float* comp_angles_raw = (float*) num_util::data(comp_angles);
 
     compute(match_raw,
             points_raw,
-            angles_raw,
+            shape_angles_raw,
+            comp_angles_raw,
             Np);
     }
 

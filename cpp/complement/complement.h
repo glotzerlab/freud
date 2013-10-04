@@ -99,9 +99,10 @@ class complement
         float cavity_depth(float2 t[]);
 
     //! Compute the complement function
-    void compute(unsigned int* match_raw,
-                float3* points_raw,
-                float* angles_raw,
+    void compute(unsigned int* match,
+                float3* points,
+                float* shape_angles,
+                float* comp_angles,
                 unsigned int Np);
 
         //! Compute the RDF
@@ -129,8 +130,10 @@ class complement
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
-        float m_dot_target;                     //!< Maximum r at which to compute g(r)
-        float m_dot_tol;                     //!< Maximum r at which to compute g(r)
+        float m_shape_dot_target;                     //!< Maximum r at which to compute g(r)
+        float m_shape_dot_tol;                     //!< Maximum r at which to compute g(r)
+        float m_comp_dot_target;                     //!< Maximum r at which to compute g(r)
+        float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;       //!< LinkCell to bin particles for the computation
         unsigned int m_nmatch;             //!< Number of matches
