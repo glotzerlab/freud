@@ -16,7 +16,8 @@ namespace freud { namespace complement {
 
 complement::complement(const trajectory::Box& box, float rmax,
                         float shape_dot_target, float shape_dot_tol, float comp_dot_target, float comp_dot_tol)
-    : m_box(box), m_rmax(rmax), m_shape_dot_target(dot_target), m_shape_dot_tol(dot_tol), m_comp_dot_target(dot_target), m_comp_dot_tol(dot_tol)
+    : m_box(box), m_rmax(rmax), m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol),
+    m_comp_dot_target(comp_dot_target), m_comp_dot_tol(comp_dot_tol)
     {
     if (rmax < 0.0f)
         throw invalid_argument("rmax must be positive");
@@ -45,161 +46,140 @@ bool complement::useCells()
     return false;
     }
 
-bool complement::_sameSidePy(boost::python::numeric::array A,
-                            boost::python::numeric::array B,
-                            boost::python::numeric::array r,
-                            boost::python::numeric::array p)
-    {
-    num_util::check_type(A, PyArray_FLOAT);
-    num_util::check_rank(A, 1);
-    num_util::check_dim(A, 0, 3);
-    num_util::check_type(B, PyArray_FLOAT);
-    num_util::check_rank(B, 1);
-    num_util::check_dim(B, 0, 3);
-    num_util::check_type(r, PyArray_FLOAT);
-    num_util::check_rank(r, 1);
-    num_util::check_dim(r, 0, 3);
-    num_util::check_type(p, PyArray_FLOAT);
-    num_util::check_rank(p, 1);
-    num_util::check_dim(p, 0, 3);
-
-    float3* A_raw = (float3*) num_util::data(A);
-    float3* B_raw = (float3*) num_util::data(B);
-    float3* r_raw = (float3*) num_util::data(r);
-    float3* p_raw = (float3*) num_util::data(p);
-
-    return sameSide(*A_raw, *B_raw, *r_raw, *p_raw);
-    }
-
 // Need to cite this
-bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
-    {
-    float3 BA;
-    float3 rA;
-    float3 pA;
+// bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
+//     {
+//     float3 BA;
+//     float3 rA;
+//     float3 pA;
 
-    BA.x = B.x - A.x;
-    BA.y = B.y - A.y;
-    BA.z = B.z - A.z;
+//     BA.x = B.x - A.x;
+//     BA.y = B.y - A.y;
+//     BA.z = B.z - A.z;
 
-    rA.x = r.x - A.x;
-    rA.y = r.y - A.y;
-    rA.z = r.z - A.z;
+//     rA.x = r.x - A.x;
+//     rA.y = r.y - A.y;
+//     rA.z = r.z - A.z;
 
-    pA.x = p.x - A.x;
-    pA.y = p.y - A.y;
-    pA.z = p.z - A.z;
+//     pA.x = p.x - A.x;
+//     pA.y = p.y - A.y;
+//     pA.z = p.z - A.z;
 
-    float3 ref = cross(BA, rA);
-    float3 test = cross(BA, pA);
-    if (dot3(ref, test) >= 0)
-        {
-        return true;
-        }
-    else
-        {
-        return false;
-        }
-    }
+//     float3 ref = cross(BA, rA);
+//     float3 test = cross(BA, pA);
+//     if (dot3(ref, test) >= 0)
+//         {
+//         return true;
+//         }
+//     else
+//         {
+//         return false;
+//         }
+//     }
 
-bool complement::_isInsidePy(boost::python::numeric::array t,
-                            boost::python::numeric::array p)
-    {
-    num_util::check_type(t, PyArray_FLOAT);
-    num_util::check_rank(t, 2);
-    num_util::check_dim(t, 0, 3);
-    num_util::check_dim(t, 1, 2);
-    num_util::check_type(p, PyArray_FLOAT);
-    num_util::check_rank(p, 1);
-    num_util::check_dim(p, 0, 2);
+// bool complement::isInside(float2 t[], float2 p)
+//     {
+//     float3 nt [3];
+//     float3 np;
 
-    float3* t_raw = (float3*) num_util::data(t);
+//     for (unsigned int i = 0; i < 3; i++)
+//         {
+//         nt[i].x = t[i].x;
+//         nt[i].y = t[i].y;
+//         nt[i].z = 0;
+//         }
 
-    float3* p_raw = (float3*) num_util::data(p);
+//     np.x = p.x;
+//     np.y = p.y;
+//     np.z = 0;
 
-    return isInside(t_raw, *p_raw);
-    }
+//     return isInside(nt, np);
 
-bool complement::isInside(float2 t[], float2 p)
-    {
-    float3 nt [3];
-    float3 np;
+//     }
 
-    for (unsigned int i = 0; i < 3; i++)
-        {
-        nt[i].x = t[i].x;
-        nt[i].y = t[i].y;
-        nt[i].z = 0;
-        }
+// bool complement::isInside(float3 t[], float3 p)
+//     {
+//     float3 A;
+//     float3 B;
+//     float3 C;
+//     float3 P;
 
-    np.x = p.x;
-    np.y = p.y;
-    np.z = 0;
+//     // Even though float threes are taken in, the z component is assumed zero
+//     // i.e. all in the same plane
 
-    return isInside(nt, np);
+//     A.x = t[0].x;
+//     A.y = t[0].y;
+//     A.z = 0;
 
-    }
+//     B.x = t[1].x;
+//     B.y = t[1].y;
+//     B.z = 0;
 
-bool complement::isInside(float3 t[], float3 p)
-    {
-    float3 A;
-    float3 B;
-    float3 C;
-    float3 P;
+//     C.x = t[2].x;
+//     C.y = t[2].y;
+//     C.z = 0;
 
-    // Even though float threes are taken in, the z component is assumed zero
-    // i.e. all in the same plane
+//     P.x = p.x;
+//     P.y = p.y;
+//     P.z = 0;
 
-    A.x = t[0].x;
-    A.y = t[0].y;
-    A.z = 0;
+//     bool BC = sameSide(B, C, A, P);
+//     bool AC = sameSide(A, C, B, P);
+//     bool AB = sameSide(A, B, C, P);
 
-    B.x = t[1].x;
-    B.y = t[1].y;
-    B.z = 0;
+//     if (AB && BC && AC)
+//         {
+//         return true;
+//         }
+//     else
+//         {
+//         return false;
+//         }
 
-    C.x = t[2].x;
-    C.y = t[2].y;
-    C.z = 0;
+//     }
 
-    P.x = p.x;
-    P.y = p.y;
-    P.z = 0;
+// float2 complement::mat_rotate(float2 point, float angle)
+//     {
+//     float2 rot;
+//     float mysin = sinf(angle);
+//     float mycos = cosf(angle);
+//     rot.x = mycos * point.x - mysin * point.y;
+//     rot.y = mysin * point.x + mycos * point.y;
+//     return rot;
+//     }
 
-    bool BC = sameSide(B, C, A, P);
-    bool AC = sameSide(A, C, B, P);
-    bool AB = sameSide(A, B, C, P);
+// float2 complement::into_local(float2 ref_point,
+//                             float2 point,
+//                             float2 vert,
+//                             float ref_angle,
+//                             float angle)
+//     {
+//     float2 local;
+//     local = mat_rotate(mat_rotate(vert, -ref_angle), angle);
+//     float2 vec;
+//     vec.x = point.x - ref_point.x;
+//     vec.y = point.y - ref_point.y;
+//     vec = mat_rotate(vec, -ref_angle);
+//     local.x = local.x + vec.x;
+//     local.y = local.y + vec.y;
+//     return local;
+//     }
 
-    if (AB && BC && AC)
-        {
-        return true;
-        }
-    else
-        {
-        return false;
-        }
+// float complement::cavity_depth(float2 t[])
+//     {
+//     float2 v_mouth;
+//     float2 v_side;
 
-    }
+//     v_mouth.x = t[0].x - t[2].x;
+//     v_mouth.y = t[0].y - t[2].y;
+//     float m_mouth = sqrt(dot2(v_mouth, v_mouth));
+//     v_side.x = t[1].x - t[2].x;
+//     v_side.y = t[1].y - t[2].y;
 
-void complement::_crossPy(boost::python::numeric::array v,
-                        boost::python::numeric::array v1,
-                        boost::python::numeric::array v2)
-    {
-    num_util::check_type(v, PyArray_FLOAT);
-    num_util::check_rank(v, 1);
-    num_util::check_dim(v, 0, 3);
-    num_util::check_type(v1, PyArray_FLOAT);
-    num_util::check_rank(v1, 1);
-    num_util::check_dim(v1, 0, 3);
-    num_util::check_type(v2, PyArray_FLOAT);
-    num_util::check_rank(v2, 1);
-    num_util::check_dim(v2, 0, 3);
-
-    float3* v_raw = (float3*) num_util::data(v);
-    float3* v1_raw = (float3*) num_util::data(v1);
-    float3* v2_raw = (float3*) num_util::data(v2);
-    *v_raw = cross(*v1_raw, *v2_raw);
-    }
+//     float3 a_vec = cross(v_mouth, v_side);
+//     float area = sqrt(dot3(a_vec, a_vec));
+//     return area/m_mouth;
+//     }
 
 float3 complement::cross(float2 v1, float2 v2)
     {
@@ -223,21 +203,6 @@ float3 complement::cross(float3 v1, float3 v2)
     return v;
     }
 
-float complement::_dotPy(boost::python::numeric::array v1,
-                        boost::python::numeric::array v2)
-    {
-    num_util::check_type(v1, PyArray_FLOAT);
-    num_util::check_rank(v1, 1);
-    num_util::check_dim(v1, 0, 3);
-    num_util::check_type(v2, PyArray_FLOAT);
-    num_util::check_rank(v2, 1);
-    num_util::check_dim(v2, 0, 3);
-
-    float3* v1_raw = (float3*) num_util::data(v1);
-    float3* v2_raw = (float3*) num_util::data(v2);
-    return dot3(*v1_raw, *v2_raw);
-    }
-
 float complement::dot2(float2 v1, float2 v2)
     {
     return (v1.x * v2.x) + (v1.y * v2.y);
@@ -248,94 +213,66 @@ float complement::dot3(float3 v1, float3 v2)
     return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
     }
 
-void complement::_mat_rotPy(boost::python::numeric::array p_rot,
-                        boost::python::numeric::array p,
-                        float angle)
+bool complement::comp_check(float3 r_i,
+                            float3 r_j,
+                            float angle_s_i,
+                            float angle_s_j,
+                            float angle_c_i,
+                            float angle_c_j)
     {
-    num_util::check_type(p_rot, PyArray_FLOAT);
-    num_util::check_rank(p_rot, 1);
-    num_util::check_dim(p_rot, 0, 2);
-
-    num_util::check_type(p, PyArray_FLOAT);
-    num_util::check_rank(p, 1);
-    num_util::check_dim(p, 0, 2);
-
-    float2* p_rot_raw = (float2*) num_util::data(p_rot);
-    float2* p_raw = (float2*) num_util::data(p);
-    *p_rot_raw = mat_rotate(*p_raw, angle);
-    }
-
-float2 complement::mat_rotate(float2 point, float angle)
-    {
-    float2 rot;
-    float mysin = sinf(angle);
-    float mycos = cosf(angle);
-    rot.x = mycos * point.x - mysin * point.y;
-    rot.y = mysin * point.x + mycos * point.y;
-    return rot;
-    }
-
-void complement::_into_localPy(boost::python::numeric::array local,
-                        boost::python::numeric::array p_ref,
-                        boost::python::numeric::array p,
-                        boost::python::numeric::array vert,
-                        float a_ref,
-                        float a)
-    {
-    num_util::check_type(local, PyArray_FLOAT);
-    num_util::check_rank(local, 1);
-    num_util::check_dim(local, 0, 2);
-
-    num_util::check_type(p_ref, PyArray_FLOAT);
-    num_util::check_rank(p_ref, 1);
-    num_util::check_dim(p_ref, 0, 2);
-
-    num_util::check_type(p, PyArray_FLOAT);
-    num_util::check_rank(p, 1);
-    num_util::check_dim(p, 0, 2);
-
-    num_util::check_type(vert, PyArray_FLOAT);
-    num_util::check_rank(vert, 1);
-    num_util::check_dim(vert, 0, 2);
-
-    float2* local_raw = (float2*) num_util::data(local);
-    float2* p_ref_raw = (float2*) num_util::data(p_ref);
-    float2* p_raw = (float2*) num_util::data(p);
-    float2* vert_raw = (float2*) num_util::data(vert);
-    *local_raw = into_local(*p_ref_raw, *p_raw, *vert_raw, a_ref, a);
-    }
-
-float2 complement::into_local(float2 ref_point,
-                            float2 point,
-                            float2 vert,
-                            float ref_angle,
-                            float angle)
-    {
-    float2 local;
-    local = mat_rotate(mat_rotate(vert, -ref_angle), angle);
-    float2 vec;
-    vec.x = point.x - ref_point.x;
-    vec.y = point.y - ref_point.y;
-    vec = mat_rotate(vec, -ref_angle);
-    local.x = local.x + vec.x;
-    local.y = local.y + vec.y;
-    return local;
-    }
-
-float complement::cavity_depth(float2 t[])
-    {
-    float2 v_mouth;
-    float2 v_side;
-
-    v_mouth.x = t[0].x - t[2].x;
-    v_mouth.y = t[0].y - t[2].y;
-    float m_mouth = sqrt(dot2(v_mouth, v_mouth));
-    v_side.x = t[1].x - t[2].x;
-    v_side.y = t[1].y - t[2].y;
-
-    float3 a_vec = cross(v_mouth, v_side);
-    float area = sqrt(dot3(a_vec, a_vec));
-    return area/m_mouth;
+    float rmaxsq = m_rmax * m_rmax;
+    // calculate the vector from shape i to shape j
+    float2 r_ij;
+    float2 r_ij_u;
+    float2 r_ji_u;
+    r_ij.x = r_j.x - r_i.x;
+    r_ij.y = r_j.y - r_i.y;
+    float r_ij_mag = sqrt(dot2(r_ij, r_ij));
+    r_ij_u.x = r_ij.x / r_ij_mag;
+    r_ij_u.y = r_ij.y / r_ij_mag;
+    r_ji_u.x = -r_ij_u.x;
+    r_ji_u.y = -r_ij_u.y;
+    // calculate the orientation vectors for shapes i and j
+    float2 theta_s_i;
+    theta_s_i.x = cos(angle_s_i);
+    theta_s_i.y = sin(angle_s_i);
+    float2 theta_s_j;
+    theta_s_j.x = cos(angle_s_j);
+    theta_s_j.y = sin(angle_s_j);
+    float2 theta_c_i;
+    theta_c_i.x = cos(angle_c_i);
+    theta_c_i.y = sin(angle_c_i);
+    float2 theta_c_j;
+    theta_c_j.x = cos(angle_c_j);
+    theta_c_j.y = sin(angle_c_j);
+    // find the square of the distance between the particles
+    float d_ij = dot2(r_ij, r_ij);
+    // find the dot products of the orientation vectors
+    float theta_s_ij = dot2(theta_s_i, theta_s_j);
+    float theta_c_ij = dot2(theta_c_i, theta_c_j);
+    // find the dot product of the interparticle vector and shape i's comp orientation
+    float v_ij = dot2(r_ij_u, theta_c_i);
+    float v_ji = dot2(r_ji_u, theta_c_j);
+    // determine if paired
+    if (d_ij > rmaxsq)
+        return false;
+    if ((theta_s_ij < (m_shape_dot_target - m_shape_dot_tol)) || (theta_s_ij > (m_shape_dot_target + m_shape_dot_tol)))
+        return false;
+    // if ((theta_c_ij < (m_comp_dot_target - m_comp_dot_tol)) || (theta_c_ij > (m_comp_dot_target + m_comp_dot_tol)))
+    //     return false;
+    // printf("d_ij = %f theta_s_ij = %f theta_c_ij = %f v_ij = %f v_ji = %f\n", sqrt(d_ij), theta_s_ij, theta_c_ij, v_ij, v_ji);
+    if ((v_ij < (m_comp_dot_target - m_comp_dot_tol)) || (v_ij > (m_comp_dot_target + m_comp_dot_tol)))
+        return false;
+    if ((v_ji < (m_comp_dot_target - m_comp_dot_tol)) || (v_ji > (m_comp_dot_target + m_comp_dot_tol)))
+        return false;
+    // if (v_ij < 0.0)
+    //     return false;
+    // std::cout << "haven't encountered a problem" << std::endl;
+    // std::cout << "d_ij = " << d_ij << std::endl;
+    // std::cout << "theta_s_ij = " << theta_s_ij << std::endl;
+    // std::cout << "theta_c_ij = " << theta_c_ij << std::endl;
+    // std::cout << "v_ij = " << v_ij << std::endl;
+    return true;
     }
 
 void complement::compute(unsigned int* match,
@@ -370,7 +307,6 @@ void complement::computeWithoutCellList(unsigned int* match,
                 unsigned int Np)
     {
     m_nP = Np;
-    float rmaxsq = m_rmax * m_rmax;
     #pragma omp parallel
         {
         #pragma omp for schedule(guided)
@@ -379,27 +315,26 @@ void complement::computeWithoutCellList(unsigned int* match,
             {
             // grab point and type
             // might be eliminated later for efficiency
-            float3 point = points[i];
-            float p_angle = angles[i];
+            float3 r_i = points[i];
+            float angle_s_i = shape_angles[i];
+            float angle_c_i = comp_angles[i];
             for (unsigned int j = 0; j < m_nP; j++)
                 {
-                float3 check = points[j];
-                float c_angle = angles[j];
+                float3 r_j = points[j];
+                float angle_s_j = shape_angles[j];
+                float angle_c_j = comp_angles[j];
+                // will skip same particle
+                if (i == j)
+                    {
+                    continue;
+                    }
 
-                float2 r_ij;
-                r_ij.x = point.x - check.x;
-                r_ij.y = point.y - check.y;
-                float2 theta_i;
-                float2 theta_j;
-                theta_i.x = cosf(p_angle);
-                theta_i.y = sinf(p_angle);
-                theta_j.x = cosf(c_angle);
-                theta_j.y = sinf(c_angle);
-
-                float d_ij = dot2(r_ij, r_ij);
-                float theta_ij = dot2(theta_i, theta_j);
-
-                if ((d_ij < rmaxsq) && (theta_ij > (m_dot_target - m_dot_tol)) && (theta_ij < (m_dot_target + m_dot_tol)))
+                if (comp_check(r_i,
+                            r_j,
+                            angle_s_i,
+                            angle_s_j,
+                            angle_c_i,
+                            angle_c_j))
                     {
                     match[i] = 1;
                     match[j] = 1;
@@ -418,7 +353,6 @@ void complement::computeWithCellList(unsigned int* match,
     {
     m_nP = Np;
     m_lc->computeCellList(points, m_nP);
-    float rmaxsq = m_rmax * m_rmax;
     #pragma omp parallel
         {
         #pragma omp for schedule(guided)
@@ -431,7 +365,7 @@ void complement::computeWithCellList(unsigned int* match,
             float angle_s_i = shape_angles[i];
             float angle_c_i = comp_angles[i];
             // get the cell the point is in
-            unsigned int ref_cell = m_lc->getCell(point);
+            unsigned int ref_cell = m_lc->getCell(r_i);
             // loop over all neighboring cells
             const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
             for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
@@ -450,31 +384,12 @@ void complement::computeWithCellList(unsigned int* match,
                         continue;
                         }
 
-                    float2 r_ij;
-                    r_ij = r_j - r_i;
-                    float2 theta_s_i;
-                    float2 theta_s_j;
-                    float2 theta_c_i;
-                    float2 theta_c_j;
-                    theta_s_i.x = cos(angle_s_i);
-                    theta_s_i.y = sin(angle_s_i);
-                    theta_s_j.x = cos(angle_s_j);
-                    theta_s_j.y = sin(angle_s_j);
-                    theta_c_i.x = cos(angle_c_i);
-                    theta_c_i.y = sin(angle_c_i);
-                    theta_c_j.x = cos(angle_c_j);
-                    theta_c_j.y = sin(angle_c_j);
-
-                    float d_ij = dot2(r_ij, r_ij);
-                    float theta_s_ij = dot2(theta_s_i, theta_s_j);
-                    float theta_c_ij = dot2(theta_c_i, theta_c_j);
-                    float v_ij = dot2(r_ij, theta_c_i);
-                    if ((d_ij < rmaxsq) &&
-                        (theta_s_ij > (m_shape_dot_target - m_shape_dot_tol)) &&
-                        (theta_s_ij < (m_shape_dot_target + m_shape_dot_tol)) &&
-                        (theta_c_ij > (m_comp_dot_target - m_comp_dot_tol)) &&
-                        (theta_c_ij < (m_comp_dot_target + m_comp_dot_tol))
-                       )
+                    if (comp_check(r_i,
+                            r_j,
+                            angle_s_i,
+                            angle_s_j,
+                            angle_c_i,
+                            angle_c_j))
                         {
                         match[i] = 1;
                         match[j] = 1;
@@ -534,16 +449,10 @@ void complement::computePy(boost::python::numeric::array match,
 
 void export_complement()
     {
-    class_<complement>("complement", init<trajectory::Box&, float, float, float>())
+    class_<complement>("complement", init<trajectory::Box&, float, float, float, float, float>())
         .def("getBox", &complement::getBox, return_internal_reference<>())
         .def("compute", &complement::computePy)
         .def("getNpair", &complement::getNpairPy)
-        .def("_sameSide", &complement::_sameSidePy)
-        .def("_isInside", &complement::_isInsidePy)
-        .def("_cross", &complement::_crossPy)
-        .def("_dot3", &complement::_dotPy)
-        .def("_mat_rot", &complement::_mat_rotPy)
-        .def("_into_local", &complement::_into_localPy)
         ;
     }
 

@@ -25,7 +25,8 @@ class complement
     {
     public:
         //! Constructor
-        complement(const trajectory::Box& box, float rmax, float dot_target, float dot_tol);
+        complement(const trajectory::Box& box, float rmax,
+                    float shape_dot_target, float shape_dot_tol, float comp_dot_target, float comp_dot_tol);
 
         //! Destructor
         ~complement();
@@ -42,24 +43,12 @@ class complement
         // Some of these should be made private...
 
         //! Check if a point is on the same side of a line as a reference point
-        bool _sameSidePy(boost::python::numeric::array A,
-                            boost::python::numeric::array B,
-                            boost::python::numeric::array r,
-                            boost::python::numeric::array p);
-
-        bool sameSide(float3 A, float3 B, float3 r, float3 p);
+        // bool sameSide(float3 A, float3 B, float3 r, float3 p);
 
         //! Check if point p is inside triangle t
-        bool _isInsidePy(boost::python::numeric::array t,
-                            boost::python::numeric::array p);
+        // bool isInside(float2 t[], float2 p);
 
-        bool isInside(float2 t[], float2 p);
-
-        bool isInside(float3 t[], float3 p);
-
-        void _crossPy(boost::python::numeric::array v,
-                        boost::python::numeric::array v1,
-                        boost::python::numeric::array v2);
+        // bool isInside(float3 t[], float3 p);
 
         //! Take the cross product of two float3 vectors
 
@@ -67,60 +56,56 @@ class complement
 
         float3 cross(float3 v1, float3 v2);
 
-        float _dotPy(boost::python::numeric::array v1,
-                        boost::python::numeric::array v2);
-
         //! Take the dot product of two float3 vectors
         float dot2(float2 v1, float2 v2);
 
         float dot3(float3 v1, float3 v2);
 
-        void _mat_rotPy(boost::python::numeric::array p_rot,
-                        boost::python::numeric::array p,
-                        float angle);
-
         //! Rotate a float2 point by angle angle
-        float2 mat_rotate(float2 point, float angle);
-
-        void _into_localPy(boost::python::numeric::array local,
-                        boost::python::numeric::array p_ref,
-                        boost::python::numeric::array p,
-                        boost::python::numeric::array vert,
-                        float a_ref,
-                        float a);
+        // float2 mat_rotate(float2 point, float angle);
 
         // Take a vertex about point point and move into the local coords of the ref point
-        float2 into_local(float2 ref_point,
-                            float2 point,
-                            float2 vert,
-                            float ref_angle,
-                            float angle);
+        // float2 into_local(float2 ref_point,
+        //                     float2 point,
+        //                     float2 vert,
+        //                     float ref_angle,
+        //                     float angle);
 
-        float cavity_depth(float2 t[]);
+        // float cavity_depth(float2 t[]);
 
-    //! Compute the complement function
-    void compute(unsigned int* match,
-                float3* points,
-                float* shape_angles,
-                float* comp_angles,
-                unsigned int Np);
+        bool comp_check(float3 r_i,
+                        float3 r_j,
+                        float angle_s_i,
+                        float angle_s_j,
+                        float angle_c_i,
+                        float angle_c_j);
+
+        //! Compute the complement function
+        void compute(unsigned int* match,
+                    float3* points,
+                    float* shape_angles,
+                    float* comp_angles,
+                    unsigned int Np);
+
+            //! Compute the RDF
+        void computeWithoutCellList(unsigned int* match,
+                    float3* points,
+                    float* shape_angles,
+                    float* comp_angles,
+                    unsigned int Np);
 
         //! Compute the RDF
-    void computeWithoutCellList(unsigned int* match,
-                float3* points,
-                float* angles,
-                unsigned int Np);
+        void computeWithCellList(unsigned int* match,
+                    float3* points,
+                    float* shape_angles,
+                    float* comp_angles,
+                    unsigned int Np);
 
-    //! Compute the RDF
-    void computeWithCellList(unsigned int* match,
-                float3* points,
-                float* angles,
-                unsigned int Np);
-
-    //! Python wrapper for compute
-    void computePy(boost::python::numeric::array match,
-                    boost::python::numeric::array points,
-                    boost::python::numeric::array angles);
+        //! Python wrapper for compute
+        void computePy(boost::python::numeric::array match,
+                        boost::python::numeric::array points,
+                        boost::python::numeric::array shape_angles,
+                        boost::python::numeric::array comp_angles);
 
         unsigned int getNpairPy()
             {
