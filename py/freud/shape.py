@@ -391,6 +391,41 @@ class Polyhedron:
         x2 = numpy.dot(cp12, cp23)
         return numpy.arctan2(x1, x2)
 
+    ## Get the mean curvature
+    # Mean curvature R for a polyhedron is determined from the edge lengths L_i and dihedral angles \phi_i and is given by
+    # $\sum_i (1/2) L_i (\pi \phi_i) / (4 \pi)$
+    # \returns R
+    def getMeanCurvature(self):
+        R = 0.0
+        # check each pair of faces i,j such that i < j
+        nfacets = self.nfacets
+        for i in range(nfacets-1):
+            for j in range(i+1,nfacets):
+                # get the length of the shared edge, if there is one
+                k = self.getSharedEdge(i,j)
+                if k is not None:
+                    nextk = k+1
+                    if nextk == self.nverts[i]:
+                        nextk = 0
+                    v0 = self.points[k]
+                    v1 = self.points[nextk]
+                    r = v1 - v0
+                    Li = numpy.sqrt(numpy.dot(r,r))
+                    # get the dihedral angle
+                    phi = self.getDihedral(i,j)
+                    R += Li*(numpy.pi - phi)
+        R /= 8*numpy.pi
+        return R
+
+    ## Get asphericity
+    # Asphericity alpha is defined as RS/3V where R is the mean curvature, S is surface area, V is volume
+    # \returns alpha
+    def getAsphericity(self):
+        R = self.getMeanCurvature()
+        S = self.getArea()
+        V = self.getVolume()
+        return R*S/(3*V)
+
 ## Store and compute data associated with a convex polyhedron, calculated as the convex hull of a set of input points.
 # ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
 # \note freud.shape.ConvexPolyhedron requires scipy.spatil.ConvexHull (as of scipy 0.12.0).
