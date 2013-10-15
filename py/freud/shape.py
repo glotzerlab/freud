@@ -339,7 +339,8 @@ class Polyhedron:
     # The index of neighbor b also corresponds to the index of the first of two right-hand-ordered vertices of the shared edge
     # \returns the index of b in the neighbor list of a or None if they are not neighbors
     def getSharedEdge(self, a, b):
-        neighbors = list(self.neighbors[a])
+        # Note that facet only has as many neighbors as it does vertices
+        neighbors = list(self.neighbors[a, 0:self.nverts[a]])
         try:
             k = neighbors.index(b)
         except ValueError:
