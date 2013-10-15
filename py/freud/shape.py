@@ -335,6 +335,17 @@ class Polyhedron:
                 return False
         return True
 
+    ## Identify the index of facet b as a neighbor of facet a
+    # The index of neighbor b also corresponds to the index of the first of two right-hand-ordered vertices of the shared edge
+    # \returns the index of b in the neighbor list of a or None if they are not neighbors
+    def getSharedEdge(self, a, b):
+        neighbors = list(self.neighbors[a])
+        try:
+            k = neighbors.index(b)
+        except ValueError:
+            k = None
+        return k
+
     ## Get the signed dihedral angle between two facets. Theta == 0 implies faces a and b form a convex blade.
     # Theta == pi implies faces a and b are parallel. Theta == 2 pi implies faces a and b form a concave blade.
     # \param a index of first facet
@@ -342,10 +353,8 @@ class Polyhedron:
     # \returns theta angle on [0, 2 pi)
     def getDihedral(self, a, b):
         # Find which neighbor b is
-        neighbors = list(self.neighbors[a])
-        try:
-            k = neighbors.index(b)
-        except ValueError:
+        k = self.getSharedEdge(a,b)
+        if k is None:
             raise ValueError("b must be a neighbor of a")
 
         # Find path e1 -> e2 -> e3, where e2 is an edge shared by both faces, e1 lies in a and e3 lies in b.
