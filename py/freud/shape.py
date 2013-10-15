@@ -394,7 +394,7 @@ class Polyhedron:
 
     ## Get the mean curvature
     # Mean curvature R for a polyhedron is determined from the edge lengths L_i and dihedral angles \phi_i and is given by
-    # $\sum_i (1/2) L_i (\pi \phi_i) / (4 \pi)$
+    # $\sum_i (1/2) L_i (\pi - \phi_i) / (4 \pi)$
     # \returns R
     def getMeanCurvature(self):
         R = 0.0
@@ -403,13 +403,16 @@ class Polyhedron:
         for i in range(nfacets-1):
             for j in range(i+1,nfacets):
                 # get the length of the shared edge, if there is one
-                k = self.getSharedEdge(i,j)
+                k = self.getSharedEdge(i,j) # index of first vertex
                 if k is not None:
-                    nextk = k+1
+                    nextk = k+1 # index of second vertex
                     if nextk == self.nverts[i]:
                         nextk = 0
-                    v0 = self.points[k]
-                    v1 = self.points[nextk]
+                    # get point indices corresponding to vertex indices
+                    p0 = self.facets[i, k]
+                    p1 = self.facets[i, nextk]
+                    v0 = self.points[p0]
+                    v1 = self.points[p1]
                     r = v1 - v0
                     Li = numpy.sqrt(numpy.dot(r,r))
                     # get the dihedral angle
