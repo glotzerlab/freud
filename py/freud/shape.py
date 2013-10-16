@@ -1251,6 +1251,17 @@ if __name__ == '__main__':
             print('ConvexSpheropolyhedron.isInside does not return False when it should')
             passed = False
 
+    # Check Polyhedron curvature and asphericity determination
+    t_points = numpy.array([[0.5, -0.5, -0.5], [0.5, 0.5, 0.5], [-0.5, 0.5, -0.5], [-0.5, -0.5, 0.5]])
+    mypoly = ConvexPolyhedron(t_points)
+    alpha = mypoly.getAsphericity()
+    target = 2.23457193395116
+    if abs(alpha - target) < tolerance:
+        print("Polyhedron.getAsphericity seems to work")
+    else:
+        print("Polyhedron.getAsphericity for tetrahedron found {0}. Should be {1}.".format(alpha, target))
+        passed = False
+
     # Overall test status
     if passed:
         print("All tests passed.")
