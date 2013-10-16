@@ -616,6 +616,12 @@ class ConvexSpheropolyhedron(ConvexPolyhedron):
                 return False
         return True
 
+    def getMeanCurvature(self):
+        raise RuntimeError("Not implemented")
+
+    def getAsphericity(self):
+        raise RuntimeError("Not implemented")
+
 ## Compute basic properties of a polygon, stored as a list of adjacent vertices
 #
 # ### Attributes:
