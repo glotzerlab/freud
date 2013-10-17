@@ -40,12 +40,19 @@ shape = ConvexPolyhedron(numpy.array(points))
 
 pstrings = list()
 instring = sys.stdin.read()
-lines = instring.replace('"','').splitlines()
+# Strip out quotes
+instring = instring.replace('"', '')
+# merge wrapped lines
+instring = instring.replace('\\\n', '')
+# split input into list of lines
+lines = instring.splitlines()
 for line in lines:
     # Turn Mathematica syntax into Python syntax
-    line = line.replace('Sqrt','sqrt').replace('[','(').replace(']',')')
+    line = line.replace('Sqrt','sqrt')
+    line = line.replace('[','(').replace(']',')')
+    line = line.replace('^','**')
     # get string values of x,y,z
-    x,y,z = line.split()
+    x,y,z = line.split(', ')
     pstring = "          ({x}, {y}, {z}),\n".format(x=x,y=y,z=z)
     pstrings.append(pstring)
 
