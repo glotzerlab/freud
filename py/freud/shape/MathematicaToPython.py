@@ -3,15 +3,15 @@
 # argument: name of shape
 #
 # Mathematice data is obtained with calls like
-# ExportString[PolyhedronData["Cube", "VertexCoordinates"], "Table", "FieldSeparators" -> " "]
+# ExportString[PolyhedronData["Cube", "VertexCoordinates"], "Table", "FieldSeparators" -> ", "]
 # or
-# ExportString[PolyhedronData[{"Prism", 6}, "VertexCoordinates"], "Table", "FieldSeparators" -> " "]
+# ExportString[PolyhedronData[{"Prism", 6}, "VertexCoordinates"], "Table", "FieldSeparators" -> ", "]
 # and the results cut and pasted to terminal input to this script.
 # Input is terminated with a newline and end-of-file character, i.e. CTRL-D
 #
 # Numeric interpretation of Mathematica data may be necessary where translation to Python isn't as easy.
 # E.g.
-# ExportString[N[PolyhedronData["ObtuseGoldenRhombohedron", "VertexCoordinates"]], "Table", "FieldSeparators" -> " "]
+# ExportString[N[PolyhedronData["ObtuseGoldenRhombohedron", "VertexCoordinates"]], "Table", "FieldSeparators" -> ", "]
 #
 
 # open the output file for writing
