@@ -430,6 +430,15 @@ class Polyhedron:
         V = self.getVolume()
         return R*S/(3*V)
 
+    ## Get isoperimetric quotient
+    # Isoperimetric quotient is a unitless measure of sphericity defined as Q = 36 \pi \frac{V^2}{S^3}
+    # \returns isoperimetric quotient
+    def getQ(self):
+        V = self.getVolume()
+        S = self.getArea()
+        Q = numpy.pi * 36 * V*V / (S*S*S)
+        return Q
+
 ## Store and compute data associated with a convex polyhedron, calculated as the convex hull of a set of input points.
 # ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
 # \note freud.shape.ConvexPolyhedron requires scipy.spatil.ConvexHull (as of scipy 0.12.0).
