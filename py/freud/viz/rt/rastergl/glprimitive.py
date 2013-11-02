@@ -272,15 +272,8 @@ void main()
         N = position.shape[0]
 
         # start all coords at the center, with all the same color
-        for i in range(N):
-            for j in range(6):
-                position[i,j,0] = positions_in[i,0];
-                position[i,j,1] = positions_in[i,1];
-
-                color[i,j,0] = colors_in[i,0];
-                color[i,j,1] = colors_in[i,1];
-                color[i,j,2] = colors_in[i,2];
-                color[i,j,3] = colors_in[i,3];
+        position[:, :, :] = numpy.tile(positions_in[:, numpy.newaxis, :], (1, 6, 1));
+        color[:, :, :] = numpy.tile(colors_in[:, numpy.newaxis, :], (1, 6, 1));
 
         # Map of coords
         # 0 --- 2  5
@@ -296,50 +289,14 @@ void main()
         # this doesn't guarantee that enough will be rendered, but should work in most cases
         ex_factor = 1.05;
 
-        # Update x coordinates
-        for i in range(N):
-            position[i,0,0] -= diameters_in[i]/2 * ex_factor;
-            mapcoord[i,0,0] = -diameters_in[i]/2 * ex_factor;
-            mapcoord[i,0,2] = diameters_in[i];
-
-            position[i,1,0] -= diameters_in[i]/2 * ex_factor;
-            mapcoord[i,1,0] = -diameters_in[i]/2 * ex_factor;
-            mapcoord[i,1,2] = diameters_in[i];
-
-            position[i,3,0] -= diameters_in[i]/2 * ex_factor;
-            mapcoord[i,3,0] = -diameters_in[i]/2 * ex_factor;
-            mapcoord[i,3,2] = diameters_in[i];
-
-            position[i,2,0] += diameters_in[i]/2 * ex_factor;
-            mapcoord[i,2,0] = diameters_in[i]/2 * ex_factor;
-            mapcoord[i,2,2] = diameters_in[i];
-
-            position[i,4,0] += diameters_in[i]/2 * ex_factor;
-            mapcoord[i,4,0] = diameters_in[i]/2 * ex_factor;
-            mapcoord[i,4,2] = diameters_in[i];
-
-            position[i,5,0] += diameters_in[i]/2 * ex_factor;
-            mapcoord[i,5,0] = diameters_in[i]/2 * ex_factor;
-            mapcoord[i,5,2] = diameters_in[i];
-
-            # # update y coordinates
-            position[i,0,1] += diameters_in[i]/2 * ex_factor;
-            mapcoord[i,0,1] = diameters_in[i]/2 * ex_factor;
-
-            position[i,2,1] += diameters_in[i]/2 * ex_factor;
-            mapcoord[i,2,1] = diameters_in[i]/2 * ex_factor;
-
-            position[i,5,1] += diameters_in[i]/2 * ex_factor;
-            mapcoord[i,5,1] = diameters_in[i]/2 * ex_factor;
-
-            position[i,1,1] -= diameters_in[i]/2 * ex_factor;
-            mapcoord[i,1,1] = -diameters_in[i]/2 * ex_factor;
-
-            position[i,3,1] -= diameters_in[i]/2 * ex_factor;
-            mapcoord[i,3,1] = -diameters_in[i]/2 * ex_factor;
-
-            position[i,4,1] -= diameters_in[i]/2 * ex_factor;
-            mapcoord[i,4,1] = -diameters_in[i]/2 * ex_factor;
+        # delta will be an Nx6x2 array of local offset coordinates for
+        # the vertices of each disk
+        delta = (diameters_in[:, numpy.newaxis, numpy.newaxis]/2*ex_factor*
+                 numpy.array([(-1, 1), (-1, -1), (1, 1), (-1, -1), (1, -1), (1, 1)],
+                             dtype=numpy.float32)[numpy.newaxis, :, :]);
+        position += delta;
+        mapcoord[:, :, :2] = delta[numpy.newaxis, :, :];
+        mapcoord[:, :, 2] = diameters_in[:, numpy.newaxis];
 
         return 0;
 
