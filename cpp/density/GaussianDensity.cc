@@ -12,8 +12,9 @@ using namespace boost::python;
 
 namespace freud { namespace density {
 
+
 GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width, float r_cut, float sigma)
-    : m_box(box), m_width(width), m_r_cut(r_cut), m_sigma(sigma)
+    : m_box(box), m_width_x(width), m_width_y(width), m_width_z(width), m_r_cut(r_cut), m_sigma(sigma)
     {
     if (width <= 0)
             throw invalid_argument("width must be a positive integer");
@@ -22,9 +23,28 @@ GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width,
 
     // index proper
     if (m_box.is2D())
-        m_bi = Index3D(m_width, m_width, 1);
+        m_bi = Index3D(m_width_x, m_width_y, 1);
     else
-        m_bi = Index3D(m_width, m_width, m_width);
+        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
+
+    m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
+    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
+    }
+
+GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width_x, unsigned int width_y, 
+                                 unsigned int width_z, float r_cut, float sigma)
+    : m_box(box), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_r_cut(r_cut), m_sigma(sigma)
+    {
+    if (width_x <= 0 || width_y <=0 || width_z <=0)
+            throw invalid_argument("width must be a positive integer");
+    if (r_cut <= 0.0f)
+            throw invalid_argument("r_cut must be positive");
+
+    // index proper
+    if (m_box.is2D())
+        m_bi = Index3D(m_width_x, m_width_y, 1);
+    else
+        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
 
     m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
     memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
@@ -42,9 +62,9 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
     float ly = m_box.getLy();
     float lz = m_box.getLz();
 
-    float grid_size_x = lx/m_width;
-    float grid_size_y = ly/m_width;
-    float grid_size_z = lz/m_width;
+    float grid_size_x = lx/m_width_x;
+    float grid_size_y = ly/m_width_y;
+    float grid_size_z = lz/m_width_z;
 
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
@@ -101,9 +121,9 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
 
                         // Assure that out of range indices are corrected for storage in the array
                         // i.e. bin -1 is actually bin 29 for nbins = 30
-                        unsigned int ni = (i + m_width) % m_width;
-                        unsigned int nj = (j + m_width) % m_width;
-                        unsigned int nk = (k + m_width) % m_width;
+                        unsigned int ni = (i + m_width_x) % m_width_x;
+                        unsigned int nj = (j + m_width_y) % m_width_y;
+                        unsigned int nk = (k + m_width_z) % m_width_z;
 
                         // store the product of these values in an array - n[i, j, k] = gx*gy*gz
                         m_Density_array[m_bi(ni, nj, nk)] += x_gaussian*y_gaussian*z_gaussian;
@@ -137,6 +157,7 @@ void GaussianDensity::computePy(boost::python::numeric::array points)
 void export_GaussianDensity()
     {
     class_<GaussianDensity>("GaussianDensity", init<trajectory::Box&, unsigned int, float, float>())
+            .def(init<trajectory::Box&, unsigned int, unsigned int, unsigned int, float, float>()) 
             .def("getBox", &GaussianDensity::getBox, return_internal_reference<>())
             .def("compute", &GaussianDensity::computePy)
             .def("getGaussianDensity", &GaussianDensity::getDensityPy)

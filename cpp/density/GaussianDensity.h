@@ -24,6 +24,8 @@ class GaussianDensity
     public:
         //! Constructor
         GaussianDensity(const trajectory::Box& box, unsigned int width, float r_cut, float sigma);
+        GaussianDensity(const trajectory::Box& box, unsigned int width_x, unsigned int width_y, unsigned int width_z,
+                        float r_cut, float sigma);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -49,16 +51,16 @@ class GaussianDensity
                 {
                 float *arr = m_Density_array.get();
                 std::vector<intp> dims;
-                dims.push_back(m_width);
-                dims.push_back(m_width);
                 if (!m_box.is2D())
-                    dims.push_back(m_width);
+                    dims.push_back(m_width_z);
+                dims.push_back(m_width_y);
+                dims.push_back(m_width_x);
 
                 return num_util::makeNum(arr, dims);
                 }
     private:
         const trajectory::Box m_box;    //!< Simulation box the particles belong in
-        unsigned int m_width;           //!< Num of bins on one side of the cube
+        unsigned int m_width_x,m_width_y,m_width_z;           //!< Num of bins on one side of the cube
         float m_r_cut;                  //!< Max r at which to compute density
         float m_sigma;                  //!< Variance
         Index3D m_bi;                   //!< Bin indexer
