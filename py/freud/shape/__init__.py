@@ -335,6 +335,18 @@ class Polyhedron:
                 return False
         return True
 
+    ## Identify the index of facet b as a neighbor of facet a
+    # The index of neighbor b also corresponds to the index of the first of two right-hand-ordered vertices of the shared edge
+    # \returns the index of b in the neighbor list of a or None if they are not neighbors
+    def getSharedEdge(self, a, b):
+        # Note that facet only has as many neighbors as it does vertices
+        neighbors = list(self.neighbors[a, 0:self.nverts[a]])
+        try:
+            k = neighbors.index(b)
+        except ValueError:
+            k = None
+        return k
+
     ## Get the signed dihedral angle between two facets. Theta == 0 implies faces a and b form a convex blade.
     # Theta == pi implies faces a and b are parallel. Theta == 2 pi implies faces a and b form a concave blade.
     # \param a index of first facet
@@ -342,10 +354,8 @@ class Polyhedron:
     # \returns theta angle on [0, 2 pi)
     def getDihedral(self, a, b):
         # Find which neighbor b is
-        neighbors = list(self.neighbors[a])
-        try:
-            k = neighbors.index(b)
-        except ValueError:
+        k = self.getSharedEdge(a,b)
+        if k is None:
             raise ValueError("b must be a neighbor of a")
 
         # Find path e1 -> e2 -> e3, where e2 is an edge shared by both faces, e1 lies in a and e3 lies in b.
@@ -381,6 +391,53 @@ class Polyhedron:
         x1 = numpy.sqrt(numpy.dot(x1_vec, x1_vec))
         x2 = numpy.dot(cp12, cp23)
         return numpy.arctan2(x1, x2)
+
+    ## Get the mean curvature
+    # Mean curvature R for a polyhedron is determined from the edge lengths L_i and dihedral angles \phi_i and is given by
+    # $\sum_i (1/2) L_i (\pi - \phi_i) / (4 \pi)$
+    # \returns R
+    def getMeanCurvature(self):
+        R = 0.0
+        # check each pair of faces i,j such that i < j
+        nfacets = self.nfacets
+        for i in range(nfacets-1):
+            for j in range(i+1,nfacets):
+                # get the length of the shared edge, if there is one
+                k = self.getSharedEdge(i,j) # index of first vertex
+                if k is not None:
+                    nextk = k+1 # index of second vertex
+                    if nextk == self.nverts[i]:
+                        nextk = 0
+                    # get point indices corresponding to vertex indices
+                    p0 = self.facets[i, k]
+                    p1 = self.facets[i, nextk]
+                    v0 = self.points[p0]
+                    v1 = self.points[p1]
+                    r = v1 - v0
+                    Li = numpy.sqrt(numpy.dot(r,r))
+                    # get the dihedral angle
+                    phi = self.getDihedral(i,j)
+                    R += Li*(numpy.pi - phi)
+        R /= 8*numpy.pi
+        return R
+
+    ## Get asphericity
+    # Asphericity alpha is defined as RS/3V where R is the mean curvature, S is surface area, V is volume
+    # \returns alpha
+    def getAsphericity(self):
+        R = self.getMeanCurvature()
+        S = self.getArea()
+        V = self.getVolume()
+        return R*S/(3*V)
+
+    ## Get isoperimetric quotient
+    # Isoperimetric quotient is a unitless measure of sphericity defined as Q = 36 \pi \frac{V^2}{S^3}
+    # \returns isoperimetric quotient
+    def getQ(self):
+        V = self.getVolume()
+        S = self.getArea()
+        Q = numpy.pi * 36 * V*V / (S*S*S)
+        return Q
 
 ## Store and compute data associated with a convex polyhedron, calculated as the convex hull of a set of input points.
 # ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
@@ -567,6 +624,12 @@ class ConvexSpheropolyhedron(ConvexPolyhedron):
             if d + self.equations[i, 3] > self.R:
                 return False
         return True
+
+    def getMeanCurvature(self):
+        raise RuntimeError("Not implemented")
+
+    def getAsphericity(self):
+        raise RuntimeError("Not implemented")
 
 ## Compute basic properties of a polygon, stored as a list of adjacent vertices
 #
@@ -1196,6 +1259,17 @@ if __name__ == '__main__':
         if yes2:
             print('ConvexSpheropolyhedron.isInside does not return False when it should')
             passed = False
+
+    # Check Polyhedron curvature and asphericity determination
+    t_points = numpy.array([[0.5, -0.5, -0.5], [0.5, 0.5, 0.5], [-0.5, 0.5, -0.5], [-0.5, -0.5, 0.5]])
+    mypoly = ConvexPolyhedron(t_points)
+    alpha = mypoly.getAsphericity()
+    target = 2.23457193395116
+    if abs(alpha - target) < tolerance:
+        print("Polyhedron.getAsphericity seems to work")
+    else:
+        print("Polyhedron.getAsphericity for tetrahedron found {0}. Should be {1}.".format(alpha, target))
+        passed = False
 
     # Overall test status
     if passed:
