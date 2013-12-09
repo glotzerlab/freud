@@ -3,6 +3,7 @@ import math
 import copy
 from math import *
 from _freud import FTdelta as _FTdelta
+from _freud import FTsphere as _FTsphere
 
 ## \package freud.kspace
 #
@@ -338,6 +339,11 @@ class SingleCell3D:
         for i in xrange(len(self.ptype_ff)):
             self.ptype_ff[i].set_scale(scale)
         self.bases_valid = False
+    ## Set box matrix
+    # \param 3x3 array of unit cell box matrix
+    def set_box(self, boxMatrix):
+        self.boxMatrix = numpy.array(boxMatrix)
+        self.bases_valid = False
 
     ## Set positions and orientations for a particle type
     # To best maintain valid state in the event of changing numbers of particles, position and orienation are updated 
@@ -554,43 +560,41 @@ class FTdelta(FTbase):
         self.FTobj.compute()
         self.S = self.FTobj.getFT()
 
-## Fourier transform a list of delta functions
 class FTsphere(FTbase):
     def __init__(self, *args, **kwargs):
         FTbase.__init__(self, *args, **kwargs)
+        self.FTobj = _FTsphere()
         self.set_param_map['radius'] = self.set_radius
         self.get_param_map['radius'] = self.get_radius
-        self.radius = numpy.float32(0.5)
+        self.set_radius(0.5)
+    def set_K(self, K):
+        FTbase.set_K(self, K)
+        self.FTobj.set_K(self.K)
+    def set_scale(self, scale):
+        FTbase.set_scale(self, scale)
+        self.FTobj.set_scale(float(self.scale))
+    def set_density(self, density):
+        FTbase.set_density(self, density)
+        self.FTobj.set_density(complex(self.density))
+    def set_rq(self, r, q):
+        FTbase.set_rq(self, r, q)
+        self.FTobj.set_rq(r, q)
     ## Set radius parameter
     # \param radius sphere radius will be stored as given, but scaled by scale parameter when used by methods
     def set_radius(self, radius):
-        self.radius = numpy.float32(radius)
+        self.radius = float(radius)
+        self.FTobj.set_radius(self.radius)
     ## Get radius parameter
     # If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+    # \returns unscaled radius
     def get_radius(self):
+        self.radius = self.FTobj.get_radius()
         return self.radius
     ## Compute FT
-    # Calculate $P(\mathbf{K}) = \sum_{\alpha} \rho_{\alpha}(\mathbf{r}) \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}$
-    # For a set of uniform particles, the particle form factor is separable such that
-    # $P(\mathbf{K}) = S(\mathbf{K}) F(\mathbf{K})
-    # where S is the structure factor for a distribution of delta peaks and F is the form factor of the particle found
-    # by Fourier transforming the particle scattering density in its local coordinates.
-    def compute(self):
-        radius = self.radius * self.scale
-        position = self.position * self.scale
-        self.outputShape = (self.K.shape[0],)
-        Kmag2 = numpy.float32((self.K * self.K).sum(axis = -1))
-        x = numpy.sqrt(Kmag2) * radius
-        P = numpy.zeros(self.outputShape, dtype=numpy.float32)
-        expKr = numpy.zeros(self.outputShape, dtype=numpy.complex64)
-        for r in position:
-            expKr += numpy.exp(numpy.dot(self.K, r) * -1.j)
-            # P(K) = (4.*pi*R) / K**2 * (sinc(K*R) - cos(K*R)))
-            # User should make sure |K| > 0 for all K
-            # Note that numpy.sinc(x) == sin(pi * x)/(pi * x), while numpy.sin(x) == sin(x)
-            # Shouldn't P be complex valued?
-            P += (4. * numpy.pi * radius / Kmag2) * (numpy.sinc(x/numpy.pi) - numpy.cos(x))
-        self.S = expKr * P * self.density
+    # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
+    def compute(self, *args, **kwargs):
+        self.FTobj.compute()
+        self.S = self.FTobj.getFT()
 
 class FTconvexPolyhedron(FTbase):
     #! \param hull convex hull object as returned by freud.shape.ConvexPolyhedron(points)

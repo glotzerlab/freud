@@ -126,7 +126,7 @@ class FTdelta
             return num_util::makeNum(arr, m_NK);
             }
 
-    private:
+    protected:
         boost::shared_array<float> m_S_Re;  //!< Real component of structure factor
         boost::shared_array<float> m_S_Im;  //!< Imaginary component of structure factor
         unsigned int m_NK;                  //!< number of K points evaluated
@@ -137,6 +137,27 @@ class FTdelta
         float m_scale;                      //!< length scale (to be multiplied by spatial dimensions)
         float m_density_Re;                 //!< real component of the scattering density
         float m_density_Im;                 //!< imaginary component of the scattering density
+    };
+
+class FTsphere: public FTdelta
+    {
+    public:
+        //! Constructor
+        FTsphere();
+
+        //! Perform transform and store result internally
+        virtual void compute();
+
+        //! Set particle volume according to radius
+        void set_radius(const float radius)
+            {
+            m_radius = radius;
+            m_volume = 4.0f * radius*radius*radius / 3.0f;
+            }
+
+    private:
+        float m_radius;                     //!< particle radius
+        float m_volume;                     //!< particle volume
     };
 
 /*! \internal
