@@ -475,8 +475,8 @@ class FTbase:
         self.density = numpy.complex64(1.0)
         self.S = None
         self.K = numpy.array([[0., 0., 0.]], dtype=numpy.float32)
-        self.position = None
-        self.orientation = None
+        self.position = numpy.array([[0.,0.,0.]], dtype=numpy.float32)
+        self.orientation = numpy.array([[1.,0.,0.,0.]], dtype=numpy.float32)
 
         # create dictionary of parameter names and set/get methods
         self.set_param_map = dict()
