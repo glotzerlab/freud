@@ -607,15 +607,13 @@ class FTconvexPolyhedron(FTbase):
     # \param radius inscribed sphere radius without scale applied
     def set_radius(self, radius):
         # Find original in-sphere radius, determine necessary scale factor, and scale vertices and surface distances
-        inradius = abs(self.hull.equations[:, 3].max())
-        scale_factor = radius / inradius
-        self.hull.points *= scale_factor
-        self.hull.equations[:,3] *= scale_factor
+        radius = float(radius)
+        self.hull.setInsphereRadius(radius)
     ## Get radius of in-sphere
     # If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
     def get_radius(self):
         # Find current in-sphere radius
-        inradius = abs(self.hull.equations[:,3].max())
+        inradius = self.hull.getInsphereRadius()
         return inradius
     ## Compute FT
     # Calculate P = F * S
