@@ -113,7 +113,7 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
                         // evaluate the gaussian ...
                         // set up some constants first
                         float sigmasq = m_sigma*m_sigma;
-                        float A = (1.0f/(2.0f*M_PI*m_sigma));
+                        float A = sqrt(1.0f/(2.0f*M_PI*sigmasq));
 
                         float x_gaussian = A*exp((-1.0f)*(delta.x*delta.x)/(2.0f*sigmasq));
                         float y_gaussian = A*exp((-1.0f)*(delta.y*delta.y)/(2.0f*sigmasq));
