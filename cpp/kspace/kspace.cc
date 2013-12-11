@@ -13,7 +13,6 @@ namespace freud { namespace kspace {
 FTdelta::FTdelta()
     : m_NK(0),
       m_Np(0),
-      m_scale(1.0),
       m_density_Im(0),
       m_density_Re(1)
     {
@@ -36,7 +35,6 @@ void FTdelta::compute()
     float3* K = m_K;
     float3* r = m_r;
     float4* q = m_q;
-    float scale = m_scale;
     float density_Im = m_density_Im;
     float density_Re = m_density_Re;
     m_S_Re = boost::shared_array<float>(new float[NK]);
@@ -49,7 +47,6 @@ void FTdelta::compute()
             {
             float d; // dot product of K and r
             d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
-            d *= scale;
             float CosKr, SinKr; // real and (negative) imaginary components of exp(-i K r)
             CosKr = cos(d);
             SinKr = sin(d);
@@ -81,7 +78,6 @@ void FTsphere::compute()
     float3* K = m_K;
     float3* r = m_r;
     float4* q = m_q;
-    float scale = m_scale;
     float radius = m_radius;
 
     /* S += e**(-i * dot(K, r))
@@ -111,7 +107,7 @@ void FTsphere::compute()
             else
                 {
                 float K2 = K[i].x * K[i].x + K[i].y * K[i].y + K[i].z * K[i].z;
-                float KR = sqrtf(K2) * radius * scale;
+                float KR = sqrtf(K2) * radius;
                 float f = 4.0f * M_PI * radius / K2 * (sinf(KR)/KR - cosf(KR));
                 f_Im *= f;
                 f_Re *= f;
@@ -121,7 +117,6 @@ void FTsphere::compute()
             float CosKr, SinKr; // real and (negative) imaginary components of exp(-i K r)
             float d; // dot product of K and r
             d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
-            d *= scale;
             CosKr = cos(d);
             SinKr = sin(d);
 
@@ -139,7 +134,6 @@ void export_kspace()
         .def("getFT", &FTdelta::getFTPy)
         .def("set_K", &FTdelta::set_K_Py)
         .def("set_rq", &FTdelta::set_rq_Py)
-        .def("set_scale", &FTdelta::set_scale)
         .def("set_density", &FTdelta::set_density)
         ;
     class_<FTsphere, bases<FTdelta> >("FTsphere")

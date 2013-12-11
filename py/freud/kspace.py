@@ -544,41 +544,33 @@ class FTdelta(FTbase):
         self.FTobj = _FTdelta()
     def set_K(self, K):
         FTbase.set_K(self, K)
-        self.FTobj.set_K(self.K)
+        self.FTobj.set_K(self.K * self.scale)
+    # Note that for a scale factor, lambda, affecting the scattering density rho(r),
+    # S_lambda(k) == lambda**3 * S(lambda * k)
     def set_scale(self, scale):
         FTbase.set_scale(self, scale)
-        self.FTobj.set_scale(float(self.scale))
+        #self.FTobj.set_scale(float(self.scale))
+        self.FTobj.set_K(self.K * self.scale)
     def set_density(self, density):
         FTbase.set_density(self, density)
         self.FTobj.set_density(complex(self.density))
     def set_rq(self, r, q):
         FTbase.set_rq(self, r, q)
-        self.FTobj.set_rq(r, q)
+        self.FTobj.set_rq(self.position, self.orientation)
     ## Compute FT
     # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
     def compute(self, *args, **kwargs):
         self.FTobj.compute()
-        self.S = self.FTobj.getFT()
+        self.S = self.FTobj.getFT() * self.scale**3
 
-class FTsphere(FTbase):
+# Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
+class FTsphere(FTdelta):
     def __init__(self, *args, **kwargs):
         FTbase.__init__(self, *args, **kwargs)
         self.FTobj = _FTsphere()
         self.set_param_map['radius'] = self.set_radius
         self.get_param_map['radius'] = self.get_radius
         self.set_radius(0.5)
-    def set_K(self, K):
-        FTbase.set_K(self, K)
-        self.FTobj.set_K(self.K)
-    def set_scale(self, scale):
-        FTbase.set_scale(self, scale)
-        self.FTobj.set_scale(float(self.scale))
-    def set_density(self, density):
-        FTbase.set_density(self, density)
-        self.FTobj.set_density(complex(self.density))
-    def set_rq(self, r, q):
-        FTbase.set_rq(self, r, q)
-        self.FTobj.set_rq(r, q)
     ## Set radius parameter
     # \param radius sphere radius will be stored as given, but scaled by scale parameter when used by methods
     def set_radius(self, radius):
@@ -590,11 +582,6 @@ class FTsphere(FTbase):
     def get_radius(self):
         self.radius = self.FTobj.get_radius()
         return self.radius
-    ## Compute FT
-    # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
-    def compute(self, *args, **kwargs):
-        self.FTobj.compute()
-        self.S = self.FTobj.getFT()
 
 class FTconvexPolyhedron(FTbase):
     #! \param hull convex hull object as returned by freud.shape.ConvexPolyhedron(points)

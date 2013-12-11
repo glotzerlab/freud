@@ -81,13 +81,6 @@ class FTdelta
             float4* q_raw = (float4*) num_util::data(orientation);
             set_rq(Np, r_raw, q_raw);
             }
-        /*! Set length scale
-        \param scale Scaling factor to apply to lengths and distances
-        */
-        void set_scale(const float scale)
-            {
-            m_scale = scale;
-            }
         /*! Set scattering density
         \param density complex value of scattering density
         */
@@ -134,7 +127,6 @@ class FTdelta
         float3* m_K;                        //!< array of K points
         float3* m_r;                        //!< array of particle positions
         float4* m_q;                        //!< array of particle orientations
-        float m_scale;                      //!< length scale (to be multiplied by spatial dimensions)
         float m_density_Re;                 //!< real component of the scattering density
         float m_density_Im;                 //!< imaginary component of the scattering density
     };
