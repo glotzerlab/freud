@@ -19,6 +19,7 @@
 #include "split.h"
 #include "tbb_config.h"
 #include "WeightedRDF.h"
+#include "lindemann.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -65,6 +66,7 @@ BOOST_PYTHON_MODULE(_freud)
     density::export_GaussianDensity();
     density::export_LocalDensity();
     kspace::export_kspace();
+    lindemann::export_lindemann();
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();

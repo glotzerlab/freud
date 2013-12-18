@@ -30,13 +30,13 @@ foreach(file ${ARGN})
     else()
         set(source_file "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
     endif()
-    
+
     add_custom_command(OUTPUT ${generated_obj_file} ${generated_header_file}
                        IMPLICIT_DEPENDS CXX
                        DEPENDS ${source_file}
                        COMMAND ${ISPC_EXECUTABLE} ${source_file} -o ${generated_obj_file} -h ${generated_header_file}
                       )
-    
+
     set_source_files_properties(${generated_obj_file} PROPERTIES GENERATED TRUE)
     list(APPEND _compile_ispc_generated_files ${generated_obj_file})
 endforeach()
@@ -52,6 +52,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/cluster
                     ${CMAKE_CURRENT_SOURCE_DIR}/density
                     ${CMAKE_CURRENT_SOURCE_DIR}/kspace
+                    ${CMAKE_CURRENT_SOURCE_DIR}/lindemann
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/localql
@@ -75,6 +76,8 @@ set(SOURCES trajectory/trajectory.cc
             density/LocalDensity.cc
             kspace/kspace.h
             kspace/kspace.cc
+            lindemann/lindemann.h
+            lindemann/lindemann.cc
             cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h
