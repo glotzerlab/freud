@@ -141,6 +141,7 @@ void Lind::computeWithoutCellList(const float3 *points,
         } // done looping over reference points
     // calc Lindexmann Index
     lindex = (1.0 / (((float) Np) - 1.0)) * lindex;
+    lindex /= Np;
     m_lindex = lindex;
     }
 
