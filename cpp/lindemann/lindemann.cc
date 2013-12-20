@@ -97,9 +97,10 @@ void Lind::computeWithoutCellList(const float3 *points,
     float rmaxsq = m_rmax * m_rmax;
 
     // for each reference point
-    float lindex = 0;
+    float lindex;
     for (unsigned int i = 0; i < Np; i++)
         {
+        lindex = 0;
         for (unsigned int j = 0; j < Np; j++)
             {
             // avoid calling on same particle
@@ -138,10 +139,11 @@ void Lind::computeWithoutCellList(const float3 *points,
             //     }
             lindex += tmp_lindex;
             }
+        lindex = (1.0 / (((float) Np) - 1.0)) * lindex;
+        m_lindex += lindex;
         } // done looping over reference points
     // calc Lindexmann Index
-    lindex = (1.0 / (((float) Np) - 1.0)) * lindex;
-    m_lindex = lindex;
+    m_lindex /= Np;
     }
 
 void Lind::computePy(boost::python::numeric::array points)
