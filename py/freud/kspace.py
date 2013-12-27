@@ -408,16 +408,10 @@ class SingleCell3D:
         self.Kpoints_valid = False
     ## Update K points at which to evaluate FT
     # If the diffraction image dimensions change relative to the reciprocal lattice,
-    # the K points need to be recalculated. |K|=0 causes problems for some form factors,
-    # so it is removed. If a direct scattering spot is desired, calculate and add it separately.
-    # This can be fixed in the future...
+    # the K points need to be recalculated.
     def update_Kpoints(self):
         self.Kpoints_valid = True
         self.Kpoints = numpy.float32(constrainedLatticePoints(self.g1, self.g2, self.g3, self.K_constraint))
-        if len(self.Kpoints) > 0:
-            truth = self.Kpoints == numpy.array([0.,0.,0.])
-            nonzeros = numpy.invert(truth[:,0] * truth[:,1] * truth[:,2])
-            self.Kpoints = self.Kpoints[nonzeros]
         for i in xrange(len(self.ptype_ff)):
             self.ptype_ff[i].set_K(self.Kpoints)
         self.FT_valid = False
