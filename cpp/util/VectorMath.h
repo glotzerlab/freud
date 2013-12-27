@@ -635,6 +635,16 @@ inline Real perpdot(const vec2<Real>& a, const vec2<Real>& b)
     return dot(perp(a), b);
     }
 
+//! vec2 cross product
+/*! \param a first vector
+    \param b second vector
+    \returns the z component of the cross product of vectors a and b, assumed to lie in the xy plane
+*/
+template < class Real >
+inline Real cross(const vec2<Real>& a, const vec2<Real>& b)
+    {
+    return a.x * b.y - a.y * b.x;
+    }
 
 /////////////////////////////// quat ///////////////////////////////////
 
