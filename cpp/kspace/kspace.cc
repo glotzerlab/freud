@@ -96,17 +96,18 @@ void FTsphere::compute()
             // Initialize with scattering density
             float f_Im(m_density_Im);
             float f_Re(m_density_Re);
+
+            float K2 = K[i].x * K[i].x + K[i].y * K[i].y + K[i].z * K[i].z;
             // FT evaluated at K=0 is just the scattering volume
             // f(0) = volume
             // f(K) = (4.*pi*R) / K**2 * (sinc(K*R) - cos(K*R)))
-            if (K[i].x == 0.0f && K[i].y == 0.0f && K[i].z == 0.0f)
+            if (K2 == 0.0f)
                 {
                 f_Im *= m_volume;
                 f_Re *= m_volume;
                 }
             else
                 {
-                float K2 = K[i].x * K[i].x + K[i].y * K[i].y + K[i].z * K[i].z;
                 float KR = sqrtf(K2) * radius;
                 float f = 4.0f * M_PI * radius / K2 * (sinf(KR)/KR - cosf(KR));
                 f_Im *= f;
