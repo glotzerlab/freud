@@ -47,12 +47,12 @@ void FTdelta::compute()
             {
             float d; // dot product of K and r
             d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
-            float CosKr, SinKr; // real and (negative) imaginary components of exp(-i K r)
+            float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
             CosKr = cos(d);
-            SinKr = sin(d);
+            negSinKr = sin(d);
             // S += rho * exp(-i K r)
-            m_S_Re[i] += CosKr * density_Re + SinKr * density_Im;
-            m_S_Im[i] += CosKr * density_Im + SinKr * density_Re;
+            m_S_Re[i] += CosKr * density_Re + negSinKr * density_Im;
+            m_S_Im[i] += CosKr * density_Im - negSinKr * density_Re;
             }
         }
     }
@@ -115,15 +115,15 @@ void FTsphere::compute()
                 }
 
             // Get structure factor
-            float CosKr, SinKr; // real and (negative) imaginary components of exp(-i K r)
+            float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
             float d; // dot product of K and r
             d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
             CosKr = cos(d);
-            SinKr = sin(d);
+            negSinKr = sin(d);
 
             // S += rho * f * exp(-i K r)
-            m_S_Re[i] += CosKr * f_Re + SinKr * f_Im;
-            m_S_Im[i] += CosKr * f_Im + SinKr * f_Re;
+            m_S_Re[i] += CosKr * f_Re + negSinKr * f_Im;
+            m_S_Im[i] += CosKr * f_Im - negSinKr * f_Re;
             }
         }
     }
