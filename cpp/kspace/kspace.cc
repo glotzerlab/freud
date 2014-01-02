@@ -332,6 +332,7 @@ void export_kspace()
     class_<FTpolyhedron, bases<FTdelta> >("FTpolyhedron")
         .def("set_params", &FTpolyhedron::set_params)
         ;
+    class_<poly3d_param_t>("poly3d_param");
     def("make_poly3d", &make_poly3d);
     }
 
