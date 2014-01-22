@@ -49,7 +49,6 @@ class VoronoiBuffer
                     dims.push_back(2);
                 else
                     dims.push_back(3);
-                std::cout<<"WOOOO"<<std::endl;
                 return num_util::makeNum(b, dims);
                 }
     private:

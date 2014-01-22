@@ -8,8 +8,6 @@ except ImportError:
     msg = 'scipy.spatial.Voronoi is not available (requires scipy 0.12+), so freud.voronoi is not available.'
     logger.warning(msg)
     #raise ImportWarning(msg)
-import _freud
-print(dir(_freud))
 from _freud import VoronoiBuffer
 
 ## Compute the Voronoi tesselation of a 2D or 3D system using qhull
@@ -42,7 +40,7 @@ class Voronoi:
     #Compute the buffer particles in c++
     vbuff = VoronoiBuffer(box)
     vbuff.compute(positions,buff)
-    buffer_parts = vbuff.getBufferParticles()
+    self.buff = buffer_parts = vbuff.getBufferParticles()
     all_points = np.concatenate((positions,buffer_parts))
     #use qhull to get the points
     vv = qvoronoi(all_points)
@@ -61,6 +59,10 @@ class Voronoi:
         pverts = vertices[reg]-r
         self.poly_verts.append(pverts)
   
+  #return the list of voronoi polytope vertices
+  def getBuffer(self):
+    return self.buff
+
   #return the list of voronoi polytope vertices
   def getVoronoiPolytopes(self):
     return self.poly_verts

@@ -26,8 +26,10 @@ void VoronoiBuffer::compute(const float3 *points,
     float lx = m_box.getLx();
     float ly = m_box.getLy();
     float lz = m_box.getLz();
-    
-    std::cout<<"box"<<lx<<","<<ly<<","<<lz<<std::endl;
+    float lx_2 = 0.5*lx;
+    float ly_2 = 0.5*ly;
+    float lz_2 = 0.5*lz;
+
     float3 imgx;
     buffer_parts.clear();
     // for each particle
@@ -40,12 +42,12 @@ void VoronoiBuffer::compute(const float3 *points,
           for (int j=-1; j<=1; j++)
                 if(i!=j)
                   {
-                  imgx.x = points[particle].x + i*lx;
-                  imgx.y = points[particle].y + j*ly;
+                  imgx.x = points[particle].x + i*lx + lx_2;
+                  imgx.y = points[particle].y + j*ly + ly_2;
                   imgx.z = 0.0;
                   //check to see if this image in within a 
-                  if( ((imgx.x<0 && imgx.x>-buff) || (imgx.x-lx<buff && imgx.x>lx)) &&
-                      ((imgx.y<0 && imgx.y>-buff) || (imgx.y-ly<buff && imgx.y>ly)))
+                  if( (i==0 || ((imgx.x<0 && imgx.x>-buff) || (imgx.x-lx<buff && imgx.x>lx))) &&
+                      (j==0 || ((imgx.y<0 && imgx.y>-buff) || (imgx.y-ly<buff && imgx.y>ly))) )
                       {
                       buffer_parts.push_back(imgx);
                       }
@@ -57,21 +59,20 @@ void VoronoiBuffer::compute(const float3 *points,
         for (int i=-1; i<=1; i++)
           for (int j=-1; j<=1; j++)
               for (int k=-1; k<=1; k++)
-                if(!(i==j && j==k))
+                if(!(i==0 && j==0 && k==0))
                   {
-                  std::cout<<"part"<<buff<<" "<<particle<<std::endl;
-                  imgx.x = points[particle].x + i*lx;
-                  imgx.y = points[particle].y + j*ly;
-                  imgx.z = points[particle].z + k*lz;
-                  std::cout<<"part"<<particle<<"--->"<<imgx.x<<","<<imgx.y<<","<<imgx.z<<std::endl;
-
+                  imgx.x = points[particle].x + i*lx + lx_2;
+                  imgx.y = points[particle].y + j*ly + ly_2;
+                  imgx.z = points[particle].z + k*lz + lz_2;
                   //check to see if this image in within a 
-                  if( ((imgx.x<0 && imgx.x>-buff) || (imgx.x-lx<buff && imgx.x>lx)) &&
-                      ((imgx.y<0 && imgx.y>-buff) || (imgx.y-ly<buff && imgx.y>ly)) &&
-                      ((imgx.z<0 && imgx.z>-buff) || (imgx.z-lz<buff && imgx.z>lz)) )
+                  if( (i==0 || ((imgx.x<0 && imgx.x>-buff) || (imgx.x-lx<buff && imgx.x>lx))) &&
+                      (j==0 || ((imgx.y<0 && imgx.y>-buff) || (imgx.y-ly<buff && imgx.y>ly))) &&
+                      (k==0 || ((imgx.z<0 && imgx.z>-buff) || (imgx.z-lz<buff && imgx.z>lz))) )
                       {
+                      imgx.x -= lx_2;
+                      imgx.y -= ly_2;
+                      imgx.z -= lz_2;
                       buffer_parts.push_back(imgx);
-                      std::cout<<"ADD"<<std::endl;
                       }
                   }
         }
