@@ -5,6 +5,7 @@
 #include "LinkCell.h"
 #include "Cluster.h"
 #include "GaussianDensity.h"
+#include "VoronoiBuffer.h"
 #include "LocalDensity.h"
 #include "kspace.h"
 #include "RDF.h"
@@ -63,6 +64,7 @@ BOOST_PYTHON_MODULE(_freud)
     density::export_WeightedRDF();
     density::export_GaussianDensity();
     density::export_LocalDensity();
+    voronoi::export_VoronoiBuffer();
     kspace::export_kspace();
     cluster::export_Cluster();
     cluster::export_ClusterProperties();

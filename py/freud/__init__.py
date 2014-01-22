@@ -8,3 +8,4 @@ from . import trajectory
 from . import order
 from . import interface
 from . import shape
+from . import voronoi
