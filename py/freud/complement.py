@@ -38,6 +38,8 @@ class Pair:
     # the one ring of complementary finding
 
     def find_pairs(self,
+                    match_list,
+                    nmatch,
                     positions,
                     s_orientations,
                     c_orientations,
@@ -56,11 +58,9 @@ class Pair:
         c_ang = numpy.copy(c_orientations)
         self.update(positions, s_ang, c_ang)
         smatch = complement(self.box, rmax, s_dot_target, s_dot_tol, c_dot_target, c_dot_tol)
-        match_list = numpy.zeros(self.np, dtype=numpy.int32)
+        # match_list = numpy.zeros(self.np, dtype=numpy.int32)
         smatch.compute(match_list, self.positions, self.shape_angle, self.comp_angle)
         nmatch = smatch.getNpair()
-        print(match_list)
-        print(nmatch)
 
         return match_list, nmatch
 
