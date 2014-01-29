@@ -38,12 +38,9 @@ class Pair:
     # the one ring of complementary finding
 
     def find_pairs(self,
-                    base,
-                    shape_type,
                     positions,
-                    orientations,
-                    types,
-                    wv=1,
+                    s_orientations,
+                    c_orientations,
                     rmax=1.0,
                     s_dot_target=1.0,
                     s_dot_tol=0.1,
@@ -55,59 +52,13 @@ class Pair:
         # coded so that there are two different lists
         # wv is not needed for anything except hexes, and remember to grab/use
         # should be able to put a lot in from the params or whatever
-        s_ang = numpy.copy(orientations)
-        c_ang = numpy.copy(orientations)
-        if (base == 5):
-            # all pents are allophic, so no rotation, double pass, weirdness required
-            # just in case
-            self.update(positions, s_ang, c_ang)
-            smatch = complement(self.box, rmax, s_dot_target, s_dot_tol, c_dot_target, c_dot_tol)
-            match_list = numpy.zeros(self.np, dtype=numpy.int32)
-            smatch.compute(match_list, self.positions, self.shape_angle, self.comp_angle)
-            nmatch = smatch.getNpair()
-        elif (base == 6):
-            # hexagons are weird! Need special treatment
-            if shape_type == bool(re.match(".split", "split")):
-                # how many types are in here? only 1 type...I think
-                c_ang = (c_ang[i] + numpy.pi) % (2.0 * numpy.pi)
-                self.update(positions, s_ang, c_ang)
-                smatch = complement(self.box, rmax, s_dot_target, s_dot_tol, c_dot_target, c_dot_tol)
-                match_list = numpy.zeros(self.np, dtype=numpy.int32)
-                smatch.compute(match_list, self.positions, self.shape_angle, self.comp_angle)
-                nmatch = smatch.getNpair()
-            if shape_type == bool(re.match(".comp", "comp")):
-                # so now we need wv
-                if (wv % 2 == 0):
-                    # Need to check A-A', B-B', and A-B
-                    # start with A-B
-                    self.update(positions, s_ang, c_ang)
-                    match_list0 = numpy.zeros(self.np, dtype=numpy.int32)
-                    match_list1 = numpy.zeros(self.np, dtype=numpy.int32)
-                    match_list = numpy.zeros(self.np, dtype=numpy.int32)
-                    smatch0 = complement(self.box, rmax, s_dot_target, s_dot_tol, c_dot_target, c_dot_tol)
-                    smatch0.compute(match_list0, self.positions, self.shape_angle, self.comp_angle)
-                    nmatch0 = smatch.getNpair()
-                    # Now for the others
-                    c_ang = (c_ang[i] + numpy.pi) % (2.0 * numpy.pi)
-                    self.update(positions, s_ang, c_ang)
-                    smatch1 = complement(self.box, rmax, s_dot_target, s_dot_tol, c_dot_target, c_dot_tol)
-                    match_list1 = numpy.zeros(self.np, dtype=numpy.int32)
-                    smatch1.compute(match_list1, self.positions, self.shape_angle, self.comp_angle)
-                    nmatch1 = smatch.getNpair()
-                    for i in range(self.np):
-                        if ((match_list0[i] == 1) or (match_list1[i] == 1)):
-                            match_list[i] = 1
-                        else:
-                            match_list[i] = 0
-                    nmatch = nmatch0 + nmatch1
-                else:
-                    self.update(positions, s_ang, c_ang)
-                    match_list = numpy.zeros(self.np, dtype=numpy.int32)
-                    smatch = complement(self.box, rmax, s_dot_target, s_dot_tol, c_dot_target, c_dot_tol)
-                    smatch.compute(match_list, self.positions, self.shape_angle, self.comp_angle)
-                    nmatch = smatch.getNpair()
-        else:
-            raise RuntimeError("incorrect shape/base spec'd")
+        s_ang = numpy.copy(s_orientations)
+        c_ang = numpy.copy(c_orientations)
+        self.update(positions, s_ang, c_ang)
+        smatch = complement(self.box, rmax, s_dot_target, s_dot_tol, c_dot_target, c_dot_tol)
+        match_list = numpy.zeros(self.np, dtype=numpy.int32)
+        smatch.compute(match_list, self.positions, self.shape_angle, self.comp_angle)
+        nmatch = smatch.getNpair()
 
         return match_list, nmatch
 
