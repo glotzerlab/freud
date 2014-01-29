@@ -59,6 +59,8 @@ class Pair:
         match_list = numpy.zeros(self.np, dtype=numpy.int32)
         smatch.compute(match_list, self.positions, self.shape_angle, self.comp_angle)
         nmatch = smatch.getNpair()
+        print(match_list)
+        print(nmatch)
 
         return match_list, nmatch
 
