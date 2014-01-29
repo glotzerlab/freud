@@ -253,6 +253,7 @@ bool complement::comp_check(float3 r_i,
     // find the dot product of the interparticle vector and shape i's comp orientation
     float v_ij = dot2(r_ij_u, theta_c_i);
     float v_ji = dot2(r_ji_u, theta_c_j);
+    printf("%d\n", theta_s_ij);
     // determine if paired
     if (d_ij > rmaxsq)
         return false;
