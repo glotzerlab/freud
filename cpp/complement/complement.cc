@@ -254,13 +254,13 @@ bool complement::comp_check(float3 r_i,
     float v_ij = dot2(r_ij_u, theta_c_i);
     float v_ji = dot2(r_ji_u, theta_c_j);
     // determine if paired
+    if (d_ij > rmaxsq)
+        return false;
     printf("d_ij = %f\n", d_ij);
     printf("theta_s_ij = %f\n", theta_s_ij);
     printf("theta_c_ij = %f\n", theta_c_ij);
     printf("v_ij = %f\n", v_ij);
     printf("v_ji = %f\n", v_ji);
-    if (d_ij > rmaxsq)
-        return false;
     if ((theta_s_ij < (m_shape_dot_target - m_shape_dot_tol)) || (theta_s_ij > (m_shape_dot_target + m_shape_dot_tol)))
         return false;
     // if ((theta_c_ij < (m_comp_dot_target - m_comp_dot_tol)) || (theta_c_ij > (m_comp_dot_target + m_comp_dot_tol)))
