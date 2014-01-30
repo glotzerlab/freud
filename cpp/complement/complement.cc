@@ -225,8 +225,15 @@ bool complement::comp_check(float3 r_i,
     float2 r_ij;
     float2 r_ij_u;
     float2 r_ji_u;
-    r_ij.x = r_j.x - r_i.x;
-    r_ij.y = r_j.y - r_i.y;
+    // r_ij.x = r_j.x - r_i.x;
+    // r_ij.y = r_j.y - r_i.y;
+    // allow for periodic conditions
+    float dx = r_j.x - r_i.x;
+    float dy = r_j.y - r_i.y;
+    float dz = (float) 0.0;
+    float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+    r_ij.x = delta.x;
+    r_ij.y = delta.y;
     float r_ij_mag = sqrt(dot2(r_ij, r_ij));
     r_ij_u.x = r_ij.x / r_ij_mag;
     r_ij_u.y = r_ij.y / r_ij_mag;
