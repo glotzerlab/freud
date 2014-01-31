@@ -12,13 +12,16 @@
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
-#include "LocalQl.h"
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
 #include "split.h"
 #include "tbb_config.h"
 #include "WeightedRDF.h"
+#include "LocalQl.h"
+#include "LocalWl.h"
+#include "SolLiq.h"
+
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -70,10 +73,12 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
-    localql::export_LocalQl();
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();
     viz::export_split();
     parallel::export_tbb_config();
+    sphericalharmonicorderparameters::export_LocalQl();
+    sphericalharmonicorderparameters::export_LocalWl();
+    sphericalharmonicorderparameters::export_SolLiq();
     }

@@ -55,7 +55,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/kspace
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
-                    ${CMAKE_CURRENT_SOURCE_DIR}/localql
+                    ${CMAKE_CURRENT_SOURCE_DIR}/sphericalharmonicorderparameters
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_BINARY_DIR}
@@ -94,8 +94,6 @@ set(SOURCES trajectory/trajectory.cc
             molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
-            localql/LocalQl.cc
-            localql/LocalQl.h
             interface/InterfaceMeasure.h
             viz/colormap.h
             viz/colormap.cc
@@ -107,6 +105,12 @@ set(SOURCES trajectory/trajectory.cc
             viz/split.cc
             parallel/tbb_config.h
             parallel/tbb_config.cc
+            sphericalharmonicorderparameters/LocalQl.h
+            sphericalharmonicorderparameters/LocalQl.cc
+            sphericalharmonicorderparameters/LocalWl.h
+            sphericalharmonicorderparameters/LocalWl.cc
+            sphericalharmonicorderparameters/SolLiq.h
+            sphericalharmonicorderparameters/SolLiq.cc
             )
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 

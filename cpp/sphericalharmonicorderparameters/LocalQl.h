@@ -13,7 +13,7 @@
     \brief Compute a Ql per particle
 */
 
-namespace freud { namespace localql {
+namespace freud { namespace sphericalharmonicorderparameters {
 
 //! Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points
 /*!
