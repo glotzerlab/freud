@@ -1,6 +1,7 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
-#include <boost/math/special_functions.hpp>
+//#include <boost/math/special_functions/spherical_harmonic.hpp>
+
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -75,6 +76,6 @@ class LocalWl
 //! Exports all classes in this file to python
 void export_LocalWl();
 
-}; }; // end namespace freud::localwl
+}; }; // end namespace
 
 #endif // #define _LOCAL_WL_H__

@@ -1,7 +1,8 @@
 #include "SolLiq.h"
 #include "Cluster.h"
 #include <map>
-#include <boost/math/special_functions.hpp>
+//#include <boost/math/special_functions.hpp>
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace std;
 using namespace boost::python;

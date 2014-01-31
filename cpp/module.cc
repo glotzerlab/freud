@@ -73,12 +73,12 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
-    viz::export_colormap();
-    viz::export_colorutil();
-    viz::export_triangles();
-    viz::export_split();
-    parallel::export_tbb_config();
     sphericalharmonicorderparameters::export_LocalQl();
     sphericalharmonicorderparameters::export_LocalWl();
     sphericalharmonicorderparameters::export_SolLiq();
+    viz::export_colormap();
+    viz::export_colorutil();
+    viz::export_triangles();
+    viz::export_split();;
+    parallel::export_tbb_config();
     }

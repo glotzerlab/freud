@@ -4,6 +4,8 @@
 
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
+//#include <boost/math/special_functions/spherical_harmonic.hpp>
+
 
 #include <vector>
 #include <set>
@@ -17,6 +19,8 @@
 #include <complex>
 #include <map>
 #include <algorithm>
+
+
 
 namespace freud { namespace sphericalharmonicorderparameters { 
 

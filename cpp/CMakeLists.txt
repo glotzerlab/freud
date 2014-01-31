@@ -95,6 +95,12 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
             interface/InterfaceMeasure.h
+            sphericalharmonicorderparameters/LocalQl.h
+            sphericalharmonicorderparameters/LocalQl.cc
+            sphericalharmonicorderparameters/LocalWl.h
+            sphericalharmonicorderparameters/LocalWl.cc
+            sphericalharmonicorderparameters/SolLiq.h
+            sphericalharmonicorderparameters/SolLiq.cc
             viz/colormap.h
             viz/colormap.cc
             viz/colorutil.h
@@ -105,12 +111,6 @@ set(SOURCES trajectory/trajectory.cc
             viz/split.cc
             parallel/tbb_config.h
             parallel/tbb_config.cc
-            sphericalharmonicorderparameters/LocalQl.h
-            sphericalharmonicorderparameters/LocalQl.cc
-            sphericalharmonicorderparameters/LocalWl.h
-            sphericalharmonicorderparameters/LocalWl.cc
-            sphericalharmonicorderparameters/SolLiq.h
-            sphericalharmonicorderparameters/SolLiq.cc
             )
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 

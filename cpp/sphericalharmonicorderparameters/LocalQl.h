@@ -1,6 +1,7 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
-#include <boost/math/special_functions.hpp>
+//include <boost/math/special_functions.hpp>
+
 
 #include "LinkCell.h"
 #include "num_util.h"

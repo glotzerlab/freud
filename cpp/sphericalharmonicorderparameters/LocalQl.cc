@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 #include <complex>
-#include <boost/math/special_functions.hpp>
-//#include <boost/math/special_functions/spheric_harmonic.hpp>
+//#include <boost/math/special_functions.hpp>
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace std;
 using namespace boost::python;
