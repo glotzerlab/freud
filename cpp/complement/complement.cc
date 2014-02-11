@@ -263,6 +263,11 @@ bool complement::comp_check(float3 r_i,
     // determine if paired
     if (d_ij > rmaxsq)
         return false;
+    // printf("d_ij = %f\n", d_ij);
+    // printf("theta_s_ij = %f\n", theta_s_ij);
+    // printf("theta_c_ij = %f\n", theta_c_ij);
+    // printf("v_ij = %f\n", v_ij);
+    // printf("v_ji = %f\n", v_ji);
     if ((theta_s_ij < (m_shape_dot_target - m_shape_dot_tol)) || (theta_s_ij > (m_shape_dot_target + m_shape_dot_tol)))
         return false;
     // if ((theta_c_ij < (m_comp_dot_target - m_comp_dot_tol)) || (theta_c_ij > (m_comp_dot_target + m_comp_dot_tol)))
@@ -272,11 +277,6 @@ bool complement::comp_check(float3 r_i,
         return false;
     if ((v_ji < (m_comp_dot_target - m_comp_dot_tol)) || (v_ji > (m_comp_dot_target + m_comp_dot_tol)))
         return false;
-    // printf("d_ij = %f\n", d_ij);
-    // printf("theta_s_ij = %f\n", theta_s_ij);
-    // printf("theta_c_ij = %f\n", theta_c_ij);
-    // printf("v_ij = %f\n", v_ij);
-    // printf("v_ji = %f\n", v_ji);
     // if (v_ij < 0.0)
     //     return false;
     // std::cout << "haven't encountered a problem" << std::endl;
