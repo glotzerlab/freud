@@ -3,6 +3,7 @@
 
 #include "num_util.h"
 #include "HOOMDMath.h"
+#include "VectorMath.h"
 
 #ifndef _KSPACE_H__
 #define _KSPACE_H__
@@ -81,13 +82,6 @@ class FTdelta
             float4* q_raw = (float4*) num_util::data(orientation);
             set_rq(Np, r_raw, q_raw);
             }
-        /*! Set length scale
-        \param scale Scaling factor to apply to lengths and distances
-        */
-        void set_scale(const float scale)
-            {
-            m_scale = scale;
-            }
         /*! Set scattering density
         \param density complex value of scattering density
         */
@@ -134,7 +128,6 @@ class FTdelta
         float3* m_K;                        //!< array of K points
         float3* m_r;                        //!< array of particle positions
         float4* m_q;                        //!< array of particle orientations
-        float m_scale;                      //!< length scale (to be multiplied by spatial dimensions)
         float m_density_Re;                 //!< real component of the scattering density
         float m_density_Im;                 //!< imaginary component of the scattering density
     };
@@ -158,6 +151,39 @@ class FTsphere: public FTdelta
     private:
         float m_radius;                     //!< particle radius
         float m_volume;                     //!< particle volume
+    };
+
+//! Data structure for polyhedron vertices
+/*! \ingroup hpmc_data_structs */
+struct poly3d_param_t
+    {
+    std::vector< vec3<float> > vert;                    //!< Polyhedron vertices
+    std::vector< std::vector<unsigned int> > facet;     //!< list of facets, which are lists of vertex indices
+    std::vector< vec3<float> > norm;                    //!< normal unit vectors corresponding to facets
+    std::vector< float > d;                             //!< distances of origin to facets
+    std::vector< float > area;                          //!< pre-computed facet areas
+    float volume;                                       //!< pre-computed polyhedron volume
+    };
+
+class FTpolyhedron: public FTdelta
+    {
+    public:
+        typedef poly3d_param_t param_type;
+
+        //! Constructor
+        FTpolyhedron();
+
+        //! Perform transform and store result internally
+        //! Note that for a scale factor, lambda, affecting the size of the scatterer,
+        //! S_lambda(k) == lambda**3 * S(lambda * k)
+        virtual void compute();
+
+        //! Set particle data structure
+        // \param params data structure of necessary polyhedron information
+        void set_params(const param_type& params);
+
+    private:
+        param_type m_params;        //!< polyhedron data structure
     };
 
 /*! \internal

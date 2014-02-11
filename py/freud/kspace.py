@@ -408,16 +408,10 @@ class SingleCell3D:
         self.Kpoints_valid = False
     ## Update K points at which to evaluate FT
     # If the diffraction image dimensions change relative to the reciprocal lattice,
-    # the K points need to be recalculated. |K|=0 causes problems for some form factors,
-    # so it is removed. If a direct scattering spot is desired, calculate and add it separately.
-    # This can be fixed in the future...
+    # the K points need to be recalculated.
     def update_Kpoints(self):
         self.Kpoints_valid = True
         self.Kpoints = numpy.float32(constrainedLatticePoints(self.g1, self.g2, self.g3, self.K_constraint))
-        if len(self.Kpoints) > 0:
-            truth = self.Kpoints == numpy.array([0.,0.,0.])
-            nonzeros = numpy.invert(truth[:,0] * truth[:,1] * truth[:,2])
-            self.Kpoints = self.Kpoints[nonzeros]
         for i in xrange(len(self.ptype_ff)):
             self.ptype_ff[i].set_K(self.Kpoints)
         self.FT_valid = False
@@ -475,8 +469,8 @@ class FTbase:
         self.density = numpy.complex64(1.0)
         self.S = None
         self.K = numpy.array([[0., 0., 0.]], dtype=numpy.float32)
-        self.position = None
-        self.orientation = None
+        self.position = numpy.array([[0.,0.,0.]], dtype=numpy.float32)
+        self.orientation = numpy.array([[1.,0.,0.,0.]], dtype=numpy.float32)
 
         # create dictionary of parameter names and set/get methods
         self.set_param_map = dict()
@@ -544,41 +538,33 @@ class FTdelta(FTbase):
         self.FTobj = _FTdelta()
     def set_K(self, K):
         FTbase.set_K(self, K)
-        self.FTobj.set_K(self.K)
+        self.FTobj.set_K(self.K * self.scale)
+    # Note that for a scale factor, lambda, affecting the scattering density rho(r),
+    # S_lambda(k) == lambda**3 * S(lambda * k)
     def set_scale(self, scale):
         FTbase.set_scale(self, scale)
-        self.FTobj.set_scale(float(self.scale))
+        #self.FTobj.set_scale(float(self.scale))
+        self.FTobj.set_K(self.K * self.scale)
     def set_density(self, density):
         FTbase.set_density(self, density)
         self.FTobj.set_density(complex(self.density))
     def set_rq(self, r, q):
         FTbase.set_rq(self, r, q)
-        self.FTobj.set_rq(r, q)
+        self.FTobj.set_rq(self.position, self.orientation)
     ## Compute FT
     # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
     def compute(self, *args, **kwargs):
         self.FTobj.compute()
-        self.S = self.FTobj.getFT()
+        self.S = self.FTobj.getFT() * self.scale**3
 
-class FTsphere(FTbase):
+# Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
+class FTsphere(FTdelta):
     def __init__(self, *args, **kwargs):
         FTbase.__init__(self, *args, **kwargs)
         self.FTobj = _FTsphere()
         self.set_param_map['radius'] = self.set_radius
         self.get_param_map['radius'] = self.get_radius
         self.set_radius(0.5)
-    def set_K(self, K):
-        FTbase.set_K(self, K)
-        self.FTobj.set_K(self.K)
-    def set_scale(self, scale):
-        FTbase.set_scale(self, scale)
-        self.FTobj.set_scale(float(self.scale))
-    def set_density(self, density):
-        FTbase.set_density(self, density)
-        self.FTobj.set_density(complex(self.density))
-    def set_rq(self, r, q):
-        FTbase.set_rq(self, r, q)
-        self.FTobj.set_rq(r, q)
     ## Set radius parameter
     # \param radius sphere radius will be stored as given, but scaled by scale parameter when used by methods
     def set_radius(self, radius):
@@ -590,11 +576,6 @@ class FTsphere(FTbase):
     def get_radius(self):
         self.radius = self.FTobj.get_radius()
         return self.radius
-    ## Compute FT
-    # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
-    def compute(self, *args, **kwargs):
-        self.FTobj.compute()
-        self.S = self.FTobj.getFT()
 
 class FTconvexPolyhedron(FTbase):
     #! \param hull convex hull object as returned by freud.shape.ConvexPolyhedron(points)
@@ -607,15 +588,13 @@ class FTconvexPolyhedron(FTbase):
     # \param radius inscribed sphere radius without scale applied
     def set_radius(self, radius):
         # Find original in-sphere radius, determine necessary scale factor, and scale vertices and surface distances
-        inradius = abs(self.hull.equations[:, 3].max())
-        scale_factor = radius / inradius
-        self.hull.points *= scale_factor
-        self.hull.equations[:,3] *= scale_factor
+        radius = float(radius)
+        self.hull.setInsphereRadius(radius)
     ## Get radius of in-sphere
     # If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
     def get_radius(self):
         # Find current in-sphere radius
-        inradius = abs(self.hull.equations[:,3].max())
+        inradius = self.hull.getInsphereRadius()
         return inradius
     ## Compute FT
     # Calculate P = F * S

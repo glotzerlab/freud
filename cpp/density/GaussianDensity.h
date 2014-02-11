@@ -76,4 +76,4 @@ void export_GaussianDensity();
 
 }; }; // end namespace freud::density
 
-#endif _GaussianDensity_H__
+#endif 
