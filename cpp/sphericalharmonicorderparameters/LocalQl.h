@@ -44,6 +44,16 @@ class LocalQl
             return m_box;
             }
 
+        //! Reset the simulation box size
+        void setBox(const trajectory::Box newbox)
+            {
+            m_box = newbox;  //Set
+            locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );
+            //Rebuild cell list
+            m_lc = newLinkCell;
+            }
+
+
         //! Compute the local rotationally invariant Ql order parameter
         void compute(const float3 *points,
                      unsigned int Np);
@@ -70,6 +80,7 @@ class LocalQl
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
+        float m_rmax_cluster;             //!< Maximum radius at which to cluster one crystal
         locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_l;                 //!< Spherical harmonic l value.
         unsigned int m_Np;                //!< Last number of points computed
