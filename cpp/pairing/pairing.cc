@@ -1,4 +1,4 @@
-#include "complement.h"
+#include "pairing.h"
 
 #include <stdexcept>
 #ifdef __SSE2__
@@ -12,9 +12,9 @@
 using namespace std;
 using namespace boost::python;
 
-namespace freud { namespace complement {
+namespace freud { namespace pairing {
 
-complement::complement(const trajectory::Box& box, float rmax,
+pairing::pairing(const trajectory::Box& box, float rmax,
                         float shape_dot_target, float shape_dot_tol, float comp_dot_target, float comp_dot_tol)
     : m_box(box), m_rmax(rmax), m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol),
     m_comp_dot_target(comp_dot_target), m_comp_dot_tol(comp_dot_tol)
@@ -30,13 +30,13 @@ complement::complement(const trajectory::Box& box, float rmax,
     }
     }
 
-complement::~complement()
+pairing::~pairing()
     {
     if(useCells())
     delete m_lc;
     }
 
-bool complement::useCells()
+bool pairing::useCells()
     {
     float l_min = fmin(m_box.getLx(), m_box.getLy());
     if (m_box.is2D())
@@ -47,7 +47,7 @@ bool complement::useCells()
     }
 
 // Need to cite this
-// bool complement::sameSide(float3 A, float3 B, float3 r, float3 p)
+// bool pairing::sameSide(float3 A, float3 B, float3 r, float3 p)
 //     {
 //     float3 BA;
 //     float3 rA;
@@ -77,7 +77,7 @@ bool complement::useCells()
 //         }
 //     }
 
-// bool complement::isInside(float2 t[], float2 p)
+// bool pairing::isInside(float2 t[], float2 p)
 //     {
 //     float3 nt [3];
 //     float3 np;
@@ -97,7 +97,7 @@ bool complement::useCells()
 
 //     }
 
-// bool complement::isInside(float3 t[], float3 p)
+// bool pairing::isInside(float3 t[], float3 p)
 //     {
 //     float3 A;
 //     float3 B;
@@ -138,7 +138,7 @@ bool complement::useCells()
 
 //     }
 
-// float2 complement::mat_rotate(float2 point, float angle)
+// float2 pairing::mat_rotate(float2 point, float angle)
 //     {
 //     float2 rot;
 //     float mysin = sinf(angle);
@@ -148,7 +148,7 @@ bool complement::useCells()
 //     return rot;
 //     }
 
-// float2 complement::into_local(float2 ref_point,
+// float2 pairing::into_local(float2 ref_point,
 //                             float2 point,
 //                             float2 vert,
 //                             float ref_angle,
@@ -165,7 +165,7 @@ bool complement::useCells()
 //     return local;
 //     }
 
-// float complement::cavity_depth(float2 t[])
+// float pairing::cavity_depth(float2 t[])
 //     {
 //     float2 v_mouth;
 //     float2 v_side;
@@ -181,7 +181,73 @@ bool complement::useCells()
 //     return area/m_mouth;
 //     }
 
-float3 complement::cross(float2 v1, float2 v2)
+// multiply two quaternions together
+float4 pairing::quat_mult(float4 a, float4 b)
+    {
+    float4 c;
+    c.w = (a.w * b.w) - (a.x * b.x) - (a.y * b.y) - (a.z * b.z);
+    c.x = (a.w * b.x) + (a.x * b.w) + (a.y * b.z) - (a.z * b.y);
+    c.y = (a.w * b.y) - (a.x * b.z) + (a.y * b.w) + (a.z * b.x);
+    c.z = (a.w * b.z) + (a.x * b.y) - (a.y * b.x) + (a.z * b.w);
+    return c;
+    }
+
+// generate a quaternion from a vector
+float4 gen_q(angle):
+    axis = numpy.array([0, 0, 1], dtype=numpy.float32)
+    q = numpy.zeros(shape=(4), dtype=numpy.float32)
+    q[0] = numpy.cos(0.5 * angle)
+    q[1] = axis[0] * numpy.sin(0.5 * angle)
+    q[2] = axis[1] * numpy.sin(0.5 * angle)
+    q[3] = axis[2] * numpy.sin(0.5 * angle)
+    den = numpy.sqrt(numpy.dot(q, q))
+    q /= den
+    return q
+
+float4 gen_qs(angle):
+    axis = numpy.array([0, 0, 1], dtype=numpy.float32)
+    q = numpy.zeros(shape=(4), dtype=numpy.float32)
+    q[0] = numpy.cos(0.5 * angle)
+    q[1] = -axis[0] * numpy.sin(0.5 * angle)
+    q[2] = -axis[1] * numpy.sin(0.5 * angle)
+    q[3] = -axis[2] * numpy.sin(0.5 * angle)
+    den = numpy.sqrt(numpy.dot(q, q))
+    q /= den
+    return q
+
+float4 q_rotate(quat, angle):
+    q = gen_q(angle)
+    qs = gen_qs(angle)
+    tp = numpy.zeros(shape=(4), dtype=numpy.float32)
+    tp = quat
+    tmp = quat_mult(q, tp)
+    ps = quat_mult(tmp, qs)
+    return ps
+
+float calc_angle(float3 v1, float3 v2)
+    {
+    // find axis of rotation
+    // need to fins vector
+    float3 axis = cross(v1, v2);
+
+    }
+
+def gen_quats(v1, v2):
+    axis = numpy.cross(v1, v2);
+    #axis = numpy.array([0.0, 1.0, 0.0])
+    axis = axis / numpy.sqrt(numpy.dot(axis, axis));
+    angle = numpy.arccos(numpy.dot(v1, v2)/(numpy.sqrt(numpy.dot(v1, v1)) * numpy.sqrt(numpy.dot(v2, v2))));
+    #angle = numpy.pi/4;
+    q = numpy.array([numpy.cos(0.5 * angle), axis[0] * numpy.sin(0.5 * angle), axis[1] * numpy.sin(0.5 * angle), axis[2] * numpy.sin(0.5 * angle)]);
+    qs = numpy.array([numpy.cos(0.5 * angle), -1.0 * axis[0] * numpy.sin(0.5 * angle), -1.0 * axis[1] * numpy.sin(0.5 * angle), -1.0 * axis[2] * numpy.sin(0.5 * angle)]);
+    q = q / numpy.sqrt(numpy.dot(q,q))
+    qs = qs / numpy.sqrt(numpy.dot(qs,qs))
+    print("axis = " + str(axis) + "\n");
+    print("angle = " + str(angle) + "\n");
+    print("q = " + str(q) + "\n");
+    print("qs = " + str(qs) + "\n");
+
+float3 pairing::cross(float2 v1, float2 v2)
     {
     float3 v1_n;
     float3 v2_n;
@@ -194,7 +260,7 @@ float3 complement::cross(float2 v1, float2 v2)
     return cross(v1_n, v2_n);
     }
 
-float3 complement::cross(float3 v1, float3 v2)
+float3 pairing::cross(float3 v1, float3 v2)
     {
     float3 v;
     v.x = (v1.y * v2.z) - (v2.y * v1.z);
@@ -203,17 +269,17 @@ float3 complement::cross(float3 v1, float3 v2)
     return v;
     }
 
-float complement::dot2(float2 v1, float2 v2)
+float pairing::dot2(float2 v1, float2 v2)
     {
     return (v1.x * v2.x) + (v1.y * v2.y);
     }
 
-float complement::dot3(float3 v1, float3 v2)
+float pairing::dot3(float3 v1, float3 v2)
     {
     return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
     }
 
-bool complement::comp_check(float3 r_i,
+bool pairing::comp_check(float3 r_i,
                             float3 r_j,
                             float angle_s_i,
                             float angle_s_j,
@@ -263,31 +329,16 @@ bool complement::comp_check(float3 r_i,
     // determine if paired
     if (d_ij > rmaxsq)
         return false;
-    // printf("d_ij = %f\n", d_ij);
-    // printf("theta_s_ij = %f\n", theta_s_ij);
-    // printf("theta_c_ij = %f\n", theta_c_ij);
-    // printf("v_ij = %f\n", v_ij);
-    // printf("v_ji = %f\n", v_ji);
     if ((theta_s_ij < (m_shape_dot_target - m_shape_dot_tol)) || (theta_s_ij > (m_shape_dot_target + m_shape_dot_tol)))
         return false;
-    // if ((theta_c_ij < (m_comp_dot_target - m_comp_dot_tol)) || (theta_c_ij > (m_comp_dot_target + m_comp_dot_tol)))
-    //     return false;
-    // printf("d_ij = %f theta_s_ij = %f theta_c_ij = %f v_ij = %f v_ji = %f\n", sqrt(d_ij), theta_s_ij, theta_c_ij, v_ij, v_ji);
     if ((v_ij < (m_comp_dot_target - m_comp_dot_tol)) || (v_ij > (m_comp_dot_target + m_comp_dot_tol)))
         return false;
     if ((v_ji < (m_comp_dot_target - m_comp_dot_tol)) || (v_ji > (m_comp_dot_target + m_comp_dot_tol)))
         return false;
-    // if (v_ij < 0.0)
-    //     return false;
-    // std::cout << "haven't encountered a problem" << std::endl;
-    // std::cout << "d_ij = " << d_ij << std::endl;
-    // std::cout << "theta_s_ij = " << theta_s_ij << std::endl;
-    // std::cout << "theta_c_ij = " << theta_c_ij << std::endl;
-    // std::cout << "v_ij = " << v_ij << std::endl;
     return true;
     }
 
-void complement::compute(unsigned int* match,
+void pairing::compute(unsigned int* match,
                 float3* points,
                 float* shape_angles,
                 float* comp_angles,
@@ -312,7 +363,7 @@ void complement::compute(unsigned int* match,
         }
     }
 
-void complement::computeWithoutCellList(unsigned int* match,
+void pairing::computeWithoutCellList(unsigned int* match,
                 float3* points,
                 float* shape_angles,
                 float* comp_angles,
@@ -357,7 +408,7 @@ void complement::computeWithoutCellList(unsigned int* match,
         } // End of parallel section
     }
 
-void complement::computeWithCellList(unsigned int* match,
+void pairing::computeWithCellList(unsigned int* match,
                 float3* points,
                 float* shape_angles,
                 float* comp_angles,
@@ -413,7 +464,7 @@ void complement::computeWithCellList(unsigned int* match,
         } // End of parallel section
     }
 
-void complement::computePy(boost::python::numeric::array match,
+void pairing::computePy(boost::python::numeric::array match,
                     boost::python::numeric::array points,
                     boost::python::numeric::array shape_angles,
                     boost::python::numeric::array comp_angles)
@@ -459,13 +510,13 @@ void complement::computePy(boost::python::numeric::array match,
             Np);
     }
 
-void export_complement()
+void export_pairing()
     {
-    class_<complement>("complement", init<trajectory::Box&, float, float, float, float, float>())
-        .def("getBox", &complement::getBox, return_internal_reference<>())
-        .def("compute", &complement::computePy)
-        .def("getNpair", &complement::getNpairPy)
+    class_<pairing>("pairing", init<trajectory::Box&, float, float, float, float, float>())
+        .def("getBox", &pairing::getBox, return_internal_reference<>())
+        .def("compute", &pairing::computePy)
+        .def("getNpair", &pairing::getNpairPy)
         ;
     }
 
-}; }; // end namespace freud::complement
+}; }; // end namespace freud::pairing

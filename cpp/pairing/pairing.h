@@ -5,10 +5,10 @@
 #include "num_util.h"
 #include "trajectory.h"
 
-#ifndef _complement_H__
-#define _complement_H__
+#ifndef _pairing_H__
+#define _pairing_H__
 
-namespace freud { namespace complement {
+namespace freud { namespace pairing {
 
 //! Computes the number of matches for a given set of points
 /*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
@@ -21,15 +21,15 @@ namespace freud { namespace complement {
     RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
     3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
-class complement
+class pairing
     {
     public:
         //! Constructor
-        complement(const trajectory::Box& box, float rmax,
+        pairing(const trajectory::Box& box, float rmax,
                     float shape_dot_target, float shape_dot_tol, float comp_dot_target, float comp_dot_tol);
 
         //! Destructor
-        ~complement();
+        ~pairing();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -80,7 +80,7 @@ class complement
                         float angle_c_i,
                         float angle_c_j);
 
-        //! Compute the complement function
+        //! Compute the pairing function
         void compute(unsigned int* match,
                     float3* points,
                     float* shape_angles,
@@ -129,8 +129,8 @@ class complement
 /*! \internal
     \brief Exports all classes in this file to python
 */
-void export_complement();
+void export_pairing();
 
-}; }; // end namespace freud::complement
+}; }; // end namespace freud::pairing
 
-#endif // _complement_H__
+#endif // _pairing_H__

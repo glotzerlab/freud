@@ -13,7 +13,7 @@
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
 #include "LocalQl.h"
-#include "complement.h"
+#include "pairing.h"
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
@@ -74,7 +74,7 @@ BOOST_PYTHON_MODULE(_freud)
     order::export_HexOrderParameter();
     interface::export_InterfaceMeasure();
     localql::export_LocalQl();
-    complement::export_complement();
+    pairing::export_pairing();
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();
