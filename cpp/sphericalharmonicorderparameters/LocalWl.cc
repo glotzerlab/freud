@@ -64,8 +64,12 @@ void LocalWl::compute(const float3 *points, unsigned int Np)
     m_Qlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
     m_Qli = boost::shared_array<double>(new double[m_Np]);
     m_Wli = boost::shared_array<complex<double> >(new complex<double>[m_Np]);
+    m_WliNorm = boost::shared_array<complex<double> >(new complex<double>[m_Np]);
+    m_Qlm = boost::shared_array<complex<double> >(new complex<double>[2*m_l+1]);
     memset((void*)m_Qlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
     memset((void*)m_Wli.get(), 0, sizeof(complex<double>)*m_Np);
+    memset((void*)m_WliNorm.get(), 0, sizeof(complex<double>)*m_Np);
+    memset((void*)m_Qlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
     memset((void*)m_Qli.get(), 0, sizeof(double)*m_Np);
 
     for (unsigned int i = 0; i<m_Np; i++)
@@ -117,10 +121,19 @@ void LocalWl::compute(const float3 *points, unsigned int Np)
                 {
                 m_Qlmi[(2*m_l+1)*i+k]/= neighborcount;
 				m_Qli[i]+=abs( m_Qlmi[(2*m_l+1)*i+k]*conj(m_Qlmi[(2*m_l+1)*i+k]) );
+                m_Qlm[k]+= m_Qlmi[(2*m_l+1)*i+k];
                 } //Ends loop over particles i for Qlmi calcs
 	    m_Qli[i]=sqrt(m_Qli[i]);//*sqrt(m_Qli[i])*sqrt(m_Qli[i]);//Normalize factor for Wli
+        }
+	    
+    for(unsigned int k = 0; k < (2*m_l+1); ++k)
+        {
+        m_Qlm[k]/= m_Np;
+        }
 
-	    //Wli calculation
+    for(unsigned int i = 0; i < m_Np; ++i)
+        {
+        //Wli calculation
 	    unsigned int counter = 0;
 	    for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
 	    	{
@@ -128,7 +141,8 @@ void LocalWl::compute(const float3 *points, unsigned int Np)
 	    		{
 	    		unsigned int u3 = 3*m_l-u1-u2;
 	    		m_Wli[i] += m_wigner3jvalues[counter]*m_Qlmi[(2*m_l+1)*i+u1]*m_Qlmi[(2*m_l+1)*i+u2]*m_Qlmi[(2*m_l+1)*i+u3];
-	    		counter+=1;
+	    		m_WliNorm[i]+= m_wigner3jvalues[counter]*m_Qlm[u1]*m_Qlm[u2]*m_Qlm[u3];
+                counter+=1;
 	    		}
 	    	}//Ends loop for Wli calcs
         if(m_normalizeWl)
@@ -186,6 +200,7 @@ void export_LocalWl()
         .def("getBox", &LocalWl::getBox, return_internal_reference<>())
         .def("compute", &LocalWl::computePy)
         .def("getWl", &LocalWl::getWlPy)
+        .def("getWlNorm", &LocalWl::getWlNormPy)
         .def("getQl", &LocalWl::getQlPy)
         .def("setBox",&LocalWl::setBox)
         .def("setWigner3j", &LocalWl::setWigner3jPy)

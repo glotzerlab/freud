@@ -66,6 +66,11 @@ class LocalWl
             {
             return m_Wli;
             }
+        boost::shared_array<std::complex<double> > getWlNorm()
+            {
+            return m_WliNorm;
+            }
+
         //! Get a reference to last computed Ql for each particle.
         boost::shared_array< double > getQl()
             {
@@ -84,6 +89,12 @@ class LocalWl
             std::complex<double> *arr = m_Wli.get();
             return num_util::makeNum(arr, m_Np);
             }
+        boost::python::numeric::array getWlNormPy()
+            {
+            std::complex<double> *arr = m_WliNorm.get();
+            return num_util::makeNum(arr, m_Np);
+            }
+
         //! Python wrapper for getWl() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
         boost::python::numeric::array getQlPy()
             {
@@ -124,8 +135,10 @@ class LocalWl
         //unsigned int num_wigner3jcoefs;
         bool m_normalizeWl;               //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.        
 
+        boost::shared_array< std::complex<double> > m_Qlm;
         boost::shared_array< std::complex<double> > m_Qlmi;        //!  Qlm for each particle i
         boost::shared_array< std::complex<double> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
+        boost::shared_array< std::complex<double> > m_WliNorm;
         boost::shared_array< double > m_Qli; //!<  Need copy of Qli for normalization
         boost::shared_array< double > m_wigner3jvalues;  //!<Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
     };
