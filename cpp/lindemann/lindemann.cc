@@ -108,8 +108,8 @@ void Lind::computeWithoutCellList(const float3 *points,
                 {
                 continue;
                 }
-            float r_ij = 0;
-            float rsq_ij = 0;
+            float3 r_ij;
+            double rsq_ij = 0;
             for (unsigned int k = 0; k < Nf; k++)
                 {
                 // compute r between the two particles
@@ -121,22 +121,37 @@ void Lind::computeWithoutCellList(const float3 *points,
 
                 float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                 float r = sqrtf(rsq);
-                r_ij += r;
+                r_ij.x += delta.x;
+                r_ij.y += delta.y;
+                r_ij.z += delta.z;
                 rsq_ij += rsq;
                 } // done looping over frames
-            float avg_r_ij = r_ij / ((float) Nf);
-            float avg_rsq_ij = rsq_ij / ((float) Nf);
-            float tmp_lindex = (sqrtf(abs(avg_rsq_ij - (avg_r_ij * avg_r_ij))) / avg_r_ij);
-            // if (tmp_lindex != tmp_lindex)
-            //     {
-            //     printf("fucking nan detected\n");
-            //     printf("r_ij = %f\n", r_ij);
-            //     printf("rsq_ij = %f\n", rsq_ij);
-            //     printf("avg_r_ij = %f\n", avg_r_ij);
-            //     printf("avg_rsq_ij = %f\n", avg_rsq_ij);
-            //     printf("inner sqrtf = %f\n", (avg_rsq_ij - (avg_r_ij * avg_r_ij)));
-            //     printf("inner sqrtf = %f\n", tmp_lindex);
-            //     }
+            r_ij.x /= (double) Nf;
+            r_ij.y /= (double) Nf;
+            r_ij.z /= (double) Nf;
+            double avg_r_ij = sqrt(r_ij.x*r_ij.x  + r_ij.y*r_ij.y + r_ij.z*r_ij.z);
+            if (avg_r_ij < 0.0)
+                {
+                printf("prepare to die mortal scum; avg_r_ij = %f", avg_r_ij);
+                }
+            double avg_rsq_ij = rsq_ij / ((float) Nf);
+            double tmp_lindex = (sqrtf(abs(avg_rsq_ij - (avg_r_ij * avg_r_ij))) / avg_r_ij);
+            // printf("r_ij = %f\n", avg_r_ij);
+            // printf("diff = %f \n", diff);
+            // printf("rsq_ij = %f\n", rsq_ij);
+            // printf("avg_r_ij = %f\n", avg_r_ij);
+            // printf("avg_rsq_ij = %f\n", avg_rsq_ij);
+            // printf("inner sqrtf = %f\n", sqrtf(avg_rsq_ij - (avg_r_ij * avg_r_ij)) / avg_r_ij);
+            // printf("inner sqrtf = %f\n", tmp_lindex);
+            // if (abs(diff) > 0.00001)
+                // {
+                // printf("diff = %f \n", diff);
+                // }
+            // printf("tmp_lindex = %f \n", tmp_lindex);
+            if (tmp_lindex < 0.0)
+            {
+                printf("prepare to die mortal scum; tmp_lindex = %f", tmp_lindex);
+            }
             lindex += tmp_lindex;
             }
         lindex = (1.0 / (((float) Np) - 1.0)) * lindex;
