@@ -31,25 +31,14 @@ class Lind
         //! Constructor
         Lind(const trajectory::Box& box, float rmax, float dr);
 
-        //! Destructor
-        ~Lind();
-
         //! Get the simulation box
         const trajectory::Box& getBox() const
             {
             return m_box;
             }
 
-        //! Check if a cell list should be used or not
-        bool useCells();
-
         //! Compute the Lindemann Index
         void compute(const float3 *points,
-                 unsigned int Np,
-                 unsigned int Nf);
-
-        //! Compute the Lindemann Index
-        void computeWithoutCellList(const float3 *points,
                  unsigned int Np,
                  unsigned int Nf);
 
@@ -57,26 +46,24 @@ class Lind
         void computePy(boost::python::numeric::array points);
 
         //! Get a reference to the last computed rdf
-        float getLindex()
+        boost::shared_array< float > getLindexArray()
             {
-            return m_lindex;
+            return m_lindex_array;
             }
 
         //! Python wrapper for getLindex() (returns a copy)
-        float getLindexPy()
+        boost::python::numeric::array getLindexArrayPy()
             {
-            float lindex = m_lindex;
-            return m_lindex;
+            float *arr = m_lindex_array.get();
+            return num_util::makeNum(arr, m_Np);
             }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
-        // unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
-
-        float m_lindex;     //!< Lindemann Index
+        unsigned int m_Np;                //!< used only to return the array
+        boost::shared_array< float > m_lindex_array;         //!< lindex array computed
     };
 
 /*! \internal

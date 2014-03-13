@@ -10,8 +10,12 @@
 #include <omp.h>
 #endif
 
+#include <tbb/tbb.h>
+
 using namespace std;
 using namespace boost::python;
+
+using namespace tbb;
 
 /*! \file lind.cc
     \brief Routines for computing radial density functions
@@ -32,133 +36,112 @@ Lind::Lind(const trajectory::Box& box, float rmax, float dr)
         throw invalid_argument("rmax must be smaller than half the smallest box size");
     if (rmax > box.getLz()/2 && !box.is2D())
         throw invalid_argument("rmax must be smaller than half the smallest box size");
-
-    // m_nbins = int(floorf(m_rmax / m_dr));
-    // assert(m_nbins > 0);
-    // m_rdf_array = boost::shared_array<float>(new float[m_nbins]);
-    // memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
-    // m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
-    // memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-    // m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
-    // memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
-
-    // precompute the bin center positions
-    // m_r_array = boost::shared_array<float>(new float[m_nbins]);
-    // for (unsigned int i = 0; i < m_nbins; i++)
-    //     {
-    //     float r = float(i) * m_dr;
-    //     float nextr = float(i+1) * m_dr;
-    //     m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
-    //     }
-
-    // precompute cell volumes
-    // m_vol_array = boost::shared_array<float>(new float[m_nbins]);
-    // for (unsigned int i = 0; i < m_nbins; i++)
-    //     {
-    //     float r = float(i) * m_dr;
-    //     float nextr = float(i+1) * m_dr;
-    //     if (m_box.is2D())
-    //         m_vol_array[i] = M_PI * (nextr*nextr - r*r);
-    //     else
-    //         m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
-    //     }
-
-    if (useCells())
-        {
-        m_lc = new locality::LinkCell(box, rmax);
-        }
     }
 
-Lind::~Lind()
+class ComputeLindex
     {
-    if(useCells())
-    delete m_lc;
-    }
+    private:
+        float *m_lindex_array;
+        const trajectory::Box m_box;
+        const float m_rmax;
+        const float m_dr;
+        const float3 *m_points;
+        const unsigned int m_Np;
+        const unsigned int m_Nf;
+    public:
+        ComputeLindex(float *lindex_array,
+                        const trajectory::Box& box,
+                        const float rmax,
+                        const float dr,
+                        const float3 *points,
+                        const unsigned int Np,
+                        const unsigned int Nf)
+            : m_box(box), m_rmax(rmax), m_dr(dr), m_lindex_array(lindex_array), m_points(points), m_Np(Np), m_Nf(Nf)
+            {
+            }
+        void operator()( const blocked_range<size_t>& r ) const
+            {
+            // zero the bin counts for totaling
+            // memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+            float dr_inv = 1.0f / m_dr;
+            float rmaxsq = m_rmax * m_rmax;
 
-bool Lind::useCells()
-    {
-    return false;
-    }
+            // for each reference point
+            float lindex;
+            for (size_t i = r.begin(); i != r.end(); i++)
+                {
+                lindex = 0;
+                m_lindex_array[i] = 0;
+                for (unsigned int j = 0; j < m_Np; j++)
+                    {
+                    // avoid calling on same particle
+                    if (i == j)
+                        {
+                        continue;
+                        }
+                    float3 r_ij;
+                    double rsq_ij = 0;
+                    for (unsigned int k = 0; k < m_Nf; k++)
+                        {
+                        // compute r between the two particles
+                        float dx = float(m_points[k * m_Np + i].x - m_points[k * m_Np + j].x);
+                        float dy = float(m_points[k * m_Np + i].y - m_points[k * m_Np + j].y);
+                        float dz = float(m_points[k * m_Np + i].z - m_points[k * m_Np + j].z);
+
+                        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+
+                        float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                        float r = sqrtf(rsq);
+                        r_ij.x += delta.x;
+                        r_ij.y += delta.y;
+                        r_ij.z += delta.z;
+                        rsq_ij += rsq;
+                        } // done looping over frames
+                    r_ij.x /= (double) m_Nf;
+                    r_ij.y /= (double) m_Nf;
+                    r_ij.z /= (double) m_Nf;
+                    double avg_r_ij = sqrt(r_ij.x*r_ij.x  + r_ij.y*r_ij.y + r_ij.z*r_ij.z);
+                    if (avg_r_ij < 0.0)
+                        {
+                        printf("prepare to die mortal scum; avg_r_ij = %f", avg_r_ij);
+                        }
+                    double avg_rsq_ij = rsq_ij / ((float) m_Nf);
+                    double tmp_lindex = (sqrtf(abs(avg_rsq_ij - (avg_r_ij * avg_r_ij))) / avg_r_ij);
+                    // printf("r_ij = %f\n", avg_r_ij);
+                    // printf("diff = %f \n", diff);
+                    // printf("rsq_ij = %f\n", rsq_ij);
+                    // printf("avg_r_ij = %f\n", avg_r_ij);
+                    // printf("avg_rsq_ij = %f\n", avg_rsq_ij);
+                    // printf("inner sqrtf = %f\n", sqrtf(avg_rsq_ij - (avg_r_ij * avg_r_ij)) / avg_r_ij);
+                    // printf("inner sqrtf = %f\n", tmp_lindex);
+                    // if (abs(diff) > 0.00001)
+                        // {
+                        // printf("diff = %f \n", diff);
+                        // }
+                    // printf("tmp_lindex = %f \n", tmp_lindex);
+                    if (tmp_lindex < 0.0)
+                    {
+                        printf("prepare to die mortal scum; tmp_lindex = %f", tmp_lindex);
+                    }
+                    lindex += tmp_lindex;
+                    }
+                lindex = (1.0 / (((float) m_Np) - 1.0)) * lindex;
+                m_lindex_array[i] += lindex;
+                } // done looping over reference points
+            }
+    };
 
 void Lind::compute(const float3 *points,
-                 unsigned int Np,
-                 unsigned int Nf)
+                    unsigned int Np,
+                    unsigned int Nf)
     {
-    computeWithoutCellList(points, Np, Nf);
-    }
-
-void Lind::computeWithoutCellList(const float3 *points,
-                 unsigned int Np,
-                 unsigned int Nf)
-    {
-    // zero the bin counts for totaling
-    // memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-    float dr_inv = 1.0f / m_dr;
-    float rmaxsq = m_rmax * m_rmax;
-
-    // for each reference point
-    float lindex;
-    for (unsigned int i = 0; i < Np; i++)
-        {
-        lindex = 0;
-        for (unsigned int j = 0; j < Np; j++)
-            {
-            // avoid calling on same particle
-            if (i == j)
-                {
-                continue;
-                }
-            float3 r_ij;
-            double rsq_ij = 0;
-            for (unsigned int k = 0; k < Nf; k++)
-                {
-                // compute r between the two particles
-                float dx = float(points[k * Np + i].x - points[k * Np + j].x);
-                float dy = float(points[k * Np + i].y - points[k * Np + j].y);
-                float dz = float(points[k * Np + i].z - points[k * Np + j].z);
-
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                float r = sqrtf(rsq);
-                r_ij.x += delta.x;
-                r_ij.y += delta.y;
-                r_ij.z += delta.z;
-                rsq_ij += rsq;
-                } // done looping over frames
-            r_ij.x /= (double) Nf;
-            r_ij.y /= (double) Nf;
-            r_ij.z /= (double) Nf;
-            double avg_r_ij = sqrt(r_ij.x*r_ij.x  + r_ij.y*r_ij.y + r_ij.z*r_ij.z);
-            if (avg_r_ij < 0.0)
-                {
-                printf("prepare to die mortal scum; avg_r_ij = %f", avg_r_ij);
-                }
-            double avg_rsq_ij = rsq_ij / ((float) Nf);
-            double tmp_lindex = (sqrtf(abs(avg_rsq_ij - (avg_r_ij * avg_r_ij))) / avg_r_ij);
-            // printf("r_ij = %f\n", avg_r_ij);
-            // printf("diff = %f \n", diff);
-            // printf("rsq_ij = %f\n", rsq_ij);
-            // printf("avg_r_ij = %f\n", avg_r_ij);
-            // printf("avg_rsq_ij = %f\n", avg_rsq_ij);
-            // printf("inner sqrtf = %f\n", sqrtf(avg_rsq_ij - (avg_r_ij * avg_r_ij)) / avg_r_ij);
-            // printf("inner sqrtf = %f\n", tmp_lindex);
-            // if (abs(diff) > 0.00001)
-                // {
-                // printf("diff = %f \n", diff);
-                // }
-            // printf("tmp_lindex = %f \n", tmp_lindex);
-            if (tmp_lindex < 0.0)
-            {
-                printf("prepare to die mortal scum; tmp_lindex = %f", tmp_lindex);
-            }
-            lindex += tmp_lindex;
-            }
-        lindex = (1.0 / (((float) Np) - 1.0)) * lindex;
-        m_lindex += lindex;
-        } // done looping over reference points
-    // calc Lindexmann Index
-    m_lindex /= Np;
+    parallel_for(blocked_range<size_t>(0,Np), ComputeLindex(m_lindex_array.get(),
+                                                            m_box,
+                                                            m_rmax,
+                                                            m_dr,
+                                                            points,
+                                                            Np,
+                                                            Nf));
     }
 
 void Lind::computePy(boost::python::numeric::array points)
@@ -173,6 +156,10 @@ void Lind::computePy(boost::python::numeric::array points)
     // Np = number of particles
     unsigned int Nf = num_util::shape(points)[0];
     unsigned int Np = num_util::shape(points)[1];
+    m_Np = Np;
+
+    // validate that the length of the lindex array is the number of particles x 1
+    m_lindex_array = boost::shared_array<float>(new float[Np]);
 
     // get the raw data pointers and compute the cell list
     float3* points_raw = (float3*) num_util::data(points);
@@ -189,7 +176,7 @@ void export_lindemann()
     class_<Lind>("Lind", init<trajectory::Box&, float, float>())
         .def("getBox", &Lind::getBox, return_internal_reference<>())
         .def("compute", &Lind::computePy)
-        .def("getLindex", &Lind::getLindexPy)
+        .def("getLindexArray", &Lind::getLindexArrayPy)
         ;
     }
 
