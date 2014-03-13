@@ -182,71 +182,71 @@ bool pairing::useCells()
 //     }
 
 // multiply two quaternions together
-float4 pairing::quat_mult(float4 a, float4 b)
-    {
-    float4 c;
-    c.w = (a.w * b.w) - (a.x * b.x) - (a.y * b.y) - (a.z * b.z);
-    c.x = (a.w * b.x) + (a.x * b.w) + (a.y * b.z) - (a.z * b.y);
-    c.y = (a.w * b.y) - (a.x * b.z) + (a.y * b.w) + (a.z * b.x);
-    c.z = (a.w * b.z) + (a.x * b.y) - (a.y * b.x) + (a.z * b.w);
-    return c;
-    }
-
-// generate a quaternion from a vector
-float4 gen_q(angle):
-    axis = numpy.array([0, 0, 1], dtype=numpy.float32)
-    q = numpy.zeros(shape=(4), dtype=numpy.float32)
-    q[0] = numpy.cos(0.5 * angle)
-    q[1] = axis[0] * numpy.sin(0.5 * angle)
-    q[2] = axis[1] * numpy.sin(0.5 * angle)
-    q[3] = axis[2] * numpy.sin(0.5 * angle)
-    den = numpy.sqrt(numpy.dot(q, q))
-    q /= den
-    return q
-
-float4 gen_qs(angle):
-    axis = numpy.array([0, 0, 1], dtype=numpy.float32)
-    q = numpy.zeros(shape=(4), dtype=numpy.float32)
-    q[0] = numpy.cos(0.5 * angle)
-    q[1] = -axis[0] * numpy.sin(0.5 * angle)
-    q[2] = -axis[1] * numpy.sin(0.5 * angle)
-    q[3] = -axis[2] * numpy.sin(0.5 * angle)
-    den = numpy.sqrt(numpy.dot(q, q))
-    q /= den
-    return q
-
-float4 q_rotate(quat, angle):
-    q = gen_q(angle)
-    qs = gen_qs(angle)
-    tp = numpy.zeros(shape=(4), dtype=numpy.float32)
-    tp = quat
-    tmp = quat_mult(q, tp)
-    ps = quat_mult(tmp, qs)
-    return ps
-
-float calc_angle(float3 v1, float3 v2)
-    {
-    // find axis of rotation
-    // need to fins vector
-    float3 axis = cross(v1, v2);
-
-    }
-
-def gen_quats(v1, v2):
-    axis = numpy.cross(v1, v2);
-    #axis = numpy.array([0.0, 1.0, 0.0])
-    axis = axis / numpy.sqrt(numpy.dot(axis, axis));
-    angle = numpy.arccos(numpy.dot(v1, v2)/(numpy.sqrt(numpy.dot(v1, v1)) * numpy.sqrt(numpy.dot(v2, v2))));
-    #angle = numpy.pi/4;
-    q = numpy.array([numpy.cos(0.5 * angle), axis[0] * numpy.sin(0.5 * angle), axis[1] * numpy.sin(0.5 * angle), axis[2] * numpy.sin(0.5 * angle)]);
-    qs = numpy.array([numpy.cos(0.5 * angle), -1.0 * axis[0] * numpy.sin(0.5 * angle), -1.0 * axis[1] * numpy.sin(0.5 * angle), -1.0 * axis[2] * numpy.sin(0.5 * angle)]);
-    q = q / numpy.sqrt(numpy.dot(q,q))
-    qs = qs / numpy.sqrt(numpy.dot(qs,qs))
-    print("axis = " + str(axis) + "\n");
-    print("angle = " + str(angle) + "\n");
-    print("q = " + str(q) + "\n");
-    print("qs = " + str(qs) + "\n");
-
+// float4 pairing::quat_mult(float4 a, float4 b)
+//     {
+//     float4 c;
+//     c.w = (a.w * b.w) - (a.x * b.x) - (a.y * b.y) - (a.z * b.z);
+//     c.x = (a.w * b.x) + (a.x * b.w) + (a.y * b.z) - (a.z * b.y);
+//     c.y = (a.w * b.y) - (a.x * b.z) + (a.y * b.w) + (a.z * b.x);
+//     c.z = (a.w * b.z) + (a.x * b.y) - (a.y * b.x) + (a.z * b.w);
+//     return c;
+//     }
+//
+// // generate a quaternion from a vector
+// float4 gen_q(angle):
+//     axis = numpy.array([0, 0, 1], dtype=numpy.float32)
+//     q = numpy.zeros(shape=(4), dtype=numpy.float32)
+//     q[0] = numpy.cos(0.5 * angle)
+//     q[1] = axis[0] * numpy.sin(0.5 * angle)
+//     q[2] = axis[1] * numpy.sin(0.5 * angle)
+//     q[3] = axis[2] * numpy.sin(0.5 * angle)
+//     den = numpy.sqrt(numpy.dot(q, q))
+//     q /= den
+//     return q
+//
+// float4 gen_qs(angle):
+//     axis = numpy.array([0, 0, 1], dtype=numpy.float32)
+//     q = numpy.zeros(shape=(4), dtype=numpy.float32)
+//     q[0] = numpy.cos(0.5 * angle)
+//     q[1] = -axis[0] * numpy.sin(0.5 * angle)
+//     q[2] = -axis[1] * numpy.sin(0.5 * angle)
+//     q[3] = -axis[2] * numpy.sin(0.5 * angle)
+//     den = numpy.sqrt(numpy.dot(q, q))
+//     q /= den
+//     return q
+//
+// float4 q_rotate(quat, angle):
+//     q = gen_q(angle)
+//     qs = gen_qs(angle)
+//     tp = numpy.zeros(shape=(4), dtype=numpy.float32)
+//     tp = quat
+//     tmp = quat_mult(q, tp)
+//     ps = quat_mult(tmp, qs)
+//     return ps
+//
+// float calc_angle(float3 v1, float3 v2)
+//     {
+//     // find axis of rotation
+//     // need to fins vector
+//     float3 axis = cross(v1, v2);
+//
+//     }
+//
+// def gen_quats(v1, v2):
+//     axis = numpy.cross(v1, v2);
+//     #axis = numpy.array([0.0, 1.0, 0.0])
+//     axis = axis / numpy.sqrt(numpy.dot(axis, axis));
+//     angle = numpy.arccos(numpy.dot(v1, v2)/(numpy.sqrt(numpy.dot(v1, v1)) * numpy.sqrt(numpy.dot(v2, v2))));
+//     #angle = numpy.pi/4;
+//     q = numpy.array([numpy.cos(0.5 * angle), axis[0] * numpy.sin(0.5 * angle), axis[1] * numpy.sin(0.5 * angle), axis[2] * numpy.sin(0.5 * angle)]);
+//     qs = numpy.array([numpy.cos(0.5 * angle), -1.0 * axis[0] * numpy.sin(0.5 * angle), -1.0 * axis[1] * numpy.sin(0.5 * angle), -1.0 * axis[2] * numpy.sin(0.5 * angle)]);
+//     q = q / numpy.sqrt(numpy.dot(q,q))
+//     qs = qs / numpy.sqrt(numpy.dot(qs,qs))
+//     print("axis = " + str(axis) + "\n");
+//     print("angle = " + str(angle) + "\n");
+//     print("q = " + str(q) + "\n");
+//     print("qs = " + str(qs) + "\n");
+//
 float3 pairing::cross(float2 v1, float2 v2)
     {
     float3 v1_n;
