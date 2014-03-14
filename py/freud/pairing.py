@@ -1,6 +1,8 @@
 import numpy
 import re
+import multiprocessing
 from _freud import pairing
+from _freud import setNumThreadds
 
 ## \package freud.pairing
 #
@@ -12,11 +14,15 @@ class Pair:
         self.box = box
 
     # method that allows for the positions, angles to be changed
-    def update(self, positions, shape_angle, comp_angle):
+    def update(self, positions, shape_angle, comp_angle, nthreads=None):
         self.positions = positions
         self.shape_angle = shape_angle
         self.comp_angle = comp_angle
         self.np = len(self.positions)
+        if nthreads is not None:
+            setNumThreadds(int(nthreads))
+        else:
+            setNumThreadds(multiprocessing.cpu_count())
 
     # the one ring of complementary finding
     # all preconditioning happens elsewhere
