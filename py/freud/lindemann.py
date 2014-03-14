@@ -1,7 +1,7 @@
 import numpy
 
 from _freud import setNumThreads
-from _freud import lindemann
+from _freud import Lind
 
 class lindex:
     """docstring for lindex"""
@@ -10,7 +10,7 @@ class lindex:
         self.box = box
         self.rmax = rmax
         self.dr = dr
-        self.lind_handle = lindemann.Lind(self.box, self.rmax, self.dr)
+        self.lind_handle = Lind(self.box, self.rmax, self.dr)
         if nthreads is not None:
             setNumThreads(int(nthreads))
         else:
