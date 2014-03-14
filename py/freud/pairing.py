@@ -2,7 +2,7 @@ import numpy
 import re
 import multiprocessing
 from _freud import pairing
-from _freud import setNumThreadds
+from _freud import setNumThreads
 
 ## \package freud.pairing
 #
@@ -10,19 +10,19 @@ from _freud import setNumThreadds
 
 class Pair:
     ## Create a Pair object from a list of points, orientations, and shapes
-    def __init__(self, box):
+    def __init__(self, box, nthreads=None):
         self.box = box
+        if nthreads is not None:
+            setNumThreads(int(nthreads))
+        else:
+            setNumThreads(multiprocessing.cpu_count())
 
     # method that allows for the positions, angles to be changed
-    def update(self, positions, shape_angle, comp_angle, nthreads=None):
+    def update(self, positions, shape_angle, comp_angle):
         self.positions = positions
         self.shape_angle = shape_angle
         self.comp_angle = comp_angle
         self.np = len(self.positions)
-        if nthreads is not None:
-            setNumThreadds(int(nthreads))
-        else:
-            setNumThreadds(multiprocessing.cpu_count())
 
     # the one ring of complementary finding
     # all preconditioning happens elsewhere
@@ -46,6 +46,6 @@ class Pair:
         self.update(positions, s_ang, c_ang)
         smatch = pairing(self.box, rmax, s_dot_target, s_dot_tol, c_dot_target, c_dot_tol)
         smatch.compute(match_list, self.positions, self.shape_angle, self.comp_angle)
-        nmatch = smatch.getNpair()
+        nmatch = numpy.sum(match_list) / 2.0
 
         return match_list, nmatch

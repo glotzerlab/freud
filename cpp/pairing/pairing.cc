@@ -9,13 +9,21 @@
 #include <omp.h>
 #endif
 
+#include <tbb/tbb.h>
+
 using namespace std;
 using namespace boost::python;
 
+using namespace tbb;
+
 namespace freud { namespace pairing {
 
-pairing::pairing(const trajectory::Box& box, float rmax,
-                        float shape_dot_target, float shape_dot_tol, float comp_dot_target, float comp_dot_tol)
+pairing::pairing(const trajectory::Box& box,
+                 const float rmax,
+                 const float shape_dot_target,
+                 const float shape_dot_tol,
+                 const float comp_dot_target,
+                 const float comp_dot_tol)
     : m_box(box), m_rmax(rmax), m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol),
     m_comp_dot_target(comp_dot_target), m_comp_dot_tol(comp_dot_tol)
     {
@@ -23,11 +31,10 @@ pairing::pairing(const trajectory::Box& box, float rmax,
         throw invalid_argument("rmax must be positive");
     if (rmax > box.getLx()/2 || rmax > box.getLy()/2)
     throw invalid_argument("rmax must be smaller than half the smallest box size");
-
     if (useCells())
-    {
-    m_lc = new locality::LinkCell(box, rmax);
-    }
+        {
+        m_lc = new locality::LinkCell(box, rmax);
+        }
     }
 
 pairing::~pairing()
@@ -35,6 +42,153 @@ pairing::~pairing()
     if(useCells())
     delete m_lc;
     }
+
+class ComputePairing2DCellList
+    {
+    private:
+        unsigned int *m_match_array;
+        const float3 *m_points;
+        const float *m_shape_angles;
+        const float *m_comp_angles;
+        const unsigned int m_Np;
+        const locality::LinkCell* m_lc;
+        const trajectory::Box m_box;
+        const float m_rmax;
+        const float m_shape_dot_target;
+        const float m_shape_dot_tol;
+        const float m_comp_dot_target;
+        const float m_comp_dot_tol;
+
+    public:
+        ComputePairing2DCellList(unsigned int *match_array,
+                                 const float3 *points,
+                                 const float *shape_angles,
+                                 const float *comp_angles,
+                                 const unsigned int Np,
+                                 const locality::LinkCell* lc,
+                                 const float r_max,
+                                 const trajectory::Box box,
+                                 const float shape_dot_target,
+                                 const float shape_dot_tol,
+                                 const float comp_dot_target,
+                                 const float comp_dot_tol)
+        : m_match_array(match_array), m_points(points), m_shape_angles(shape_angles), m_comp_angles(comp_angles),
+          m_Np(Np), m_lc(lc), m_rmax(r_max), m_box(box), m_shape_dot_target(shape_dot_target),
+          m_shape_dot_tol(shape_dot_tol), m_comp_dot_target(comp_dot_target), m_comp_dot_tol(comp_dot_tol)
+        {
+        }
+        float dot2(float2 v1, float2 v2) const
+            {
+            return (v1.x * v2.x) + (v1.y * v2.y);
+            }
+
+        bool comp_check(float3 r_i,
+                                 float3 r_j,
+                                 float angle_s_i,
+                                 float angle_s_j,
+                                 float angle_c_i,
+                                 float angle_c_j) const
+            {
+            float rmaxsq = m_rmax * m_rmax;
+            float2 r_ij;
+            float2 r_ij_u;
+            float2 r_ji_u;
+            float dx = r_j.x - r_i.x;
+            float dy = r_j.y - r_i.y;
+            float dz = (float) 0.0;
+            float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+            r_ij.x = delta.x;
+            r_ij.y = delta.y;
+            float r_ij_mag = sqrt(dot2(r_ij, r_ij));
+            r_ij_u.x = r_ij.x / r_ij_mag;
+            r_ij_u.y = r_ij.y / r_ij_mag;
+            r_ji_u.x = -r_ij_u.x;
+            r_ji_u.y = -r_ij_u.y;
+            float2 theta_s_i;
+            theta_s_i.x = cos(angle_s_i);
+            theta_s_i.y = sin(angle_s_i);
+            float2 theta_s_j;
+            theta_s_j.x = cos(angle_s_j);
+            theta_s_j.y = sin(angle_s_j);
+            float2 theta_c_i;
+            theta_c_i.x = cos(angle_c_i);
+            theta_c_i.y = sin(angle_c_i);
+            float2 theta_c_j;
+            theta_c_j.x = cos(angle_c_j);
+            theta_c_j.y = sin(angle_c_j);
+            float d_ij = dot2(r_ij, r_ij);
+            float theta_s_ij = dot2(theta_s_i, theta_s_j);
+            float theta_c_ij = dot2(theta_c_i, theta_c_j);
+            float v_ij = dot2(r_ij_u, theta_c_i);
+            float v_ji = dot2(r_ji_u, theta_c_j);
+            // determine if paired
+            if (d_ij > rmaxsq)
+                return false;
+            if ((theta_s_ij < (m_shape_dot_target - m_shape_dot_tol)) || (theta_s_ij > (m_shape_dot_target + m_shape_dot_tol)))
+                return false;
+            if ((v_ij < (m_comp_dot_target - m_comp_dot_tol)) || (v_ij > (m_comp_dot_target + m_comp_dot_tol)))
+                return false;
+            if ((v_ji < (m_comp_dot_target - m_comp_dot_tol)) || (v_ji > (m_comp_dot_target + m_comp_dot_tol)))
+                return false;
+            return true;
+            }
+
+        void operator()( const blocked_range<size_t>& r ) const
+            {
+            // m_nP = Np;
+            // for each particle
+            for (size_t i = r.begin(); i != r.end(); i++)
+                {
+                float3 r_i = m_points[i];
+                float angle_s_i = m_shape_angles[i];
+                float angle_c_i = m_comp_angles[i];
+                // get the cell the point is in
+                unsigned int ref_cell = m_lc->getCell(r_i);
+                // loop over all neighboring cells
+                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
+                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                    {
+                    unsigned int neigh_cell = neigh_cells[neigh_idx];
+                    // iterate over the particles in that cell
+                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
+                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                        {
+                        float3 r_j = m_points[j];
+                        float angle_s_j = m_shape_angles[j];
+                        float angle_c_j = m_comp_angles[j];
+                        // will skip same particle
+                        if (i == j)
+                            {
+                            continue;
+                            }
+
+                        if (comp_check(r_i,
+                                       r_j,
+                                       angle_s_i,
+                                       angle_s_j,
+                                       angle_c_i,
+                                       angle_c_j))
+                            {
+                            m_match_array[i] = 1;
+                            m_match_array[j] = 1;
+                            }
+                        } // done looping over neighbors
+                    } // done looping over neighbor cells
+                } // done looping over reference points
+            }
+    };
+
+// class ComputePairing3D
+//     {
+//     private:
+//     public:
+//         ComputePairing3D()
+//         :
+
+//         void operater()( const blocked_range<size_t>& r ) const
+//         {
+//         }
+//     }
 
 bool pairing::useCells()
     {
@@ -280,11 +434,11 @@ float pairing::dot3(float3 v1, float3 v2)
     }
 
 bool pairing::comp_check(float3 r_i,
-                            float3 r_j,
-                            float angle_s_i,
-                            float angle_s_j,
-                            float angle_c_i,
-                            float angle_c_j)
+                         float3 r_j,
+                         float angle_s_i,
+                         float angle_s_j,
+                         float angle_c_i,
+                         float angle_c_j)
     {
     float rmaxsq = m_rmax * m_rmax;
     // calculate the vector from shape i to shape j
@@ -339,19 +493,31 @@ bool pairing::comp_check(float3 r_i,
     }
 
 void pairing::compute(unsigned int* match,
-                float3* points,
-                float* shape_angles,
-                float* comp_angles,
-                unsigned int Np)
+                const float3* points,
+                const float* shape_angles,
+                const float* comp_angles,
+                const unsigned int Np)
     {
-    m_nmatch = 0;
     if (useCells())
         {
-        computeWithCellList(match,
-                            points,
-                            shape_angles,
-                            comp_angles,
-                            Np);
+        // computeWithCellList(match,
+        //                     points,
+        //                     shape_angles,
+        //                     comp_angles,
+        //                     Np);
+        m_lc->computeCellList(points, Np);
+        parallel_for(blocked_range<size_t>(0,Np), ComputePairing2DCellList(match,
+                                                                           points,
+                                                                           shape_angles,
+                                                                           comp_angles,
+                                                                           Np,
+                                                                           m_lc,
+                                                                           m_rmax,
+                                                                           m_box,
+                                                                           m_shape_dot_target,
+                                                                           m_shape_dot_tol,
+                                                                           m_comp_dot_target,
+                                                                           m_comp_dot_tol));
         }
     else
         {
@@ -364,10 +530,10 @@ void pairing::compute(unsigned int* match,
     }
 
 void pairing::computeWithoutCellList(unsigned int* match,
-                float3* points,
-                float* shape_angles,
-                float* comp_angles,
-                unsigned int Np)
+                const float3* points,
+                const float* shape_angles,
+                const float* comp_angles,
+                const unsigned int Np)
     {
     m_nP = Np;
     #pragma omp parallel
@@ -409,10 +575,10 @@ void pairing::computeWithoutCellList(unsigned int* match,
     }
 
 void pairing::computeWithCellList(unsigned int* match,
-                float3* points,
-                float* shape_angles,
-                float* comp_angles,
-                unsigned int Np)
+                const float3* points,
+                const float* shape_angles,
+                const float* comp_angles,
+                const unsigned int Np)
     {
     m_nP = Np;
     m_lc->computeCellList(points, m_nP);
@@ -491,7 +657,7 @@ void pairing::computePy(boost::python::numeric::array match,
     // get the number of particles
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+    const unsigned int Np = num_util::shape(points)[0];
 
     //validate that the types and angles coming in are the correct size
     num_util::check_dim(shape_angles, 0, Np);
@@ -499,9 +665,9 @@ void pairing::computePy(boost::python::numeric::array match,
 
     // get the raw data pointers and compute the cell list
     unsigned int* match_raw = (unsigned int*) num_util::data(match);
-    float3* points_raw = (float3*) num_util::data(points);
-    float* shape_angles_raw = (float*) num_util::data(shape_angles);
-    float* comp_angles_raw = (float*) num_util::data(comp_angles);
+    const float3* points_raw = (float3*) num_util::data(points);
+    const float* shape_angles_raw = (float*) num_util::data(shape_angles);
+    const float* comp_angles_raw = (float*) num_util::data(comp_angles);
 
     compute(match_raw,
             points_raw,
@@ -515,7 +681,6 @@ void export_pairing()
     class_<pairing>("pairing", init<trajectory::Box&, float, float, float, float, float>())
         .def("getBox", &pairing::getBox, return_internal_reference<>())
         .def("compute", &pairing::computePy)
-        .def("getNpair", &pairing::getNpairPy)
         ;
     }
 

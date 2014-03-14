@@ -82,35 +82,30 @@ class pairing
 
         //! Compute the pairing function
         void compute(unsigned int* match,
-                    float3* points,
-                    float* shape_angles,
-                    float* comp_angles,
-                    unsigned int Np);
+                    const float3* points,
+                    const float* shape_angles,
+                    const float* comp_angles,
+                    const unsigned int Np);
 
             //! Compute the RDF
         void computeWithoutCellList(unsigned int* match,
-                    float3* points,
-                    float* shape_angles,
-                    float* comp_angles,
-                    unsigned int Np);
+                    const float3* points,
+                    const float* shape_angles,
+                    const float* comp_angles,
+                    const unsigned int Np);
 
         //! Compute the RDF
         void computeWithCellList(unsigned int* match,
-                    float3* points,
-                    float* shape_angles,
-                    float* comp_angles,
-                    unsigned int Np);
+                    const float3* points,
+                    const float* shape_angles,
+                    const float* comp_angles,
+                    const unsigned int Np);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array match,
                         boost::python::numeric::array points,
                         boost::python::numeric::array shape_angles,
                         boost::python::numeric::array comp_angles);
-
-        unsigned int getNpairPy()
-            {
-            return m_nmatch;
-            }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -119,7 +114,6 @@ class pairing
         float m_shape_dot_tol;                     //!< Maximum r at which to compute g(r)
         float m_comp_dot_target;                     //!< Maximum r at which to compute g(r)
         float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
-        float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;       //!< LinkCell to bin particles for the computation
         unsigned int m_nmatch;             //!< Number of matches
         unsigned int m_nP;                  //!< Number of particles
