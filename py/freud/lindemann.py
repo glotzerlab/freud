@@ -18,6 +18,6 @@ class lindex:
 
     def compute(self, pos):
         self.pos = pos
-        self.lind_handle.compute(self.pos))
+        self.lind_handle.compute(self.pos)
         self.lind_array = numpy.copy(self.lind_handle.getLindexArray())
         self.lindex = numpy.mean(self.lind_array)
