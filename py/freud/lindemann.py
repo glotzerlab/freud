@@ -5,12 +5,16 @@ from _freud import lindemann
 
 class lindex:
     """docstring for lindex"""
-    def __init__(self, box, rmax, dr):
+    def __init__(self, box, rmax, dr, nthreads=None):
         super(lindex, self).__init__()
         self.box = box
         self.rmax = rmax
         self.dr = dr
         self.lind_handle = lindemann.Lind(self.box, self.rmax, self.dr)
+        if nthreads is not None:
+            setNumThreads(int(nthreads))
+        else:
+            setNumThreads(multiprocessing.cpu_count())
 
     def compute(self, pos):
         self.pos = pos
