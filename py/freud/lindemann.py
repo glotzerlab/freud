@@ -3,7 +3,7 @@ import numpy
 from _freud import setNumThreads
 from _freud import Lind
 
-class lindex:
+class lindex(object):
     """docstring for lindex"""
     def __init__(self, box, rmax, dr, nthreads=None):
         super(lindex, self).__init__()
