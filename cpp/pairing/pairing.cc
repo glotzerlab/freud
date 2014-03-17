@@ -369,7 +369,7 @@ class ComputePairing2DCellList
                         float angle_s_j = m_shape_angles[j];
                         float angle_c_j = m_comp_angles[j];
                         // will skip same particle
-                        if (i == j)
+                        if (i >= j)
                             {
                             continue;
                             }
@@ -444,7 +444,7 @@ class ComputePairing2DWithoutCellList
                     float angle_s_j = m_shape_angles[j];
                     float angle_c_j = m_comp_angles[j];
                     // will skip same particle
-                    if (i == j)
+                    if (i >= j)
                         {
                         continue;
                         }
@@ -529,7 +529,7 @@ class ComputePairing3DCellList
                         float4 quat_s_j = m_shape_quats[j];
                         float4 quat_c_j = m_comp_quats[j];
                         // will skip same particle
-                        if (i == j)
+                        if (i >= j)
                             {
                             continue;
                             }
@@ -605,7 +605,7 @@ class ComputePairing3DWithoutCellList
                     float4 quat_s_j = m_shape_quats[j];
                     float4 quat_c_j = m_comp_quats[j];
                     // will skip same particle
-                    if (i == j)
+                    if (i >= j)
                         {
                         continue;
                         }
