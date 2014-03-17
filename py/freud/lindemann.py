@@ -3,8 +3,12 @@ import multiprocessing
 from _freud import setNumThreads
 from _freud import Lind
 
+## \package freud.lindemann
+#
+# Compute the lindemann index of a system
+
+
 class lindex(object):
-    """docstring for lindex"""
     def __init__(self, box, rmax, dr, nthreads=None):
         super(lindex, self).__init__()
         self.box = box
