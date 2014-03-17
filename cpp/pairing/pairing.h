@@ -10,6 +10,41 @@
 
 namespace freud { namespace pairing {
 
+// helper functions
+
+inline float dot2(float2 v1, float2 v2);
+
+inline float3 cross(float2 v1, float2 v2);
+
+inline float3 cross(float3 v1, float3 v2);
+
+inline float dot3(float3 v1, float3 v2);
+
+inline float dot4(float4 v1, float4 v2);
+
+inline bool comp_check_2D(const float rmax,
+                       const trajectory::Box& box,
+                       const float3 r_i,
+                       const float3 r_j,
+                       const float angle_s_i,
+                       const float angle_s_j,
+                       const float angle_c_i,
+                       const float angle_c_j,
+                       const float shape_dot_target,
+                       const float shape_dot_tol,
+                       const float comp_dot_target,
+                       const float comp_dot_tol);
+
+inline float4 quat_mult(float4 a, float4 b);
+
+inline float4 gen_q(float angle);
+
+inline float4 gen_qs(float angle);
+
+inline float4 q_rotate(float4 quat, float angle);
+
+inline float3 q_rotate(float3 vec, float4 q, float4 qs);
+
 //! Computes the number of matches for a given set of points
 /*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
     Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
@@ -40,72 +75,24 @@ class pairing
         //! Check if a cell list should be used or not
         bool useCells();
 
-        // Some of these should be made private...
-
-        //! Check if a point is on the same side of a line as a reference point
-        // bool sameSide(float3 A, float3 B, float3 r, float3 p);
-
-        //! Check if point p is inside triangle t
-        // bool isInside(float2 t[], float2 p);
-
-        // bool isInside(float3 t[], float3 p);
-
-        //! Take the cross product of two float3 vectors
-
-        float3 cross(float2 v1, float2 v2);
-
-        float3 cross(float3 v1, float3 v2);
-
-        //! Take the dot product of two float3 vectors
-        float dot2(float2 v1, float2 v2);
-
-        float dot3(float3 v1, float3 v2);
-
-        //! Rotate a float2 point by angle angle
-        // float2 mat_rotate(float2 point, float angle);
-
-        // Take a vertex about point point and move into the local coords of the ref point
-        // float2 into_local(float2 ref_point,
-        //                     float2 point,
-        //                     float2 vert,
-        //                     float ref_angle,
-        //                     float angle);
-
-        // float cavity_depth(float2 t[]);
-
-        bool comp_check(float3 r_i,
-                        float3 r_j,
-                        float angle_s_i,
-                        float angle_s_j,
-                        float angle_c_i,
-                        float angle_c_j);
-
         //! Compute the pairing function
         void compute(unsigned int* match,
-                    const float3* points,
-                    const float* shape_angles,
-                    const float* comp_angles,
-                    const unsigned int Np);
+                     const float3* points,
+                     const float* shape_angles,
+                     const float* comp_angles,
+                     const unsigned int Np);
 
-            //! Compute the RDF
-        void computeWithoutCellList(unsigned int* match,
-                    const float3* points,
-                    const float* shape_angles,
-                    const float* comp_angles,
-                    const unsigned int Np);
-
-        //! Compute the RDF
-        void computeWithCellList(unsigned int* match,
-                    const float3* points,
-                    const float* shape_angles,
-                    const float* comp_angles,
-                    const unsigned int Np);
+        void compute(unsigned int* match,
+                     const float3* points,
+                     const float4* shape_quats,
+                     const float4* comp_quats,
+                     const unsigned int Np);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array match,
                         boost::python::numeric::array points,
-                        boost::python::numeric::array shape_angles,
-                        boost::python::numeric::array comp_angles);
+                        boost::python::numeric::array shape_orientations,
+                        boost::python::numeric::array comp_orientations);
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -116,7 +103,6 @@ class pairing
         float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
         locality::LinkCell* m_lc;       //!< LinkCell to bin particles for the computation
         unsigned int m_nmatch;             //!< Number of matches
-        unsigned int m_nP;                  //!< Number of particles
 
     };
 
