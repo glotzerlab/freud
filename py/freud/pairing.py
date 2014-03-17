@@ -36,7 +36,7 @@ class Pair:
                  rmax,
                  nthreads=None):
         self.box = box
-        self.rmax
+        self.rmax = rmax
         if nthreads is not None:
             setNumThreads(int(nthreads))
         else:
@@ -96,7 +96,7 @@ class Pair:
                     s_dot_tol=None,
                     c_dot_target=None,
                     c_dot_tol=None):
-        match_list = numpy.zeroes(shape=len(positions), dtype=numpy.float32)
+        match_list = numpy.zeros(shape=len(positions), dtype=numpy.int32)
         self.update(positions,
                     shape_orientations,
                     comp_orientations,
