@@ -60,8 +60,12 @@ class pairing
     {
     public:
         //! Constructor
-        pairing(const trajectory::Box& box, float rmax,
-                    float shape_dot_target, float shape_dot_tol, float comp_dot_target, float comp_dot_tol);
+        pairing(const trajectory::Box& box,
+                float rmax,
+                float shape_dot_target,
+                float shape_dot_tol,
+                float comp_dot_target,
+                float comp_dot_tol);
 
         //! Destructor
         ~pairing();
@@ -77,12 +81,16 @@ class pairing
 
         //! Compute the pairing function
         void compute(unsigned int* match,
+                     float* sdots,
+                     float* cdots,
                      const float3* points,
                      const float* shape_angles,
                      const float* comp_angles,
                      const unsigned int Np);
 
         void compute(unsigned int* match,
+                     float* sdots,
+                     float* cdots,
                      const float3* points,
                      const float4* shape_quats,
                      const float4* comp_quats,
@@ -90,9 +98,11 @@ class pairing
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array match,
-                        boost::python::numeric::array points,
-                        boost::python::numeric::array shape_orientations,
-                        boost::python::numeric::array comp_orientations);
+                       boost::python::numeric::array sdots,
+                       boost::python::numeric::array cdots,
+                       boost::python::numeric::array points,
+                       boost::python::numeric::array shape_orientations,
+                       boost::python::numeric::array comp_orientations);
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in

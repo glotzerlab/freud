@@ -10,8 +10,8 @@ from _freud import setNumThreads
 
 ## Create a Pair object from a list of points, orientations, and shapes
 #
-# User must supply a box, max compute distance (this can/should be quite small). Number of threads for multithreading
-# may be specified. To calculate, the user must supply a list of positions, two lists of orientations, as well as two
+# User must supply a box, max compute distance (this can/should be quite small). To calculate, the user must supply
+# a list of positions, two lists of orientations, as well as two
 # dot product targets, and two dot product tolerances.
 #
 # two particles are matching if:
@@ -33,14 +33,9 @@ class Pair:
     # \param nthreads Number of threads for tbb to use
     def __init__(self,
                  box,
-                 rmax,
-                 nthreads=None):
+                 rmax):
         self.box = box
         self.rmax = rmax
-        if nthreads is not None:
-            setNumThreads(int(nthreads))
-        else:
-            setNumThreads(multiprocessing.cpu_count())
         self.shape_orientations = None
         self.comp_orientations = None
         self.s_dot_target = None
@@ -97,6 +92,8 @@ class Pair:
                     c_dot_target=None,
                     c_dot_tol=None):
         match_list = numpy.zeros(shape=len(positions), dtype=numpy.int32)
+        sdots = numpy.zeros(shape=len(positions), dtype=numpy.float32)
+        cdots = numpy.zeros(shape=len(positions), dtype=numpy.float32)
         self.update(positions,
                     shape_orientations,
                     comp_orientations,
@@ -117,7 +114,9 @@ class Pair:
         if self.c_dot_tol is None:
             raise RuntimeError("no complementary dot product tol specified")
         smatch = pairing(self.box, self.rmax, self.s_dot_target, self.s_dot_tol, self.c_dot_target, self.c_dot_tol)
-        smatch.compute(match_list, self.positions, self.shape_orientations, self.comp_orientations)
+        smatch.compute(match_list, sdots, cdots, self.positions, self.shape_orientations, self.comp_orientations)
         nmatch = numpy.sum(match_list) / 2.0
+        self.sdots = sdots
+        self.cdots = cdots
 
         return match_list, nmatch

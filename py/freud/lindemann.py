@@ -9,16 +9,12 @@ from _freud import Lind
 
 
 class lindex(object):
-    def __init__(self, box, rmax, dr, nthreads=None):
+    def __init__(self, box, rmax, dr):
         super(lindex, self).__init__()
         self.box = box
         self.rmax = rmax
         self.dr = dr
         self.lind_handle = Lind(self.box, self.rmax, self.dr)
-        if nthreads is not None:
-            setNumThreads(int(nthreads))
-        else:
-            setNumThreads(multiprocessing.cpu_count())
 
     def compute(self, pos):
         self.pos = pos
