@@ -23,17 +23,36 @@ inline float dot3(float3 v1, float3 v2);
 inline float dot4(float4 v1, float4 v2);
 
 inline bool comp_check_2D(const float rmax,
-                       const trajectory::Box& box,
-                       const float3 r_i,
-                       const float3 r_j,
-                       const float angle_s_i,
-                       const float angle_s_j,
-                       const float angle_c_i,
-                       const float angle_c_j,
-                       const float shape_dot_target,
-                       const float shape_dot_tol,
-                       const float comp_dot_target,
-                       const float comp_dot_tol);
+                          const trajectory::Box& box,
+                          const float3 r_i,
+                          const float3 r_j,
+                          const float angle_s_i,
+                          const float angle_s_j,
+                          const float angle_c_i,
+                          const float angle_c_j,
+                          const float shape_dot_target,
+                          const float shape_dot_tol,
+                          const float comp_dot_target,
+                          const float comp_dot_tol,
+                          float& dist2,
+                          float& sdot,
+                          float& cdot);
+
+inline bool comp_check_3D(const float rmax,
+                          const trajectory::Box& box,
+                          const float3 r_i,
+                          const float3 r_j,
+                          const float4 quat_s_i,
+                          const float4 quat_s_j,
+                          const float4 quat_c_i,
+                          const float4 quat_c_j,
+                          const float shape_dot_target,
+                          const float shape_dot_tol,
+                          const float comp_dot_target,
+                          const float comp_dot_tol,
+                          float& dist2,
+                          float& sdot,
+                          float& cdot);
 
 inline float4 quat_mult(float4 a, float4 b);
 
@@ -81,6 +100,7 @@ class pairing
 
         //! Compute the pairing function
         void compute(unsigned int* match,
+                     float* dist2,
                      float* sdots,
                      float* cdots,
                      const float3* points,
@@ -89,6 +109,7 @@ class pairing
                      const unsigned int Np);
 
         void compute(unsigned int* match,
+                     float* dist2,
                      float* sdots,
                      float* cdots,
                      const float3* points,
@@ -98,6 +119,7 @@ class pairing
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array match,
+                       boost::python::numeric::array dist2,
                        boost::python::numeric::array sdots,
                        boost::python::numeric::array cdots,
                        boost::python::numeric::array points,

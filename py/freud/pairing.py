@@ -84,14 +84,15 @@ class Pair:
     # \params c_dot_target The target dot product for the complementary vectors
     # \params c_dot_tol The tolerance for the complementary dot product
     def find_pairs(self,
-                    positions,
-                    shape_orientations,
-                    comp_orientations,
-                    s_dot_target=None,
-                    s_dot_tol=None,
-                    c_dot_target=None,
-                    c_dot_tol=None):
+                   positions,
+                   shape_orientations,
+                   comp_orientations,
+                   s_dot_target=None,
+                   s_dot_tol=None,
+                   c_dot_target=None,
+                   c_dot_tol=None):
         match_list = numpy.zeros(shape=len(positions), dtype=numpy.int32)
+        dist2 = numpy.zeros(shape=len(positions), dtype=numpy.float32)
         sdots = numpy.zeros(shape=len(positions), dtype=numpy.float32)
         cdots = numpy.zeros(shape=len(positions), dtype=numpy.float32)
         self.update(positions,
@@ -114,8 +115,10 @@ class Pair:
         if self.c_dot_tol is None:
             raise RuntimeError("no complementary dot product tol specified")
         smatch = pairing(self.box, self.rmax, self.s_dot_target, self.s_dot_tol, self.c_dot_target, self.c_dot_tol)
-        smatch.compute(match_list, sdots, cdots, self.positions, self.shape_orientations, self.comp_orientations)
+        smatch.compute(match_list, dist2, sdots, cdots, self.positions, self.shape_orientations, self.comp_orientations)
+        dist = numpy.sqrt(dist2)
         nmatch = numpy.sum(match_list) / 2.0
+        self.dist = dist
         self.sdots = sdots
         self.cdots = cdots
 

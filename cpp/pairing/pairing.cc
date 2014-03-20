@@ -67,8 +67,9 @@ inline bool comp_check_2D(const float rmax,
                           const float shape_dot_tol,
                           const float comp_dot_target,
                           const float comp_dot_tol,
-                          float sdot,
-                          float cdot)
+                          float& dist2,
+                          float& sdot,
+                          float& cdot)
     {
     float rmaxsq = rmax * rmax;
     float2 r_ij;
@@ -102,8 +103,11 @@ inline bool comp_check_2D(const float rmax,
     float theta_c_ij = dot2(theta_c_i, theta_c_j);
     float v_ij = dot2(r_ij_u, theta_c_i);
     float v_ji = dot2(r_ji_u, theta_c_j);
+    dist2 = d_ij;
     sdot = theta_s_ij;
     cdot = v_ij;
+    // printf("%f\n", sdot);
+    // printf("%f\n", cdot);
     // determine if paired
     if (d_ij > rmaxsq)
         return false;
@@ -218,8 +222,9 @@ inline bool comp_check_3D(const float rmax,
                           const float shape_dot_tol,
                           const float comp_dot_target,
                           const float comp_dot_tol,
-                          float sdot,
-                          float cdot)
+                          float& dist2,
+                          float& sdot,
+                          float& cdot)
     {
     float rmaxsq = rmax * rmax;
     float3 r_ij;
@@ -277,6 +282,7 @@ inline bool comp_check_3D(const float rmax,
     float theta_c_ij = dot3(theta_c_i, theta_c_j);
     float v_ij = dot3(r_ij_u, theta_c_i);
     float v_ji = dot3(r_ji_u, theta_c_j);
+    dist2 = d_ij;
     sdot = theta_s_ij;
     cdot = v_ij;
     // determine if paired
@@ -322,6 +328,7 @@ class ComputePairing2DCellList
     {
     private:
         unsigned int *m_match_array;
+        float* m_dist2_array;
         float* m_sdot_array;
         float* m_cdot_array;
         const float3 *m_points;
@@ -338,6 +345,7 @@ class ComputePairing2DCellList
 
     public:
         ComputePairing2DCellList(unsigned int *match_array,
+                                 float* dist2_array,
                                  float* sdot_array,
                                  float* cdot_array,
                                  const float3 *points,
@@ -351,10 +359,10 @@ class ComputePairing2DCellList
                                  const float shape_dot_tol,
                                  const float comp_dot_target,
                                  const float comp_dot_tol)
-        : m_match_array(match_array), m_sdot_array(sdot_array), m_cdot_array(cdot_array), m_points(points),
-          m_shape_angles(shape_angles), m_comp_angles(comp_angles), m_Np(Np), m_lc(lc), m_rmax(r_max), m_box(box),
-          m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol), m_comp_dot_target(comp_dot_target),
-          m_comp_dot_tol(comp_dot_tol)
+        : m_match_array(match_array), m_dist2_array(dist2_array), m_sdot_array(sdot_array), m_cdot_array(cdot_array),
+          m_points(points), m_shape_angles(shape_angles), m_comp_angles(comp_angles), m_Np(Np), m_lc(lc), m_rmax(r_max),
+          m_box(box), m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol),
+          m_comp_dot_target(comp_dot_target), m_comp_dot_tol(comp_dot_tol)
         {
         }
 
@@ -362,8 +370,12 @@ class ComputePairing2DCellList
             {
             // m_nP = Np;
             // for each particle
-            float sdot = 0.0;
-            float cdot = 0.0;
+            float dist2;
+            float sdot;
+            float cdot;
+            dist2 = 0.0;
+            sdot = 0.0;
+            cdot = 0.0;
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 float3 r_i = m_points[i];
@@ -401,11 +413,14 @@ class ComputePairing2DCellList
                                        m_shape_dot_tol,
                                        m_comp_dot_target,
                                        m_comp_dot_tol,
+                                       dist2,
                                        sdot,
                                        cdot))
                             {
                             m_match_array[i] = 1;
                             m_match_array[j] = 1;
+                            m_dist2_array[i] = dist2;
+                            m_dist2_array[j] = dist2;
                             m_sdot_array[i] = sdot;
                             m_sdot_array[j] = sdot;
                             m_cdot_array[i] = cdot;
@@ -421,6 +436,7 @@ class ComputePairing2DWithoutCellList
     {
     private:
         unsigned int *m_match_array;
+        float* m_dist2_array;
         float* m_sdot_array;
         float* m_cdot_array;
         const float3 *m_points;
@@ -436,6 +452,7 @@ class ComputePairing2DWithoutCellList
 
     public:
         ComputePairing2DWithoutCellList(unsigned int *match_array,
+                                        float* dist2_array,
                                         float* sdot_array,
                                         float* cdot_array,
                                         const float3 *points,
@@ -448,10 +465,10 @@ class ComputePairing2DWithoutCellList
                                         const float shape_dot_tol,
                                         const float comp_dot_target,
                                         const float comp_dot_tol)
-        : m_match_array(match_array), m_sdot_array(sdot_array), m_cdot_array(cdot_array), m_points(points),
-          m_shape_angles(shape_angles), m_comp_angles(comp_angles), m_Np(Np), m_rmax(r_max), m_box(box),
-          m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol), m_comp_dot_target(comp_dot_target),
-          m_comp_dot_tol(comp_dot_tol)
+        : m_match_array(match_array), m_dist2_array(dist2_array), m_sdot_array(sdot_array), m_cdot_array(cdot_array),
+          m_points(points), m_shape_angles(shape_angles), m_comp_angles(comp_angles), m_Np(Np), m_rmax(r_max),
+          m_box(box), m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol),
+          m_comp_dot_target(comp_dot_target), m_comp_dot_tol(comp_dot_tol)
         {
         }
 
@@ -459,8 +476,12 @@ class ComputePairing2DWithoutCellList
             {
             // m_nP = Np;
             // for each particle
-            float sdot = 0.0;
-            float cdot = 0.0;
+            float dist2;
+            float sdot;
+            float cdot;
+            dist2 = 0.0;
+            sdot = 0.0;
+            cdot = 0.0;
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 float3 r_i = m_points[i];
@@ -489,11 +510,14 @@ class ComputePairing2DWithoutCellList
                                    m_shape_dot_tol,
                                    m_comp_dot_target,
                                    m_comp_dot_tol,
+                                   dist2,
                                    sdot,
                                    cdot))
                         {
                         m_match_array[i] = 1;
                         m_match_array[j] = 1;
+                        m_dist2_array[i] = dist2;
+                        m_dist2_array[j] = dist2;
                         m_sdot_array[i] = sdot;
                         m_sdot_array[j] = sdot;
                         m_cdot_array[i] = cdot;
@@ -508,6 +532,7 @@ class ComputePairing3DCellList
     {
     private:
         unsigned int *m_match_array;
+        float* m_dist2_array;
         float* m_sdot_array;
         float* m_cdot_array;
         const float3 *m_points;
@@ -524,6 +549,7 @@ class ComputePairing3DCellList
 
     public:
         ComputePairing3DCellList(unsigned int *match_array,
+                                 float* dist2_array,
                                  float* sdot_array,
                                  float* cdot_array,
                                  const float3 *points,
@@ -537,10 +563,10 @@ class ComputePairing3DCellList
                                  const float shape_dot_tol,
                                  const float comp_dot_target,
                                  const float comp_dot_tol)
-        : m_match_array(match_array), m_sdot_array(sdot_array), m_cdot_array(cdot_array), m_points(points),
-          m_shape_quats(shape_quats), m_comp_quats(comp_quats), m_Np(Np), m_lc(lc), m_rmax(r_max), m_box(box),
-          m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol), m_comp_dot_target(comp_dot_target),
-          m_comp_dot_tol(comp_dot_tol)
+        : m_match_array(match_array), m_dist2_array(dist2_array),
+          m_sdot_array(sdot_array), m_cdot_array(cdot_array), m_points(points), m_shape_quats(shape_quats),
+          m_comp_quats(comp_quats), m_Np(Np), m_lc(lc), m_rmax(r_max), m_box(box), m_shape_dot_target(shape_dot_target),
+          m_shape_dot_tol(shape_dot_tol), m_comp_dot_target(comp_dot_target), m_comp_dot_tol(comp_dot_tol)
         {
         }
 
@@ -548,6 +574,7 @@ class ComputePairing3DCellList
             {
             // m_nP = Np;
             // for each particle
+            float dist2 = 0.0;
             float sdot = 0.0;
             float cdot = 0.0;
             for (size_t i = r.begin(); i != r.end(); i++)
@@ -587,11 +614,14 @@ class ComputePairing3DCellList
                                        m_shape_dot_tol,
                                        m_comp_dot_target,
                                        m_comp_dot_tol,
+                                       dist2,
                                        sdot,
                                        cdot))
                             {
                             m_match_array[i] = 1;
                             m_match_array[j] = 1;
+                            m_dist2_array[i] = dist2;
+                            m_dist2_array[j] = dist2;
                             m_sdot_array[i] = sdot;
                             m_sdot_array[j] = sdot;
                             m_cdot_array[i] = cdot;
@@ -607,6 +637,7 @@ class ComputePairing3DWithoutCellList
     {
     private:
         unsigned int *m_match_array;
+        float* m_dist2_array;
         float* m_sdot_array;
         float* m_cdot_array;
         const float3 *m_points;
@@ -623,6 +654,7 @@ class ComputePairing3DWithoutCellList
 
     public:
         ComputePairing3DWithoutCellList(unsigned int *match_array,
+                                        float* dist2_array,
                                         float* sdot_array,
                                         float* cdot_array,
                                         const float3 *points,
@@ -635,8 +667,8 @@ class ComputePairing3DWithoutCellList
                                         const float shape_dot_tol,
                                         const float comp_dot_target,
                                         const float comp_dot_tol)
-        : m_match_array(match_array), m_sdot_array(sdot_array), m_cdot_array(cdot_array), m_points(points),
-          m_shape_quats(shape_quats), m_comp_quats(comp_quats), m_Np(Np), m_rmax(r_max), m_box(box),
+        : m_match_array(match_array), m_dist2_array(dist2_array), m_sdot_array(sdot_array), m_cdot_array(cdot_array),
+          m_points(points), m_shape_quats(shape_quats), m_comp_quats(comp_quats), m_Np(Np), m_rmax(r_max), m_box(box),
           m_shape_dot_target(shape_dot_target), m_shape_dot_tol(shape_dot_tol), m_comp_dot_target(comp_dot_target),
           m_comp_dot_tol(comp_dot_tol)
         {
@@ -646,6 +678,7 @@ class ComputePairing3DWithoutCellList
             {
             // m_nP = Np;
             // for each particle
+            float dist2 = 0.0;
             float sdot = 0.0;
             float cdot = 0.0;
             for (size_t i = r.begin(); i != r.end(); i++)
@@ -676,11 +709,14 @@ class ComputePairing3DWithoutCellList
                                    m_shape_dot_tol,
                                    m_comp_dot_target,
                                    m_comp_dot_tol,
+                                   dist2,
                                    sdot,
                                    cdot))
                         {
                         m_match_array[i] = 1;
                         m_match_array[j] = 1;
+                        m_dist2_array[i] = dist2;
+                        m_dist2_array[j] = dist2;
                         m_sdot_array[i] = sdot;
                         m_sdot_array[j] = sdot;
                         m_cdot_array[i] = cdot;
@@ -702,6 +738,7 @@ bool pairing::useCells()
     }
 
 void pairing::compute(unsigned int* match,
+                      float* dist2,
                       float* sdots,
                       float* cdots,
                       const float3* points,
@@ -718,6 +755,7 @@ void pairing::compute(unsigned int* match,
         //                     Np);
         m_lc->computeCellList(points, Np);
         parallel_for(blocked_range<size_t>(0,Np), ComputePairing2DCellList(match,
+                                                                           dist2,
                                                                            sdots,
                                                                            cdots,
                                                                            points,
@@ -735,6 +773,7 @@ void pairing::compute(unsigned int* match,
     else
         {
         parallel_for(blocked_range<size_t>(0,Np), ComputePairing2DWithoutCellList(match,
+                                                                                  dist2,
                                                                                   sdots,
                                                                                   cdots,
                                                                                   points,
@@ -751,6 +790,7 @@ void pairing::compute(unsigned int* match,
     }
 
 void pairing::compute(unsigned int* match,
+                      float* dist2,
                       float* sdots,
                       float* cdots,
                       const float3* points,
@@ -767,6 +807,7 @@ void pairing::compute(unsigned int* match,
         //                     Np);
         m_lc->computeCellList(points, Np);
         parallel_for(blocked_range<size_t>(0,Np), ComputePairing3DCellList(match,
+                                                                           dist2,
                                                                            sdots,
                                                                            cdots,
                                                                            points,
@@ -784,6 +825,7 @@ void pairing::compute(unsigned int* match,
     else
         {
         parallel_for(blocked_range<size_t>(0,Np), ComputePairing3DWithoutCellList(match,
+                                                                                  dist2,
                                                                                   sdots,
                                                                                   cdots,
                                                                                   points,
@@ -800,6 +842,7 @@ void pairing::compute(unsigned int* match,
     }
 
 void pairing::computePy(boost::python::numeric::array match,
+                        boost::python::numeric::array dist2,
                         boost::python::numeric::array sdots,
                         boost::python::numeric::array cdots,
                         boost::python::numeric::array points,
@@ -818,6 +861,8 @@ void pairing::computePy(boost::python::numeric::array match,
     // match will contain the particle index of the ref that is matched
     num_util::check_type(match, PyArray_INT);
     num_util::check_rank(match, 1);
+    num_util::check_type(dist2, PyArray_FLOAT);
+    num_util::check_rank(dist2, 1);
     num_util::check_type(sdots, PyArray_FLOAT);
     num_util::check_rank(sdots, 1);
     num_util::check_type(cdots, PyArray_FLOAT);
@@ -840,6 +885,7 @@ void pairing::computePy(boost::python::numeric::array match,
 
     // get the raw data pointers and compute the cell list
     unsigned int* match_raw = (unsigned int*) num_util::data(match);
+    float* dist2_raw = (float*) num_util::data(dist2);
     float* sdots_raw = (float*) num_util::data(sdots);
     float* cdots_raw = (float*) num_util::data(cdots);
     const float3* points_raw = (float3*) num_util::data(points);
@@ -849,6 +895,7 @@ void pairing::computePy(boost::python::numeric::array match,
         const float4* shape_orientations_raw = (float4*) num_util::data(shape_orientations);
         const float4* comp_orientations_raw = (float4*) num_util::data(comp_orientations);
         compute(match_raw,
+                dist2_raw,
                 sdots_raw,
                 cdots_raw,
                 points_raw,
@@ -861,6 +908,7 @@ void pairing::computePy(boost::python::numeric::array match,
         const float* shape_angles_raw = (float*) num_util::data(shape_orientations);
         const float* comp_angles_raw = (float*) num_util::data(comp_orientations);
         compute(match_raw,
+                dist2_raw,
                 sdots_raw,
                 cdots_raw,
                 points_raw,
