@@ -27,6 +27,13 @@ namespace freud { namespace sphericalharmonicorderparameters {
  *
  * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
 */
+//! Added first/second shell combined average Ql order parameter for a set of points
+/*!
+ * Variation of the Steinhardt Ql order parameter
+ * For a particle i, we calculate the average Q_l by summing the spherical harmonics between particle i and its neighbors j and the neighbors k of neighbor j in a local region:
+ * 
+ * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+*/
 class LocalQl
     {
     public:
@@ -61,6 +68,13 @@ class LocalQl
         //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
         void computePy(boost::python::numeric::array points);
 
+        //! Compute the local rotationally invariant (with 2nd shell) Ql order parameter
+        void computeAve(const float3 *points, 
+                        unsigned int Np);
+
+        //! Python wrapper for computing the order parameter (with 2nd shell) from a Nx3 numpy array of float32.
+        void computeAvePy(boost::python::numeric::array points);
+
         //! Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
         boost::shared_array< double > getQl()
             {
@@ -71,6 +85,19 @@ class LocalQl
         boost::python::numeric::array getQlPy()
             {
             double *arr = m_Qli.get();
+            return num_util::makeNum(arr, m_Np);
+            }
+
+        //! Get a reference to the last computed AveQl for each particle.  Returns NaN instead of AveQl for particles with no neighbors.
+        boost::shared_array< double > getAveQl()
+            {
+            return m_AveQli;
+            }
+
+        //! Python wrapper for getAveQl() (returns a copy of array).  Returns NaN instead of AveQl for particles with no neighbors.
+        boost::python::numeric::array getAveQlPy()
+            {
+            double *arr = m_AveQli.get();
             return num_util::makeNum(arr, m_Np);
             }
 
@@ -86,6 +113,8 @@ class LocalQl
         unsigned int m_Np;                //!< Last number of points computed
         boost::shared_array< std::complex<double> > m_Qlmi;        //!  Qlm for each particle i
         boost::shared_array< double > m_Qli;         //!< Ql locally invariant order parameter for each particle i;
+        boost::shared_array< std::complex<double> > m_AveQlmi;     //! AveQlm for each particle i
+        boost::shared_array< double > m_AveQli;     //!< AveQl locally invariant order parameter for each particle i;
     };
 
 //! Exports all classes in this file to python

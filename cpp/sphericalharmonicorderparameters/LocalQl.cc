@@ -121,6 +121,100 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
         } //Ends loop over particles i for Qlmi calcs
     }
 
+void LocalQl::computeAve(const float3 *points, unsigned int Np)
+    {
+    cout << "it got here";
+    //Set local data size
+    m_Np = Np;
+
+    //Initialize cell list
+    m_lc.computeCellList(points,m_Np);
+
+    double rmaxsq = m_rmax * m_rmax;
+    double normalizationfactor = 4*M_PI/(2*m_l+1);
+
+
+    //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
+    // for safety and debugging laziness, reallocate each time
+    m_AveQlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
+    m_AveQli = boost::shared_array<double>(new double[m_Np]);
+    memset((void*)m_AveQlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
+    memset((void*)m_AveQli.get(), 0, sizeof(double)*m_Np);
+
+    for (unsigned int i = 0; i<m_Np; i++)
+        {
+        //get cell point is in
+        float3 ref = points[i];
+        unsigned int ref_cell = m_lc.getCell(ref);
+        unsigned int neighborcount=0;
+        //cout << "FINE";
+
+        //loop over neighboring cells
+        const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
+        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+            {
+            //get cell points of 1st neighbor
+            unsigned int neigh_cell = neigh_cells[neigh_idx];
+            
+            //iterate over particles in neighboring cells
+            locality::LinkCell::iteratorcell shell1 = m_lc.itercell(neigh_cell);
+            for (unsigned int n1 = shell1.next(); !shell1.atEnd(); n1 = shell1.next())
+                {
+                float3 ref1 = points[n1];
+                unsigned int ref1_cell = m_lc.getCell(ref1);
+
+                //loop over 2nd neighboring cells
+                const std::vector<unsigned int>& neigh1_cells = m_lc.getCellNeighbors(ref1_cell);
+                for (unsigned int neigh1_idx = 0; neigh1_idx < neigh1_cells.size(); neigh1_idx++)
+                    {
+                    //get cell points of 2nd neighbor
+                    unsigned int neigh1_cell = neigh1_cells[neigh1_idx];
+
+                    //iterate over particles in neighboring cells
+                    locality::LinkCell::iteratorcell it = m_lc.itercell(neigh1_cell);
+                    for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
+                        {
+                        if (n1 == j) 
+                        {
+                            continue;
+                        }
+                        // rij = rj - ri, from i pointing to j.
+                        float dx = float(points[j].x - ref1.x);
+                        float dy = float(points[j].y - ref1.y);
+                        float dz = float(points[j].z - ref1.z);
+
+                        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+
+                        if (rsq < rmaxsq)
+                            {
+                            double phi = atan2(delta.y,delta.x);      //0..2Pi
+                            double theta = acos(delta.z / sqrt(rsq)); //0..Pi
+
+                            std::vector<std::complex<double> > Y;
+                            LocalQl::Ylm(theta, phi,Y);  //Fill up Ylm vector
+                            for(unsigned int k = 0; k < (2*m_l+1); ++k)
+                                {
+                                m_AveQlmi[(2*m_l+1)*i+k]+=Y[k];
+                                }
+                            neighborcount++;
+                            }
+                        }
+                    }
+                } //End loop going over neighbor cells (and thus all neighboring particles);
+                //Normalize!
+                for(unsigned int k = 0; k < (2*m_l+1); ++k)
+                    {
+                    m_AveQlmi[(2*m_l+1)*i+k]/= neighborcount;
+                    m_AveQli[i]+= abs( m_AveQlmi[(2*m_l+1)*i+k]*conj(m_AveQlmi[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
+                    }
+            m_AveQli[i]*=normalizationfactor;
+            m_AveQli[i]=sqrt(m_AveQli[i]);
+            } //Ends loop over particles i for Qlmi calcs
+        }
+    }
+
+
 void LocalQl::computePy(boost::python::numeric::array points)
     {
     //validate input type and rank
@@ -136,13 +230,31 @@ void LocalQl::computePy(boost::python::numeric::array points)
     compute(points_raw, Np);
     }
 
+void LocalQl::computeAvePy(boost::python::numeric::array points)
+    {
+    //validate input type and rank
+    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_rank(points, 2);
+
+    // validate that the 2nd dimension is only 3
+    num_util::check_dim(points, 1, 3);
+    unsigned int Np = num_util::shape(points)[0];
+
+    // get the raw data pointers and compute the cell list
+    float3* points_raw = (float3*) num_util::data(points);
+    computeAve(points_raw, Np);
+    }
+
+
 void export_LocalQl()
     {
     class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int>())
         .def("getBox", &LocalQl::getBox, return_internal_reference<>())
         .def("setBox", &LocalQl::setBox)
         .def("compute", &LocalQl::computePy)
+        .def("computeAve", &LocalQl::computeAvePy)
         .def("getQl", &LocalQl::getQlPy)
+        .def("getAveQl", &LocalQl::getAveQlPy)
         ;
     }
 
