@@ -15,8 +15,8 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-LocalDensity::LocalDensity(const trajectory::Box& box, float rcut, float volume)
-    : m_box(box), m_rcut(rcut), m_volume(volume), m_lc(box, rcut), m_Np(0)
+LocalDensity::LocalDensity(const trajectory::Box& box, float rcut, float volume, float diameter)
+    : m_box(box), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_lc(box, rcut+diameter/2.0f), m_Np(0)
     {
     }
 
@@ -31,6 +31,7 @@ class ComputeLocalDensity
         const trajectory::Box& m_box;
         const float m_rcut;
         const float m_volume;
+        const float m_diameter;
         const locality::LinkCell& m_lc;
         const float3 *m_points;
     public:
@@ -39,20 +40,19 @@ class ComputeLocalDensity
                             const trajectory::Box& box,
                             const float rcut,
                             const float volume,
+                            const float diameter,
                             const locality::LinkCell& lc,
                             const float3 *points)
             : m_density_array(density_array), m_num_neighbors_array(num_neighbors_array), m_box(box), m_rcut(rcut),
-              m_volume(volume), m_lc(lc), m_points(points)
+              m_volume(volume), m_diameter(diameter), m_lc(lc), m_points(points)
             {
             }
 
         void operator()( const blocked_range<size_t>& r ) const
             {
-            float rcutsq = m_rcut * m_rcut;
-
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
-                unsigned int num_neighbors = 0;
+                float num_neighbors = 0;
 
                 // get cell point is in
                 float3 ref = m_points[i];
@@ -75,9 +75,20 @@ class ComputeLocalDensity
                         float3 delta = m_box.wrap(make_float3(dx, dy, dz));
 
                         float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                        if (rsq < rcutsq && i != j)
+                        float r = sqrt(rsq);
+
+                        // count particles that are fully in the rcut sphere
+                        if (r < (m_rcut - m_diameter/2.0f))
                             {
-                            num_neighbors++;
+                            num_neighbors += 1.0f;
+                            }
+                        else if (r < (m_rcut + m_diameter/2.0f))
+                            {
+                            // partially count particles that intersect the rcut sphere
+                            // this is not particularly accurate for a single particle, but works well on average for
+                            // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
+                            // that obscure data
+                            num_neighbors += 1.0f + (m_rcut - (r + m_diameter/2.0f)) / m_diameter;
                             }
                         }
                     }
@@ -115,6 +126,7 @@ void LocalDensity::compute(const float3 *points, unsigned int Np)
                                                                   m_box,
                                                                   m_rcut,
                                                                   m_volume,
+                                                                  m_diameter,
                                                                   m_lc,
                                                                   points));
 
@@ -144,8 +156,7 @@ void LocalDensity::computePy(boost::python::numeric::array points)
 
 void export_LocalDensity()
     {
-    class_<LocalDensity>("LocalDensity", init<trajectory::Box&, float, float>())
-        .def(init<trajectory::Box&, float, float>())
+    class_<LocalDensity>("LocalDensity", init<trajectory::Box&, float, float, float>())
         .def("compute", &LocalDensity::computePy)
         .def("getDensity", &LocalDensity::getDensityPy)
         .def("getNumNeighbors", &LocalDensity::getNumNeighborsPy)
