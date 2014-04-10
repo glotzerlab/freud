@@ -123,7 +123,7 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
 
 void LocalQl::computeAve(const float3 *points, unsigned int Np)
     {
-    cout << "it got here";
+    //cout << "it got here";
     //Set local data size
     m_Np = Np;
 
