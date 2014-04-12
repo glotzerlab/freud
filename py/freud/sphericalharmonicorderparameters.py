@@ -22,12 +22,14 @@ class LocalWl(LWl):
         else:
             print('l too big, need sympy library')
             super(LocalWl,self).setWigner3j(self.wigner3j(l))
-    
+   
+    #read of wigner3j coefficients from wigner3j.mat  
     def getwigner(self,l):
         allwig = sio.loadmat('wigner3j.mat')
         W_l = np.array(allwig['l'+str(l)][0],dtype=np.float64)
         return W_l
 
+    #calculate wigner3j coefficients from sympy python library
     def wigner3j(self,l):
         from sympy.physics.wigner import wigner_3j
         counter = 0
@@ -46,6 +48,9 @@ class LocalWl(LWl):
 
 
 #How to set up wigner3j.mat file
+#The structure of this .mat file is a list of float numbers in the order of l
+# 1st row: l=2 wigner3j, 2nd row: l=4 wigner3j...
+#The coefficients are in the order of how the loop is written 
 
 ''' import scipy.io as sio
  from sympy.physics.wigner import wigner_3j

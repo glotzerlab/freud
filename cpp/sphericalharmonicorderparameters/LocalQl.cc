@@ -44,8 +44,6 @@ void LocalQl::Ylm(const double theta, const double phi, std::vector<std::complex
         Y[i+m_l] = Y[-i+m_l];
     }
 
-
-
 void LocalQl::compute(const float3 *points, unsigned int Np)
     {
 
@@ -63,8 +61,10 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
     // for safety and debugging laziness, reallocate each time
     m_Qlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
     m_Qli = boost::shared_array<double>(new double[m_Np]);
+    m_Qlm = boost::shared_array<complex<double> >(new complex<double>[2*m_l+1]);
     memset((void*)m_Qlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
     memset((void*)m_Qli.get(), 0, sizeof(double)*m_Np);
+    memset((void*)m_Qlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
@@ -115,6 +115,7 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
                 {
                 m_Qlmi[(2*m_l+1)*i+k]/= neighborcount;
                 m_Qli[i]+= abs( m_Qlmi[(2*m_l+1)*i+k]*conj(m_Qlmi[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
+                m_Qlm[k]+= m_Qlmi[(2*m_l+1)*i+k];
                 }
         m_Qli[i]*=normalizationfactor;
         m_Qli[i]=sqrt(m_Qli[i]);
@@ -123,7 +124,6 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
 
 void LocalQl::computeAve(const float3 *points, unsigned int Np)
     {
-    //cout << "it got here";
     //Set local data size
     m_Np = Np;
 
@@ -147,7 +147,6 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
         float3 ref = points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=1;
-        //cout << "FINE";
 
         //loop over neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
@@ -212,22 +211,45 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
                         }
                     }
                 } //End loop going over neighbor cells (and thus all neighboring particles);
-              }
-                  //Normalize!
-                for(unsigned int k = 0; k < (2*m_l+1); ++k)
-                    {
-                    m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*i+k];
-                    m_AveQlmi[(2*m_l+1)*i+k]/= neighborcount;
-                    m_AveQli[i]+= abs( m_AveQlmi[(2*m_l+1)*i+k]*conj(m_AveQlmi[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
-                    }
-            m_AveQli[i]*=normalizationfactor;
-            m_AveQli[i]=sqrt(m_AveQli[i]);
-            //m_AveQli[i] += m_Qli[i];
-            //m_AveQli[i] /= neighborcount;
-            } //Ends loop over particles i for Qlmi calcs
-        }
+            }
+        //Normalize!
+        for (unsigned int k = 0; k < (2*m_l+1); ++k)
+            {
+                m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*i+k];
+                m_AveQlmi[(2*m_l+1)*i+k]/= neighborcount;
+                m_AveQli[i]+= abs( m_AveQlmi[(2*m_l+1)*i+k]*conj(m_AveQlmi[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
+            }
+        m_AveQli[i]*=normalizationfactor;
+        m_AveQli[i]=sqrt(m_AveQli[i]);
+        } //Ends loop over particles i for Qlmi calcs
+    }
     
+void LocalQl::computeNorm(const float3 *points, unsigned int Np)
+    {
+    
+    //Set local data size
+    m_Np = Np;
+    double normalizationfactor = 4*M_PI/(2*m_l+1);
 
+    m_QliNorm = boost::shared_array<double>(new double[m_Np]);
+    memset((void*)m_QliNorm.get(), 0, sizeof(double)*m_Np);
+
+    //Average Q_lm over all particles, which was calculated in compute
+    for(unsigned int k = 0; k < (2*m_l+1); ++k)
+        {
+        m_Qlm[k]/= m_Np;
+        }
+
+    for(unsigned int i = 0; i < m_Np; ++i)
+        {
+        for(unsigned int k = 0; k < (2*m_l+1); ++k)
+            {
+            m_QliNorm[i]+= abs( m_Qlm[k]*conj(m_Qlm[k]) ); //Square by multiplying self w/ complex conj, then take real comp
+            }
+            m_QliNorm[i]*=normalizationfactor;
+            m_QliNorm[i]=sqrt(m_QliNorm[i]);
+        }
+    }
 
 void LocalQl::computePy(boost::python::numeric::array points)
     {
@@ -260,6 +282,22 @@ void LocalQl::computeAvePy(boost::python::numeric::array points)
     computeAve(points_raw, Np);
     }
 
+void LocalQl::computeNormPy(boost::python::numeric::array points)
+    {
+    //validate input type and rank
+    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_rank(points, 2);
+
+    // validate that the 2nd dimension is only 3
+    num_util::check_dim(points, 1, 3);
+    unsigned int Np = num_util::shape(points)[0];
+
+    // get the raw data pointers and compute the cell list
+    float3* points_raw = (float3*) num_util::data(points);
+    compute(points_raw, Np);
+    computeNorm(points_raw, Np);
+    }
+
 
 void export_LocalQl()
     {
@@ -268,8 +306,10 @@ void export_LocalQl()
         .def("setBox", &LocalQl::setBox)
         .def("compute", &LocalQl::computePy)
         .def("computeAve", &LocalQl::computeAvePy)
+        .def("computeNorm", &LocalQl::computeNormPy)
         .def("getQl", &LocalQl::getQlPy)
         .def("getAveQl", &LocalQl::getAveQlPy)
+        .def("getQlNorm", &LocalQl::getQlNormPy)
         ;
     }
 

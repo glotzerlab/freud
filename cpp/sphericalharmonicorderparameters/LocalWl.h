@@ -19,9 +19,18 @@ namespace freud { namespace sphericalharmonicorderparameters {
 //! Compute the local Steinhardt rotationally invariant Wl order parameter for a set of points
 /*!
  * Implements the local rotationally invariant Wl order parameter described by Steinhardt that can aid in distinguishing between FCC, HCP, BCC.
- *
+ * 
  * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
+ * Uses a python wrapper to pass the wigner3j coefficients to c++ 
 */
+//! Added first/second shell combined average Wl order parameter for a set of points
+/*!
+ * Variation of the Steinhardt Wl order parameter
+ * For a particle i, we calculate the average W_l by summing the spherical harmonics between particle i and its neighbors j and the neighbors k of neighbor j in a local region:
+ * 
+ * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+*/
+
 class LocalWl
     {
     public:
@@ -52,16 +61,27 @@ class LocalWl
         void compute(const float3 *points,
                      unsigned int Np);
 
-        //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
+        //! Compute the Wl order parameter globally (averaging over the system Qlm)
+        void computeNorm(const float3 *points,
+                         unsigned int Np);
+
+       //! Compute the Wl order parameter with second shell (averaging over the second shell Qlm)
+        void computeAve(const float3 *points,
+                        unsigned int Np);
+
+       //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
         void computePy(boost::python::numeric::array points);
-        
+ 
+        //! Python wrapper for computing the global Wl order parameter from Nx3 numpy array of float32
+        void computeNormPy(boost::python::numeric::array points);
+
+        //! Python wrapper for computing the Wl order parameter with second shell (averaging over the second shell Qlm)
+        void computeAvePy(boost::python::numeric::array points);
+
         //! Python wrapper for computing wigner3jvalues
         void setWigner3jPy(boost::python::numeric::array wigner3jvalues);
 
-       // void getWigner3jPy();
-
-
-        //! Get a reference to the last computed Wl for each particle.  Returns NaN instead of Ql for particles with no neighbors.
+        //! Get a reference to the last computed Wl/WlNorm for each particle.  Returns NaN instead of Ql for particles with no neighbors.
         boost::shared_array<std::complex<double> > getWl()
             {
             return m_Wli;
@@ -83,7 +103,7 @@ class LocalWl
             return m_wigner3jvalues;
             }
 
-        //! Python wrapper for getWl() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
+        //! Python wrapper for getWl()/getWlNorm() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
         boost::python::numeric::array getWlPy()
             {
             std::complex<double> *arr = m_Wli.get();
@@ -94,8 +114,13 @@ class LocalWl
             std::complex<double> *arr = m_WliNorm.get();
             return num_util::makeNum(arr, m_Np);
             }
+        boost::python::numeric::array getAveWlPy()
+            {
+            std::complex<double> *arr = m_AveWli.get();
+            return num_util::makeNum(arr, m_Np);
+            }
 
-        //! Python wrapper for getWl() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
+        //! Python wrapper for getQl() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
         boost::python::numeric::array getQlPy()
             {
             //FIX THIS:  Need to normalize by sqrt(4*Pi/(2m_l+1)) =
@@ -137,7 +162,9 @@ class LocalWl
 
         boost::shared_array< std::complex<double> > m_Qlm;
         boost::shared_array< std::complex<double> > m_Qlmi;        //!  Qlm for each particle i
+        boost::shared_array< std::complex<double> > m_AveQlmi;
         boost::shared_array< std::complex<double> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
+        boost::shared_array< std::complex<double> > m_AveWli;
         boost::shared_array< std::complex<double> > m_WliNorm;
         boost::shared_array< double > m_Qli; //!<  Need copy of Qli for normalization
         boost::shared_array< double > m_wigner3jvalues;  //!<Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
