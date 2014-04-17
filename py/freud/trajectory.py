@@ -327,7 +327,7 @@ class TrajectoryXML(Trajectory):
             position = position[0]
         position_text = position.childNodes[0].data
         xyz = position_text.split()
-        self.num_particles = len(xyz)/3
+        self.num_particles = int(len(xyz)/3)
 
         # Update the static properties if available in xml
         for prop in self.supported_props:
@@ -567,7 +567,7 @@ class TrajectoryXMLDCD(Trajectory):
             position = position[0];
         position_text = position.childNodes[0].data
         xyz = position_text.split()
-        self.num_particles = len(xyz)/3;
+        self.num_particles = int(len(xyz)/3)
         if dcd_fname is None:
             pos = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32);
             for i in range(0,self.num_particles):
@@ -750,7 +750,7 @@ class TrajectoryPOS(Trajectory):
 
         #Reader can handle changing num particles, but this doesn't
         # self.num_particles = len(self.pos_file.n_box_points[0])
-        self.num_particles = self.pos_file.n_box_points[0]
+        self.num_particles = int(self.pos_file.n_box_points[0])
 
         # Update the static properties
         if not 'position' in self.dynamic_props:

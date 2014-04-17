@@ -21,7 +21,7 @@ class LocalDensity
     {
     public:
         //! Constructor
-        LocalDensity(const trajectory::Box& box, float r_cut, float volume);
+        LocalDensity(const trajectory::Box& box, float r_cut, float volume, float diameter);
 
         //! Compute the local density
         void compute(const float3 *points,
@@ -60,6 +60,7 @@ class LocalDensity
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
+        float m_diameter;                 //!< Diameter of the particles
         locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_Np;                //!< Last number of points computed
 

@@ -30,13 +30,13 @@ foreach(file ${ARGN})
     else()
         set(source_file "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
     endif()
-    
+
     add_custom_command(OUTPUT ${generated_obj_file} ${generated_header_file}
                        IMPLICIT_DEPENDS CXX
                        DEPENDS ${source_file}
                        COMMAND ${ISPC_EXECUTABLE} ${source_file} -o ${generated_obj_file} -h ${generated_header_file}
                       )
-    
+
     set_source_files_properties(${generated_obj_file} PROPERTIES GENERATED TRUE)
     list(APPEND _compile_ispc_generated_files ${generated_obj_file})
 endforeach()
@@ -53,9 +53,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/density
                     ${CMAKE_CURRENT_SOURCE_DIR}/voronoi
                     ${CMAKE_CURRENT_SOURCE_DIR}/kspace
+                    ${CMAKE_CURRENT_SOURCE_DIR}/lindemann
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/sphericalharmonicorderparameters
+                    ${CMAKE_CURRENT_SOURCE_DIR}/localql
+                    ${CMAKE_CURRENT_SOURCE_DIR}/pairing
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_BINARY_DIR}
@@ -77,6 +80,8 @@ set(SOURCES trajectory/trajectory.cc
             voronoi/VoronoiBuffer.cc
             kspace/kspace.h
             kspace/kspace.cc
+            lindemann/lindemann.h
+            lindemann/lindemann.cc
             cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h
@@ -94,6 +99,11 @@ set(SOURCES trajectory/trajectory.cc
             molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
+            localql/LocalQl.cc
+            localql/LocalQl.h
+            pairing/pairing.cc
+            pairing/pairing.h
+            localql/LocalQl.h
             interface/InterfaceMeasure.h
             sphericalharmonicorderparameters/LocalQl.h
             sphericalharmonicorderparameters/LocalQl.cc
