@@ -99,8 +99,6 @@ set(SOURCES trajectory/trajectory.cc
             molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
-            localql/LocalQl.cc
-            localql/LocalQl.h
             pairing/pairing.cc
             pairing/pairing.h
             localql/LocalQl.h

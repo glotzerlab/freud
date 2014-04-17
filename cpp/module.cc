@@ -79,7 +79,6 @@ BOOST_PYTHON_MODULE(_freud)
     sphericalharmonicorderparameters::export_LocalQl();
     sphericalharmonicorderparameters::export_LocalWl();
     sphericalharmonicorderparameters::export_SolLiq();
-    localql::export_LocalQl();
     pairing::export_pairing();
     viz::export_colormap();
     viz::export_colorutil();
