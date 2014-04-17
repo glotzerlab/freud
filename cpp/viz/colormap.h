@@ -32,6 +32,18 @@ void jet(float4 *cmap,
          unsigned int N);
 
 /*! \internal
+    \brief Helper function for cubehelix colormap
+*/
+void cubehelix(float4 *cmap,
+               const float *lambda_array,
+               unsigned int N,
+               float a,
+               float s,
+               float r,
+               float h,
+               float gamma);
+
+/*! \internal
     \brief Exports all classes in this file to python
 */
 void export_colormap();

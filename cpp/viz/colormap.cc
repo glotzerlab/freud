@@ -294,11 +294,148 @@ void jet(float4 *cmap,
     parallel_for(blocked_range<size_t>(0,N,100), ComputeJet(cmap, u_array, a));
     }
 
+/*! \internal
+    \brief Python wrapper for cubehelix
+
+    \param cmap Output colormap (Nx4 float32 array)
+    \param lambda Input values: linear in range 0-1 (N element float32 array)
+    \param a Alpha value
+    \param s Hue of the starting color
+    \param r Number of rotations through R->G->B to make
+    \param h Hue parameter controlling saturation
+    \param gamma Reweighting power to emphasize low intensity values or high intensity values
+*/
+void cubehelixPy(boost::python::numeric::array cmap,
+           boost::python::numeric::array lambda,
+           float a,
+           float s,
+           float r,
+           float h,
+           float gamma)
+    {
+    //validate input type and rank
+    num_util::check_type(cmap, PyArray_FLOAT);
+    num_util::check_rank(cmap, 2);
+
+    // validate that the 2nd dimension is 4
+    num_util::check_dim(cmap, 1, 4);
+    unsigned int N = num_util::shape(cmap)[0];
+
+    // check that lambda is consistent
+    num_util::check_type(lambda, PyArray_FLOAT);
+    num_util::check_rank(lambda, 1);
+    if (num_util::shape(lambda)[0] != N)
+        throw std::invalid_argument("Input lengths for cmap and lambda must match");
+
+    // get the raw data pointers and compute conversion
+    float4* cmap_raw = (float4*) num_util::data(cmap);
+    float* lambda_raw = (float*)num_util::data(lambda);
+
+        // compute the colormap with the GIL released
+        {
+        util::ScopedGILRelease gil;
+        cubehelix(cmap_raw, lambda_raw, N, a, s, r, h, gamma);
+        }
+    }
+
+//! \internal
+/*! \brief Helper class for parallel computation in cubehelix()
+*/
+class ComputeCubehelix
+    {
+    private:
+        float4 *m_cmap;
+        const float *m_lambda_array;
+        const float m_a;
+        const float m_s;
+        const float m_r;
+        const float m_h;
+        const float m_gamma;
+    public:
+        ComputeCubehelix(float4 *cmap,
+                        const float *lambda_array,
+                        const float a,
+                        const float s,
+                        const float r,
+                        const float h,
+                        const float gamma)
+            : m_cmap(cmap), m_lambda_array(lambda_array), m_a(a), m_s(s),
+              m_r(r), m_h(h), m_gamma(gamma)
+            {
+            }
+
+        void operator()( const blocked_range<size_t>& r ) const
+            {
+            float4 *cmap = m_cmap;
+            const float *lambda_array = m_lambda_array;
+
+            for (size_t i = r.begin(); i < r.end(); ++i)
+                {
+                // clamp the input
+                float lambda = lambda_array[i];
+                lambda = max(0.0f, lambda);
+                lambda = min(1.0f, lambda);
+                lambda = powf(lambda, m_gamma);
+
+                const float phi = 2*M_PI*(m_s*(1.0f/3.0f) + m_r*lambda);
+                // Note that this is the "a" parameter from the paper
+                // and has nothing to do with m_a (the alpha value of
+                // the color to return)
+                const float a = m_h*lambda*(1.0f - lambda)*0.5f;
+
+                // sin and cosine of phi
+                float sphi, cphi;
+                sincosf(phi, &sphi, &cphi);
+
+                float r = lambda + a*(-0.14861f*cphi + 1.78277f*sphi);
+                float g = lambda + a*(-0.29227f*cphi - 0.90649f*sphi);
+                float b = lambda + a*( 1.97294f*cphi);
+
+                // clamp to range 0,1
+                r = max(0.0f, r);
+                r = min(1.0f, r);
+
+                g = max(0.0f, g);
+                g = min(1.0f, g);
+
+                b = max(0.0f, b);
+                b = min(1.0f, b);
+
+                cmap[i].x = r;
+                cmap[i].y = g;
+                cmap[i].z = b;
+                cmap[i].w = m_a;
+                }
+            }
+    };
+
+
+/*! \param cmap Output colormap (Nx4 float32 array)
+    \param lambda_array Input values: linear values (N element float32 array)
+    \param a Alpha value
+    \param s Hue of the starting color
+    \param r Number of rotations through R->G->B to make
+    \param h Hue parameter controlling saturation
+    \param gamma Reweighting power to emphasize low intensity values or high intensity values
+*/
+void cubehelix(float4 *cmap,
+         const float *lambda_array,
+               unsigned int N,
+               float a,
+               float s,
+               float r,
+               float h,
+               float gamma)
+    {
+    parallel_for(blocked_range<size_t>(0,N,100), ComputeCubehelix(cmap, lambda_array, a, s, r, h, gamma));
+    }
+
 
 void export_colormap()
     {
     def("hsv2RGBA", &hsv2RGBAPy);
     def("jet", &jetPy);
+    def("cubehelix", &cubehelixPy);
     }
 
 }; }; // end namespace freud::viz
