@@ -384,8 +384,8 @@ class ComputeCubehelix
                 const float a = m_h*lambda*(1.0f - lambda)*0.5f;
 
                 // sin and cosine of phi
-                float sphi, cphi;
-                sincosf(phi, &sphi, &cphi);
+                float sphi = sin(phi);
+                float cphi = cos(phi);
 
                 float r = lambda + a*(-0.14861f*cphi + 1.78277f*sphi);
                 float g = lambda + a*(-0.29227f*cphi - 0.90649f*sphi);
