@@ -57,7 +57,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/sphericalharmonicorderparameters
-                    ${CMAKE_CURRENT_SOURCE_DIR}/localql
                     ${CMAKE_CURRENT_SOURCE_DIR}/pairing
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
@@ -101,7 +100,6 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.h
             pairing/pairing.cc
             pairing/pairing.h
-            localql/LocalQl.h
             interface/InterfaceMeasure.h
             sphericalharmonicorderparameters/LocalQl.h
             sphericalharmonicorderparameters/LocalQl.cc
