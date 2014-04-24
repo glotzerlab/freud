@@ -82,6 +82,14 @@ class LocalQl
         //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32
         void computeNormPy(boost::python::numeric::array points);
 
+      //! Compute the Ql order parameter globally (averaging over the system AveQlm)
+        void computeAveNorm(const float3 *points,
+                         unsigned int Np);
+
+        //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32
+        void computeAveNormPy(boost::python::numeric::array points);
+
+
         //! Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
         boost::shared_array< double > getQl()
             {
@@ -120,6 +128,19 @@ class LocalQl
             double *arr = m_QliNorm.get();
             return num_util::makeNum(arr, m_Np);
             }
+        
+        //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
+        boost::shared_array< double > getQlAveNorm()
+        {
+        return m_QliAveNorm;
+        }
+
+        //! Python wrapper for getQlNorm() (returns a copy of array). Returns NaN instead of QlNorm for particles with no neighbors.
+        boost::python::numeric::array getQlAveNormPy()
+            {
+            double *arr = m_QliAveNorm.get();
+            return num_util::makeNum(arr, m_Np);
+            }
         //!Spherical harmonics calculation for Ylm filling a vector<complex<double>> with values for m = -l..l.
         void Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y);
 
@@ -136,6 +157,8 @@ class LocalQl
         boost::shared_array< double > m_AveQli;     //!< AveQl locally invariant order parameter for each particle i;
         boost::shared_array< std::complex<double> > m_Qlm;  //! NormQlm for the system
         boost::shared_array< double > m_QliNorm;   //!< QlNorm order parameter for each particle i
+        boost::shared_array< std::complex<double> > m_AveQlm; //! AveNormQlm for the system
+        boost::shared_array< double > m_QliAveNorm;     //! < QlAveNorm order paramter for each particle i
     };
 
 //! Exports all classes in this file to python
