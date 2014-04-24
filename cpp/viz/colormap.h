@@ -41,7 +41,8 @@ void cubehelix(float4 *cmap,
                float s,
                float r,
                float h,
-               float gamma);
+               float gamma,
+               bool reverse);
 
 /*! \internal
     \brief Exports all classes in this file to python

@@ -304,6 +304,7 @@ void jet(float4 *cmap,
     \param r Number of rotations through R->G->B to make
     \param h Hue parameter controlling saturation
     \param gamma Reweighting power to emphasize low intensity values or high intensity values
+    \param reverse Reverse the colormap (lambda -> 1 - lambda)
 */
 void cubehelixPy(boost::python::numeric::array cmap,
            boost::python::numeric::array lambda,
@@ -311,7 +312,8 @@ void cubehelixPy(boost::python::numeric::array cmap,
            float s,
            float r,
            float h,
-           float gamma)
+           float gamma,
+           bool reverse)
     {
     //validate input type and rank
     num_util::check_type(cmap, PyArray_FLOAT);
@@ -334,7 +336,7 @@ void cubehelixPy(boost::python::numeric::array cmap,
         // compute the colormap with the GIL released
         {
         util::ScopedGILRelease gil;
-        cubehelix(cmap_raw, lambda_raw, N, a, s, r, h, gamma);
+        cubehelix(cmap_raw, lambda_raw, N, a, s, r, h, gamma, reverse);
         }
     }
 
@@ -351,6 +353,7 @@ class ComputeCubehelix
         const float m_r;
         const float m_h;
         const float m_gamma;
+        const bool m_reverse;
     public:
         ComputeCubehelix(float4 *cmap,
                         const float *lambda_array,
@@ -358,9 +361,10 @@ class ComputeCubehelix
                         const float s,
                         const float r,
                         const float h,
-                        const float gamma)
+                        const float gamma,
+                        const bool reverse)
             : m_cmap(cmap), m_lambda_array(lambda_array), m_a(a), m_s(s),
-              m_r(r), m_h(h), m_gamma(gamma)
+              m_r(r), m_h(h), m_gamma(gamma), m_reverse(reverse)
             {
             }
 
@@ -375,6 +379,8 @@ class ComputeCubehelix
                 float lambda = lambda_array[i];
                 lambda = max(0.0f, lambda);
                 lambda = min(1.0f, lambda);
+                if (m_reverse)
+                    lambda = 1.0f - lambda;
                 lambda = powf(lambda, m_gamma);
 
                 const float phi = 2*M_PI*(m_s*(1.0f/3.0f) + m_r*lambda);
@@ -384,8 +390,8 @@ class ComputeCubehelix
                 const float a = m_h*lambda*(1.0f - lambda)*0.5f;
 
                 // sin and cosine of phi
-                float sphi = sin(phi);
-                float cphi = cos(phi);
+                const float sphi = sinf(phi);
+                const float cphi = cosf(phi);
 
                 float r = lambda + a*(-0.14861f*cphi + 1.78277f*sphi);
                 float g = lambda + a*(-0.29227f*cphi - 0.90649f*sphi);
@@ -417,6 +423,7 @@ class ComputeCubehelix
     \param r Number of rotations through R->G->B to make
     \param h Hue parameter controlling saturation
     \param gamma Reweighting power to emphasize low intensity values or high intensity values
+    \param reverse Reverse the colormap (lambda -> 1 - lambda)
 */
 void cubehelix(float4 *cmap,
          const float *lambda_array,
@@ -425,9 +432,10 @@ void cubehelix(float4 *cmap,
                float s,
                float r,
                float h,
-               float gamma)
+               float gamma,
+               bool reverse)
     {
-    parallel_for(blocked_range<size_t>(0,N,100), ComputeCubehelix(cmap, lambda_array, a, s, r, h, gamma));
+    parallel_for(blocked_range<size_t>(0,N,100), ComputeCubehelix(cmap, lambda_array, a, s, r, h, gamma, reverse));
     }
 
 

@@ -137,6 +137,7 @@ def hsv(theta, s=1.0, v=1.0, alpha=1.0):
 # \param h Hue parameter controlling saturation
 # \param gamma Reweighting power to emphasize low-intensity values (gamma < 1) or high-intensity values (gamma > 1)
 # \param alpha The alpha value for the entire colormap is set to this value
+# \param reverse Reverse the colormap with respect to lambda (lambda -> 1 - lambda); perhaps more suitable for density-like colorings
 #
 # The cubehelix colormap creates a spiral through RGB space with
 # several weighting parameters controlling the shape of the path as u
@@ -151,7 +152,7 @@ def hsv(theta, s=1.0, v=1.0, alpha=1.0):
 # A numpy array the same size as \a v , with an added dimension of size 4 containing r,g,b,a grayscale values in the
 # sRGBA color space
 #
-def cubehelix(u, s=0.0, r=1.0, h=1.2, gamma=1.0, alpha=1.0):
+def cubehelix(u, s=0.0, r=1.0, h=1.2, gamma=1.0, reverse=False, alpha=1.0):
     # make a copy of v and convert to a numpy array if needed
     w = numpy.array(u, dtype=numpy.float32);
     newshape = list(w.shape);
@@ -163,6 +164,6 @@ def cubehelix(u, s=0.0, r=1.0, h=1.2, gamma=1.0, alpha=1.0):
     cmap_u = colorutil._unfold(cmap);
 
     # compute the cubehelix colormap
-    _freud.cubehelix(cmap, w_u, alpha, s, r, h, gamma);
+    _freud.cubehelix(cmap, w_u, alpha, s, r, h, gamma, reverse);
 
     return cmap;
