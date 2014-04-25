@@ -273,7 +273,7 @@ class Lines(Triangles):
                     raise ValueError("For a continuous line, starts must be of "
                                      "length 2 or greater");
 
-                self.N = self.starts.shape[0];
+                self.Nlines = self.starts.shape[0];
                 updated.add('position');
             else:
                 self.starts = numpy.array(starts, dtype=numpy.float32);
@@ -283,7 +283,7 @@ class Lines(Triangles):
                 if self.starts.shape[1] != 2:
                     raise ValueError("starts must be a Nx2 array");
 
-                self.N = self.starts.shape[0];
+                self.Nlines = self.starts.shape[0];
                 updated.add('position');
 
         # -----------------------------------------------------------------
@@ -305,7 +305,7 @@ class Lines(Triangles):
             # error check the input
             if len(self.ends.shape) != 2:
                 raise TypeError("ends must be a Nx2 array");
-            if self.ends.shape[0] != self.N or self.ends.shape[1] != 2:
+            if self.ends.shape[0] != self.Nlines or self.ends.shape[1] != 2:
                 raise ValueError("ends must be a Nx2 array");
 
             updated.add('position');
@@ -315,14 +315,14 @@ class Lines(Triangles):
         try:
             self.arrColors;
         except AttributeError:
-            self.arrColors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
+            self.arrColors = numpy.zeros(shape=(self.Nlines,4), dtype=numpy.float32);
             self.arrColors[:,3] = 1;
 
         if colors is not None:
             self.arrColors = numpy.array(colors, dtype=numpy.float32);
 
             # Silently fix input size in single-line mode
-            if self.singleLine and self.arrColors.shape[0] == self.N + 1:
+            if self.singleLine and self.arrColors.shape[0] == self.Nlines + 1:
                 self.arrColors = self.arrColors[:-1];
 
             # error check colors
@@ -330,7 +330,7 @@ class Lines(Triangles):
                 raise TypeError("colors must be a Nx4 array");
             if self.arrColors.shape[1] != 4:
                 raise ValueError("colors must be a Nx4 array");
-            if self.arrColors.shape[0] != self.N:
+            if self.arrColors.shape[0] != self.Nlines:
                 raise ValueError("colors must have N the same as positions");
 
             updated.add('color');
@@ -342,6 +342,7 @@ class Lines(Triangles):
             if acolor.shape[0] != 4:
                 raise ValueError("color must be a 4 element array");
 
+            self.arrColors[:] = acolor;
             updated.add('color');
 
         if 'position' in updated:
@@ -365,21 +366,21 @@ class Lines(Triangles):
                 self.lengths[self.lengths > self.maxLength] = 0.;
 
             # replicate the "base image" into the proper shape
-            stem0 = numpy.repeat(stem0, self.N, axis=0);
-            stem1 = numpy.repeat(stem1, self.N, axis=0);
+            stem0 = numpy.repeat(stem0, self.Nlines, axis=0);
+            stem1 = numpy.repeat(stem1, self.Nlines, axis=0);
 
             # scale the length of stem by the given line lengths
             stem0[:, 2, 0] *= self.lengths;
             stem1[:, 1:, 0] *= self.lengths[:, numpy.newaxis];
 
             # rotate the vertices into the correct orientation
-            rmat = numpy.empty((self.N, 2, 2));
+            rmat = numpy.empty((self.Nlines, 2, 2));
             rmat[:, 0, 0] = rmat[:, 1, 1] = numpy.cos(self.angles);
             rmat[:, 1, 0] = numpy.sin(self.angles);
             rmat[:, 0, 1] = -rmat[:, 1, 0];
 
-            stem0 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem0.reshape(self.N, 3, 1, 2), axis=3);
-            stem1 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem1.reshape(self.N, 3, 1, 2), axis=3);
+            stem0 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem0.reshape(self.Nlines, 3, 1, 2), axis=3);
+            stem1 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem1.reshape(self.Nlines, 3, 1, 2), axis=3);
 
             # put the triangles in the appropriate positions
             stem0 += self.starts[:, numpy.newaxis, :];
@@ -388,7 +389,7 @@ class Lines(Triangles):
             vertices = numpy.concatenate([stem0, stem1], axis=0);
 
         if 'color' in updated:
-            colors = numpy.repeat(self.arrColors, 3, axis=0);
+            colors = numpy.tile(self.arrColors, (2, 1));
 
         super(Lines, self).update(vertices=vertices, colors=colors, color=color);
 
