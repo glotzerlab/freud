@@ -122,13 +122,6 @@ class Disks(base.Primitive):
         self.updated = list(updated);
 
 
-## Line primitive
-#
-# Represent N lines in 2D or 3D (2D specific renderers may simply ignore the z component).
-class Lines(base.Primitive):
-    pass
-
-
 ## Triangle primitive
 #
 # Represent N triangles in 2D, each defined by vertices and a color.
@@ -227,6 +220,177 @@ class Triangles(base.Primitive):
             updated.add('color');
 
         self.updated = list(updated);
+
+
+## Line primitive
+#
+# Represent N lines in 2D. This primitive draws N line segments (with
+# square ends) given a set of start and end points.
+class Lines(Triangles):
+    ## Initialize a line primitive
+    # \param starts Nx2 array listing the origin of each line segment (in distance units)
+    # \param width line width to draw (in distance units)
+    # \param ends Either an Nx2 array listing the destination of each line segment (in distance units) or None to connect all points in a single continuous line
+    # \param colors Nx4 array listing the colors (rgba 0.0-1.0) of each vertex (in SRGB)
+    # \param color 4 element iterable listing the color to be applied to every vertex (in SRGB)
+    #              \a color overrides anything set by colors
+    # \param maxLength If any line is longer than maxLength, don't draw it
+    #
+    # When colors is None, it defaults to (0,0,0,1) for each particle.
+    #
+    # \note N **must** be the same for each array
+    #
+    # After initialization, the instance will have members starts,
+    # ends, and colors, each being a numpy array of the appropriate
+    # size and dtype float32. Users should not modify these directly,
+    # they are intended for use only by renderers. Instead, users
+    # should create a new primitive from scratch to rebuild geometry.
+    def __init__(self, starts, width=1.0, ends=None, colors=None, color=None, maxLength=None):
+        base.Primitive.__init__(self);
+        self.singleLine = (ends is None);
+        self.maxLength = maxLength;
+        self.updated = [];
+        self.update(starts=starts, width=width, ends=ends, colors=colors,
+                    color=color);
+
+    def update(self, starts=None, width=None, ends=None, colors=None, color=None):
+        updated = set(self.updated);
+
+        # -----------------------------------------------------------------
+        # set up starts
+        # convert to a numpy array
+        if starts is not None:
+            if self.singleLine:
+                self.starts = numpy.array(starts[:-1], dtype=numpy.float32);
+                self.ends = numpy.array(starts[1:], dtype=numpy.float32);
+
+                # error check the input
+                if len(self.starts.shape) != 2:
+                    raise TypeError("starts must be a Nx2 array");
+                if self.starts.shape[1] != 2:
+                    raise ValueError("starts must be a Nx2 array");
+                if self.starts.shape[0] < 1:
+                    raise ValueError("For a continuous line, starts must be of "
+                                     "length 2 or greater");
+
+                self.N = self.starts.shape[0];
+                updated.add('position');
+            else:
+                self.starts = numpy.array(starts, dtype=numpy.float32);
+                # error check the input
+                if len(self.starts.shape) != 2:
+                    raise TypeError("starts must be a Nx2 array");
+                if self.starts.shape[1] != 2:
+                    raise ValueError("starts must be a Nx2 array");
+
+                self.N = self.starts.shape[0];
+                updated.add('position');
+
+        # -----------------------------------------------------------------
+        # set up width
+        if width is not None:
+            self.width = numpy.array(width, dtype=numpy.float32);
+
+            # error check width
+            if len(self.width.shape) != 0:
+                raise TypeError("width must be a scalar");
+
+            updated.add('position');
+
+        # -----------------------------------------------------------------
+        # set up ends
+        # convert to a numpy array
+        if ends is not None and not self.singleLine:
+            self.ends = numpy.array(ends, dtype=numpy.float32);
+            # error check the input
+            if len(self.ends.shape) != 2:
+                raise TypeError("ends must be a Nx2 array");
+            if self.ends.shape[0] != self.N or self.ends.shape[1] != 2:
+                raise ValueError("ends must be a Nx2 array");
+
+            updated.add('position');
+
+        # -----------------------------------------------------------------
+        # set up colors
+        try:
+            self.arrColors;
+        except AttributeError:
+            self.arrColors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
+            self.arrColors[:,3] = 1;
+
+        if colors is not None:
+            self.arrColors = numpy.array(colors, dtype=numpy.float32);
+
+            # Silently fix input size in single-line mode
+            if self.singleLine and self.arrColors.shape[0] == self.N + 1:
+                self.arrColors = self.arrColors[:-1];
+
+            # error check colors
+            if len(self.arrColors.shape) != 2:
+                raise TypeError("colors must be a Nx4 array");
+            if self.arrColors.shape[1] != 4:
+                raise ValueError("colors must be a Nx4 array");
+            if self.arrColors.shape[0] != self.N:
+                raise ValueError("colors must have N the same as positions");
+
+            updated.add('color');
+
+        if color is not None:
+            acolor = numpy.array(color);
+            if len(acolor.shape) != 1:
+                raise TypeError("color must be a 4 element array");
+            if acolor.shape[0] != 4:
+                raise ValueError("color must be a 4 element array");
+
+            updated.add('color');
+
+        if 'position' in updated:
+            # stem0 and stem1 are the two triangles for the rectangular
+            # "stem" of the line
+            stem0 = numpy.array([[[0, -.5*self.width],
+                                  [0, .5*self.width],
+                                  [1, .5*self.width]]],
+                                dtype=numpy.float32);
+            stem1 = numpy.array([[[0, -.5*self.width],
+                                  [1, .5*self.width],
+                                  [1, -.5*self.width]]],
+                                dtype=numpy.float32);
+
+            deltas = self.ends - self.starts;
+            self.lengths = numpy.sqrt(numpy.sum(deltas**2, axis=1)) + .5*self.width;
+            self.angles = numpy.arctan2(deltas[:, 1], deltas[:, 0]);
+
+            # "delete" segments that are too long (set length to 0)
+            if self.maxLength is not None:
+                self.lengths[self.lengths > self.maxLength] = 0.;
+
+            # replicate the "base image" into the proper shape
+            stem0 = numpy.repeat(stem0, self.N, axis=0);
+            stem1 = numpy.repeat(stem1, self.N, axis=0);
+
+            # scale the length of stem by the given line lengths
+            stem0[:, 2, 0] *= self.lengths;
+            stem1[:, 1:, 0] *= self.lengths[:, numpy.newaxis];
+
+            # rotate the vertices into the correct orientation
+            rmat = numpy.empty((self.N, 2, 2));
+            rmat[:, 0, 0] = rmat[:, 1, 1] = numpy.cos(self.angles);
+            rmat[:, 1, 0] = numpy.sin(self.angles);
+            rmat[:, 0, 1] = -rmat[:, 1, 0];
+
+            stem0 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem0.reshape(self.N, 3, 1, 2), axis=3);
+            stem1 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem1.reshape(self.N, 3, 1, 2), axis=3);
+
+            # put the triangles in the appropriate positions
+            stem0 += self.starts[:, numpy.newaxis, :];
+            stem1 += self.starts[:, numpy.newaxis, :];
+
+            vertices = numpy.concatenate([stem0, stem1], axis=0);
+
+        if 'color' in updated:
+            colors = numpy.repeat(self.arrColors, 3, axis=0);
+
+        super(Lines, self).update(vertices=vertices, colors=colors, color=color);
 
 
 ## Rotated Triangle primitive
