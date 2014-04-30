@@ -111,11 +111,19 @@ inline bool comp_check_2D(const float rmax,
     // determine if paired
     if (d_ij > rmaxsq)
         return false;
-    if ((theta_s_ij < (shape_dot_target - shape_dot_tol)) || (theta_s_ij > (shape_dot_target + shape_dot_tol)))
+    // if ((theta_s_ij < (shape_dot_target - shape_dot_tol)) || (theta_s_ij > (shape_dot_target + shape_dot_tol)))
+    //     return false;
+    // if ((v_ij < (comp_dot_target - comp_dot_tol)) || (v_ij > (comp_dot_target + comp_dot_tol)))
+    //     return false;
+    // if ((v_ji < (comp_dot_target - comp_dot_tol)) || (v_ji > (comp_dot_target + comp_dot_tol)))
+    //     return false;
+    if (abs(theta_s_ij - shape_dot_target) > shape_dot_tol)
         return false;
-    if ((v_ij < (comp_dot_target - comp_dot_tol)) || (v_ij > (comp_dot_target + comp_dot_tol)))
+    if (abs(theta_c_ij - comp_dot_target) > comp_dot_tol)
         return false;
-    if ((v_ji < (comp_dot_target - comp_dot_tol)) || (v_ji > (comp_dot_target + comp_dot_tol)))
+    if (v_ij < 0)
+        return false;
+    if (v_ji < 0)
         return false;
     return true;
     }
@@ -396,7 +404,7 @@ class ComputePairing2DCellList
                         float angle_s_j = m_shape_angles[j];
                         float angle_c_j = m_comp_angles[j];
                         // will skip same particle
-                        if (i >= j)
+                        if (i == j)
                             {
                             continue;
                             }
@@ -418,13 +426,13 @@ class ComputePairing2DCellList
                                        cdot))
                             {
                             m_match_array[i] = 1;
-                            m_match_array[j] = 1;
+                            // m_match_array[j] = 1;
                             m_dist2_array[i] = dist2;
-                            m_dist2_array[j] = dist2;
+                            // m_dist2_array[j] = dist2;
                             m_sdot_array[i] = sdot;
-                            m_sdot_array[j] = sdot;
+                            // m_sdot_array[j] = sdot;
                             m_cdot_array[i] = cdot;
-                            m_cdot_array[j] = cdot;
+                            // m_cdot_array[j] = cdot;
                             }
                         } // done looping over neighbors
                     } // done looping over neighbor cells
@@ -493,7 +501,7 @@ class ComputePairing2DWithoutCellList
                     float angle_s_j = m_shape_angles[j];
                     float angle_c_j = m_comp_angles[j];
                     // will skip same particle
-                    if (i >= j)
+                    if (i == j)
                         {
                         continue;
                         }
@@ -515,13 +523,13 @@ class ComputePairing2DWithoutCellList
                                    cdot))
                         {
                         m_match_array[i] = 1;
-                        m_match_array[j] = 1;
+                        // m_match_array[j] = 1;
                         m_dist2_array[i] = dist2;
-                        m_dist2_array[j] = dist2;
+                        // m_dist2_array[j] = dist2;
                         m_sdot_array[i] = sdot;
-                        m_sdot_array[j] = sdot;
+                        // m_sdot_array[j] = sdot;
                         m_cdot_array[i] = cdot;
-                        m_cdot_array[j] = cdot;
+                        // m_cdot_array[j] = cdot;
                         }
                     } // done looping over check points
                 } // done looping over reference points
