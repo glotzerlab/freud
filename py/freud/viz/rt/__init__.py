@@ -71,15 +71,17 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     ## Create a GLWidget
     # \param scene the Scene to render
+    # \param background (r, g, b, a) value for the background in [0.0, 1.0]
     # \param *args non-keyword args passed on to QGLWidget
     # \param **kwargs keyword args passed on to QGLWidget
     #
-    def __init__(self, scene, *args, **kwargs):
+    def __init__(self, scene, background=(1.0, 1.0, 1.0, 1.0), *args, **kwargs):
         if not qt.is_initialized():
             raise RuntimeError('freud.qt.init_app() must be called before constructing a GLWidget');
 
         QtOpenGL.QGLWidget.__init__(self, *args, **kwargs)
         self.scene = scene;
+        self.background = background;
 
         self.setCursor(QtCore.Qt.OpenHandCursor)
 
@@ -127,7 +129,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     # Clear the draw buffers and redraws the scene
     #
     def paintGL(self):
-        gl.glClearColor(1.0, 1.0, 1.0, 0.0);
+        gl.glClearColor(*self.background);
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
         if self.scene is not None:
             self.draw_gl.startFrame();
@@ -349,7 +351,8 @@ class TrajectoryViewer(QtGui.QMainWindow):
     frame_select = QtCore.Signal(int);
     frame_display = QtCore.Signal(int);
 
-    def __init__(self, scene=None, immediate=False, dock_widgets=[], toolbars=[], *args, **kwargs):
+    def __init__(self, scene=None, immediate=False, dock_widgets=[], toolbars=[],
+                 background=(1.0, 1.0, 1.0, 1.0), *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
 
         self.scene = scene;
@@ -387,7 +390,7 @@ class TrajectoryViewer(QtGui.QMainWindow):
         self.restoreSettings();
 
         # initialize the gl display
-        self.glWidget = GLWidget(scene)
+        self.glWidget = GLWidget(scene, background=background)
         self.setCentralWidget(self.glWidget)
 
         self.gotoFrame(0);
