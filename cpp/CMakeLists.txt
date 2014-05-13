@@ -107,6 +107,8 @@ set(SOURCES trajectory/trajectory.cc
             sphericalharmonicorderparameters/LocalWl.cc
             sphericalharmonicorderparameters/SolLiq.h
             sphericalharmonicorderparameters/SolLiq.cc
+            sphericalharmonicorderparameters/wigner3j.cc
+            sphericalharmonicorderparameters/wigner3j.h
             viz/colormap.h
             viz/colormap.cc
             viz/colorutil.h

@@ -6,6 +6,7 @@
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
+#include "wigner3j.h"
 
 #ifndef _LOCAL_WL_H__
 #define _LOCAL_WL_H__
@@ -98,10 +99,10 @@ class LocalWl
             }
         
         //! See if the wigner3jvalues were passed correctly
-        boost::shared_array< double > getWigner3j()
-            {
-            return m_wigner3jvalues;
-            }
+        //boost::shared_array< double > getWigner3j()
+          //  {
+            //return m_wigner3jvalues;
+           // }
 
         //! Python wrapper for getWl()/getWlNorm() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
         boost::python::numeric::array getWlPy()
@@ -129,12 +130,12 @@ class LocalWl
             }
 
         //! Python wrapper for getWigner3j()
-        boost::python::numeric::array getWigner3jPy()
-            {
-            double *arr = m_wigner3jvalues.get();
-            return num_util::makeNum(arr, m_counter);
+        //boost::python::numeric::array getWigner3jPy()
+          //  {
+          //  double *arr = m_wigner3jvalues.get();
+          //  return num_util::makeNum(arr, m_counter);
             //return num_util::makeNum(arr, num_wigner3jcoefs);
-            }
+          //  }
 
         void enableNormalization()
             {

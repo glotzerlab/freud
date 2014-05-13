@@ -1,4 +1,5 @@
 #include "LocalWl.h"
+#include "wigner3j.h"
 #include <stdexcept>
 #include <complex>
 #include <algorithm>
@@ -47,6 +48,10 @@ void LocalWl::Ylm(const double theta, const double phi, std::vector<std::complex
 
 void LocalWl::compute(const float3 *points, unsigned int Np)
     {
+    //Get wigner3j coefficients from wigner3j.cc
+    int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
+    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    m_wigner3jvalues = getWigner3j(m_l);
 
     //Set local data size
     m_Np = Np;
@@ -141,6 +146,12 @@ void LocalWl::compute(const float3 *points, unsigned int Np)
 
 void LocalWl::computeAve(const float3 *points, unsigned int Np)
     {
+   
+    //Get wigner3j coefficients from wigner3j.cc
+    int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
+    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    m_wigner3jvalues = getWigner3j(m_l);
+
     //Set local data size
     m_Np = Np;
 
@@ -253,6 +264,11 @@ void LocalWl::computeAve(const float3 *points, unsigned int Np)
 void LocalWl::computeNorm(const float3 *points, unsigned int Np)
     {
 
+    //Get wigner3j coefficients from wigner3j.cc
+    int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
+    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    m_wigner3jvalues = getWigner3j(m_l);
+
     //Set local data size
     m_Np = Np;
 
@@ -331,7 +347,8 @@ void LocalWl::computeAvePy(boost::python::numeric::array points)
     }
 
 
-//get wigner3j coefficients from python wrapper    
+/*! get wigner3j coefficients from python wrapper
+ old version of getting wigner3j from python wrapper
 void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
 	{
 	//validate input type and rank
@@ -349,6 +366,7 @@ void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
     	m_wigner3jvalues[i] = wig3j[i];
     	}
     }
+ */
     
 void export_LocalWl()
     {
@@ -362,7 +380,7 @@ void export_LocalWl()
         .def("getAveWl", &LocalWl::getAveWlPy)
         .def("getQl", &LocalWl::getQlPy)
         .def("setBox",&LocalWl::setBox)
-        .def("setWigner3j", &LocalWl::setWigner3jPy)
+        //.def("setWigner3j", &LocalWl::setWigner3jPy)
         .def("enableNormalization", &LocalWl::enableNormalization)
         .def("disableNormalization", &LocalWl::disableNormalization)
         ;

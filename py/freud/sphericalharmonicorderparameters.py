@@ -5,12 +5,13 @@
 
 # bring related c++ classes into the sphericalharmonicorderparameters module
 from _freud import LocalQl
-from _freud import LocalWl as LWl
+#from _freud import LocalWl as LWl
+from _freud import LocalWl
 from _freud import SolLiq
 import scipy.io as sio
 import numpy as np
 
-class LocalWl(LWl):
+'''class LocalWl(LWl):
     
     def __init__(self,box,rmax,l):
         #Initialize those wigner3j values as mx1 numpy arra
@@ -44,7 +45,7 @@ class LocalWl(LWl):
                 u3 = 3*l-u2-u1
                 W_l[i] = float(wigner_3j(l,l,l,u1-l,u2-l,u3-l))
                 i += 1
-        return W_l
+        return W_l'''
 
 
 #How to set up wigner3j.mat file

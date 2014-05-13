@@ -23,6 +23,7 @@
 #include "LocalQl.h"
 #include "LocalWl.h"
 #include "SolLiq.h"
+#include "wigner3j.h"
 #include "lindemann.h"
 
 using namespace boost::python;
