@@ -338,6 +338,12 @@ class Polyhedron:
     ## Identify the index of facet b as a neighbor of facet a
     # The index of neighbor b also corresponds to the index of the first of two right-hand-ordered vertices of the shared edge
     # \returns the index of b in the neighbor list of a or None if they are not neighbors
+    # \par Example
+    # from freud.shape.Cube import shape
+    # a, b = 0, 1
+    # edge_i = shape.getSharedEdge(a,b)
+    # edge_j = (edge_i + 1) % shape.nverts[a]
+    # point_coords = shape.points[[shape.facets[a, edge_i], shape.facets[a, edge_j]]]
     def getSharedEdge(self, a, b):
         # Note that facet only has as many neighbors as it does vertices
         neighbors = list(self.neighbors[a, 0:self.nverts[a]])
