@@ -29,6 +29,52 @@ except ImportError:
 #   Satisfies the hyperplane equation \f$ \bar v \cdot \hat n + d < 0 \f$ for points v enclosed by the surface.
 # - simplicial reference to another Polygon object containing data based on simplicial facets
 #
+# Example:
+# Some shapes are already provided in the module
+# >>> from freud.shape.Cube import shape
+# these are the vertices for a cube
+# >>> shape.points
+# array([
+#       [ 1.,  1.,  1.],
+#       [ 1., -1.,  1.],
+#       [-1., -1.,  1.],
+#       [-1.,  1.,  1.],
+#       [ 1.,  1., -1.],
+#       [ 1., -1., -1.],
+#       [-1., -1., -1.],
+#       [-1.,  1., -1.]])
+#
+# these are the hyperplane equations enumerating the facets
+# >>> shape.equations
+# array([
+#       [-0., -0.,  1., -1.],
+#       [ 1.,  0., -0., -1.],
+#       [-0.,  1.,  0., -1.],
+#       [-0., -1.,  0., -1.],
+#       [-1.,  0.,  0., -1.],
+#       [ 0.,  0., -1., -1.]])
+#
+#
+# these are right-handed lists of vertex indices defining each facet
+# >>> shape.facets
+# array([
+#       [0, 3, 2, 1],
+#       [4, 0, 1, 5],
+#       [4, 7, 3, 0],
+#       [1, 2, 6, 5],
+#       [3, 7, 6, 2],
+#       [5, 6, 7, 4]])
+#
+# these are right-handed lists of facet indices for the facets which border each facet
+# >>> shape.neighbors
+# array([
+#       [2, 4, 3, 1],
+#       [2, 0, 3, 5],
+#       [5, 4, 0, 1],
+#       [0, 4, 5, 1],
+#       [2, 5, 3, 0],
+#       [3, 4, 2, 1]])
+#
 # The Polyhedron methods assume facet vertices and neighbor lists have right-handed ordering. If input data is not
 # available at instantiation, you can use some helper functions to reorder the data.
 #
