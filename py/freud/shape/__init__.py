@@ -81,9 +81,9 @@ except ImportError:
 # Example:
 # \code
 # mypoly = Polyhedron(points, nverts, facets, neighbors, equations)
-# for i in xrange(mypoly.nfacets):
+# for i in range(mypoly.nfacets):
 #   mypoly.facets[i, 0:mypoly.nverts[i]] = mypoly.rhFace(i)
-# for i in xrange(mypoly.nfacets):
+# for i in range(mypoly.nfacets):
 #   mypoly.neighbors[i, 0:mypoly.nverts[i]] = mypoly.rhNeighbor(i)
 # \endcode
 #
@@ -141,8 +141,8 @@ class Polyhedron:
     #
     def mergeFacets(self):
         Nf = self.nfacets
-        facet_verts = [ set(self.facets[i, 0:self.nverts[i]]) for i in xrange(self.nfacets) ]
-        neighbors = [ set(self.neighbors[i, 0:self.nverts[i]]) for i in xrange(self.nfacets) ]
+        facet_verts = [ set(self.facets[i, 0:self.nverts[i]]) for i in range(self.nfacets) ]
+        neighbors = [ set(self.neighbors[i, 0:self.nverts[i]]) for i in range(self.nfacets) ]
         equations = list(self.equations)
         normals = list(self.equations[:,0:3])
         nverts = list(self.nverts)
@@ -165,7 +165,7 @@ class Polyhedron:
             #  update Nf
             #  update neighbors and merge_list references
             #  check next face
-            for m in xrange(len(merge_list)):
+            for m in range(len(merge_list)):
                 merged_neighbor = merge_list[m]
                 # merge in points from neighboring facet
                 facet_verts[face] |= facet_verts[merged_neighbor]
@@ -177,7 +177,7 @@ class Polyhedron:
                 neighbors[face].remove(merged_neighbor)
                 neighbors[face].remove(face)
                 # update other neighbor lists: replace occurences of neighbor with face
-                for i in xrange(len(neighbors)):
+                for i in range(len(neighbors)):
                     if merged_neighbor in neighbors[i]:
                         neighbors[i].remove(merged_neighbor)
                         neighbors[i].add(face)
@@ -191,7 +191,7 @@ class Polyhedron:
                 Nf -= 1
                 # Deal with changed indices for merge_list and neighbors
                 # update merge_list
-                for i in xrange(m+1, len(merge_list)):
+                for i in range(m+1, len(merge_list)):
                     if merge_list[i] > merged_neighbor:
                         merge_list[i] -= 1
                 # update neighbors
@@ -200,7 +200,7 @@ class Polyhedron:
                 # A better optimization would be a c++ module to access qhull directly rather than through scipy.spatial
                 if merged_neighbor < face:
                     face -= 1
-                for i in xrange(len(neighbors)):
+                for i in range(len(neighbors)):
                     nset = neighbors[i]
                     narray = numpy.array(list(nset))
                     mask = narray > merged_neighbor
@@ -212,7 +212,7 @@ class Polyhedron:
         self.nverts = numpy.array(nverts)
         self.facets = numpy.empty((self.nfacets, max(self.nverts)), dtype=int)
         self.neighbors = numpy.empty((self.nfacets, max(self.nverts)), dtype=int)
-        for i in xrange(self.nfacets):
+        for i in range(self.nfacets):
             self.facets[i, :self.nverts[i]] = numpy.array(list(facet_verts[i]))
             self.neighbors[i, :(self.nverts[i])] = numpy.array(list(neighbors[i]))
         self.equations = numpy.array(list(equations))
@@ -239,7 +239,7 @@ class Polyhedron:
             k = cp / numpy.sqrt(numpy.dot(cp,cp))
             q = numpy.concatenate(([numpy.cos(theta/2.)], numpy.sin(theta/2.) * k))
         vertices = points[facet] # 3D vertices
-        for i in xrange(Ni):
+        for i in range(Ni):
             v = vertices[i]
             #print("rotating {point} with {quat}".format(point=v, quat=q))
             vertices[i] = quatrot(q, v)
@@ -249,13 +249,13 @@ class Polyhedron:
         # sort vertices
         idx_srt = list()
         a_srt = list()
-        for i in xrange(Ni):
+        for i in range(Ni):
             r = vertices[i] - centrum
             a = numpy.arctan2(r[1], r[0])
             if a < 0.0:
                 a += numpy.pi * 2.0
             new_i = 0
-            for j in xrange(len(idx_srt)):
+            for j in range(len(idx_srt)):
                 if a <= a_srt[j]:
                     break
                 else:
@@ -275,16 +275,16 @@ class Polyhedron:
         # get a list of sets of vertices for each neighbor
         old_neighbors = list(self.neighbors[iface, 0:Ni])
         neighbor_verts = list()
-        for i in xrange(Ni):
+        for i in range(Ni):
             neighbor = old_neighbors[i]
             verts_set = set(self.facets[neighbor, 0:self.nverts[neighbor]])
             neighbor_verts.append(verts_set)
 
         new_neighbors = list()
-        for i in xrange(Ni):
+        for i in range(Ni):
             # Check each pair of edge points in turn
             edge = set([facet[i], facet[i+1]])
-            for j in xrange(len(neighbor_verts)):
+            for j in range(len(neighbor_verts)):
                 # If edge points are also in neighboring face then we have found the corresponding neighbor
                 if edge < neighbor_verts[j]:
                     new_neighbors.append(old_neighbors[j])
@@ -309,7 +309,7 @@ class Polyhedron:
             #print(n)
             Ni = self.nverts[i] # number of points on the facet)
             # for each triangle on the face
-            for j in xrange(1, Ni-1):
+            for j in range(1, Ni-1):
                     r1 = self.points[face[j]] - self.points[face[0]]
                     r2 = self.points[face[j+1]] - self.points[face[0]]
                     cp = numpy.cross(r1, r2)
@@ -321,7 +321,7 @@ class Polyhedron:
     def getVolume(self):
         V = 0.0
         # for each face, calculate area -> volume, and accumulate
-        for i in xrange(len(self.facets)):
+        for i in range(len(self.facets)):
             d = -1* self.equations[i, 3] # distance from centroid
             A = Polyhedron.getArea(self, i)
             V += d * A / 3.0
@@ -375,7 +375,7 @@ class Polyhedron:
     # \param point 3D coordinates of test point
     def isInside(self, point):
         v = numpy.asarray(point)
-        for i in xrange(self.nfacets):
+        for i in range(self.nfacets):
             d = numpy.dot(v, self.equations[i, 0:3])
             if d + self.equations[i, 3] > 0:
                 return False
@@ -530,9 +530,9 @@ class ConvexPolyhedron(Polyhedron):
             self.mergeFacets()
             old_nfacets = new_nfacets
             new_nfacets = self.nfacets
-        for i in xrange(self.nfacets):
+        for i in range(self.nfacets):
             self.facets[i, 0:self.nverts[i]] = self.rhFace(i)
-        for i in xrange(self.nfacets):
+        for i in range(self.nfacets):
             self.neighbors[i, 0:self.nverts[i]] = self.rhNeighbor(i)
         self.originalpoints = numpy.array(self.points)
         self.originalequations = numpy.array(self.equations)
@@ -563,13 +563,13 @@ class ConvexSpheropolyhedron(ConvexPolyhedron):
             n = self.equations[i, 0:3]
             Ni = self.nverts[i] # number of points on the facet)
             # for each triangle on the face, sum up the area
-            for j in xrange(1, Ni-1):
+            for j in range(1, Ni-1):
                 r1 = self.points[face[j]] - self.points[face[0]]
                 r2 = self.points[face[j+1]] - self.points[face[0]]
                 cp = numpy.cross(r1, r2)
                 Aface += abs(numpy.dot(cp, n)) / 2.0
             # for each edge on the face get length and dihedral to calculate cylinder contribution
-            for j in xrange(0, Ni):
+            for j in range(0, Ni):
                 p1 = self.points[face[j]]
                 if j >= Ni-1:
                     p2 = self.points[face[0]]
@@ -589,7 +589,7 @@ class ConvexSpheropolyhedron(ConvexPolyhedron):
         Vcyl = 0.0
         Vsphere = 4. * numpy.pi * R * R * R / 3.
         # for each face, calculate area -> volume, and accumulate
-        for i in xrange(len(self.facets)):
+        for i in range(len(self.facets)):
             face = self.facets[i]
             Ni = self.nverts[i]
             d = -1* self.equations[i, 3] # distance from centroid
@@ -599,7 +599,7 @@ class ConvexSpheropolyhedron(ConvexPolyhedron):
             # add volume for the polygonal plate due to R
             Vpoly += R * A
             # for each edge on the face get length and dihedral to calculate cylinder contribution
-            for j in xrange(0, Ni):
+            for j in range(0, Ni):
                 p1 = self.points[face[j]]
                 if j >= Ni-1:
                     p2 = self.points[face[0]]
@@ -671,7 +671,7 @@ class ConvexSpheropolyhedron(ConvexPolyhedron):
     # \param point 3D coordinates of test point
     def isInside(self, point):
         v = numpy.asarray(point)
-        for i in xrange(self.nfacets):
+        for i in range(self.nfacets):
             d = numpy.dot(v, self.equations[i, 0:3])
             if d + self.equations[i, 3] > self.R:
                 return False
@@ -1032,7 +1032,7 @@ if __name__ == '__main__':
     success = True
     z = numpy.array([0., 0., 1.])
     tolerance = 1. - 1e-6
-    for i in xrange(mypoly.nfacets):
+    for i in range(mypoly.nfacets):
         facet = mypoly.facets[i]
         vertices = mypoly.points[facet]
         n = mypoly.equations[0,0:3]
@@ -1061,11 +1061,11 @@ if __name__ == '__main__':
 
     # Check ConvexPolyhedron.rhFace
     success = True
-    for i in xrange(mypoly.nfacets):
+    for i in range(mypoly.nfacets):
         normal = mypoly.equations[i, 0:3]
         verts = mypoly.facets[i]
         v0 = mypoly.points[verts[0]]
-        for j in xrange(1, mypoly.nverts[i] - 1):
+        for j in range(1, mypoly.nverts[i] - 1):
             v1 = mypoly.points[verts[j]] - v0
             v2 = mypoly.points[verts[j+1]] - v0
             cp = numpy.cross(v1, v2)
@@ -1085,11 +1085,11 @@ if __name__ == '__main__':
     # Check ConvexPolyhedron.rhNeighbor
     # The kth neighbor of facet i should share vertices mypoly.facets[i, [k, k+1]]
     success = True
-    for i in xrange(mypoly.nfacets):
+    for i in range(mypoly.nfacets):
         facet = list(mypoly.facets[i])
         # Apply periodic boundary for convenience
         facet.append(facet[0])
-        for k in xrange(mypoly.nverts[i]):
+        for k in range(mypoly.nverts[i]):
             edge = [facet[k], facet[k+1]]
             edge_set = set(edge)
             neighbor = mypoly.neighbors[i, k]
@@ -1136,7 +1136,7 @@ if __name__ == '__main__':
     # Check Polyhedron.getDihedral
     mypoly = ConvexPolyhedron(tetrahedron)
     success = True
-    for i in xrange(1, mypoly.nfacets):
+    for i in range(1, mypoly.nfacets):
         dihedral = mypoly.getDihedral(0,i)
         if dihedral < 0 or dihedral > numpy.pi/2.:
             success = False
