@@ -18,10 +18,10 @@ if (TBB_INCLUDE_DIR)
 endif()
 
 # find ISPC
-find_program(ISPC_EXECUTABLE ispc)
-if (ISPC_EXECUTABLE)
-    mark_as_advanced(ISPC_EXECUTABLE)
-endif()
+# find_program(ISPC_EXECUTABLE ispc)
+# if (ISPC_EXECUTABLE)
+#     mark_as_advanced(ISPC_EXECUTABLE)
+# endif()
 
 include(FREUDCFlagsSetup)
 

@@ -122,9 +122,10 @@ set(SOURCES trajectory/trajectory.cc
             )
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 
-compile_ispc(ispc_generated_files viz/colorutil.ispc)
+# compile_ispc(ispc_generated_files viz/colorutil.ispc)
 
-add_library(_freud MODULE ${ispc_generated_files} ${SOURCES} util/num_util.cc util/num_util.h module.cc)
+# add_library(_freud MODULE ${ispc_generated_files} ${SOURCES} util/num_util.cc util/num_util.h module.cc)
+add_library(_freud MODULE ${SOURCES} util/num_util.cc util/num_util.h module.cc)
 setup_pymodule(_freud)
 
 if (PYTHON_SITEDIR)
