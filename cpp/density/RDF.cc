@@ -33,7 +33,7 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     if (rmax > box.getLz()/2 && !box.is2D())
         throw invalid_argument("rmax must be smaller than half the smallest box size");
 
-    m_nbins = int(floorf(m_rmax / m_dr));
+    m_nbins = int(ceilf(m_rmax / m_dr));
     assert(m_nbins > 0);
     m_rdf_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
