@@ -33,7 +33,7 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     if (rmax > box.getLz()/2 && !box.is2D())
         throw invalid_argument("rmax must be smaller than half the smallest box size");
 
-    m_nbins = int(ceilf(m_rmax / m_dr));
+    m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
     m_rdf_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
@@ -136,7 +136,8 @@ void RDF::computeWithoutCellList(const float3 *ref_points,
                 unsigned int bin = (unsigned int)(binr);
                 #endif
 
-                m_bin_counts[bin]++;
+                if (bin < m_nbins)
+                    m_bin_counts[bin]++;
                 }
             }
         } // done looping over reference points
@@ -213,7 +214,8 @@ void RDF::computeWithCellList(const float3 *ref_points,
                     unsigned int bin = (unsigned int)(binr);
                     #endif
 
-                    m_bin_counts[bin]++;
+                    if (bin < m_nbins)
+                        m_bin_counts[bin]++;
                     }
                 }
             }
