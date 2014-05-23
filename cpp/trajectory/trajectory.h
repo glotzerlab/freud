@@ -78,7 +78,7 @@ class Box
             return m_Lz;
             }
         //! Get the volume of the box (area in 2D)
-        float getVolume()
+        float getVolume() const
             {
             if (m_2d)
                 return m_Lx*m_Ly;
