@@ -50,12 +50,12 @@ class ComputeLindex
         const unsigned int m_Nf;
     public:
         ComputeLindex(float *lindex_array,
-                        const trajectory::Box& box,
-                        const float rmax,
-                        const float dr,
-                        const float3 *points,
-                        const unsigned int Np,
-                        const unsigned int Nf)
+                      const trajectory::Box& box,
+                      const float rmax,
+                      const float dr,
+                      const float3 *points,
+                      const unsigned int Np,
+                      const unsigned int Nf)
             : m_box(box), m_rmax(rmax), m_dr(dr), m_lindex_array(lindex_array), m_points(points), m_Np(Np), m_Nf(Nf)
             {
             }
