@@ -83,9 +83,9 @@ class ComputeRDFWithoutCellList
     {
     private:
         unsigned int m_nbins;
-        float *m_rdf_array;
-        unsigned int *m_bin_counts;
-        float *m_N_r_array;
+        atomic<float> *m_rdf_array;
+        atomic<unsigned int> *m_bin_counts;
+        atomic<float> *m_N_r_array;
         float *m_vol_array;
         const trajectory::Box m_box;
         const float m_rmax;
@@ -96,9 +96,9 @@ class ComputeRDFWithoutCellList
         const unsigned int m_Np;
     public:
         ComputeRDFWithoutCellList(unsigned int nbins,
-                                  float *rdf_array,
-                                  unsigned int *bin_counts,
-                                  float *N_r_array,
+                                  atomic<float> *rdf_array,
+                                  atomic<unsigned int> *bin_counts,
+                                  atomic<float> *N_r_array,
                                   float *vol_array,
                                   const trajectory::Box &box,
                                   const float rmax,
@@ -171,9 +171,9 @@ class ComputeRDFWithCellList
     {
     private:
         unsigned int m_nbins;
-        float *m_rdf_array;
-        unsigned int *m_bin_counts;
-        float *m_N_r_array;
+        atomic<float> *m_rdf_array;
+        atomic<unsigned int> *m_bin_counts;
+        atomic<float> *m_N_r_array;
         float *m_vol_array;
         const trajectory::Box m_box;
         const float m_rmax;
@@ -185,9 +185,9 @@ class ComputeRDFWithCellList
         const unsigned int m_Np;
     public:
         ComputeRDFWithCellList(unsigned int nbins,
-                               float *rdf_array,
-                               unsigned int *bin_counts,
-                               float *N_r_array,
+                               atomic<float> *rdf_array,
+                               atomic<unsigned int> *bin_counts,
+                               atomic<float> *N_r_array,
                                float *vol_array,
                                const trajectory::Box &box,
                                const float rmax,
@@ -208,7 +208,7 @@ class ComputeRDFWithCellList
             assert(m_Np > 0);
 
             // bin the x,y,z particles
-            m_lc->computeCellList(m_points, m_Np);
+            // m_lc->computeCellList(m_points, m_Np);
 
             // zero the bin counts for totaling
             memset((void*)m_bin_counts, 0, sizeof(unsigned int)*m_nbins);
@@ -296,11 +296,29 @@ void RDF::compute(const float3 *ref_points,
                   unsigned int Np)
     {
     if (useCells())
+        {
         // computeWithCellList(ref_points, Nref, points, Np);
+        m_lc->computeCellList(points, Np);
+        parallel_for(blocked_range<size_t>(0,Np), ComputeRDFWithCellList(m_nbins,
+                                                                         (atomic<float>*)m_rdf_array.get(),
+                                                                         (atomic<unsigned int>*)m_bin_counts.get(),
+                                                                         (atomic<float>*)m_N_r_array.get(),
+                                                                         m_vol_array.get(),
+                                                                         m_box,
+                                                                         m_rmax,
+                                                                         m_dr,
+                                                                         m_lc,
+                                                                         ref_points,
+                                                                         Nref,
+                                                                         points,
+                                                                         Np));
+        }
+    else
+        // computeWithoutCellList(ref_points, Nref, points, Np);
         parallel_for(blocked_range<size_t>(0,Np), ComputeRDFWithoutCellList(m_nbins,
-                                                                            m_rdf_array.get(),
-                                                                            m_bin_counts.get(),
-                                                                            m_N_r_array.get(),
+                                                                            (atomic<float>*)m_rdf_array.get(),
+                                                                            (atomic<unsigned int>*)m_bin_counts.get(),
+                                                                            (atomic<float>*)m_N_r_array.get(),
                                                                             m_vol_array.get(),
                                                                             m_box,
                                                                             m_rmax,
@@ -309,22 +327,6 @@ void RDF::compute(const float3 *ref_points,
                                                                             Nref,
                                                                             points,
                                                                             Np));
-
-    else
-        // computeWithoutCellList(ref_points, Nref, points, Np);
-        parallel_for(blocked_range<size_t>(0,Np), ComputeRDFWithCellList(m_nbins,
-                                                                        m_rdf_array.get(),
-                                                                        m_bin_counts.get(),
-                                                                        m_N_r_array.get(),
-                                                                        m_vol_array.get(),
-                                                                        m_box,
-                                                                        m_rmax,
-                                                                        m_dr,
-                                                                        m_lc,
-                                                                        ref_points,
-                                                                        Nref,
-                                                                        points,
-                                                                        Np));
     }
 
 // void RDF::computeWithoutCellList(const float3 *ref_points,
