@@ -107,7 +107,9 @@ class ComputeRDFWithoutCellList
                                   unsigned int Nref,
                                   const float3 *points,
                                   unsigned int Np)
-            : m_nbins(nbins), m_rdf_array(rdf_array), m_bin_counts(bin_counts), m_N_r_array(N_r_array), m_vol_array(vol_array), m_box(box), m_rmax(rmax), m_dr(dr), m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
+            : m_nbins(nbins), m_rdf_array(rdf_array), m_bin_counts(bin_counts), m_N_r_array(N_r_array),
+              m_vol_array(vol_array), m_box(box), m_rmax(rmax), m_dr(dr), m_ref_points(ref_points), m_Nref(Nref),
+              m_points(points), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &r ) const
@@ -197,7 +199,9 @@ class ComputeRDFWithCellList
                                unsigned int Nref,
                                const float3 *points,
                                unsigned int Np)
-            : m_nbins(nbins), m_rdf_array(rdf_array), m_bin_counts(bin_counts), m_N_r_array(N_r_array), m_vol_array(vol_array), m_box(box), m_rmax(rmax), m_dr(dr), m_lc(lc), m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
+            : m_nbins(nbins), m_rdf_array(rdf_array), m_bin_counts(bin_counts), m_N_r_array(N_r_array),
+              m_vol_array(vol_array), m_box(box), m_rmax(rmax), m_dr(dr), m_lc(lc), m_ref_points(ref_points),
+              m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &r ) const
@@ -326,144 +330,6 @@ void RDF::compute(const float3 *ref_points,
                                                                         points,
                                                                         Np));
     }
-
-// void RDF::computeWithoutCellList(const float3 *ref_points,
-//                  unsigned int Nref,
-//                  const float3 *points,
-//                  unsigned int Np)
-//     {
-//     // zero the bin counts for totaling
-//     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-//     float dr_inv = 1.0f / m_dr;
-//     float rmaxsq = m_rmax * m_rmax;
-
-//     // for each reference point
-//     for (unsigned int i = 0; i < Nref; i++)
-//         {
-
-//         for (unsigned int j = 0; j < Np; j++)
-//             {
-//             // compute r between the two particles
-//             float dx = float(ref_points[i].x - points[j].x);
-//             float dy = float(ref_points[i].y - points[j].y);
-//             float dz = float(ref_points[i].z - points[j].z);
-
-//             float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-
-//             float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-//             if (rsq < rmaxsq)
-//                 {
-//                 float r = sqrtf(rsq);
-
-//                 // bin that r
-//                 float binr = r * dr_inv;
-//                 // fast float to int conversion with truncation
-//                 #ifdef __SSE2__
-//                 unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-//                 #else
-//                 unsigned int bin = (unsigned int)(binr);
-//                 #endif
-
-//                 if (bin < m_nbins)
-//                     m_bin_counts[bin]++;
-//                 }
-//             }
-//         } // done looping over reference points
-
-//     // now compute the rdf
-//     float ndens = float(Np) / m_box.getVolume();
-//     m_rdf_array[0] = 0.0f;
-//     m_N_r_array[0] = 0.0f;
-//     m_N_r_array[1] = 0.0f;
-
-//     for (unsigned int bin = 1; bin < m_nbins; bin++)
-//         {
-//         float avg_counts = m_bin_counts[bin] / float(Nref);
-//         m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
-
-//         if (bin+1 < m_nbins)
-//             m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
-//         }
-//     }
-
-// void RDF::computeWithCellList(const float3 *ref_points,
-//                   unsigned int Nref,
-//                   const float3 *points,
-//                   unsigned int Np)
-//     {
-//     assert(ref_points);
-//     assert(points);
-//     assert(Nref > 0);
-//     assert(Np > 0);
-
-//     // bin the x,y,z particles
-//     m_lc->computeCellList(points, Np);
-
-//     // zero the bin counts for totaling
-//     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-//     float dr_inv = 1.0f / m_dr;
-//     float rmaxsq = m_rmax * m_rmax;
-
-//     // for each reference point
-//     for (unsigned int i = 0; i < Nref; i++)
-//         {
-//         // get the cell the point is in
-//         float3 ref = ref_points[i];
-//         unsigned int ref_cell = m_lc->getCell(ref);
-
-//         // loop over all neighboring cells
-//         const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-//         for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-//             {
-//             unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-//             // iterate over the particles in that cell
-//             locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-//             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
-//                 {
-//                 // compute r between the two particles
-//                 float dx = float(ref.x - points[j].x);
-//                 float dy = float(ref.y - points[j].y);
-//                 float dz = float(ref.z - points[j].z);
-//                 float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-
-//                 float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-
-//                 if (rsq < rmaxsq)
-//                     {
-//                     float r = sqrtf(rsq);
-
-//                     // bin that r
-//                     float binr = r * dr_inv;
-//                     // fast float to int conversion with truncation
-//                     #ifdef __SSE2__
-//                     unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-//                     #else
-//                     unsigned int bin = (unsigned int)(binr);
-//                     #endif
-
-//                     if (bin < m_nbins)
-//                         m_bin_counts[bin]++;
-//                     }
-//                 }
-//             }
-//         } // done looping over reference points
-
-//     // now compute the rdf
-//     float ndens = float(Np) / m_box.getVolume();
-//     m_rdf_array[0] = 0.0f;
-//     m_N_r_array[0] = 0.0f;
-//     m_N_r_array[1] = 0.0f;
-
-//     for (unsigned int bin = 1; bin < m_nbins; bin++)
-//         {
-//         float avg_counts = m_bin_counts[bin] / float(Nref);
-//         m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
-
-//         if (bin+1 < m_nbins)
-//             m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
-//         }
-//     }
 
 void RDF::computePy(boost::python::numeric::array ref_points,
                     boost::python::numeric::array points)
