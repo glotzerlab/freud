@@ -50,16 +50,16 @@ class RDF
                      unsigned int Np);
 
         //! Compute the RDF
-    void computeWithoutCellList(const float3 *ref_points,
-                    unsigned int Nref,
-                    const float3 *points,
-                    unsigned int Np);
+    // void computeWithoutCellList(const float3 *ref_points,
+    //                 unsigned int Nref,
+    //                 const float3 *points,
+    //                 unsigned int Np);
 
     //! Compute the RDF
-    void computeWithCellList(const float3 *ref_points,
-                 unsigned int Nref,
-                 const float3 *points,
-                 unsigned int Np);
+    // void computeWithCellList(const float3 *ref_points,
+    //              unsigned int Nref,
+    //              const float3 *points,
+    //              unsigned int Np);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array ref_points,
