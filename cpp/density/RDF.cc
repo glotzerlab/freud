@@ -152,19 +152,19 @@ class ComputeRDFWithoutCellList
                 } // done looping over reference points
 
             // now compute the rdf
-            float ndens = float(m_Np) / m_box.getVolume();
-            m_rdf_array[0] = 0.0f;
-            m_N_r_array[0] = 0.0f;
-            m_N_r_array[1] = 0.0f;
+            // float ndens = float(m_Np) / m_box.getVolume();
+            // m_rdf_array[0] = 0.0f;
+            // m_N_r_array[0] = 0.0f;
+            // m_N_r_array[1] = 0.0f;
 
-            for (unsigned int bin = 1; bin < m_nbins; bin++)
-                {
-                float avg_counts = m_bin_counts[bin] / float(m_Nref);
-                m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
+            // for (unsigned int bin = 1; bin < m_nbins; bin++)
+            //     {
+            //     float avg_counts = m_bin_counts[bin] / float(m_Nref);
+            //     m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
 
-                if (bin+1 < m_nbins)
-                    m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
-                }
+            //     if (bin+1 < m_nbins)
+            //         m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+            //     }
             }
     };
 
@@ -263,19 +263,19 @@ class ComputeRDFWithCellList
                 } // done looping over reference points
 
             // now compute the rdf
-            float ndens = float(m_Np) / m_box.getVolume();
-            m_rdf_array[0] = 0.0f;
-            m_N_r_array[0] = 0.0f;
-            m_N_r_array[1] = 0.0f;
+            // float ndens = float(m_Np) / m_box.getVolume();
+            // m_rdf_array[0] = 0.0f;
+            // m_N_r_array[0] = 0.0f;
+            // m_N_r_array[1] = 0.0f;
 
-            for (unsigned int bin = 1; bin < m_nbins; bin++)
-                {
-                float avg_counts = m_bin_counts[bin] / float(m_Nref);
-                m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
+            // for (unsigned int bin = 1; bin < m_nbins; bin++)
+            //     {
+            //     float avg_counts = m_bin_counts[bin] / float(m_Nref);
+            //     m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
 
-                if (bin+1 < m_nbins)
-                    m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
-                }
+            //     if (bin+1 < m_nbins)
+            //         m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+            //     }
             }
     };
 
@@ -329,6 +329,20 @@ void RDF::compute(const float3 *ref_points,
                                                                             Nref,
                                                                             points,
                                                                             Np));
+    // now compute the rdf
+    float ndens = float(Np) / m_box.getVolume();
+    m_rdf_array[0] = 0.0f;
+    m_N_r_array[0] = 0.0f;
+    m_N_r_array[1] = 0.0f;
+
+    for (unsigned int bin = 1; bin < m_nbins; bin++)
+        {
+        float avg_counts = m_bin_counts[bin] / float(Nref);
+        m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
+
+        if (bin+1 < m_nbins)
+            m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+        }
     }
 
 // void RDF::computeWithoutCellList(const float3 *ref_points,
