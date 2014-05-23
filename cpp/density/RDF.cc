@@ -148,7 +148,11 @@ class ComputeRDFWithoutCellList
                         #endif
 
                         if (bin < m_nbins)
+                            {
+                            printf("I should be adding %d\n", (int)m_bin_counts[bin]);
                             m_bin_counts[bin]++;
+                            printf("I did add %d\n", (int)m_bin_counts[bin]);
+                            }
                         }
                     }
                 } // done looping over reference points
@@ -260,7 +264,13 @@ class ComputeRDFWithCellList
                             #endif
 
                             if (bin < m_nbins)
-                                m_bin_counts[bin]++;
+                                {
+                                // printf("I should be adding 1 to %d\n", (int)m_bin_counts[bin]);
+                                // m_bin_counts[bin]++;
+                                m_bin_counts[bin] = 10;
+                                // m_bin_counts[bin] += 1;
+                                // printf("I am now %d\n", (int)m_bin_counts[bin]);
+                                }
                             }
                         }
                     }
@@ -341,6 +351,7 @@ void RDF::compute(const float3 *ref_points,
 
     for (unsigned int bin = 1; bin < m_nbins; bin++)
         {
+        printf("%d\n", (int)m_bin_counts[bin]);
         float avg_counts = m_bin_counts[bin] / float(Nref);
         m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
 
