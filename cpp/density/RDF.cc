@@ -118,25 +118,12 @@ class ComputeRDFWithoutCellList
             float rmaxsq = m_rmax * m_rmax;
 
             // for each reference point
-            // for (unsigned int i = 0; i < m_Nref; i++)
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 float3 ref = m_ref_points[i];
-                // atomic<float> refX;
-                // refX = m_ref_points[i].x;
-                // atomic<float> refY;
-                // refY = m_ref_points[i].y;
-                // atomic<float> refZ;
-                // refZ = m_ref_points[i].z;
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
                     float3 point = m_points[j];
-                    // atomic<float> pointX;
-                    // pointX = m_points[j].x;
-                    // atomic<float> pointY;
-                    // pointY = m_points[j].y;
-                    // atomic<float> pointZ;
-                    // pointZ = m_points[j].z;
                     // compute r between the two particles
                     float dx = float(ref.x - point.x);
                     float dy = float(ref.y - point.y);
@@ -214,7 +201,6 @@ class ComputeRDFWithCellList
             float rmaxsq = m_rmax * m_rmax;
 
             // for each reference point
-            // for (unsigned int i = 0; i < m_Nref; i++)
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 // get the cell the point is in
@@ -261,7 +247,6 @@ class ComputeRDFWithCellList
                         }
                     }
                 } // done looping over reference points
-
             }
     };
 
@@ -302,6 +287,7 @@ void RDF::compute(const float3 *ref_points,
                                                                            Np));
         }
     else
+        {
         parallel_for(blocked_range<size_t>(0,Nref), ComputeRDFWithoutCellList(m_nbins,
                                                                               (atomic<float>*)m_rdf_array.get(),
                                                                               (atomic<unsigned int>*)m_bin_counts.get(),
@@ -314,6 +300,8 @@ void RDF::compute(const float3 *ref_points,
                                                                               Nref,
                                                                               points,
                                                                               Np));
+        }
+
     // now compute the rdf
     float ndens = float(Np) / m_box.getVolume();
     m_rdf_array[0] = 0.0f;
