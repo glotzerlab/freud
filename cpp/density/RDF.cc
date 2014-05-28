@@ -310,6 +310,7 @@ void RDF::compute(const float3 *ref_points,
 
     for (unsigned int bin = 1; bin < m_nbins; bin++)
         {
+        printf("%d\n", (int)m_bin_counts[bin]);
         float avg_counts = m_bin_counts[bin] / float(Nref);
         m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
 
