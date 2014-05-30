@@ -210,31 +210,30 @@ class ComputePMFTWithCellList
         const float m_dz;
         const locality::LinkCell *m_lc;
         float3 *m_ref_points;
-        float *m_ref_orientations;
+        float* m_ref_angles;
         const unsigned int m_Nref;
         float3 *m_points;
         const unsigned int m_Np;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
-                               unsigned int nbins_x,
-                               unsigned int nbins_y,
-                               unsigned int nbins_z,
-                               const trajectory::Box &box,
-                               const float max_x,
-                               const float max_y,
-                               const float max_z,
-                               const float dx,
-                               const float dy,
-                               const float dz,
-                               const locality::LinkCell *lc,
+                                unsigned int nbins_x,
+                                unsigned int nbins_y,
+                                unsigned int nbins_z,
+                                const trajectory::Box &box,
+                                const float max_x,
+                                const float max_y,
+                                const float max_z,
+                                const float dx,
+                                const float dy,
+                                const float dz,
+                                const locality::LinkCell *lc,
                                 float3 *ref_points,
-                                float *ref_orientations,
-                               unsigned int Nref,
+                                unsigned int Nref,
                                 float3 *points,
-                               unsigned int Np)
+                                unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
-              m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_Np(Np)
+              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -350,7 +349,6 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
                                                                             m_dz,
                                                                             m_lc,
                                                                             ref_points,
-                                                                            ref_orientations,
                                                                             Nref,
                                                                             points,
                                                                             Np));
