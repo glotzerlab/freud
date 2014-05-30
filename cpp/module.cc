@@ -15,6 +15,7 @@
 #include "LocalQl.h"
 #include "pairing.h"
 #include "PMFTXYZ.h"
+#include "PMFTXYT.h"
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
@@ -83,6 +84,7 @@ BOOST_PYTHON_MODULE(_freud)
     sphericalharmonicorderparameters::export_SolLiq();
     pairing::export_pairing();
     pmft::export_PMFTXYZ();
+    pmft::export_PMFTXYT();
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();

@@ -951,6 +951,22 @@ struct rotmat2
         {
         }
 
+    //! Construct a rotmat2 from a float because this should have been added from the start.
+    /*! \param theta angle to represent
+
+        This is a convenience function for easy initialization of rotmat2s from angles. The rotmat2 will initialize to
+        the same rotation as the angle. Why wasn't this written. You have angered Harper.
+    */
+    explicit rotmat2(const float& theta)
+        {
+        // formula from http://en.wikipedia.org/wiki/Rotation_matrix
+
+        row0.x = cosf(theta);
+        row0.y = -sinf(theta);
+        row1.x = sinf(theta);
+        row1.y = cosf(theta);
+        }
+
     //! Construct a rotmat2 from a quat
     /*! \param q quaternion to represent
 
