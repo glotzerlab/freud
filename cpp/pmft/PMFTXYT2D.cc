@@ -1,4 +1,4 @@
-#include "PMFTXYZ.h"
+#include "PMFTXYT2D.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
@@ -17,13 +17,13 @@ using namespace boost::python;
 
 using namespace tbb;
 
-/*! \file PMFTXYZ.cc
+/*! \file PMFTXYT2D.cc
     \brief Routines for computing radial density functions
 */
 
 namespace freud { namespace pmft {
 
-PMFTXYZ::PMFTXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz)
+PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz)
     : m_box(box), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz)
     {
     if (dx < 0.0f)
@@ -92,7 +92,7 @@ PMFTXYZ::PMFTXYZ(const trajectory::Box& box, float max_x, float max_y, float max
         }
     }
 
-PMFTXYZ::~PMFTXYZ()
+PMFTXYT2D::~PMFTXYT2D()
     {
     if(useCells())
     delete m_lc;
@@ -209,9 +209,10 @@ class ComputePMFTWithCellList
         const float m_dy;
         const float m_dz;
         const locality::LinkCell *m_lc;
-        const float3 *m_ref_points;
+        float3 *m_ref_points;
+        float *m_ref_orientations;
         const unsigned int m_Nref;
-        const float3 *m_points;
+        float3 *m_points;
         const unsigned int m_Np;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
@@ -226,13 +227,14 @@ class ComputePMFTWithCellList
                                const float dy,
                                const float dz,
                                const locality::LinkCell *lc,
-                               const float3 *ref_points,
+                                float3 *ref_points,
+                                float *ref_orientations,
                                unsigned int Nref,
-                               const float3 *points,
+                                float3 *points,
                                unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
-              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
+              m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -308,7 +310,7 @@ class ComputePMFTWithCellList
             }
     };
 
-bool PMFTXYZ::useCells()
+bool PMFTXYT2D::useCells()
     {
     float l_min = fmin(m_box.getLx(), m_box.getLy());
 
@@ -323,11 +325,13 @@ bool PMFTXYZ::useCells()
     return false;
     }
 
-void PMFTXYZ::compute(unsigned int *pcf_array,
-                      const float3 *ref_points,
-                      unsigned int Nref,
-                      const float3 *points,
-                      unsigned int Np)
+void PMFTXYT2D::compute(unsigned int *pcf_array,
+                        float3 *ref_points,
+                        float *ref_orientations,
+                        unsigned int Nref,
+                        float3 *points,
+                        float *orientations,
+                        unsigned int Np)
     {
     // memset((void*)pcf_array, 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
     if (useCells())
@@ -346,6 +350,7 @@ void PMFTXYZ::compute(unsigned int *pcf_array,
                                                                             m_dz,
                                                                             m_lc,
                                                                             ref_points,
+                                                                            ref_orientations,
                                                                             Nref,
                                                                             points,
                                                                             Np));
@@ -370,19 +375,23 @@ void PMFTXYZ::compute(unsigned int *pcf_array,
         }
     }
 
-void PMFTXYZ::computePy(boost::python::numeric::array pcf_array,
-                        boost::python::numeric::array ref_points,
-                        boost::python::numeric::array ref_orientations,
-                        boost::python::numeric::array points,
-                        boost::python::numeric::array orientations)
+void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array ref_orientations,
+                          boost::python::numeric::array points,
+                          boost::python::numeric::array orientations)
     {
     // validate input type and rank
     num_util::check_type(pcf_array, PyArray_INT);
     num_util::check_rank(pcf_array, 3);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
+    num_util::check_type(ref_orientations, PyArray_FLOAT);
+    num_util::check_rank(ref_orientations, 1);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
+    num_util::check_type(orientations, PyArray_FLOAT);
+    num_util::check_rank(orientations, 1);
 
     // validate array dims
     num_util::check_dim(pcf_array, 0, m_nbins_z);
@@ -396,26 +405,39 @@ void PMFTXYZ::computePy(boost::python::numeric::array pcf_array,
     num_util::check_dim(ref_points, 1, 3);
     unsigned int Nref = num_util::shape(ref_points)[0];
 
+    // check the size of angles to be correct
+    num_util::check_dim(ref_orientations, 0, Nref);
+    // num_util::check_dim(ref_orientations, 0, 1);
+    num_util::check_dim(orientations, 0, Np);
+
     // get the raw data pointers and compute the cell list
     unsigned int* pcf_array_raw = (unsigned int*) num_util::data(pcf_array);
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
     float3* points_raw = (float3*) num_util::data(points);
+    float* orientations_raw = (float*) num_util::data(orientations);
 
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(pcf_array_raw, ref_points_raw, Nref, points_raw, Np);
+        compute(pcf_array_raw,
+                ref_points_raw,
+                ref_orientations_raw,
+                Nref,
+                points_raw,
+                orientations_raw,
+                Np);
         }
     }
 
-void export_PMFTXYZ()
+void export_PMFTXYT2D()
     {
-    class_<PMFTXYZ>("PMFTXYZ", init<trajectory::Box&, float, float, float, float, float, float>())
-        .def("getBox", &PMFTXYZ::getBox, return_internal_reference<>())
-        .def("compute", &PMFTXYZ::computePy)
-        .def("getX", &PMFTXYZ::getXPy)
-        .def("getY", &PMFTXYZ::getYPy)
-        .def("getZ", &PMFTXYZ::getZPy)
+    class_<PMFTXYT2D>("PMFTXYT2D", init<trajectory::Box&, float, float, float, float, float, float>())
+        .def("getBox", &PMFTXYT2D::getBox, return_internal_reference<>())
+        .def("compute", &PMFTXYT2D::computePy)
+        .def("getX", &PMFTXYT2D::getXPy)
+        .def("getY", &PMFTXYT2D::getYPy)
+        .def("getZ", &PMFTXYT2D::getZPy)
         ;
     }
 

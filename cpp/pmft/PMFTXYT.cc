@@ -190,10 +190,8 @@ class ComputePMFTWithCellList
         const float m_dy;
         const locality::LinkCell *m_lc;
         const float3 *m_ref_points;
-        const float *m_ref_orientations;
         const unsigned int m_Nref;
         const float3 *m_points;
-        const float *m_orientations;
         const unsigned int m_Np;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
@@ -206,19 +204,28 @@ class ComputePMFTWithCellList
                                const float dy,
                                const locality::LinkCell *lc,
                                const float3 *ref_points,
-                               const float *ref_orientations,
-                               unsigned int Nref,
+                               const unsigned int Nref,
                                const float3 *points,
-                               const float *orientations,
-                               unsigned int Np)
+                               const unsigned int Np)
+            // : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
+            //   m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_lc(lc),
+            //   m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
+            //   m_orientations(orientations), m_Np(Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_lc(lc),
-              m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
-              m_orientations(orientations), m_Np(Np)
+              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
             {
+            printf("starting compute\n");
+            fflush(stdout);
+            printf("starting compute\n");
+            fflush(stdout);
+            printf("starting compute\n");
+            fflush(stdout);
+            printf("starting compute\n");
+            fflush(stdout);
             assert(m_ref_points);
             assert(m_points);
             assert(m_Nref > 0);
@@ -291,7 +298,6 @@ class ComputePMFTWithCellList
 
 bool PMFTXYT::useCells()
     {
-    printf("This is the useCells command. I did change something here, not sure what");
     float l_min = fmin(m_box.getLx(), m_box.getLy());
 
     float rmax = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
@@ -305,18 +311,21 @@ bool PMFTXYT::useCells()
 void PMFTXYT::compute(unsigned int *pcf_array,
                       const float3 *ref_points,
                       const float *ref_orientations,
-                      unsigned int Nref,
+                      const unsigned int Nref,
                       const float3 *points,
                       const float *orientations,
-                      unsigned int Np)
+                      const unsigned int Np)
     {
     // memset((void*)pcf_array, 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
-    printf("start of the compute function");
+    printf("start of the compute function\n");
+    fflush(stdout);
     if (useCells())
         {
-        printf("I am using cells");
+        printf("I am using cells\n");
+        fflush(stdout);
         m_lc->computeCellList(points, Np);
-        printf("I am calling compute");
+        printf("I am calling compute\n");
+        fflush(stdout);
         parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList((atomic<unsigned int>*)pcf_array,
                                                                             m_nbins_x,
                                                                             m_nbins_y,
@@ -327,15 +336,14 @@ void PMFTXYT::compute(unsigned int *pcf_array,
                                                                             m_dy,
                                                                             m_lc,
                                                                             ref_points,
-                                                                            ref_orientations,
                                                                             Nref,
                                                                             points,
-                                                                            orientations,
                                                                             Np));
         }
     else
         {
-        printf("I am not using cells");
+        printf("I am not using cells\n");
+        fflush(stdout);
         parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithoutCellList((atomic<unsigned int>*)pcf_array,
                                                                                m_nbins_x,
                                                                                m_nbins_y,
@@ -359,7 +367,8 @@ void PMFTXYT::computePy(boost::python::numeric::array pcf_array,
                         boost::python::numeric::array points,
                         boost::python::numeric::array orientations)
     {
-    printf("this is where the compute function starts from python");
+    printf("this is where the compute function starts from python\n");
+    fflush(stdout);
     // validate input type and rank
     num_util::check_type(pcf_array, PyArray_INT);
     num_util::check_rank(pcf_array, 2);
@@ -378,20 +387,21 @@ void PMFTXYT::computePy(boost::python::numeric::array pcf_array,
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+    const unsigned int Np = num_util::shape(points)[0];
 
     num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
+    const unsigned int Nref = num_util::shape(ref_points)[0];
 
     // check the size of angles to be correct
     num_util::check_dim(ref_orientations, 0, Nref);
+    // num_util::check_dim(ref_orientations, 0, 1);
     num_util::check_dim(orientations, 0, Np);
 
     // get the raw data pointers and compute the cell list
     unsigned int* pcf_array_raw = (unsigned int*) num_util::data(pcf_array);
-    float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    const float3* ref_points_raw = (float3*) num_util::data(ref_points);
     const float* ref_orientations_raw = (float*)num_util::data(ref_orientations);
-    float3* points_raw = (float3*) num_util::data(points);
+    const float3* points_raw = (float3*) num_util::data(points);
     const float* orientations_raw = (float*)num_util::data(orientations);
 
         // compute with the GIL released
@@ -406,7 +416,6 @@ void export_PMFTXYT()
     class_<PMFTXYT>("PMFTXYT", init<trajectory::Box&, float, float, float, float>())
         .def("getBox", &PMFTXYT::getBox, return_internal_reference<>())
         .def("compute", &PMFTXYT::computePy)
-        // .def("getPCF", &PMFTXYT::getPCFPy)
         .def("getX", &PMFTXYT::getXPy)
         .def("getY", &PMFTXYT::getYPy)
         ;

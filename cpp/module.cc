@@ -16,6 +16,7 @@
 #include "pairing.h"
 #include "PMFTXYZ.h"
 #include "PMFTXYT.h"
+#include "PMFTXYT2D.h"
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
@@ -85,6 +86,7 @@ BOOST_PYTHON_MODULE(_freud)
     pairing::export_pairing();
     pmft::export_PMFTXYZ();
     pmft::export_PMFTXYT();
+    pmft::export_PMFTXYT2D();
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();
