@@ -305,8 +305,7 @@ class ComputePMFTWithCellList
 
                             if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                                 {
-                                // m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
-                                m_pcf_array[ibiny*m_nbins_x + ibinx]++;
+                                m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
                                 }
                             }
                         }
@@ -389,7 +388,7 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
     {
     // validate input type and rank
     num_util::check_type(pcf_array, PyArray_INT);
-    num_util::check_rank(pcf_array, 2);
+    num_util::check_rank(pcf_array, 3);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, PyArray_FLOAT);
@@ -400,11 +399,9 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
     num_util::check_rank(orientations, 1);
 
     // validate array dims
-    // num_util::check_dim(pcf_array, 0, m_nbins_z);
-    // num_util::check_dim(pcf_array, 1, m_nbins_y);
-    // num_util::check_dim(pcf_array, 2, m_nbins_x);
-    num_util::check_dim(pcf_array, 0, m_nbins_y);
-    num_util::check_dim(pcf_array, 1, m_nbins_x);
+    num_util::check_dim(pcf_array, 0, m_nbins_z);
+    num_util::check_dim(pcf_array, 1, m_nbins_y);
+    num_util::check_dim(pcf_array, 2, m_nbins_x);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
