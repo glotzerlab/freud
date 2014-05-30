@@ -103,8 +103,6 @@ set(SOURCES trajectory/trajectory.cc
             pairing/pairing.h
             pmft/PMFTXYZ.cc
             pmft/PMFTXYZ.h
-            pmft/PMFTXYT.cc
-            pmft/PMFTXYT.h
             pmft/PMFTXYT2D.cc
             pmft/PMFTXYT2D.h
             interface/InterfaceMeasure.h

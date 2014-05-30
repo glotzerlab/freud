@@ -12,7 +12,7 @@
 
 #include <tbb/tbb.h>
 
-// #include "VectorMath.h"
+#include "VectorMath.h"
 
 using namespace std;
 using namespace boost::python;
@@ -181,8 +181,10 @@ class ComputePMFTXYT2DWithCellList
         const float m_dy;
         const locality::LinkCell *m_lc;
         float3 *m_ref_points;
+        float *m_ref_orientations;
         const unsigned int m_Nref;
         float3 *m_points;
+        float *m_orientations;
         const unsigned int m_Np;
     public:
         ComputePMFTXYT2DWithCellList(atomic<unsigned int> *pcf_array,
@@ -195,18 +197,18 @@ class ComputePMFTXYT2DWithCellList
                                 const float dy,
                                 const locality::LinkCell *lc,
                                 float3 *ref_points,
+                                float *ref_orientations,
                                 unsigned int Nref,
                                 float3 *points,
+                                float *orientations,
                                 unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_lc(lc),
-              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
+              m_ref_points(ref_points), m_ref_orientations(orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
             {
-            printf("computing\n");
-            fflush(stdout);
             assert(m_ref_points);
             assert(m_points);
             assert(m_Nref > 0);
@@ -235,6 +237,11 @@ class ComputePMFTXYT2DWithCellList
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
                         // compute r between the two particles
+                        // will skip same particle
+                        if (i == j)
+                            {
+                            continue;
+                            }
                         float3 point = m_points[j];
                         float dx = float(ref.x - point.x);
                         float dy = float(ref.y - point.y);
@@ -244,8 +251,12 @@ class ComputePMFTXYT2DWithCellList
                         float ysq = delta.y*delta.y;
                         if ((xsq < maxxsq) && (ysq < maxysq))
                             {
-                            float x = delta.x;
-                            float y = delta.y;
+                            // rotate interparticle vector
+                            vec2<Scalar> myVec(delta.x, delta.y);
+                            rotmat2<Scalar> myMat(-m_ref_orientations[i]);
+                            vec2<Scalar> rotVec = myMat * myVec;
+                            float x = rotVec.x;
+                            float y = rotVec.y;
 
                             // bin that point
                             float binx = (m_nbins_x / 2) + (x * dx_inv);
@@ -287,38 +298,16 @@ bool PMFTXYT2D::useCells()
 
 void PMFTXYT2D::compute(unsigned int *pcf_array,
                         float3 *ref_points,
-                        // float *ref_orientations,
+                        float *ref_orientations,
                         unsigned int Nref,
                         float3 *points,
-                        // float *orientations,
+                        float *orientations,
                         unsigned int Np)
     {
     // memset((void*)pcf_array, 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
     if (useCells())
         {
-        printf("using cells\n");
-        fflush(stdout);
         m_lc->computeCellList(points, Np);
-        printf("starting compute\n");
-        fflush(stdout);
-        // parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithCellList((atomic<unsigned int>*)pcf_array,
-        //                                                                     m_nbins_x,
-        //                                                                     m_nbins_y,
-        //                                                                     m_nbins_z,
-        //                                                                     m_box,
-        //                                                                     m_max_x,
-        //                                                                     m_max_y,
-        //                                                                     m_max_z,
-        //                                                                     m_dx,
-        //                                                                     m_dy,
-        //                                                                     m_dz,
-        //                                                                     m_lc,
-        //                                                                     ref_points,
-        //                                                                     Nref,
-        //                                                                     points,
-        //                                                                     Np,
-        //                                                                     ref_orientations,
-        //                                                                     orientations));
         parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithCellList((atomic<unsigned int>*)pcf_array,
                                                                             m_nbins_x,
                                                                             m_nbins_y,
@@ -329,9 +318,24 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
                                                                             m_dy,
                                                                             m_lc,
                                                                             ref_points,
+                                                                            ref_orientations,
                                                                             Nref,
                                                                             points,
+                                                                            orientations,
                                                                             Np));
+        // parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithCellList((atomic<unsigned int>*)pcf_array,
+        //                                                                     m_nbins_x,
+        //                                                                     m_nbins_y,
+        //                                                                     m_box,
+        //                                                                     m_max_x,
+        //                                                                     m_max_y,
+        //                                                                     m_dx,
+        //                                                                     m_dy,
+        //                                                                     m_lc,
+        //                                                                     ref_points,
+        //                                                                     Nref,
+        //                                                                     points,
+        //                                                                     Np));
         }
     else
         {
@@ -371,9 +375,6 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
     num_util::check_rank(orientations, 1);
 
     // validate array dims
-    // num_util::check_dim(pcf_array, 0, m_nbins_z);
-    // num_util::check_dim(pcf_array, 1, m_nbins_y);
-    // num_util::check_dim(pcf_array, 2, m_nbins_x);
     num_util::check_dim(pcf_array, 0, m_nbins_y);
     num_util::check_dim(pcf_array, 1, m_nbins_x);
 
@@ -392,24 +393,19 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
     // get the raw data pointers and compute the cell list
     unsigned int* pcf_array_raw = (unsigned int*) num_util::data(pcf_array);
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
-    // float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
+    float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
     float3* points_raw = (float3*) num_util::data(points);
-    // float* orientations_raw = (float*) num_util::data(orientations);
+    float* orientations_raw = (float*) num_util::data(orientations);
 
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        // compute(pcf_array_raw,
-        //         ref_points_raw,
-        //         ref_orientations_raw,
-        //         Nref,
-        //         points_raw,
-        //         orientations_raw,
-        //         Np);
         compute(pcf_array_raw,
                 ref_points_raw,
+                ref_orientations_raw,
                 Nref,
                 points_raw,
+                orientations_raw,
                 Np);
         }
     }

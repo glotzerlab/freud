@@ -44,17 +44,12 @@ class PMFTXYT2D
         bool useCells();
 
         //! Compute the RDF
-        // void compute(unsigned int *pcf_array,
-        //              float3 *ref_points,
-        //              float *ref_orientations,
-        //              unsigned int Nref,
-        //              float3 *points,
-        //              float *orientations,
-        //              unsigned int Np);
         void compute(unsigned int *pcf_array,
                      float3 *ref_points,
+                     float *ref_orientations,
                      unsigned int Nref,
                      float3 *points,
+                     float *orientations,
                      unsigned int Np);
 
         //! Python wrapper for compute
