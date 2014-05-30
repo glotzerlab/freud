@@ -86,7 +86,7 @@ PMFTXYT2D::~PMFTXYT2D()
     delete m_lc;
     }
 
-class ComputePMFTWithoutCellList
+class ComputePMFTXYT2DWithoutCellList
     {
     private:
         atomic<unsigned int> *m_pcf_array;
@@ -102,7 +102,7 @@ class ComputePMFTWithoutCellList
         const float3 *m_points;
         const unsigned int m_Np;
     public:
-        ComputePMFTWithoutCellList(atomic<unsigned int> *pcf_array,
+        ComputePMFTXYT2DWithoutCellList(atomic<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
                                    unsigned int nbins_y,
                                    const trajectory::Box &box,
@@ -168,7 +168,7 @@ class ComputePMFTWithoutCellList
             }
     };
 
-class ComputePMFTWithCellList
+class ComputePMFTXYT2DWithCellList
     {
     private:
         atomic<unsigned int> *m_pcf_array;
@@ -185,7 +185,7 @@ class ComputePMFTWithCellList
         float3 *m_points;
         const unsigned int m_Np;
     public:
-        ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
+        ComputePMFTXYT2DWithCellList(atomic<unsigned int> *pcf_array,
                                 unsigned int nbins_x,
                                 unsigned int nbins_y,
                                 const trajectory::Box &box,
@@ -301,7 +301,7 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
         m_lc->computeCellList(points, Np);
         printf("starting compute\n");
         fflush(stdout);
-        // parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList((atomic<unsigned int>*)pcf_array,
+        // parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithCellList((atomic<unsigned int>*)pcf_array,
         //                                                                     m_nbins_x,
         //                                                                     m_nbins_y,
         //                                                                     m_nbins_z,
@@ -319,7 +319,7 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
         //                                                                     Np,
         //                                                                     ref_orientations,
         //                                                                     orientations));
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList((atomic<unsigned int>*)pcf_array,
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithCellList((atomic<unsigned int>*)pcf_array,
                                                                             m_nbins_x,
                                                                             m_nbins_y,
                                                                             m_box,
@@ -337,7 +337,7 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
         {
         printf("not using cells\n");
         fflush(stdout);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithoutCellList((atomic<unsigned int>*)pcf_array,
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithoutCellList((atomic<unsigned int>*)pcf_array,
                                                                                m_nbins_x,
                                                                                m_nbins_y,
                                                                                m_box,
