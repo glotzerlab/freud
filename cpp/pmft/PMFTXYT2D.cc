@@ -12,6 +12,8 @@
 
 #include <tbb/tbb.h>
 
+// #include "VectorMath.h"
+
 using namespace std;
 using namespace boost::python;
 
@@ -210,10 +212,11 @@ class ComputePMFTWithCellList
         const float m_dz;
         const locality::LinkCell *m_lc;
         float3 *m_ref_points;
-        float* m_ref_angles;
         const unsigned int m_Nref;
         float3 *m_points;
         const unsigned int m_Np;
+        float* m_ref_angles;
+        float* m_angles;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
                                 unsigned int nbins_x,
@@ -230,10 +233,12 @@ class ComputePMFTWithCellList
                                 float3 *ref_points,
                                 unsigned int Nref,
                                 float3 *points,
-                                unsigned int Np)
+                                unsigned int Np,
+                                float *ref_angles,
+                                float *angles)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
-              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
+              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np), m_ref_angles(ref_angles), m_angles(angles)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -300,7 +305,8 @@ class ComputePMFTWithCellList
 
                             if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                                 {
-                                m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
+                                // m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
+                                m_pcf_array[ibiny*m_nbins_x + ibinx]++;
                                 }
                             }
                         }
@@ -351,7 +357,9 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
                                                                             ref_points,
                                                                             Nref,
                                                                             points,
-                                                                            Np));
+                                                                            Np,
+                                                                            ref_orientations,
+                                                                            orientations));
         }
     else
         {
@@ -381,7 +389,7 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
     {
     // validate input type and rank
     num_util::check_type(pcf_array, PyArray_INT);
-    num_util::check_rank(pcf_array, 3);
+    num_util::check_rank(pcf_array, 2);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, PyArray_FLOAT);
@@ -392,9 +400,11 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
     num_util::check_rank(orientations, 1);
 
     // validate array dims
-    num_util::check_dim(pcf_array, 0, m_nbins_z);
-    num_util::check_dim(pcf_array, 1, m_nbins_y);
-    num_util::check_dim(pcf_array, 2, m_nbins_x);
+    // num_util::check_dim(pcf_array, 0, m_nbins_z);
+    // num_util::check_dim(pcf_array, 1, m_nbins_y);
+    // num_util::check_dim(pcf_array, 2, m_nbins_x);
+    num_util::check_dim(pcf_array, 0, m_nbins_y);
+    num_util::check_dim(pcf_array, 1, m_nbins_x);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
