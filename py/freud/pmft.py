@@ -119,16 +119,14 @@ class pmftXYT(object):
         self.pmftArray = -1.0 * numpy.log(self.pmftArray)
 
 class pmftXYT2D(object):
-    def __init__(self, box, maxX, maxY, maxZ, dx, dy, dz):
+    def __init__(self, box, maxX, maxY, dx, dy):
         super(pmftXYT2D, self).__init__()
         self.box = box
         self.maxX = maxX
         self.maxY = maxY
-        self.maxZ = maxZ
         self.dx = dx
         self.dy = dy
-        self.dz = dz
-        self.pmftHandle = PMFTXYT2D(self.box, self.maxX, self.maxY, self.maxZ, self.dx, self.dy, self.dz)
+        self.pmftHandle = PMFTXYT2D(self.box, self.maxX, self.maxY, self.dx, self.dy)
 
     # def compute(self, refPos=None, pos=None):
     def compute(self, refPos=None, refAng=None, pos=None, ang=None):
@@ -148,10 +146,8 @@ class pmftXYT2D(object):
             self.ang = ang
         self.xArray = numpy.copy(self.pmftHandle.getX())
         self.yArray = numpy.copy(self.pmftHandle.getY())
-        self.zArray = numpy.copy(self.pmftHandle.getZ())
         self.nBinsX = int(len(self.xArray))
         self.nBinsY = int(len(self.yArray))
-        self.nBinsZ = int(len(self.zArray))
         # pcfArray = numpy.zeros(shape=(self.nBinsZ, self.nBinsY, self.nBinsX), dtype=numpy.int32)
         pcfArray = numpy.zeros(shape=(self.nBinsY, self.nBinsX), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)

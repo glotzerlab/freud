@@ -25,38 +25,30 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz)
-    : m_box(box), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz)
+PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float dx, float dy)
+    : m_box(box), m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy)
     {
     if (dx < 0.0f)
         throw invalid_argument("dx must be positive");
     if (dy < 0.0f)
         throw invalid_argument("dy must be positive");
-    if (dz < 0.0f)
-        throw invalid_argument("dz must be positive");
     if (max_x < 0.0f)
         throw invalid_argument("max_x must be positive");
     if (max_y < 0.0f)
         throw invalid_argument("max_y must be positive");
-    if (max_z < 0.0f)
-        throw invalid_argument("max_z must be positive");
     if (dx > max_x)
         throw invalid_argument("max_x must be greater than dx");
     if (dy > max_y)
         throw invalid_argument("max_y must be greater than dy");
-    if (dz > max_z)
-        throw invalid_argument("max_z must be greater than dz");
     if (max_x > box.getLx()/2 || max_y > box.getLy()/2)
         throw invalid_argument("max_x, max_y must be smaller than half the smallest box size");
-    if (max_z > box.getLz()/2 && !box.is2D())
-        throw invalid_argument("max_z must be smaller than half the smallest box size");
+    if (!box.is2D())
+        throw invalid_argument("box must be 2D");
 
     m_nbins_x = int(floorf(2 * m_max_x / m_dx));
     assert(m_nbins_x > 0);
     m_nbins_y = int(floorf(2 * m_max_y / m_dy));
     assert(m_nbins_y > 0);
-    m_nbins_z = int(floorf(2 * m_max_z / m_dz));
-    assert(m_nbins_z > 0);
     // should this be a 1D array?
     // m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x*m_nbins_y*m_nbins_z]);
     // memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
@@ -81,16 +73,10 @@ PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float
 
     // precompute the bin center positions for x
     // what should this calc be?
-    m_z_array = boost::shared_array<float>(new float[m_nbins_z]);
-    for (unsigned int i = 0; i < m_nbins_z; i++)
-        {
-        float z = -m_max_z + float(i) * m_dz;
-        m_z_array[i] = z;
-        }
 
     if (useCells())
         {
-        m_lc = new locality::LinkCell(box, sqrtf(max_x*max_x + max_y*max_y + max_z*max_z));
+        m_lc = new locality::LinkCell(box, sqrtf(max_x*max_x + max_y*max_y));
         }
     }
 
@@ -106,14 +92,11 @@ class ComputePMFTWithoutCellList
         atomic<unsigned int> *m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
-        unsigned int m_nbins_z;
         const trajectory::Box m_box;
         const float m_max_x;
         const float m_max_y;
-        const float m_max_z;
         const float m_dx;
         const float m_dy;
-        const float m_dz;
         const float3 *m_ref_points;
         const unsigned int m_Nref;
         const float3 *m_points;
@@ -122,20 +105,17 @@ class ComputePMFTWithoutCellList
         ComputePMFTWithoutCellList(atomic<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
                                    unsigned int nbins_y,
-                                   unsigned int nbins_z,
                                    const trajectory::Box &box,
                                    const float max_x,
                                    const float max_y,
-                                   const float max_z,
                                    const float dx,
                                    const float dy,
-                                   const float dz,
                                    const float3 *ref_points,
                                    unsigned int Nref,
                                    const float3 *points,
                                    unsigned int Np)
-            : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
-              m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_ref_points(ref_points),
+            : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
+              m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_ref_points(ref_points),
               m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
@@ -145,8 +125,6 @@ class ComputePMFTWithoutCellList
             float maxxsq = m_max_x * m_max_x;
             float dy_inv = 1.0f / m_dy;
             float maxysq = m_max_y * m_max_y;
-            float dz_inv = 1.0f / m_dz;
-            float maxzsq = m_max_z * m_max_z;
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -158,37 +136,31 @@ class ComputePMFTWithoutCellList
                     // compute r between the two particles
                     float dx = float(ref.x - point.x);
                     float dy = float(ref.y - point.y);
-                    float dz = float(ref.z - point.z);
 
-                    float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
 
                     float xsq = delta.x*delta.x;
                     float ysq = delta.y*delta.y;
-                    float zsq = delta.z*delta.z;
-                    if ((xsq < maxxsq) && (ysq < maxysq) && (zsq < maxzsq))
+                    if ((xsq < maxxsq) && (ysq < maxysq))
                         {
                         float x = delta.x;
                         float y = delta.y;
-                        float z = delta.z;
 
                         // bin that point
                         float binx = (m_nbins_x / 2) + (x * dx_inv);
                         float biny = (m_nbins_y / 2) + (y * dy_inv);
-                        float binz = (m_nbins_z / 2) + (z * dz_inv);
                         // fast float to int conversion with truncation
                         #ifdef __SSE2__
                         unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
                         unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                        unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
                         #else
                         unsigned int ibinx = (unsigned int)(binx);
                         unsigned int ibiny = (unsigned int)(biny);
-                        unsigned int ibinz = (unsigned int)(binz);
                         #endif
 
-                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
+                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                             {
-                            m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
+                            m_pcf_array[ibiny*m_nbins_x + ibinx]++;
                             }
                         }
                     }
@@ -202,43 +174,33 @@ class ComputePMFTWithCellList
         atomic<unsigned int> *m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
-        unsigned int m_nbins_z;
         const trajectory::Box m_box;
         const float m_max_x;
         const float m_max_y;
-        const float m_max_z;
         const float m_dx;
         const float m_dy;
-        const float m_dz;
         const locality::LinkCell *m_lc;
         float3 *m_ref_points;
         const unsigned int m_Nref;
         float3 *m_points;
         const unsigned int m_Np;
-        float* m_ref_angles;
-        float* m_angles;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
                                 unsigned int nbins_x,
                                 unsigned int nbins_y,
-                                unsigned int nbins_z,
                                 const trajectory::Box &box,
                                 const float max_x,
                                 const float max_y,
-                                const float max_z,
                                 const float dx,
                                 const float dy,
-                                const float dz,
                                 const locality::LinkCell *lc,
                                 float3 *ref_points,
                                 unsigned int Nref,
                                 float3 *points,
-                                unsigned int Np,
-                                float *ref_angles,
-                                float *angles)
-            : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
-              m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
-              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np), m_ref_angles(ref_angles), m_angles(angles)
+                                unsigned int Np)
+            : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
+              m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_lc(lc),
+              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -254,8 +216,6 @@ class ComputePMFTWithCellList
             float maxxsq = m_max_x * m_max_x;
             float dy_inv = 1.0f / m_dy;
             float maxysq = m_max_y * m_max_y;
-            float dz_inv = 1.0f / m_dz;
-            float maxzsq = m_max_z * m_max_z;
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -278,38 +238,30 @@ class ComputePMFTWithCellList
                         float3 point = m_points[j];
                         float dx = float(ref.x - point.x);
                         float dy = float(ref.y - point.y);
-                        float dz = float(ref.z - point.z);
-                        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
 
                         float xsq = delta.x*delta.x;
                         float ysq = delta.y*delta.y;
-                        float zsq = delta.z*delta.z;
-                        if ((xsq < maxxsq) && (ysq < maxysq) && (zsq < maxzsq))
+                        if ((xsq < maxxsq) && (ysq < maxysq))
                             {
                             float x = delta.x;
                             float y = delta.y;
-                            float z = delta.z;
 
                             // bin that point
                             float binx = (m_nbins_x / 2) + (x * dx_inv);
                             float biny = (m_nbins_y / 2) + (y * dy_inv);
-                            float binz = (m_nbins_z / 2) + (z * dz_inv);
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
                             unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
                             unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                            unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
                             #else
                             unsigned int ibinx = (unsigned int)(binx);
                             unsigned int ibiny = (unsigned int)(biny);
-                            unsigned int ibinz = (unsigned int)(binz);
                             #endif
 
-                            if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
+                            if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                                 {
-                                printf("%d\n", (unsigned int) ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx);
-                                fflush(stdout);
-                                m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
+                                m_pcf_array[ibiny*m_nbins_x + ibinx]++;
                                 }
                             }
                         }
@@ -325,7 +277,7 @@ bool PMFTXYT2D::useCells()
     if (!m_box.is2D())
         l_min = fmin(l_min, m_box.getLz());
 
-    float rmax = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
+    float rmax = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
 
     if (rmax < l_min/3.0f)
         return true;
@@ -335,10 +287,10 @@ bool PMFTXYT2D::useCells()
 
 void PMFTXYT2D::compute(unsigned int *pcf_array,
                         float3 *ref_points,
-                        float *ref_orientations,
+                        // float *ref_orientations,
                         unsigned int Nref,
                         float3 *points,
-                        float *orientations,
+                        // float *orientations,
                         unsigned int Np)
     {
     // memset((void*)pcf_array, 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
@@ -349,24 +301,37 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
         m_lc->computeCellList(points, Np);
         printf("starting compute\n");
         fflush(stdout);
+        // parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList((atomic<unsigned int>*)pcf_array,
+        //                                                                     m_nbins_x,
+        //                                                                     m_nbins_y,
+        //                                                                     m_nbins_z,
+        //                                                                     m_box,
+        //                                                                     m_max_x,
+        //                                                                     m_max_y,
+        //                                                                     m_max_z,
+        //                                                                     m_dx,
+        //                                                                     m_dy,
+        //                                                                     m_dz,
+        //                                                                     m_lc,
+        //                                                                     ref_points,
+        //                                                                     Nref,
+        //                                                                     points,
+        //                                                                     Np,
+        //                                                                     ref_orientations,
+        //                                                                     orientations));
         parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList((atomic<unsigned int>*)pcf_array,
                                                                             m_nbins_x,
                                                                             m_nbins_y,
-                                                                            m_nbins_z,
                                                                             m_box,
                                                                             m_max_x,
                                                                             m_max_y,
-                                                                            m_max_z,
                                                                             m_dx,
                                                                             m_dy,
-                                                                            m_dz,
                                                                             m_lc,
                                                                             ref_points,
                                                                             Nref,
                                                                             points,
-                                                                            Np,
-                                                                            ref_orientations,
-                                                                            orientations));
+                                                                            Np));
         }
     else
         {
@@ -375,14 +340,11 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
         parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithoutCellList((atomic<unsigned int>*)pcf_array,
                                                                                m_nbins_x,
                                                                                m_nbins_y,
-                                                                               m_nbins_z,
                                                                                m_box,
                                                                                m_max_x,
                                                                                m_max_y,
-                                                                               m_max_z,
                                                                                m_dx,
                                                                                m_dy,
-                                                                               m_dz,
                                                                                ref_points,
                                                                                Nref,
                                                                                points,
@@ -430,31 +392,35 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
     // get the raw data pointers and compute the cell list
     unsigned int* pcf_array_raw = (unsigned int*) num_util::data(pcf_array);
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
-    float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
+    // float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
     float3* points_raw = (float3*) num_util::data(points);
-    float* orientations_raw = (float*) num_util::data(orientations);
+    // float* orientations_raw = (float*) num_util::data(orientations);
 
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
+        // compute(pcf_array_raw,
+        //         ref_points_raw,
+        //         ref_orientations_raw,
+        //         Nref,
+        //         points_raw,
+        //         orientations_raw,
+        //         Np);
         compute(pcf_array_raw,
                 ref_points_raw,
-                ref_orientations_raw,
                 Nref,
                 points_raw,
-                orientations_raw,
                 Np);
         }
     }
 
 void export_PMFTXYT2D()
     {
-    class_<PMFTXYT2D>("PMFTXYT2D", init<trajectory::Box&, float, float, float, float, float, float>())
+    class_<PMFTXYT2D>("PMFTXYT2D", init<trajectory::Box&, float, float, float, float>())
         .def("getBox", &PMFTXYT2D::getBox, return_internal_reference<>())
         .def("compute", &PMFTXYT2D::computePy)
         .def("getX", &PMFTXYT2D::getXPy)
         .def("getY", &PMFTXYT2D::getYPy)
-        .def("getZ", &PMFTXYT2D::getZPy)
         ;
     }
 

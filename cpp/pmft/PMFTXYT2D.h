@@ -29,7 +29,7 @@ class PMFTXYT2D
     {
     public:
         //! Constructor
-        PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz);
+        PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float dx, float dy);
 
         //! Destructor
         ~PMFTXYT2D();
@@ -44,12 +44,17 @@ class PMFTXYT2D
         bool useCells();
 
         //! Compute the RDF
+        // void compute(unsigned int *pcf_array,
+        //              float3 *ref_points,
+        //              float *ref_orientations,
+        //              unsigned int Nref,
+        //              float3 *points,
+        //              float *orientations,
+        //              unsigned int Np);
         void compute(unsigned int *pcf_array,
                      float3 *ref_points,
-                     float *ref_orientations,
                      unsigned int Nref,
                      float3 *points,
-                     float *orientations,
                      unsigned int Np);
 
         //! Python wrapper for compute
@@ -77,12 +82,6 @@ class PMFTXYT2D
             return m_y_array;
             }
 
-        //! Get a reference to the z array
-        boost::shared_array<float> getZ()
-            {
-            return m_z_array;
-            }
-
         //! Python wrapper for getPCF() (returns a copy)
         // boost::python::numeric::array getPCFPy()
         //     {
@@ -105,29 +104,19 @@ class PMFTXYT2D
             return num_util::makeNum(arr, m_nbins_y);
             }
 
-        //! Python wrapper for getZ() (returns a copy)
-        boost::python::numeric::array getZPy()
-            {
-            float *arr = m_z_array.get();
-            return num_util::makeNum(arr, m_nbins_z);
-            }
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_max_x;                     //!< Maximum x at which to compute pcf
         float m_max_y;                     //!< Maximum y at which to compute pcf
-        float m_max_z;                     //!< Maximum z at which to compute pcf
         float m_dx;                       //!< Step size for x in the computation
         float m_dy;                       //!< Step size for y in the computation
-        float m_dz;                       //!< Step size for z in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins_x;             //!< Number of x bins to compute pcf over
         unsigned int m_nbins_y;             //!< Number of y bins to compute pcf over
-        unsigned int m_nbins_z;             //!< Number of z bins to compute pcf over
 
         // boost::shared_array<unsigned int> m_pcf_array;         //!< pcf array computed
         boost::shared_array<float> m_x_array;           //!< array of x values that the pcf is computed at
         boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
-        boost::shared_array<float> m_z_array;           //!< array of z values that the pcf is computed at
     };
 
 /*! \internal
