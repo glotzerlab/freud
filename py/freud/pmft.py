@@ -6,7 +6,7 @@
 import numpy
 
 from _freud import PMFTXYZ
-from _freud import PMFTXYT2D
+from _freud import PMFXY2D
 
 class pmftXYZ(object):
     def __init__(self, box, maxX, maxY, maxZ, dx, dy, dz):
@@ -53,15 +53,15 @@ class pmftXYZ(object):
         self.pmftArray = numpy.copy(self.pcfArray)
         self.pmftArray = -1.0 * numpy.log(self.pmftArray)
 
-class pmftXYT2D(object):
+class pmfXY2D(object):
     def __init__(self, box, maxX, maxY, dx, dy):
-        super(pmftXYT2D, self).__init__()
+        super(pmfXY2D, self).__init__()
         self.box = box
         self.maxX = maxX
         self.maxY = maxY
         self.dx = dx
         self.dy = dy
-        self.pmftHandle = PMFTXYT2D(self.box, self.maxX, self.maxY, self.dx, self.dy)
+        self.pmftHandle = PMFXY2D(self.box, self.maxX, self.maxY, self.dx, self.dy)
 
     # def compute(self, refPos=None, pos=None):
     def compute(self, refPos=None, refAng=None, pos=None, ang=None):
@@ -93,3 +93,4 @@ class pmftXYT2D(object):
             raise RuntimeError("must compute pcf first")
         self.pmftArray = numpy.copy(self.pcfArray)
         self.pmftArray = -1.0 * numpy.log(self.pmftArray)
+

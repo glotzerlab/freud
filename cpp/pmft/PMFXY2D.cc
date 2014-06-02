@@ -1,4 +1,4 @@
-#include "PMFTXYT2D.h"
+#include "PMFXY2D.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
@@ -19,13 +19,13 @@ using namespace boost::python;
 
 using namespace tbb;
 
-/*! \file PMFTXYT2D.cc
+/*! \file PMFXY2D.cc
     \brief Routines for computing radial density functions
 */
 
 namespace freud { namespace pmft {
 
-PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float dx, float dy)
+PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx, float dy)
     : m_box(box), m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy)
     {
     if (dx < 0.0f)
@@ -80,13 +80,13 @@ PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float
         }
     }
 
-PMFTXYT2D::~PMFTXYT2D()
+PMFXY2D::~PMFXY2D()
     {
     if(useCells())
     delete m_lc;
     }
 
-class ComputePMFTXYT2DWithoutCellList
+class ComputePMFXY2DWithoutCellList
     {
     private:
         atomic<unsigned int> *m_pcf_array;
@@ -98,11 +98,13 @@ class ComputePMFTXYT2DWithoutCellList
         const float m_dx;
         const float m_dy;
         const float3 *m_ref_points;
+        float *m_ref_orientations;
         const unsigned int m_Nref;
         const float3 *m_points;
+        float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTXYT2DWithoutCellList(atomic<unsigned int> *pcf_array,
+        ComputePMFXY2DWithoutCellList(atomic<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
                                    unsigned int nbins_y,
                                    const trajectory::Box &box,
@@ -111,12 +113,14 @@ class ComputePMFTXYT2DWithoutCellList
                                    const float dx,
                                    const float dy,
                                    const float3 *ref_points,
+                                   float *ref_orientations,
                                    unsigned int Nref,
                                    const float3 *points,
+                                   float *orientations,
                                    unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
-              m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_ref_points(ref_points),
-              m_Nref(Nref), m_points(points), m_Np(Np)
+              m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_ref_points(ref_points), m_ref_orientations(orientations),
+              m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -132,10 +136,14 @@ class ComputePMFTXYT2DWithoutCellList
                 float3 ref = m_ref_points[i];
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
+                    if (i == j)
+                        {
+                        continue;
+                        }
                     float3 point = m_points[j];
                     // compute r between the two particles
-                    float dx = float(ref.x - point.x);
-                    float dy = float(ref.y - point.y);
+                    float dx = float(point.x - ref.x);
+                    float dy = float(point.y - ref.y);
 
                     float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
 
@@ -143,8 +151,12 @@ class ComputePMFTXYT2DWithoutCellList
                     float ysq = delta.y*delta.y;
                     if ((xsq < maxxsq) && (ysq < maxysq))
                         {
-                        float x = delta.x;
-                        float y = delta.y;
+                        // rotate interparticle vector
+                        vec2<Scalar> myVec(delta.x, delta.y);
+                        rotmat2<Scalar> myMat(-m_ref_orientations[i]);
+                        vec2<Scalar> rotVec = myMat * myVec;
+                        float x = rotVec.x;
+                        float y = rotVec.y;
 
                         // bin that point
                         float binx = (m_nbins_x / 2) + (x * dx_inv);
@@ -168,7 +180,7 @@ class ComputePMFTXYT2DWithoutCellList
             }
     };
 
-class ComputePMFTXYT2DWithCellList
+class ComputePMFXY2DWithCellList
     {
     private:
         atomic<unsigned int> *m_pcf_array;
@@ -187,7 +199,7 @@ class ComputePMFTXYT2DWithCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTXYT2DWithCellList(atomic<unsigned int> *pcf_array,
+        ComputePMFXY2DWithCellList(atomic<unsigned int> *pcf_array,
                                 unsigned int nbins_x,
                                 unsigned int nbins_y,
                                 const trajectory::Box &box,
@@ -243,8 +255,8 @@ class ComputePMFTXYT2DWithCellList
                             continue;
                             }
                         float3 point = m_points[j];
-                        float dx = float(ref.x - point.x);
-                        float dy = float(ref.y - point.y);
+                        float dx = float(point.x - ref.x);
+                        float dy = float(point.y - ref.y);
                         float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
 
                         float xsq = delta.x*delta.x;
@@ -257,6 +269,8 @@ class ComputePMFTXYT2DWithCellList
                             vec2<Scalar> rotVec = myMat * myVec;
                             float x = rotVec.x;
                             float y = rotVec.y;
+                            // float x = delta.x;
+                            // float y = delta.y;
 
                             // bin that point
                             float binx = (m_nbins_x / 2) + (x * dx_inv);
@@ -281,7 +295,7 @@ class ComputePMFTXYT2DWithCellList
             }
     };
 
-bool PMFTXYT2D::useCells()
+bool PMFXY2D::useCells()
     {
     float l_min = fmin(m_box.getLx(), m_box.getLy());
 
@@ -296,7 +310,7 @@ bool PMFTXYT2D::useCells()
     return false;
     }
 
-void PMFTXYT2D::compute(unsigned int *pcf_array,
+void PMFXY2D::compute(unsigned int *pcf_array,
                         float3 *ref_points,
                         float *ref_orientations,
                         unsigned int Nref,
@@ -304,11 +318,10 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
                         float *orientations,
                         unsigned int Np)
     {
-    // memset((void*)pcf_array, 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithCellList((atomic<unsigned int>*)pcf_array,
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFXY2DWithCellList((atomic<unsigned int>*)pcf_array,
                                                                             m_nbins_x,
                                                                             m_nbins_y,
                                                                             m_box,
@@ -323,25 +336,12 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
                                                                             points,
                                                                             orientations,
                                                                             Np));
-        // parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithCellList((atomic<unsigned int>*)pcf_array,
-        //                                                                     m_nbins_x,
-        //                                                                     m_nbins_y,
-        //                                                                     m_box,
-        //                                                                     m_max_x,
-        //                                                                     m_max_y,
-        //                                                                     m_dx,
-        //                                                                     m_dy,
-        //                                                                     m_lc,
-        //                                                                     ref_points,
-        //                                                                     Nref,
-        //                                                                     points,
-        //                                                                     Np));
         }
     else
         {
         printf("not using cells\n");
         fflush(stdout);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithoutCellList((atomic<unsigned int>*)pcf_array,
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFXY2DWithoutCellList((atomic<unsigned int>*)pcf_array,
                                                                                m_nbins_x,
                                                                                m_nbins_y,
                                                                                m_box,
@@ -350,13 +350,15 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
                                                                                m_dx,
                                                                                m_dy,
                                                                                ref_points,
+                                                                               ref_orientations,
                                                                                Nref,
                                                                                points,
+                                                                               orientations,
                                                                                Np));
         }
     }
 
-void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
+void PMFXY2D::computePy(boost::python::numeric::array pcf_array,
                           boost::python::numeric::array ref_points,
                           boost::python::numeric::array ref_orientations,
                           boost::python::numeric::array points,
@@ -410,13 +412,13 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
         }
     }
 
-void export_PMFTXYT2D()
+void export_PMFXY2D()
     {
-    class_<PMFTXYT2D>("PMFTXYT2D", init<trajectory::Box&, float, float, float, float>())
-        .def("getBox", &PMFTXYT2D::getBox, return_internal_reference<>())
-        .def("compute", &PMFTXYT2D::computePy)
-        .def("getX", &PMFTXYT2D::getXPy)
-        .def("getY", &PMFTXYT2D::getYPy)
+    class_<PMFXY2D>("PMFXY2D", init<trajectory::Box&, float, float, float, float>())
+        .def("getBox", &PMFXY2D::getBox, return_internal_reference<>())
+        .def("compute", &PMFXY2D::computePy)
+        .def("getX", &PMFXY2D::getXPy)
+        .def("getY", &PMFXY2D::getYPy)
         ;
     }
 

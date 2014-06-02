@@ -5,10 +5,10 @@
 #include "num_util.h"
 #include "trajectory.h"
 
-#ifndef _PMFTXYT2D_H__
-#define _PMFTXYT2D_H__
+#ifndef _PMFXY2D_H__
+#define _PMFXY2D_H__
 
-/*! \file PMFTXYT2D.h
+/*! \file PMFXY2D.h
     \brief Routines for computing radial density functions
 */
 
@@ -25,14 +25,14 @@ namespace freud { namespace pmft {
     RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
     3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
-class PMFTXYT2D
+class PMFXY2D
     {
     public:
         //! Constructor
-        PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float dx, float dy);
+        PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx, float dy);
 
         //! Destructor
-        ~PMFTXYT2D();
+        ~PMFXY2D();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -117,8 +117,8 @@ class PMFTXYT2D
 /*! \internal
     \brief Exports all classes in this file to python
 */
-void export_PMFTXYT2D();
+void export_PMFXY2D();
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFTXYT2D_H__
+#endif // _PMFXY2D_H__

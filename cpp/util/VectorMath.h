@@ -938,6 +938,7 @@ inline Scalar4 quat_to_scalar4(const quat<Scalar>& a)
 
     The following operators are defined for rotmat2s.
         - rotmat2 * vec2
+        - rotmat2(float) - *constructs from a (float) angle*
         - rotmat2(quat) - *constructs from a quaternion*
 */
 template < class Real >
