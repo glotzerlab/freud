@@ -153,7 +153,7 @@ class ComputePMFXY2DWithoutCellList
                         {
                         // rotate interparticle vector
                         vec2<Scalar> myVec(delta.x, delta.y);
-                        rotmat2<Scalar> myMat(-m_ref_orientations[i]);
+                        rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
                         vec2<Scalar> rotVec = myMat * myVec;
                         float x = rotVec.x;
                         float y = rotVec.y;
@@ -265,7 +265,7 @@ class ComputePMFXY2DWithCellList
                             {
                             // rotate interparticle vector
                             vec2<Scalar> myVec(delta.x, delta.y);
-                            rotmat2<Scalar> myMat(-m_ref_orientations[i]);
+                            rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
                             vec2<Scalar> rotVec = myMat * myVec;
                             float x = rotVec.x;
                             float y = rotVec.y;

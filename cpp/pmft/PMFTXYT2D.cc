@@ -171,7 +171,7 @@ class ComputePMFTXYT2DWithoutCellList
                         {
                         // rotate interparticle vector
                         vec2<Scalar> myVec(delta.x, delta.y);
-                        rotmat2<Scalar> myMat(-m_ref_orientations[i]);
+                        rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
                         vec2<Scalar> rotVec = myMat * myVec;
                         float x = rotVec.x;
                         float y = rotVec.y;
@@ -297,7 +297,7 @@ class ComputePMFTXYT2DWithCellList
                             {
                             // rotate interparticle vector
                             vec2<Scalar> myVec(delta.x, delta.y);
-                            rotmat2<Scalar> myMat(-m_ref_orientations[i]);
+                            rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
                             vec2<Scalar> rotVec = myMat * myVec;
                             float x = rotVec.x;
                             float y = rotVec.y;
@@ -433,7 +433,6 @@ void PMFTXYT2D::computePy(boost::python::numeric::array pcf_array,
 
     // check the size of angles to be correct
     num_util::check_dim(ref_orientations, 0, Nref);
-    // num_util::check_dim(ref_orientations, 0, 1);
     num_util::check_dim(orientations, 0, Np);
 
     // get the raw data pointers and compute the cell list

@@ -46,8 +46,10 @@ class PMFTXYZ
         //! Compute the RDF
         void compute(unsigned int *pcf_array,
                      const float3 *ref_points,
+                     const float4 *ref_orientations,
                      unsigned int Nref,
                      const float3 *points,
+                     const float4 *orientations,
                      unsigned int Np);
 
         //! Python wrapper for compute

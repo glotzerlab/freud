@@ -948,49 +948,55 @@ struct rotmat2
     /*! \param _row0 First row
         \param _row1 Second row
     */
+
     rotmat2(const vec2<Real>& _row0, const vec2<Real>& _row1) : row0(_row0), row1(_row1)
         {
         }
 
-    //! Construct a rotmat2 from a float because this should have been added from the start.
-    /*! \param theta angle to represent
-
-        This is a convenience function for easy initialization of rotmat2s from angles. The rotmat2 will initialize to
-        the same rotation as the angle. Why wasn't this written. You have angered Harper.
-    */
-    explicit rotmat2(const float& theta)
+    //! Default construct an identity matrix
+    rotmat2() : row0(vec2<Real>(1,0)), row1(vec2<Real>(0,1))
         {
-        // formula from http://en.wikipedia.org/wiki/Rotation_matrix
+        }
 
+    static rotmat2 fromAngle(const float& theta)
+        {
+        //! Construct a rotmat2 from a float.
+        //! formula from http://en.wikipedia.org/wiki/Rotation_matrix
+        /*! \param theta angle to represent
+
+            This is a convenience function for easy initialization of rotmat2s from angles. The rotmat2 will initialize to
+            the same rotation as the angle.
+        */
+        vec2<Real> row0;
+        vec2<Real> row1;
         row0.x = cosf(theta);
         row0.y = -sinf(theta);
         row1.x = sinf(theta);
         row1.y = cosf(theta);
+        return rotmat2<Real>(row0, row1);
         }
 
-    //! Construct a rotmat2 from a quat
-    /*! \param q quaternion to represent
-
-        This is a convenience function for easy initialization of rotmat2s from quats. The rotmat2 will initialize to
-        the same rotation as the quaternion.
-    */
-    explicit rotmat2(const quat<Real>& q)
+    static rotmat2 fromQuat(const quat<Real>& q)
         {
+        //! Construct a rotmat2 from a quat
+        /*! \param q quaternion to represent
+
+            This is a convenience function for easy initialization of rotmat2s from quats. The rotmat2 will initialize to
+            the same rotation as the quaternion.
+        */
         // formula from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
         Real a = q.s,
              b = q.v.x,
              c = q.v.y,
              d = q.v.z;
 
+        vec2<Real> row0;
+        vec2<Real> row1;
         row0.x = a*a + b*b - c*c - d*d;
         row0.y = 2*b*c - 2*a*d;
         row1.x = 2*b*c + 2*a*d;
         row1.y = a*a - b*b + c*c - d*d;
-        }
-
-    //! Default construct an identity matrix
-    rotmat2() : row0(vec2<Real>(1,0)), row1(vec2<Real>(0,1))
-        {
+        return rotmat2<Real>(row0, row1);
         }
 
     vec2<Real> row0;   //!< First row
