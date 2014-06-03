@@ -47,13 +47,6 @@ class pmftXYZ(object):
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
 
-    def computePMFT(self):
-        # check that pcf is calculated
-        if self.pcfArray is None:
-            raise RuntimeError("must compute pcf first")
-        self.pmftArray = numpy.copy(self.pcfArray)
-        self.pmftArray = -1.0 * numpy.log(self.pmftArray)
-
 class pmfXY2D(object):
     def __init__(self, box, maxX, maxY, dx, dy):
         super(pmfXY2D, self).__init__()
@@ -93,13 +86,6 @@ class pmfXY2D(object):
         pcfArray = numpy.zeros(shape=(self.nBinsY, self.nBinsX), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
-
-    def computePMFT(self):
-        # check that pcf is calculated
-        if self.pcfArray is None:
-            raise RuntimeError("must compute pcf first")
-        self.pmftArray = numpy.copy(self.pcfArray)
-        self.pmftArray = -1.0 * numpy.log(self.pmftArray)
 
 class pmftXYT2D(object):
     def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
@@ -144,10 +130,3 @@ class pmftXYT2D(object):
         pcfArray = numpy.zeros(shape=(self.nBinsT, self.nBinsY, self.nBinsX), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
-
-    def computePMFT(self):
-        # check that pcf is calculated
-        if self.pcfArray is None:
-            raise RuntimeError("must compute pcf first")
-        self.pmftArray = numpy.copy(self.pcfArray)
-        self.pmftArray = -1.0 * numpy.log(self.pmftArray)

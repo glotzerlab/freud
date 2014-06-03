@@ -175,7 +175,10 @@ class ComputePMFTWithoutCellList
                         float y = delta.y;
                         float z = delta.z;
 
-                        quat<float> q(m_ref_orientations[i].w, vec3<float>(m_ref_orientations[i].x, m_ref_orientations[i].y, m_ref_orientations[i].z));
+                        quat<float> q(m_ref_orientations[i].w,
+                                      vec3<float>(m_ref_orientations[i].x,
+                                                  m_ref_orientations[i].y,
+                                                  m_ref_orientations[i].z));
                         vec3<float> v(x, y, z);
                         v = rotate(conj(q), v);
 
