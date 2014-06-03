@@ -1,4 +1,53 @@
-#include <HOOMDMath.h>
+/*
+Highly Optimized Object-oriented Many-particle Dynamics -- Blue Edition
+(HOOMD-blue) Open Source Software License Copyright 2009-2014 The Regents of
+the University of Michigan All rights reserved.
+
+HOOMD-blue may contain modifications ("Contributions") provided, and to which
+copyright is held, by various Contributors who have granted The Regents of the
+University of Michigan the right to modify and/or distribute such Contributions.
+
+You may redistribute, use, and create derivate works of HOOMD-blue, in source
+and binary forms, provided you abide by the following conditions:
+
+* Redistributions of source code must retain the above copyright notice, this
+list of conditions, and the following disclaimer both in the code and
+prominently in any materials provided with the distribution.
+
+* Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions, and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+* All publications and presentations based on HOOMD-blue, including any reports
+or published results obtained, in whole or in part, with HOOMD-blue, will
+acknowledge its use according to the terms posted at the time of submission on:
+http://codeblue.umich.edu/hoomd-blue/citations.html
+
+* Any electronic documents citing HOOMD-Blue will link to the HOOMD-Blue website:
+http://codeblue.umich.edu/hoomd-blue/
+
+* Apart from the above required attributions, neither the name of the copyright
+holder nor the names of HOOMD-blue's contributors may be used to endorse or
+promote products derived from this software without specific prior written
+permission.
+
+Disclaimer
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND/OR ANY
+WARRANTIES THAT THIS SOFTWARE IS FREE OF INFRINGEMENT ARE DISCLAIMED.
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include "HOOMDMath.h"
 
 #ifndef __VECTOR_MATH_H__
 #define __VECTOR_MATH_H__
@@ -6,6 +55,14 @@
 /*! \file VectorMath.h
     \brief Vector and quaternion math operations
 */
+
+// need to declare these class methods with __device__ qualifiers when building in nvcc
+// DEVICE is __host__ __device__ when included in nvcc and blank when included into the host compiler
+#ifdef NVCC
+#define DEVICE __device__
+#else
+#define DEVICE
+#endif
 
 /*! \addtogroup vecmath
     @{
@@ -32,7 +89,7 @@ struct vec3
         \param _y y-component
         \param _z z-component
     */
-    vec3(const Real& _x, const Real& _y, const Real& _z) : x(_x), y(_y), z(_z)
+    DEVICE vec3(const Real& _x, const Real& _y, const Real& _z) : x(_x), y(_y), z(_z)
         {
         }
 
@@ -40,7 +97,7 @@ struct vec3
     /*! \param a Scalar3 to copy
         This is a convenience function for easy initialization of vec3s from hoomd memory data structures
     */
-    explicit vec3(const Scalar3& a) : x(a.x), y(a.y), z(a.z)
+    DEVICE explicit vec3(const Scalar3& a) : x(a.x), y(a.y), z(a.z)
         {
         }
 
@@ -49,17 +106,17 @@ struct vec3
         This is a convenience function for easy initialization of vec3s from hoomd memory data structures.
         \note It drops the w component.
     */
-    explicit vec3(const Scalar4& a) : x(a.x), y(a.y), z(a.z)
+    DEVICE explicit vec3(const Scalar4& a) : x(a.x), y(a.y), z(a.z)
         {
         }
 
     //! Implicit cast from vec3<double> to the current Real
-    vec3(const vec3<double>& a) : x(a.x), y(a.y), z(a.z)
+    DEVICE vec3(const vec3<double>& a) : x(a.x), y(a.y), z(a.z)
         {
         }
 
     //! Default construct a 0 vector
-    vec3() : x(0), y(0), z(0)
+    DEVICE vec3() : x(0), y(0), z(0)
         {
         }
 
@@ -77,7 +134,7 @@ struct vec3
     \returns The vector (a.x+b.x, a.y+b.y, a.z+b.z).
 */
 template < class Real >
-inline vec3<Real> operator+(const vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real> operator+(const vec3<Real>& a, const vec3<Real>& b)
     {
     return vec3<Real>(a.x + b.x,
                       a.y + b.y,
@@ -92,7 +149,7 @@ inline vec3<Real> operator+(const vec3<Real>& a, const vec3<Real>& b)
     \returns The vector (a.x-b.x, a.y-b.y, a.z-b.z).
 */
 template < class Real >
-inline vec3<Real> operator-(const vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real> operator-(const vec3<Real>& a, const vec3<Real>& b)
     {
     return vec3<Real>(a.x - b.x,
                       a.y - b.y,
@@ -107,7 +164,7 @@ inline vec3<Real> operator-(const vec3<Real>& a, const vec3<Real>& b)
     \returns The vector (a.x*b.x, a.y*b.y, a.z*b.z).
 */
 template < class Real >
-inline vec3<Real> operator*(const vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real> operator*(const vec3<Real>& a, const vec3<Real>& b)
     {
     return vec3<Real>(a.x * b.x,
                       a.y * b.y,
@@ -122,7 +179,7 @@ inline vec3<Real> operator*(const vec3<Real>& a, const vec3<Real>& b)
     \returns The vector (a.x/b.x, a.y/b.y, a.z/b.z).
 */
 template < class Real >
-inline vec3<Real> operator/(const vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real> operator/(const vec3<Real>& a, const vec3<Real>& b)
     {
     return vec3<Real>(a.x / b.x,
                       a.y / b.y,
@@ -136,7 +193,7 @@ inline vec3<Real> operator/(const vec3<Real>& a, const vec3<Real>& b)
     \returns The vector (-a.x, -a.y, -a.z).
 */
 template < class Real >
-inline vec3<Real> operator-(const vec3<Real>& a)
+DEVICE inline vec3<Real> operator-(const vec3<Real>& a)
     {
     return vec3<Real>(-a.x,
                       -a.y,
@@ -152,7 +209,7 @@ inline vec3<Real> operator-(const vec3<Real>& a)
     \returns The vector (a.x += b.x, a.y += b.y, a.z += b.z).
 */
 template < class Real >
-inline vec3<Real>& operator +=(vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real>& operator +=(vec3<Real>& a, const vec3<Real>& b)
     {
     a.x += b.x;
     a.y += b.y;
@@ -168,7 +225,7 @@ inline vec3<Real>& operator +=(vec3<Real>& a, const vec3<Real>& b)
     \returns The vector (a.x -= b.x, a.y -= b.y, a.z -= b.z).
 */
 template < class Real >
-inline vec3<Real>& operator -=(vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real>& operator -=(vec3<Real>& a, const vec3<Real>& b)
     {
     a.x -= b.x;
     a.y -= b.y;
@@ -184,7 +241,7 @@ inline vec3<Real>& operator -=(vec3<Real>& a, const vec3<Real>& b)
     \returns The vector (a.x *= b.x, a.y *= b.y, a.z *= b.z).
 */
 template < class Real >
-inline vec3<Real>& operator *=(vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real>& operator *=(vec3<Real>& a, const vec3<Real>& b)
     {
     a.x *= b.x;
     a.y *= b.y;
@@ -200,7 +257,7 @@ inline vec3<Real>& operator *=(vec3<Real>& a, const vec3<Real>& b)
     \returns The vector (a.x /= b.x, a.y /= b.y, a.z /= b.z).
 */
 template < class Real >
-inline vec3<Real>& operator /=(vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real>& operator /=(vec3<Real>& a, const vec3<Real>& b)
     {
     a.x /= b.x;
     a.y /= b.y;
@@ -216,7 +273,7 @@ inline vec3<Real>& operator /=(vec3<Real>& a, const vec3<Real>& b)
     \returns The vector (a.x*b, a.y*b, a.z*b).
 */
 template < class Real >
-inline vec3<Real> operator*(const vec3<Real>& a, const Real& b)
+DEVICE inline vec3<Real> operator*(const vec3<Real>& a, const Real& b)
     {
     return vec3<Real>(a.x * b,
                       a.y * b,
@@ -231,7 +288,7 @@ inline vec3<Real> operator*(const vec3<Real>& a, const Real& b)
     \returns The vector (a.x*b, a.y*b, a.z*b).
 */
 template < class Real >
-inline vec3<Real> operator*(const Real& b, const vec3<Real>& a)
+DEVICE inline vec3<Real> operator*(const Real& b, const vec3<Real>& a)
     {
     return vec3<Real>(a.x * b,
                       a.y * b,
@@ -246,7 +303,7 @@ inline vec3<Real> operator*(const Real& b, const vec3<Real>& a)
     \returns The vector (a.x/b, a.y/b, a.z/b).
 */
 template < class Real >
-inline vec3<Real> operator/(const vec3<Real>& a, const Real& b)
+DEVICE inline vec3<Real> operator/(const vec3<Real>& a, const Real& b)
     {
     Real q = Real(1.0)/b;
     return a * q;
@@ -260,7 +317,7 @@ inline vec3<Real> operator/(const vec3<Real>& a, const Real& b)
     \returns The vector (a.x *= b, a.y *= b, a.z *= b).
 */
 template < class Real >
-inline vec3<Real>& operator *=(vec3<Real>& a, const Real& b)
+DEVICE inline vec3<Real>& operator *=(vec3<Real>& a, const Real& b)
     {
     a.x *= b;
     a.y *= b;
@@ -276,7 +333,7 @@ inline vec3<Real>& operator *=(vec3<Real>& a, const Real& b)
     \returns The vector (a.x /= b, a.y /= b, a.z /= b).
 */
 template < class Real >
-inline vec3<Real>& operator /=(vec3<Real>& a, const Real& b)
+DEVICE inline vec3<Real>& operator /=(vec3<Real>& a, const Real& b)
     {
     a.x /= b;
     a.y /= b;
@@ -290,7 +347,7 @@ inline vec3<Real>& operator /=(vec3<Real>& a, const Real& b)
     \returns true if the two vectors are identically equal, false if they are not
 */
 template < class Real >
-inline bool operator ==(const vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline bool operator ==(const vec3<Real>& a, const vec3<Real>& b)
     {
     return (a.x == b.x) && (a.y == b.y) && (a.z == b.z);
     }
@@ -301,7 +358,7 @@ inline bool operator ==(const vec3<Real>& a, const vec3<Real>& b)
     \returns true if the two vectors are not identically equal, and false if they are
 */
 template < class Real >
-inline bool operator !=(const vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline bool operator !=(const vec3<Real>& a, const vec3<Real>& b)
     {
     return (a.x != b.x) || (a.y != b.y) || (a.z != b.z);
     }
@@ -313,7 +370,7 @@ inline bool operator !=(const vec3<Real>& a, const vec3<Real>& b)
     \returns the dot product a.x*b.x + a.y*b.y + a.z*b.z.
 */
 template < class Real >
-inline Real dot(const vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline Real dot(const vec3<Real>& a, const vec3<Real>& b)
     {
     return (a.x*b.x + a.y*b.y + a.z*b.z);
     }
@@ -325,7 +382,7 @@ inline Real dot(const vec3<Real>& a, const vec3<Real>& b)
     \returns the cross product (a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x).
 */
 template < class Real >
-inline vec3<Real> cross(const vec3<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real> cross(const vec3<Real>& a, const vec3<Real>& b)
     {
     return vec3<Real>(a.y * b.z - a.z * b.y,
                       a.z * b.x - a.x * b.z,
@@ -333,13 +390,13 @@ inline vec3<Real> cross(const vec3<Real>& a, const vec3<Real>& b)
     }
 
 //! Convenience function for converting a vec3 to a Scalar3
-inline Scalar3 vec_to_scalar3(const vec3<Scalar>& a)
+DEVICE inline Scalar3 vec_to_scalar3(const vec3<Scalar>& a)
     {
     return make_scalar3(a.x, a.y, a.z);
     }
 
 //! Convenience function for converting a vec3 and a w to a Scalar4
-inline Scalar4 vec_to_scalar4(const vec3<Scalar>& a, Scalar w)
+DEVICE inline Scalar4 vec_to_scalar4(const vec3<Scalar>& a, Scalar w)
     {
     return make_scalar4(a.x, a.y, a.z, w);
     }
@@ -364,12 +421,12 @@ struct vec2
     /*! \param _x x-component
         \param _y y-component
     */
-    vec2(const Real& _x, const Real& _y) : x(_x), y(_y)
+    DEVICE vec2(const Real& _x, const Real& _y) : x(_x), y(_y)
         {
         }
 
     //! Default construct a 0 vector
-    vec2() : x(0), y(0)
+    DEVICE vec2() : x(0), y(0)
         {
         }
 
@@ -386,7 +443,7 @@ struct vec2
     \returns The vector (a.x+b.x, a.y+b.y).
 */
 template < class Real >
-inline vec2<Real> operator+(const vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real> operator+(const vec2<Real>& a, const vec2<Real>& b)
     {
     return vec2<Real>(a.x + b.x,
                       a.y + b.y);
@@ -400,7 +457,7 @@ inline vec2<Real> operator+(const vec2<Real>& a, const vec2<Real>& b)
     \returns The vector (a.x-b.x, a.y-b.y).
 */
 template < class Real >
-inline vec2<Real> operator-(const vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real> operator-(const vec2<Real>& a, const vec2<Real>& b)
     {
     return vec2<Real>(a.x - b.x,
                       a.y - b.y);
@@ -414,7 +471,7 @@ inline vec2<Real> operator-(const vec2<Real>& a, const vec2<Real>& b)
     \returns The vector (a.x*b.x, a.y*b.y).
 */
 template < class Real >
-inline vec2<Real> operator*(const vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real> operator*(const vec2<Real>& a, const vec2<Real>& b)
     {
     return vec2<Real>(a.x * b.x,
                       a.y * b.y);
@@ -428,7 +485,7 @@ inline vec2<Real> operator*(const vec2<Real>& a, const vec2<Real>& b)
     \returns The vector (a.x/b.x, a.y/b.y).
 */
 template < class Real >
-inline vec2<Real> operator/(const vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real> operator/(const vec2<Real>& a, const vec2<Real>& b)
     {
     return vec2<Real>(a.x / b.x,
                       a.y / b.y);
@@ -441,7 +498,7 @@ inline vec2<Real> operator/(const vec2<Real>& a, const vec2<Real>& b)
     \returns The vector (-a.x, -a.y).
 */
 template < class Real >
-inline vec2<Real> operator-(const vec2<Real>& a)
+DEVICE inline vec2<Real> operator-(const vec2<Real>& a)
     {
     return vec2<Real>(-a.x,
                       -a.y);
@@ -456,7 +513,7 @@ inline vec2<Real> operator-(const vec2<Real>& a)
     \returns The vector (a.x += b.x, a.y += b.y).
 */
 template < class Real >
-inline vec2<Real>& operator +=(vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real>& operator +=(vec2<Real>& a, const vec2<Real>& b)
     {
     a.x += b.x;
     a.y += b.y;
@@ -471,7 +528,7 @@ inline vec2<Real>& operator +=(vec2<Real>& a, const vec2<Real>& b)
     \returns The vector (a.x -= b.x, a.y -= b.y).
 */
 template < class Real >
-inline vec2<Real>& operator -=(vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real>& operator -=(vec2<Real>& a, const vec2<Real>& b)
     {
     a.x -= b.x;
     a.y -= b.y;
@@ -486,7 +543,7 @@ inline vec2<Real>& operator -=(vec2<Real>& a, const vec2<Real>& b)
     \returns The vector (a.x *= b.x, a.y *= b.y).
 */
 template < class Real >
-inline vec2<Real>& operator *=(vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real>& operator *=(vec2<Real>& a, const vec2<Real>& b)
     {
     a.x *= b.x;
     a.y *= b.y;
@@ -501,7 +558,7 @@ inline vec2<Real>& operator *=(vec2<Real>& a, const vec2<Real>& b)
     \returns The vector (a.x /= b.x, a.y /= b.y).
 */
 template < class Real >
-inline vec2<Real>& operator /=(vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real>& operator /=(vec2<Real>& a, const vec2<Real>& b)
     {
     a.x /= b.x;
     a.y /= b.y;
@@ -516,7 +573,7 @@ inline vec2<Real>& operator /=(vec2<Real>& a, const vec2<Real>& b)
     \returns The vector (a.x*b, a.y*b).
 */
 template < class Real >
-inline vec2<Real> operator*(const vec2<Real>& a, const Real& b)
+DEVICE inline vec2<Real> operator*(const vec2<Real>& a, const Real& b)
     {
     return vec2<Real>(a.x * b,
                       a.y * b);
@@ -530,7 +587,7 @@ inline vec2<Real> operator*(const vec2<Real>& a, const Real& b)
     \returns The vector (a.x*b, a.y*b).
 */
 template < class Real >
-inline vec2<Real> operator*(const Real& b, const vec2<Real>& a)
+DEVICE inline vec2<Real> operator*(const Real& b, const vec2<Real>& a)
     {
     return vec2<Real>(a.x * b,
                       a.y * b);
@@ -544,7 +601,7 @@ inline vec2<Real> operator*(const Real& b, const vec2<Real>& a)
     \returns The vector (a.x/b, a.y/b, a.z/b).
 */
 template < class Real >
-inline vec2<Real> operator/(const vec2<Real>& a, const Real& b)
+DEVICE inline vec2<Real> operator/(const vec2<Real>& a, const Real& b)
     {
     Real q = Real(1.0)/b;
     return a * q;
@@ -558,7 +615,7 @@ inline vec2<Real> operator/(const vec2<Real>& a, const Real& b)
     \returns The vector (a.x *= b, a.y *= b).
 */
 template < class Real >
-inline vec2<Real>& operator *=(vec2<Real>& a, const Real& b)
+DEVICE inline vec2<Real>& operator *=(vec2<Real>& a, const Real& b)
     {
     a.x *= b;
     a.y *= b;
@@ -573,7 +630,7 @@ inline vec2<Real>& operator *=(vec2<Real>& a, const Real& b)
     \returns The vector (a.x /= b, a.y /= b).
 */
 template < class Real >
-inline vec2<Real>& operator /=(vec2<Real>& a, const Real& b)
+DEVICE inline vec2<Real>& operator /=(vec2<Real>& a, const Real& b)
     {
     a.x /= b;
     a.y /= b;
@@ -586,7 +643,7 @@ inline vec2<Real>& operator /=(vec2<Real>& a, const Real& b)
     \returns true if the two vectors are identically equal, false if they are not
 */
 template < class Real >
-inline bool operator ==(const vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline bool operator ==(const vec2<Real>& a, const vec2<Real>& b)
     {
     return (a.x == b.x) && (a.y == b.y);
     }
@@ -597,7 +654,7 @@ inline bool operator ==(const vec2<Real>& a, const vec2<Real>& b)
     \returns true if the two vectors are not identically equal, false if they are
 */
 template < class Real >
-inline bool operator !=(const vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline bool operator !=(const vec2<Real>& a, const vec2<Real>& b)
     {
     return (a.x != b.x) || (a.y != b.y);
     }
@@ -609,7 +666,7 @@ inline bool operator !=(const vec2<Real>& a, const vec2<Real>& b)
     \returns the dot product a.x*b.x + a.y*b.y.
 */
 template < class Real >
-inline Real dot(const vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline Real dot(const vec2<Real>& a, const vec2<Real>& b)
     {
     return (a.x*b.x + a.y*b.y);
     }
@@ -619,7 +676,7 @@ inline Real dot(const vec2<Real>& a, const vec2<Real>& b)
     \returns a vector perpendicular to *a* (a.y, -a.x)
 */
 template < class Real >
-inline vec2<Real> perp(const vec2<Real>& a)
+DEVICE inline vec2<Real> perp(const vec2<Real>& a)
     {
     return vec2<Real>(-a.y, a.x);
     }
@@ -630,21 +687,11 @@ inline vec2<Real> perp(const vec2<Real>& a)
     \returns the perpendicular dot product of a and b
 */
 template < class Real >
-inline Real perpdot(const vec2<Real>& a, const vec2<Real>& b)
+DEVICE inline Real perpdot(const vec2<Real>& a, const vec2<Real>& b)
     {
     return dot(perp(a), b);
     }
 
-//! vec2 cross product
-/*! \param a first vector
-    \param b second vector
-    \returns the z component of the cross product of vectors a and b, assumed to lie in the xy plane
-*/
-template < class Real >
-inline Real cross(const vec2<Real>& a, const vec2<Real>& b)
-    {
-    return a.x * b.y - a.y * b.x;
-    }
 
 /////////////////////////////// quat ///////////////////////////////////
 
@@ -682,7 +729,7 @@ struct quat
     /*! \param _s scalar component
         \param _v vector component
     */
-    quat(const Real& _s, const vec3<Real>& _v) : s(_s), v(_v)
+    DEVICE quat(const Real& _s, const vec3<Real>& _v) : s(_s), v(_v)
         {
         }
 
@@ -694,18 +741,32 @@ struct quat
         \note For some unfathomable reason, hoomd stores a quaternion as (x, (y,z,w)). Be aware of this when using the
               data elsewhere.
     */
-    explicit quat(const Scalar4& a) : s(a.x), v(vec3<Real>(a.y, a.z, a.w))
+    DEVICE explicit quat(const Scalar4& a) : s(a.x), v(vec3<Real>(a.y, a.z, a.w))
         {
         }
 
     //! Implicit cast from quat<double> to the current Real
-    quat(const quat<double>& a) : s(a.s), v(a.v)
+    DEVICE quat(const quat<double>& a) : s(a.s), v(a.v)
         {
         }
 
     //! Default construct a unit quaternion
-    quat() : s(1), v(vec3<Real>(0,0,0))
+    DEVICE quat() : s(1), v(vec3<Real>(0,0,0))
         {
+        }
+
+    DEVICE static quat fromAxisAngle(const vec3<Real>& axis, const Real& theta)
+        {
+        //! Construct a quat from an axis and an angle.
+        //! convenience function
+        /*! \param axis angle to represent
+            \param theta angle to represent
+
+            This is a convenience function for easy initialization of rotmat3s from an axis and an angle.
+            The rotmat3 will initialize to the same rotation as the angle around the specified axis.
+        */
+        quat<Real> q(fast::cos(theta/2.0), (Real)fast::sin(theta/2.0) * axis);
+        return q;
         }
 
     Real s;         //!< scalar component
@@ -720,7 +781,7 @@ struct quat
     \returns The quaternion (b*a.s, b*a.v).
 */
 template < class Real >
-inline quat<Real> operator*(const Real& b, const quat<Real>& a)
+DEVICE inline quat<Real> operator*(const Real& b, const quat<Real>& a)
     {
     return quat<Real>(b * a.s,
                       b * a.v);
@@ -734,7 +795,7 @@ inline quat<Real> operator*(const Real& b, const quat<Real>& a)
     \returns The quaternion (a.s*b, a.v*b).
 */
 template < class Real >
-inline quat<Real> operator*(const quat<Real>& a, const Real& b)
+DEVICE inline quat<Real> operator*(const quat<Real>& a, const Real& b)
     {
     return quat<Real>(a.s * b,
                       a.v * b);
@@ -749,7 +810,7 @@ inline quat<Real> operator*(const quat<Real>& a, const Real& b)
     \returns The quaternion (a.s + b.s, a.v+b.v).
 */
 template < class Real >
-inline quat<Real> operator+(const quat<Real>& a, const quat<Real>& b)
+DEVICE inline quat<Real> operator+(const quat<Real>& a, const quat<Real>& b)
     {
     return quat<Real>(a.s + b.s,
                       a.v + b.v);
@@ -763,7 +824,7 @@ inline quat<Real> operator+(const quat<Real>& a, const quat<Real>& b)
     \returns The quaternion (a.s += b.s, a.v += b.v).
 */
 template < class Real >
-inline quat<Real>& operator +=(quat<Real>& a, const quat<Real>& b)
+DEVICE inline quat<Real>& operator +=(quat<Real>& a, const quat<Real>& b)
     {
     a.s += b.s;
     a.v += b.v;
@@ -778,7 +839,7 @@ inline quat<Real>& operator +=(quat<Real>& a, const quat<Real>& b)
     \returns The quaternion (a.s - b.s, a.v - b.v).
 */
 template < class Real >
-inline quat<Real> operator-(const quat<Real>& a, const quat<Real>& b)
+DEVICE inline quat<Real> operator-(const quat<Real>& a, const quat<Real>& b)
     {
     return quat<Real>(a.s - b.s,
                       a.v - b.v);
@@ -792,7 +853,7 @@ inline quat<Real> operator-(const quat<Real>& a, const quat<Real>& b)
     \returns The quaternion (a.s -= b.s, a.v -= b.v).
 */
 template < class Real >
-inline quat<Real>& operator -=(quat<Real>& a, const quat<Real>& b)
+DEVICE inline quat<Real>& operator -=(quat<Real>& a, const quat<Real>& b)
     {
     a.s -= b.s;
     a.v -= b.v;
@@ -812,7 +873,7 @@ inline quat<Real>& operator -=(quat<Real>& a, const quat<Real>& b)
     (a.s * b.s − dot(a.v, b.v), a.s*b.v + b.s * a.v + cross(a.v, b.v)).
 */
 template < class Real >
-inline quat<Real> operator*(const quat<Real>& a, const quat<Real>& b)
+DEVICE inline quat<Real> operator*(const quat<Real>& a, const quat<Real>& b)
     {
     return quat<Real>(a.s*b.s - dot(a.v, b.v),
                       a.s*b.v + b.s * a.v + cross(a.v,b.v));
@@ -827,7 +888,7 @@ inline quat<Real> operator*(const quat<Real>& a, const quat<Real>& b)
     \returns The quaternion (a.s * b.s − dot(a.v, b.v), a.s*b.v + b.s * a.v + cross(a.v, b.v)).
 */
 template < class Real >
-inline quat<Real> operator*(const vec3<Real>& a, const quat<Real>& b)
+DEVICE inline quat<Real> operator*(const vec3<Real>& a, const quat<Real>& b)
     {
     return quat<Real>(0,a) * b;
     }
@@ -841,7 +902,7 @@ inline quat<Real> operator*(const vec3<Real>& a, const quat<Real>& b)
     \returns The quaternion (a.s * b.s − dot(a.v, b.v), a.s*b.v + b.s * a.v + cross(a.v, b.v)).
 */
 template < class Real >
-inline quat<Real> operator*(const quat<Real>& a, const vec3<Real>& b)
+DEVICE inline quat<Real> operator*(const quat<Real>& a, const vec3<Real>& b)
     {
     return a * quat<Real>(0,b);
     }
@@ -852,7 +913,7 @@ inline quat<Real> operator*(const quat<Real>& a, const vec3<Real>& b)
     \returns the norm of the quaternion, squared. (a.s*a.s + dot(a.v,a.v))
 */
 template < class Real >
-inline Real norm2(const quat<Real>& a)
+DEVICE inline Real norm2(const quat<Real>& a)
     {
     return (a.s*a.s + dot(a.v,a.v));
     }
@@ -863,7 +924,7 @@ inline Real norm2(const quat<Real>& a)
     \returns the conjugate of the quaternion. (a.s, -a.v)
 */
 template < class Real >
-inline quat<Real> conj(const quat<Real>& a)
+DEVICE inline quat<Real> conj(const quat<Real>& a)
     {
     return quat<Real>(a.s, -a.v);
     }
@@ -875,7 +936,7 @@ inline quat<Real> conj(const quat<Real>& a)
     \returns the vector rotated by the quaternion, equivalent to the vector component of a*b*conj(a);
 */
 template < class Real >
-inline vec3<Real> rotate(const quat<Real>& a, const vec3<Real>& b)
+DEVICE inline vec3<Real> rotate(const quat<Real>& a, const vec3<Real>& b)
     {
     //quat<Real> result = a*b*conj(a);
     //return result.v;
@@ -899,7 +960,7 @@ inline vec3<Real> rotate(const quat<Real>& a, const vec3<Real>& b)
     *b* is promoted to a 3d vector with z=0 for the rotation.
 */
 template < class Real >
-inline vec2<Real> rotate(const quat<Real>& a, const vec2<Real>& b)
+DEVICE inline vec2<Real> rotate(const quat<Real>& a, const vec2<Real>& b)
     {
     vec3<Real> b3(b.x, b.y, Real(0.0));
     //b3 = (a*b3*conj(a)).v;
@@ -923,7 +984,7 @@ inline vec2<Real> rotate(const quat<Real>& a, const vec2<Real>& b)
     \note For some unfathomable reason, hoomd stores a quaternion as (x, (y,z,w)). Be aware of this when using the
               data elsewhere.
 */
-inline Scalar4 quat_to_scalar4(const quat<Scalar>& a)
+DEVICE inline Scalar4 quat_to_scalar4(const quat<Scalar>& a)
     {
     return make_scalar4(a.s, a.v.x, a.v.y, a.v.z);
     }
@@ -938,7 +999,6 @@ inline Scalar4 quat_to_scalar4(const quat<Scalar>& a)
 
     The following operators are defined for rotmat2s.
         - rotmat2 * vec2
-        - rotmat2(float) - *constructs from a (float) angle*
         - rotmat2(quat) - *constructs from a quaternion*
 */
 template < class Real >
@@ -948,17 +1008,36 @@ struct rotmat2
     /*! \param _row0 First row
         \param _row1 Second row
     */
-
-    rotmat2(const vec2<Real>& _row0, const vec2<Real>& _row1) : row0(_row0), row1(_row1)
+    DEVICE rotmat2(const vec2<Real>& _row0, const vec2<Real>& _row1) : row0(_row0), row1(_row1)
         {
+        }
+
+    //! Construct a rotmat2 from a quat
+    /*! \param q quaternion to represent
+
+        This is a convenience function for easy initialization of rotmat2s from quats. The rotmat2 will initialize to
+        the same rotation as the quaternion.
+    */
+    DEVICE explicit rotmat2(const quat<Real>& q)
+        {
+        // formula from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+        Real a = q.s,
+             b = q.v.x,
+             c = q.v.y,
+             d = q.v.z;
+
+        row0.x = a*a + b*b - c*c - d*d;
+        row0.y = 2*b*c - 2*a*d;
+        row1.x = 2*b*c + 2*a*d;
+        row1.y = a*a - b*b + c*c - d*d;
         }
 
     //! Default construct an identity matrix
-    rotmat2() : row0(vec2<Real>(1,0)), row1(vec2<Real>(0,1))
+    DEVICE rotmat2() : row0(vec2<Real>(1,0)), row1(vec2<Real>(0,1))
         {
         }
 
-    static rotmat2 fromAngle(const float& theta)
+    DEVICE static rotmat2 fromAngle(const Real& theta)
         {
         //! Construct a rotmat2 from a float.
         //! formula from http://en.wikipedia.org/wiki/Rotation_matrix
@@ -969,33 +1048,10 @@ struct rotmat2
         */
         vec2<Real> row0;
         vec2<Real> row1;
-        row0.x = cosf(theta);
-        row0.y = -sinf(theta);
-        row1.x = sinf(theta);
-        row1.y = cosf(theta);
-        return rotmat2<Real>(row0, row1);
-        }
-
-    static rotmat2 fromQuat(const quat<Real>& q)
-        {
-        //! Construct a rotmat2 from a quat
-        /*! \param q quaternion to represent
-
-            This is a convenience function for easy initialization of rotmat2s from quats. The rotmat2 will initialize to
-            the same rotation as the quaternion.
-        */
-        // formula from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
-        Real a = q.s,
-             b = q.v.x,
-             c = q.v.y,
-             d = q.v.z;
-
-        vec2<Real> row0;
-        vec2<Real> row1;
-        row0.x = a*a + b*b - c*c - d*d;
-        row0.y = 2*b*c - 2*a*d;
-        row1.x = 2*b*c + 2*a*d;
-        row1.y = a*a - b*b + c*c - d*d;
+        row0.x = fast::cos(theta);
+        row0.y = -fast::sin(theta);
+        row1.x = fast::sin(theta);
+        row1.y = fast::cos(theta);
         return rotmat2<Real>(row0, row1);
         }
 
@@ -1011,7 +1067,7 @@ struct rotmat2
     Multiplication is matrix multiplication, where the vector is represented as a column vector.
 */
 template < class Real >
-inline vec2<Real> operator*(const rotmat2<Real>& A, const vec2<Real>& b)
+DEVICE inline vec2<Real> operator*(const rotmat2<Real>& A, const vec2<Real>& b)
     {
     return vec2<Real>(dot(A.row0, b),
                       dot(A.row1, b));
@@ -1025,7 +1081,7 @@ inline vec2<Real> operator*(const rotmat2<Real>& A, const vec2<Real>& b)
     rotation, so the transpose method is provided.
 */
 template < class Real >
-inline rotmat2<Real> transpose(const rotmat2<Real>& A)
+DEVICE inline rotmat2<Real> transpose(const rotmat2<Real>& A)
     {
     return rotmat2<Real>(vec2<Real>(A.row0.x, A.row1.x),
                            vec2<Real>(A.row0.y, A.row1.y));
@@ -1053,7 +1109,7 @@ struct rotmat3
         \param _row1 Second row
         \param _row2 Third row
     */
-    rotmat3(const vec3<Real>& _row0, const vec3<Real>& _row1, const vec3<Real>& _row2)
+    DEVICE rotmat3(const vec3<Real>& _row0, const vec3<Real>& _row1, const vec3<Real>& _row2)
         : row0(_row0), row1(_row1), row2(_row2)
         {
         }
@@ -1064,7 +1120,7 @@ struct rotmat3
         This is a convenience function for easy initialization of rotmat3s from quats. The rotmat3 will initialize to
         the same rotation as the quaternion.
     */
-    explicit rotmat3(const quat<Real>& q)
+    DEVICE explicit rotmat3(const quat<Real>& q)
         {
         // formula from http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
         Real a = q.s,
@@ -1086,8 +1142,20 @@ struct rotmat3
         }
 
     //! Default construct an identity matrix
-    rotmat3() : row0(vec3<Real>(1,0,0)), row1(vec3<Real>(0,1,0)), row2(vec3<Real>(0,0,1))
+    DEVICE rotmat3() : row0(vec3<Real>(1,0,0)), row1(vec3<Real>(0,1,0)), row2(vec3<Real>(0,0,1))
         {
+        }
+
+    //! Construct a rotmat3 from an axis and an angle.
+    /*! \param axis angle to represent
+        \param theta angle to represent
+
+        This is a convenience function for easy initialization of rotmat3s from an axis and an angle.
+        The rotmat3 will initialize to the same rotation as the angle around the specified axis.
+    */
+    DEVICE static rotmat3 fromAxisAngle(const vec3<Real>& axis, const Real& theta)
+        {
+        return rotmat3<Real>(quat<Real>::fromAxisAngle(axis, theta));
         }
 
     vec3<Real> row0;   //!< First row
@@ -1103,7 +1171,7 @@ struct rotmat3
     Multiplication is matrix multiplication, where the vector is represented as a column vector.
 */
 template < class Real >
-inline vec3<Real> operator*(const rotmat3<Real>& A, const vec3<Real>& b)
+DEVICE inline vec3<Real> operator*(const rotmat3<Real>& A, const vec3<Real>& b)
     {
     return vec3<Real>(dot(A.row0, b),
                       dot(A.row1, b),
@@ -1118,7 +1186,7 @@ inline vec3<Real> operator*(const rotmat3<Real>& A, const vec3<Real>& b)
     rotation, so the transpose method is provided.
 */
 template < class Real >
-inline rotmat3<Real> transpose(const rotmat3<Real>& A)
+DEVICE inline rotmat3<Real> transpose(const rotmat3<Real>& A)
     {
     return rotmat3<Real>(vec3<Real>(A.row0.x, A.row1.x, A.row2.x),
                            vec3<Real>(A.row0.y, A.row1.y, A.row2.y),
@@ -1134,7 +1202,7 @@ inline rotmat3<Real> transpose(const rotmat3<Real>& A)
     \note projection() can be applied to 2d or 3d vectors
 */
 template < class Vec >
-inline Vec project(const Vec& a, const Vec& b)
+DEVICE inline Vec project(const Vec& a, const Vec& b)
     {
     return dot(a,b)/dot(b,b) * b;
     }
@@ -1146,7 +1214,7 @@ inline Vec project(const Vec& a, const Vec& b)
     \note can be applied to vec2, vec3, quaternions, or anything with a sufficiently deep copy constructor.
 */
 template < class T >
-inline void swap(T& a, T&b)
+DEVICE inline void swap(T& a, T&b)
     {
     T tmp;
     tmp = a;
