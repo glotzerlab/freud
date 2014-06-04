@@ -51,32 +51,29 @@ PMFTXYZ::PMFTXYZ(const trajectory::Box& box, float max_x, float max_y, float max
     if (max_z > box.getLz()/2 && !box.is2D())
         throw invalid_argument("max_z must be smaller than half the smallest box size");
 
-    m_nbins_x = int(floorf(2 * m_max_x / m_dx));
+    m_nbins_x = int(2 * floorf(m_max_x / m_dx));
     assert(m_nbins_x > 0);
-    m_nbins_y = int(floorf(2 * m_max_y / m_dy));
+    m_nbins_y = int(2 * floorf(m_max_y / m_dy));
     assert(m_nbins_y > 0);
-    m_nbins_z = int(floorf(2 * m_max_z / m_dz));
+    m_nbins_z = int(2 * floorf(m_max_z / m_dz));
     assert(m_nbins_z > 0);
-    // should this be a 1D array?
-    // m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x*m_nbins_y*m_nbins_z]);
-    // memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
 
     // precompute the bin center positions for x
-    // what should this calc be?
     m_x_array = boost::shared_array<float>(new float[m_nbins_x]);
     for (unsigned int i = 0; i < m_nbins_x; i++)
         {
-        float x = -m_max_x + float(i) * m_dx;
-        m_x_array[i] = x;
+        float x = float(i) * m_dx;
+        float nextx = float(i+1) * m_dx;
+        m_x_array[i] = -m_max_x + ((x + nextx) / 2.0);
         }
 
     // precompute the bin center positions for y
-    // what should this calc be?
     m_y_array = boost::shared_array<float>(new float[m_nbins_y]);
     for (unsigned int i = 0; i < m_nbins_y; i++)
         {
-        float y = -m_max_y + float(i) * m_dy;
-        m_y_array[i] = y;
+        float y = float(i) * m_dy;
+        float nexty = float(i+1) * m_dy;
+        m_y_array[i] = -m_max_y + ((y + nexty) / 2.0);
         }
 
     // precompute the bin center positions for x
@@ -84,13 +81,16 @@ PMFTXYZ::PMFTXYZ(const trajectory::Box& box, float max_x, float max_y, float max
     m_z_array = boost::shared_array<float>(new float[m_nbins_z]);
     for (unsigned int i = 0; i < m_nbins_z; i++)
         {
-        float z = -m_max_z + float(i) * m_dz;
-        m_z_array[i] = z;
+        float z = float(i) * m_dz;
+        float nextz = float(i+1) * m_dz;
+        m_z_array[i] = -m_max_z + ((z + nextz) / 2.0);
         }
 
     if (useCells())
         {
-        m_lc = new locality::LinkCell(box, sqrtf(max_x*max_x + max_y*max_y + max_z*max_z));
+        float max_val = fmax(max_x, max_y);
+        max_val = fmax(max_val, max_z);
+        m_lc = new locality::LinkCell(box, max_val);
         }
     }
 
@@ -182,14 +182,14 @@ class ComputePMFTWithoutCellList
                         vec3<float> v(x, y, z);
                         v = rotate(conj(q), v);
 
-                        x = v.x;
-                        y = v.y;
-                        z = v.z;
+                        x = v.x + m_max_x;
+                        y = v.y + m_max_y;
+                        z = v.z + m_max_z;
 
                         // bin that point
-                        float binx = (m_nbins_x / 2) + (x * dx_inv);
-                        float biny = (m_nbins_y / 2) + (y * dy_inv);
-                        float binz = (m_nbins_z / 2) + (z * dz_inv);
+                        float binx = floorf(x * dx_inv);
+                        float biny = floorf(y * dy_inv);
+                        float binz = floorf(z * dz_inv);
                         // fast float to int conversion with truncation
                         #ifdef __SSE2__
                         unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
@@ -311,14 +311,14 @@ class ComputePMFTWithCellList
                             vec3<float> v(x, y, z);
                             v = rotate(conj(q), v);
 
-                            x = v.x;
-                            y = v.y;
-                            z = v.z;
+                            x = v.x + m_max_x;
+                            y = v.y + m_max_y;
+                            z = v.z + m_max_z;
 
                             // bin that point
-                            float binx = (m_nbins_x / 2) + (x * dx_inv);
-                            float biny = (m_nbins_y / 2) + (y * dy_inv);
-                            float binz = (m_nbins_z / 2) + (z * dz_inv);
+                            float binx = floorf(x * dx_inv);
+                            float biny = floorf(y * dy_inv);
+                            float binz = floorf(z * dz_inv);
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
                             unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));

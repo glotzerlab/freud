@@ -51,43 +51,43 @@ PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float
     if (!box.is2D())
         throw invalid_argument("box must be 2D");
 
-    m_nbins_x = int(floorf(2 * m_max_x / m_dx));
+    m_nbins_x = int(2 * floorf(m_max_x / m_dx));
     assert(m_nbins_x > 0);
-    m_nbins_y = int(floorf(2 * m_max_y / m_dy));
+    m_nbins_y = int(2 * floorf(m_max_y / m_dy));
     assert(m_nbins_y > 0);
-    m_nbins_T = int(floorf(2 * m_max_T / m_dT));
+    m_nbins_T = int(2 * floorf(m_max_T / m_dT));
     assert(m_nbins_T > 0);
 
-    // precompute the bin center positions for x, y, T
+    // precompute the bin center positions for x
     m_x_array = boost::shared_array<float>(new float[m_nbins_x]);
     for (unsigned int i = 0; i < m_nbins_x; i++)
         {
-        float x = -m_max_x + float(i) * m_dx;
-        m_x_array[i] = x;
+        float x = float(i) * m_dx;
+        float nextx = float(i+1) * m_dx;
+        m_x_array[i] = -m_max_x + ((x + nextx) / 2.0);
         }
 
     // precompute the bin center positions for y
-    // what should this calc be?
     m_y_array = boost::shared_array<float>(new float[m_nbins_y]);
     for (unsigned int i = 0; i < m_nbins_y; i++)
         {
-        float y = -m_max_y + float(i) * m_dy;
-        m_y_array[i] = y;
+        float y = float(i) * m_dy;
+        float nexty = float(i+1) * m_dy;
+        m_y_array[i] = -m_max_y + ((y + nexty) / 2.0);
         }
 
     m_T_array = boost::shared_array<float>(new float[m_nbins_T]);
     for (unsigned int i = 0; i < m_nbins_T; i++)
         {
-        float T = -m_max_T + float(i) * m_dT;
-        m_T_array[i] = T;
+        float T = float(i) * m_dT;
+        float nextT = float(i+1) * m_dT;
+        m_T_array[i] = -m_max_T + ((T + nextT) / 2.0);
         }
-
-    // precompute the bin center positions for x
-    // what should this calc be?
 
     if (useCells())
         {
-        m_lc = new locality::LinkCell(box, sqrtf(max_x*max_x + max_y*max_y));
+        float max_val = fmax(max_x, max_y);
+        m_lc = new locality::LinkCell(box, max_val);
         }
     }
 
@@ -173,16 +173,14 @@ class ComputePMFTXYT2DWithoutCellList
                         vec2<Scalar> myVec(delta.x, delta.y);
                         rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
                         vec2<Scalar> rotVec = myMat * myVec;
-                        float x = rotVec.x;
-                        float y = rotVec.y;
-                        float T = m_orientations[j] - m_ref_orientations[i];
-                        // float x = delta.x;
-                        // float y = delta.y;
+                        float x = rotVec.x + m_max_x;
+                        float y = rotVec.y + m_max_y;
+                        float T = m_orientations[j] - m_ref_orientations[i] + m_max_T;
 
                         // bin that point
-                        float binx = (m_nbins_x / 2) + (x * dx_inv);
-                        float biny = (m_nbins_y / 2) + (y * dy_inv);
-                        float binT = (m_nbins_T / 2) + (T * dT_inv);
+                        float binx = floorf(x * dx_inv);
+                        float biny = floorf(y * dy_inv);
+                        float binT = floorf(T * dT_inv);
                         // fast float to int conversion with truncation
                         #ifdef __SSE2__
                         unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
@@ -299,16 +297,14 @@ class ComputePMFTXYT2DWithCellList
                             vec2<Scalar> myVec(delta.x, delta.y);
                             rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
                             vec2<Scalar> rotVec = myMat * myVec;
-                            float x = rotVec.x;
-                            float y = rotVec.y;
-                            float T = m_orientations[j] - m_ref_orientations[i];
-                            // float x = delta.x;
-                            // float y = delta.y;
+                            float x = rotVec.x + m_max_x;
+                            float y = rotVec.y + m_max_y;
+                            float T = m_orientations[j] - m_ref_orientations[i] + m_max_T;
 
                             // bin that point
-                            float binx = (m_nbins_x / 2) + (x * dx_inv);
-                            float biny = (m_nbins_y / 2) + (y * dy_inv);
-                            float binT = (m_nbins_T / 2) + (T * dT_inv);
+                            float binx = floorf(x * dx_inv);
+                            float biny = floorf(y * dy_inv);
+                            float binT = floorf(T * dT_inv);
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
                             unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
@@ -379,8 +375,6 @@ void PMFTXYT2D::compute(unsigned int *pcf_array,
         }
     else
         {
-        printf("not using cells\n");
-        fflush(stdout);
         parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTXYT2DWithoutCellList((atomic<unsigned int>*)pcf_array,
                                                                                m_nbins_x,
                                                                                m_nbins_y,

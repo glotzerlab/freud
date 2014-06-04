@@ -10,6 +10,7 @@ from _freud import PMFXY2D
 from _freud import PMFTXYT2D
 from _freud import PMFTXYTP2D
 from _freud import PMFTXYTM2D
+from _freud import PMFTRPM
 
 class pmftXYZ(object):
     def __init__(self, box, maxX, maxY, maxZ, dx, dy, dz):
@@ -135,7 +136,7 @@ class pmftXYT2D(object):
 
 class pmftXYTP2D(object):
     def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
-        super(pmftXYT2D, self).__init__()
+        super(pmftXYTP2D, self).__init__()
         self.box = box
         self.maxX = maxX
         self.maxY = maxY
@@ -179,7 +180,7 @@ class pmftXYTP2D(object):
 
 class pmftXYTM2D(object):
     def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
-        super(pmftXYT2D, self).__init__()
+        super(pmftXYTM2D, self).__init__()
         self.box = box
         self.maxX = maxX
         self.maxY = maxY
@@ -218,5 +219,49 @@ class pmftXYTM2D(object):
         self.nBinsY = int(len(self.yArray))
         self.nBinsT = int(len(self.TArray))
         pcfArray = numpy.zeros(shape=(self.nBinsT, self.nBinsY, self.nBinsX), dtype=numpy.int32)
+        self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
+        self.pcfArray = numpy.copy(pcfArray)
+
+class pmftRPM(object):
+    def __init__(self, box, maxR, maxTP, maxTM, dr, dTP, dTM):
+        super(pmftRPM, self).__init__()
+        self.box = box
+        self.maxR = maxR
+        self.maxTP = maxTP
+        self.maxTM = maxTM
+        self.dr = dr
+        self.dTP = dTP
+        self.dTM = dTM
+        self.pmftHandle = PMFTRPM(self.box, self.maxR, self.maxTP, self.maxTM, self.dr, self.dTP, self.dTM)
+
+    # def compute(self, refPos=None, pos=None):
+    def compute(self, refPos=None, refAng=None, pos=None, ang=None):
+        if refPos is not None:
+            self.refPos = refPos
+        else:
+            if self.refPos is None:
+                raise RuntimeError("must input positions")
+        if pos is not None:
+            self.pos = pos
+        else:
+            if self.pos is None:
+                raise RuntimeError("must input positions")
+        if refAng is not None:
+            self.refAng = refAng
+        else:
+            if self.refAng is None:
+                raise RuntimeError("must input orientations")
+        if ang is not None:
+            self.ang = ang
+        else:
+            if self.ang is None:
+                raise RuntimeError("must input orientations")
+        self.rArray = numpy.copy(self.pmftHandle.getR())
+        self.TPArray = numpy.copy(self.pmftHandle.getTP())
+        self.TMArray = numpy.copy(self.pmftHandle.getTM())
+        self.nBinsR = int(len(self.rArray))
+        self.nBinsTP = int(len(self.TPArray))
+        self.nBinsTM = int(len(self.TMArray))
+        pcfArray = numpy.zeros(shape=(self.nBinsR, self.nBinsTP, self.nBinsTM), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)

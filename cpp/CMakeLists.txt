@@ -111,6 +111,8 @@ set(SOURCES trajectory/trajectory.cc
             pmft/PMFTXYTP2D.h
             pmft/PMFTXYTM2D.cc
             pmft/PMFTXYTM2D.h
+            pmft/PMFTRPM.cc
+            pmft/PMFTRPM.h
             interface/InterfaceMeasure.h
             sphericalharmonicorderparameters/LocalQl.h
             sphericalharmonicorderparameters/LocalQl.cc

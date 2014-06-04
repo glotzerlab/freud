@@ -19,6 +19,7 @@
 #include "PMFTXYT2D.h"
 #include "PMFTXYTP2D.h"
 #include "PMFTXYTM2D.h"
+#include "PMFTRPM.h"
 #include "colormap.h"
 #include "colorutil.h"
 #include "triangles.h"
@@ -91,6 +92,7 @@ BOOST_PYTHON_MODULE(_freud)
     pmft::export_PMFTXYT2D();
     pmft::export_PMFTXYTP2D();
     pmft::export_PMFTXYTM2D();
+    pmft::export_PMFTRPM();
     viz::export_colormap();
     viz::export_colorutil();
     viz::export_triangles();
