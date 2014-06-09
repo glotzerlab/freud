@@ -771,16 +771,19 @@ class Polygon:
                                                      numpy.roll(absStarts, -1, axis=0),
                                                      numpy.roll(self.vertices, -1, axis=0),
                                                      dthetas):
+            # Don't round a vertex if it is degenerate
+            skip = dtheta < 1e-6 or numpy.abs(2*numpy.pi - dtheta) < 1e-6
+
             # convex case: add the end of the last straight line
             # segment, the curved edge, then the start of the next
             # straight line segment.
-            if dtheta <= numpy.pi:
+            if dtheta <= numpy.pi and not skip:
                 result.append(end);
                 result.append(curve);
                 result.append(start);
             # concave case: don't use the curved region, just find the
             # intersection and add that point.
-            else:
+            elif not skip:
                 l = radius/numpy.cos(dtheta/2);
                 p = 2*vert - start - end;
                 p /= numpy.sqrt(numpy.dot(p, p));
