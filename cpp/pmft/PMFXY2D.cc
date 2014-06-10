@@ -70,7 +70,8 @@ PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx,
 
     if (useCells())
         {
-        float max_val = fmax(max_x, max_y);
+        // float max_val = fmax(max_x, max_y);
+        float max_val = sqrtf(max_x*max_x + max_y*max_y);
         m_lc = new locality::LinkCell(box, max_val);
         }
     }
@@ -255,7 +256,7 @@ class ComputePMFXY2DWithCellList
 
                         float xsq = delta.x*delta.x;
                         float ysq = delta.y*delta.y;
-                        if ((xsq < maxxsq) && (ysq < maxysq))
+                        // if ((xsq < maxxsq) && (ysq < maxysq))
                             {
                             // rotate interparticle vector
                             vec2<Scalar> myVec(delta.x, delta.y);
