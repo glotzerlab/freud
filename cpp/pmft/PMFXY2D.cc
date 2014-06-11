@@ -115,7 +115,7 @@ class ComputePMFXY2DWithoutCellList
                                    float *orientations,
                                    unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
-              m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_ref_points(ref_points), m_ref_orientations(orientations),
+              m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_ref_points(ref_points), m_ref_orientations(ref_orientations),
               m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
         {
         }
@@ -208,7 +208,7 @@ class ComputePMFXY2DWithCellList
                                 unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_lc(lc),
-              m_ref_points(ref_points), m_ref_orientations(orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
+              m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
