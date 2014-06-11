@@ -169,42 +169,39 @@ class ComputePMFTWithoutCellList
                     float xsq = delta.x*delta.x;
                     float ysq = delta.y*delta.y;
                     float zsq = delta.z*delta.z;
-                    if ((xsq < maxxsq) && (ysq < maxysq) && (zsq < maxzsq))
+                    float x = delta.x;
+                    float y = delta.y;
+                    float z = delta.z;
+
+                    quat<float> q(m_ref_orientations[i].w,
+                                  vec3<float>(m_ref_orientations[i].x,
+                                              m_ref_orientations[i].y,
+                                              m_ref_orientations[i].z));
+                    vec3<float> v(x, y, z);
+                    v = rotate(conj(q), v);
+
+                    x = v.x + m_max_x;
+                    y = v.y + m_max_y;
+                    z = v.z + m_max_z;
+
+                    // bin that point
+                    float binx = floorf(x * dx_inv);
+                    float biny = floorf(y * dy_inv);
+                    float binz = floorf(z * dz_inv);
+                    // fast float to int conversion with truncation
+                    #ifdef __SSE2__
+                    unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+                    unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+                    unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
+                    #else
+                    unsigned int ibinx = (unsigned int)(binx);
+                    unsigned int ibiny = (unsigned int)(biny);
+                    unsigned int ibinz = (unsigned int)(binz);
+                    #endif
+
+                    if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                         {
-                        float x = delta.x;
-                        float y = delta.y;
-                        float z = delta.z;
-
-                        quat<float> q(m_ref_orientations[i].w,
-                                      vec3<float>(m_ref_orientations[i].x,
-                                                  m_ref_orientations[i].y,
-                                                  m_ref_orientations[i].z));
-                        vec3<float> v(x, y, z);
-                        v = rotate(conj(q), v);
-
-                        x = v.x + m_max_x;
-                        y = v.y + m_max_y;
-                        z = v.z + m_max_z;
-
-                        // bin that point
-                        float binx = floorf(x * dx_inv);
-                        float biny = floorf(y * dy_inv);
-                        float binz = floorf(z * dz_inv);
-                        // fast float to int conversion with truncation
-                        #ifdef __SSE2__
-                        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                        unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
-                        #else
-                        unsigned int ibinx = (unsigned int)(binx);
-                        unsigned int ibiny = (unsigned int)(biny);
-                        unsigned int ibinz = (unsigned int)(binz);
-                        #endif
-
-                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
-                            {
-                            m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
-                            }
+                        m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
                         }
                     }
                 } // done looping over reference points
@@ -298,42 +295,39 @@ class ComputePMFTWithCellList
                         float xsq = delta.x*delta.x;
                         float ysq = delta.y*delta.y;
                         float zsq = delta.z*delta.z;
-                        if ((xsq < maxxsq) && (ysq < maxysq) && (zsq < maxzsq))
+                        float x = delta.x;
+                        float y = delta.y;
+                        float z = delta.z;
+
+                        quat<float> q(m_ref_orientations[i].w,
+                                      vec3<float>(m_ref_orientations[i].x,
+                                                  m_ref_orientations[i].y,
+                                                  m_ref_orientations[i].z));
+                        vec3<float> v(x, y, z);
+                        v = rotate(conj(q), v);
+
+                        x = v.x + m_max_x;
+                        y = v.y + m_max_y;
+                        z = v.z + m_max_z;
+
+                        // bin that point
+                        float binx = floorf(x * dx_inv);
+                        float biny = floorf(y * dy_inv);
+                        float binz = floorf(z * dz_inv);
+                        // fast float to int conversion with truncation
+                        #ifdef __SSE2__
+                        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+                        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+                        unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
+                        #else
+                        unsigned int ibinx = (unsigned int)(binx);
+                        unsigned int ibiny = (unsigned int)(biny);
+                        unsigned int ibinz = (unsigned int)(binz);
+                        #endif
+
+                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                             {
-                            float x = delta.x;
-                            float y = delta.y;
-                            float z = delta.z;
-
-                            quat<float> q(m_ref_orientations[i].w,
-                                          vec3<float>(m_ref_orientations[i].x,
-                                                      m_ref_orientations[i].y,
-                                                      m_ref_orientations[i].z));
-                            vec3<float> v(x, y, z);
-                            v = rotate(conj(q), v);
-
-                            x = v.x + m_max_x;
-                            y = v.y + m_max_y;
-                            z = v.z + m_max_z;
-
-                            // bin that point
-                            float binx = floorf(x * dx_inv);
-                            float biny = floorf(y * dy_inv);
-                            float binz = floorf(z * dz_inv);
-                            // fast float to int conversion with truncation
-                            #ifdef __SSE2__
-                            unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                            unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                            unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
-                            #else
-                            unsigned int ibinx = (unsigned int)(binx);
-                            unsigned int ibiny = (unsigned int)(biny);
-                            unsigned int ibinz = (unsigned int)(binz);
-                            #endif
-
-                            if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
-                                {
-                                m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
-                                }
+                            m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
                             }
                         }
                     }

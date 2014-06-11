@@ -167,36 +167,33 @@ class ComputePMFTXYT2DWithoutCellList
 
                     float xsq = delta.x*delta.x;
                     float ysq = delta.y*delta.y;
-                    if ((xsq < maxxsq) && (ysq < maxysq))
+                    // rotate interparticle vector
+                    vec2<Scalar> myVec(delta.x, delta.y);
+                    rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
+                    vec2<Scalar> rotVec = myMat * myVec;
+                    float x = rotVec.x + m_max_x;
+                    float y = rotVec.y + m_max_y;
+                    float T = m_orientations[j] - m_ref_orientations[i] + m_max_T;
+
+                    // bin that point
+                    float binx = floorf(x * dx_inv);
+                    float biny = floorf(y * dy_inv);
+                    float binT = floorf(T * dT_inv);
+                    // fast float to int conversion with truncation
+                    #ifdef __SSE2__
+                    unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+                    unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+                    unsigned int ibinT = _mm_cvtt_ss2si(_mm_load_ss(&binT));
+                    #else
+                    unsigned int ibinx = (unsigned int)(binx);
+                    unsigned int ibiny = (unsigned int)(biny);
+                    unsigned int ibinT = (unsigned int)(binT);
+                    #endif
+
+                    if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
                         {
-                        // rotate interparticle vector
-                        vec2<Scalar> myVec(delta.x, delta.y);
-                        rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
-                        vec2<Scalar> rotVec = myMat * myVec;
-                        float x = rotVec.x + m_max_x;
-                        float y = rotVec.y + m_max_y;
-                        float T = m_orientations[j] - m_ref_orientations[i] + m_max_T;
-
-                        // bin that point
-                        float binx = floorf(x * dx_inv);
-                        float biny = floorf(y * dy_inv);
-                        float binT = floorf(T * dT_inv);
-                        // fast float to int conversion with truncation
-                        #ifdef __SSE2__
-                        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                        unsigned int ibinT = _mm_cvtt_ss2si(_mm_load_ss(&binT));
-                        #else
-                        unsigned int ibinx = (unsigned int)(binx);
-                        unsigned int ibiny = (unsigned int)(biny);
-                        unsigned int ibinT = (unsigned int)(binT);
-                        #endif
-
-                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
-                            {
-                            // m_pcf_array[ibiny*m_nbins_x*m_nbins_T + ibinx*m_nbins_T + ibinT]++;
-                            m_pcf_array[ibinT*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
-                            }
+                        // m_pcf_array[ibiny*m_nbins_x*m_nbins_T + ibinx*m_nbins_T + ibinT]++;
+                        m_pcf_array[ibinT*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
                         }
                     }
                 } // done looping over reference points
@@ -291,36 +288,33 @@ class ComputePMFTXYT2DWithCellList
 
                         float xsq = delta.x*delta.x;
                         float ysq = delta.y*delta.y;
-                        if ((xsq < maxxsq) && (ysq < maxysq))
+                        // rotate interparticle vector
+                        vec2<Scalar> myVec(delta.x, delta.y);
+                        rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
+                        vec2<Scalar> rotVec = myMat * myVec;
+                        float x = rotVec.x + m_max_x;
+                        float y = rotVec.y + m_max_y;
+                        float T = m_orientations[j] - m_ref_orientations[i] + m_max_T;
+
+                        // bin that point
+                        float binx = floorf(x * dx_inv);
+                        float biny = floorf(y * dy_inv);
+                        float binT = floorf(T * dT_inv);
+                        // fast float to int conversion with truncation
+                        #ifdef __SSE2__
+                        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+                        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+                        unsigned int ibinT = _mm_cvtt_ss2si(_mm_load_ss(&binT));
+                        #else
+                        unsigned int ibinx = (unsigned int)(binx);
+                        unsigned int ibiny = (unsigned int)(biny);
+                        unsigned int ibinT = (unsigned int)(binT);
+                        #endif
+
+                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
                             {
-                            // rotate interparticle vector
-                            vec2<Scalar> myVec(delta.x, delta.y);
-                            rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
-                            vec2<Scalar> rotVec = myMat * myVec;
-                            float x = rotVec.x + m_max_x;
-                            float y = rotVec.y + m_max_y;
-                            float T = m_orientations[j] - m_ref_orientations[i] + m_max_T;
-
-                            // bin that point
-                            float binx = floorf(x * dx_inv);
-                            float biny = floorf(y * dy_inv);
-                            float binT = floorf(T * dT_inv);
-                            // fast float to int conversion with truncation
-                            #ifdef __SSE2__
-                            unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                            unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                            unsigned int ibinT = _mm_cvtt_ss2si(_mm_load_ss(&binT));
-                            #else
-                            unsigned int ibinx = (unsigned int)(binx);
-                            unsigned int ibiny = (unsigned int)(biny);
-                            unsigned int ibinT = (unsigned int)(binT);
-                            #endif
-
-                            if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
-                                {
-                                // m_pcf_array[ibiny*m_nbins_x*m_nbins_T + ibinx*m_nbins_T + ibinT]++;
-                                m_pcf_array[ibinT*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
-                                }
+                            // m_pcf_array[ibiny*m_nbins_x*m_nbins_T + ibinx*m_nbins_T + ibinT]++;
+                            m_pcf_array[ibinT*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
                             }
                         }
                     }
