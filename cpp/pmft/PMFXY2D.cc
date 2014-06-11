@@ -132,10 +132,6 @@ class ComputePMFXY2DWithoutCellList
                 float3 ref = m_ref_points[i];
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    if (i == j)
-                        {
-                        continue;
-                        }
                     float3 point = m_points[j];
                     // compute r between the two particles
                     float dx = float(point.x - ref.x);
@@ -145,6 +141,10 @@ class ComputePMFXY2DWithoutCellList
 
                     float xsq = delta.x*delta.x;
                     float ysq = delta.y*delta.y;
+                    if ((xsq < 1e-6) && (ysq < 1e-6))
+                        {
+                        continue;
+                        }
                     // rotate interparticle vector
                     vec2<Scalar> myVec(delta.x, delta.y);
                     rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
@@ -240,12 +240,6 @@ class ComputePMFXY2DWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        // compute r between the two particles
-                        // will skip same particle
-                        if (i == j)
-                            {
-                            continue;
-                            }
                         float3 point = m_points[j];
                         float dx = float(point.x - ref.x);
                         float dy = float(point.y - ref.y);
@@ -253,6 +247,12 @@ class ComputePMFXY2DWithCellList
 
                         float xsq = delta.x*delta.x;
                         float ysq = delta.y*delta.y;
+
+                        if ((xsq < 1e-6) && (ysq < 1e-6))
+                            {
+                            continue;
+                            }
+
                         // rotate interparticle vector
                         vec2<Scalar> myVec(delta.x, delta.y);
                         rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
