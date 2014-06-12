@@ -134,8 +134,9 @@ class ComputePMFTRPMWithoutCellList
                                    float *orientations,
                                    unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_box(box),
-              m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM), m_ref_points(ref_points), m_ref_orientations(orientations),
-              m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
+              m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM),
+              m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
+              m_orientations(orientations), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -151,16 +152,16 @@ class ComputePMFTRPMWithoutCellList
                 float3 ref = m_ref_points[i];
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    if (i == j)
-                        {
-                        continue;
-                        }
                     float3 point = m_points[j];
                     float dx = float(point.x - ref.x);
                     float dy = float(point.y - ref.y);
                     float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
 
                     float rsq = delta.x*delta.x + delta.y*delta.y;
+                    if (rsq < 1e-6)
+                        {
+                        continue;
+                        }
                     if (rsq < maxrsq)
                         {
                         float r = sqrtf(rsq);
@@ -189,7 +190,6 @@ class ComputePMFTRPMWithoutCellList
 
                         if ((ibinr < m_nbins_r) && (ibinTP < m_nbins_TP) && (ibinTM < m_nbins_TM))
                             {
-                            // m_pcf_array[ibiny*m_nbins_x*m_nbins_T + ibinx*m_nbins_T + ibinT]++;
                             m_pcf_array[ibinr*m_nbins_TP*m_nbins_TM + ibinTP*m_nbins_TM + ibinTM]++;
                             }
                         }
@@ -240,7 +240,8 @@ class ComputePMFTRPMWithCellList
                                 unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_box(box),
               m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM), m_lc(lc),
-              m_ref_points(ref_points), m_ref_orientations(orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
+              m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
+              m_orientations(orientations), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -272,18 +273,16 @@ class ComputePMFTRPMWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        // compute r between the two particles
-                        // will skip same particle
-                        if (i == j)
-                            {
-                            continue;
-                            }
                         float3 point = m_points[j];
                         float dx = float(point.x - ref.x);
                         float dy = float(point.y - ref.y);
                         float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
 
                         float rsq = delta.x*delta.x + delta.y*delta.y;
+                        if (rssq < 1e-6)
+                            {
+                            continue;
+                            }
                         if (rsq < maxrsq)
                             {
                             float r = sqrtf(rsq);
@@ -312,7 +311,6 @@ class ComputePMFTRPMWithCellList
 
                             if ((ibinr < m_nbins_r) && (ibinTP < m_nbins_TP) && (ibinTM < m_nbins_TM))
                                 {
-                                // m_pcf_array[ibiny*m_nbins_x*m_nbins_T + ibinx*m_nbins_T + ibinT]++;
                                 m_pcf_array[ibinr*m_nbins_TP*m_nbins_TM + ibinTP*m_nbins_TM + ibinTM]++;
                                 }
                             }

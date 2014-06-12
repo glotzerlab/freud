@@ -169,6 +169,10 @@ class ComputePMFTWithoutCellList
                     float xsq = delta.x*delta.x;
                     float ysq = delta.y*delta.y;
                     float zsq = delta.z*delta.z;
+                    if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
+                        {
+                        continue;
+                        }
                     float x = delta.x;
                     float y = delta.y;
                     float z = delta.z;
@@ -295,6 +299,10 @@ class ComputePMFTWithCellList
                         float xsq = delta.x*delta.x;
                         float ysq = delta.y*delta.y;
                         float zsq = delta.z*delta.z;
+                        if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
+                            {
+                            continue;
+                            }
                         float x = delta.x;
                         float y = delta.y;
                         float z = delta.z;

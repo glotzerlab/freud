@@ -136,8 +136,9 @@ class ComputePMFTXYT2DWithoutCellList
                                    float *orientations,
                                    unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T), m_box(box),
-              m_max_x(max_x), m_max_y(max_y), m_max_T(max_T), m_dx(dx), m_dy(dy), m_dT(dT), m_ref_points(ref_points), m_ref_orientations(orientations),
-              m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
+              m_max_x(max_x), m_max_y(max_y), m_max_T(max_T), m_dx(dx), m_dy(dy), m_dT(dT), m_ref_points(ref_points),
+              m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations),
+              m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -154,10 +155,6 @@ class ComputePMFTXYT2DWithoutCellList
                 float3 ref = m_ref_points[i];
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    if (i == j)
-                        {
-                        continue;
-                        }
                     float3 point = m_points[j];
                     // compute r between the two particles
                     float dx = float(point.x - ref.x);
@@ -167,6 +164,10 @@ class ComputePMFTXYT2DWithoutCellList
 
                     float xsq = delta.x*delta.x;
                     float ysq = delta.y*delta.y;
+                    if ((xsq < 1e-6) && (ysq < 1e-6))
+                        {
+                        continue;
+                        }
                     // rotate interparticle vector
                     vec2<Scalar> myVec(delta.x, delta.y);
                     rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
@@ -192,7 +193,6 @@ class ComputePMFTXYT2DWithoutCellList
 
                     if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
                         {
-                        // m_pcf_array[ibiny*m_nbins_x*m_nbins_T + ibinx*m_nbins_T + ibinT]++;
                         m_pcf_array[ibinT*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
                         }
                     }
@@ -242,7 +242,8 @@ class ComputePMFTXYT2DWithCellList
                                 unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_T(max_T), m_dx(dx), m_dy(dy), m_dT(dT), m_lc(lc),
-              m_ref_points(ref_points), m_ref_orientations(orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
+              m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
+              m_orientations(orientations), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -275,12 +276,6 @@ class ComputePMFTXYT2DWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        // compute r between the two particles
-                        // will skip same particle
-                        if (i == j)
-                            {
-                            continue;
-                            }
                         float3 point = m_points[j];
                         float dx = float(point.x - ref.x);
                         float dy = float(point.y - ref.y);
@@ -288,6 +283,10 @@ class ComputePMFTXYT2DWithCellList
 
                         float xsq = delta.x*delta.x;
                         float ysq = delta.y*delta.y;
+                        if ((xsq < 1e-6) && (ysq < 1e-6))
+                            {
+                            continue;
+                            }
                         // rotate interparticle vector
                         vec2<Scalar> myVec(delta.x, delta.y);
                         rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
@@ -313,7 +312,6 @@ class ComputePMFTXYT2DWithCellList
 
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
                             {
-                            // m_pcf_array[ibiny*m_nbins_x*m_nbins_T + ibinx*m_nbins_T + ibinT]++;
                             m_pcf_array[ibinT*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
                             }
                         }
