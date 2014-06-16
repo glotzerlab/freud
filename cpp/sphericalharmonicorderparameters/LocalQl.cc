@@ -354,7 +354,7 @@ void LocalQl::computeAveNormPy(boost::python::numeric::array points)
 
 void export_LocalQl()
     {
-    class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int, float>())
+    class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int, optional<float> >())
         .def("getBox", &LocalQl::getBox, return_internal_reference<>())
         .def("setBox", &LocalQl::setBox)
         .def("compute", &LocalQl::computePy)
