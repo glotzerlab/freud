@@ -279,7 +279,7 @@ class ComputePMFTRPMWithCellList
                         float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
 
                         float rsq = delta.x*delta.x + delta.y*delta.y;
-                        if (rssq < 1e-6)
+                        if (rsq < 1e-6)
                             {
                             continue;
                             }
