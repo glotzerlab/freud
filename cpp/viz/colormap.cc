@@ -381,9 +381,12 @@ class ComputeCubehelix
                 lambda = min(1.0f, lambda);
                 if (m_reverse)
                     lambda = 1.0f - lambda;
+
+                // In the original colormap, phi is calculated on
+                // lambda, not lambda^gamma
+                const float phi = 2*M_PI*(m_s*(1.0f/3.0f) + m_r*lambda);
                 lambda = powf(lambda, m_gamma);
 
-                const float phi = 2*M_PI*(m_s*(1.0f/3.0f) + m_r*lambda);
                 // Note that this is the "a" parameter from the paper
                 // and has nothing to do with m_a (the alpha value of
                 // the color to return)

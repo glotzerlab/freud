@@ -14,11 +14,13 @@ using namespace boost::python;
 
 namespace freud { namespace sphericalharmonicorderparameters {
 
-LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l)
-    :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_l(l)
+LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float rmin = 0)
+    :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_l(l), m_rmin(rmin)
     {
-    if (m_rmax < 0.0f)
-        throw invalid_argument("rmax must be positive!");
+    if (m_rmax < 0.0f or m_rmin < 0.0f)
+        throw invalid_argument("rmin and rmax must be positive!");
+    if (m_rmin >= m_rmax)
+        throw invalid_argument("rmin should be smaller than rmax!");
     if (m_l < 2)
         throw invalid_argument("l must be two or greater (and even)!");
     if (m_l%2 == 1)
@@ -53,6 +55,7 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
     //Initialize cell list
     m_lc.computeCellList(points,m_Np);
 
+    double rminsq = m_rmin * m_rmin;
     double rmaxsq = m_rmax * m_rmax;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
 
@@ -83,7 +86,7 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
             locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                 {
-                if (i == j) 
+                if (i == j)
                 {
                     continue;
                 }
@@ -95,7 +98,7 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
                 float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
 
-                if (rsq < rmaxsq)
+                if (rsq < rmaxsq and rsq > rminsq)
                     {
                     double phi = atan2(delta.y,delta.x);      //0..2Pi
                     double theta = acos(delta.z / sqrt(rsq)); //0..Pi
@@ -130,6 +133,7 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
     //Initialize cell list
     m_lc.computeCellList(points,m_Np);
 
+    double rminsq = m_rmin * m_rmin;
     double rmaxsq = m_rmax * m_rmax;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
 
@@ -156,14 +160,14 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
             {
             //get cell points of 1st neighbor
             unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
+
             //iterate over particles in neighboring cells
             locality::LinkCell::iteratorcell shell1 = m_lc.itercell(neigh_cell);
             for (unsigned int n1 = shell1.next(); !shell1.atEnd(); n1 = shell1.next())
                 {
                 float3 ref1 = points[n1];
                 unsigned int ref1_cell = m_lc.getCell(ref1);
-                if (n1 == i) 
+                if (n1 == i)
                     {
                         continue;
                     }
@@ -175,9 +179,9 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
                 float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
 
-                if (rsq < rmaxsq)
+                if (rsq < rmaxsq and rsq > rminsq)
                     {
-             
+
                     //loop over 2nd neighboring cells
                     const std::vector<unsigned int>& neigh1_cells = m_lc.getCellNeighbors(ref1_cell);
                     for (unsigned int neigh1_idx = 0; neigh1_idx < neigh1_cells.size(); neigh1_idx++)
@@ -189,7 +193,7 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
                         locality::LinkCell::iteratorcell it = m_lc.itercell(neigh1_cell);
                         for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                             {
-                            if (n1 == j) 
+                            if (n1 == j)
                                 {
                                     continue;
                                 }
@@ -201,7 +205,7 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
                             float3 delta1 = m_box.wrap(make_float3(dx1, dy1, dz1));
                             float rsq1 = delta1.x*delta1.x + delta1.y*delta1.y + delta1.z*delta1.z;
 
-                            if (rsq1 < rmaxsq)
+                            if (rsq1 < rmaxsq and rsq1 > rminsq)
                                 {
                                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                                     {
@@ -228,10 +232,10 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
         m_AveQli[i]=sqrt(m_AveQli[i]);
         } //Ends loop over particles i for Qlmi calcs
     }
-    
+
 void LocalQl::computeNorm(const float3 *points, unsigned int Np)
     {
-    
+
     //Set local data size
     m_Np = Np;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -258,7 +262,7 @@ void LocalQl::computeNorm(const float3 *points, unsigned int Np)
 
 void LocalQl::computeAveNorm(const float3 *points, unsigned int Np)
     {
-    
+
     //Set local data size
     m_Np = Np;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -350,7 +354,7 @@ void LocalQl::computeAveNormPy(boost::python::numeric::array points)
 
 void export_LocalQl()
     {
-    class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int>())
+    class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int, optional<float> >())
         .def("getBox", &LocalQl::getBox, return_internal_reference<>())
         .def("setBox", &LocalQl::setBox)
         .def("compute", &LocalQl::computePy)
@@ -365,5 +369,3 @@ void export_LocalQl()
     }
 
 }; }; // end namespace freud::localqi
-
-

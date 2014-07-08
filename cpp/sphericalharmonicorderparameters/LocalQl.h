@@ -31,7 +31,7 @@ namespace freud { namespace sphericalharmonicorderparameters {
 /*!
  * Variation of the Steinhardt Ql order parameter
  * For a particle i, we calculate the average Q_l by summing the spherical harmonics between particle i and its neighbors j and the neighbors k of neighbor j in a local region:
- * 
+ *
  * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
 class LocalQl
@@ -43,7 +43,7 @@ class LocalQl
         @param rmax Cutoff radius for running the local order parameter. Values near first minima of the rdf are recommended.
         @param l Spherical harmonic quantum number l.  Must be a positive even number.
         **/
-        LocalQl(const trajectory::Box& box, float rmax, unsigned int l);
+        LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float rmin);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -69,7 +69,7 @@ class LocalQl
         void computePy(boost::python::numeric::array points);
 
         //! Compute the local rotationally invariant (with 2nd shell) Ql order parameter
-        void computeAve(const float3 *points, 
+        void computeAve(const float3 *points,
                         unsigned int Np);
 
         //! Python wrapper for computing the order parameter (with 2nd shell) from a Nx3 numpy array of float32.
@@ -128,7 +128,7 @@ class LocalQl
             double *arr = m_QliNorm.get();
             return num_util::makeNum(arr, m_Np);
             }
-        
+
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
         boost::shared_array< double > getQlAveNorm()
         {
@@ -146,6 +146,7 @@ class LocalQl
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
+        float m_rmin;                     //!< Minimum r at which to determine neighbors
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;             //!< Maximum radius at which to cluster one crystal
         locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
