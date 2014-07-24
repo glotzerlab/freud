@@ -140,6 +140,35 @@ class Polyhedron:
     #   new_nfacets = mypoly.nfacets
     #
     def mergeFacets(self):
+        if ConvexHull is None:
+            logger.error('Cannot safely merge coplanar facets because scipy.spatial.ConvexHull is not available.')
+            return
+        ## Helper function to identify the exterior points of a convex polygon.
+        # Projects the input points onto a plane and finds the 2D convex hull.
+        # \param normal the normal vector defining the plane of the face
+        # \param points list of 3D points (presumed to be) in the plane of the face
+        # \returns indices of points on the exterior of the polygon
+        def convexPolygon3D(normal, points):
+            # Rotate the plane and points to be parallel to the x,y plane
+            # The easiest way to do this is to find the quaternion that rotates by pi about the unit vector that bisects
+            # the input normal vector and the z unit vector.
+            nhat = numpy.asarray(normal, dtype=numpy.float64)
+            zhat = numpy.array([0.,0.,1.], dtype=numpy.float64)
+            # check if normal is antialigned with zhat, in which case we'll just rotate around xhat
+            if numpy.dot(zhat, nhat) + 1.0 < 1e-12:
+                u = numpy.array([1.,0.,0.], dtype=numpy.float64)
+            else:
+                v = nhat + zhat
+                vmag2 = numpy.dot(v,v)
+                u = v / numpy.sqrt(vmag2)
+            q = numpy.concatenate(([numpy.cos(numpy.pi/2)], numpy.sin(numpy.pi/2)*u))
+            # Rotate the points and drop the z dimension to get a set of 2D points
+            p3D = [ quatrot(q,p) for p in points ]
+            p2D = numpy.array(p3D)[:,:2]
+            # Find the 2D convex hull of the points
+            hull = ConvexHull(p2D)
+            # Collect the indices of the exterior points and return the list of indices
+            return hull.vertices
         Nf = self.nfacets
         facet_verts = [ set(self.facets[i, 0:self.nverts[i]]) for i in range(self.nfacets) ]
         neighbors = [ set(self.neighbors[i, 0:self.nverts[i]]) for i in range(self.nfacets) ]
@@ -149,34 +178,33 @@ class Polyhedron:
         face = 0
         # go in order through the faces. For each face, check to see which of its neighbors should be merged.
         while face < Nf:
-            n0 = normals[face]
+            # Since we're using the dot product to detect coplanar facets, be precise.
+            n0 = numpy.asarray(normals[face], dtype=numpy.float64)
             merge_list = list()
             for neighbor in neighbors[face]:
-                n1 = normals[neighbor]
+                n1 = numpy.asarray(normals[neighbor], dtype=numpy.float64)
                 d = numpy.dot(n0, n1)
-                if abs(d - 1.0) < 1e-6:
+                if abs(d - 1.0) < 1e-13:
                     merge_list.append(neighbor)
             # for each neighbor in merge_list:
             #  merge points in simplices
-            #  update nverts
             #  merge (and prune) neighbors
             #  update other neighbor lists
             #  prune neighbors, equations, normals, facet_verts, nverts
             #  update Nf
             #  update neighbors and merge_list references
             #  check next face
+            # afterwards, update nverts
             for m in range(len(merge_list)):
                 merged_neighbor = merge_list[m]
                 # merge in points from neighboring facet
                 facet_verts[face] |= facet_verts[merged_neighbor]
-                # update nverts
-                nverts[face] = len(facet_verts[face])
                 # merge in neighbors from neighboring facet
                 neighbors[face] |= neighbors[merged_neighbor]
                 # remove self and neighbor from neighbor list
                 neighbors[face].remove(merged_neighbor)
                 neighbors[face].remove(face)
-                # update other neighbor lists: replace occurences of neighbor with face
+                # update other neighbor lists: replace occurrences of neighbor with face
                 for i in range(len(neighbors)):
                     if merged_neighbor in neighbors[i]:
                         neighbors[i].remove(merged_neighbor)
@@ -206,7 +234,14 @@ class Polyhedron:
                     mask = narray > merged_neighbor
                     narray[mask] -= 1
                     neighbors[i] = set(narray)
-            face += 1
+            # The new face may now contain interior points not part of any edge. These need to be removed and nverts updated.
+            # Project the vertices onto the plane of the face and find the convex hull.
+            polygon_points = list(facet_verts[face])
+            # ext_points is a list of indices into polygon_points
+            ext_points = convexPolygon3D(normals[face], self.points[polygon_points])
+            facet_verts[face] = set([ polygon_points[i] for i in ext_points ])
+            nverts[face] = len(facet_verts[face])
+            face += 1 # proceed to next face
         # write updated data to self.facets, self.equations, self.neighbors, self.nfacets, self.nverts
         self.nfacets = len(facet_verts)
         self.nverts = numpy.array(nverts)
@@ -1324,6 +1359,44 @@ if __name__ == '__main__':
         print("Polyhedron.getAsphericity seems to work")
     else:
         print("Polyhedron.getAsphericity for tetrahedron found {0}. Should be {1}.".format(alpha, target))
+        passed = False
+
+    # Check some pathologically tricky point sets from which to wrap convex polyhedra
+    try:
+        ConvexPolyhedron([[ 0.91362386,  1.10105279,  4.18922237],
+                         [ 3.83002807,  2.04126867,  1.02440944],
+                         [ 4.57425055,  0.43286285,  1.79130228],
+                         [-2.6605048,   2.43464971, -1.1060311 ],
+                         [ 0.45252156, -4.03371108, -4.82946401],
+                         [-2.89015607,  4.85837971, -3.56173295],
+                         [ 1.61194889, -1.49216365, -2.98212742],
+                         [-1.67820421, -1.86887374,  4.48610106],
+                         [-0.82725764, -1.37828095, -3.60469154],
+                         [-1.5991328,  -4.4569862,   2.42236848],
+                         [ 0.24897384, -3.84177112, -2.19968814],
+                         [-0.84937492, -4.03836328, -0.90140948]])
+        print("Pathological polyhedron 1 processed without errors.")
+    except Exception as X:
+        print("Pathological polyhedron 1 could not be processed")
+        print(X.message)
+        passed = False
+    try:
+        ConvexPolyhedron([[ 0.91362386,  1.10105279,  4.18922237],
+                         [ 3.83002807,  2.04126867,  1.02440944],
+                         [ 4.57425055,  0.43286285,  1.79130228],
+                         [-2.6605048,   2.43464971, -1.1060311 ],
+                         [ 0.45252156, -4.03371108, -4.82946401],
+                         [-2.89015607,  4.85837971, -3.56173295],
+                         [ 1.61194889, -1.49216365, -2.98212742],
+                         [-1.67820421, -1.86887374,  4.48610106],
+                         [-0.82725764, -1.37828095, -3.60469154],
+                         [-1.5991328,  -4.4569862,   2.42236848],
+                         [ 0.24897384, -3.84177112, -2.19968814],
+                         [-0.84937492, -4.03836328, -0.90140948]])
+        print("Pathological polyhedron 2 processed without errors.")
+    except Exception as X:
+        print("Pathological polyhedron 2 could not be processed")
+        print(X.message)
         passed = False
 
     # Overall test status
