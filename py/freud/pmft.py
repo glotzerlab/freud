@@ -49,6 +49,7 @@ class pmftXYZ(object):
         pcfArray = numpy.zeros(shape=(self.nBinsZ, self.nBinsY, self.nBinsX), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
+        self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsX * self.nBinsY * self.nBinsZ)
 
 class pmfXY2D(object):
     def __init__(self, box, maxX, maxY, dx, dy):
@@ -89,6 +90,7 @@ class pmfXY2D(object):
         pcfArray = numpy.zeros(shape=(self.nBinsY, self.nBinsX), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
+        self.avgOccupancy = numpy.sum(numpy.sum(self.pcfArray)) / (self.nBinsX * self.nBinsY)
 
 class pmftXYT2D(object):
     def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
@@ -133,6 +135,7 @@ class pmftXYT2D(object):
         pcfArray = numpy.zeros(shape=(self.nBinsT, self.nBinsY, self.nBinsX), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
+        self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsX * self.nBinsY * self.nBinsT)
 
 class pmftXYTP2D(object):
     def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
@@ -177,6 +180,7 @@ class pmftXYTP2D(object):
         pcfArray = numpy.zeros(shape=(self.nBinsT, self.nBinsY, self.nBinsX), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
+        self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsX * self.nBinsY * self.nBinsT)
 
 class pmftXYTM2D(object):
     def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
@@ -221,6 +225,7 @@ class pmftXYTM2D(object):
         pcfArray = numpy.zeros(shape=(self.nBinsT, self.nBinsY, self.nBinsX), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
+        self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsX * self.nBinsY * self.nBinsT)
 
 class pmftRPM(object):
     def __init__(self, box, maxR, maxTP, maxTM, dr, dTP, dTM):
@@ -265,3 +270,4 @@ class pmftRPM(object):
         pcfArray = numpy.zeros(shape=(self.nBinsR, self.nBinsTP, self.nBinsTM), dtype=numpy.int32)
         self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
         self.pcfArray = numpy.copy(pcfArray)
+        self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsR * self.nBinsTP * self.nBinsTM)
