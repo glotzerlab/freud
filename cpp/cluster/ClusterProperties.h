@@ -88,12 +88,29 @@ class ClusterProperties
             return num_util::makeNum(arr, dims);
             }
 
+        //! Get a reference to the last computed cluster size
+        boost::shared_array<unsigned int> getClusterSize()
+            {
+            return m_cluster_size;
+            }
+
+        //!  Returns the cluster sizes computed by the last call to computeProperties
+        boost::python::object getClusterSizePy()
+            {
+            unsigned int *arr = m_cluster_size.get();
+            std::vector<intp> dims(1);
+            dims[0] = m_num_clusters;
+            return num_util::makeNum(arr, dims);
+            }
+
+
     private:
         trajectory::Box m_box;                       //!< Simulation box the particles belong in
         unsigned int m_num_clusters;                 //!< Number of clusters found in the last call to computeProperties()
 
         boost::shared_array<float3> m_cluster_com;   //!< Center of mass computed for each cluster (length: m_num_clusters)
         boost::shared_array<float> m_cluster_G;      //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
+        boost::shared_array<unsigned int> m_cluster_size;    //!< Size per cluster
     };
 
 /*! \internal

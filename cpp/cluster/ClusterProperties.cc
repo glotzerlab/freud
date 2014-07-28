@@ -44,14 +44,14 @@ void ClusterProperties::computeProperties(const float3 *points,
     memset(m_cluster_com.get(), 0, sizeof(float3)*m_num_clusters);
     m_cluster_G = boost::shared_array<float>(new float[m_num_clusters*3*3]);
     memset(m_cluster_G.get(), 0, sizeof(float)*m_num_clusters*3*3);
+    m_cluster_size = boost::shared_array<unsigned int>(new unsigned int[m_num_clusters]);
+    memset(m_cluster_size.get(), 0, sizeof(unsigned int)*m_num_clusters);
 
     // ref_particle is the virst particle found in a cluster, it is used as a refernce to compute the COM in relation to
     // for handling of the periodic boundary conditions
     vector<float3> ref_pos(m_num_clusters, make_float3(0.0f, 0.0f, 0.0f));
     // determins if we have seen this cluster before or not (used to initialize ref_pos)
     vector<bool> cluster_seen(m_num_clusters, false);
-    // count the number of particles in each cluster
-    vector<unsigned int> cluster_size(m_num_clusters, 0);
 
     // start by determining the center of mass of each cluster
     // since we are given an array of particles, the easiest way to do this is to loop over all particles
@@ -79,14 +79,14 @@ void ClusterProperties::computeProperties(const float3 *points,
         m_cluster_com[c].y += dr_wrapped.y;
         m_cluster_com[c].z += dr_wrapped.z;
 
-        cluster_size[c]++;
+        m_cluster_size[c]++;
         }
 
     // now that we have totalled all of the cluster vectors, compute the COM position by averaging and then
     // shifting by ref_pos
     for (unsigned int c = 0; c < m_num_clusters; c++)
         {
-        float s = float(cluster_size[c]);
+        float s = float(m_cluster_size[c]);
         float3 v = make_float3(m_cluster_com[c].x / s + ref_pos[c].x,
                                m_cluster_com[c].y / s + ref_pos[c].y,
                                m_cluster_com[c].z / s + ref_pos[c].z);
@@ -121,7 +121,7 @@ void ClusterProperties::computeProperties(const float3 *points,
     for (unsigned int c = 0; c < m_num_clusters; c++)
         {
         float *G = m_cluster_G.get() + c*9;
-        float s = float(cluster_size[c]);
+        float s = float(m_cluster_size[c]);
         G[0*3+0] /= s;
         G[0*3+1] /= s;
         G[0*3+2] /= s;
@@ -172,6 +172,7 @@ void export_ClusterProperties()
         .def("getNumClusters", &ClusterProperties::getNumClusters)
         .def("getClusterCOM", &ClusterProperties::getClusterCOMPy)
         .def("getClusterG", &ClusterProperties::getClusterGPy)
+        .def("getClusterSize", &ClusterProperties::getClusterSizePy)
         ;
     }
 }; }; // end namespace freud::cluster
