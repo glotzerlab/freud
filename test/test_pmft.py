@@ -1,4 +1,4 @@
-import numpy as np
+import numpy
 import numpy.testing as npt
 from freud import trajectory, pmft
 import unittest
@@ -12,14 +12,14 @@ class TestBins(unittest.TestCase):
         dy = 0.1
         maxZ = 51.23
         dz = 0.1
-        nbinsX = int(2 * floorf(maxX / dx))
-        nbinsY = int(2 * floorf(maxX / dy))
-        nbinsZ = int(2 * floorf(maxX / dz))
+        nbinsX = int(2 * numpy.floor(maxX / dx))
+        nbinsY = int(2 * numpy.floor(maxX / dy))
+        nbinsZ = int(2 * numpy.floor(maxX / dz))
 
         # make sure the radius for each bin is generated correctly
-        listX = np.zeros(nbinsX, dtype=np.float32)
-        listY = np.zeros(nbinsY, dtype=np.float32)
-        listZ = np.zeros(nbinsZ, dtype=np.float32)
+        listX = numpy.zeros(nbinsX, dtype=numpy.float32)
+        listY = numpy.zeros(nbinsY, dtype=numpy.float32)
+        listZ = numpy.zeros(nbinsZ, dtype=numpy.float32)
 
         for i in range(nbinsX):
             x = float(i) * dx
@@ -46,9 +46,9 @@ class TestBins(unittest.TestCase):
 
         # get the info from pmft
 
-        xArray = np.copy(myPMFT.pmftHandle.getX())
-        yArray = np.copy(myPMFT.pmftHandle.getY())
-        zArray = np.copy(myPMFT.pmftHandle.getZ())
+        xArray = numpy.copy(myPMFT.pmftHandle.getX())
+        yArray = numpy.copy(myPMFT.pmftHandle.getY())
+        zArray = numpy.copy(myPMFT.pmftHandle.getZ())
 
         npt.assert_almost_equal(xArray, listX, decimal=3)
         npt.assert_almost_equal(yArray, listY, decimal=3)
@@ -57,7 +57,7 @@ class TestBins(unittest.TestCase):
 class TestRDF(unittest.TestCase):
     def test_twoParticlesWithCellList(self):
         boxSize = 16.0
-        points = numpy.array([[-1.0, 0.0], [1.0, 0.0]], dtype=numpy.float32)
+        points = numpy.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]], dtype=numpy.float32)
         angles = numpy.array([0.0, 0.0], dtype=numpy.float32)
         maxX = 3.0
         maxY = 3.0
@@ -70,7 +70,7 @@ class TestRDF(unittest.TestCase):
                               dy=dy)
         myPMFT.compute(points, angles, points, angles)
 
-        correct = np.zeros(shape=(myPMFT.nBinsY, myPMFT.nBinsX), dtype=np.float32)
+        correct = numpy.zeros(shape=(myPMFT.nBinsY, myPMFT.nBinsX), dtype=numpy.float32)
         # calculation for array idxs
         # particle 0
         deltaX = points[0][0] - points[1][0]
@@ -90,9 +90,9 @@ class TestRDF(unittest.TestCase):
         absoluteTolerance = 0.1
         npt.assert_allclose(myPMFT.pcfArray, correct, atol=absoluteTolerance)
 
-    def test_random_point_without_cell_list(self):
+    def test_twoParticlesWithoutCellList(self):
         boxSize = 16.0
-        points = numpy.array([[-1.0, 0.0], [1.0, 0.0]], dtype=numpy.float32)
+        points = numpy.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]], dtype=numpy.float32)
         angles = numpy.array([0.0, 0.0], dtype=numpy.float32)
         maxX = 3.0
         maxY = 3.0
@@ -105,7 +105,7 @@ class TestRDF(unittest.TestCase):
                               dy=dy)
         myPMFT.compute(points, angles, points, angles)
 
-        correct = np.zeros(shape=(myPMFT.nBinsY, myPMFT.nBinsX), dtype=np.float32)
+        correct = numpy.zeros(shape=(myPMFT.nBinsY, myPMFT.nBinsX), dtype=numpy.float32)
         # calculation for array idxs
         # particle 0
         deltaX = points[0][0] - points[1][0]
