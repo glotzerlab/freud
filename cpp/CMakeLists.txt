@@ -58,6 +58,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/sphericalharmonicorderparameters
                     ${CMAKE_CURRENT_SOURCE_DIR}/pairing
+                    ${CMAKE_CURRENT_SOURCE_DIR}/pmft
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_BINARY_DIR}
@@ -100,6 +101,18 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.h
             pairing/pairing.cc
             pairing/pairing.h
+            pmft/PMFTXYZ.cc
+            pmft/PMFTXYZ.h
+            pmft/PMFXY2D.cc
+            pmft/PMFXY2D.h
+            pmft/PMFTXYT2D.cc
+            pmft/PMFTXYT2D.h
+            pmft/PMFTXYTP2D.cc
+            pmft/PMFTXYTP2D.h
+            pmft/PMFTXYTM2D.cc
+            pmft/PMFTXYTM2D.h
+            pmft/PMFTRPM.cc
+            pmft/PMFTRPM.h
             interface/InterfaceMeasure.h
             sphericalharmonicorderparameters/LocalQl.h
             sphericalharmonicorderparameters/LocalQl.cc
