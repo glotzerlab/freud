@@ -1,5 +1,13 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2 FATAL_ERROR)
 
+if (CMAKE_MAJOR_VERSION VERSION_GREATER 2)
+if(COMMAND cmake_policy)
+    cmake_policy(SET CMP0003 NEW)
+    cmake_policy(SET CMP0026 OLD)
+    cmake_policy(SET CMP0042 OLD)
+endif(COMMAND cmake_policy)
+endif()
+
 project (FREUD)
 
 add_subdirectory(CMake)
@@ -43,4 +51,3 @@ add_subdirectory(cpp)
 add_subdirectory(py)
 add_subdirectory(run)
 add_subdirectory(doc)
-
