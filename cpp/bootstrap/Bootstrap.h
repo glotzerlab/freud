@@ -39,26 +39,27 @@ class Bootstrap
         //! Destructor
         ~Bootstrap();
 
-        void AnalyzeBootstrap(unsigned int *bootstrapArray,
+        void AnalyzeBootstrap(std::vector<unsigned int> bootstrapArray,
                               float *bootstrapAVG,
                               float *bootstrapSTD,
                               float *bootstrapRatio,
-                              unsigned int *dataCum);
+                              unsigned int *dataCum,
+                              unsigned int *dataFlat);
 
         //! Compute the bootstrap analysis
         // will handle both the computation and analysis
-        void compute(unsigned int *bootstrapArray,
-                     float *bootstrapAVG,
+        void compute(float *bootstrapAVG,
                      float *bootstrapSTD,
                      float *bootstrapRatio,
-                     unsigned int *dataCum);
+                     unsigned int *dataCum,
+                     unsigned int *dataFlat);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array bootstrapArray,
-                       boost::python::numeric::array bootstrapAVG,
+        void computePy(boost::python::numeric::array bootstrapAVG,
                        boost::python::numeric::array bootstrapSTD,
                        boost::python::numeric::array bootstrapRatio,
-                       boost::python::numeric::array dataCum);
+                       boost::python::numeric::array dataCum,
+                       boost::python::numeric::array dataFlat);
 
     private:
         const unsigned int  m_nBootstrap;    //!< number of bootstrap arrays to compute
@@ -71,6 +72,6 @@ class Bootstrap
 */
 void export_Bootstrap();
 
-}; }; // end namespace freud::pmft
+}; }; // end namespace freud::bootstrap
 
 #endif // _Bootstrap_H__
