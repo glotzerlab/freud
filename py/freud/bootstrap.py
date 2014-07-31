@@ -36,10 +36,12 @@ class bootstrap(object):
     ## Compute the aniso pmf for a given set of points (one traj frame)
     # currently seg faulting on some of the new stuff. Need to find the faults
     def compute(self):
+        bootstrapArray = numpy.zeros(shape=(self.nBootstrap, self.arrSize), dtype=numpy.uint32)
         bootstrapAVG = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
         bootstrapSTD = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
         bootstrapRatio = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
-        self.bootstrapHandle.compute(bootstrapAVG, bootstrapSTD, bootstrapRatio, self.dataCum, self.dataFlat)
+        self.bootstrapHandle.compute(bootstrapArray, bootstrapAVG, bootstrapSTD, bootstrapRatio, self.dataCum)
+        self.bootstrapArray = numpy.copy(bootstrapArray)
         self.bootstrapAVG = numpy.copy(bootstrapAVG)
         self.bootstrapSTD = numpy.copy(bootstrapSTD)
         self.bootstrapRatio = numpy.copy(bootstrapRatio)
