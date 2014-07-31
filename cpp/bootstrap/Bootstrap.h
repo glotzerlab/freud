@@ -16,6 +16,8 @@
 
 namespace freud { namespace bootstrap {
 
+int compareInts(const void * a, const void * b);
+
 // update this
 //! Computes the RDF (g(r)) for a given set of points
 /*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
@@ -37,12 +39,10 @@ class Bootstrap
         //! Destructor
         ~Bootstrap();
 
-        int compareInts(const void * a, const void * b);
-
         void AnalyzeBootstrap(unsigned int *bootstrapArray,
-                              unsigned int *bootstrapAVG,
-                              unsigned int *bootstrapSTD,
-                              unsigned int *bootstrapRatio,
+                              float *bootstrapAVG,
+                              float *bootstrapSTD,
+                              float *bootstrapRatio,
                               unsigned int *dataCum);
 
         //! Compute the bootstrap analysis
@@ -50,7 +50,7 @@ class Bootstrap
         void compute(unsigned int *bootstrapArray,
                      float *bootstrapAVG,
                      float *bootstrapSTD,
-                     float bootstrapRatio,
+                     float *bootstrapRatio,
                      unsigned int *dataCum);
 
         //! Python wrapper for compute
@@ -61,9 +61,9 @@ class Bootstrap
                        boost::python::numeric::array dataCum);
 
     private:
-        unsigned int  m_nBootstrap;    //!< number of bootstrap arrays to compute
-        unsigned int  m_nPoints;    //!< number of points to populate the bootstrap arrays with
-        unsigned int  m_arrSize;    //!< number of points to populate the bootstrap arrays with
+        const unsigned int  m_nBootstrap;    //!< number of bootstrap arrays to compute
+        const unsigned int  m_nPoints;    //!< number of points to populate the bootstrap arrays with
+        const unsigned int  m_arrSize;    //!< number of points to populate the bootstrap arrays with
     };
 
 /*! \internal

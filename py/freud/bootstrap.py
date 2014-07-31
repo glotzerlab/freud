@@ -2,7 +2,7 @@
 #
 # Methods to compute pair correlation function and pmft from point distributions.
 #
-
+import sys
 import numpy
 
 from _freud import Bootstrap
@@ -16,8 +16,9 @@ class bootstrap(object):
     # \param dataArr The data array to compute the bootstrap on
     # \param nBootstrap number of bootstraps to compute
     def __init__(self, dataArr, nBootstrap):
+        # check that dataArr is a uint32
         super(bootstrap, self).__init__()
-        self.dataArr = dataArr
+        self.dataArr = numpy.copy(dataArr)
         self.nBootstrap = nBootstrap
         # collapse the array and turn into a cumulative array
         self.dataFlat = numpy.copy(self.dataArr.flatten())
@@ -25,18 +26,22 @@ class bootstrap(object):
         self.arrSize = 1
         for i in self.dataArr.shape:
             self.arrSize *= i
-        assert len(dataCum) == myProd
+        assert len(self.dataCum) == self.arrSize
         # done in python as this only needs done once; probably a better way to do
-        for i in range(1, myProd):
+        for i in range(1, self.arrSize):
             self.dataCum[i] += self.dataCum[i-1]
-        self.bootstrapArray = numpy.zeros(shape=(nBootstrap, myProd), dtype=numpy.int32)
-        self.bootstrapAVG = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
-        self.bootstrapSTD = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
-        self.bootstrapRatio = numpy.copy(1.0 / self.dataArr.astype(dtype=numpy.float32))
-        self.nPoints = self.dataCum[-1]
+        self.nPoints = int(self.dataCum[-1])
         self.bootstrapHandle = Bootstrap(self.nBootstrap, self.nPoints, self.arrSize)
 
     ## Compute the aniso pmf for a given set of points (one traj frame)
     # currently seg faulting on some of the new stuff. Need to find the faults
     def compute(self):
-        self.bootstrapHandle.compute(self.bootstrapArray, self.bootstrapAVG, self.bootstrapSTD, self.bootstrapRatio, self.dataCum)
+        bootstrapArray = numpy.zeros(shape=(self.nBootstrap, self.arrSize), dtype=numpy.uint32)
+        bootstrapAVG = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
+        bootstrapSTD = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
+        bootstrapRatio = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
+        self.bootstrapHandle.compute(bootstrapArray, bootstrapAVG, bootstrapSTD, bootstrapRatio, self.dataCum)
+        self.bootstrapArray = numpy.copy(bootstrapArray)
+        self.bootstrapAVG = numpy.copy(bootstrapAVG)
+        self.bootstrapSTD = numpy.copy(bootstrapSTD)
+        self.bootstrapRatio = numpy.copy(bootstrapRatio)
