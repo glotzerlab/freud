@@ -73,38 +73,34 @@ class ComputeBootstrap
                 {
                 for (unsigned int j = 0; j < m_nPoints; j++)
                     {
-                    // printf("generating random number in range 0, %d\n", m_nPoints);
+                    // roll the random integer to sample the array
                     int myRand = (int)(rand() % (int)(m_nPoints));
-                    // printf("my number is %d \n", myRand);
-                    // look up the array index
-                    // printf("finding index\n");
+                    // find the bin to iterate from the array
                     iterIDX = upper_bound(m_dataCum.begin(), m_dataCum.end(), myRand);
                     unsigned int arrIDX = iterIDX - m_dataCum.begin();
-                    // if (arrIDX > 3) printf("HARPER\n");
-                    // arrIDX--;
-                    // printf("my index is %d\n", arrIDX);
+                    // iterate that bin
                     m_bootstrapArray[i * m_arrSize + arrIDX]++;
-                    // if ((i * m_arrSize + arrIDX) > (m_nBootstrap * m_arrSize)) printf("%d\n", (int) i * m_arrSize + arrIDX);
                     }
                 } // done populating the bootstrap array i
             }
     };
 
-void Bootstrap::AnalyzeBootstrap(unsigned int *bootstrapArray,
+void Bootstrap::AnalyzeBootstrap(std::vector<unsigned int> bootstrapArray,
                                  float *bootstrapAVG,
                                  float *bootstrapSTD,
                                  float *bootstrapRatio,
-                                 unsigned int *dataCum)
+                                 unsigned int *dataCum,
+                                 unsigned int *dataFlat)
         {
         // calculate the average for each index
         for (unsigned int i = 0; i < m_arrSize; i++)
             {
             for (unsigned int j = 0; j < m_nBootstrap; j++)
                 {
-                bootstrapAVG[i] += bootstrapArray[j * m_arrSize + i];
+                bootstrapAVG[i] += (float)bootstrapArray[j * m_arrSize + i];
                 // look up the array index
                 }
-            bootstrapAVG[i] /= m_nBootstrap;
+            bootstrapAVG[i] /= float(m_nBootstrap);
             } // done populating the bootstrap array i
         // calculate the std and ratio for each index
         for (unsigned int i = 0; i < m_arrSize; i++)
@@ -112,9 +108,9 @@ void Bootstrap::AnalyzeBootstrap(unsigned int *bootstrapArray,
             float mySTD = 0.0;
             for (unsigned int j = 0; j < m_nBootstrap; j++)
                 {
-                mySTD += (bootstrapArray[j * m_arrSize + i] - bootstrapAVG[i]) * (bootstrapArray[j * m_arrSize + i] - bootstrapAVG[i]);
+                mySTD += ((float)bootstrapArray[j * m_arrSize + i] - bootstrapAVG[i]) * ((float)bootstrapArray[j * m_arrSize + i] - bootstrapAVG[i]);
                 // pass in the true mean
-                bootstrapRatio[i] += (abs(float(bootstrapAVG[i] - bootstrapArray[j * m_arrSize + i])) / float(bootstrapAVG[i]));
+                bootstrapRatio[i] += (abs(float((float)dataFlat[i] - (float)bootstrapArray[j * m_arrSize + i])) / ((float)dataFlat[i]));
                 // look up the array index
                 }
             bootstrapSTD[i] = sqrt((1.0/(float)m_nBootstrap)*mySTD);
@@ -122,62 +118,64 @@ void Bootstrap::AnalyzeBootstrap(unsigned int *bootstrapArray,
             } // done analyzing the data
         }
 
-void Bootstrap::compute(unsigned int *bootstrapArray,
-                        float *bootstrapAVG,
+void Bootstrap::compute(float *bootstrapAVG,
                         float *bootstrapSTD,
                         float *bootstrapRatio,
-                        unsigned int *dataCum)
+                        unsigned int *dataCum,
+                        unsigned int *dataFlat)
     {
     std::vector<unsigned int> dataCumCopy (m_arrSize);
-    // memset((void*)dataCumCopy.begin(), (void*)dataCum, sizeof(complex<unsigned int>)*m_arrSize);
+    std::vector<unsigned int> bootstrapArray (m_nBootstrap * m_arrSize);
     for (unsigned int i = 0; i < m_arrSize; i++)
         {
         dataCumCopy[i] = dataCum[i];
+        for (unsigned int j = 0; j < m_nBootstrap; j++)
+            {
+            bootstrapArray[j * m_arrSize + i] = 0;
+            }
         }
-    // printf("getting ready for the parallel for\n");
-    parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap((atomic<unsigned int>*)bootstrapArray, dataCumCopy, m_nBootstrap, m_nPoints, m_arrSize));
-    // printf("completed parallel for; starting analysis\n");
+    parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap((atomic<unsigned int>*) &bootstrapArray, dataCumCopy, m_nBootstrap, m_nPoints, m_arrSize));
     AnalyzeBootstrap(bootstrapArray,
                      bootstrapAVG,
                      bootstrapSTD,
                      bootstrapRatio,
-                     dataCum);
+                     dataCum,
+                     dataFlat);
     }
 
-void Bootstrap::computePy(boost::python::numeric::array bootstrapArray,
-                          boost::python::numeric::array bootstrapAVG,
+void Bootstrap::computePy(boost::python::numeric::array bootstrapAVG,
                           boost::python::numeric::array bootstrapSTD,
                           boost::python::numeric::array bootstrapRatio,
-                          boost::python::numeric::array dataCum)
+                          boost::python::numeric::array dataCum,
+                          boost::python::numeric::array dataFlat)
     {
     // validate input type and rank
     // these are not correct and need to be changed
-    num_util::check_type(bootstrapArray, PyArray_UINT);
-    num_util::check_rank(bootstrapArray, 2);
     num_util::check_type(dataCum, PyArray_UINT);
     num_util::check_rank(dataCum, 1);
+    num_util::check_type(dataFlat, PyArray_UINT);
+    num_util::check_rank(dataFlat, 1);
 
     // validate array dims
-    num_util::check_dim(bootstrapArray, 0, m_nBootstrap);
-    num_util::check_dim(bootstrapArray, 1, m_arrSize);
     num_util::check_dim(dataCum, 0, m_arrSize);
+    num_util::check_dim(dataFlat, 0, m_arrSize);
 
     // get the raw data pointers and compute the cell list
-    unsigned int* bootstrapArray_raw = (unsigned int*) num_util::data(bootstrapArray);
     float* bootstrapAVG_raw = (float*) num_util::data(bootstrapAVG);
     float* bootstrapSTD_raw = (float*) num_util::data(bootstrapSTD);
     float* bootstrapRatio_raw = (float*) num_util::data(bootstrapRatio);
     unsigned int* dataCum_raw = (unsigned int*) num_util::data(dataCum);
+    unsigned int* dataFlat_raw = (unsigned int*) num_util::data(dataFlat);
     // printf("I have the pointers\n");
 
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(bootstrapArray_raw,
-                bootstrapAVG_raw,
+        compute(bootstrapAVG_raw,
                 bootstrapSTD_raw,
                 bootstrapRatio_raw,
-                dataCum_raw);
+                dataCum_raw,
+                dataFlat_raw);
         }
     }
 
