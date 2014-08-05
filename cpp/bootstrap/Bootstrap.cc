@@ -69,23 +69,23 @@ class ComputeBootstrap
 
             std::vector<unsigned int>::const_iterator iterIDX;
             // for each bootstrap array in the assigned block
+            float myCNT = 0;
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
+                printf("I have %d points to roll\n", m_nPoints);
                 for (unsigned int j = 0; j < m_nPoints; j++)
                     {
-                    // printf("generating random number in range 0, %d\n", m_nPoints);
+                    // if (((int) j % 1000000) == 0) printf("completed %d rolls\n", (int) j);
                     int myRand = (int)(rand() % (int)(m_nPoints));
-                    // printf("my number is %d \n", myRand);
                     // look up the array index
-                    // printf("finding index\n");
                     iterIDX = upper_bound(m_dataCum.begin(), m_dataCum.end(), myRand);
                     unsigned int arrIDX = iterIDX - m_dataCum.begin();
-                    // if (arrIDX > 3) printf("HARPER\n");
-                    // arrIDX--;
-                    // printf("my index is %d\n", arrIDX);
                     m_bootstrapArray[i * m_arrSize + arrIDX]++;
-                    // if ((i * m_arrSize + arrIDX) > (m_nBootstrap * m_arrSize)) printf("%d\n", (int) i * m_arrSize + arrIDX);
                     }
+                // print out some information for judging how long remains
+                myCNT += 1;
+                printf("I just finished bootstrap %d\n", (int) i);
+                printf("I am %f done with assigned bootstraps\n", (float)(myCNT / (float) (myR.end() - myR.begin())));
                 } // done populating the bootstrap array i
             }
     };
