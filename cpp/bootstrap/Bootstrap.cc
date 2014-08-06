@@ -49,15 +49,15 @@ Bootstrap::~Bootstrap()
 class ComputeBootstrap
     {
     private:
-        // atomic<unsigned int> *m_bootstrapArray;
-        std::vector< atomic<unsigned int> > *m_bootstrapArray;
+        atomic<unsigned int> *m_bootstrapArray;
+        // std::vector< atomic<unsigned int> > *m_bootstrapArray;
         const std::vector<unsigned int> m_dataCum;
         const unsigned int m_nBootstrap;
         const unsigned int m_nPoints;
         const unsigned int m_arrSize;
     public:
-        ComputeBootstrap(std::vector< atomic<unsigned int> > *bootstrapArray,
-                         // atomic<unsigned int> *bootstrapArray,
+        ComputeBootstrap(atomic<unsigned int> *bootstrapArray,
+                         // std::vector< atomic<unsigned int> > *bootstrapArray,
                          const std::vector<unsigned int> dataCum,
                          const unsigned int nBootstrap,
                          const unsigned int nPoints,
@@ -82,7 +82,8 @@ class ComputeBootstrap
                     // look up the array index
                     iterIDX = upper_bound(m_dataCum.begin(), m_dataCum.end(), myRand);
                     unsigned int arrIDX = iterIDX - m_dataCum.begin();
-                    (*m_bootstrapArray)[i * m_arrSize + arrIDX]++;
+                    // (*m_bootstrapArray)[i * m_arrSize + arrIDX]++;
+                    m_bootstrapArray[i * m_arrSize + arrIDX]++;
                     }
                 // print out some information for judging how long remains
                 myCNT += 1;
@@ -131,15 +132,15 @@ void Bootstrap::compute(unsigned int *bootstrapArray,
                         unsigned int *dataCum)
     {
     std::vector<unsigned int> dataCumCopy (m_arrSize);
-    std::vector< atomic<unsigned int> > m_bootstrapVector (m_arrSize * m_nBootstrap);
+    // std::vector< atomic<unsigned int> > m_bootstrapVector (m_arrSize * m_nBootstrap);
     // memset((void*)dataCumCopy.begin(), (void*)dataCum, sizeof(complex<unsigned int>)*m_arrSize);
     for (unsigned int i = 0; i < m_arrSize; i++)
         {
         dataCumCopy[i] = dataCum[i];
         }
     // printf("getting ready for the parallel for\n");
-    // parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap((atomic<unsigned int>*)bootstrapArray, dataCumCopy, m_nBootstrap, m_nPoints, m_arrSize));
-    parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap(&m_bootstrapVector, dataCumCopy, m_nBootstrap, m_nPoints, m_arrSize));
+    parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap((atomic<unsigned int>*)bootstrapArray, dataCumCopy, m_nBootstrap, m_nPoints, m_arrSize));
+    // parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap(&m_bootstrapVector, dataCumCopy, m_nBootstrap, m_nPoints, m_arrSize));
     // printf("completed parallel for; starting analysis\n");
     AnalyzeBootstrap(bootstrapArray,
                      bootstrapAVG,
