@@ -175,7 +175,8 @@ class ComputePMFXY2DWithoutCellList
 class ComputePMFXY2DWithCellList
     {
     private:
-        atomic<unsigned int> *m_pcf_array;
+        // atomic<unsigned int> *m_pcf_array;
+        std::vector< atomic<unsigned int> > *m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         const trajectory::Box m_box;
@@ -191,7 +192,8 @@ class ComputePMFXY2DWithCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFXY2DWithCellList(atomic<unsigned int> *pcf_array,
+        ComputePMFXY2DWithCellList(std::vector< atomic<unsigned int> > *pcf_array,
+                                // atomic<unsigned int> *pcf_array,
                                 unsigned int nbins_x,
                                 unsigned int nbins_y,
                                 const trajectory::Box &box,
@@ -274,7 +276,8 @@ class ComputePMFXY2DWithCellList
 
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                             {
-                            m_pcf_array[ibiny*m_nbins_x + ibinx]++;
+                            // m_pcf_array[ibiny*m_nbins_x + ibinx]++;
+                            (*m_pcf_array)[ibiny*m_nbins_x + ibinx]++;
                             }
                         }
                     }
@@ -305,10 +308,12 @@ void PMFXY2D::compute(unsigned int *pcf_array,
                         float *orientations,
                         unsigned int Np)
     {
+    std::vector< atomic<unsigned int> > m_pcfArray (m_nbins_x * m_nbins_y);
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFXY2DWithCellList((atomic<unsigned int>*)pcf_array,
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFXY2DWithCellList(&m_pcfArray,
+                                                                            // (atomic<unsigned int>*)pcf_array,
                                                                             m_nbins_x,
                                                                             m_nbins_y,
                                                                             m_box,
