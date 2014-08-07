@@ -73,6 +73,8 @@ class pmftXYZ(object):
         self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsX * self.nBinsY * self.nBinsZ)
 
 ## Computes the 2D anisotropic potential of mean force
+# While the direct interface to c++ is made available as part of the self.pmftHandle,
+# you should avoid doing this unless you know exactly what you are doing
 class pmfXY2D(object):
     ## Initialize the pmfXY2D object:
     # \param box The simulation box from freud
@@ -88,19 +90,16 @@ class pmfXY2D(object):
         self.dx = dx
         self.dy = dy
         self.pmftHandle = PMFXY2D(self.box, self.maxX, self.maxY, self.dx, self.dy)
+        self.xArray = self.pmftHandle.getX()
+        self.yArray = self.pmftHandle.getY()
+        self.nBinsX = int(len(self.xArray))
+        self.nBinsY = int(len(self.yArray))
 
     ## Compute the aniso pmf for a given set of points (one traj frame)
     # \param refPos Reference point to consider
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    #
-    # after calling compute(), you can access the results via:
-    # self.pcfArray for the positional correlaiton function
-    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
-    # -numpy.log(self.pcfArray) will give the pmft
-    # NOTE: self.pcfArray is of type numpy.int32; if averaging multiple frames,
-    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
     def compute(self, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
@@ -122,14 +121,24 @@ class pmfXY2D(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.xArray = numpy.copy(self.pmftHandle.getX())
-        self.yArray = numpy.copy(self.pmftHandle.getY())
-        self.nBinsX = int(len(self.xArray))
-        self.nBinsY = int(len(self.yArray))
-        pcfArray = numpy.zeros(shape=(self.nBinsY, self.nBinsX), dtype=numpy.int32)
-        self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
-        self.pcfArray = numpy.copy(pcfArray)
+        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+        # self.pcfArray = numpy.copy(self.pmftHandle.getPCF())
+
+    ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
+    # in addition to self.pmfArray
+    # after calling calcPMF(), you can access the results via:
+    # self.pcfArray for the positional correlation function
+    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
+    # self.pmfArray will give the pmf
+    # NOTE: self.pcfArray is of type numpy.uint32; if averaging multiple frames,
+    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
+    def calcPMF(self):
+        self.pcfArray = self.pmftHandle.getPCF()
+        self.pcfArray = self.pcfArray.reshape((self.nBinsY, self.nBinsX))
         self.avgOccupancy = numpy.sum(numpy.sum(self.pcfArray)) / (self.nBinsX * self.nBinsY)
+        self.pmfArray = -numpy.log(numpy.copy(self.pcfArray))
+
+
 
 ## Computes the 2D anisotropic potential of mean force and torque
 class pmftXYT2D(object):
