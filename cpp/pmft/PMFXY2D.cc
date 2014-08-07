@@ -19,8 +19,9 @@ using namespace boost::python;
 
 using namespace tbb;
 
-/*! \file PMFXY2D.cc
-    \brief Routines for computing radial density functions
+/*! \internal
+    \file PMFXY2D.cc
+    \brief Routines for computing 2D anisotropic potential of mean force
 */
 
 namespace freud { namespace pmft {
@@ -51,7 +52,6 @@ PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx,
     assert(m_nbins_y > 0);
 
     // precompute the bin center positions for x
-    // why is this new? No idea
     m_x_array = boost::shared_array<float>(new float[m_nbins_x]);
     for (unsigned int i = 0; i < m_nbins_x; i++)
         {
@@ -68,6 +68,10 @@ PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx,
         float nexty = float(i+1) * m_dy;
         m_y_array[i] = -m_max_y + ((y + nexty) / 2.0);
         }
+
+    // create and populate the pcf_array
+    m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y]);
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
 
     if (useCells())
         {
@@ -102,19 +106,19 @@ class ComputePMFXY2DWithoutCellList
         const unsigned int m_Np;
     public:
         ComputePMFXY2DWithoutCellList(atomic<unsigned int> *pcf_array,
-                                   unsigned int nbins_x,
-                                   unsigned int nbins_y,
-                                   const trajectory::Box &box,
-                                   const float max_x,
-                                   const float max_y,
-                                   const float dx,
-                                   const float dy,
-                                   const float3 *ref_points,
-                                   float *ref_orientations,
-                                   unsigned int Nref,
-                                   const float3 *points,
-                                   float *orientations,
-                                   unsigned int Np)
+                                      unsigned int nbins_x,
+                                      unsigned int nbins_y,
+                                      const trajectory::Box &box,
+                                      const float max_x,
+                                      const float max_y,
+                                      const float dx,
+                                      const float dy,
+                                      const float3 *ref_points,
+                                      float *ref_orientations,
+                                      unsigned int Nref,
+                                      const float3 *points,
+                                      float *orientations,
+                                      unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box), m_max_x(max_x),
               m_max_y(max_y), m_dx(dx), m_dy(dy), m_ref_points(ref_points), m_ref_orientations(ref_orientations),
               m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
@@ -176,8 +180,7 @@ class ComputePMFXY2DWithoutCellList
 class ComputePMFXY2DWithCellList
     {
     private:
-        // atomic<unsigned int> *m_pcf_array;
-        std::vector< atomic<unsigned int> > *m_pcf_array;
+        atomic<unsigned int> *m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         const trajectory::Box m_box;
@@ -193,22 +196,21 @@ class ComputePMFXY2DWithCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFXY2DWithCellList(std::vector< atomic<unsigned int> > *pcf_array,
-                                // atomic<unsigned int> *pcf_array,
-                                unsigned int nbins_x,
-                                unsigned int nbins_y,
-                                const trajectory::Box &box,
-                                const float max_x,
-                                const float max_y,
-                                const float dx,
-                                const float dy,
-                                const locality::LinkCell *lc,
-                                float3 *ref_points,
-                                float *ref_orientations,
-                                unsigned int Nref,
-                                float3 *points,
-                                float *orientations,
-                                unsigned int Np)
+        ComputePMFXY2DWithCellList(atomic<unsigned int> *pcf_array,
+                                   unsigned int nbins_x,
+                                   unsigned int nbins_y,
+                                   const trajectory::Box &box,
+                                   const float max_x,
+                                   const float max_y,
+                                   const float dx,
+                                   const float dy,
+                                   const locality::LinkCell *lc,
+                                   float3 *ref_points,
+                                   float *ref_orientations,
+                                   unsigned int Nref,
+                                   float3 *points,
+                                   float *orientations,
+                                   unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_lc(lc), m_ref_points(ref_points),
               m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations),
@@ -221,9 +223,6 @@ class ComputePMFXY2DWithCellList
             assert(m_points);
             assert(m_Nref > 0);
             assert(m_Np > 0);
-
-            std::vector<unsigned int> testVec (m_nbins_x * m_nbins_y);
-            std::fill(testVec.begin(), testVec.end(), 0);
 
             float dx_inv = 1.0f / m_dx;
             float maxxsq = m_max_x * m_max_x;
@@ -280,9 +279,7 @@ class ComputePMFXY2DWithCellList
 
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                             {
-                            // m_pcf_array[ibiny*m_nbins_x + ibinx]++;
-                            // (*m_pcf_array)[ibiny*m_nbins_x + ibinx]++;
-                            testVec[ibiny*m_nbins_x + ibinx]++;
+                            m_pcf_array[ibiny*m_nbins_x + ibinx]++;
                             }
                         }
                     }
@@ -305,66 +302,64 @@ bool PMFXY2D::useCells()
     return false;
     }
 
-void PMFXY2D::compute(unsigned int *pcf_array,
-                        float3 *ref_points,
-                        float *ref_orientations,
-                        unsigned int Nref,
-                        float3 *points,
-                        float *orientations,
-                        unsigned int Np)
+void PMFXY2D::resetPCF()
     {
-    std::vector< atomic<unsigned int> > m_pcfArray (m_nbins_x * m_nbins_y);
-    std::fill(m_pcfArray.begin(), m_pcfArray.end(), 0);
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+    }
+
+void PMFXY2D::compute(float3 *ref_points,
+                      float *ref_orientations,
+                      unsigned int Nref,
+                      float3 *points,
+                      float *orientations,
+                      unsigned int Np)
+    {
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFXY2DWithCellList(&m_pcfArray,
-                                                                            // (atomic<unsigned int>*)pcf_array,
-                                                                            m_nbins_x,
-                                                                            m_nbins_y,
-                                                                            m_box,
-                                                                            m_max_x,
-                                                                            m_max_y,
-                                                                            m_dx,
-                                                                            m_dy,
-                                                                            m_lc,
-                                                                            ref_points,
-                                                                            ref_orientations,
-                                                                            Nref,
-                                                                            points,
-                                                                            orientations,
-                                                                            Np));
-        // looks like I might need to get
-        memcpy(pcf_array, &m_pcfArray, sizeof(m_pcfArray));
+        parallel_for(blocked_range<size_t>(0,Nref),
+                     ComputePMFXY2DWithCellList((atomic<unsigned int>*)m_pcf_array.get(),
+                                                m_nbins_x,
+                                                m_nbins_y,
+                                                m_box,
+                                                m_max_x,
+                                                m_max_y,
+                                                m_dx,
+                                                m_dy,
+                                                m_lc,
+                                                ref_points,
+                                                ref_orientations,
+                                                Nref,
+                                                points,
+                                                orientations,
+                                                Np));
         }
     else
         {
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFXY2DWithoutCellList((atomic<unsigned int>*)pcf_array,
-                                                                               m_nbins_x,
-                                                                               m_nbins_y,
-                                                                               m_box,
-                                                                               m_max_x,
-                                                                               m_max_y,
-                                                                               m_dx,
-                                                                               m_dy,
-                                                                               ref_points,
-                                                                               ref_orientations,
-                                                                               Nref,
-                                                                               points,
-                                                                               orientations,
-                                                                               Np));
+        parallel_for(blocked_range<size_t>(0,Nref),
+                     ComputePMFXY2DWithoutCellList((atomic<unsigned int>*) m_pcf_array.get(),
+                                                   m_nbins_x,
+                                                   m_nbins_y,
+                                                   m_box,
+                                                   m_max_x,
+                                                   m_max_y,
+                                                   m_dx,
+                                                   m_dy,
+                                                   ref_points,
+                                                   ref_orientations,
+                                                   Nref,
+                                                   points,
+                                                   orientations,
+                                                   Np));
         }
     }
 
-void PMFXY2D::computePy(boost::python::numeric::array pcf_array,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations)
+void PMFXY2D::computePy(boost::python::numeric::array ref_points,
+                        boost::python::numeric::array ref_orientations,
+                        boost::python::numeric::array points,
+                        boost::python::numeric::array orientations)
     {
     // validate input type and rank
-    num_util::check_type(pcf_array, PyArray_INT);
-    num_util::check_rank(pcf_array, 2);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, PyArray_FLOAT);
@@ -373,10 +368,6 @@ void PMFXY2D::computePy(boost::python::numeric::array pcf_array,
     num_util::check_rank(points, 2);
     num_util::check_type(orientations, PyArray_FLOAT);
     num_util::check_rank(orientations, 1);
-
-    // validate array dims
-    num_util::check_dim(pcf_array, 0, m_nbins_y);
-    num_util::check_dim(pcf_array, 1, m_nbins_x);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
@@ -387,11 +378,9 @@ void PMFXY2D::computePy(boost::python::numeric::array pcf_array,
 
     // check the size of angles to be correct
     num_util::check_dim(ref_orientations, 0, Nref);
-    // num_util::check_dim(ref_orientations, 0, 1);
     num_util::check_dim(orientations, 0, Np);
 
     // get the raw data pointers and compute the cell list
-    unsigned int* pcf_array_raw = (unsigned int*) num_util::data(pcf_array);
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
     float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
     float3* points_raw = (float3*) num_util::data(points);
@@ -400,8 +389,7 @@ void PMFXY2D::computePy(boost::python::numeric::array pcf_array,
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(pcf_array_raw,
-                ref_points_raw,
+        compute(ref_points_raw,
                 ref_orientations_raw,
                 Nref,
                 points_raw,
@@ -415,8 +403,10 @@ void export_PMFXY2D()
     class_<PMFXY2D>("PMFXY2D", init<trajectory::Box&, float, float, float, float>())
         .def("getBox", &PMFXY2D::getBox, return_internal_reference<>())
         .def("compute", &PMFXY2D::computePy)
+        .def("getPCF", &PMFXY2D::getPCFPy)
         .def("getX", &PMFXY2D::getXPy)
         .def("getY", &PMFXY2D::getYPy)
+        .def("resetPCF", &PMFXY2D::resetPCFPy)
         ;
     }
 
