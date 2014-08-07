@@ -51,6 +51,7 @@ PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx,
     assert(m_nbins_y > 0);
 
     // precompute the bin center positions for x
+    // why is this new? No idea
     m_x_array = boost::shared_array<float>(new float[m_nbins_x]);
     for (unsigned int i = 0; i < m_nbins_x; i++)
         {
@@ -221,6 +222,9 @@ class ComputePMFXY2DWithCellList
             assert(m_Nref > 0);
             assert(m_Np > 0);
 
+            std::vector<unsigned int> testVec (m_nbins_x * m_nbins_y);
+            std::fill(testVec.begin(), testVec.end(), 0);
+
             float dx_inv = 1.0f / m_dx;
             float maxxsq = m_max_x * m_max_x;
             float dy_inv = 1.0f / m_dy;
@@ -277,7 +281,8 @@ class ComputePMFXY2DWithCellList
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                             {
                             // m_pcf_array[ibiny*m_nbins_x + ibinx]++;
-                            (*m_pcf_array)[ibiny*m_nbins_x + ibinx]++;
+                            // (*m_pcf_array)[ibiny*m_nbins_x + ibinx]++;
+                            testVec[ibiny*m_nbins_x + ibinx]++;
                             }
                         }
                     }
@@ -309,6 +314,7 @@ void PMFXY2D::compute(unsigned int *pcf_array,
                         unsigned int Np)
     {
     std::vector< atomic<unsigned int> > m_pcfArray (m_nbins_x * m_nbins_y);
+    std::fill(m_pcfArray.begin(), m_pcfArray.end(), 0);
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
@@ -328,6 +334,8 @@ void PMFXY2D::compute(unsigned int *pcf_array,
                                                                             points,
                                                                             orientations,
                                                                             Np));
+        // looks like I might need to get
+        memcpy(pcf_array, &m_pcfArray, sizeof(m_pcfArray));
         }
     else
         {

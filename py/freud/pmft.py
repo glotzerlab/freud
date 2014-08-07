@@ -4,6 +4,7 @@
 #
 
 import numpy
+import time
 
 from _freud import PMFTXYZ
 from _freud import PMFXY2D
