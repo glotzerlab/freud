@@ -155,8 +155,6 @@ class pmfXY2D(object):
     def reset(self):
         self.pmfHandle.resetPMF()
 
-
-
 ## Computes the 2D anisotropic potential of mean force and torque
 class pmftXYT2D(object):
     ## Initialize the pmftXYT2D object:
