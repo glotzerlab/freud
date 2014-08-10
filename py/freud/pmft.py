@@ -102,8 +102,8 @@ class pmfXY2D(object):
         self.dx = dx
         self.dy = dy
         self.pmfHandle = PMFXY2D(self.box, self.maxX, self.maxY, self.dx, self.dy)
-        self.xArray = self.pmftHandle.getX()
-        self.yArray = self.pmftHandle.getY()
+        self.xArray = self.pmfHandle.getX()
+        self.yArray = self.pmfHandle.getY()
         self.nBinsX = int(len(self.xArray))
         self.nBinsY = int(len(self.yArray))
 
