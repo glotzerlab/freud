@@ -1,0 +1,29 @@
+freud::trajectory::TrajectoryXMLDCD freud::density::RDF
+# Due to deficiencies in doxygen, the classes that this provides examples are listed explicitly here
+# run this script with "python -x filename" to skip the first line, or remove this header
+
+# ---- rdf_ex.py ----
+from freud import trajectory
+from freud import density
+
+# read in a .dcd trajectory
+traj = trajectory.TrajectoryXMLDCD('start.xml', 'dump.dcd')
+
+# initialize the RDF computation using the simulation box from frame 0 (assumes constant volume)
+f = traj[0]
+rdf = density.RDF(f.box, 20.0, 0.1)
+total_rdf = rdf.getRDF();
+
+# loop over all frames in the trajectory and add up a total rdf
+for f in traj:
+    pos = f.get('position');
+
+    rdf.compute(pos, pos);
+    total_rdf += rdf.getRDF();
+
+avf_rdf = total_rdf/n;
+r = rdf.getR();
+
+# r and avg_rdf are simple numpy arrays, you can save them in a file, perform computations on them, 
+# or just plot them (matplotlib command shown here)
+# pyplot.plot(r, avg_rdf)

@@ -1,0 +1,17 @@
+*.sublime-workspace
+*.pyc
+*.pyo
+*.dcd
+*.xml
+*.mat
+*.swp
+.DS_Store
+*.kdev4
+.project
+.pydevproject
+__pycache__
+build
+cpp/CMakeLists.txt.orig
+cpp/module.cc.orig
+py/freud/__init__.py.orig
+py/freud/trajectory.py.orig
