@@ -6,6 +6,7 @@ freud::trajectory::TrajectoryXMLDCD freud::pmft::PMFXY2D
 from freud import trajectory
 from freud import pmft
 import numpy
+from matplotlib import pyplot
 
 # read in a .dcd trajectory
 traj = trajectory.TrajectoryXMLDCD('start.xml', 'dump.dcd')
@@ -18,13 +19,13 @@ pcf = pmft.pmfXY2D(box=f.box,maxX=3.0,maxY=3.0,dx=0.01,dy=0.01)
 # loop over all frames in the trajectory and add up a total rdf
 for f in traj:
     pos = numpy.copy(f.get("position"))
-    pos[:,2] = 0
-    ang = numpy.copy(f.get("position")[:,2])
+    ang = numpy.copy(f.get("orientation"))
     pcf.compute(pos, ang, pos, ang);
 
 pcf.calcPMF()
 xArray = pcf.xArray
 yArray = pcf.yArray
+zArray = pcf.zArray
 pcfArray = pcf.pcfArray
 pmfArray = pcf.pmfArray
 avgOccupancy = pcf.avgOccupancy
@@ -32,6 +33,8 @@ avgOccupancy = pcf.avgOccupancy
 # x, y, and pcf, pmf are simple numpy arrays, you can save them in a file, perform computations on them,
 # or just plot them (matplotlib command shown here)
 # not sure if a diff call to imshow is needed...
-pyplot.imshow(numpy.flipud(pmfArray),
+pyplot.imshow(numpy.flipud(pmfArray)[0],
               extent=[-3, 3, -3, 3],
               interpolation="nearest")
+pyplot.show()
+pyplot.close()

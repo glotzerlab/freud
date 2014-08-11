@@ -26,7 +26,7 @@ class pmfXYZ(object):
     # \param dy The bin size in the y-direction
     # \param dz The bin size in the z-direction
     def __init__(self, box, maxX, maxY, maxZ, dx, dy, dz):
-        super(pmftXYZ, self).__init__()
+        super(pmfXYZ, self).__init__()
         self.box = box
         self.maxX = maxX
         self.maxY = maxY
