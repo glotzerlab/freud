@@ -11,7 +11,8 @@ traj = trajectory.TrajectoryXMLDCD('start.xml', 'dump.dcd')
 
 # initialize the RDF computation using the simulation box from frame 0 (assumes constant volume)
 f = traj[0]
-pcf = pmft.PMFXY2D(box=f.box,maxX=3.0,maxY=3.0,dx=0.01,dy=0.01)
+# pcf = pmft.PMFXY2D(box=f.box,maxX=3.0,maxY=3.0,dx=0.01,dy=0.01)
+pcf = pmft.pmfXY2D(box=f.box,maxX=3.0,maxY=3.0,dx=0.01,dy=0.01)
 
 # loop over all frames in the trajectory and add up a total rdf
 for f in traj:
