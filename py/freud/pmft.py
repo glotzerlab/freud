@@ -47,7 +47,8 @@ class pmfXYZ(object):
     # \param refOrientations Reference orientation to consider as quaternion
     # \param pos points to consider
     # \param orientations orientations to consider as quaternion
-    def compute(self, refPos=None, refOrientations=None, pos=None, orientations=None):
+    # \param extraOrientations orientations to rotate after bringing into local coordinates
+    def compute(self, refPos=None, refOrientations=None, pos=None, orientations=None, extraOrientations=None):
         if refPos is not None:
             self.refPos = refPos
         else:
@@ -62,7 +63,12 @@ class pmfXYZ(object):
             self.refOrientations = refOrientations
         if orientations is not None:
             self.orientations = orientations
-        self.pmfHandle.compute(self.refPos, self.refOrientations, self.pos, self.orientations)
+        if extraOrientations is not None:
+            self.extraOrientations = Orientations
+        else:
+            # not sure if this behavior needs changing...
+            self.extraOrientations = numpy.zeros(shape=(len(self.refPos, 4)), dtype=numpy.float32)
+        self.pmfHandle.compute(self.refPos, self.refOrientations, self.pos, self.orientations, self.extraOrientations)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
     # in addition to self.pmfArray

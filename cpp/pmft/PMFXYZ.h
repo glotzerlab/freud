@@ -60,13 +60,15 @@ class PMFXYZ
                      unsigned int Nref,
                      const float3 *points,
                      const float4 *orientations,
-                     unsigned int Np);
+                     unsigned int Np,
+                     const float4 *extra_orientations);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
-                       boost::python::numeric::array orientations);
+                       boost::python::numeric::array orientations,
+                       boost::python::numeric::array extra_orientations);
 
         //! Get a reference to the PCF array
         boost::shared_array<unsigned int> getPCF()

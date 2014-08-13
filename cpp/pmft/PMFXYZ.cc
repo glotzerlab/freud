@@ -127,6 +127,7 @@ class ComputePMFTWithoutCellList
         const float3 *m_points;
         const float4 *m_orientations;
         const unsigned int m_Np;
+        const float4 *m_extra_orientations;
     public:
         ComputePMFTWithoutCellList(atomic<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
@@ -144,10 +145,12 @@ class ComputePMFTWithoutCellList
                                    unsigned int Nref,
                                    const float3 *points,
                                    const float4 *orientations,
-                                   unsigned int Np)
+                                   unsigned int Np,
+                                   const float4 *extra_orientations)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_ref_points(ref_points),
-              m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
+              m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np),
+              m_extra_orientations(extra_orientations)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -200,8 +203,14 @@ class ComputePMFTWithoutCellList
                                   vec3<float>(m_ref_orientations[i].x,
                                               m_ref_orientations[i].y,
                                               m_ref_orientations[i].z));
+                    // create the extra quaternion
+                    quat<float> qe(m_extra_orientations[i].w,
+                                  vec3<float>(m_extra_orientations[i].x,
+                                              m_extra_orientations[i].y,
+                                              m_extra_orientations[i].z));
                     vec3<float> v(x, y, z);
                     v = rotate(conj(q), v);
+                    v = rotate(qe, v);
 
                     x = v.x + m_max_x;
                     y = v.y + m_max_y;
@@ -256,6 +265,7 @@ class ComputePMFTWithCellList
         const float3 *m_points;
         const float4 *m_orientations;
         const unsigned int m_Np;
+        const float4 *m_extra_orientations;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
                                unsigned int nbins_x,
@@ -274,11 +284,12 @@ class ComputePMFTWithCellList
                                unsigned int Nref,
                                const float3 *points,
                                const float4 *orientations,
-                               unsigned int Np)
+                               unsigned int Np,
+                               const float4 *extra_orientations)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
-              m_orientations(orientations), m_Np(Np)
+              m_orientations(orientations), m_Np(Np), m_extra_orientations(extra_orientations)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -342,10 +353,16 @@ class ComputePMFTWithCellList
                                       vec3<float>(m_ref_orientations[i].x,
                                                   m_ref_orientations[i].y,
                                                   m_ref_orientations[i].z));
+                        // create the extra quaternion
+                        quat<float> qe(m_extra_orientations[i].w,
+                                      vec3<float>(m_extra_orientations[i].x,
+                                                  m_extra_orientations[i].y,
+                                                  m_extra_orientations[i].z));
                         // create point vector
                         vec3<float> v(x, y, z);
                         // rotate the vector
                         v = rotate(conj(q), v);
+                        v = rotate(qe, v);
 
                         x = v.x + m_max_x;
                         y = v.y + m_max_y;
@@ -415,7 +432,8 @@ void PMFXYZ::compute(const float3 *ref_points,
                       unsigned int Nref,
                       const float3 *points,
                       const float4 *orientations,
-                      unsigned int Np)
+                      unsigned int Np,
+                      const float4 *extra_orientations)
     {
     if (useCells())
         {
@@ -437,7 +455,8 @@ void PMFXYZ::compute(const float3 *ref_points,
                                                                             Nref,
                                                                             points,
                                                                             orientations,
-                                                                            Np));
+                                                                            Np,
+                                                                            extra_orientations));
         }
     else
         {
@@ -457,7 +476,8 @@ void PMFXYZ::compute(const float3 *ref_points,
                                                                                Nref,
                                                                                points,
                                                                                orientations,
-                                                                               Np));
+                                                                               Np,
+                                                                               extra_orientations));
         }
     }
 
@@ -468,7 +488,8 @@ void PMFXYZ::compute(const float3 *ref_points,
 void PMFXYZ::computePy(boost::python::numeric::array ref_points,
                         boost::python::numeric::array ref_orientations,
                         boost::python::numeric::array points,
-                        boost::python::numeric::array orientations)
+                        boost::python::numeric::array orientations,
+                        boost::python::numeric::array extra_orientations)
     {
     // validate input type and rank
     num_util::check_type(ref_points, PyArray_FLOAT);
@@ -479,6 +500,8 @@ void PMFXYZ::computePy(boost::python::numeric::array ref_points,
     num_util::check_rank(points, 2);
     num_util::check_type(orientations, PyArray_FLOAT);
     num_util::check_rank(orientations, 2);
+    num_util::check_type(extra_orientations, PyArray_FLOAT);
+    num_util::check_rank(extra_orientations, 2);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
@@ -492,17 +515,20 @@ void PMFXYZ::computePy(boost::python::numeric::array ref_points,
     num_util::check_dim(ref_orientations, 1, 4);
     num_util::check_dim(orientations, 0, Np);
     num_util::check_dim(orientations, 1, 4);
+    num_util::check_dim(extra_orientations, 0, Nref);
+    num_util::check_dim(extra_orientations, 1, 4);
 
     // get the raw data pointers and compute the cell list
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
     float4* ref_orientations_raw = (float4*) num_util::data(ref_orientations);
     float3* points_raw = (float3*) num_util::data(points);
     float4* orientations_raw = (float4*) num_util::data(orientations);
+    float4* extra_orientations_raw = (float4*) num_util::data(extra_orientations);
 
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_points_raw, ref_orientations_raw, Nref, points_raw, orientations_raw, Np);
+        compute(ref_points_raw, ref_orientations_raw, Nref, points_raw, orientations_raw, Np, extra_orientations_raw);
         }
     }
 
