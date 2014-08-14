@@ -64,10 +64,11 @@ class pmfXYZ(object):
         if orientations is not None:
             self.orientations = orientations
         if extraOrientations is not None:
-            self.extraOrientations = Orientations
+            self.extraOrientations = orientations
         else:
-            # not sure if this behavior needs changing...
-            self.extraOrientations = numpy.zeros(shape=(len(self.refPos, 4)), dtype=numpy.float32)
+            # create a unit quaternion
+            self.extraOrientations = numpy.zeros(shape=(len(self.refPos), 4), dtype=numpy.float32)
+            self.extraOrientations[:,0] = 1.0
         self.pmfHandle.compute(self.refPos, self.refOrientations, self.pos, self.orientations, self.extraOrientations)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
