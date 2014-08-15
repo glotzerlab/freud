@@ -64,7 +64,8 @@ class pmfXYZ(object):
         if orientations is not None:
             self.orientations = orientations
         if extraOrientations is not None:
-            self.extraOrientations = orientations
+            # change this check so it doesn't barf
+            self.extraOrientations = extraOrientations
         else:
             # create a unit quaternion
             self.extraOrientations = numpy.zeros(shape=(len(self.refPos), 4), dtype=numpy.float32)
