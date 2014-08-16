@@ -459,8 +459,7 @@ void main()
         color = numpy.zeros(shape=(self.N, 3, 4), dtype=numpy.float32);
 
         # start all coords at the center, with all the same color
-        for i in range(3):
-            color[:,i,:] = prim.colors;
+        color[:,:,:] = prim.colors;
 
         # generate OpenGL buffers and copy data
         self.buffer_position = gl.glGenBuffers(1);
