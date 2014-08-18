@@ -31,6 +31,7 @@
 #include "SolLiq.h"
 #include "wigner3j.h"
 #include "lindemann.h"
+#include "LocalDescriptors.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -82,6 +83,7 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
+    order::export_LocalDescriptors();
     interface::export_InterfaceMeasure();
     sphericalharmonicorderparameters::export_LocalQl();
     sphericalharmonicorderparameters::export_LocalWl();

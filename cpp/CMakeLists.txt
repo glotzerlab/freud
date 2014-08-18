@@ -88,8 +88,11 @@ set(SOURCES trajectory/trajectory.cc
             cluster/ClusterProperties.cc
             order/HexOrderParameter.h
             order/HexOrderParameter.cc
+            order/LocalDescriptors.h
+            order/LocalDescriptors.cc
             util/Index1D.h
             util/HOOMDMath.h
+            util/HOOMDMatrix.cc
             molfile/dcdplugin.cc
             molfile/vmdplugin.h
             molfile/endianswap.h
