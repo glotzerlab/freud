@@ -700,9 +700,10 @@ class Arrows(Triangles):
             stem1[:, :, 1] *= self.widths[:, numpy.newaxis];
             tip *= self.widths[:, numpy.newaxis, numpy.newaxis];
 
-            # scale the length of stem by the given line lengths
-            stem0[:, 2, 0] *= self.lengths;
-            stem1[:, 1:, 0] *= self.lengths[:, numpy.newaxis];
+            # scale the entire arrow by the given line lengths
+            stem0 *= self.lengths[:, numpy.newaxis, numpy.newaxis];
+            stem1 *= self.lengths[:, numpy.newaxis, numpy.newaxis];
+            tip *= self.lengths[:, numpy.newaxis, numpy.newaxis];
 
             # shrink the stem to just touch the tip
             stem0[:, 2, 0] -= tip[:, 2, 0];
