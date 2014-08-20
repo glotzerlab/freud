@@ -2,6 +2,7 @@ from __future__ import division, print_function
 
 import numpy
 import math
+import os
 import time
 from ctypes import c_void_p
 import logging
@@ -595,15 +596,19 @@ class TrajectoryViewer(QtGui.QMainWindow):
     ## Save a snapshot of the current scene
     @QtCore.Slot()
     def snapshot(self, filename=None):
+        settings = QtCore.QSettings("umich.edu", "freud.viz");
         if filename is None:
+            dirname = settings.value("rt-TrajectoryViewer/last_snapshot_dir");
             # getSaveFileName() returns a tuple of (filename, selected_filter)
             filename = QtGui.QFileDialog.getSaveFileName(
                 self, caption='Select the image location',
-                filter='Images (*.png *.jpg)')[0];
+                filter='Images (*.png *.jpg)', dir=dirname)[0];
 
         if filename:
             img = self.glWidget.grabFrameBuffer();
             img.save(filename);
+            settings.setValue("rt-TrajectoryViewer/last_snapshot_dir",
+                              os.path.dirname(filename));
 
     ## Save a snapshot of the current scene with supplied filename
 
