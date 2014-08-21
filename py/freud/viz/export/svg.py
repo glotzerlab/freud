@@ -92,7 +92,7 @@ class WriteSVG(object):
         # vertically flip vertices
         vertices[:, :, 1] = self.height_cm - vertices[:, :, 1];
         # grab the color from the first triangle
-        colors = arrows.colors.reshape((3, -1, 4))[0, insideIndices, :];
+        colors = arrows.arrColors[insideIndices];
         colors[:, :3] *= 100;
 
         for (verts, color) in zip(vertices, colors):
