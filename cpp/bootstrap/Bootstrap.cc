@@ -42,6 +42,20 @@ Bootstrap::Bootstrap(const unsigned int nBootstrap, const unsigned int nPoints, 
     {
     // create the bootstrap and return arrays here
     // create the cumulative array here
+    m_bootstrap_array = boost::shared_array<unsigned int>(new unsigned int[m_nBootstrap * m_arrSize]);
+    memset((void*)m_bootstrap_array.get(), 0, sizeof(unsigned int)*m_nBootstrap * m_arrSize);
+
+    m_avg_array = boost::shared_array<unsigned int>(new unsigned int[m_arrSize]);
+    memset((void*)m_avg_array.get(), 0, sizeof(unsigned int)*m_arrSize);
+
+    m_std_array = boost::shared_array<unsigned int>(new unsigned int[m_arrSize]);
+    memset((void*)m_std_array.get(), 0, sizeof(unsigned int)*m_arrSize);
+
+    m_err_array = boost::shared_array<unsigned int>(new unsigned int[m_arrSize]);
+    memset((void*)m_err_array.get(), 0, sizeof(unsigned int)*m_arrSize);
+
+    std::vector<unsigned int> m_cum_array (m_arrSize);
+    memset((void*)m_cum_array.get(), 0, sizeof(unsigned int)*m_arrSize);
     }
 
 Bootstrap::~Bootstrap()
