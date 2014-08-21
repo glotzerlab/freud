@@ -22,25 +22,21 @@ class bootstrap(object):
         self.nBootstrap = nBootstrap
         # collapse the array and turn into a cumulative array
         self.dataFlat = numpy.copy(self.dataArr.flatten())
-        self.dataCum = numpy.copy(self.dataFlat)
         self.arrSize = 1
         for i in self.dataArr.shape:
             self.arrSize *= i
-        assert len(self.dataCum) == self.arrSize
+        assert len(self.dataFlat) == self.arrSize
         # done in python as this only needs done once; probably a better way to do
-        for i in range(1, self.arrSize):
-            self.dataCum[i] += self.dataCum[i-1]
-        self.nPoints = int(self.dataCum[-1])
-        self.bootstrapHandle = Bootstrap(self.nBootstrap, self.nPoints, self.arrSize)
+        self.bootstrapHandle = Bootstrap(self.nBootstrap, self.dataFlat)
 
     ## Compute the aniso pmf for a given set of points (one traj frame)
     def compute(self):
-        bootstrapArray = numpy.zeros(shape=(self.nBootstrap, self.arrSize), dtype=numpy.uint32)
-        bootstrapAVG = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
-        bootstrapSTD = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
-        bootstrapRatio = numpy.zeros(shape=self.dataArr.shape, dtype=numpy.float32)
-        self.bootstrapHandle.compute(bootstrapArray, bootstrapAVG, bootstrapSTD, bootstrapRatio, self.dataCum)
-        self.bootstrapArray = numpy.copy(bootstrapArray)
-        self.bootstrapAVG = numpy.copy(bootstrapAVG)
-        self.bootstrapSTD = numpy.copy(bootstrapSTD)
-        self.bootstrapRatio = numpy.copy(bootstrapRatio)
+        self.bootstrapHandle.compute()
+        self.bootstrapArray = self.bootstrapHandle.getBootstrap()
+        # contains the flat version of the array
+        self.bootstrapAVG = self.bootstrapHandle.getAVG()
+        self.dataAVG = numpy.copy(self.bootstrapAVG.reshape(self.dataArr.shape))
+        self.bootstrapSTD = self.bootstrapHandle.getSTD()
+        self.dataSTD = numpy.copy(self.bootstrapSTD.reshape(self.dataArr.shape))
+        self.bootstrapERR = self.bootstrapHandle.getERR()
+        self.dataERR = numpy.copy(self.bootstrapERR.reshape(self.dataArr.shape))

@@ -37,25 +37,38 @@ inline int compareInts(const void * a, const void * b)
         }
     }
 
-Bootstrap::Bootstrap(const unsigned int nBootstrap, const unsigned int nPoints, const unsigned int arrSize)
-    : m_nBootstrap(nBootstrap), m_nPoints(nPoints), m_arrSize(arrSize)
+Bootstrap::Bootstrap(const unsigned int nBootstrap, boost::python::numeric::array data_array)
+    : m_nBootstrap(nBootstrap)
     {
-    // create the bootstrap and return arrays here
-    // create the cumulative array here
+
+    num_util::check_type(data_array, PyArray_UINT);
+    num_util::check_rank(data_array, 1);
+    m_arrSize = num_util::shape(data_array)[0];
+    unsigned int* data_array_raw = (unsigned int*) num_util::data(data_array);
+
     m_bootstrap_array = boost::shared_array<unsigned int>(new unsigned int[m_nBootstrap * m_arrSize]);
     memset((void*)m_bootstrap_array.get(), 0, sizeof(unsigned int)*m_nBootstrap * m_arrSize);
 
-    m_avg_array = boost::shared_array<unsigned int>(new unsigned int[m_arrSize]);
-    memset((void*)m_avg_array.get(), 0, sizeof(unsigned int)*m_arrSize);
+    m_avg_array = boost::shared_array<float>(new float[m_arrSize]);
+    memset((void*)m_avg_array.get(), 0, sizeof(float)*m_arrSize);
 
-    m_std_array = boost::shared_array<unsigned int>(new unsigned int[m_arrSize]);
-    memset((void*)m_std_array.get(), 0, sizeof(unsigned int)*m_arrSize);
+    m_std_array = boost::shared_array<float>(new float[m_arrSize]);
+    memset((void*)m_std_array.get(), 0, sizeof(float)*m_arrSize);
 
-    m_err_array = boost::shared_array<unsigned int>(new unsigned int[m_arrSize]);
-    memset((void*)m_err_array.get(), 0, sizeof(unsigned int)*m_arrSize);
+    m_err_array = boost::shared_array<float>(new float[m_arrSize]);
+    memset((void*)m_err_array.get(), 0, sizeof(float)*m_arrSize);
 
-    std::vector<unsigned int> m_cum_array (m_arrSize);
-    memset((void*)m_cum_array.get(), 0, sizeof(unsigned int)*m_arrSize);
+    m_data_array = new std::vector<unsigned int>(m_arrSize);
+    m_cum_array = new std::vector<unsigned int>(m_arrSize);
+    // populate the arrays; could be done with a memcpy for m_data_array, but m_cum_array needs the for loop
+    (*m_data_array)[0] = data_array_raw[0];
+    (*m_cum_array)[0] = data_array_raw[0];
+    for (unsigned int i = 0; i < m_arrSize; i++)
+        {
+        (*m_data_array)[i] = data_array_raw[i];
+        (*m_cum_array)[i] = (*m_cum_array)[i-1] + data_array_raw[i];
+        }
+    m_nPoints = (*m_cum_array)[m_arrSize-1];
     }
 
 Bootstrap::~Bootstrap()
@@ -67,18 +80,18 @@ class ComputeBootstrap
     private:
         atomic<unsigned int> *m_bootstrapArray;
         // std::vector< atomic<unsigned int> > *m_bootstrapArray;
-        const std::vector<unsigned int> m_dataCum;
+        const std::vector<unsigned int> *m_cum_array;
         const unsigned int m_nBootstrap;
         const unsigned int m_nPoints;
         const unsigned int m_arrSize;
     public:
         ComputeBootstrap(atomic<unsigned int> *bootstrapArray,
                          // std::vector< atomic<unsigned int> > *bootstrapArray,
-                         const std::vector<unsigned int> dataCum,
+                         const std::vector<unsigned int> *cum_array,
                          const unsigned int nBootstrap,
                          const unsigned int nPoints,
                          const unsigned int arrSize)
-            : m_bootstrapArray(bootstrapArray), m_dataCum(dataCum), m_nBootstrap(nBootstrap), m_nPoints(nPoints), m_arrSize(arrSize)
+            : m_bootstrapArray(bootstrapArray), m_cum_array(cum_array), m_nBootstrap(nBootstrap), m_nPoints(nPoints), m_arrSize(arrSize)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -96,8 +109,8 @@ class ComputeBootstrap
                     // if (((int) j % 1000000) == 0) printf("completed %d rolls\n", (int) j);
                     int myRand = (int)(rand() % (int)(m_nPoints));
                     // look up the array index
-                    iterIDX = upper_bound(m_dataCum.begin(), m_dataCum.end(), myRand);
-                    unsigned int arrIDX = iterIDX - m_dataCum.begin();
+                    iterIDX = upper_bound((*m_cum_array).begin(), (*m_cum_array).end(), myRand);
+                    unsigned int arrIDX = iterIDX - (*m_cum_array).begin();
                     // (*m_bootstrapArray)[i * m_arrSize + arrIDX]++;
                     m_bootstrapArray[i * m_arrSize + arrIDX]++;
                     }
@@ -109,21 +122,21 @@ class ComputeBootstrap
             }
     };
 
-void Bootstrap::AnalyzeBootstrap(unsigned int *bootstrapArray,
-                                 float *bootstrapAVG,
-                                 float *bootstrapSTD,
-                                 float *bootstrapRatio,
-                                 unsigned int *dataCum)
+void Bootstrap::AnalyzeBootstrap(boost::shared_array<unsigned int> *bootstrap_array,
+                                 boost::shared_array<float> *avg_array,
+                                 boost::shared_array<float> *std_array,
+                                 boost::shared_array<float> *err_array,
+                                 std::vector<unsigned int> *cum_array)
         {
         // calculate the average for each index
         for (unsigned int i = 0; i < m_arrSize; i++)
             {
             for (unsigned int j = 0; j < m_nBootstrap; j++)
                 {
-                bootstrapAVG[i] += bootstrapArray[j * m_arrSize + i];
+                (*avg_array)[i] += (*bootstrap_array)[j * m_arrSize + i];
                 // look up the array index
                 }
-            bootstrapAVG[i] /= m_nBootstrap;
+            (*avg_array)[i] /= m_nBootstrap;
             } // done populating the bootstrap array i
         // calculate the std and ratio for each index
         for (unsigned int i = 0; i < m_arrSize; i++)
@@ -131,81 +144,52 @@ void Bootstrap::AnalyzeBootstrap(unsigned int *bootstrapArray,
             float mySTD = 0.0;
             for (unsigned int j = 0; j < m_nBootstrap; j++)
                 {
-                mySTD += (bootstrapArray[j * m_arrSize + i] - bootstrapAVG[i]) * (bootstrapArray[j * m_arrSize + i] - bootstrapAVG[i]);
+                mySTD += ((*bootstrap_array)[j * m_arrSize + i] - (*avg_array)[i]) * ((*bootstrap_array)[j * m_arrSize + i] - (*avg_array)[i]);
                 // pass in the true mean
-                bootstrapRatio[i] += (abs(float(bootstrapAVG[i] - bootstrapArray[j * m_arrSize + i])) / float(bootstrapAVG[i]));
+                (*err_array)[i] += (abs(float((*avg_array)[i] - (*bootstrap_array)[j * m_arrSize + i])) / float((*avg_array)[i]));
                 // look up the array index
                 }
-            bootstrapSTD[i] = sqrt((1.0/(float)m_nBootstrap)*mySTD);
-            bootstrapRatio[i] /= float(m_nBootstrap);
+            (*std_array)[i] = sqrt((1.0/(float)m_nBootstrap)*mySTD);
+            (*err_array)[i] /= float(m_nBootstrap);
             } // done analyzing the data
         }
 
-void Bootstrap::compute(unsigned int *bootstrapArray,
-                        float *bootstrapAVG,
-                        float *bootstrapSTD,
-                        float *bootstrapRatio,
-                        unsigned int *dataCum)
+void Bootstrap::compute()
     {
-    std::vector<unsigned int> dataCumCopy (m_arrSize);
-    // std::vector< atomic<unsigned int> > m_bootstrapVector (m_arrSize * m_nBootstrap);
-    // memset((void*)dataCumCopy.begin(), (void*)dataCum, sizeof(complex<unsigned int>)*m_arrSize);
-    for (unsigned int i = 0; i < m_arrSize; i++)
-        {
-        dataCumCopy[i] = dataCum[i];
-        }
     // printf("getting ready for the parallel for\n");
-    parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap((atomic<unsigned int>*)bootstrapArray, dataCumCopy, m_nBootstrap, m_nPoints, m_arrSize));
-    // parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap(&m_bootstrapVector, dataCumCopy, m_nBootstrap, m_nPoints, m_arrSize));
+    parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap((atomic<unsigned int>*)m_bootstrap_array.get(),
+                                                                         m_cum_array,
+                                                                         m_nBootstrap,
+                                                                         m_nPoints,
+                                                                         m_arrSize));
+    // parallel_for(blocked_range<size_t>(0,m_nBootstrap), ComputeBootstrap(&m_bootstrapVector, cum_arrayCopy, m_nBootstrap, m_nPoints, m_arrSize));
     // printf("completed parallel for; starting analysis\n");
-    AnalyzeBootstrap(bootstrapArray,
-                     bootstrapAVG,
-                     bootstrapSTD,
-                     bootstrapRatio,
-                     dataCum);
+    AnalyzeBootstrap(&m_bootstrap_array,
+                     &m_avg_array,
+                     &m_std_array,
+                     &m_err_array,
+                     m_cum_array);
     }
 
-void Bootstrap::computePy(boost::python::numeric::array bootstrapArray,
-                          boost::python::numeric::array bootstrapAVG,
-                          boost::python::numeric::array bootstrapSTD,
-                          boost::python::numeric::array bootstrapRatio,
-                          boost::python::numeric::array dataCum)
+void Bootstrap::computePy()
     {
-    // validate input type and rank
-    // these are not correct and need to be changed
-    num_util::check_type(bootstrapArray, PyArray_UINT);
-    num_util::check_rank(bootstrapArray, 2);
-    num_util::check_type(dataCum, PyArray_UINT);
-    num_util::check_rank(dataCum, 1);
-
-    // validate array dims
-    num_util::check_dim(bootstrapArray, 0, m_nBootstrap);
-    num_util::check_dim(bootstrapArray, 1, m_arrSize);
-    num_util::check_dim(dataCum, 0, m_arrSize);
-
-    // get the raw data pointers and compute the cell list
-    unsigned int* bootstrapArray_raw = (unsigned int*) num_util::data(bootstrapArray);
-    float* bootstrapAVG_raw = (float*) num_util::data(bootstrapAVG);
-    float* bootstrapSTD_raw = (float*) num_util::data(bootstrapSTD);
-    float* bootstrapRatio_raw = (float*) num_util::data(bootstrapRatio);
-    unsigned int* dataCum_raw = (unsigned int*) num_util::data(dataCum);
-    // printf("I have the pointers\n");
-
+    // unlike all other freud functions, this one takes no arguments as the size of the arrays can't change between
+    // creation and compute
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(bootstrapArray_raw,
-                bootstrapAVG_raw,
-                bootstrapSTD_raw,
-                bootstrapRatio_raw,
-                dataCum_raw);
+        compute();
         }
     }
 
 void export_Bootstrap()
     {
-    class_<Bootstrap>("Bootstrap", init<unsigned int, unsigned int, unsigned int>())
+    class_<Bootstrap>("Bootstrap", init<unsigned int, boost::python::numeric::array>())
         .def("compute", &Bootstrap::computePy)
+        .def("getBootstrap", &Bootstrap::getBootstrapPy)
+        .def("getAVG", &Bootstrap::getAVGPy)
+        .def("getSTD", &Bootstrap::getSTDPy)
+        .def("getERR", &Bootstrap::getERRPy)
         ;
     }
 
