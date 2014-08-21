@@ -89,13 +89,15 @@ class WriteSVG(object):
         positions = positions[insideIndices] - self.view_pos_to_cm;
         # vertically flip positions
         positions[:, 1] = self.height_cm - positions[:, 1];
-        # convert colors to percent
-        colors = disks.colors[insideIndices]*100;
+        # convert rgb colors to percent
+        colors = disks.colors[insideIndices];
+        colors[:, :3] *= 100;
 
         for (position, radius, color) in zip(positions, radii, colors):
             out.write('<circle cx="{pos[0]}cm" cy="{pos[1]}cm" r="{radius}cm" '
                       'stroke="#000000" stroke-width="{outline}cm" '
-                      'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" />'.format(
+                      'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
+                      'fill-opacity="{col[3]}", stroke-opacity="{col[3]}"/>'.format(
                           pos=position, radius=radius, outline=outline, col=color));
 
     # ## \internal
