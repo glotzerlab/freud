@@ -100,34 +100,34 @@ class WriteSVG(object):
                       'fill-opacity="{col[3]}", stroke-opacity="{col[3]}"/>'.format(
                           pos=position, radius=radius, outline=outline, col=color));
 
-    # ## \internal
-    # # \brief Write out triangles
-    # # \param out Output stream
-    # # \param triangles Triangles to write
-    # #
-    # def write_Triangles(self, out, triangles):
-    #     for verts,color in zip(triangles.vertices, triangles.colors):
-    #         transformed_verts = numpy.zeros(shape=verts.shape, dtype=numpy.float32);
+    ## \internal
+    # \brief Write out triangles
+    # \param out Output stream
+    # \param triangles Triangles to write
+    #
+    def write_Triangles(self, out, triangles):
+        vertices = triangles.vertices*self.sim_to_cm;
 
-    #         # map the position into the view space
-    #         for i in range(0,3):
-    #             transformed_verts[i] = (verts[i] - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
+        # gather indices which are inside the drawn box
+        insideIndices = numpy.all([
+            numpy.any(vertices[:, :, 0] > self.view_pos_to_cm[0], axis=1),
+            numpy.any(vertices[:, :, 1] > self.view_pos_to_cm[1], axis=1),
+            numpy.any(vertices[:, :, 0] < self.view_pos_to_cm[0] + self.width_cm, axis=1),
+            numpy.any(vertices[:, :, 1] < self.view_pos_to_cm[1] + self.height_cm, axis=1)], axis=0);
 
-    #         # don't write out polygons that are off the edge
-    #         #if verts[0][0] < 0 or verte-radius > self.width_cm:
-    #         #    continue;
-    #         #if position[1]+radius < 0 or position[1]-radius > self.height_cm:
-    #         #    continue;
+        vertices = vertices[insideIndices] - self.view_pos_to_cm;
+        # vertically flip vertices
+        vertices[:, :, 1] = self.height_cm - vertices[:, :, 1];
+        # grab the color from the first vertex (currently triangles
+        # only supports a single color per triangle)
+        colors = triangles.colors[insideIndices][:, 0];
+        colors[:, :3] *= 100;
 
-    #         out.write('begin path fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
-
-    #         out.write('amove {0} {1}\n'.format(*transformed_verts[0,:]));
-    #         for vert in transformed_verts[1:]:
-    #             out.write('aline {0} {1}\n'.format(*vert));
-    #         out.write('amove {0} {1}\n'.format(*transformed_verts[0,:]));
-
-    #         out.write('closepath\n');
-    #         out.write('end path\n');
+        for (verts, color) in zip(vertices, colors):
+            d = ('M {verts[0][0]},{verts[0][1]} L {verts[1][0]},{verts[1][1]} '
+                'L {verts[2][0]},{verts[2][1]} Z').format(verts=verts);
+            out.write('<path d="{d}" fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
+                      'fill-opacity="{col[3]}" />'.format(d=d, col=color));
 
     # ## \internal
     # # \brief Write out repeated polygons
