@@ -89,8 +89,11 @@ set(SOURCES trajectory/trajectory.cc
             cluster/ClusterProperties.cc
             order/HexOrderParameter.h
             order/HexOrderParameter.cc
+            order/LocalDescriptors.h
+            order/LocalDescriptors.cc
             util/Index1D.h
             util/HOOMDMath.h
+            util/HOOMDMatrix.cc
             molfile/dcdplugin.cc
             molfile/vmdplugin.h
             molfile/endianswap.h
@@ -102,8 +105,8 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.h
             pairing/pairing.cc
             pairing/pairing.h
-            pmft/PMFTXYZ.cc
-            pmft/PMFTXYZ.h
+            pmft/PMFXYZ.cc
+            pmft/PMFXYZ.h
             pmft/PMFXY2D.cc
             pmft/PMFXY2D.h
             pmft/PMFTXYT2D.cc

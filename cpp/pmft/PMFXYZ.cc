@@ -1,4 +1,4 @@
-#include "PMFTXYZ.h"
+#include "PMFXYZ.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
@@ -19,13 +19,14 @@ using namespace boost::python;
 
 using namespace tbb;
 
-/*! \file PMFTXYZ.cc
-    \brief Routines for computing radial density functions
+/*! \internal
+    \file PMFXYZ.cc
+    \brief Routines for computing 3D anisotropic potential of mean force
 */
 
 namespace freud { namespace pmft {
 
-PMFTXYZ::PMFTXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz)
+PMFXYZ::PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz)
     : m_box(box), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz)
     {
     if (dx < 0.0f)
@@ -76,8 +77,7 @@ PMFTXYZ::PMFTXYZ(const trajectory::Box& box, float max_x, float max_y, float max
         m_y_array[i] = -m_max_y + ((y + nexty) / 2.0);
         }
 
-    // precompute the bin center positions for x
-    // what should this calc be?
+    // precompute the bin center positions for z
     m_z_array = boost::shared_array<float>(new float[m_nbins_z]);
     for (unsigned int i = 0; i < m_nbins_z; i++)
         {
@@ -86,19 +86,26 @@ PMFTXYZ::PMFTXYZ(const trajectory::Box& box, float max_x, float max_y, float max
         m_z_array[i] = -m_max_z + ((z + nextz) / 2.0);
         }
 
+    // create and populate the pcf_array
+    m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y * m_nbins_z]);
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
+
     if (useCells())
         {
-        float max_val = fmax(max_x, max_y);
-        max_val = fmax(max_val, max_z);
+        float max_val = sqrtf(max_x*max_x + max_y*max_y + max_z*max_z);
         m_lc = new locality::LinkCell(box, max_val);
         }
     }
 
-PMFTXYZ::~PMFTXYZ()
+PMFXYZ::~PMFXYZ()
     {
     if(useCells())
     delete m_lc;
     }
+
+//! \internal
+/*! \brief Helper class to compute PMF in parallel without the cell list
+*/
 
 class ComputePMFTWithoutCellList
     {
@@ -120,6 +127,7 @@ class ComputePMFTWithoutCellList
         const float3 *m_points;
         const float4 *m_orientations;
         const unsigned int m_Np;
+        const float4 *m_extra_orientations;
     public:
         ComputePMFTWithoutCellList(atomic<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
@@ -137,14 +145,22 @@ class ComputePMFTWithoutCellList
                                    unsigned int Nref,
                                    const float3 *points,
                                    const float4 *orientations,
-                                   unsigned int Np)
+                                   unsigned int Np,
+                                   const float4 *extra_orientations)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_ref_points(ref_points),
-              m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np)
+              m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np),
+              m_extra_orientations(extra_orientations)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
             {
+            assert(m_ref_points);
+            assert(m_points);
+            assert(m_Nref > 0);
+            assert(m_Np > 0);
+
+            // precalc some values for faster computation within the loop
             float dx_inv = 1.0f / m_dx;
             float maxxsq = m_max_x * m_max_x;
             float dy_inv = 1.0f / m_dy;
@@ -156,6 +172,7 @@ class ComputePMFTWithoutCellList
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 float3 ref = m_ref_points[i];
+                // for each point to check
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
                     float3 point = m_points[j];
@@ -164,25 +181,36 @@ class ComputePMFTWithoutCellList
                     float dy = float(ref.y - point.y);
                     float dz = float(ref.z - point.z);
 
+                    // make sure that the particles are wrapped into the box
                     float3 delta = m_box.wrap(make_float3(dx, dy, dz));
 
+                    // check that the particle is not checking itself
+                    // 1e-6 is an arbitrary value that could be set differently if needed
                     float xsq = delta.x*delta.x;
                     float ysq = delta.y*delta.y;
                     float zsq = delta.z*delta.z;
                     if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
                         {
+                        // skip if the same particle
                         continue;
                         }
                     float x = delta.x;
                     float y = delta.y;
                     float z = delta.z;
 
+                    // rotate interparticle vector
                     quat<float> q(m_ref_orientations[i].w,
                                   vec3<float>(m_ref_orientations[i].x,
                                               m_ref_orientations[i].y,
                                               m_ref_orientations[i].z));
+                    // create the extra quaternion
+                    quat<float> qe(m_extra_orientations[i].w,
+                                  vec3<float>(m_extra_orientations[i].x,
+                                              m_extra_orientations[i].y,
+                                              m_extra_orientations[i].z));
                     vec3<float> v(x, y, z);
                     v = rotate(conj(q), v);
+                    v = rotate(qe, v);
 
                     x = v.x + m_max_x;
                     y = v.y + m_max_y;
@@ -203,6 +231,7 @@ class ComputePMFTWithoutCellList
                     unsigned int ibinz = (unsigned int)(binz);
                     #endif
 
+                    // increment the bin; this is handled by atomic operations
                     if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                         {
                         m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
@@ -212,6 +241,9 @@ class ComputePMFTWithoutCellList
             }
     };
 
+//! \internal
+/*! \brief Helper class to compute PMF in parallel with the cell list
+*/
 class ComputePMFTWithCellList
     {
     private:
@@ -233,6 +265,7 @@ class ComputePMFTWithCellList
         const float3 *m_points;
         const float4 *m_orientations;
         const unsigned int m_Np;
+        const float4 *m_extra_orientations;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
                                unsigned int nbins_x,
@@ -251,11 +284,12 @@ class ComputePMFTWithCellList
                                unsigned int Nref,
                                const float3 *points,
                                const float4 *orientations,
-                               unsigned int Np)
+                               unsigned int Np,
+                               const float4 *extra_orientations)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
-              m_orientations(orientations), m_Np(Np)
+              m_orientations(orientations), m_Np(Np), m_extra_orientations(extra_orientations)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -265,6 +299,7 @@ class ComputePMFTWithCellList
             assert(m_Nref > 0);
             assert(m_Np > 0);
 
+            // precalc some values for faster computation within the loop
             float dx_inv = 1.0f / m_dx;
             float maxxsq = m_max_x * m_max_x;
             float dy_inv = 1.0f / m_dy;
@@ -294,8 +329,12 @@ class ComputePMFTWithCellList
                         float dx = float(ref.x - point.x);
                         float dy = float(ref.y - point.y);
                         float dz = float(ref.z - point.z);
+
+                        // make sure that the particles are wrapped into the box
                         float3 delta = m_box.wrap(make_float3(dx, dy, dz));
 
+                        // check that the particle is not checking itself
+                        // 1e-6 is an arbitrary value that could be set differently if needed
                         float xsq = delta.x*delta.x;
                         float ysq = delta.y*delta.y;
                         float zsq = delta.z*delta.z;
@@ -307,12 +346,23 @@ class ComputePMFTWithCellList
                         float y = delta.y;
                         float z = delta.z;
 
+                        // rotate interparticle vector
+
+                        // create the reference point quaternion
                         quat<float> q(m_ref_orientations[i].w,
                                       vec3<float>(m_ref_orientations[i].x,
                                                   m_ref_orientations[i].y,
                                                   m_ref_orientations[i].z));
+                        // create the extra quaternion
+                        quat<float> qe(m_extra_orientations[i].w,
+                                      vec3<float>(m_extra_orientations[i].x,
+                                                  m_extra_orientations[i].y,
+                                                  m_extra_orientations[i].z));
+                        // create point vector
                         vec3<float> v(x, y, z);
+                        // rotate the vector
                         v = rotate(conj(q), v);
+                        v = rotate(qe, v);
 
                         x = v.x + m_max_x;
                         y = v.y + m_max_y;
@@ -333,6 +383,8 @@ class ComputePMFTWithCellList
                         unsigned int ibinz = (unsigned int)(binz);
                         #endif
 
+                        // increment the bin; this is handled by atomic operations
+                        // it is possible that this is better handled by an array of atomics...
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                             {
                             m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
@@ -343,7 +395,11 @@ class ComputePMFTWithCellList
             }
     };
 
-bool PMFTXYZ::useCells()
+//! \internal
+/*! \brief Function to determine if the cell list should be used or not
+*/
+
+bool PMFXYZ::useCells()
     {
     float l_min = fmin(m_box.getLx(), m_box.getLy());
 
@@ -358,18 +414,31 @@ bool PMFTXYZ::useCells()
     return false;
     }
 
-void PMFTXYZ::compute(unsigned int *pcf_array,
-                      const float3 *ref_points,
+//! \internal
+/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
+*/
+
+void PMFXYZ::resetPCF()
+    {
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
+    }
+
+//! \internal
+/*! \brief Helper functionto direct the calculation to the correct helper class
+*/
+
+void PMFXYZ::compute(const float3 *ref_points,
                       const float4 *ref_orientations,
                       unsigned int Nref,
                       const float3 *points,
                       const float4 *orientations,
-                      unsigned int Np)
+                      unsigned int Np,
+                      const float4 *extra_orientations)
     {
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList((atomic<unsigned int>*)pcf_array,
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList((atomic<unsigned int>*)m_pcf_array.get(),
                                                                             m_nbins_x,
                                                                             m_nbins_y,
                                                                             m_nbins_z,
@@ -386,11 +455,12 @@ void PMFTXYZ::compute(unsigned int *pcf_array,
                                                                             Nref,
                                                                             points,
                                                                             orientations,
-                                                                            Np));
+                                                                            Np,
+                                                                            extra_orientations));
         }
     else
         {
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithoutCellList((atomic<unsigned int>*)pcf_array,
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithoutCellList((atomic<unsigned int>*)m_pcf_array.get(),
                                                                                m_nbins_x,
                                                                                m_nbins_y,
                                                                                m_nbins_z,
@@ -406,19 +476,22 @@ void PMFTXYZ::compute(unsigned int *pcf_array,
                                                                                Nref,
                                                                                points,
                                                                                orientations,
-                                                                               Np));
+                                                                               Np,
+                                                                               extra_orientations));
         }
     }
 
-void PMFTXYZ::computePy(boost::python::numeric::array pcf_array,
-                        boost::python::numeric::array ref_points,
+//! \internal
+/*! \brief Exposed function to python to calculate the PMF
+*/
+
+void PMFXYZ::computePy(boost::python::numeric::array ref_points,
                         boost::python::numeric::array ref_orientations,
                         boost::python::numeric::array points,
-                        boost::python::numeric::array orientations)
+                        boost::python::numeric::array orientations,
+                        boost::python::numeric::array extra_orientations)
     {
     // validate input type and rank
-    num_util::check_type(pcf_array, PyArray_INT);
-    num_util::check_rank(pcf_array, 3);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, PyArray_FLOAT);
@@ -427,11 +500,8 @@ void PMFTXYZ::computePy(boost::python::numeric::array pcf_array,
     num_util::check_rank(points, 2);
     num_util::check_type(orientations, PyArray_FLOAT);
     num_util::check_rank(orientations, 2);
-
-    // validate array dims
-    num_util::check_dim(pcf_array, 0, m_nbins_z);
-    num_util::check_dim(pcf_array, 1, m_nbins_y);
-    num_util::check_dim(pcf_array, 2, m_nbins_x);
+    num_util::check_type(extra_orientations, PyArray_FLOAT);
+    num_util::check_rank(extra_orientations, 2);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
@@ -445,29 +515,32 @@ void PMFTXYZ::computePy(boost::python::numeric::array pcf_array,
     num_util::check_dim(ref_orientations, 1, 4);
     num_util::check_dim(orientations, 0, Np);
     num_util::check_dim(orientations, 1, 4);
+    num_util::check_dim(extra_orientations, 0, Nref);
+    num_util::check_dim(extra_orientations, 1, 4);
 
     // get the raw data pointers and compute the cell list
-    unsigned int* pcf_array_raw = (unsigned int*) num_util::data(pcf_array);
     float3* ref_points_raw = (float3*) num_util::data(ref_points);
     float4* ref_orientations_raw = (float4*) num_util::data(ref_orientations);
     float3* points_raw = (float3*) num_util::data(points);
     float4* orientations_raw = (float4*) num_util::data(orientations);
+    float4* extra_orientations_raw = (float4*) num_util::data(extra_orientations);
 
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(pcf_array_raw, ref_points_raw, ref_orientations_raw, Nref, points_raw, orientations_raw, Np);
+        compute(ref_points_raw, ref_orientations_raw, Nref, points_raw, orientations_raw, Np, extra_orientations_raw);
         }
     }
 
-void export_PMFTXYZ()
+void export_PMFXYZ()
     {
-    class_<PMFTXYZ>("PMFTXYZ", init<trajectory::Box&, float, float, float, float, float, float>())
-        .def("getBox", &PMFTXYZ::getBox, return_internal_reference<>())
-        .def("compute", &PMFTXYZ::computePy)
-        .def("getX", &PMFTXYZ::getXPy)
-        .def("getY", &PMFTXYZ::getYPy)
-        .def("getZ", &PMFTXYZ::getZPy)
+    class_<PMFXYZ>("PMFXYZ", init<trajectory::Box&, float, float, float, float, float, float>())
+        .def("getBox", &PMFXYZ::getBox, return_internal_reference<>())
+        .def("compute", &PMFXYZ::computePy)
+        .def("getPCF", &PMFXYZ::getPCFPy)
+        .def("getX", &PMFXYZ::getXPy)
+        .def("getY", &PMFXYZ::getYPy)
+        .def("getZ", &PMFXYZ::getZPy)
         ;
     }
 

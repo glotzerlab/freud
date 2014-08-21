@@ -334,13 +334,13 @@ class file:
 
         # Assuming that color is either in the second or last place:
             test_color = box_string[1]
-        # Hopefully this works
             try:
+                # checks and proceeds if the color is not idx 1
                 test_color = float(test_color)
-            except:
                 p = numpy.array([box_string[1], box_string[2], box_string[3]], dtype = numpy.float32)
                 q = numpy.array([box_string[4], box_string[5], box_string[6], box_string[7]], dtype = numpy.float32)
-            else:
+            except ValueError:
+                # proceeds if the color is in idx 1
                 p = numpy.array([box_string[2], box_string[3], box_string[4]], dtype = numpy.float32)
                 q = numpy.array([box_string[5], box_string[6], box_string[7], box_string[8]], dtype = numpy.float32)
         return p, q

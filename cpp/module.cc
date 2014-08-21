@@ -14,7 +14,7 @@
 #include "InterfaceMeasure.h"
 #include "LocalQl.h"
 #include "pairing.h"
-#include "PMFTXYZ.h"
+#include "PMFXYZ.h"
 #include "PMFXY2D.h"
 #include "PMFTXYT2D.h"
 #include "PMFTXYTP2D.h"
@@ -32,6 +32,7 @@
 #include "SolLiq.h"
 #include "wigner3j.h"
 #include "lindemann.h"
+#include "LocalDescriptors.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -83,12 +84,13 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
+    order::export_LocalDescriptors();
     interface::export_InterfaceMeasure();
     sphericalharmonicorderparameters::export_LocalQl();
     sphericalharmonicorderparameters::export_LocalWl();
     sphericalharmonicorderparameters::export_SolLiq();
     pairing::export_pairing();
-    pmft::export_PMFTXYZ();
+    pmft::export_PMFXYZ();
     pmft::export_PMFXY2D();
     pmft::export_PMFTXYT2D();
     pmft::export_PMFTXYTP2D();

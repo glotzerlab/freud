@@ -5,34 +5,34 @@
 #include "num_util.h"
 #include "trajectory.h"
 
-#ifndef _PMFTXYZ_H__
-#define _PMFTXYZ_H__
+#ifndef _PMFXYZ_H__
+#define _PMFXYZ_H__
 
-/*! \file PMFTXYZ.h
-    \brief Routines for computing radial density functions
+/*! \internal
+    \file PMFXYZ.h
+    \brief Routines for computing anisotropic potential of mean force in 3D
 */
 
 namespace freud { namespace pmft {
 
-//! Computes the RDF (g(r)) for a given set of points
-/*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
-    Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
+//! Computes the PCF for a given set of points
+/*! A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
+    Computing the PCF results in a pcf array listing the value of the PCF at each given x, y, z listed in the x, y, and z arrays.
 
-    The values of r to compute the rdf at are controlled by the rmax and dr parameters to the constructor. rmax
-    determins the maximum r at which to compute g(r) and dr is the step size for each bin.
+    The values of x, y, z to compute the pcf at are controlled by the xmax, ymax, zmax and dx, dy, dz parameters to the constructor.
+    xmax, ymax, zmax determines the minimum/maximum x, y, z at which to compute the pcf and dx, dy, dz is the step size for each bin.
 
     <b>2D:</b><br>
-    RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
-    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
+    This PCF works for 3D boxes (while it will work for 2D boxes, you should use the 2D version).
 */
-class PMFTXYZ
+class PMFXYZ
     {
     public:
         //! Constructor
-        PMFTXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz);
+        PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz);
 
         //! Destructor
-        ~PMFTXYZ();
+        ~PMFXYZ();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -43,27 +43,38 @@ class PMFTXYZ
         //! Check if a cell list should be used or not
         bool useCells();
 
-        //! Compute the RDF
-        void compute(unsigned int *pcf_array,
-                     const float3 *ref_points,
+        //! Reset the PCF array to all zeros
+        void resetPCF();
+
+        //! Python wrapper for reset method
+        void resetPCFPy()
+            {
+            resetPCF();
+            }
+
+        /*! Compute the PCF for the passed in set of points. The function will be added to previous values
+            of the pcf
+        */
+        void compute(const float3 *ref_points,
                      const float4 *ref_orientations,
                      unsigned int Nref,
                      const float3 *points,
                      const float4 *orientations,
-                     unsigned int Np);
+                     unsigned int Np,
+                     const float4 *extra_orientations);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array pcf_array,
-                       boost::python::numeric::array ref_points,
+        void computePy(boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
-                       boost::python::numeric::array orientations);
+                       boost::python::numeric::array orientations,
+                       boost::python::numeric::array extra_orientations);
 
-        //! Get a reference to the last computed pair correlation function
-        // boost::shared_array<unsigned int> getPCF()
-        //     {
-        //     return m_pcf_array;
-        //     }
+        //! Get a reference to the PCF array
+        boost::shared_array<unsigned int> getPCF()
+            {
+            return m_pcf_array;
+            }
 
         //! Get a reference to the x array
         boost::shared_array<float> getX()
@@ -84,12 +95,11 @@ class PMFTXYZ
             }
 
         //! Python wrapper for getPCF() (returns a copy)
-        // boost::python::numeric::array getPCFPy()
-        //     {
-        //     unsigned int *arr = m_pcf_array.get();
-        //     // return num_util::makeNum(arr, m_nbins);
-        //     return num_util::makeNum(arr, m_nbins_x*m_nbins_y*m_nbins_z);
-        //     }
+        boost::python::numeric::array getPCFPy()
+            {
+            unsigned int *arr = m_pcf_array.get();
+            return num_util::makeNum(arr, m_nbins_x * m_nbins_y * m_nbins_z);
+            }
 
         //! Python wrapper for getX() (returns a copy)
         boost::python::numeric::array getXPy()
@@ -124,7 +134,7 @@ class PMFTXYZ
         unsigned int m_nbins_y;             //!< Number of y bins to compute pcf over
         unsigned int m_nbins_z;             //!< Number of z bins to compute pcf over
 
-        // boost::shared_array<unsigned int> m_pcf_array;         //!< pcf array computed
+        boost::shared_array<unsigned int> m_pcf_array;         //!< array of pcf computed
         boost::shared_array<float> m_x_array;           //!< array of x values that the pcf is computed at
         boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
         boost::shared_array<float> m_z_array;           //!< array of z values that the pcf is computed at
@@ -133,8 +143,8 @@ class PMFTXYZ
 /*! \internal
     \brief Exports all classes in this file to python
 */
-void export_PMFTXYZ();
+void export_PMFXYZ();
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFTXYZ_H__
+#endif // _PMFXYZ_H__

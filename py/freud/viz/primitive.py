@@ -191,22 +191,24 @@ class Triangles(base.Primitive):
         # -----------------------------------------------------------------
         # set up colors
         if colors is not None:
-            self.colors = numpy.array(colors, dtype=numpy.float32);
+            # go ahead and broadcast colors into a per-vertex form
+            tricolors = numpy.repeat(colors, 3, axis=0).reshape((self.N, 3, 4));
+            self.colors = numpy.ascontiguousarray(tricolors);
 
             # error check colors
-            if len(self.colors.shape) != 2:
+            if len(colors.shape) != 2:
                 raise TypeError("colors must be a Nx4 array");
-            if self.colors.shape[1] != 4:
+            if colors.shape[1] != 4:
                 raise ValueError("colors must be a Nx4 array");
-            if self.colors.shape[0] != self.N:
+            if colors.shape[0] != self.N:
                 raise ValueError("colors must have N the same as positions");
             updated.add('color');
 
         try:
             self.colors;
         except AttributeError:
-            self.colors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
-            self.colors[:,3] = 1;
+            self.colors = numpy.zeros(shape=(self.N,3,4), dtype=numpy.float32);
+            self.colors[:,:,3] = 1;
             updated.add('color');
 
         if color is not None:
@@ -216,7 +218,7 @@ class Triangles(base.Primitive):
             if acolor.shape[0] != 4:
                 raise ValueError("color must be a 4 element array");
 
-            self.colors[:,:] = acolor;
+            self.colors[:,:,:] = acolor;
             updated.add('color');
 
         self.updated = list(updated);
@@ -698,9 +700,10 @@ class Arrows(Triangles):
             stem1[:, :, 1] *= self.widths[:, numpy.newaxis];
             tip *= self.widths[:, numpy.newaxis, numpy.newaxis];
 
-            # scale the length of stem by the given line lengths
-            stem0[:, 2, 0] *= self.lengths;
-            stem1[:, 1:, 0] *= self.lengths[:, numpy.newaxis];
+            # scale the entire arrow by the given line lengths
+            stem0 *= self.lengths[:, numpy.newaxis, numpy.newaxis];
+            stem1 *= self.lengths[:, numpy.newaxis, numpy.newaxis];
+            tip *= self.lengths[:, numpy.newaxis, numpy.newaxis];
 
             # shrink the stem to just touch the tip
             stem0[:, 2, 0] -= tip[:, 2, 0];
@@ -728,7 +731,7 @@ class Arrows(Triangles):
             vertices = numpy.concatenate([stem0, stem1, tip], axis=0);
 
         if 'color' in updated:
-            colors = numpy.repeat(self.arrColors, 3, axis=0);
+            colors = numpy.tile(self.arrColors, [3, 1]).copy();
 
         super(Arrows, self).update(vertices=vertices, colors=colors, color=color);
 
