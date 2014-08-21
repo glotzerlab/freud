@@ -31,6 +31,7 @@ from OpenGL import GL as gl
 
 from freud import qt;
 from . import rastergl
+from freud.viz.export.svg import WriteSVG;
 
 ## \package freud.viz.rt
 #
@@ -599,16 +600,23 @@ class TrajectoryViewer(QtGui.QMainWindow):
         settings = QtCore.QSettings("umich.edu", "freud.viz");
         if filename is None:
             dirname = settings.value("rt-TrajectoryViewer/last_snapshot_dir");
+            filters = ';;'.join(['Raster images (*.png *.jpg)',
+                                 'Vector image (*.svg)']);
             # getSaveFileName() returns a tuple of (filename, selected_filter)
             filename = QtGui.QFileDialog.getSaveFileName(
                 self, caption='Select the image location',
-                filter='Images (*.png *.jpg)', dir=dirname)[0];
+                filter=filters, dir=dirname)[0];
 
         if filename:
-            img = self.glWidget.grabFrameBuffer();
-            img.save(filename);
             settings.setValue("rt-TrajectoryViewer/last_snapshot_dir",
                               os.path.dirname(filename));
+            if filename.endswith('.svg'):
+                with open(filename, 'w') as output:
+                    writer = WriteSVG();
+                    writer.write_Scene(output, self.scene);
+            else:
+                img = self.glWidget.grabFrameBuffer();
+                img.save(filename);
 
     ## Save a snapshot of the current scene with supplied filename
 
