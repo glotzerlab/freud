@@ -40,6 +40,8 @@ inline int compareInts(const void * a, const void * b)
 Bootstrap::Bootstrap(const unsigned int nBootstrap, const unsigned int nPoints, const unsigned int arrSize)
     : m_nBootstrap(nBootstrap), m_nPoints(nPoints), m_arrSize(arrSize)
     {
+    // create the bootstrap and return arrays here
+    // create the cumulative array here
     }
 
 Bootstrap::~Bootstrap()
