@@ -65,6 +65,44 @@ class WriteSVG(object):
         out.write('</svg>\n')
 
     ## \internal
+    # \brief Write out arrows
+    # \param out Output stream
+    # \param arrows Arrows to write
+    #
+    def write_Arrows(self, out, arrows):
+        vertices = arrows.vertices*self.sim_to_cm;
+
+        # Merge the three triangles composing the arrow into a single series
+        # vertices was vertices :: Ntri, 3, 2
+        # reshape to vertices :: 3 (stem0/stem1/tip), N, 3 (index in triangle), 2
+        vertices = vertices.reshape((3, -1, 3, 2))
+        # transpose to vertices :: N, 9 (index in triangle), 2
+        vertices = numpy.transpose(vertices, (1, 0, 2, 3)).reshape((-1, 9, 2))
+        # take the appropriate sequence to trace out an arrow, vertices :: (N, 7, 2)
+        vertices = vertices[:, [1, 0, 5, 8, 7, 6, 2], :]
+
+        # gather indices for any arrow which has a vertex inside the drawn box
+        insideIndices = numpy.all([
+            numpy.any(vertices[:, :, 0] > self.view_pos_to_cm[0], axis=1),
+            numpy.any(vertices[:, :, 1] > self.view_pos_to_cm[1], axis=1),
+            numpy.any(vertices[:, :, 0] < self.view_pos_to_cm[0] + self.width_cm, axis=1),
+            numpy.any(vertices[:, :, 1] < self.view_pos_to_cm[1] + self.height_cm, axis=1)], axis=0);
+
+        vertices = vertices[insideIndices] - self.view_pos_to_cm;
+        # vertically flip vertices
+        vertices[:, :, 1] = self.height_cm - vertices[:, :, 1];
+        # grab the color from the first triangle
+        colors = arrows.colors.reshape((3, -1, 4))[0, insideIndices, :];
+        colors[:, :3] *= 100;
+
+        for (verts, color) in zip(vertices, colors):
+            d = ('M {},{} '.format(verts[0][0], verts[0][1]) +
+                 ' '.join('L {v[0]} {v[1]}'.format(v=v) for v in verts[1:]) +
+                 'Z')
+            out.write('<path d="{d}" fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
+                      'fill-opacity="{col[3]}" />'.format(d=d, col=color));
+
+    ## \internal
     # \brief Write out disks
     # \param out Output stream
     # \param disks Disks to write
