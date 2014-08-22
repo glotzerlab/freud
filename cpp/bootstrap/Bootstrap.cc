@@ -41,32 +41,41 @@ Bootstrap::Bootstrap(const unsigned int nBootstrap, boost::python::numeric::arra
     : m_nBootstrap(nBootstrap)
     {
 
+    // printf("checking incoming data; may not be correct\n");
     num_util::check_type(data_array, PyArray_UINT);
     num_util::check_rank(data_array, 1);
     m_arrSize = num_util::shape(data_array)[0];
+    // printf("array size is%d\n", m_arrSize);
     unsigned int* data_array_raw = (unsigned int*) num_util::data(data_array);
 
+    // printf("creating bootstrap array\n");
     m_bootstrap_array = boost::shared_array<unsigned int>(new unsigned int[m_nBootstrap * m_arrSize]);
     memset((void*)m_bootstrap_array.get(), 0, sizeof(unsigned int)*m_nBootstrap * m_arrSize);
 
+    // printf("creating avg array\n");
     m_avg_array = boost::shared_array<float>(new float[m_arrSize]);
     memset((void*)m_avg_array.get(), 0, sizeof(float)*m_arrSize);
 
+    // printf("creating std array\n");
     m_std_array = boost::shared_array<float>(new float[m_arrSize]);
     memset((void*)m_std_array.get(), 0, sizeof(float)*m_arrSize);
 
+    // printf("creating bootstrap array\n");
     m_err_array = boost::shared_array<float>(new float[m_arrSize]);
     memset((void*)m_err_array.get(), 0, sizeof(float)*m_arrSize);
 
+    // printf("creating data, cum array\n");
     m_data_array = new std::vector<unsigned int>(m_arrSize);
     m_cum_array = new std::vector<unsigned int>(m_arrSize);
     // populate the arrays; could be done with a memcpy for m_data_array, but m_cum_array needs the for loop
-    (*m_data_array)[0] = data_array_raw[0];
-    (*m_cum_array)[0] = data_array_raw[0];
-    for (unsigned int i = 0; i < m_arrSize; i++)
+    // printf("populating idx 0\n");
+    (*m_data_array)[0] = (unsigned int) data_array_raw[0];
+    (*m_cum_array)[0] = (unsigned int) data_array_raw[0];
+    for (unsigned int i = 1; i < m_arrSize; i++)
         {
-        (*m_data_array)[i] = data_array_raw[i];
-        (*m_cum_array)[i] = (*m_cum_array)[i-1] + data_array_raw[i];
+        // printf("populating idx %d\n", i);
+        (*m_data_array)[i] = (unsigned int) data_array_raw[i];
+        (*m_cum_array)[i] = (*m_cum_array)[i-1] + (unsigned int) data_array_raw[i];
         }
     m_nPoints = (*m_cum_array)[m_arrSize-1];
     }
@@ -116,8 +125,8 @@ class ComputeBootstrap
                     }
                 // print out some information for judging how long remains
                 myCNT += 1;
-                printf("I just finished bootstrap %d\n", (int) i);
-                printf("I am %f done with assigned bootstraps\n", (float)(myCNT / (float) (myR.end() - myR.begin())));
+                // printf("I just finished bootstrap %d\n", (int) i);
+                // printf("I am %f done with assigned bootstraps\n", (float)(myCNT / (float) (myR.end() - myR.begin())));
                 } // done populating the bootstrap array i
             }
     };
@@ -138,7 +147,7 @@ void Bootstrap::AnalyzeBootstrap(boost::shared_array<unsigned int> *bootstrap_ar
                 }
             (*avg_array)[i] /= m_nBootstrap;
             } // done populating the bootstrap array i
-        // calculate the std and ratio for each index
+        // calculate the std
         for (unsigned int i = 0; i < m_arrSize; i++)
             {
             float mySTD = 0.0;
@@ -146,11 +155,15 @@ void Bootstrap::AnalyzeBootstrap(boost::shared_array<unsigned int> *bootstrap_ar
                 {
                 mySTD += ((*bootstrap_array)[j * m_arrSize + i] - (*avg_array)[i]) * ((*bootstrap_array)[j * m_arrSize + i] - (*avg_array)[i]);
                 // pass in the true mean
-                (*err_array)[i] += (abs(float((*avg_array)[i] - (*bootstrap_array)[j * m_arrSize + i])) / float((*avg_array)[i]));
+                // (*err_array)[i] += (abs(float((*avg_array)[i] - (*bootstrap_array)[j * m_arrSize + i])) / float((*avg_array)[i]));
                 // look up the array index
                 }
             (*std_array)[i] = sqrt((1.0/(float)m_nBootstrap)*mySTD);
-            (*err_array)[i] /= float(m_nBootstrap);
+            }
+        // calculate the std
+        for (unsigned int i = 0; i < m_arrSize; i++)
+            {
+            (*err_array)[i] = (*avg_array)[i]/(*std_array)[i];
             } // done analyzing the data
         }
 
@@ -178,6 +191,7 @@ void Bootstrap::computePy()
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
+        // printf("getting ready to compute\n");
         compute();
         }
     }

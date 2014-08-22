@@ -27,6 +27,7 @@ class bootstrap(object):
             self.arrSize *= i
         assert len(self.dataFlat) == self.arrSize
         # done in python as this only needs done once; probably a better way to do
+        # print("getting ready to create bootstrap object")
         self.bootstrapHandle = Bootstrap(self.nBootstrap, self.dataFlat)
 
     ## Compute the aniso pmf for a given set of points (one traj frame)
