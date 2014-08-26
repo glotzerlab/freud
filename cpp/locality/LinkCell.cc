@@ -144,7 +144,8 @@ void export_LinkCell()
 
     class_<IteratorLinkCell>("IteratorLinkCell",
         init<boost::shared_array<unsigned int>, unsigned int, unsigned int, unsigned int>())
-        .def("next", &IteratorLinkCell::nextPy)
+        .def("next", &IteratorLinkCell::nextPy)     // python 2 iteration
+        .def("__next__", &IteratorLinkCell::nextPy) // python 3 iteration
         ;
     }
 

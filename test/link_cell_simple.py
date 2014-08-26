@@ -1,3 +1,4 @@
+from __future__ import print_function
 from freud import locality
 from freud import trajectory
 import numpy
@@ -15,15 +16,15 @@ points = numpy.array([[-0.5, -0.5, -0.5],
 
 
 box = trajectory.Box(2);
-lc = locality.LinkCell(box, 1.0);
+lc = locality.LinkCell(box, .2);
 lc.computeCellList(points);
 
-for i in xrange(0,6):
-    print lc.getCell(points[i,:])
+for i in range(0,6):
+    print(lc.getCell(points[i,:]))
 
 for c in range(0, lc.getNumCells()):
     cell_members = list(lc.itercell(c));
-    print cell_members;
+    print(cell_members);
 
 # example of how to select specific points for future reference
 numpy.compress([1, 1, 0, 0, 1], points, axis=0)
