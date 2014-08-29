@@ -54,7 +54,7 @@ public:
         }
 
     //! Get a reference to the neighborlist array
-    boost::shared_array<unsigned int> getNeighbors(unsigned int i)
+    boost::shared_array<unsigned int> getNeighbors(unsigned int i) const
         {
         // create the array
         boost::shared_array<unsigned int> requested_neighbors = boost::shared_array<unsigned int>(new unsigned int[m_nNeigh]);
@@ -83,7 +83,7 @@ public:
         }
 
     //! Get a reference to the neighborlist array
-    boost::shared_array<unsigned int> getNeighborList()
+    boost::shared_array<unsigned int> getNeighborList() const
         {
         return m_neighbor_array;
         }
