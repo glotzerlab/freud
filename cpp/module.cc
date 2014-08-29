@@ -85,7 +85,7 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     order::export_LocalDescriptors();
-    order::export_NearestNeighbors();
+    locality::export_NearestNeighbors();
     interface::export_InterfaceMeasure();
     sphericalharmonicorderparameters::export_LocalQl();
     sphericalharmonicorderparameters::export_LocalWl();

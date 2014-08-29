@@ -19,7 +19,7 @@
   \brief Find the requested number of nearest neighbors
 */
 
-namespace freud { namespace order {
+namespace freud { namespace locality {
 
 /*! Find the requested number of nearest neighbors
 */
@@ -31,7 +31,9 @@ public:
     //! \param box This frame's box
     //! \param nNeigh Number of neighbors to find
     //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
-    NearestNeighbors(const trajectory::Box& box, unsigned int nNeigh, float rmax);
+    NearestNeighbors(const trajectory::Box& box,
+                     float rmax,
+                     unsigned int nNeigh);
 
     //! Get the simulation box
     const trajectory::Box& getBox() const
@@ -51,14 +53,43 @@ public:
         return m_rmax;
         }
 
-    //! Get a reference to the x array
-    boost::shared_array<unsigned int> getNeighbors()
+    //! Get a reference to the neighborlist array
+    boost::shared_array<unsigned int> getNeighbors(unsigned int i)
+        {
+        // create the array
+        boost::shared_array<unsigned int> requested_neighbors = boost::shared_array<unsigned int>(new unsigned int[m_nNeigh]);
+        // find the position from which to read neighbors
+        unsigned int start_idx = i*m_nNeigh;
+        for (unsigned int j=0; j<m_nNeigh; j++)
+            {
+            requested_neighbors[j] = m_neighbor_array[start_idx + j];
+            }
+        return requested_neighbors;
+        }
+
+    //! Python wrapper for getNeighbors() (returns a copy)
+    boost::python::numeric::array getNeighborsPy(unsigned int i)
+        {
+        // create the array
+        boost::shared_array<unsigned int> requested_neighbors = boost::shared_array<unsigned int>(new unsigned int[m_nNeigh]);
+        // find the position from which to read neighbors
+        unsigned int start_idx = i*m_nNeigh;
+        for (unsigned int j=0; j<m_nNeigh; j++)
+            {
+            requested_neighbors[j] = m_neighbor_array[start_idx + j];
+            }
+        unsigned int *arr = requested_neighbors.get();
+        return num_util::makeNum(arr, m_nNeigh);
+        }
+
+    //! Get a reference to the neighborlist array
+    boost::shared_array<unsigned int> getNeighborList()
         {
         return m_neighbor_array;
         }
 
     //! Python wrapper for getNeighbors() (returns a copy)
-    boost::python::numeric::array getNeighborsPy()
+    boost::python::numeric::array getNeighborListPy()
         {
         unsigned int *arr = m_neighbor_array.get();
         return num_util::makeNum(arr, m_nNeigh*m_Np);
@@ -83,6 +114,6 @@ private:
 //! Exports all classes in this file to python
 void export_NearestNeighbors();
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::locality
 
 #endif // _NEAREST_NEIGHBORS_H__
