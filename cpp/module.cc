@@ -32,6 +32,7 @@
 #include "wigner3j.h"
 #include "lindemann.h"
 #include "LocalDescriptors.h"
+#include "NearestNeighbors.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -84,6 +85,7 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     order::export_LocalDescriptors();
+    order::export_NearestNeighbors();
     interface::export_InterfaceMeasure();
     sphericalharmonicorderparameters::export_LocalQl();
     sphericalharmonicorderparameters::export_LocalWl();

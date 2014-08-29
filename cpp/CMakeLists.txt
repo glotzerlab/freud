@@ -90,6 +90,8 @@ set(SOURCES trajectory/trajectory.cc
             order/HexOrderParameter.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
+            order/NearestNeighbors.h
+            order/NearestNeighbors.cc
             util/Index1D.h
             util/HOOMDMath.h
             util/HOOMDMatrix.cc
