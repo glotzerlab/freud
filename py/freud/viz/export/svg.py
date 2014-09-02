@@ -135,7 +135,7 @@ class WriteSVG(object):
             out.write('<circle cx="{pos[0]}cm" cy="{pos[1]}cm" r="{radius}cm" '
                       'stroke="#000000" stroke-width="{outline}cm" '
                       'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
-                      'fill-opacity="{col[3]}", stroke-opacity="{col[3]}"/>'.format(
+                      'fill-opacity="{col[3]}" stroke-opacity="{col[3]}"/>'.format(
                           pos=position, radius=radius, outline=outline, col=color));
 
     ## \internal
