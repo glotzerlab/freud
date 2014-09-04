@@ -1,8 +1,6 @@
 import numpy
 import re
-import multiprocessing
 from _freud import pairing
-from _freud import setNumThreads
 
 ## \package freud.pairing
 #
@@ -15,111 +13,63 @@ from _freud import setNumThreads
 # dot product targets, and two dot product tolerances.
 #
 # two particles are matching if:
+# they are the two nearest neighbors and the following are true:
 # \vec{r_i}: \; \text{position} \\
-# \theta_s: \; \text{shape orientation angle} \\
+# \theta: \; \text{particle orientation} \\
 # \theta_c: \; \text{complementary edge orientation angle} \\
-# \hat{u}_s = \left( \cos \left( \theta_s \right), \; \sin \left( \theta_s \right) \right): \; \text{shape orientation unit vector} \\
-# \hat{u}_c = \left( \cos \left( \theta_c \right), \; \sin \left( \theta_c \right) \right): \; \text{complementary edge orientation unit vector}
+# \hat{u}_c = e^{i \theta_c} = \cos \left( \theta_c \right) + i \sin \left( \theta_c \right): \; \text{complementary edge orientation unit vector}
 # \vec{r_{ij}} = \vec{r_j} - \vec{r_i} \\
 # \hat{r_{ij}} = \frac{\vec{r_{ij}}}{|\vec{r_{ij}}|}
 # |\vec{r_{ij}}| \leq d \\
-# \hat{u}_{is} \cdot \hat{u}_{js} = s_{\text{target}} \\
-# \hat{u}_{ic} \cdot \hat{u}_{jc} = c_{\text{target}} \\
-# \hat{u}_{ic} \cdot \hat{r_{ij}} > 0
+# \hat{u}_{ic} \cdot \hat{r}_{ij} = 1 \\
+# \hat{u}_{jc} \cdot \hat{r}_{ji} = 1 \\
+#
 class Pair:
     ## Initialize Pair:
     # \param box The simulation box
-    # \param rmax The max distance to search for pairings
-    # \param nthreads Number of threads for tbb to use
-    def __init__(self,
-                 box,
-                 rmax):
+    # \param rmax The max distance to search for nearest neighbors
+    # \param k The number of nearest neighbors to check
+    # \params cDotTol The tolerance for the complementary dot product
+    def __init__(self,box,rmax,k,cDotTol):
+        super(Pair, self).__init__()
         self.box = box
         self.rmax = rmax
-        self.shape_orientations = None
-        self.comp_orientations = None
-        self.s_dot_target = None
-        self.s_dot_tol = None
-        self.c_dot_target = None
-        self.c_dot_tol = None
+        self.k = int(k)
+        self.cDotTol = cDotTol
+        self.pairHandle = pairing(self.box, self.rmax, self.k, self.cDotTol)
 
-    ## Update relevant variables. Mainly called through find_pairs
+    ## Update relevant variables. Mainly called through compute
     # \params positions The positions of the particles
-    # \params shape_orientations The orientation of the shape itself
-    # \params comp_orientations The orientation of the complementary interface
-    # \params s_dot_target The target dot product for the shape vectors
-    # \params s_dot_tol The tolerance for the shape dot product
-    # \params c_dot_target The target dot product for the complementary vectors
-    # \params c_dot_tol The tolerance for the complementary dot product
+    # \params orientations The orientation of the particle
+    # \params compOrientations The orientations of potential complementary interfaces
     def update(self,
                positions=None,
-               shape_orientations=None,
-               comp_orientations=None,
-               s_dot_target=None,
-               s_dot_tol=None,
-               c_dot_target=None,
-               c_dot_tol=None):
+               orientations=None,
+               compOrientations=None):
         if positions is not None:
             self.positions = numpy.copy(positions)
-        if shape_orientations is not None:
-            self.shape_orientations = numpy.copy(shape_orientations)
-        if comp_orientations is not None:
-            self.comp_orientations = numpy.copy(comp_orientations)
-        if s_dot_target is not None:
-            self.s_dot_target = s_dot_target
-        if s_dot_tol is not None:
-            self.s_dot_tol = s_dot_tol
-        if c_dot_target is not None:
-            self.c_dot_target = c_dot_target
-        if c_dot_tol is not None:
-            self.c_dot_tol = c_dot_tol
+        if orientations is not None:
+            self.orientations = numpy.copy(orientations)
+        if compOrientations is not None:
+            self.compOrientations = numpy.copy(compOrientations)
         self.np = len(self.positions)
 
     ## Do the actual calculation
     # \params positions The positions of the particles
-    # \params shape_orientations The orientation of the shape itself
-    # \params comp_orientations The orientation of the complementary interface
-    # \params s_dot_target The target dot product for the shape vectors
-    # \params s_dot_tol The tolerance for the shape dot product
-    # \params c_dot_target The target dot product for the complementary vectors
-    # \params c_dot_tol The tolerance for the complementary dot product
-    def find_pairs(self,
-                   positions,
-                   shape_orientations,
-                   comp_orientations,
-                   s_dot_target=None,
-                   s_dot_tol=None,
-                   c_dot_target=None,
-                   c_dot_tol=None):
-        match_list = numpy.zeros(shape=len(positions), dtype=numpy.int32)
-        dist2 = numpy.zeros(shape=len(positions), dtype=numpy.float32)
-        sdots = numpy.zeros(shape=len(positions), dtype=numpy.float32)
-        cdots = numpy.zeros(shape=len(positions), dtype=numpy.float32)
+    # \params orientations The orientation of the shape itself
+    # \params compOrientations The orientation of the complementary interface
+    def compute(self,
+                positions,
+                orientations,
+                compOrientations):
         self.update(positions,
-                    shape_orientations,
-                    comp_orientations,
-                    s_dot_target,
-                    s_dot_tol,
-                    c_dot_target,
-                    c_dot_tol)
-        if self.shape_orientations is None:
+                    orientations,
+                    compOrientations)
+        if self.orientations is None:
             raise RuntimeError("no orientations specified")
-        if self.comp_orientations is None:
-            raise RuntimeError("no orientations specified")
-        if self.s_dot_target is None:
-            raise RuntimeError("no shape dot product target specified")
-        if self.c_dot_target is None:
-            raise RuntimeError("no complementary dot product target specified")
-        if self.s_dot_tol is None:
-            raise RuntimeError("no shape dot product tol specified")
-        if self.c_dot_tol is None:
-            raise RuntimeError("no complementary dot product tol specified")
-        smatch = pairing(self.box, self.rmax, self.s_dot_target, self.s_dot_tol, self.c_dot_target, self.c_dot_tol)
-        smatch.compute(match_list, dist2, sdots, cdots, self.positions, self.shape_orientations, self.comp_orientations)
-        dist = numpy.sqrt(dist2)
-        nmatch = numpy.sum(match_list) / 2.0
-        self.dist = dist
-        self.sdots = sdots
-        self.cdots = cdots
-
-        return match_list, nmatch
+        if self.compOrientations is None:
+            raise RuntimeError("no complementary orientations specified")
+        self.pairHandle.compute(self.positions, self.orientations, self.compOrientations)
+        self.matchList = self.pairHandle.getMatch()
+        self.pairList = self.pairHandle.getPair()
+        self.nMatch = numpy.sum(self.matchList)

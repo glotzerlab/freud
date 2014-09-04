@@ -13,7 +13,7 @@
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
 #include "LocalQl.h"
-#include "pairing.h"
+#include "pairing2D.h"
 #include "PMFXYZ.h"
 #include "PMFXY2D.h"
 #include "PMFTXYT2D.h"

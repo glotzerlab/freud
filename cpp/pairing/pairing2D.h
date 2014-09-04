@@ -1,7 +1,8 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
-#include "LinkCell.h"
+#include "NearestNeighbors.h"
+#include "VectorMath.h"
 #include "num_util.h"
 #include "trajectory.h"
 
@@ -9,22 +10,6 @@
 #define _pairing_H__
 
 namespace freud { namespace pairing {
-
-inline bool comp_check_2D(const float rmax,
-                          const trajectory::Box& box,
-                          const float3 r_i,
-                          const float3 r_j,
-                          const float angle_s_i,
-                          const float angle_s_j,
-                          const float angle_c_i,
-                          const float angle_c_j,
-                          const float shape_dot_target,
-                          const float shape_dot_tol,
-                          const float comp_dot_target,
-                          const float comp_dot_tol,
-                          float& dist2,
-                          float& sdot,
-                          float& cdot);
 
 //! Computes the number of matches for a given set of points
 /*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
@@ -42,14 +27,9 @@ class pairing
     public:
         //! Constructor
         pairing(const trajectory::Box& box,
-                float rmax,
-                float shape_dot_target,
-                float shape_dot_tol,
-                float comp_dot_target,
+                const float rmax,
+                const unsigned int k,
                 float comp_dot_tol);
-
-        //! Destructor
-        ~pairing();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -57,43 +37,60 @@ class pairing
             return m_box;
             }
 
-        //! Check if a cell list should be used or not
-        bool useCells();
+        //! Get a reference to the last computed match array
+        boost::shared_array<unsigned int> getMatch()
+            {
+            return m_match_array;
+            }
 
+        //! Get a reference to the last computed pair array
+        boost::shared_array<unsigned int> getPair()
+            {
+            return m_pair_array;
+            }
+
+        //! Python wrapper for getMatch() (returns a copy)
+        boost::python::numeric::array getMatchPy()
+            {
+            unsigned int *arr = m_match_array.get();
+            return num_util::makeNum(arr, m_Np);
+            }
+
+        //! Python wrapper for getPair() (returns a copy)
+        boost::python::numeric::array getPairPy()
+            {
+            unsigned int *arr = m_pair_array.get();
+            return num_util::makeNum(arr, m_Np);
+            }
+
+        void ComputePairing2D(const float3 *points,
+                              const float *orientations,
+                              const float *comp_orientations,
+                              const unsigned int Np,
+                              const unsigned int No);
         //! Compute the pairing function
-        void compute(unsigned int* match,
-                     float* dist2,
-                     float* sdots,
-                     float* cdots,
-                     const float3* points,
-                     const float* shape_angles,
-                     const float* comp_angles,
-                     const unsigned int Np);
+        void compute(const float3* points,
+                     const float* orientations,
+                     const float* comp_orientations,
+                     const unsigned int Np,
+                     const unsigned int No);
 
-        void compute(unsigned int* match,
-                     float* dist2,
-                     float* sdots,
-                     float* cdots,
-                     const float3* points,
-                     const float4* shape_quats,
-                     const float4* comp_quats,
-                     const unsigned int Np);
-
-        //! Python wrapper for compute
-        void computePy(boost::python::numeric::array cdots,
-                       boost::python::numeric::array points,
+        //! Python wrapper for compute with a specific orientations
+        void computePy(boost::python::numeric::array points,
+                       boost::python::numeric::array orientations,
                        boost::python::numeric::array comp_orientations);
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r to check for nearest neighbors
-        float m_rmax;                     //!< number of nearest neighbors to check
-        float m_shape_dot_target;                     //!< Maximum r at which to compute g(r)
-        float m_shape_dot_tol;                     //!< Maximum r at which to compute g(r)
-        float m_comp_dot_target;                     //!< Maximum r at which to compute g(r)
         float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
-        locality::LinkCell* m_lc;       //!< LinkCell to bin particles for the computation
+        locality::NearestNeighbors m_nn;          //!< Nearest Neighbors for the computation
+        boost::shared_array<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
+        boost::shared_array<unsigned int> m_pair_array;         //!< array of pairs for particle i
         unsigned int m_nmatch;             //!< Number of matches
+        unsigned int m_k;             //!< Number of nearest neighbors to check
+        unsigned int m_Np;                //!< Last number of points computed
+        unsigned int m_No;                //!< Last number of complementary orientations used
 
     };
 

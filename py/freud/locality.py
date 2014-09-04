@@ -6,7 +6,7 @@
 # bring related c++ classes into the locality module
 from _freud import LinkCell
 from _freud import IteratorLinkCell
-
+from _freud import NearestNeighbors
 
 # fixup IteratorLinkCell with an __iter__ method
 def iterator_link_cell_iter(self):

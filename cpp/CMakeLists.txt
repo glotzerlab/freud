@@ -70,6 +70,8 @@ set(SOURCES trajectory/trajectory.cc
             trajectory/DCDLoader.h
             locality/LinkCell.cc
             locality/LinkCell.h
+            locality/NearestNeighbors.h
+            locality/NearestNeighbors.cc
             density/RDF.cc
             density/RDF.h
             density/GaussianDensity.cc
@@ -90,8 +92,6 @@ set(SOURCES trajectory/trajectory.cc
             order/HexOrderParameter.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
-            locality/NearestNeighbors.h
-            locality/NearestNeighbors.cc
             util/Index1D.h
             util/HOOMDMath.h
             util/HOOMDMatrix.cc
@@ -104,8 +104,8 @@ set(SOURCES trajectory/trajectory.cc
             molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
-            pairing/pairing.cc
-            pairing/pairing.h
+            pairing/pairing2D.cc
+            pairing/pairing2D.h
             pmft/PMFXYZ.cc
             pmft/PMFXYZ.h
             pmft/PMFXY2D.cc

@@ -13,8 +13,6 @@
 using namespace std;
 using namespace boost::python;
 using namespace tbb;
-using hoomd::matrix::diagonalize;
-using hoomd::matrix::quaternionFromExyz;
 
 /*! \file NearestNeighbors.h
   \brief Compute the hexatic order parameter for each particle
@@ -114,20 +112,10 @@ public:
             else
                 {
                 // sort based on rsq
-                // printf("sorting neighbor list\n");
                 sort(neighbors.begin(), neighbors.end(), compareRsqVectors);
-                unsigned int cnt = 0;
-                for (unsigned int myIdx = 0; myIdx<neighbors.size(); myIdx++)
-                    {
-                    // printf("particle %d is a neighbor of particle %d\n", neighbors[myIdx].second, (int)i);
-                    cnt++;
-                    }
-                // printf("there are %d nearest neighbors\n", cnt);
-                // printf("we want %d nearest neighbors\n", m_nNeigh);
                 for (unsigned int k = 0; k < m_nNeigh; k++)
                     {
                     // put the idx into the neighbor array
-                    // printf("adding particle %d to neighbor list of particle %d\n", neighbors[k].second, (int)i);
                     m_neighbor_array[i*m_nNeigh + k] = neighbors[k].second;
                     }
                 }
