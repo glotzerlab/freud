@@ -177,16 +177,31 @@ void pairing::ComputePairing2D(const float3 *points,
     // for each particle
     for (size_t i = 0; i < m_Np; i++)
         {
-        if (m_match_array[i] == 1)
+        // if (m_pair_array[i] != i)
+        //     continue;
+        if (m_match_array[i] != 0)
+            {
             continue;
+            }
         const vec3<float> r_i(points[i].x, points[i].y, points[i].z);
         // get the neighbors of i
         boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
         // loop over all neighboring particles
+        unsigned int cnt = 0;
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            bool is_finished = false;
+            if (cnt > 1)
+                {
+                break;
+                }
             unsigned int j = neighbors[neigh_idx];
+            // this doesn't look like it's working
+            // if (m_pair_array[j] != j)
+            //     break;
+            if (m_match_array[j] != 0)
+                {
+                break;
+                }
             const vec3<float> r_j(points[j].x, points[j].y, points[j].z);
             vec3<float> r_ij(r_j - r_i);
             vec3<float> r_ji(r_i - r_j);
@@ -204,8 +219,13 @@ void pairing::ComputePairing2D(const float3 *points,
                 // pointing in the same direction as the interparticle vector
 
                 // for each potential complementary orientation for particle i
+                bool is_finished = false;
                 for (unsigned int a=0; a<m_No; a++)
                     {
+                    if (cnt > 0)
+                        {
+                        break;
+                        }
                     // generate vectors
                     std::complex<float> tmp_i = std::polar<float>(1.0, orientations[i] + comp_orientations[i*m_No + a]);
                     vec3<float> c_i;
@@ -216,6 +236,10 @@ void pairing::ComputePairing2D(const float3 *points,
                     // for each potential complementary orientation for particle j
                     for (unsigned int b=0; b<m_No; b++)
                         {
+                        if (cnt > 0)
+                            {
+                            break;
+                            }
                         std::complex<float> tmp_j = std::polar<float>(1.0, orientations[j] + comp_orientations[j*m_No + b]);
                         vec3<float> c_j;
                         c_j.x = std::real<float>(tmp_j);
@@ -224,25 +248,34 @@ void pairing::ComputePairing2D(const float3 *points,
                         // calculate the dot products
                         float d_ij = dot(c_i, r_ij);
                         float d_ji = dot(c_j, r_ji);
-                        if ((abs(d_ij - 1.0) < m_comp_dot_tol) && (abs(d_ji - 1.0) < m_comp_dot_tol))
+                        // well, this is generating completely bogus dot products...ugh, so most of the debugging is bad
+                        if ((abs(d_ij - 1.0) < m_comp_dot_tol) && (abs(d_ji - 1.0) < m_comp_dot_tol) && (cnt==0))
+                        // if (neigh_idx == 0)
                             {
+                            printf("dij = %f; dji = %f\n", d_ij, d_ji);
                             m_match_array[i] = 1;
                             m_match_array[j] = 1;
                             m_pair_array[i] = j;
                             m_pair_array[j] = i;
                             is_finished = true;
+                            cnt++;
                             }
-                        if (is_finished == true)
-                            break;
+                        // if (is_finished == true)
+                        //     break;
+                        // if (cnt > 1)
+                        //     {
+                        //     printf("my cnt = %d\n", cnt);
+                        //     std::stringstream converter;
+                        //     converter << is_finished;
+                        //     std::string printIsFinished = converter.str();
+                        //     printf("is_finished is %s\n", printIsFinished.c_str());
+                        //     exit (EXIT_FAILURE);
+                        //     }
                         }
-                    if (is_finished == true)
-                        break;
+                    // if (is_finished == true)
+                    //     break;
                     }
-                if (is_finished == true)
-                    break;
                 }
-            if (is_finished == true)
-                break;
             } // done looping over neighbors
         } // done looping over reference points
     }
