@@ -46,14 +46,15 @@ class WriteSVG(object):
         width_sim = scene.camera.getWidth();
         height_sim = scene.camera.getHeight();
         self.width_height = numpy.array([width_sim, height_sim], dtype=numpy.float32);
+        (self.width, self.height) = self.width_height;
         self.view_pos = scene.camera.position[0:2] - self.width_height/2;
         self.sim_to_cm = self.width_cm / width_sim;
         self.view_pos_to_cm = self.view_pos*self.sim_to_cm;
         self.height_cm = height_sim * self.sim_to_cm;
 
-        out.write('<svg width="{}cm" height="{}cm" viewBox="{}cm {}cm {}cm {}cm" '
+        out.write('<svg width="{}cm" height="{}cm" viewBox="{} {} {} {}" '
                   'xmlns="http://www.w3.org/2000/svg">\n'.format(
-            self.width_cm, self.height_cm, 0, 0, self.width_cm, self.height_cm));
+            self.width_cm, self.height_cm, 0, 0, width_sim, height_sim));
 
         # loop through the render primitives and write out each one
         for i,group in enumerate(scene.groups):
@@ -70,7 +71,7 @@ class WriteSVG(object):
     # \param arrows Arrows to write
     #
     def write_Arrows(self, out, arrows):
-        vertices = arrows.vertices*self.sim_to_cm;
+        vertices = arrows.vertices.copy();
 
         # Merge the three triangles composing the arrow into a single series
         # vertices was vertices :: Ntri, 3, 2
@@ -83,14 +84,14 @@ class WriteSVG(object):
 
         # gather indices for any arrow which has a vertex inside the drawn box
         insideIndices = numpy.all([
-            numpy.any(vertices[:, :, 0] > self.view_pos_to_cm[0], axis=1),
-            numpy.any(vertices[:, :, 1] > self.view_pos_to_cm[1], axis=1),
-            numpy.any(vertices[:, :, 0] < self.view_pos_to_cm[0] + self.width_cm, axis=1),
-            numpy.any(vertices[:, :, 1] < self.view_pos_to_cm[1] + self.height_cm, axis=1)], axis=0);
+            numpy.any(vertices[:, :, 0] > self.view_pos[0], axis=1),
+            numpy.any(vertices[:, :, 1] > self.view_pos[1], axis=1),
+            numpy.any(vertices[:, :, 0] < self.view_pos[0] + self.width, axis=1),
+            numpy.any(vertices[:, :, 1] < self.view_pos[1] + self.height, axis=1)], axis=0);
 
-        vertices = vertices[insideIndices] - self.view_pos_to_cm;
+        vertices = vertices[insideIndices] - self.view_pos;
         # vertically flip vertices
-        vertices[:, :, 1] = self.height_cm - vertices[:, :, 1];
+        vertices[:, :, 1] = self.height - vertices[:, :, 1];
         # grab the color from the first triangle
         colors = arrows.arrColors[insideIndices];
         colors[:, :3] *= 100;
@@ -100,7 +101,7 @@ class WriteSVG(object):
                  ' '.join('L {v[0]} {v[1]}'.format(v=v) for v in verts[1:]) +
                  'Z')
             out.write('<path d="{d}" fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
-                      'fill-opacity="{col[3]}" />'.format(d=d, col=color));
+                      'fill-opacity="{col[3]}" />\n'.format(d=d, col=color));
 
     ## \internal
     # \brief Write out disks
@@ -111,31 +112,31 @@ class WriteSVG(object):
         # decrease diameters by the width of the outline so we don't
         # have to do any clipping. Also scale everything into physical
         # dimensions.
-        outline = disks.outline*self.sim_to_cm;
-        diameters = (disks.diameters - disks.outline)*self.sim_to_cm;
-        positions = disks.positions*self.sim_to_cm;
+        outline = disks.outline;
+        diameters = disks.diameters - disks.outline;
+        positions = disks.positions.copy();
 
         # gather indices which are inside the drawn box
         halfDiam = diameters/2;
         insideIndices = numpy.all([
-            positions[:, 0] + halfDiam > self.view_pos_to_cm[0],
-            positions[:, 1] + halfDiam > self.view_pos_to_cm[1],
-            positions[:, 0] - halfDiam < self.view_pos_to_cm[0] + self.width_cm,
-            positions[:, 1] - halfDiam < self.view_pos_to_cm[1] + self.height_cm], axis=0);
+            positions[:, 0] + halfDiam > self.view_pos[0],
+            positions[:, 1] + halfDiam > self.view_pos[1],
+            positions[:, 0] - halfDiam < self.view_pos[0] + self.width,
+            positions[:, 1] - halfDiam < self.view_pos[1] + self.height], axis=0);
 
         radii = diameters[insideIndices]/2;
-        positions = positions[insideIndices] - self.view_pos_to_cm;
+        positions = positions[insideIndices] - self.view_pos;
         # vertically flip positions
-        positions[:, 1] = self.height_cm - positions[:, 1];
+        positions[:, 1] = self.height - positions[:, 1];
         # convert rgb colors to percent
         colors = disks.colors[insideIndices];
         colors[:, :3] *= 100;
 
         for (position, radius, color) in zip(positions, radii, colors):
-            out.write('<circle cx="{pos[0]}cm" cy="{pos[1]}cm" r="{radius}cm" '
-                      'stroke="#000000" stroke-width="{outline}cm" '
+            out.write('<circle cx="{pos[0]}" cy="{pos[1]}" r="{radius}" '
+                      'stroke="#000000" stroke-width="{outline}" '
                       'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
-                      'fill-opacity="{col[3]}" stroke-opacity="{col[3]}"/>'.format(
+                      'fill-opacity="{col[3]}" stroke-opacity="{col[3]}"/>\n'.format(
                           pos=position, radius=radius, outline=outline, col=color));
 
     ## \internal
@@ -144,18 +145,18 @@ class WriteSVG(object):
     # \param triangles Triangles to write
     #
     def write_Triangles(self, out, triangles):
-        vertices = triangles.vertices*self.sim_to_cm;
+        vertices = triangles.vertices.copy();
 
         # gather indices which are inside the drawn box
         insideIndices = numpy.all([
-            numpy.any(vertices[:, :, 0] > self.view_pos_to_cm[0], axis=1),
-            numpy.any(vertices[:, :, 1] > self.view_pos_to_cm[1], axis=1),
-            numpy.any(vertices[:, :, 0] < self.view_pos_to_cm[0] + self.width_cm, axis=1),
-            numpy.any(vertices[:, :, 1] < self.view_pos_to_cm[1] + self.height_cm, axis=1)], axis=0);
+            numpy.any(vertices[:, :, 0] > self.view_pos[0], axis=1),
+            numpy.any(vertices[:, :, 1] > self.view_pos[1], axis=1),
+            numpy.any(vertices[:, :, 0] < self.view_pos[0] + self.width, axis=1),
+            numpy.any(vertices[:, :, 1] < self.view_pos[1] + self.height, axis=1)], axis=0);
 
-        vertices = vertices[insideIndices] - self.view_pos_to_cm;
+        vertices = vertices[insideIndices] - self.view_pos;
         # vertically flip vertices
-        vertices[:, :, 1] = self.height_cm - vertices[:, :, 1];
+        vertices[:, :, 1] = self.height - vertices[:, :, 1];
         # grab the color from the first vertex (currently triangles
         # only supports a single color per triangle)
         colors = triangles.colors[insideIndices][:, 0];
