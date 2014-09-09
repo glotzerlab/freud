@@ -177,103 +177,84 @@ void pairing::ComputePairing2D(const float3 *points,
     // for each particle
     for (size_t i = 0; i < m_Np; i++)
         {
-        // if (m_pair_array[i] != i)
-        //     continue;
-        if (m_match_array[i] != 0)
-            {
+        if (m_pair_array[i] != i)
             continue;
-            }
-        const vec3<float> r_i(points[i].x, points[i].y, points[i].z);
+        const vec2<float> r_i(points[i].x, points[i].y);
         // get the neighbors of i
         boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
         // loop over all neighboring particles
-        unsigned int cnt = 0;
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            if (cnt > 1)
-                {
-                break;
-                }
             unsigned int j = neighbors[neigh_idx];
             // this doesn't look like it's working
-            // if (m_pair_array[j] != j)
-            //     break;
-            if (m_match_array[j] != 0)
-                {
+            if (m_pair_array[j] != j)
                 break;
-                }
-            const vec3<float> r_j(points[j].x, points[j].y, points[j].z);
-            vec3<float> r_ij(r_j - r_i);
-            vec3<float> r_ji(r_i - r_j);
-            float3 wrapped(m_box.wrap(make_float3(r_ij.x, r_ij.y, r_ij.z)));
-            r_ij = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
-            wrapped = m_box.wrap(make_float3(r_ji.x, r_ji.y, r_ji.z));
-            r_ji = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
-            const float rsq(dot(r_ij, r_ij));
+            const vec2<float> r_j(points[j].x, points[j].y);
+            vec2<float> r_ij(r_j - r_i);
+            vec2<float> r_ji(r_i - r_j);
+            float3 wrapped(m_box.wrap(make_float3(r_ij.x, r_ij.y, 0.0)));
+            r_ij = vec2<float>(wrapped.x, wrapped.y);
+            wrapped = m_box.wrap(make_float3(r_ji.x, r_ji.y, 0.0));
+            r_ji = vec2<float>(wrapped.x, wrapped.y);
+            float rsq(dot(r_ij, r_ij));
 
             // will skip same particle
+            // shouldn't actually be needed
             if (rsq > 1e-6)
                 {
                 // check if the particles are paired
                 // particles are paired if they are the nearest neighbors that have the complementary vector
                 // pointing in the same direction as the interparticle vector
 
+                // rotate interparticle vector
+                rotmat2<float> my_mat = rotmat2<float>::fromAngle(-orientations[i]);
+                // vec2<float> rot_vec = my_mat * r_ij;
+                vec2<float> u_ij(r_ij/sqrt(rsq));
+                u_ij = my_mat * u_ij;
+                my_mat = rotmat2<float>::fromAngle(-orientations[j]);
+                rsq = dot(r_ji, r_ji);
+                vec2<float> u_ji(r_ji/sqrt(rsq));
+                u_ji = my_mat * u_ji;
+
                 // for each potential complementary orientation for particle i
                 bool is_finished = false;
                 for (unsigned int a=0; a<m_No; a++)
                     {
-                    if (cnt > 0)
-                        {
+                    if (is_finished == true)
                         break;
-                        }
                     // generate vectors
-                    std::complex<float> tmp_i = std::polar<float>(1.0, orientations[i] + comp_orientations[i*m_No + a]);
-                    vec3<float> c_i;
-                    c_i.x = std::real<float>(tmp_i);
-                    c_i.y = std::imag<float>(tmp_i);
-                    c_i.z = 0;
+                    std::complex<float> tmp_i = std::polar<float>(1.0, comp_orientations[i*m_No + a]);
+                    vec2<float> c_i;
+                    // c_i.x = std::real<float>(tmp_i);
+                    // c_i.y = std::imag<float>(tmp_i);
+                    c_i.x = cosf(comp_orientations[i*m_No + a]);
+                    c_i.y = sinf(comp_orientations[i*m_No + a]);
 
                     // for each potential complementary orientation for particle j
                     for (unsigned int b=0; b<m_No; b++)
                         {
-                        if (cnt > 0)
-                            {
+                        if (is_finished == true)
                             break;
-                            }
                         std::complex<float> tmp_j = std::polar<float>(1.0, orientations[j] + comp_orientations[j*m_No + b]);
-                        vec3<float> c_j;
-                        c_j.x = std::real<float>(tmp_j);
-                        c_j.y = std::imag<float>(tmp_j);
-                        c_j.z = 0;
+                        vec2<float> c_j;
+                        // c_j.x = std::real<float>(tmp_j);
+                        // c_j.y = std::imag<float>(tmp_j);
+                        c_j.x = cosf(comp_orientations[j*m_No + b]);
+                        c_j.y = sinf(comp_orientations[j*m_No + b]);
                         // calculate the dot products
-                        float d_ij = dot(c_i, r_ij);
-                        float d_ji = dot(c_j, r_ji);
+                        float d_ij = dot(c_i, u_ij);
+                        float d_ji = dot(c_j, u_ji);
                         // well, this is generating completely bogus dot products...ugh, so most of the debugging is bad
-                        if ((abs(d_ij - 1.0) < m_comp_dot_tol) && (abs(d_ji - 1.0) < m_comp_dot_tol) && (cnt==0))
-                        // if (neigh_idx == 0)
+                        if ((abs(d_ij - 1.0) < m_comp_dot_tol) && (abs(d_ji - 1.0) < m_comp_dot_tol) && (is_finished==false))
                             {
-                            printf("dij = %f; dji = %f\n", d_ij, d_ji);
+                            // printf("dij = %f; dji = %f\n", d_ij, d_ji);
                             m_match_array[i] = 1;
                             m_match_array[j] = 1;
                             m_pair_array[i] = j;
                             m_pair_array[j] = i;
                             is_finished = true;
-                            cnt++;
                             }
-                        // if (is_finished == true)
-                        //     break;
-                        // if (cnt > 1)
-                        //     {
-                        //     printf("my cnt = %d\n", cnt);
-                        //     std::stringstream converter;
-                        //     converter << is_finished;
-                        //     std::string printIsFinished = converter.str();
-                        //     printf("is_finished is %s\n", printIsFinished.c_str());
-                        //     exit (EXIT_FAILURE);
-                        //     }
                         }
-                    // if (is_finished == true)
-                    //     break;
                     }
                 }
             } // done looping over neighbors
