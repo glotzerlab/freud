@@ -175,20 +175,25 @@ void pairing::ComputePairing2D(const float3 *points,
                                const unsigned int No)
     {
     // for each particle
-    for (size_t i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < m_Np; i++)
         {
         if (m_pair_array[i] != i)
+            {
             continue;
+            }
         const vec2<float> r_i(points[i].x, points[i].y);
         // get the neighbors of i
         boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
         // loop over all neighboring particles
+        bool is_finished = false;
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             unsigned int j = neighbors[neigh_idx];
-            // this doesn't look like it's working
-            if (m_pair_array[j] != j)
+            // not sure if this should be a break or a continue
+            if ((m_pair_array[j] != j) || (m_pair_array[i] != i))
+                {
                 break;
+                }
             const vec2<float> r_j(points[j].x, points[j].y);
             vec2<float> r_ij(r_j - r_i);
             vec2<float> r_ji(r_i - r_j);
@@ -217,11 +222,13 @@ void pairing::ComputePairing2D(const float3 *points,
                 u_ji = my_mat * u_ji;
 
                 // for each potential complementary orientation for particle i
-                bool is_finished = false;
+                // bool is_finished = false;
                 for (unsigned int a=0; a<m_No; a++)
                     {
                     if (is_finished == true)
+                        {
                         break;
+                        }
                     // generate vectors
                     std::complex<float> tmp_i = std::polar<float>(1.0, comp_orientations[i*m_No + a]);
                     vec2<float> c_i;
@@ -245,7 +252,7 @@ void pairing::ComputePairing2D(const float3 *points,
                         float d_ij = dot(c_i, u_ij);
                         float d_ji = dot(c_j, u_ji);
                         // well, this is generating completely bogus dot products...ugh, so most of the debugging is bad
-                        if ((abs(d_ij - 1.0) < m_comp_dot_tol) && (abs(d_ji - 1.0) < m_comp_dot_tol) && (is_finished==false))
+                        if ((abs(d_ij - 1.0) < m_comp_dot_tol) && (abs(d_ji - 1.0) < m_comp_dot_tol) && (is_finished==false) && (rsq < (m_rmax * m_rmax)))
                             {
                             // printf("dij = %f; dji = %f\n", d_ij, d_ji);
                             m_match_array[i] = 1;
