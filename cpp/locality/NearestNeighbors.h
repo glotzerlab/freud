@@ -29,8 +29,8 @@ public:
     //! Constructor
     //!
     //! \param box This frame's box
-    //! \param nNeigh Number of neighbors to find
     //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
+    //! \param nNeigh Number of neighbors to find
     NearestNeighbors(const trajectory::Box& box,
                      float rmax,
                      unsigned int nNeigh);
@@ -53,7 +53,7 @@ public:
         return m_rmax;
         }
 
-    //! Get a reference to the neighborlist array
+    //! Get a reference to the neighbors array
     boost::shared_array<unsigned int> getNeighbors(unsigned int i) const
         {
         // create the array
@@ -95,6 +95,48 @@ public:
         return num_util::makeNum(arr, m_nNeigh*m_Np);
         }
 
+    //! Get a reference to the distance array
+    boost::shared_array<float> getRsq(float i) const
+        {
+        // create the array
+        boost::shared_array<float> requested_rsq = boost::shared_array<float>(new float[m_nNeigh]);
+        // find the position from which to read neighbors
+        unsigned int start_idx = i*m_nNeigh;
+        for (unsigned int j=0; j<m_nNeigh; j++)
+            {
+            requested_rsq[j] = m_rsq_array[start_idx + j];
+            }
+        return requested_rsq;
+        }
+
+    //! Python wrapper for getR() (returns a copy)
+    boost::python::numeric::array getRsqPy(float i)
+        {
+        // create the array
+        boost::shared_array<float> requested_rsq = boost::shared_array<float>(new float[m_nNeigh]);
+        // find the position from which to read neighbors
+        unsigned int start_idx = i*m_nNeigh;
+        for (unsigned int j=0; j<m_nNeigh; j++)
+            {
+            requested_rsq[j] = m_rsq_array[start_idx + j];
+            }
+        float *arr = requested_rsq.get();
+        return num_util::makeNum(arr, m_nNeigh);
+        }
+
+    //! Get a reference to the distanceList array
+    boost::shared_array<float> getRsqList() const
+        {
+        return m_rsq_array;
+        }
+
+    //! Python wrapper for getRList() (returns a copy)
+    boost::python::numeric::array getRsqListPy()
+        {
+        float *arr = m_rsq_array.get();
+        return num_util::makeNum(arr, m_nNeigh*m_Np);
+        }
+
     //! find the requested nearest neighbors
     void compute(const vec3<float> *r, unsigned int Np);
 
@@ -109,6 +151,7 @@ private:
     locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
     tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
     boost::shared_array<unsigned int> m_neighbor_array;         //!< array of nearest neighbors computed
+    boost::shared_array<float> m_rsq_array;         //!< array of distances to neighbors
     };
 
 //! Exports all classes in this file to python

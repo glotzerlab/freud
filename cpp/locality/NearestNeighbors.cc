@@ -40,6 +40,7 @@ class ComputeNearestNeighbors
     {
 private:
     atomic<unsigned int> &m_deficits;
+    atomic<float> *m_rsq_array;
     atomic<unsigned int> *m_neighbor_array;
     const trajectory::Box& m_box;
     const unsigned int m_nNeigh;
@@ -48,13 +49,14 @@ private:
     const vec3<float> *m_pos;
 public:
     ComputeNearestNeighbors(atomic<unsigned int> &deficits,
+                            atomic<float> *r_array,
                             atomic<unsigned int> *neighbor_array,
                             const trajectory::Box& box,
                             const unsigned int nNeigh,
                             const float rmax,
                             const locality::LinkCell& lc,
                             const vec3<float> *pos):
-        m_deficits(deficits), m_neighbor_array(neighbor_array), m_box(box), m_nNeigh(nNeigh), m_rmax(rmax), m_lc(lc),
+        m_deficits(deficits), m_rsq_array(r_array), m_neighbor_array(neighbor_array), m_box(box), m_nNeigh(nNeigh), m_rmax(rmax), m_lc(lc),
         m_pos(pos)
         {
         }
@@ -116,6 +118,7 @@ public:
                 for (unsigned int k = 0; k < m_nNeigh; k++)
                     {
                     // put the idx into the neighbor array
+                    m_rsq_array[i*m_nNeigh + k] = neighbors[k].first;
                     m_neighbor_array[i*m_nNeigh + k] = neighbors[k].second;
                     }
                 }
@@ -126,24 +129,21 @@ public:
 void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
     {
     // reallocate the output array if it is not the right size
-    // printf("reallocating array if necessary\n");
     if (Np != m_Np)
         {
-        // printf("allocating an array with %d = %d * %d elements\n", (int) Np * m_nNeigh, (int) Np, (int) m_nNeigh);
+        m_rsq_array = boost::shared_array<float>(new float[Np * m_nNeigh]);
         m_neighbor_array = boost::shared_array<unsigned int>(new unsigned int[Np * m_nNeigh]);
         }
     // find the nearest neighbors
-    // printf("starting the loop\n");
     do
         {
         // compute the cell list
-        // printf("computing the cell list\n");
         m_lc.computeCellList((float3*)pos, Np);
 
         m_deficits = 0;
-        // printf("starting the for loop\n");
         parallel_for(blocked_range<size_t>(0,Np),
             ComputeNearestNeighbors(m_deficits,
+                                    (atomic<float>*)m_rsq_array.get(),
                                     (atomic<unsigned int>*)m_neighbor_array.get(),
                                     m_box,
                                     m_nNeigh,
@@ -165,7 +165,6 @@ void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
 void NearestNeighbors::computePy(boost::python::numeric::array pos)
     {
     //validate input type and rank
-    // printf("starting compute\n");
     num_util::check_type(pos, PyArray_FLOAT);
     num_util::check_rank(pos, 2);
 
@@ -174,7 +173,6 @@ void NearestNeighbors::computePy(boost::python::numeric::array pos)
     unsigned int Np = num_util::shape(pos)[0];
 
     // get the raw data pointers and compute order parameter
-    // printf("converting to pointer\n");
     vec3<float>* pos_raw = (vec3<float>*) num_util::data(pos);
 
     // compute the order parameter with the GIL released
@@ -192,6 +190,8 @@ void export_NearestNeighbors()
         .def("getRMax", &NearestNeighbors::getRMax)
         .def("getNeighbors", &NearestNeighbors::getNeighborsPy)
         .def("getNeighborList", &NearestNeighbors::getNeighborListPy)
+        .def("getRsq", &NearestNeighbors::getRsqPy)
+        .def("getRsqList", &NearestNeighbors::getRsqListPy)
         .def("compute", &NearestNeighbors::computePy)
         ;
     }
