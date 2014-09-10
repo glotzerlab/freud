@@ -32,7 +32,7 @@ pairing::pairing(const trajectory::Box& box,
         m_match_array[i] = 0;
         }
     // create the pairing array to store particle pairs
-    // m_match_array[i] will have the pair of particle i stored at idx=i
+    // m_pair_array[i] will have the pair of particle i stored at idx=i
     // if there is no pairing, it will store itself
     m_pair_array = boost::shared_array<unsigned int>(new unsigned int[m_Np]);
     for (unsigned int i = 0; i < m_Np; i++)
@@ -40,133 +40,6 @@ pairing::pairing(const trajectory::Box& box,
         m_pair_array[i] = i;
         }
     }
-
-// class ComputePairing2D
-//     {
-//     private:
-//         atomic<unsigned int> *m_match_array;
-//         atomic<unsigned int> *m_pair_array;
-//         const float3 *m_points;
-//         const float *m_orientations;
-//         const float *m_comp_orientations;
-//         const unsigned int m_Np;
-//         const unsigned int m_No;
-//         const locality::NearestNeighbors &m_nn;
-//         const unsigned int m_k;
-//         const float m_rmax;
-//         const trajectory::Box m_box;
-//         const float m_comp_dot_tol;
-
-//     public:
-//         ComputePairing2D(atomic<unsigned int> *match_array,
-//                          atomic<unsigned int> *pair_array,
-//                          const float3 *points,
-//                          const float *orientations,
-//                          const float *comp_orientations,
-//                          const unsigned int Np,
-//                          const unsigned int No,
-//                          const locality::NearestNeighbors &nn,
-//                          const unsigned int k,
-//                          const float rmax,
-//                          const trajectory::Box box,
-//                          const float comp_dot_tol)
-//         : m_match_array(match_array), m_pair_array(pair_array), m_points(points), m_orientations(orientations),
-//           m_comp_orientations(comp_orientations), m_Np(Np), m_No(No), m_nn(nn), m_k(k), m_rmax(rmax), m_box(box),
-//           m_comp_dot_tol(comp_dot_tol)
-//         {
-//         }
-
-//         void operator()( const blocked_range<size_t>& r ) const
-//             {
-//             // for each particle
-//             for (size_t i = r.begin(); i != r.end(); i++)
-//                 {
-//                 const vec3<float> r_i(m_points[i].x, m_points[i].y, m_points[i].z);
-//                 // get the neighbors of i
-//                 boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
-//                 // loop over all neighboring particles
-//                 for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
-//                     {
-//                     unsigned int j = neighbors[neigh_idx];
-//                     const vec3<float> r_j(m_points[j].x, m_points[j].y, m_points[j].z);
-//                     vec3<float> r_ij(r_j - r_i);
-//                     vec3<float> r_ji(r_i - r_j);
-//                     float3 wrapped(m_box.wrap(make_float3(r_ij.x, r_ij.y, r_ij.z)));
-//                     r_ij = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
-//                     wrapped = m_box.wrap(make_float3(r_ji.x, r_ji.y, r_ji.z));
-//                     r_ji = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
-//                     const float rsq(dot(r_ij, r_ij));
-
-//                     // will skip same particle
-//                     if (rsq > 1e-6)
-//                         {
-//                         // check if the particles are paired
-//                         // particles are paired if they are the nearest neighbors that have the complementary vector
-//                         // pointing in the same direction as the interparticle vector
-
-//                         // for each potential complementary orientation for particle i
-//                         for (unsigned int a=0; a<m_No; a++)
-//                             {
-//                             // generate vectors
-//                             std::complex<float> tmp_i = std::polar<float>(1.0, m_orientations[i] + m_comp_orientations[i*m_No + a]);
-//                             vec3<float> c_i;
-//                             c_i.x = std::real<float>(tmp_i);
-//                             c_i.y = std::imag<float>(tmp_i);
-//                             c_i.z = 0;
-
-//                             // for each potential complementary orientation for particle j
-//                             for (unsigned int b=0; b<m_No; b++)
-//                                 {
-//                                 std::complex<float> tmp_j = std::polar<float>(1.0, m_orientations[j] + m_comp_orientations[j*m_No + b]);
-//                                 vec3<float> c_j;
-//                                 c_j.x = std::real<float>(tmp_j);
-//                                 c_j.y = std::imag<float>(tmp_j);
-//                                 c_j.z = 0;
-//                                 // calculate the dot products
-//                                 float d_ij = dot(c_i, r_ij);
-//                                 float d_ji = dot(c_j, r_ji);
-//                                 if ((abs(d_ij - 1.0) < m_comp_dot_tol) && (abs(d_ji - 1.0) < m_comp_dot_tol))
-//                                     {
-//                                     m_match_array[i] = 1;
-//                                     m_match_array[j] = 1;
-//                                     m_pair_array[i] = j;
-//                                     m_pair_array[j] = i;
-//                                     continue;
-//                                     }
-//                                 }
-//                             }
-
-//                         // if (comp_check_2D(m_rmax,
-//                         //                m_box,
-//                         //                r_i,
-//                         //                r_j,
-//                         //                angle_s_i,
-//                         //                angle_s_j,
-//                         //                angle_c_i,
-//                         //                angle_c_j,
-//                         //                m_shape_dot_target,
-//                         //                m_shape_dot_tol,
-//                         //                m_comp_dot_target,
-//                         //                m_comp_dot_tol,
-//                         //                dist2,
-//                         //                sdot,
-//                         //                cdot))
-//                         //     {
-//                         //     m_match_array[i] = 1;
-//                         //     // m_match_array[j] = 1;
-//                         //     m_dist2_array[i] = dist2;
-//                         //     // m_dist2_array[j] = dist2;
-//                         //     m_sdot_array[i] = sdot;
-//                         //     // m_sdot_array[j] = sdot;
-//                         //     m_cdot_array[i] = cdot;
-//                         //     // m_cdot_array[j] = cdot;
-//                         //     }
-
-//                         }
-//                     } // done looping over neighbors
-//                 } // done looping over reference points
-//             }
-//     };
 
 void pairing::ComputePairing2D(const float3 *points,
                                const float *orientations,
@@ -185,11 +58,11 @@ void pairing::ComputePairing2D(const float3 *points,
         // get the neighbors of i
         boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
         // loop over all neighboring particles
-        bool is_finished = false;
+        bool is_paired = false;
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             unsigned int j = neighbors[neigh_idx];
-            // not sure if this should be a break or a continue
+            // need to check to make sure that neither i nor j are paired, as i could become paired in the inner loop
             if ((m_pair_array[j] != j) || (m_pair_array[i] != i))
                 {
                 break;
@@ -211,9 +84,8 @@ void pairing::ComputePairing2D(const float3 *points,
                 // particles are paired if they are the nearest neighbors that have the complementary vector
                 // pointing in the same direction as the interparticle vector
 
-                // rotate interparticle vector
+                // rotate the unit interparticle vector
                 rotmat2<float> my_mat = rotmat2<float>::fromAngle(-orientations[i]);
-                // vec2<float> rot_vec = my_mat * r_ij;
                 vec2<float> u_ij(r_ij/sqrt(rsq));
                 u_ij = my_mat * u_ij;
                 my_mat = rotmat2<float>::fromAngle(-orientations[j]);
@@ -222,48 +94,40 @@ void pairing::ComputePairing2D(const float3 *points,
                 u_ji = my_mat * u_ji;
 
                 // for each potential complementary orientation for particle i
-                // bool is_finished = false;
                 for (unsigned int a=0; a<m_No; a++)
                     {
-                    if (is_finished == true)
+                    if (is_paired == true)
                         {
                         break;
                         }
                     // generate vectors
                     std::complex<float> tmp_i = std::polar<float>(1.0, comp_orientations[i*m_No + a]);
-                    vec2<float> c_i;
-                    // c_i.x = std::real<float>(tmp_i);
-                    // c_i.y = std::imag<float>(tmp_i);
-                    c_i.x = cosf(comp_orientations[i*m_No + a]);
-                    c_i.y = sinf(comp_orientations[i*m_No + a]);
+                    vec2<float> c_i(cosf(comp_orientations[i*m_No + a]), sinf(comp_orientations[i*m_No + a]));
 
                     // for each potential complementary orientation for particle j
                     for (unsigned int b=0; b<m_No; b++)
                         {
-                        if (is_finished == true)
+                        if (is_paired == true)
                             break;
-                        std::complex<float> tmp_j = std::polar<float>(1.0, orientations[j] + comp_orientations[j*m_No + b]);
-                        vec2<float> c_j;
-                        // c_j.x = std::real<float>(tmp_j);
-                        // c_j.y = std::imag<float>(tmp_j);
-                        c_j.x = cosf(comp_orientations[j*m_No + b]);
-                        c_j.y = sinf(comp_orientations[j*m_No + b]);
+                        std::complex<float> tmp_j = std::polar<float>(1.0, comp_orientations[j*m_No + b]);
+                        vec2<float> c_j(cosf(comp_orientations[j*m_No + b]), sinf(comp_orientations[j*m_No + b]));
                         // calculate the dot products
-                        float d_ij = dot(c_i, u_ij);
-                        float d_ji = dot(c_j, u_ji);
-                        // well, this is generating completely bogus dot products...ugh, so most of the debugging is bad
-                        if ((abs(d_ij - 1.0) < m_comp_dot_tol) && (abs(d_ji - 1.0) < m_comp_dot_tol) && (is_finished==false) && (rsq < (m_rmax * m_rmax)))
+                        float d_ij = acos(dot(c_i, u_ij));
+                        float d_ji = acos(dot(c_j, u_ji));
+                        // this check assumes that the target angle between the interparticle vector and the complementary
+                        // interface is 0. As the nearest neighbor list may use a larger rmax than was initialized, it has
+                        // to check again
+                        if ((d_ij < m_comp_dot_tol) && (d_ji < m_comp_dot_tol) && (is_paired==false) && (rsq < (m_rmax * m_rmax)))
                             {
-                            // printf("dij = %f; dji = %f\n", d_ij, d_ji);
                             m_match_array[i] = 1;
                             m_match_array[j] = 1;
                             m_pair_array[i] = j;
                             m_pair_array[j] = i;
-                            is_finished = true;
-                            }
-                        }
-                    }
-                }
+                            is_paired = true;
+                            } // done pairing particle
+                        } // done checking all orientations of j
+                    } // done checking all orientations of i
+                } // done with not doing if the same particle (which should not happen)
             } // done looping over neighbors
         } // done looping over reference points
     }
@@ -290,19 +154,6 @@ void pairing::compute(const float3* points,
         {
         m_pair_array[i] = i;
         }
-    // parallel_for(blocked_range<size_t>(0,Np),
-    //              ComputePairing2D((atomic<unsigned int>*)m_match_array.get(),
-    //                               (atomic<unsigned int>*)m_pair_array.get(),
-    //                               points,
-    //                               orientations,
-    //                               comp_orientations,
-    //                               Np,
-    //                               No,
-    //                               m_nn,
-    //                               m_k,
-    //                               m_rmax,
-    //                               m_box,
-    //                               m_comp_dot_tol));
      ComputePairing2D(points,
                       orientations,
                       comp_orientations,
@@ -317,8 +168,8 @@ void pairing::computePy(boost::python::numeric::array points,
                         boost::python::numeric::array comp_orientations)
     {
     // points contains all the particle positions; Np x 3
-    // types contains all the types; Np (x 1)
-    // orientations contains the angle of each particle; Np (x1)
+    // orientations contains the orientations of each particle; Np (x1)
+    // orientations contains the local orientations of possible interfaces; Np x No
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
     num_util::check_type(orientations, PyArray_FLOAT);
