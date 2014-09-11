@@ -6,31 +6,25 @@ from _freud import pairing
 #
 # Methods to compute shape pairings
 
-## Create a Pair object from a list of points, orientations, and shapes
+## Create a Pair object from a list of points and orientations
 #
-# User must supply:
-# a box, max compute distance (this can/should be quite small), the number of neighbors to check for pairing. To calculate, the user must supply
-# a list of positions, two lists of orientations, as well as two
-# dot product targets, and two dot product tolerances.
-#
-# two particles are matching if:
+# Two particles are matching if:
 # they are the two nearest neighbors and the following are true:
 # \vec{r_i}: \; \text{position} \\
 # \theta: \; \text{particle orientation} \\
-# \theta_c: \; \text{complementary edge orientation angle} \\
+# \theta_c: \; \text{complementary edge orientation angle in local orientation} \\
 # \hat{u}_c = e^{i \theta_c} = \cos \left( \theta_c \right) + i \sin \left( \theta_c \right): \; \text{complementary edge orientation unit vector}
 # \vec{r_{ij}} = \vec{r_j} - \vec{r_i} \\
 # \hat{r_{ij}} = \frac{\vec{r_{ij}}}{|\vec{r_{ij}}|}
 # |\vec{r_{ij}}| \leq d \\
 # \hat{u}_{ic} \cdot \hat{r}_{ij} = 1 \\
 # \hat{u}_{jc} \cdot \hat{r}_{ji} = 1 \\
-#
-class Pair:
+class Pair2D:
     ## Initialize Pair:
     # \param box The simulation box
     # \param rmax The max distance to search for nearest neighbors
     # \param k The number of nearest neighbors to check
-    # \params cDotTol The tolerance for the complementary dot product
+    # \params cDotTol The tolerance for the complementary dot product as an angle, in radians
     def __init__(self,box,rmax,k,cDotTol):
         super(Pair, self).__init__()
         self.box = box
