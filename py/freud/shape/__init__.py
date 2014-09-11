@@ -88,7 +88,7 @@ except ImportError:
 # \endcode
 #
 class Polyhedron:
-    ## Create a ConvexPolyhedron object from a list of points
+    ## Create a Polyhedron object from precalculated data structures
     # \param points (Np, 3) list of vertices ordered such that indices are used by other data structures
     # \param nverts (Nf,) list of numbers of vertices for correspondingly indexed facet
     # \param facets (Nf, max(nverts)) array of vertex indices associated with each facet
@@ -125,8 +125,7 @@ class Polyhedron:
         else:
             self.simplicial = None
 
-    ## \internal
-    # Merge coplanar simplicial facets
+    ## Merge coplanar simplicial facets
     # Requires multiple iterations when many non-adjacent coplanar facets exist.
     # If performance is ever an issue, this should really all be replaced with our own qhull wrapper...
     #
@@ -535,7 +534,8 @@ class Polyhedron:
 class ConvexPolyhedron(Polyhedron):
     ## Create a ConvexPolyhedron object from a list of points
     # \param points Nx3 list of vertices from which to construct the convex hull
-    def __init__(self, points):
+    # \param mergeFacets automatically try to merge coplanar simplicial facets (default True)
+    def __init__(self, points, mergeFacets=True):
         if ConvexHull is None:
             logger.error('Cannot initialize ConvexPolyhedron because scipy.spatial.ConvexHull is not available.')
 
@@ -559,12 +559,13 @@ class ConvexPolyhedron(Polyhedron):
         # mergeFacets does not merge all coplanar facets when there are a lot of neighboring coplanar facets,
         # but repeated calls will do the job.
         # If performance is ever an issue, this should really all be replaced with our own qhull wrapper...
-        old_nfacets = 0
-        new_nfacets = self.nfacets
-        while new_nfacets != old_nfacets:
-            self.mergeFacets()
-            old_nfacets = new_nfacets
+        if mergeFacets:
+            old_nfacets = 0
             new_nfacets = self.nfacets
+            while new_nfacets != old_nfacets:
+                self.mergeFacets()
+                old_nfacets = new_nfacets
+                new_nfacets = self.nfacets
         for i in range(self.nfacets):
             self.facets[i, 0:self.nverts[i]] = self.rhFace(i)
         for i in range(self.nfacets):
