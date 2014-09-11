@@ -8,7 +8,8 @@ from _freud import pairing
 
 ## Create a Pair object from a list of points, orientations, and shapes
 #
-# User must supply a box, max compute distance (this can/should be quite small). To calculate, the user must supply
+# User must supply:
+# a box, max compute distance (this can/should be quite small), the number of neighbors to check for pairing. To calculate, the user must supply
 # a list of positions, two lists of orientations, as well as two
 # dot product targets, and two dot product tolerances.
 #
