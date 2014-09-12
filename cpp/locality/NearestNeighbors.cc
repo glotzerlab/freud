@@ -43,6 +43,7 @@ private:
     atomic<float> *m_rsq_array;
     atomic<unsigned int> *m_neighbor_array;
     const trajectory::Box& m_box;
+    const unsigned int m_Np;
     const unsigned int m_nNeigh;
     const float m_rmax;
     const locality::LinkCell& m_lc;
@@ -52,11 +53,12 @@ public:
                             atomic<float> *r_array,
                             atomic<unsigned int> *neighbor_array,
                             const trajectory::Box& box,
+                            const unsigned int Np,
                             const unsigned int nNeigh,
                             const float rmax,
                             const locality::LinkCell& lc,
                             const vec3<float> *pos):
-        m_deficits(deficits), m_rsq_array(r_array), m_neighbor_array(neighbor_array), m_box(box), m_nNeigh(nNeigh), m_rmax(rmax), m_lc(lc),
+        m_deficits(deficits), m_rsq_array(r_array), m_neighbor_array(neighbor_array), m_box(box), m_Np(Np), m_nNeigh(nNeigh), m_rmax(rmax), m_lc(lc),
         m_pos(pos)
         {
         }
@@ -67,7 +69,7 @@ public:
         // tuple<> is c++11, so for now just make a pair with pairs inside
         // this data structure holds rsq, idx
         vector< pair<float, unsigned int> > neighbors;
-
+        Index2D b_i = Index2D(m_nNeigh, m_Np);
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {
             // printf("for particle %d\n", (int)i);
@@ -119,7 +121,8 @@ public:
                     {
                     // put the idx into the neighbor array
                     m_rsq_array[i*m_nNeigh + k] = neighbors[k].first;
-                    m_neighbor_array[i*m_nNeigh + k] = neighbors[k].second;
+                    m_rsq_array[b_i(k, i)] = neighbors[k].first;
+                    m_neighbor_array[b_i(k, i)] = neighbors[k].second;
                     }
                 }
             }
@@ -146,6 +149,7 @@ void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
                                     (atomic<float>*)m_rsq_array.get(),
                                     (atomic<unsigned int>*)m_neighbor_array.get(),
                                     m_box,
+                                    m_Np,
                                     m_nNeigh,
                                     m_rmax,
                                     m_lc,

@@ -9,6 +9,7 @@
 #undef swap
 #include "num_util.h"
 #include "trajectory.h"
+#include "Index1D.h"
 
 #include "tbb/atomic.h"
 
