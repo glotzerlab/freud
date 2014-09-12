@@ -68,6 +68,7 @@ class ComputeLindex
 
             // for each reference point
             float lindex;
+            Index2D b_i = Index2D(m_Np, m_Nf);
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 lindex = 0;
@@ -84,9 +85,9 @@ class ComputeLindex
                     for (unsigned int k = 0; k < m_Nf; k++)
                         {
                         // compute r between the two particles
-                        float dx = float(m_points[k * m_Np + i].x - m_points[k * m_Np + j].x);
-                        float dy = float(m_points[k * m_Np + i].y - m_points[k * m_Np + j].y);
-                        float dz = float(m_points[k * m_Np + i].z - m_points[k * m_Np + j].z);
+                        float dx = float(m_points[b_i(i, k)].x - m_points[b_i(j, k)].x);
+                        float dy = float(m_points[b_i(i, k)].y - m_points[b_i(j, k)].y);
+                        float dz = float(m_points[b_i(i, k)].z - m_points[b_i(j, k)].z);
 
                         float3 delta = m_box.wrap(make_float3(dx, dy, dz));
 
@@ -107,18 +108,7 @@ class ComputeLindex
                         }
                     double avg_rsq_ij = rsq_ij / ((float) m_Nf);
                     double tmp_lindex = (sqrtf(abs(avg_rsq_ij - (avg_r_ij * avg_r_ij))) / avg_r_ij);
-                    // printf("r_ij = %f\n", avg_r_ij);
-                    // printf("diff = %f \n", diff);
-                    // printf("rsq_ij = %f\n", rsq_ij);
-                    // printf("avg_r_ij = %f\n", avg_r_ij);
-                    // printf("avg_rsq_ij = %f\n", avg_rsq_ij);
-                    // printf("inner sqrtf = %f\n", sqrtf(avg_rsq_ij - (avg_r_ij * avg_r_ij)) / avg_r_ij);
-                    // printf("inner sqrtf = %f\n", tmp_lindex);
-                    // if (abs(diff) > 0.00001)
-                        // {
-                        // printf("diff = %f \n", diff);
-                        // }
-                    // printf("tmp_lindex = %f \n", tmp_lindex);
+
                     if (tmp_lindex < 0.0)
                     {
                         printf("prepare to die mortal scum; tmp_lindex = %f", tmp_lindex);
