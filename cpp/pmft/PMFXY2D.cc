@@ -140,6 +140,8 @@ class ComputePMFXY2DWithoutCellList
             float dy_inv = 1.0f / m_dy;
             float maxysq = m_max_y * m_max_y;
 
+            Index2D b_i = Index2D(m_nbins_x, m_nbins_y);
+
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
@@ -186,7 +188,7 @@ class ComputePMFXY2DWithoutCellList
                     // increment the bin; this is handled by atomic operations
                     if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                         {
-                        m_pcf_array[ibiny*m_nbins_x + ibinx]++;
+                        m_pcf_array[b_i(ibinx, ibiny)]++;
                         }
                     }
                 } // done looping over reference points
@@ -250,6 +252,8 @@ class ComputePMFXY2DWithCellList
             float dy_inv = 1.0f / m_dy;
             float maxysq = m_max_y * m_max_y;
 
+            Index2D b_i = Index2D(m_nbins_x, m_nbins_y);
+
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
@@ -307,7 +311,7 @@ class ComputePMFXY2DWithCellList
                         // it is possible that this is better handled by an array of atomics...
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                             {
-                            m_pcf_array[ibiny*m_nbins_x + ibinx]++;
+                            m_pcf_array[b_i(ibinx, ibiny)]++;
                             }
                         }
                     }
