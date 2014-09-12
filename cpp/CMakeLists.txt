@@ -60,6 +60,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/pairing
                     ${CMAKE_CURRENT_SOURCE_DIR}/pmft
                     ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap
+                    ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_BINARY_DIR}
@@ -121,6 +122,8 @@ set(SOURCES trajectory/trajectory.cc
             pmft/PMFTRPM.h
             bootstrap/Bootstrap.cc
             bootstrap/Bootstrap.h
+            shapesplit/shapesplit.cc
+            shapesplit/shapesplit.h
             interface/InterfaceMeasure.h
             sphericalharmonicorderparameters/LocalQl.h
             sphericalharmonicorderparameters/LocalQl.cc
