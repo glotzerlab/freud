@@ -31,7 +31,7 @@ GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width,
     memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
     }
 
-GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width_x, unsigned int width_y, 
+GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width_x, unsigned int width_y,
                                  unsigned int width_z, float r_cut, float sigma)
     : m_box(box), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_r_cut(r_cut), m_sigma(sigma)
     {
