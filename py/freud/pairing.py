@@ -26,7 +26,7 @@ class Pair2D:
     # \param k The number of nearest neighbors to check
     # \params cDotTol The tolerance for the complementary dot product as an angle, in radians
     def __init__(self,box,rmax,k,cDotTol):
-        super(Pair, self).__init__()
+        super(Pair2D, self).__init__()
         self.box = box
         self.rmax = rmax
         self.k = int(k)
