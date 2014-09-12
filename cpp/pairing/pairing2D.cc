@@ -48,6 +48,7 @@ void pairing::ComputePairing2D(const float3 *points,
                                const unsigned int No)
     {
     // for each particle
+    Index2D b_i = Index2D(m_No, m_Np);
     for (unsigned int i = 0; i < m_Np; i++)
         {
         if (m_pair_array[i] != i)
@@ -101,16 +102,16 @@ void pairing::ComputePairing2D(const float3 *points,
                         break;
                         }
                     // generate vectors
-                    std::complex<float> tmp_i = std::polar<float>(1.0, comp_orientations[i*m_No + a]);
-                    vec2<float> c_i(cosf(comp_orientations[i*m_No + a]), sinf(comp_orientations[i*m_No + a]));
+                    float theta_ci = comp_orientations[b_i(a, i)];
+                    vec2<float> c_i(cosf(theta_ci), sinf(theta_ci));
 
                     // for each potential complementary orientation for particle j
                     for (unsigned int b=0; b<m_No; b++)
                         {
                         if (is_paired == true)
                             break;
-                        std::complex<float> tmp_j = std::polar<float>(1.0, comp_orientations[j*m_No + b]);
-                        vec2<float> c_j(cosf(comp_orientations[j*m_No + b]), sinf(comp_orientations[j*m_No + b]));
+                        float theta_cj = comp_orientations[b_i(b, j)];
+                        vec2<float> c_j(cosf(theta_cj), sinf(theta_cj));
                         // calculate the dot products
                         float d_ij = acos(dot(c_i, u_ij));
                         float d_ji = acos(dot(c_j, u_ji));

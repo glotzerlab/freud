@@ -5,6 +5,7 @@
 #include "VectorMath.h"
 #include "num_util.h"
 #include "trajectory.h"
+#include "Index1D.h"
 
 #ifndef _pairing_H__
 #define _pairing_H__
