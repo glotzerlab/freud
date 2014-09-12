@@ -168,6 +168,8 @@ class ComputePMFTWithoutCellList
             float dz_inv = 1.0f / m_dz;
             float maxzsq = m_max_z * m_max_z;
 
+            Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_z);
+
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
@@ -234,7 +236,7 @@ class ComputePMFTWithoutCellList
                     // increment the bin; this is handled by atomic operations
                     if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                         {
-                        m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
+                        m_pcf_array[b_i(ibinx, ibiny, ibinz)]++;
                         }
                     }
                 } // done looping over reference points
@@ -306,6 +308,8 @@ class ComputePMFTWithCellList
             float maxysq = m_max_y * m_max_y;
             float dz_inv = 1.0f / m_dz;
             float maxzsq = m_max_z * m_max_z;
+
+            Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_z);
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -387,7 +391,7 @@ class ComputePMFTWithCellList
                         // it is possible that this is better handled by an array of atomics...
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                             {
-                            m_pcf_array[ibinz*m_nbins_y*m_nbins_x + ibiny*m_nbins_x + ibinx]++;
+                            m_pcf_array[b_i(ibinx, ibiny, ibinz)]++;
                             }
                         }
                     }

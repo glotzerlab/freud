@@ -4,6 +4,7 @@
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
+#include "Index1D.h"
 
 #ifndef _RDF_H__
 #define _RDF_H__
@@ -48,18 +49,6 @@ class RDF
                      unsigned int Nref,
                      const float3 *points,
                      unsigned int Np);
-
-        //! Compute the RDF
-    // void computeWithoutCellList(const float3 *ref_points,
-    //                 unsigned int Nref,
-    //                 const float3 *points,
-    //                 unsigned int Np);
-
-    //! Compute the RDF
-    // void computeWithCellList(const float3 *ref_points,
-    //              unsigned int Nref,
-    //              const float3 *points,
-    //              unsigned int Np);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array ref_points,

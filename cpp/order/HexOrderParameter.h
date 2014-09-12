@@ -1,9 +1,10 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
-#include "LinkCell.h"
+#include "NearestNeighbors.h"
 #include "num_util.h"
 #include "trajectory.h"
+#include "Index1D.h"
 
 #ifndef _HEX_ORDER_PARAMTER_H__
 #define _HEX_ORDER_PARAMTER_H__
@@ -53,7 +54,7 @@ class HexOrderParameter
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;                        //!< Multiplier in the exponent
-        locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
+        locality::NearestNeighbors m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_Np;                //!< Last number of points computed
 
         boost::shared_array< std::complex<float> > m_psi_array;         //!< psi array computed

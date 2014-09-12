@@ -13,7 +13,7 @@
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
 #include "LocalQl.h"
-#include "pairing.h"
+#include "pairing2D.h"
 #include "PMFXYZ.h"
 #include "PMFXY2D.h"
 #include "PMFTXYT2D.h"
@@ -33,6 +33,7 @@
 #include "wigner3j.h"
 #include "lindemann.h"
 #include "LocalDescriptors.h"
+#include "NearestNeighbors.h"
 
 using namespace boost::python;
 namespace bnp=boost::python::numeric;
@@ -85,6 +86,7 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     order::export_LocalDescriptors();
+    locality::export_NearestNeighbors();
     interface::export_InterfaceMeasure();
     sphericalharmonicorderparameters::export_LocalQl();
     sphericalharmonicorderparameters::export_LocalWl();

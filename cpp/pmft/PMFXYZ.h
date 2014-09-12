@@ -4,6 +4,7 @@
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
+#include "Index1D.h"
 
 #ifndef _PMFXYZ_H__
 #define _PMFXYZ_H__
