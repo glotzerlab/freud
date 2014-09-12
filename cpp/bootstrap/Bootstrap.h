@@ -6,6 +6,7 @@
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
+#include "Index1D.h"
 
 #ifndef _Bootstrap_H__
 #define _Bootstrap_H__
@@ -45,28 +46,28 @@ class Bootstrap
                               boost::shared_array<float> *err_array,
                               std::vector<unsigned int> *cum_array);
 
-        //! Python wrapper for getPCF() (returns a copy)
+        //! Python wrapper for getBootstrap() (returns a copy)
         boost::python::numeric::array getBootstrapPy()
             {
             unsigned int *arr = m_bootstrap_array.get();
             return num_util::makeNum(arr, m_nBootstrap * m_arrSize);
             }
 
-        //! Python wrapper for getPCF() (returns a copy)
+        //! Python wrapper for getAVG() (returns a copy)
         boost::python::numeric::array getAVGPy()
             {
             float *arr = m_avg_array.get();
             return num_util::makeNum(arr, m_arrSize);
             }
 
-        //! Python wrapper for getPCF() (returns a copy)
+        //! Python wrapper for getSTD() (returns a copy)
         boost::python::numeric::array getSTDPy()
             {
             float *arr = m_std_array.get();
             return num_util::makeNum(arr, m_arrSize);
             }
 
-        //! Python wrapper for getPCF() (returns a copy)
+        //! Python wrapper for getERR() (returns a copy)
         boost::python::numeric::array getERRPy()
             {
             float *arr = m_err_array.get();

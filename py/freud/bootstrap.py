@@ -7,10 +7,7 @@ import numpy
 
 from _freud import Bootstrap
 
-# I need to think about how I can handle multiple input types...
-
 ## Compute the bootstrap analysis
-# might need to change the name of this
 class bootstrap(object):
     ## Initialize the bootstrap object:
     # \param dataArr The data array to compute the bootstrap on
