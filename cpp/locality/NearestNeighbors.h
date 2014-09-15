@@ -54,6 +54,12 @@ public:
         return m_rmax;
         }
 
+    //! Get the current cutoff radius used
+    float getRMaxPy() const
+        {
+        return m_rmax;
+        }
+
     //! Get a reference to the neighbors array
     boost::shared_array<unsigned int> getNeighbors(unsigned int i) const
         {

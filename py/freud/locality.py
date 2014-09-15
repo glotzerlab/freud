@@ -12,3 +12,63 @@ from _freud import NearestNeighbors
 def iterator_link_cell_iter(self):
     return self
 IteratorLinkCell.__iter__ = iterator_link_cell_iter;
+
+class NNeighbors:
+    ## Initialize NearestNeighbors
+    # \param box The simulation box
+    # \param rmax The maximum distance to search for nearest neighbors
+    # \param n The number of nearest neighbors to find
+    def __init__(self,box,rmax,n):
+        super(NNeighbors, self).__init__()
+        self.box = box
+        self.rmax = rmax
+        self.n = int(n)
+        self.handle = NearestNeighbors(self.box, self.rmax, self.n)
+        self.neighborList = None
+        self.RsqList = None
+
+    # change any parameters
+    def update(box=None,
+               rmax=None,
+               n=None):
+        if box is not None:
+            self.box = box
+        if rmax is not None:
+            self.rmax = rmax
+        if n is not None:
+            self.n = n
+        if not ((box is None) and (rmax is None) and (n is None)):
+            self.handle = NearestNeighbors(self.box, self.rmax, self.n)
+
+    # find nearest neighbors
+    def compute(self,
+                positions):
+        self.handle.compute(positions)
+        self.rmax = self.handle.getRMax()
+        self.neighborList = self.handle.getNeighborList()
+        self.neighborList = self.neighborList.reshape(shape=(len(positions), self.n))
+        self.RsqList = self.handle.getRsqList()
+        self.RsqList = self.RsqList.reshape(shape=(len(positions), self.n))
+
+    # return the nearest neighbors of point idx
+    def neighbors(self,
+                  idx):
+        if self.neighborList is not None:
+            return self.neighborList[idx]
+        else:
+            try:
+                return self.handle.getNeighbors(idx)
+            except:
+                raise RuntimeError("neighbors have not been calculated")
+
+    # get the distance between point idx and its nearest neighbors
+    def rsq(self,
+            idx):
+        if self.RsqList is not None:
+            return self.RsqList[idx]
+        else:
+            try:
+                return self.handle.getRsq(idx)
+            except:
+                raise RuntimeError("neighbors have not been calculated")
+
