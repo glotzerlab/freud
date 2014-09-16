@@ -2,7 +2,9 @@
 #include "num_util.h"
 
 #include "HOOMDMath.h"
+#define swap freud_swap
 #include "VectorMath.h"
+#undef swap
 
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__

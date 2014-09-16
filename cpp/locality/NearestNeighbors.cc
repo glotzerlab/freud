@@ -77,7 +77,7 @@ public:
 
             //get cell point is in
             const vec3<float> posi(m_pos[i]);
-            unsigned int ref_cell = m_lc.getCell(make_float3(posi.x, posi.y, posi.z));
+            unsigned int ref_cell = m_lc.getCell(posi);
             unsigned int num_adjacent = 0;
 
             //loop over neighboring cells
@@ -93,11 +93,11 @@ public:
                     {
                     // printf("for neighbor particle %d\n", j);
                     const vec3<float> posj(m_pos[j]);
-                    vec3<float> rij(posj - posi);
+                    // vec3<float> rij(posj - posi);
 
                     //compute r between the two particles
-                    const float3 wrapped(m_box.wrap(make_float3(rij.x, rij.y, rij.z)));
-                    rij = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
+                    // const float3 wrapped(m_box.wrap(make_float3(rij.x, rij.y, rij.z)));
+                    vec3<float>rij = m_box.wrap(posj - posi);
                     const float rsq(dot(rij, rij));
 
                     // adds all neighbors within rsq to list of possible neighbors
@@ -141,7 +141,7 @@ void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
     do
         {
         // compute the cell list
-        m_lc.computeCellList((float3*)pos, Np);
+        m_lc.computeCellList(pos, Np);
 
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,Np),

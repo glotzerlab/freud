@@ -12,7 +12,9 @@
 
 #include <tbb/tbb.h>
 
+#define swap freud_swap
 #include "VectorMath.h"
+#undef swap
 
 using namespace std;
 using namespace boost::python;
@@ -123,13 +125,13 @@ class ComputePMFTWithoutCellList
         const float m_dz;
         // const float3 *m_ref_points;
         const vec3<float> *m_ref_points;
-        const float4 *m_ref_orientations;
+        const quat<float> *m_ref_orientations;
         const unsigned int m_Nref;
         // const float3 *m_points;
         const vec3<float> *m_points;
-        const float4 *m_orientations;
+        const quat<float> *m_orientations;
         const unsigned int m_Np;
-        const float4 *m_extra_orientations;
+        const quat<float> *m_extra_orientations;
     public:
         ComputePMFTWithoutCellList(atomic<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
@@ -144,13 +146,13 @@ class ComputePMFTWithoutCellList
                                    const float dz,
                                    // const float3 *ref_points,
                                    const vec3<float> *ref_points,
-                                   const float4 *ref_orientations,
+                                   const quat<float> *ref_orientations,
                                    unsigned int Nref,
                                    // const float3 *points,
                                    const vec3<float> *points,
-                                   const float4 *orientations,
+                                   const quat<float> *orientations,
                                    unsigned int Np,
-                                   const float4 *extra_orientations)
+                                   const quat<float> *extra_orientations)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_ref_points(ref_points),
               m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np),
@@ -206,27 +208,21 @@ class ComputePMFTWithoutCellList
                         // skip if the same particle
                         continue;
                         }
-                    float x = delta.x;
-                    float y = delta.y;
-                    float z = delta.z;
+                    // float x = delta.x;
+                    // float y = delta.y;
+                    // float z = delta.z;
 
                     // rotate interparticle vector
-                    quat<float> q(m_ref_orientations[i].w,
-                                  vec3<float>(m_ref_orientations[i].x,
-                                              m_ref_orientations[i].y,
-                                              m_ref_orientations[i].z));
+                    quat<float> q(m_ref_orientations[i]);
                     // create the extra quaternion
-                    quat<float> qe(m_extra_orientations[i].w,
-                                  vec3<float>(m_extra_orientations[i].x,
-                                              m_extra_orientations[i].y,
-                                              m_extra_orientations[i].z));
-                    vec3<float> v(x, y, z);
+                    quat<float> qe(m_extra_orientations[i]);
+                    vec3<float> v(delta);
                     v = rotate(conj(q), v);
                     v = rotate(qe, v);
 
-                    x = v.x + m_max_x;
-                    y = v.y + m_max_y;
-                    z = v.z + m_max_z;
+                    float x = v.x + m_max_x;
+                    float y = v.y + m_max_y;
+                    float z = v.z + m_max_z;
 
                     // bin that point
                     float binx = floorf(x * dx_inv);
@@ -273,13 +269,13 @@ class ComputePMFTWithCellList
         const locality::LinkCell *m_lc;
         // const float3 *m_ref_points;
         const vec3<float> *m_ref_points;
-        const float4 *m_ref_orientations;
+        const quat<float> *m_ref_orientations;
         const unsigned int m_Nref;
         // const float3 *m_points;
         const vec3<float> *m_points;
-        const float4 *m_orientations;
+        const quat<float> *m_orientations;
         const unsigned int m_Np;
-        const float4 *m_extra_orientations;
+        const quat<float> *m_extra_orientations;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
                                unsigned int nbins_x,
@@ -295,13 +291,13 @@ class ComputePMFTWithCellList
                                const locality::LinkCell *lc,
                                // const float3 *ref_points,
                                const vec3<float> *ref_points,
-                               const float4 *ref_orientations,
+                               const quat<float> *ref_orientations,
                                unsigned int Nref,
                                // const float3 *points,
                                const vec3<float> *points,
-                               const float4 *orientations,
+                               const quat<float> *orientations,
                                unsigned int Np,
-                               const float4 *extra_orientations)
+                               const quat<float> *extra_orientations)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
@@ -346,14 +342,14 @@ class ComputePMFTWithCellList
                         // compute r between the two particles
                         // float3 point = m_points[j];
                         vec3<float> point = m_points[j];
-                        vec3<float> delta = ref - point;
+                        // vec3<float> delta = ref - point;
                         // float dx = float(ref.x - point.x);
                         // float dy = float(ref.y - point.y);
                         // float dz = float(ref.z - point.z);
 
                         // make sure that the particles are wrapped into the box
                         // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                        vec3<float> delta = m_box.wrap(delta);
+                        vec3<float> delta = m_box.wrap(ref - point);
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
@@ -366,31 +362,25 @@ class ComputePMFTWithCellList
                             {
                             continue;
                             }
-                        float x = delta.x;
-                        float y = delta.y;
-                        float z = delta.z;
+                        // float x = delta.x;
+                        // float y = delta.y;
+                        // float z = delta.z;
 
                         // rotate interparticle vector
 
                         // create the reference point quaternion
-                        quat<float> q(m_ref_orientations[i].w,
-                                      vec3<float>(m_ref_orientations[i].x,
-                                                  m_ref_orientations[i].y,
-                                                  m_ref_orientations[i].z));
+                        quat<float> q(m_ref_orientations[i]);
                         // create the extra quaternion
-                        quat<float> qe(m_extra_orientations[i].w,
-                                      vec3<float>(m_extra_orientations[i].x,
-                                                  m_extra_orientations[i].y,
-                                                  m_extra_orientations[i].z));
+                        quat<float> qe(m_extra_orientations[i]);
                         // create point vector
-                        vec3<float> v(x, y, z);
+                        vec3<float> v(delta);
                         // rotate the vector
                         v = rotate(conj(q), v);
                         v = rotate(qe, v);
 
-                        x = v.x + m_max_x;
-                        y = v.y + m_max_y;
-                        z = v.z + m_max_z;
+                        float x = v.x + m_max_x;
+                        float y = v.y + m_max_y;
+                        float z = v.z + m_max_z;
 
                         // bin that point
                         float binx = floorf(x * dx_inv);
@@ -450,21 +440,13 @@ void PMFXYZ::resetPCF()
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
 */
-
-// void PMFXYZ::compute(const float3 *ref_points,
-//                       const float4 *ref_orientations,
-//                       unsigned int Nref,
-//                       const float3 *points,
-//                       const float4 *orientations,
-//                       unsigned int Np,
-//                       const float4 *extra_orientations)
 void PMFXYZ::compute(const vec3<float> *ref_points,
-                      const float4 *ref_orientations,
+                      const quat<float> *ref_orientations,
                       unsigned int Nref,
                       const vec3<float> *points,
-                      const float4 *orientations,
+                      const quat<float> *orientations,
                       unsigned int Np,
-                      const float4 *extra_orientations)
+                      const quat<float> *extra_orientations)
     {
     if (useCells())
         {
@@ -552,11 +534,11 @@ void PMFXYZ::computePy(boost::python::numeric::array ref_points,
     // get the raw data pointers and compute the cell list
     // float3* ref_points_raw = (float3*) num_util::data(ref_points);
     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    float4* ref_orientations_raw = (float4*) num_util::data(ref_orientations);
+    quat<float>* ref_orientations_raw = (quat<float>*) num_util::data(ref_orientations);
     // float3* points_raw = (float3*) num_util::data(points);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    float4* orientations_raw = (float4*) num_util::data(orientations);
-    float4* extra_orientations_raw = (float4*) num_util::data(extra_orientations);
+    quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
+    quat<float>* extra_orientations_raw = (quat<float>*) num_util::data(extra_orientations);
 
         // compute with the GIL released
         {

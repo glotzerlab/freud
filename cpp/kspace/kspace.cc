@@ -32,9 +32,12 @@ void FTdelta::compute()
     */
     unsigned int NK = m_NK;
     unsigned int Np = m_Np;
-    float3* K = m_K;
-    float3* r = m_r;
-    float4* q = m_q;
+    // float3* K = m_K;
+    // float3* r = m_r;
+    vec3<float>* K = m_K;
+    vec3<float>* r = m_r;
+    // float4* q = m_q;
+    quat<float>* q = m_q;
     float density_Im = m_density_Im;
     float density_Re = m_density_Re;
     m_S_Re = boost::shared_array<float>(new float[NK]);
@@ -45,8 +48,8 @@ void FTdelta::compute()
         {
         for(unsigned int j=0; j < Np; j++)
             {
-            float d; // dot product of K and r
-            d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
+            float d = dot(K[i], r[j]); // dot product of K and r
+            // d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
             float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
             CosKr = cos(d);
             negSinKr = sin(d);
@@ -75,9 +78,12 @@ void FTsphere::compute()
     {
     unsigned int NK = m_NK;
     unsigned int Np = m_Np;
-    float3* K = m_K;
-    float3* r = m_r;
-    float4* q = m_q;
+    // float3* K = m_K;
+    // float3* r = m_r;
+    vec3<float>* K = m_K;
+    vec3<float>* r = m_r;
+    // float4* q = m_q;
+    quat<float>* q = m_q;
     float radius = m_radius;
 
     /* S += e**(-i * dot(K, r))
@@ -97,7 +103,8 @@ void FTsphere::compute()
             float f_Im(m_density_Im);
             float f_Re(m_density_Re);
 
-            float K2 = K[i].x * K[i].x + K[i].y * K[i].y + K[i].z * K[i].z;
+            // float K2 = K[i].x * K[i].x + K[i].y * K[i].y + K[i].z * K[i].z;
+            float K2 = dot(K[i], K[i]);
             // FT evaluated at K=0 is just the scattering volume
             // f(0) = volume
             // f(K) = (4.*pi*R) / K**2 * (sinc(K*R) - cos(K*R)))
@@ -116,8 +123,8 @@ void FTsphere::compute()
 
             // Get structure factor
             float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
-            float d; // dot product of K and r
-            d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
+            float d = dot(K[i], r[j]); // dot product of K and r
+            // d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
             CosKr = cos(d);
             negSinKr = sin(d);
 
@@ -161,14 +168,14 @@ void FTpolyhedron::compute()
         // For each particle
         for(unsigned int p_idx=0; p_idx < Np; p_idx++)
             {
-            vec3<float> r(m_r[p_idx].x, m_r[p_idx].y, m_r[p_idx].z);
+            vec3<float> r(*m_r);
             /* The FT of an object with orientation q at a given k-space point is the same as the FT
                of the unrotated object at a k-space point rotated the opposite way.
                The opposite of the rotation represented by a quaternion is the conjugate of the quaternion,
                found by inverting the sign of the imaginary components.
             */
-            quat<float> q(m_q[p_idx].w, vec3<float>(m_q[p_idx].x, m_q[p_idx].y, m_q[p_idx].z));
-            vec3<float> K(m_K[K_idx].x, m_K[K_idx].y, m_K[K_idx].z);
+            quat<float> q(*m_q);
+            vec3<float> K(*m_K);
             K = rotate(conj(q), K);
 
             // Get form factor
@@ -241,8 +248,8 @@ void FTpolyhedron::compute()
 
             // Get structure factor
             float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
-            float d; // dot product of K and r
-            d = K.x * r.x + K.y * r.y + K.z * r.z;
+            float d = dot(K, r); // dot product of K and r
+            // d = K.x * r.x + K.y * r.y + K.z * r.z;
             CosKr = cosf(d);
             negSinKr = sinf(d);
 

@@ -12,7 +12,9 @@
 
 #include <tbb/tbb.h>
 
+#define swap freud_swap
 #include "VectorMath.h"
+#undef swap
 
 using namespace std;
 using namespace boost::python;
@@ -166,7 +168,7 @@ class ComputePMFTRPMWithoutCellList
                     delta = m_box.wrap(delta);
 
                     // float rsq = delta.x*delta.x + delta.y*delta.y;
-                    float rsq = dot(delta);
+                    float rsq = dot(delta, delta);
                     if (rsq < 1e-6)
                         {
                         continue;

@@ -3,7 +3,9 @@
 //include <boost/math/special_functions.hpp>
 
 #include "HOOMDMath.h"
+#define swap freud_swap
 #include "VectorMath.h"
+#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"

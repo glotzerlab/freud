@@ -3,7 +3,9 @@
 
 #include "num_util.h"
 #include "HOOMDMath.h"
+#define swap freud_swap
 #include "VectorMath.h"
+#undef swap
 
 #ifndef _KSPACE_H__
 #define _KSPACE_H__
@@ -25,7 +27,8 @@ class FTdelta
         //! Destructor
         virtual ~FTdelta();
 
-        void set_K(float3* K, unsigned int NK)
+        // void set_K(float3* K, unsigned int NK)
+        void set_K(vec3<float>* K, unsigned int NK)
             {
             m_K = K;
             m_NK = NK;
@@ -42,7 +45,8 @@ class FTdelta
             num_util::check_dim(K, 1, 3);
             unsigned int NK = num_util::shape(K)[0];
             // get the raw data pointers
-            float3* K_raw = (float3*) num_util::data(K);
+            // float3* K_raw = (float3*) num_util::data(K);
+            vec3<float>* K_raw = (vec3<float>*) num_util::data(K);
             set_K(K_raw, NK);
             }
         /*! Set particle positions and orientations
@@ -50,7 +54,8 @@ class FTdelta
         \param orientation Np x 4 Array of particle orientation quaternions
         \param Np Number of particles
         */
-        void set_rq(unsigned int Np, float3* position, float4* orientation)
+        // void set_rq(unsigned int Np, float3* position, float4* orientation)
+        void set_rq(unsigned int Np, vec3<float>* position, quat<float>* orientation)
             {
             m_Np = Np;
             m_r = position;
@@ -78,8 +83,10 @@ class FTdelta
             num_util::check_dim(orientation, 0, Np);
 
             // get the raw data pointers
-            float3* r_raw = (float3*) num_util::data(position);
-            float4* q_raw = (float4*) num_util::data(orientation);
+            // float3* r_raw = (float3*) num_util::data(position);
+            vec3<float>* r_raw = (vec3<float>*) num_util::data(position);
+            // float4* q_raw = (float4*) num_util::data(orientation);
+            quat<float>* q_raw = (quat<float>*) num_util::data(orientation);
             set_rq(Np, r_raw, q_raw);
             }
         /*! Set scattering density
@@ -125,9 +132,12 @@ class FTdelta
         boost::shared_array<float> m_S_Im;  //!< Imaginary component of structure factor
         unsigned int m_NK;                  //!< number of K points evaluated
         unsigned int m_Np;                  //!< number of particles (length of r and q arrays)
-        float3* m_K;                        //!< array of K points
-        float3* m_r;                        //!< array of particle positions
-        float4* m_q;                        //!< array of particle orientations
+        // float3* m_K;                        //!< array of K points
+        // float3* m_r;                        //!< array of particle positions
+        vec3<float>* m_K;                        //!< array of K points
+        vec3<float>* m_r;                        //!< array of particle positions
+        // float4* m_q;                        //!< array of particle orientations
+        quat<float>* m_q;                        //!< array of particle orientations
         float m_density_Re;                 //!< real component of the scattering density
         float m_density_Im;                 //!< imaginary component of the scattering density
     };

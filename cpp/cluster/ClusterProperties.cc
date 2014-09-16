@@ -87,7 +87,7 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
         // m_cluster_com[c].x += dr_wrapped.x;
         // m_cluster_com[c].y += dr_wrapped.y;
         // m_cluster_com[c].z += dr_wrapped.z;
-        m_cluster_com[c] += dr_wrapped;
+        m_cluster_com[c] += delta;
 
         m_cluster_size[c]++;
         }
@@ -119,15 +119,15 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
 
         // get the start pointer for our 3x3 matrix
         float *G = m_cluster_G.get() + c*9;
-        G[0*3+0] += dr.x * dr.x;
-        G[0*3+1] += dr.x * dr.y;
-        G[0*3+2] += dr.x * dr.z;
-        G[1*3+0] += dr.y * dr.x;
-        G[1*3+1] += dr.y * dr.y;
-        G[1*3+2] += dr.y * dr.z;
-        G[2*3+0] += dr.z * dr.x;
-        G[2*3+1] += dr.z * dr.y;
-        G[2*3+2] += dr.z * dr.z;
+        G[0*3+0] += delta.x * delta.x;
+        G[0*3+1] += delta.x * delta.y;
+        G[0*3+2] += delta.x * delta.z;
+        G[1*3+0] += delta.y * delta.x;
+        G[1*3+1] += delta.y * delta.y;
+        G[1*3+2] += delta.y * delta.z;
+        G[2*3+0] += delta.z * delta.x;
+        G[2*3+1] += delta.z * delta.y;
+        G[2*3+2] += delta.z * delta.z;
         }
 
     // now need to divide by the number of particles in each cluster

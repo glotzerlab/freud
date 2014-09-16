@@ -1,6 +1,9 @@
 #include <boost/python.hpp>
 
 #include "HOOMDMath.h"
+#define swap freud_swap
+#include "VectorMath.h"
+#undef swap
 #include "Index1D.h"
 #include "num_util.h"
 

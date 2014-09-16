@@ -108,7 +108,7 @@ class ComputeLindex
                     // r_ij.x /= (double) m_Nf;
                     // r_ij.y /= (double) m_Nf;
                     // r_ij.z /= (double) m_Nf;
-                    r_ij /= (double) m_Nf;
+                    r_ij /= (float) m_Nf;
                     // double avg_r_ij = sqrt(r_ij.x*r_ij.x  + r_ij.y*r_ij.y + r_ij.z*r_ij.z);
                     double avg_r_ij = sqrt(dot(r_ij, r_ij));
                     if (avg_r_ij < 0.0)

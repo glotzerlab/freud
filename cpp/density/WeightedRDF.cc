@@ -235,7 +235,7 @@ void WeightedRDF<T>::computeWithCellList(const vec3<float> *ref_points,
                 delta = m_box.wrap(delta);
 
                 // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
-                float rsq = dot(delta);
+                float rsq = dot(delta, delta);
 
                 if (rsq < rmaxsq)
                     {

@@ -6,7 +6,9 @@
 //#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "HOOMDMath.h"
+#define swap freud_swap
 #include "VectorMath.h"
+#undef swap
 
 #include <vector>
 #include <set>

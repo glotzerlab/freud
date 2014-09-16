@@ -29,9 +29,9 @@ SolLiq::SolLiq(const trajectory::Box& box, float rmax, float Qthreshold, unsigne
 //Spherical harmonics from boost.  Chooses appropriate l from m_l local var.
 void SolLiq::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
-    if(Y.size() != 2*m_l+1) 
+    if(Y.size() != 2*m_l+1)
         Y.resize(2*m_l+1);
-        
+
     for(int m = - ((int)m_l); m <= (int)m_l; m++)
         //Doc for boost spherical harmonic
         //http://www.boost.org/doc/libs/1_53_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/sph_harm.html
@@ -41,28 +41,28 @@ void SolLiq::Ylm(const float theta, const float phi, std::vector<std::complex<fl
     //for(unsigned int i = 1; i <= m_l; i++)
     //    Y[i+m_l] = Y[-i+m_l];
     }
-    
-    
-//Spherical harmonics! L=6.  Returns m=-6...6 as a std::vector.    
-void SolLiq::Y6m(const float theta, const float phi, std::vector<std::complex<float> > &Y) 
+
+
+//Spherical harmonics! L=6.  Returns m=-6...6 as a std::vector.
+void SolLiq::Y6m(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     const int l = 6;
-    if(Y.size() != 2*l+1) 
+    if(Y.size() != 2*l+1)
         {
         Y.resize(2*l+1);
         }
     const std::complex<float> j = std::complex<float>(0.0,1.0);
-        
+
     float sintheta = sin(theta);
     float costheta = cos(theta);
 
     //Do exp(m*j*phi) later
-    Y[0] = 1.0/64 * sqrt(3003.0/M_PI) * pow(sintheta,6); 
+    Y[0] = 1.0/64 * sqrt(3003.0/M_PI) * pow(sintheta,6);
     Y[1] = 3.0/32 * sqrt(1001.0/M_PI) * costheta*pow(sintheta,5);
-    Y[2] = 3.0/32 * sqrt(91.0/(2*M_PI)) * pow(sintheta,4)*(11*pow(costheta,2) - 1); 
-    Y[3] = 1.0/32 * sqrt(1365.0/M_PI) * pow(sintheta,3)*costheta*(11*pow(costheta,2) - 3); 
-    Y[4] = 1.0/64 * sqrt(1365.0/M_PI) * pow(sintheta,2)*(33*pow(costheta,4)-18*pow(costheta,2)+1); 
-    Y[5] = 1.0/16 * sqrt(273.0/(2*M_PI)) * sintheta*costheta*(33*pow(costheta,4)-30*pow(costheta,2)+5); 
+    Y[2] = 3.0/32 * sqrt(91.0/(2*M_PI)) * pow(sintheta,4)*(11*pow(costheta,2) - 1);
+    Y[3] = 1.0/32 * sqrt(1365.0/M_PI) * pow(sintheta,3)*costheta*(11*pow(costheta,2) - 3);
+    Y[4] = 1.0/64 * sqrt(1365.0/M_PI) * pow(sintheta,2)*(33*pow(costheta,4)-18*pow(costheta,2)+1);
+    Y[5] = 1.0/16 * sqrt(273.0/(2*M_PI)) * sintheta*costheta*(33*pow(costheta,4)-30*pow(costheta,2)+5);
     Y[6] = 1.0/32 * sqrt(13.0/M_PI) * (231*pow(costheta,6)-315*pow(costheta,4) + 105*pow(costheta,2) - 5);
     Y[7] = -Y[5];
     Y[8] = Y[4];
@@ -83,7 +83,7 @@ void SolLiq::Y4m(const float theta, const float phi, std::vector<std::complex<fl
         {
         Y.resize(2*l+1);
         }
-        
+
     // constants and theta terms
     const std::complex<float> j = std::complex<float>(0.0,1.0);
     Y[0] = 3.0/16 * sqrt(35.0 / (2*M_PI)) * pow(sin(theta),4);
@@ -114,18 +114,18 @@ void SolLiq::Y4m(const float theta, const float phi, std::vector<std::complex<fl
 void SolLiq::compute(const vec3<float> *points, unsigned int Np)
     {
     m_lc.computeCellList(points,Np);
-    
+
     //Initialize Qlmi
     computeClustersQ(points,Np);
     //Determines number of solid or liquid like bonds
     computeClustersQdot(points,Np);
     //Determines if particles are solid or liquid by clustering those with sufficient solid-like bonds
     computeClustersQS(points,Np);
-    m_Np = Np;  
+    m_Np = Np;
     }
-    
+
 //Begins calculation of solliq order parameter.  This variant requires particles to share at least S_threshold neighbors
-// in order to cluster them, rather than each possess S_threshold neighbors.    
+// in order to cluster them, rather than each possess S_threshold neighbors.
 // void SolLiq::computeSolLiqVariant(const float3 *points, unsigned int Np)
 void SolLiq::computeSolLiqVariant(const vec3<float> *points, unsigned int Np)
     {
@@ -135,11 +135,12 @@ void SolLiq::computeSolLiqVariant(const vec3<float> *points, unsigned int Np)
     vector< vector<unsigned int> > SolidlikeNeighborlist;
     computeListOfSolidLikeNeighbors(points, Np, SolidlikeNeighborlist);
     computeClustersSharedNeighbors(points, Np, SolidlikeNeighborlist);
-    m_Np = Np;     
+    m_Np = Np;
     }
 
 //Calculate solliq order parameter, without doing normalization.
-void SolLiq::computeSolLiqNoNorm(const float3 *points, unsigned int Np)
+// void SolLiq::computeSolLiqNoNorm(const float3 *points, unsigned int Np)
+void SolLiq::computeSolLiqNoNorm(const vec3<float> *points, unsigned int Np)
     {
     m_lc.computeCellList(points,Np);
     //Initialize Qlmi
@@ -150,29 +151,29 @@ void SolLiq::computeSolLiqNoNorm(const float3 *points, unsigned int Np)
     computeClustersQS(points,Np);
     m_Np = Np;
     }
-    
+
 // void SolLiq::computeClustersQ(const float3 *points, unsigned int Np)
 void SolLiq::computeClustersQ(const vec3<float> *points, unsigned int Np)
     {
     float rmaxsq = m_rmax * m_rmax;
-    if (m_Np != Np) 
+    if (m_Np != Np)
         {
         m_Qlmi_array = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*Np]);
         m_number_of_neighbors = boost::shared_array<unsigned int>(new unsigned int[Np]);
         }
     memset((void*)m_Qlmi_array.get(), 0, sizeof(complex<float>)*(2*m_l+1)*Np);
-    memset((void*)m_number_of_neighbors.get(), 0, sizeof(unsigned int)*Np);        
-    
-    
+    memset((void*)m_number_of_neighbors.get(), 0, sizeof(unsigned int)*Np);
+
+
     std::vector<std::complex<float> > Y;  Y.resize(2*m_l+1);
-    
+
     for (unsigned int i = 0; i<Np; i++)
         {
         //get cell point is in
         // float3 ref = points[i];
         vec3<float> ref = points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
-       
+
         //loop over neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
         for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
@@ -465,7 +466,7 @@ unsigned int SolLiq::getLargestClusterSize()
         }
     //Traverse map looking for largest cluster size
     unsigned int largestcluster = 0;
-    for (std::map<uint,uint>::iterator it=freqcount.begin(); it!=freqcount.end(); ++it) 
+    for (std::map<uint,uint>::iterator it=freqcount.begin(); it!=freqcount.end(); ++it)
         {
         if(it->second > largestcluster)  //Candidate for largest cluster
             {
@@ -474,25 +475,25 @@ unsigned int SolLiq::getLargestClusterSize()
         }
     return largestcluster;
     }
-    
+
 std::vector<unsigned int> SolLiq::getClusterSizes()
     {
     std::map<unsigned int, unsigned int> freqcount;
     //m_cluster_idx stores the cluster ID for each particle.  Count by adding to map.
-    for(unsigned int i = 0; i < m_Np; i++) 
+    for(unsigned int i = 0; i < m_Np; i++)
         {
         if(m_number_of_connections[i] >= m_Sthreshold)
             {
             freqcount[m_cluster_idx[i]]++;
             }
-        else 
+        else
             {
             freqcount[m_cluster_idx[i]]=0;
-            } 
+            }
         }
     //Loop over counting map and shove all cluster sizes into an array
     std::vector<unsigned int> clustersizes;
-    for (std::map<uint,uint>::iterator it=freqcount.begin(); it!=freqcount.end(); ++it) 
+    for (std::map<uint,uint>::iterator it=freqcount.begin(); it!=freqcount.end(); ++it)
         {
         clustersizes.push_back(it->second);
         }
@@ -501,40 +502,42 @@ std::vector<unsigned int> SolLiq::getClusterSizes()
     return clustersizes;
     }
 
-// HERE LAST CHANGE BEFORE
-void SolLiq::computeListOfSolidLikeNeighbors(const float3 *points, 
+// void SolLiq::computeListOfSolidLikeNeighbors(const float3 *points,
+//                               unsigned int Np, vector< vector<unsigned int> > &SolidlikeNeighborlist)
+void SolLiq::computeListOfSolidLikeNeighbors(const vec3<float> *points,
                               unsigned int Np, vector< vector<unsigned int> > &SolidlikeNeighborlist)
     {
     m_qldot_ij.clear();     //Stores all the q dot products between all particles i,j
 
     //resize
     SolidlikeNeighborlist.resize(Np);
-    
+
     // reallocate the cluster_idx array if the size doesn't match the last one
-    
+
     //These probably don't need allocation each time.
     m_cluster_idx = boost::shared_array<unsigned int>(new unsigned int[Np]);
     m_number_of_connections = boost::shared_array<unsigned int>(new unsigned int[Np]);
     memset((void*)m_number_of_connections.get(), 0, sizeof(unsigned int)*Np);
-        
+
     float rmaxsq = m_rmax * m_rmax;
 
     // for each point
     for (unsigned int i = 0; i < Np; i++)
         {
         // get the cell the point is in
-        float3 p = points[i];
+        // float3 p = points[i];
+        vec3<float> p = points[i];
         unsigned int cell = m_lc.getCell(p);
-        
+
         //Empty list
         SolidlikeNeighborlist[i].resize(0);
-    
+
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
             {
             unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
+
             // iterate over the particles in that cell
             locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
@@ -542,12 +545,14 @@ void SolLiq::computeListOfSolidLikeNeighbors(const float3 *points,
                 if (i != j)
                     {
                     // compute r between the two particles
-                    float dx = float(p.x - points[j].x);
-                    float dy = float(p.y - points[j].y);
-                    float dz = float(p.z - points[j].z);
-                    float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                
-                    float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    // float dx = float(p.x - points[j].x);
+                    // float dy = float(p.y - points[j].y);
+                    // float dz = float(p.z - points[j].z);
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    vec3<float> delta = m_box.wrap(p - points[j]);
+
+                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    float rsq = dot(delta, delta);
 
                     if (rsq < rmaxsq && rsq > 1e-6)  //Check distance for candidate i,j
                         {
@@ -567,13 +572,13 @@ void SolLiq::computeListOfSolidLikeNeighbors(const float3 *points,
                         Qlminorm = sqrt(Qlminorm);
                         Qlmjnorm = sqrt(Qlmjnorm);
                         Qdot = Qdot/(Qlminorm*Qlmjnorm);
-                            
+
                         if(i < j)
                             {
                             m_qldot_ij.push_back(Qdot);
                             }
                         //Check if we're bonded via the threshold criterion
-                        if( real(Qdot) > m_Qthreshold) 
+                        if( real(Qdot) > m_Qthreshold)
                             {
                             m_number_of_connections[i]++;
                             SolidlikeNeighborlist[i].push_back(j);
@@ -585,29 +590,32 @@ void SolLiq::computeListOfSolidLikeNeighbors(const float3 *points,
         }
     }
 
-void SolLiq::computeClustersSharedNeighbors(const float3 *points, 
+// void SolLiq::computeClustersSharedNeighbors(const float3 *points,
+//     unsigned int Np, const vector< vector<unsigned int> > &SolidlikeNeighborlist)
+void SolLiq::computeClustersSharedNeighbors(const vec3<float> *points,
     unsigned int Np, const vector< vector<unsigned int> > &SolidlikeNeighborlist)
     {
-    
+
     m_cluster_idx = boost::shared_array<unsigned int>(new unsigned int[Np]);
     m_number_of_shared_connections.clear();  //Reset.
 
     float rmaxcluster_sq = m_rmax_cluster * m_rmax_cluster;
     freud::cluster::DisjointSet dj(Np);
-       
+
     // for each point
     for (unsigned int i = 0; i < Np; i++)
         {
         // get the cell the point is in
-        float3 p = points[i];
+        // float3 p = points[i];
+        vec3<float> p = points[i];
         unsigned int cell = m_lc.getCell(p);
-        
+
         // loop over all neighboring cells
         const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
             {
             unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
+
             // iterate over the particles in that cell
             locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
@@ -615,17 +623,19 @@ void SolLiq::computeClustersSharedNeighbors(const float3 *points,
                 if (i < j)
                     {
                     // compute r between the two particles
-                    float dx = float(p.x - points[j].x);
-                    float dy = float(p.y - points[j].y);
-                    float dz = float(p.z - points[j].z);
-                    float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                
-                    float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    // float dx = float(p.x - points[j].x);
+                    // float dy = float(p.y - points[j].y);
+                    // float dz = float(p.z - points[j].z);
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    vec3<float> delta = m_box.wrap(p - points[j]);
+
+                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    float rsq = dot(delta, delta);
                     if (rsq < rmaxcluster_sq && rsq > 1e-6)  //Check distance for candidate i,j
                         {
                         unsigned int num_shared = 0;
                         map<unsigned int, unsigned int> sharedneighbors;
-                        for(unsigned int k = 0; k < SolidlikeNeighborlist[i].size(); k++) 
+                        for(unsigned int k = 0; k < SolidlikeNeighborlist[i].size(); k++)
                             {
                             sharedneighbors[SolidlikeNeighborlist[i][k]]++;
                             }
@@ -656,10 +666,10 @@ void SolLiq::computeClustersSharedNeighbors(const float3 *points,
                 }
             }
         }
-    
+
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;
-    
+
     // go over every point
     uint32_t cur_set = 0;
     for (uint32_t i = 0; i < Np; i++)
@@ -676,61 +686,65 @@ void SolLiq::computeClustersSharedNeighbors(const float3 *points,
         // label this point in cluster_idx
         m_cluster_idx[i] = label_map[s];
         }
-    
+
     // cur_set is now the number of clusters
     m_num_clusters = cur_set;
     }
-  
+
 void SolLiq::computePy(boost::python::numeric::array points)
     {
     //validate input type and rank
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
-    
+
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
-    
+
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     compute(points_raw, Np);
     }
-    
+
 void SolLiq::computeSolLiqVariantPy(boost::python::numeric::array points)
     {
     //validate input type and rank
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
-    
+
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
-    
+
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     computeSolLiqVariant(points_raw, Np);
     }
-   
+
 void SolLiq::computeSolLiqNoNormPy(boost::python::numeric::array points)
     {
     //validate input type and rank
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
-    
+
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
-    
+
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     computeSolLiqNoNorm(points_raw, Np);
     }
-   
+
 void SolLiq::computeNoNormVectorInputPy(boost::python::api::object &pyobj) {
     std::vector<Scalar3> vec = boost::python::extract<std::vector<Scalar3> >(pyobj);
-    computeSolLiqNoNorm( (float3*) &vec.front(),vec.size());
+    // computeSolLiqNoNorm( (float3*) &vec.front(),vec.size());
+    computeSolLiqNoNorm( (vec3<float>*) &vec.front(),vec.size());
 }
- 
+
 void export_SolLiq()
     {
     class_<SolLiq>("SolLiq", init<trajectory::Box&, float,float,unsigned int, unsigned int>())
@@ -754,7 +768,7 @@ void export_SolLiq()
     }
 
 
-    
+
 }; };// end namespace freud::sol_liq;
 
 

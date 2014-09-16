@@ -26,9 +26,18 @@ namespace freud { namespace viz {
 
 */
 
-float2 rotate(float2 point, float angle)
+// float2 rotate(float2 point, float angle)
+//     {
+//     float2 rot;
+//     float mysin = sinf(angle);
+//     float mycos = cosf(angle);
+//     rot.x = mycos * point.x + -mysin * point.y;
+//     rot.y = mysin * point.x + mycos * point.y;
+//     return rot;
+//     }
+vec2<float> rotate(vec2<float> point, float angle)
     {
-    float2 rot;
+    vec2<float> rot;
     float mysin = sinf(angle);
     float mycos = cosf(angle);
     rot.x = mycos * point.x + -mysin * point.y;
@@ -82,11 +91,14 @@ void splitPy(boost::python::numeric::array split_array,
     unsigned int NS = num_util::shape(centers_array)[0];
 
     // get the raw data pointers and compute conversion
-    float3* split_array_raw = (float3*) num_util::data(split_array);
+    // float3* split_array_raw = (float3*) num_util::data(split_array);
+    vec3<float>* split_array_raw = (vec3<float>*) num_util::data(split_array);
     float* sangle_array_raw = (float*) num_util::data(sangle_array);
-    float3* position_array_raw = (float3*) num_util::data(position_array);
+    // float3* position_array_raw = (float3*) num_util::data(position_array);
+    vec3<float>* position_array_raw = (vec3<float>*) num_util::data(position_array);
     float* angle_array_raw = (float*) num_util::data(angle_array);
-    float2* centers_array_raw = (float2*) num_util::data(centers_array);
+    // float2* centers_array_raw = (float2*) num_util::data(centers_array);
+    vec2<float>* centers_array_raw = (vec2<float>*) num_util::data(centers_array);
 
         {
         util::ScopedGILRelease gil;
@@ -108,11 +120,41 @@ void splitPy(boost::python::numeric::array split_array,
 
 */
 
-void split(float3 *split_array,
+// void split(float3 *split_array,
+//               float *sangle_array,
+//               const float3 *position_array,
+//               const float *angle_array,
+//               const float2 *centers_array,
+//               unsigned int N,
+//               unsigned int NS)
+//     {
+
+//     // For every polygon aka position
+
+//     for (unsigned int i = 0; i < N; i++)
+//         {
+//         // for every center in that polygon
+//         for (unsigned int j = 0; j < NS; j++)
+//             {
+//                 // This is the rotated and translated center
+//                 float2 new_center;
+//                 new_center = rotate(centers_array[j], angle_array[i]);
+//                 float3 new_pos;
+//                 new_pos.x = new_center.x + position_array[i].x;
+//                 new_pos.y = new_center.y + position_array[i].y;
+//                 new_pos.z = position_array[i].z;
+//                 split_array[i * NS + j] = new_pos;
+//                 sangle_array[i * NS + j] = angle_array[i];
+//             }
+
+//         }
+//     }
+
+void split(vec3<float> *split_array,
               float *sangle_array,
-              const float3 *position_array,
+              const vec3<float> *position_array,
               const float *angle_array,
-              const float2 *centers_array,
+              const vec2<float> *centers_array,
               unsigned int N,
               unsigned int NS)
     {
@@ -125,9 +167,9 @@ void split(float3 *split_array,
         for (unsigned int j = 0; j < NS; j++)
             {
                 // This is the rotated and translated center
-                float2 new_center;
+                vec2<float> new_center;
                 new_center = rotate(centers_array[j], angle_array[i]);
-                float3 new_pos;
+                vec3<float> new_pos;
                 new_pos.x = new_center.x + position_array[i].x;
                 new_pos.y = new_center.y + position_array[i].y;
                 new_pos.z = position_array[i].z;
