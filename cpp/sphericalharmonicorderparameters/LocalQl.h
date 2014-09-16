@@ -2,6 +2,8 @@
 #include <boost/shared_array.hpp>
 //include <boost/math/special_functions.hpp>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -62,28 +64,36 @@ class LocalQl
 
 
         //! Compute the local rotationally invariant Ql order parameter
-        void compute(const float3 *points,
+        // void compute(const float3 *points,
+        //              unsigned int Np);
+        void compute(const vec3<float> *points,
                      unsigned int Np);
 
         //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
         void computePy(boost::python::numeric::array points);
 
         //! Compute the local rotationally invariant (with 2nd shell) Ql order parameter
-        void computeAve(const float3 *points,
+        // void computeAve(const float3 *points,
+        //                 unsigned int Np);
+        void computeAve(const vec3<float> *points,
                         unsigned int Np);
 
         //! Python wrapper for computing the order parameter (with 2nd shell) from a Nx3 numpy array of float32.
         void computeAvePy(boost::python::numeric::array points);
 
         //! Compute the Ql order parameter globally (averaging over the system Qlm)
-        void computeNorm(const float3 *points,
+        // void computeNorm(const float3 *points,
+        //                  unsigned int Np);
+        void computeNorm(const vec3<float> *points,
                          unsigned int Np);
 
         //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32
         void computeNormPy(boost::python::numeric::array points);
 
       //! Compute the Ql order parameter globally (averaging over the system AveQlm)
-        void computeAveNorm(const float3 *points,
+        // void computeAveNorm(const float3 *points,
+        //                  unsigned int Np);
+        void computeAveNorm(const vec3<float> *points,
                          unsigned int Np);
 
         //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32

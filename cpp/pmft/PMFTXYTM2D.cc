@@ -114,10 +114,12 @@ class ComputePMFTXYTM2DWithoutCellList
         const float m_dx;
         const float m_dy;
         const float m_dT;
-        const float3 *m_ref_points;
+        // const float3 *m_ref_points;
+        const vec3<float> *m_ref_points;
         float *m_ref_orientations;
         const unsigned int m_Nref;
-        const float3 *m_points;
+        // const float3 *m_points;
+        const vec3<float> *m_points;
         float *m_orientations;
         const unsigned int m_Np;
     public:
@@ -132,10 +134,12 @@ class ComputePMFTXYTM2DWithoutCellList
                                    const float dx,
                                    const float dy,
                                    const float dT,
-                                   const float3 *ref_points,
+                                   // const float3 *ref_points,
+                                   const vec3<float> *ref_points,
                                    float *ref_orientations,
                                    unsigned int Nref,
-                                   const float3 *points,
+                                   // const float3 *points,
+                                   const vec3<float> *points,
                                    float *orientations,
                                    unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T), m_box(box),
@@ -155,25 +159,34 @@ class ComputePMFTXYTM2DWithoutCellList
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                float3 ref = m_ref_points[i];
+                // float3 ref = m_ref_points[i];
+                vec3<float> ref = m_ref_points[i];
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    float3 point = m_points[j];
+                    // float3 point = m_points[j];
+                    vec3<float> point = m_points[j];
                     // compute r between the two particles
-                    float dx = float(point.x - ref.x);
-                    float dy = float(point.y - ref.y);
+                    vec3<float> delta = point - ref;
+                    // float dx = float(point.x - ref.x);
+                    // float dy = float(point.y - ref.y);
 
-                    float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
+                    delta = m_box.wrap(delta);
+                    float rsq = dot(delta, delta);
 
-                    float xsq = delta.x*delta.x;
-                    float ysq = delta.y*delta.y;
-                    if ((xsq < 1e-6) && (ysq < 1e-6))
+                    // float xsq = delta.x*delta.x;
+                    // float ysq = delta.y*delta.y;
+                    // if ((xsq < 1e-6) && (ysq < 1e-6))
+                    if (rsq < 1e-6)
                         {
                         continue;
                         }
-                    vec2<Scalar> myVec(delta.x, delta.y);
-                    rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
-                    vec2<Scalar> rotVec = myMat * myVec;
+                    // vec2<Scalar> myVec(delta.x, delta.y);
+                    // rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
+                    // vec2<Scalar> rotVec = myMat * myVec;
+                    vec2<float> myVec(delta.x, delta.y);
+                    rotmat2<float> myMat = rotmat2<float>::fromAngle(-m_ref_orientations[i]);
+                    vec2<float> rotVec = myMat * myVec;
                     float x = rotVec.x + m_max_x;
                     float y = rotVec.y + m_max_y;
                     // calculate angles
@@ -222,10 +235,12 @@ class ComputePMFTXYTM2DWithCellList
         const float m_dy;
         const float m_dT;
         const locality::LinkCell *m_lc;
-        float3 *m_ref_points;
+        // float3 *m_ref_points;
+        vec3<float> *m_ref_points;
         float *m_ref_orientations;
         const unsigned int m_Nref;
-        float3 *m_points;
+        // float3 *m_points;
+        vec3<float> *m_points;
         float *m_orientations;
         const unsigned int m_Np;
     public:
@@ -241,10 +256,12 @@ class ComputePMFTXYTM2DWithCellList
                                 const float dy,
                                 const float dT,
                                 const locality::LinkCell *lc,
-                                float3 *ref_points,
+                                // float3 *ref_points,
+                                vec3<float> *ref_points,
                                 float *ref_orientations,
                                 unsigned int Nref,
-                                float3 *points,
+                                // float3 *points,
+                                vec3<float> *points,
                                 float *orientations,
                                 unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T), m_box(box),
@@ -270,7 +287,8 @@ class ComputePMFTXYTM2DWithCellList
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 // get the cell the point is in
-                float3 ref = m_ref_points[i];
+                // float3 ref = m_ref_points[i];
+                vec3<float> ref = m_ref_points[i];
                 unsigned int ref_cell = m_lc->getCell(ref);
 
                 // loop over all neighboring cells
@@ -283,21 +301,29 @@ class ComputePMFTXYTM2DWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        float3 point = m_points[j];
-                        float dx = float(point.x - ref.x);
-                        float dy = float(point.y - ref.y);
-                        float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
+                        // float3 point = m_points[j];
+                        vec3<float> point = m_points[j];
+                        vec3<float> delta = point - ref;
+                        // float dx = float(point.x - ref.x);
+                        // float dy = float(point.y - ref.y);
+                        // float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
+                        delta = m_box.wrap(delta);
+                        float rsq = dot(delta, delta);
 
-                        float xsq = delta.x*delta.x;
-                        float ysq = delta.y*delta.y;
-                        if ((xsq < 1e-6) && (ysq < 1e-6))
+                        // float xsq = delta.x*delta.x;
+                        // float ysq = delta.y*delta.y;
+                        // if ((xsq < 1e-6) && (ysq < 1e-6))
+                        if (rsq < 1e-6)
                             {
                             continue;
                             }
                         // rotate interparticle vector
-                        vec2<Scalar> myVec(delta.x, delta.y);
-                        rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
-                        vec2<Scalar> rotVec = myMat * myVec;
+                        // vec2<Scalar> myVec(delta.x, delta.y);
+                        // rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
+                        // vec2<Scalar> rotVec = myMat * myVec;
+                        vec2<float> myVec(delta.x, delta.y);
+                        rotmat2<float> myMat = rotmat2<float>::fromAngle(-m_ref_orientations[i]);
+                        vec2<float> rotVec = myMat * myVec;
                         float x = rotVec.x + m_max_x;
                         float y = rotVec.y + m_max_y;
                         // calculate angles
@@ -347,11 +373,18 @@ bool PMFTXYTM2D::useCells()
     return false;
     }
 
+// void PMFTXYTM2D::compute(unsigned int *pcf_array,
+//                         float3 *ref_points,
+//                         float *ref_orientations,
+//                         unsigned int Nref,
+//                         float3 *points,
+//                         float *orientations,
+//                         unsigned int Np)
 void PMFTXYTM2D::compute(unsigned int *pcf_array,
-                        float3 *ref_points,
+                        vec3<float> *ref_points,
                         float *ref_orientations,
                         unsigned int Nref,
-                        float3 *points,
+                        vec3<float> *points,
                         float *orientations,
                         unsigned int Np)
     {
@@ -435,9 +468,11 @@ void PMFTXYTM2D::computePy(boost::python::numeric::array pcf_array,
 
     // get the raw data pointers and compute the cell list
     unsigned int* pcf_array_raw = (unsigned int*) num_util::data(pcf_array);
-    float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
     float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     float* orientations_raw = (float*) num_util::data(orientations);
 
         // compute with the GIL released

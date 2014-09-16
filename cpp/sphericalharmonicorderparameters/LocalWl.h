@@ -2,6 +2,9 @@
 #include <boost/shared_array.hpp>
 //#include <boost/math/special_functions/spherical_harmonic.hpp>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
+
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -20,15 +23,15 @@ namespace freud { namespace sphericalharmonicorderparameters {
 //! Compute the local Steinhardt rotationally invariant Wl order parameter for a set of points
 /*!
  * Implements the local rotationally invariant Wl order parameter described by Steinhardt that can aid in distinguishing between FCC, HCP, BCC.
- * 
+ *
  * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
- * Uses a python wrapper to pass the wigner3j coefficients to c++ 
+ * Uses a python wrapper to pass the wigner3j coefficients to c++
 */
 //! Added first/second shell combined average Wl order parameter for a set of points
 /*!
  * Variation of the Steinhardt Wl order parameter
  * For a particle i, we calculate the average W_l by summing the spherical harmonics between particle i and its neighbors j and the neighbors k of neighbor j in a local region:
- * 
+ *
  * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
 
@@ -59,20 +62,26 @@ class LocalWl
             }
 
         //! Compute the local rotationally invariant Wl order parameter
-        void compute(const float3 *points,
+        // void compute(const float3 *points,
+        //              unsigned int Np);
+        void compute(const vec3<float> *points,
                      unsigned int Np);
 
         //! Compute the Wl order parameter globally (averaging over the system Qlm)
-        void computeNorm(const float3 *points,
+        // void computeNorm(const float3 *points,
+        //                  unsigned int Np);
+        void computeNorm(const vec3<float> *points,
                          unsigned int Np);
 
        //! Compute the Wl order parameter with second shell (averaging over the second shell Qlm)
-        void computeAve(const float3 *points,
+        // void computeAve(const float3 *points,
+        //                 unsigned int Np);
+        void computeAve(const vec3<float> *points,
                         unsigned int Np);
 
        //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
         void computePy(boost::python::numeric::array points);
- 
+
         //! Python wrapper for computing the global Wl order parameter from Nx3 numpy array of float32
         void computeNormPy(boost::python::numeric::array points);
 
@@ -97,7 +106,7 @@ class LocalWl
             {
             return m_Qli;
             }
-        
+
         //! See if the wigner3jvalues were passed correctly
         //boost::shared_array< double > getWigner3j()
           //  {
@@ -159,7 +168,7 @@ class LocalWl
         unsigned int m_Np;                //!< Last number of points computed
         unsigned int m_counter;           //!< length of wigner3jvalues
         //unsigned int num_wigner3jcoefs;
-        bool m_normalizeWl;               //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.        
+        bool m_normalizeWl;               //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.
 
         boost::shared_array< std::complex<double> > m_Qlm;
         boost::shared_array< std::complex<double> > m_Qlmi;        //!  Qlm for each particle i

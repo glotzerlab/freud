@@ -76,7 +76,9 @@ Cluster::Cluster(const trajectory::Box& box, float rcut)
         throw invalid_argument("rcut must be positive");
     }
 
-void Cluster::computeClusters(const float3 *points,
+// void Cluster::computeClusters(const float3 *points,
+//                               unsigned int Np)
+void Cluster::computeClusters(const vec3<float> *points,
                               unsigned int Np)
     {
     assert(points);
@@ -97,7 +99,7 @@ void Cluster::computeClusters(const float3 *points,
     for (unsigned int i = 0; i < m_num_particles; i++)
         {
         // get the cell the point is in
-        float3 p = points[i];
+        vec3<float> p = points[i];
         unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
@@ -113,12 +115,14 @@ void Cluster::computeClusters(const float3 *points,
                 if (i != j)
                     {
                     // compute r between the two particles
-                    float dx = float(p.x - points[j].x);
-                    float dy = float(p.y - points[j].y);
-                    float dz = float(p.z - points[j].z);
-                    float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    vec3<float> delta = p - points[j];
+                    // float dx = float(p.x - points[j].x);
+                    // float dy = float(p.y - points[j].y);
+                    // float dz = float(p.z - points[j].z);
+                    delta = m_box.wrap(delta);
 
-                    float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    float rsq = dot(delta, delta);
                     if (rsq < rmaxsq)
                         {
                         // merge the two sets using the disjoint set
@@ -167,7 +171,8 @@ void Cluster::computeClustersPy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
     computeClusters(points_raw, Np);
     }

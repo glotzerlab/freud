@@ -41,7 +41,10 @@ class ClusterProperties
             }
 
         //! Compute properties of the point clusters
-        void computeProperties(const float3 *points,
+        // void computeProperties(const float3 *points,
+        //                        const unsigned int *cluster_idx,
+        //                        unsigned int Np);
+        void computeProperties(const vec3<float> *points,
                                const unsigned int *cluster_idx,
                                unsigned int Np);
 
@@ -56,7 +59,8 @@ class ClusterProperties
             }
 
         //! Get a reference to the last computed cluster_com
-        boost::shared_array<float3> getClusterCOM()
+        // boost::shared_array<float3> getClusterCOM()
+        boost::shared_array< vec3<float> > getClusterCOM()
             {
             return m_cluster_com;
             }
@@ -108,7 +112,7 @@ class ClusterProperties
         trajectory::Box m_box;                       //!< Simulation box the particles belong in
         unsigned int m_num_clusters;                 //!< Number of clusters found in the last call to computeProperties()
 
-        boost::shared_array<float3> m_cluster_com;   //!< Center of mass computed for each cluster (length: m_num_clusters)
+        boost::shared_array< vec3<float> > m_cluster_com;   //!< Center of mass computed for each cluster (length: m_num_clusters)
         boost::shared_array<float> m_cluster_G;      //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
         boost::shared_array<unsigned int> m_cluster_size;    //!< Size per cluster
     };

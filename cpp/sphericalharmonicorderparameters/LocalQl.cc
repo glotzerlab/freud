@@ -46,7 +46,8 @@ void LocalQl::Ylm(const double theta, const double phi, std::vector<std::complex
         Y[i+m_l] = Y[-i+m_l];
     }
 
-void LocalQl::compute(const float3 *points, unsigned int Np)
+// void LocalQl::compute(const float3 *points, unsigned int Np)
+void LocalQl::compute(const vec3<float> *points, unsigned int Np)
     {
 
     //Set local data size
@@ -72,7 +73,8 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
-        float3 ref = points[i];
+        // float3 ref = points[i];
+        vec3<float> ref = points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=0;
 
@@ -91,12 +93,14 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
                     continue;
                 }
                 // rij = rj - ri, from i pointing to j.
-                float dx = float(points[j].x - ref.x);
-                float dy = float(points[j].y - ref.y);
-                float dz = float(points[j].z - ref.z);
+                // float dx = float(points[j].x - ref.x);
+                // float dy = float(points[j].y - ref.y);
+                // float dz = float(points[j].z - ref.z);
 
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                vec3<float> delta = m_box.wrap(points[j] - ref);
+                // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                float rsq = dot(delta, delta);
 
                 if (rsq < rmaxsq and rsq > rminsq)
                     {
@@ -125,7 +129,8 @@ void LocalQl::compute(const float3 *points, unsigned int Np)
         } //Ends loop over particles i for Qlmi calcs
     }
 
-void LocalQl::computeAve(const float3 *points, unsigned int Np)
+// void LocalQl::computeAve(const float3 *points, unsigned int Np)
+void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
     {
     //Set local data size
     m_Np = Np;
@@ -150,7 +155,8 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
-        float3 ref = points[i];
+        // float3 ref = points[i];
+        vec3<float> ref = points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=1;
 
@@ -165,19 +171,22 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
             locality::LinkCell::iteratorcell shell1 = m_lc.itercell(neigh_cell);
             for (unsigned int n1 = shell1.next(); !shell1.atEnd(); n1 = shell1.next())
                 {
-                float3 ref1 = points[n1];
+                // float3 ref1 = points[n1];
+                vec3<float> ref1 = points[n1];
                 unsigned int ref1_cell = m_lc.getCell(ref1);
                 if (n1 == i)
                     {
                         continue;
                     }
                 // rij = rj - ri, from i pointing to j.
-                float dx = float(points[n1].x - ref.x);
-                float dy = float(points[n1].y - ref.y);
-                float dz = float(points[n1].z - ref.z);
+                // float dx = float(points[n1].x - ref.x);
+                // float dy = float(points[n1].y - ref.y);
+                // float dz = float(points[n1].z - ref.z);
 
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                vec3<float> delta = m_box.wrap(points[n1] - ref);
+                // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                float rsq = dot(delta, delta);
 
                 if (rsq < rmaxsq and rsq > rminsq)
                     {
@@ -198,18 +207,21 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
                                     continue;
                                 }
                             // rij = rj - ri, from i pointing to j.
-                            float dx1 = float(points[j].x - ref1.x);
-                            float dy1 = float(points[j].y - ref1.y);
-                            float dz1 = float(points[j].z - ref1.z);
+                            // float dx1 = float(points[j].x - ref1.x);
+                            // float dy1 = float(points[j].y - ref1.y);
+                            // float dz1 = float(points[j].z - ref1.z);
 
-                            float3 delta1 = m_box.wrap(make_float3(dx1, dy1, dz1));
-                            float rsq1 = delta1.x*delta1.x + delta1.y*delta1.y + delta1.z*delta1.z;
+                            // float3 delta1 = m_box.wrap(make_float3(dx1, dy1, dz1));
+                            vec3<float> delta1 = m_box.wrap(points[j] - ref1);
+                            // float rsq1 = delta1.x*delta1.x + delta1.y*delta1.y + delta1.z*delta1.z;
+                            float rsq1 = dot(delta1, delta1);
 
                             if (rsq1 < rmaxsq and rsq1 > rminsq)
                                 {
                                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                                     {
                                     //adding all the Qlm of the neighbors
+                                    // change to Index?
                                     m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*j+k];
                                     }
                                 neighborcount++;
@@ -233,7 +245,8 @@ void LocalQl::computeAve(const float3 *points, unsigned int Np)
         } //Ends loop over particles i for Qlmi calcs
     }
 
-void LocalQl::computeNorm(const float3 *points, unsigned int Np)
+// void LocalQl::computeNorm(const float3 *points, unsigned int Np)
+void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
     {
 
     //Set local data size
@@ -260,7 +273,8 @@ void LocalQl::computeNorm(const float3 *points, unsigned int Np)
         }
     }
 
-void LocalQl::computeAveNorm(const float3 *points, unsigned int Np)
+// void LocalQl::computeAveNorm(const float3 *points, unsigned int Np)
+void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
     {
 
     //Set local data size
@@ -299,7 +313,8 @@ void LocalQl::computePy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     compute(points_raw, Np);
     }
 
@@ -314,7 +329,8 @@ void LocalQl::computeAvePy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     compute(points_raw, Np);
     computeAve(points_raw, Np);
     }
@@ -330,7 +346,8 @@ void LocalQl::computeNormPy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     compute(points_raw, Np);
     computeNorm(points_raw, Np);
     }
@@ -346,7 +363,8 @@ void LocalQl::computeAveNormPy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     compute(points_raw, Np);
     computeAve(points_raw, Np);
     computeAveNorm(points_raw, Np);

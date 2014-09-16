@@ -64,13 +64,23 @@ class pairing
             return num_util::makeNum(arr, m_Np);
             }
 
-        void ComputePairing2D(const float3 *points,
+        // void ComputePairing2D(const float3 *points,
+        //                       const float *orientations,
+        //                       const float *comp_orientations,
+        //                       const unsigned int Np,
+        //                       const unsigned int No);
+        void ComputePairing2D(const vec3<float> *points,
                               const float *orientations,
                               const float *comp_orientations,
                               const unsigned int Np,
                               const unsigned int No);
         //! Compute the pairing function
-        void compute(const float3* points,
+        // void compute(const float3* points,
+        //              const float* orientations,
+        //              const float* comp_orientations,
+        //              const unsigned int Np,
+        //              const unsigned int No);
+        void compute(const vec3<float>* points,
                      const float* orientations,
                      const float* comp_orientations,
                      const unsigned int Np,

@@ -45,7 +45,8 @@ class ComputeLindex
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
-        const float3 *m_points;
+        // const float3 *m_points;
+        const vec3<float> *m_points;
         const unsigned int m_Np;
         const unsigned int m_Nf;
     public:
@@ -53,7 +54,8 @@ class ComputeLindex
                       const trajectory::Box& box,
                       const float rmax,
                       const float dr,
-                      const float3 *points,
+                      // const float3 *points,
+                      const vec3<float> *points,
                       const unsigned int Np,
                       const unsigned int Nf)
             : m_box(box), m_rmax(rmax), m_dr(dr), m_lindex_array(lindex_array), m_points(points), m_Np(Np), m_Nf(Nf)
@@ -80,28 +82,35 @@ class ComputeLindex
                         {
                         continue;
                         }
-                    float3 r_ij;
+                    // float3 r_ij;
+                    vec3<float> r_ij;
                     double rsq_ij = 0;
                     for (unsigned int k = 0; k < m_Nf; k++)
                         {
                         // compute r between the two particles
-                        float dx = float(m_points[b_i(i, k)].x - m_points[b_i(j, k)].x);
-                        float dy = float(m_points[b_i(i, k)].y - m_points[b_i(j, k)].y);
-                        float dz = float(m_points[b_i(i, k)].z - m_points[b_i(j, k)].z);
+                        vec3<float> delta = m_points[b_i(i, k)]- m_points[b_i(j, k)];
+                        // float dx = float(m_points[b_i(i, k)].x - m_points[b_i(j, k)].x);
+                        // float dy = float(m_points[b_i(i, k)].y - m_points[b_i(j, k)].y);
+                        // float dz = float(m_points[b_i(i, k)].z - m_points[b_i(j, k)].z);
 
-                        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        delta = m_box.wrap(delta);
 
-                        float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                        // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                        float rsq = dot(delta, delta);
                         float r = sqrtf(rsq);
-                        r_ij.x += delta.x;
-                        r_ij.y += delta.y;
-                        r_ij.z += delta.z;
+                        // r_ij.x += delta.x;
+                        // r_ij.y += delta.y;
+                        // r_ij.z += delta.z;
+                        r_ij += delta;
                         rsq_ij += rsq;
                         } // done looping over frames
-                    r_ij.x /= (double) m_Nf;
-                    r_ij.y /= (double) m_Nf;
-                    r_ij.z /= (double) m_Nf;
-                    double avg_r_ij = sqrt(r_ij.x*r_ij.x  + r_ij.y*r_ij.y + r_ij.z*r_ij.z);
+                    // r_ij.x /= (double) m_Nf;
+                    // r_ij.y /= (double) m_Nf;
+                    // r_ij.z /= (double) m_Nf;
+                    r_ij /= (double) m_Nf;
+                    // double avg_r_ij = sqrt(r_ij.x*r_ij.x  + r_ij.y*r_ij.y + r_ij.z*r_ij.z);
+                    double avg_r_ij = sqrt(dot(r_ij, r_ij));
                     if (avg_r_ij < 0.0)
                         {
                         printf("prepare to die mortal scum; avg_r_ij = %f", avg_r_ij);
@@ -121,7 +130,10 @@ class ComputeLindex
             }
     };
 
-void Lind::compute(const float3 *points,
+// void Lind::compute(const float3 *points,
+//                     unsigned int Np,
+//                     unsigned int Nf)
+void Lind::compute(const vec3<float> *points,
                     unsigned int Np,
                     unsigned int Nf)
     {
@@ -152,7 +164,8 @@ void Lind::computePy(boost::python::numeric::array points)
     m_lindex_array = boost::shared_array<float>(new float[Np]);
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
         // compute with the GIL released
         {

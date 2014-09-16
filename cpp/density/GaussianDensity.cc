@@ -50,7 +50,8 @@ GaussianDensity::GaussianDensity(const trajectory::Box& box, unsigned int width_
     memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
     }
 
-void GaussianDensity::compute(const float3 *points, unsigned int Np)
+// void GaussianDensity::compute(const float3 *points, unsigned int Np)
+void GaussianDensity::compute(const vec3<float> *points, unsigned int Np)
     {
     assert(points);
     assert(Np > 0);
@@ -102,9 +103,11 @@ void GaussianDensity::compute(const float3 *points, unsigned int Np)
                     {
                     // calculate the distance from the grid cell to particular particle
                     float dx = float((grid_size_x*i + grid_size_x/2.0f) - points[particle].x - lx/2.0f);
-                    float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
 
-                    float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    float rsq = dot(delta, delta);
                     float rsqrt = sqrtf(rsq);
 
                     // check to see if this distance is within the specified r_cut
@@ -145,7 +148,8 @@ void GaussianDensity::computePy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
         // compute with the GIL released
         {

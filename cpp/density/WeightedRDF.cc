@@ -93,10 +93,16 @@ bool WeightedRDF<T>::useCells()
     }
 
 template<typename T>
-void WeightedRDF<T>::compute(const float3 *ref_points,
+// void WeightedRDF<T>::compute(const float3 *ref_points,
+//                              const T *ref_values,
+//                              unsigned int Nref,
+//                              const float3 *points,
+//                              const T *point_values,
+//                              unsigned int Np)
+void WeightedRDF<T>::compute(const vec3<float> *ref_points,
                              const T *ref_values,
                              unsigned int Nref,
-                             const float3 *points,
+                             const vec3<float> *points,
                              const T *point_values,
                              unsigned int Np)
     {
@@ -111,10 +117,16 @@ void WeightedRDF<T>::compute(const float3 *ref_points,
     }
 
 template<typename T>
-void WeightedRDF<T>::computeWithoutCellList(const float3 *ref_points,
+// void WeightedRDF<T>::computeWithoutCellList(const float3 *ref_points,
+//                  const T *ref_values,
+//                  unsigned int Nref,
+//                  const float3 *points,
+//                  const T *point_values,
+//                  unsigned int Np)
+void WeightedRDF<T>::computeWithoutCellList(const vec3<float> *ref_points,
                  const T *ref_values,
                  unsigned int Nref,
-                 const float3 *points,
+                 const vec3<float> *points,
                  const T *point_values,
                  unsigned int Np)
     {
@@ -128,13 +140,15 @@ void WeightedRDF<T>::computeWithoutCellList(const float3 *ref_points,
         for (unsigned int j = 0; j < Np; j++)
             {
             // compute r between the two particles
-            float dx = float(ref_points[i].x - points[j].x);
-            float dy = float(ref_points[i].y - points[j].y);
-            float dz = float(ref_points[i].z - points[j].z);
+            vec3<float> delta = ref_points[i] - points[j];
+            // float dx = float(ref_points[i].x - points[j].x);
+            // float dy = float(ref_points[i].y - points[j].y);
+            // float dz = float(ref_points[i].z - points[j].z);
 
-            float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+            delta = m_box.wrap(delta);
 
-            float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+            // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+            float rsq = dot(delta, delta);
             if (rsq < rmaxsq)
                 {
                 float r = sqrtf(rsq);
@@ -168,10 +182,16 @@ void WeightedRDF<T>::computeWithoutCellList(const float3 *ref_points,
     }
 
 template<typename T>
-void WeightedRDF<T>::computeWithCellList(const float3 *ref_points,
+// void WeightedRDF<T>::computeWithCellList(const float3 *ref_points,
+//                   const T *ref_values,
+//                   unsigned int Nref,
+//                   const float3 *points,
+//                   const T *point_values,
+//                   unsigned int Np)
+void WeightedRDF<T>::computeWithCellList(const vec3<float> *ref_points,
                   const T *ref_values,
                   unsigned int Nref,
-                  const float3 *points,
+                  const vec3<float> *points,
                   const T *point_values,
                   unsigned int Np)
     {
@@ -192,7 +212,8 @@ void WeightedRDF<T>::computeWithCellList(const float3 *ref_points,
     for (unsigned int i = 0; i < Nref; i++)
         {
         // get the cell the point is in
-        float3 ref = ref_points[i];
+        // float3 ref = ref_points[i];
+        vec3<float> ref = ref_points[i];
         unsigned int ref_cell = m_lc->getCell(ref);
 
         // loop over all neighboring cells
@@ -206,12 +227,15 @@ void WeightedRDF<T>::computeWithCellList(const float3 *ref_points,
             for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                 {
                 // compute r between the two particles
-                float dx = float(ref.x - points[j].x);
-                float dy = float(ref.y - points[j].y);
-                float dz = float(ref.z - points[j].z);
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                vec3<float> delta = ref - points[j];
+                // float dx = float(ref.x - points[j].x);
+                // float dy = float(ref.y - points[j].y);
+                // float dz = float(ref.z - points[j].z);
+                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                delta = m_box.wrap(delta);
 
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                float rsq = dot(delta);
 
                 if (rsq < rmaxsq)
                     {
@@ -270,9 +294,11 @@ void WeightedRDF<T>::computePy(boost::python::numeric::array ref_points,
     assert(Nref == num_util::shape(ref_values)[0]);
 
     // get the raw data pointers and compute the cell list
-    float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
     T* ref_values_raw = (T*) num_util::data(ref_values);
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     T* point_values_raw = (T*) num_util::data(point_values);
 
         // compute with the GIL released

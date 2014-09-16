@@ -46,7 +46,8 @@ void LocalWl::Ylm(const double theta, const double phi, std::vector<std::complex
         Y[i+m_l] = Y[-i+m_l];
     }
 
-void LocalWl::compute(const float3 *points, unsigned int Np)
+// void LocalWl::compute(const float3 *points, unsigned int Np)
+void LocalWl::compute(const vec3<float> *points, unsigned int Np)
     {
     //Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
@@ -75,7 +76,8 @@ void LocalWl::compute(const float3 *points, unsigned int Np)
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
-        float3 ref = points[i];
+        // float3 ref = points[i];
+        vec3<float> ref = points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=0;
 
@@ -89,17 +91,19 @@ void LocalWl::compute(const float3 *points, unsigned int Np)
             locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                 {
-                if (i == j) 
+                if (i == j)
                 {
                     continue;
                 }
                 // rij = rj - ri, from i pointing to j.
-                float dx = float(points[j].x - ref.x);
-                float dy = float(points[j].y - ref.y);
-                float dz = float(points[j].z - ref.z);
+                // float dx = float(points[j].x - ref.x);
+                // float dy = float(points[j].y - ref.y);
+                // float dz = float(points[j].z - ref.z);
 
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                vec3<float> delta = m_box.wrap(points[j] - ref);
+                // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                float rsq = dot(delta, delta);
 
                 if (rsq < rmaxsq)
                     {
@@ -110,6 +114,7 @@ void LocalWl::compute(const float3 *points, unsigned int Np)
                     LocalWl::Ylm(theta, phi,Y);  //Fill up Ylm vector
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
+                        // change to Index later
                         m_Qlmi[(2*m_l+1)*i+k]+=Y[k];
                         }
                     neighborcount++;
@@ -140,13 +145,14 @@ void LocalWl::compute(const float3 *points, unsigned int Np)
             {
 	        m_Wli[i]/=(m_Qli[i]*m_Qli[i]*m_Qli[i]);//Normalize
             }
-	    m_counter = counter; 
+	    m_counter = counter;
         }
     }
 
-void LocalWl::computeAve(const float3 *points, unsigned int Np)
+// void LocalWl::computeAve(const float3 *points, unsigned int Np)
+void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
     {
-   
+
     //Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
     std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
@@ -172,7 +178,8 @@ void LocalWl::computeAve(const float3 *points, unsigned int Np)
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
-        float3 ref = points[i];
+        // float3 ref = points[i];
+        vec3<float> ref = points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=1;
 
@@ -182,27 +189,30 @@ void LocalWl::computeAve(const float3 *points, unsigned int Np)
             {
             //get cell points of 1st neighbor
             unsigned int neigh_cell = neigh_cells[neigh_idx];
-            
+
             //iterate over particles in neighboring cells
             locality::LinkCell::iteratorcell shell1 = m_lc.itercell(neigh_cell);
             for (unsigned int n1 = shell1.next(); !shell1.atEnd(); n1 = shell1.next())
                 {
-                float3 ref1 = points[n1];
+                // float3 ref1 = points[n1];
+                vec3<float> ref1 = points[n1];
                 unsigned int ref1_cell = m_lc.getCell(ref1);
-                if (n1 == i) 
+                if (n1 == i)
                     {
                         continue;
                     }
                 // rij = rj - ri, from i pointing to j.
-                float dx = float(points[n1].x - ref.x);
-                float dy = float(points[n1].y - ref.y);
-                float dz = float(points[n1].z - ref.z);
+                // float dx = float(points[n1].x - ref.x);
+                // float dy = float(points[n1].y - ref.y);
+                // float dz = float(points[n1].z - ref.z);
 
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                vec3<float> delta = m_box.wrap(points[n1] - ref);
+                // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                float rsq = dot(delta, delta);
                 if (rsq < rmaxsq)
                     {
-             
+
                     //loop over 2nd neighboring cells
                     const std::vector<unsigned int>& neigh1_cells = m_lc.getCellNeighbors(ref1_cell);
                     for (unsigned int neigh1_idx = 0; neigh1_idx < neigh1_cells.size(); neigh1_idx++)
@@ -214,17 +224,19 @@ void LocalWl::computeAve(const float3 *points, unsigned int Np)
                         locality::LinkCell::iteratorcell it = m_lc.itercell(neigh1_cell);
                         for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                             {
-                            if (n1 == j) 
+                            if (n1 == j)
                                 {
                                     continue;
                                 }
                             // rij = rj - ri, from i pointing to j.
-                            float dx1 = float(points[j].x - ref1.x);
-                            float dy1 = float(points[j].y - ref1.y);
-                            float dz1 = float(points[j].z - ref1.z);
+                            // float dx1 = float(points[j].x - ref1.x);
+                            // float dy1 = float(points[j].y - ref1.y);
+                            // float dz1 = float(points[j].z - ref1.z);
 
-                            float3 delta1 = m_box.wrap(make_float3(dx1, dy1, dz1));
-                            float rsq1 = delta1.x*delta1.x + delta1.y*delta1.y + delta1.z*delta1.z;
+                            // float3 delta1 = m_box.wrap(make_float3(dx1, dy1, dz1));
+                            vec3<float> delta1 = m_box.wrap(points[j] - ref1);
+                            // float rsq1 = delta1.x*delta1.x + delta1.y*delta1.y + delta1.z*delta1.z;
+                            float rsq1 = dot(delta1, delta1);
 
                             if (rsq1 < rmaxsq)
                                 {
@@ -256,12 +268,13 @@ void LocalWl::computeAve(const float3 *points, unsigned int Np)
                 counter+=1;
 	    		}
 	    	}//Ends loop for Norm Wli calcs
-	    m_counter = counter; 
-     
+	    m_counter = counter;
+
         } //Ends loop over particles i for Qlmi calcs
     }
 
-void LocalWl::computeNorm(const float3 *points, unsigned int Np)
+// void LocalWl::computeNorm(const float3 *points, unsigned int Np)
+void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
     {
 
     //Get wigner3j coefficients from wigner3j.cc
@@ -294,7 +307,7 @@ void LocalWl::computeNorm(const float3 *points, unsigned int Np)
                 counter+=1;
 	    		}
 	    	}//Ends loop for Norm Wli calcs
-	    m_counter = counter; 
+	    m_counter = counter;
         }
     }
 
@@ -310,7 +323,8 @@ void LocalWl::computePy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     compute(points_raw, Np);
     }
 
@@ -325,7 +339,8 @@ void LocalWl::computeNormPy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     compute(points_raw, Np);
     computeNorm(points_raw, Np);
     }
@@ -341,7 +356,8 @@ void LocalWl::computeAvePy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     compute(points_raw, Np);
     computeAve(points_raw, Np);
     }
@@ -354,11 +370,11 @@ void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
 	//validate input type and rank
     num_util::check_type(wigner3jvalues, PyArray_DOUBLE);
     num_util::check_rank(wigner3jvalues, 1);
-    
+
     // get dimension
     unsigned int num_wigner3jcoefs = num_util::shape(wigner3jvalues)[0];
     m_wigner3jvalues = boost::shared_array<double>(new double[num_wigner3jcoefs]);
-    
+
     // get the raw data pointers and compute the cell list
     double* wig3j = (double*) num_util::data(wigner3jvalues);
     for(unsigned int i = 0; i < num_wigner3jcoefs; i++)
@@ -367,7 +383,7 @@ void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
     	}
     }
  */
-    
+
 void export_LocalWl()
     {
     class_<LocalWl>("LocalWl", init<trajectory::Box&, float, unsigned int>())

@@ -1,6 +1,9 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
+
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
@@ -24,7 +27,9 @@ class LocalDensity
         LocalDensity(const trajectory::Box& box, float r_cut, float volume, float diameter);
 
         //! Compute the local density
-        void compute(const float3 *points,
+        // void compute(const float3 *points,
+        //              unsigned int Np);
+        void compute(const vec3<float> *points,
                      unsigned int Np);
 
         //! Python wrapper for compute

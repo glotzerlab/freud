@@ -41,7 +41,12 @@ pairing::pairing(const trajectory::Box& box,
         }
     }
 
-void pairing::ComputePairing2D(const float3 *points,
+// void pairing::ComputePairing2D(const float3 *points,
+//                                const float *orientations,
+//                                const float *comp_orientations,
+//                                const unsigned int Np,
+//                                const unsigned int No)
+void pairing::ComputePairing2D(const vec3<float> *points,
                                const float *orientations,
                                const float *comp_orientations,
                                const unsigned int Np,
@@ -71,10 +76,13 @@ void pairing::ComputePairing2D(const float3 *points,
             const vec2<float> r_j(points[j].x, points[j].y);
             vec2<float> r_ij(r_j - r_i);
             vec2<float> r_ji(r_i - r_j);
-            float3 wrapped(m_box.wrap(make_float3(r_ij.x, r_ij.y, 0.0)));
-            r_ij = vec2<float>(wrapped.x, wrapped.y);
-            wrapped = m_box.wrap(make_float3(r_ji.x, r_ji.y, 0.0));
-            r_ji = vec2<float>(wrapped.x, wrapped.y);
+            vec3<float> delta = vec3<float>(r_ij.x, r_ij.y, 0.0);
+            // float3 wrapped(m_box.wrap(make_float3(r_ij.x, r_ij.y, 0.0)));
+            delta = m_box.wrap(delta);
+            r_ij = vec2<float>(delta.x, delta.y);
+            delta = vec3<float>(r_ji.x, r_ji.y, 0.0);
+            delta = m_box.wrap(delta);
+            r_ji = vec2<float>(delta.x, delta.y);
             float rsq(dot(r_ij, r_ij));
 
             // will skip same particle
@@ -133,13 +141,18 @@ void pairing::ComputePairing2D(const float3 *points,
         } // done looping over reference points
     }
 
-void pairing::compute(const float3* points,
+// void pairing::compute(const float3* points,
+//                       const float* orientations,
+//                       const float* comp_orientations,
+//                       const unsigned int Np,
+//                       const unsigned int No)
+void pairing::compute(const vec3<float>* points,
                       const float* orientations,
                       const float* comp_orientations,
                       const unsigned int Np,
                       const unsigned int No)
     {
-    m_nn.compute((vec3<float>*)points,Np);
+    m_nn.compute(points,Np);
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
         {
@@ -188,7 +201,8 @@ void pairing::computePy(boost::python::numeric::array points,
     num_util::check_dim(comp_orientations, 0, Np);
     const unsigned int No = num_util::shape(comp_orientations)[1];
 
-    const float3* points_raw = (float3*) num_util::data(points);
+    // const float3* points_raw = (float3*) num_util::data(points);
+    const vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     const float* orientations_raw = (float*) num_util::data(orientations);
     const float* comp_orientations_raw = (float*) num_util::data(comp_orientations);
     compute(points_raw,

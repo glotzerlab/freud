@@ -49,7 +49,8 @@ void LinkCell::computeCellListPy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
         // compute the cell list with the GIL released
         {
@@ -58,7 +59,8 @@ void LinkCell::computeCellListPy(boost::python::numeric::array points)
         }
     }
 
-void LinkCell::computeCellList(const float3 *points, unsigned int Np)
+// void LinkCell::computeCellList(const float3 *points, unsigned int Np)
+void LinkCell::computeCellList(const vec3<float> *points, unsigned int Np)
     {
     if (Np == 0)
         {

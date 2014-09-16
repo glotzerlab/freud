@@ -109,10 +109,12 @@ class ComputePMFTRPMWithoutCellList
         const float m_dr;
         const float m_dTP;
         const float m_dTM;
-        const float3 *m_ref_points;
+        // const float3 *m_ref_points;
+        const vec3<float> *m_ref_points;
         float *m_ref_orientations;
         const unsigned int m_Nref;
-        const float3 *m_points;
+        // const float3 *m_points;
+        const vec3<float> *m_points;
         float *m_orientations;
         const unsigned int m_Np;
     public:
@@ -127,10 +129,12 @@ class ComputePMFTRPMWithoutCellList
                                    const float dr,
                                    const float dTP,
                                    const float dTM,
-                                   const float3 *ref_points,
+                                   // const float3 *ref_points,
+                                   const vec3<float> *ref_points,
                                    float *ref_orientations,
                                    unsigned int Nref,
-                                   const float3 *points,
+                                   // const float3 *points,
+                                   const vec3<float> *points,
                                    float *orientations,
                                    unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_box(box),
@@ -149,15 +153,20 @@ class ComputePMFTRPMWithoutCellList
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                float3 ref = m_ref_points[i];
+                // float3 ref = m_ref_points[i];
+                vec3<float> ref = m_ref_points[i];
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    float3 point = m_points[j];
-                    float dx = float(point.x - ref.x);
-                    float dy = float(point.y - ref.y);
-                    float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
+                    // float3 point = m_points[j];
+                    vec3<float> point = m_points[j];
+                    vec3<float> delta = point - ref;
+                    // float dx = float(point.x - ref.x);
+                    // float dy = float(point.y - ref.y);
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
+                    delta = m_box.wrap(delta);
 
-                    float rsq = delta.x*delta.x + delta.y*delta.y;
+                    // float rsq = delta.x*delta.x + delta.y*delta.y;
+                    float rsq = dot(delta);
                     if (rsq < 1e-6)
                         {
                         continue;
@@ -213,10 +222,12 @@ class ComputePMFTRPMWithCellList
         const float m_dTP;
         const float m_dTM;
         const locality::LinkCell *m_lc;
-        float3 *m_ref_points;
+        // float3 *m_ref_points;
+        vec3<float> *m_ref_points;
         float *m_ref_orientations;
         const unsigned int m_Nref;
-        float3 *m_points;
+        // float3 *m_points;
+        vec3<float> *m_points;
         float *m_orientations;
         const unsigned int m_Np;
     public:
@@ -232,10 +243,12 @@ class ComputePMFTRPMWithCellList
                                 const float dTP,
                                 const float dTM,
                                 const locality::LinkCell *lc,
-                                float3 *ref_points,
+                                // float3 *ref_points,
+                                vec3<float> *ref_points,
                                 float *ref_orientations,
                                 unsigned int Nref,
-                                float3 *points,
+                                // float3 *points,
+                                vec3<float> *points,
                                 float *orientations,
                                 unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_box(box),
@@ -260,7 +273,8 @@ class ComputePMFTRPMWithCellList
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 // get the cell the point is in
-                float3 ref = m_ref_points[i];
+                // float3 ref = m_ref_points[i];
+                vec3<float> ref = m_ref_points[i];
                 unsigned int ref_cell = m_lc->getCell(ref);
 
                 // loop over all neighboring cells
@@ -273,12 +287,16 @@ class ComputePMFTRPMWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        float3 point = m_points[j];
-                        float dx = float(point.x - ref.x);
-                        float dy = float(point.y - ref.y);
-                        float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
+                        // float3 point = m_points[j];
+                        vec3<float> point = m_points[j];
+                        vec3<float> delta = point - ref;
+                        // float dx = float(point.x - ref.x);
+                        // float dy = float(point.y - ref.y);
+                        // float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
+                        delta = m_box.wrap(delta);
 
-                        float rsq = delta.x*delta.x + delta.y*delta.y;
+                        // float rsq = delta.x*delta.x + delta.y*delta.y;
+                        float rsq = dot(delta, delta);
                         if (rsq < 1e-6)
                             {
                             continue;
@@ -333,11 +351,18 @@ bool PMFTRPM::useCells()
     return false;
     }
 
+// void PMFTRPM::compute(unsigned int *pcf_array,
+//                         float3 *ref_points,
+//                         float *ref_orientations,
+//                         unsigned int Nref,
+//                         float3 *points,
+//                         float *orientations,
+//                         unsigned int Np)
 void PMFTRPM::compute(unsigned int *pcf_array,
-                        float3 *ref_points,
+                        vec3<float> *ref_points,
                         float *ref_orientations,
                         unsigned int Nref,
-                        float3 *points,
+                        vec3<float> *points,
                         float *orientations,
                         unsigned int Np)
     {
@@ -421,9 +446,11 @@ void PMFTRPM::computePy(boost::python::numeric::array pcf_array,
 
     // get the raw data pointers and compute the cell list
     unsigned int* pcf_array_raw = (unsigned int*) num_util::data(pcf_array);
-    float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
     float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     float* orientations_raw = (float*) num_util::data(orientations);
 
         // compute with the GIL released

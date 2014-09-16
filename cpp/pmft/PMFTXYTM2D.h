@@ -1,6 +1,9 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
+
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
@@ -44,11 +47,18 @@ class PMFTXYTM2D
         bool useCells();
 
         //! Compute the RDF
+        // void compute(unsigned int *pcf_array,
+        //              float3 *ref_points,
+        //              float *ref_orientations,
+        //              unsigned int Nref,
+        //              float3 *points,
+        //              float *orientations,
+        //              unsigned int Np);
         void compute(unsigned int *pcf_array,
-                     float3 *ref_points,
+                     vec3<float> *ref_points,
                      float *ref_orientations,
                      unsigned int Nref,
-                     float3 *points,
+                     vec3<float> *points,
                      float *orientations,
                      unsigned int Np);
 

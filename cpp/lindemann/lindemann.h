@@ -1,6 +1,9 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
+
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
@@ -39,7 +42,10 @@ class Lind
             }
 
         //! Compute the Lindemann Index
-        void compute(const float3 *points,
+        // void compute(const float3 *points,
+        //          unsigned int Np,
+        //          unsigned int Nf);
+        void compute(const vec3<float> *points,
                  unsigned int Np,
                  unsigned int Nf);
 

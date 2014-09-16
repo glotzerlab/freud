@@ -1,6 +1,9 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
+
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
@@ -45,9 +48,13 @@ class RDF
         bool useCells();
 
         //! Compute the RDF
-        void compute(const float3 *ref_points,
+        // void compute(const float3 *ref_points,
+        //              unsigned int Nref,
+        //              const float3 *points,
+        //              unsigned int Np);
+        void compute(const vec3<float> *ref_points,
                      unsigned int Nref,
-                     const float3 *points,
+                     const vec3<float> *points,
                      unsigned int Np);
 
         //! Python wrapper for compute

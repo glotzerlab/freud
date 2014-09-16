@@ -142,7 +142,8 @@ class LinkCell
             }
 
         //! Compute the cell id for a given position
-        unsigned int getCell(const float3& p) const
+        // unsigned int getCell(const float3& p) const
+        unsigned int getCell(const vec3<float>& p) const
             {
             uint3 c = getCellCoord(p);
             return m_cell_index(c.x, c.y, c.z);
@@ -159,14 +160,16 @@ class LinkCell
             num_util::check_size(p, 3);
 
             // get the raw data pointers and compute the cell index
-            float3* p_raw = (float3*) num_util::data(p);
+            // float3* p_raw = (float3*) num_util::data(p);
+            vec3<float>* p_raw = (vec3<float>*) num_util::data(p);
             return getCell(*p_raw);
             }
 
         //! Compute cell coordinates for a given position
-        uint3 getCellCoord(const float3& p) const
+        // uint3 getCellCoord(const float3& p) const
+            uint3 getCellCoord(const vec3<float>& p) const
             {
-            float3 alpha = m_box.makeunit(p);
+            vec3<float> alpha = m_box.makeunit(p);
             uint3 c;
             c.x = floorf(alpha.x * float(m_cell_index.getW()));
             c.x %= m_cell_index.getW();
@@ -198,7 +201,8 @@ class LinkCell
             }
 
         //! Compute the cell list
-        void computeCellList(const float3 *points, unsigned int Np);
+        // void computeCellList(const float3 *points, unsigned int Np);
+        void computeCellList(const vec3<float> *points, unsigned int Np);
 
         //! Python wrapper for computeCellList
         void computeCellListPy(boost::python::numeric::array points);

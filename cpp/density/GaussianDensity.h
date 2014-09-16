@@ -1,6 +1,9 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
+
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
@@ -34,7 +37,9 @@ class GaussianDensity
                 }
 
         //! Compute the Density
-        void compute(const float3 *points,
+        // void compute(const float3 *points,
+        //                          unsigned int Np);
+        void compute(const vec3<float> *points,
                                  unsigned int Np);
 
         //!Python wrapper for compute

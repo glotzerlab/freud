@@ -2,6 +2,7 @@
 #include "num_util.h"
 
 #include "HOOMDMath.h"
+#include "VectorMath.h"
 
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
@@ -62,6 +63,8 @@ class Box
             return m_2d;
             }
 
+        //! Store as a vec3<float> m_L
+
         //! Get the value of Lx
         float getLx() const
             {
@@ -93,9 +96,10 @@ class Box
             Vectors are wrapped following the minimum image convention. \b Any x,y,z, no matter how far outside of the
             box, will be wrapped back into the range [-L/2, L/2]
         */
-        float3 wrap(const float3& p) const
+        // float3 wrap(const float3& p) const
+        vec3<float> wrap(const vec3<float>& p) const
             {
-            float3 newp = p;
+            vec3<float> newp = p;
             newp.x -= m_Lx * rintf(newp.x * m_Lx_inv);
             newp.y -= m_Ly * rintf(newp.y * m_Ly_inv);
             newp.z -= m_Lz * rintf(newp.z * m_Lz_inv);
@@ -116,7 +120,8 @@ class Box
                 {
                 // validate that the 1st dimension is only 3
                 num_util::check_dim(vecs, 0, 3);
-                float3* vecs_raw = (float3*) num_util::data(vecs);
+                // float3* vecs_raw = (float3*) num_util::data(vecs);
+                vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
 
                 // wrap the single vector back
                 vecs_raw[0] = wrap(vecs_raw[0]);
@@ -127,7 +132,8 @@ class Box
                 // validate that the 2nd dimension is only 3
                 num_util::check_dim(vecs, 1, 3);
                 unsigned int Np = num_util::shape(vecs)[0];
-                float3* vecs_raw = (float3*) num_util::data(vecs);
+                // float3* vecs_raw = (float3*) num_util::data(vecs);
+                vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
 
                 // wrap all the vecs back
                 for (unsigned int i = 0; i < Np; i++)
@@ -146,9 +152,10 @@ class Box
             \param image image flags for this point
             \returns The unwrapped coordinates
         */
-        float3 unwrap(const float3& p, const int3& image) const
+        // float3 unwrap(const float3& p, const int3& image) const
+            vec3<float> unwrap(const vec3<float>& p, const int3& image) const
             {
-            float3 newp = p;
+            vec3<float> newp = p;
             newp.x += m_Lx * float(image.x);
             newp.y += m_Ly * float(image.y);
             newp.z += m_Lz * float(image.z);
@@ -166,9 +173,10 @@ class Box
             outside of the box in either direction, it will go larger than 1 or less than 0 keeping the same scaling.
             Similar for y and z.
         */
-        float3 makeunit(const float3& p) const
+        // float3 makeunit(const float3& p) const
+        vec3<float> makeunit(const vec3<float>& p) const
             {
-            float3 newp;
+            vec3<float> newp;
             newp.x = p.x * m_Lx_inv + 0.5f;
             newp.y = p.y * m_Ly_inv + 0.5f;
             newp.z = p.z * m_Lz_inv + 0.5f;

@@ -60,8 +60,9 @@ class SplitPoints
                     {
                     vec3<float> split_point = point + vec3<float>(m_split_points[j]);
 
-                    float3 wrapped(m_box.wrap(make_float3(split_point.x, split_point.y, split_point.z)));
-                    split_point = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
+                    // float3 wrapped(m_box.wrap(make_float3(split_point.x, split_point.y, split_point.z)));
+                    split_point = m_box.wrap(split_point);
+                    // split_point = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
 
                     m_split_array[b_i(0, j, i)] = split_point.x;
                     m_split_array[b_i(1, j, i)] = split_point.y;

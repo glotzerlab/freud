@@ -121,10 +121,12 @@ class ComputePMFTWithoutCellList
         const float m_dx;
         const float m_dy;
         const float m_dz;
-        const float3 *m_ref_points;
+        // const float3 *m_ref_points;
+        const vec3<float> *m_ref_points;
         const float4 *m_ref_orientations;
         const unsigned int m_Nref;
-        const float3 *m_points;
+        // const float3 *m_points;
+        const vec3<float> *m_points;
         const float4 *m_orientations;
         const unsigned int m_Np;
         const float4 *m_extra_orientations;
@@ -140,10 +142,12 @@ class ComputePMFTWithoutCellList
                                    const float dx,
                                    const float dy,
                                    const float dz,
-                                   const float3 *ref_points,
+                                   // const float3 *ref_points,
+                                   const vec3<float> *ref_points,
                                    const float4 *ref_orientations,
                                    unsigned int Nref,
-                                   const float3 *points,
+                                   // const float3 *points,
+                                   const vec3<float> *points,
                                    const float4 *orientations,
                                    unsigned int Np,
                                    const float4 *extra_orientations)
@@ -173,25 +177,31 @@ class ComputePMFTWithoutCellList
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                float3 ref = m_ref_points[i];
+                // float3 ref = m_ref_points[i];
+                vec3<float> ref = m_ref_points[i];
                 // for each point to check
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    float3 point = m_points[j];
+                    // float3 point = m_points[j];
+                    vec3<float> point = m_points[j];
+                    vec3<float> delta = ref - point;
                     // compute r between the two particles
-                    float dx = float(ref.x - point.x);
-                    float dy = float(ref.y - point.y);
-                    float dz = float(ref.z - point.z);
+                    // float dx = float(ref.x - point.x);
+                    // float dy = float(ref.y - point.y);
+                    // float dz = float(ref.z - point.z);
 
                     // make sure that the particles are wrapped into the box
-                    float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    delta = m_box.wrap(delta);
 
                     // check that the particle is not checking itself
                     // 1e-6 is an arbitrary value that could be set differently if needed
-                    float xsq = delta.x*delta.x;
-                    float ysq = delta.y*delta.y;
-                    float zsq = delta.z*delta.z;
-                    if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
+                    // float xsq = delta.x*delta.x;
+                    // float ysq = delta.y*delta.y;
+                    // float zsq = delta.z*delta.z;
+                    float rsq = dot(delta, delta);
+                    // if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
+                    if (rsq < 1e-6)
                         {
                         // skip if the same particle
                         continue;
@@ -261,10 +271,12 @@ class ComputePMFTWithCellList
         const float m_dy;
         const float m_dz;
         const locality::LinkCell *m_lc;
-        const float3 *m_ref_points;
+        // const float3 *m_ref_points;
+        const vec3<float> *m_ref_points;
         const float4 *m_ref_orientations;
         const unsigned int m_Nref;
-        const float3 *m_points;
+        // const float3 *m_points;
+        const vec3<float> *m_points;
         const float4 *m_orientations;
         const unsigned int m_Np;
         const float4 *m_extra_orientations;
@@ -281,10 +293,12 @@ class ComputePMFTWithCellList
                                const float dy,
                                const float dz,
                                const locality::LinkCell *lc,
-                               const float3 *ref_points,
+                               // const float3 *ref_points,
+                               const vec3<float> *ref_points,
                                const float4 *ref_orientations,
                                unsigned int Nref,
-                               const float3 *points,
+                               // const float3 *points,
+                               const vec3<float> *points,
                                const float4 *orientations,
                                unsigned int Np,
                                const float4 *extra_orientations)
@@ -315,7 +329,8 @@ class ComputePMFTWithCellList
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 // get the cell the point is in
-                float3 ref = m_ref_points[i];
+                // float3 ref = m_ref_points[i];
+                vec3<float> ref = m_ref_points[i];
                 unsigned int ref_cell = m_lc->getCell(ref);
 
                 // loop over all neighboring cells
@@ -329,20 +344,25 @@ class ComputePMFTWithCellList
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
                         // compute r between the two particles
-                        float3 point = m_points[j];
-                        float dx = float(ref.x - point.x);
-                        float dy = float(ref.y - point.y);
-                        float dz = float(ref.z - point.z);
+                        // float3 point = m_points[j];
+                        vec3<float> point = m_points[j];
+                        vec3<float> delta = ref - point;
+                        // float dx = float(ref.x - point.x);
+                        // float dy = float(ref.y - point.y);
+                        // float dz = float(ref.z - point.z);
 
                         // make sure that the particles are wrapped into the box
-                        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        vec3<float> delta = m_box.wrap(delta);
+                        float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
                         // 1e-6 is an arbitrary value that could be set differently if needed
-                        float xsq = delta.x*delta.x;
-                        float ysq = delta.y*delta.y;
-                        float zsq = delta.z*delta.z;
-                        if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
+                        // float xsq = delta.x*delta.x;
+                        // float ysq = delta.y*delta.y;
+                        // float zsq = delta.z*delta.z;
+                        // if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
+                        if (rsq < 1e-6)
                             {
                             continue;
                             }
@@ -431,10 +451,17 @@ void PMFXYZ::resetPCF()
 /*! \brief Helper functionto direct the calculation to the correct helper class
 */
 
-void PMFXYZ::compute(const float3 *ref_points,
+// void PMFXYZ::compute(const float3 *ref_points,
+//                       const float4 *ref_orientations,
+//                       unsigned int Nref,
+//                       const float3 *points,
+//                       const float4 *orientations,
+//                       unsigned int Np,
+//                       const float4 *extra_orientations)
+void PMFXYZ::compute(const vec3<float> *ref_points,
                       const float4 *ref_orientations,
                       unsigned int Nref,
-                      const float3 *points,
+                      const vec3<float> *points,
                       const float4 *orientations,
                       unsigned int Np,
                       const float4 *extra_orientations)
@@ -523,9 +550,11 @@ void PMFXYZ::computePy(boost::python::numeric::array ref_points,
     num_util::check_dim(extra_orientations, 1, 4);
 
     // get the raw data pointers and compute the cell list
-    float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
     float4* ref_orientations_raw = (float4*) num_util::data(ref_orientations);
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     float4* orientations_raw = (float4*) num_util::data(orientations);
     float4* extra_orientations_raw = (float4*) num_util::data(extra_orientations);
 

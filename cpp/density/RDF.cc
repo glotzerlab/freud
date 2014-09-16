@@ -90,9 +90,11 @@ class ComputeRDFWithoutCellList
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
-        const float3 *m_ref_points;
+        // const float3 *m_ref_points;
+        const vec3<float> *m_ref_points;
         const unsigned int m_Nref;
-        const float3 *m_points;
+        // const float3 *m_points;
+        const vec3<float> *m_points;
         const unsigned int m_Np;
     public:
         ComputeRDFWithoutCellList(unsigned int nbins,
@@ -103,9 +105,11 @@ class ComputeRDFWithoutCellList
                                   const trajectory::Box &box,
                                   const float rmax,
                                   const float dr,
-                                  const float3 *ref_points,
+                                  // const float3 *ref_points,
+                                  const vec3<float> *ref_points,
                                   unsigned int Nref,
-                                  const float3 *points,
+                                  // const float3 *points,
+                                  const vec3<float> *points,
                                   unsigned int Np)
             : m_nbins(nbins), m_rdf_array(rdf_array), m_bin_counts(bin_counts), m_N_r_array(N_r_array),
               m_vol_array(vol_array), m_box(box), m_rmax(rmax), m_dr(dr), m_ref_points(ref_points), m_Nref(Nref),
@@ -120,18 +124,22 @@ class ComputeRDFWithoutCellList
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                float3 ref = m_ref_points[i];
+                // float3 ref = m_ref_points[i];
+                vec3<float> ref = m_ref_points[i];
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    float3 point = m_points[j];
+                    // float3 point = m_points[j];
+                    vec3<float> point = m_points[j];
                     // compute r between the two particles
-                    float dx = float(ref.x - point.x);
-                    float dy = float(ref.y - point.y);
-                    float dz = float(ref.z - point.z);
+                    vec3<float> delta = ref - point;
+                    // float dx = float(ref.x - point.x);
+                    // float dy = float(ref.y - point.y);
+                    // float dz = float(ref.z - point.z);
 
-                    float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                    delta = m_box.wrap(delta);
 
-                    float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                    float rsq = dot(delta, delta);
                     if (rsq < rmaxsq)
                         {
                         float r = sqrtf(rsq);
@@ -167,9 +175,11 @@ class ComputeRDFWithCellList
         const float m_rmax;
         const float m_dr;
         const locality::LinkCell *m_lc;
-        const float3 *m_ref_points;
+        // const float3 *m_ref_points;
+        const vec3<float> *m_ref_points;
         const unsigned int m_Nref;
-        const float3 *m_points;
+        // const float3 *m_points;
+        const vec3<float> *m_points;
         const unsigned int m_Np;
     public:
         ComputeRDFWithCellList(unsigned int nbins,
@@ -181,9 +191,11 @@ class ComputeRDFWithCellList
                                const float rmax,
                                const float dr,
                                const locality::LinkCell *lc,
-                               const float3 *ref_points,
+                               // const float3 *ref_points,
+                               const vec3<float> *ref_points,
                                unsigned int Nref,
-                               const float3 *points,
+                               // const float3 *points,
+                               const vec3<float> *points,
                                unsigned int Np)
             : m_nbins(nbins), m_rdf_array(rdf_array), m_bin_counts(bin_counts), m_N_r_array(N_r_array),
               m_vol_array(vol_array), m_box(box), m_rmax(rmax), m_dr(dr), m_lc(lc), m_ref_points(ref_points),
@@ -204,7 +216,8 @@ class ComputeRDFWithCellList
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 // get the cell the point is in
-                float3 ref = m_ref_points[i];
+                // float3 ref = m_ref_points[i];
+                vec3<float> ref = m_ref_points[i];
                 unsigned int ref_cell = m_lc->getCell(ref);
 
                 // loop over all neighboring cells
@@ -218,13 +231,17 @@ class ComputeRDFWithCellList
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
                         // compute r between the two particles
-                        float3 point = m_points[j];
-                        float dx = float(ref.x - point.x);
-                        float dy = float(ref.y - point.y);
-                        float dz = float(ref.z - point.z);
-                        float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        // float3 point = m_points[j];
+                        vec3<float> point = m_points[j];
+                        vec3<float> delta = ref - point;
+                        // float dx = float(ref.x - point.x);
+                        // float dy = float(ref.y - point.y);
+                        // float dz = float(ref.z - point.z);
+                        // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                        delta = m_box.wrap(delta);
 
-                        float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                        // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                        float rsq = dot(delta, delta);
 
                         if (rsq < rmaxsq)
                             {
@@ -263,9 +280,13 @@ bool RDF::useCells()
     return false;
     }
 
-void RDF::compute(const float3 *ref_points,
+// void RDF::compute(const float3 *ref_points,
+//                   unsigned int Nref,
+//                   const float3 *points,
+//                   unsigned int Np)
+void RDF::compute(const vec3<float> *ref_points,
                   unsigned int Nref,
-                  const float3 *points,
+                  const vec3<float> *points,
                   unsigned int Np)
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
@@ -335,8 +356,10 @@ void RDF::computePy(boost::python::numeric::array ref_points,
     unsigned int Nref = num_util::shape(ref_points)[0];
 
     // get the raw data pointers and compute the cell list
-    float3* ref_points_raw = (float3*) num_util::data(ref_points);
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
         // compute with the GIL released
         {

@@ -3,6 +3,9 @@
 #include <vector>
 #include <set>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
+
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
@@ -65,7 +68,9 @@ class Cluster
             }
 
         //! Compute the point clusters
-        void computeClusters(const float3 *points,
+        // void computeClusters(const float3 *points,
+        //                      unsigned int Np);
+        void computeClusters(const vec3<float> *points,
                              unsigned int Np);
 
         //! Python wrapper for computePointClusters

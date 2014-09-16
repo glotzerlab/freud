@@ -80,7 +80,8 @@ public:
 
             //get cell point is in
             const vec3<float> ri(m_r[i]);
-            unsigned int ref_cell = m_lc.getCell(make_float3(ri.x, ri.y, ri.z));
+            // unsigned int ref_cell = m_lc.getCell(make_float3(ri.x, ri.y, ri.z));
+            unsigned int ref_cell = m_lc.getCell(ri);
             unsigned int num_adjacent = 0;
 
             //loop over neighboring cells
@@ -97,8 +98,9 @@ public:
                     vec3<float> rij(rj - ri);
 
                     //compute r between the two particles
-                    const float3 wrapped(m_box.wrap(make_float3(rij.x, rij.y, rij.z)));
-                    rij = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
+                    // const float3 wrapped(m_box.wrap(make_float3(rij.x, rij.y, rij.z)));
+                    rij = m_box.wrap(rij);
+                    // rij = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
                     const float rsq(dot(rij, rij));
 
                     if (rsq < rmaxsq && rsq > 1e-6)
@@ -234,7 +236,8 @@ void LocalDescriptors::compute(const vec3<float> *r, const quat<float> *q, unsig
     do
         {
         // compute the cell list
-        m_lc.computeCellList((float3*)r, Np);
+        // m_lc.computeCellList((float3*)r, Np);
+            m_lc.computeCellList(r, Np);
 
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,Np),

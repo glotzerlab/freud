@@ -1,6 +1,9 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
+#include "HOOMDMath.h"
+#include "VectorMath.h"
+
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
@@ -56,10 +59,17 @@ class PMFXYZ
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void compute(const float3 *ref_points,
+        // void compute(const float3 *ref_points,
+        //              const float4 *ref_orientations,
+        //              unsigned int Nref,
+        //              const float3 *points,
+        //              const float4 *orientations,
+        //              unsigned int Np,
+        //              const float4 *extra_orientations);
+        void compute(const vec3<float> *ref_points,
                      const float4 *ref_orientations,
                      unsigned int Nref,
-                     const float3 *points,
+                     const vec3<float> *points,
                      const float4 *orientations,
                      unsigned int Np,
                      const float4 *extra_orientations);

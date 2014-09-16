@@ -16,9 +16,13 @@ InterfaceMeasure::InterfaceMeasure(const trajectory::Box& box, float r_cut)
             throw invalid_argument("r_cut must be positive");
     }
 
-unsigned int InterfaceMeasure::compute(const float3 *ref_points,
+// unsigned int InterfaceMeasure::compute(const float3 *ref_points,
+//                                        unsigned int Nref,
+//                                        const float3 *points,
+//                                        unsigned int Np)
+unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
                                        unsigned int Nref,
-                                       const float3 *points,
+                                       const vec3<float> *points,
                                        unsigned int Np)
 {
     assert(ref_points);
@@ -38,7 +42,8 @@ unsigned int InterfaceMeasure::compute(const float3 *ref_points,
         bool inInterface = false;
 
         // get the cell the point is in
-        float3 ref = ref_points[i];
+        // float3 ref = ref_points[i];
+        vec3<float> ref = ref_points[i];
         unsigned int ref_cell = m_lc.getCell(ref);
 
         // loop over all neighboring cells
@@ -55,16 +60,19 @@ unsigned int InterfaceMeasure::compute(const float3 *ref_points,
             {
                 if(inInterface)
                     break;
+                vec3<float> delta = ref - points[j];
                 // compute the distance between the two particles
-                float dx = float(ref.x - points[j].x);
-                float dy = float(ref.y - points[j].y);
-                float dz = float(ref.z - points[j].z);
+                // float dx = float(ref.x - points[j].x);
+                // float dy = float(ref.y - points[j].y);
+                // float dz = float(ref.z - points[j].z);
 
-                float3 delta = m_box.wrap(make_float3(dx, dy, dz));
+                delta = m_box.wrap(delta);
 
                 // Check if the distance is less than the cutoff
-                float deltasq = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                if (deltasq < rcutsq)
+                // float deltasq = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                float rsq = dot(delta, delta);
+                // if (deltasq < rcutsq)
+                if (rsq < rcutsq)
                 {
                     inInterface = true;
                     break;
@@ -97,8 +105,10 @@ unsigned int InterfaceMeasure::computePy(boost::python::numeric::array ref_point
     unsigned int Np = num_util::shape(ref_points)[0];
 
     // get the raw data pointers and compute the interface
-    float3* ref_points_raw = (float3*) num_util::data(ref_points);
-    float3* points_raw = (float3*) num_util::data(points);
+    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
+    // float3* points_raw = (float3*) num_util::data(points);
+    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
     return compute(ref_points_raw, Nref, points_raw, Np);
 }
