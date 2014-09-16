@@ -21,7 +21,8 @@ class Split:
     # \params splitPositions The local positions to split points
     def compute(self,
                 positions,
+                orientations,
                 splitPositions):
-        self.splitHandle.compute(positions, splitPositions)
+        self.splitHandle.compute(positions, orientations, splitPositions)
         self.shapePositions = self.splitHandle.getShapeSplit()
         self.shapePositions = numpy.copy(self.shapePositions.reshape(len(positions)*len(splitPositions), 3))

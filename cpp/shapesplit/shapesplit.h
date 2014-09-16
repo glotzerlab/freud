@@ -35,11 +35,13 @@ class ShapeSplit
         //! Compute the RDF
         void compute(const vec3<float> *points,
                      unsigned int Np,
+                     const quat<float> *orientations,
                      const vec3<float> *split_points,
                      unsigned int Nsplit);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array points,
+                       boost::python::numeric::array orientations,
                        boost::python::numeric::array split_points);
 
         //! Get a reference to the last computed rdf

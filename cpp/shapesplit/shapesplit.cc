@@ -35,6 +35,7 @@ class SplitPoints
         const trajectory::Box m_box;
         const vec3<float> *m_points;
         const unsigned int m_Np;
+        const quat<float> *m_orientations;
         const vec3<float> *m_split_points;
         const unsigned int m_Nsplit;
     public:
@@ -42,10 +43,11 @@ class SplitPoints
                     const trajectory::Box &box,
                     const vec3<float> *points,
                     unsigned int Np,
+                    const quat<float> *orientations,
                     const vec3<float> *split_points,
                     unsigned int Nsplit)
-            : m_split_array(split_array), m_box(box), m_points(points), m_Np(Np), m_split_points(split_points),
-              m_Nsplit(Nsplit)
+            : m_split_array(split_array), m_box(box), m_points(points), m_Np(Np), m_orientations(orientations),
+              m_split_points(split_points), m_Nsplit(Nsplit)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -58,11 +60,9 @@ class SplitPoints
                 vec3<float> point = m_points[i];
                 for (unsigned int j = 0; j < m_Nsplit; j++)
                     {
-                    vec3<float> split_point = point + vec3<float>(m_split_points[j]);
+                    vec3<float> split_point = point + rotate(m_orientations[i], m_split_points[j]);
 
-                    // float3 wrapped(m_box.wrap(make_float3(split_point.x, split_point.y, split_point.z)));
                     split_point = m_box.wrap(split_point);
-                    // split_point = vec3<float>(wrapped.x, wrapped.y, wrapped.z);
 
                     m_split_array[b_i(0, j, i)] = split_point.x;
                     m_split_array[b_i(1, j, i)] = split_point.y;
@@ -75,6 +75,7 @@ class SplitPoints
 
 void ShapeSplit::compute(const vec3<float> *points,
                     unsigned int Np,
+                    const quat<float> *orientations,
                     const vec3<float> *split_points,
                     unsigned int Nsplit)
     {
@@ -87,6 +88,7 @@ void ShapeSplit::compute(const vec3<float> *points,
                                                           m_box,
                                                           points,
                                                           Np,
+                                                          orientations,
                                                           split_points,
                                                           Nsplit));
     m_Np = Np;
@@ -94,11 +96,14 @@ void ShapeSplit::compute(const vec3<float> *points,
     }
 
 void ShapeSplit::computePy(boost::python::numeric::array points,
-                    boost::python::numeric::array split_points)
+                           boost::python::numeric::array orientations,
+                           boost::python::numeric::array split_points)
     {
     // validate input type and rank
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
+    // num_util::check_type(orientations, PyArray_FLOAT);
+    // num_util::check_rank(orientations, 2);
     num_util::check_type(split_points, PyArray_FLOAT);
     num_util::check_rank(split_points, 2);
 
@@ -113,11 +118,32 @@ void ShapeSplit::computePy(boost::python::numeric::array points,
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     vec3<float>* split_points_raw = (vec3<float>*) num_util::data(split_points);
 
-        // compute with the GIL released
+    // needs to check how many dims there are
+    if (num_util::rank(orientations) == 1)
         {
-        util::ScopedGILRelease gil;
-        compute(points_raw, Np, split_points_raw, Nsplit);
+        float *theta_raw = (float*) num_util::data(orientations);
+        quat<float> *orientations_raw = new quat<float>[Np];
+        for (unsigned int i=0; i<Np; i++)
+            {
+            float theta = theta_raw[i];
+            orientations_raw[i] = quat<float>::fromAxisAngle(vec3<float>(0, 0, 1), theta);
+            }
+        // compute with the GIL released
+            {
+            util::ScopedGILRelease gil;
+            compute(points_raw, Np, orientations_raw, split_points_raw, Nsplit);
+            }
         }
+    else
+        {
+        quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
+        // compute with the GIL released
+            {
+            util::ScopedGILRelease gil;
+            compute(points_raw, Np, orientations_raw, split_points_raw, Nsplit);
+            }
+        }
+
     }
 
 void export_ShapeSplit()
