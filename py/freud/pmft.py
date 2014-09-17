@@ -47,8 +47,8 @@ class pmfXYZ(object):
     # \param refOrientations Reference orientation to consider as quaternion
     # \param pos points to consider
     # \param orientations orientations to consider as quaternion
-    # \param extraOrientations orientations to rotate after bringing into local coordinates
-    def compute(self, refPos=None, refOrientations=None, pos=None, orientations=None, extraOrientations=None):
+    # \param faceQuaternions orientations to rotate after bringing into local coordinates
+    def compute(self, refPos=None, refOrientations=None, pos=None, orientations=None, faceQuaternions=None):
         if refPos is not None:
             self.refPos = refPos
         else:
@@ -63,14 +63,24 @@ class pmfXYZ(object):
             self.refOrientations = refOrientations
         if orientations is not None:
             self.orientations = orientations
-        if extraOrientations is not None:
+        if faceQuaternions is not None:
             # change this check so it doesn't barf
-            self.extraOrientations = extraOrientations
+            faceShape = faceQuaternions.shape
+            if faceShape[0] != len(self.refPos):
+                raise RuntimeError("please supply the same number of quaternion sets as ref particles")
+            self.nSets = faceShape[1]
+            for i in faceShape:
+                mySet = len(i)
+                if self.nSets != mySet:
+                    raise RuntimeError("the same number of face quaternions needs to be supplied for all shapes")
+            if faceShape[2] != 4:
+                raise RuntimeError("quaternions require 4 values")
+            self.faceQuaternions = faceQuaternions
         else:
             # create a unit quaternion
-            self.extraOrientations = numpy.zeros(shape=(len(self.refPos), 4), dtype=numpy.float32)
-            self.extraOrientations[:,0] = 1.0
-        self.pmfHandle.compute(self.refPos, self.refOrientations, self.pos, self.orientations, self.extraOrientations)
+            self.faceQuaternions = numpy.zeros(shape=(len(self.refPos), 1, 4), dtype=numpy.float32)
+            self.faceQuaternions[:,:,0] = 1.0
+        self.pmfHandle.compute(self.refPos, self.refOrientations, self.pos, self.orientations, self.faceQuaternions)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
     # in addition to self.pmfArray

@@ -131,7 +131,8 @@ class ComputePMFTWithoutCellList
         const vec3<float> *m_points;
         const quat<float> *m_orientations;
         const unsigned int m_Np;
-        const quat<float> *m_extra_orientations;
+        const quat<float> *m_face_orientations;
+        const unsigned int m_Nfaces;
     public:
         ComputePMFTWithoutCellList(atomic<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
@@ -152,11 +153,12 @@ class ComputePMFTWithoutCellList
                                    const vec3<float> *points,
                                    const quat<float> *orientations,
                                    unsigned int Np,
-                                   const quat<float> *extra_orientations)
+                                   const quat<float> *face_orientations,
+                                   const unsigned int Nfaces)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_ref_points(ref_points),
               m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np),
-              m_extra_orientations(extra_orientations)
+              m_face_orientations(face_orientations), m_Nfaces(Nfaces)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -175,74 +177,70 @@ class ComputePMFTWithoutCellList
             float maxzsq = m_max_z * m_max_z;
 
             Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_z);
+            Index2D q_i = Index2D(m_Nfaces, m_Np);
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                // float3 ref = m_ref_points[i];
                 vec3<float> ref = m_ref_points[i];
                 // for each point to check
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    // float3 point = m_points[j];
                     vec3<float> point = m_points[j];
                     vec3<float> delta = ref - point;
-                    // compute r between the two particles
-                    // float dx = float(ref.x - point.x);
-                    // float dy = float(ref.y - point.y);
-                    // float dz = float(ref.z - point.z);
-
-                    // make sure that the particles are wrapped into the box
-                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                     delta = m_box.wrap(delta);
 
                     // check that the particle is not checking itself
                     // 1e-6 is an arbitrary value that could be set differently if needed
-                    // float xsq = delta.x*delta.x;
-                    // float ysq = delta.y*delta.y;
-                    // float zsq = delta.z*delta.z;
                     float rsq = dot(delta, delta);
-                    // if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
+
                     if (rsq < 1e-6)
                         {
                         // skip if the same particle
                         continue;
                         }
-                    // float x = delta.x;
-                    // float y = delta.y;
-                    // float z = delta.z;
-
-                    // rotate interparticle vector
-                    quat<float> q(m_ref_orientations[i]);
-                    // create the extra quaternion
-                    quat<float> qe(m_extra_orientations[i]);
-                    vec3<float> v(delta);
-                    v = rotate(conj(q), v);
-                    v = rotate(qe, v);
-
-                    float x = v.x + m_max_x;
-                    float y = v.y + m_max_y;
-                    float z = v.z + m_max_z;
-
-                    // bin that point
-                    float binx = floorf(x * dx_inv);
-                    float biny = floorf(y * dy_inv);
-                    float binz = floorf(z * dz_inv);
-                    // fast float to int conversion with truncation
-                    #ifdef __SSE2__
-                    unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                    unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                    unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
-                    #else
-                    unsigned int ibinx = (unsigned int)(binx);
-                    unsigned int ibiny = (unsigned int)(biny);
-                    unsigned int ibinz = (unsigned int)(binz);
-                    #endif
-
-                    // increment the bin; this is handled by atomic operations
-                    if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
+                    for (unsigned int k=0; k<m_Nfaces; k++)
                         {
-                        m_pcf_array[b_i(ibinx, ibiny, ibinz)]++;
+                        // create tmp vector
+                        vec3<float> my_vector(delta);
+                        // rotate vector
+
+                        // create the reference point quaternion
+                        quat<float> q(m_ref_orientations[i]);
+                        // create the extra quaternion
+                        // quat<float> qe(m_face_orientations[i*m_Nfaces + k]);
+                        quat<float> qe(m_face_orientations[q_i(k, i)]);
+                        // create point vector
+                        vec3<float> v(delta);
+                        // rotate the vector
+                        v = rotate(conj(q), v);
+                        v = rotate(qe, v);
+
+                        float x = v.x + m_max_x;
+                        float y = v.y + m_max_y;
+                        float z = v.z + m_max_z;
+
+                        // bin that point
+                        float binx = floorf(x * dx_inv);
+                        float biny = floorf(y * dy_inv);
+                        float binz = floorf(z * dz_inv);
+                        // fast float to int conversion with truncation
+                        #ifdef __SSE2__
+                        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+                        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+                        unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
+                        #else
+                        unsigned int ibinx = (unsigned int)(binx);
+                        unsigned int ibiny = (unsigned int)(biny);
+                        unsigned int ibinz = (unsigned int)(binz);
+                        #endif
+
+                        // increment the bin; this is handled by atomic operations
+                        // it is possible that this is better handled by an array of atomics...
+                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
+                            {
+                            m_pcf_array[b_i(ibinx, ibiny, ibinz)]++;
+                            }
                         }
                     }
                 } // done looping over reference points
@@ -275,7 +273,8 @@ class ComputePMFTWithCellList
         const vec3<float> *m_points;
         const quat<float> *m_orientations;
         const unsigned int m_Np;
-        const quat<float> *m_extra_orientations;
+        const quat<float> *m_face_orientations;
+        const unsigned int m_Nfaces;
     public:
         ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
                                unsigned int nbins_x,
@@ -297,11 +296,12 @@ class ComputePMFTWithCellList
                                const vec3<float> *points,
                                const quat<float> *orientations,
                                unsigned int Np,
-                               const quat<float> *extra_orientations)
+                               const quat<float> *face_orientations,
+                               const unsigned int Nfaces)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
-              m_orientations(orientations), m_Np(Np), m_extra_orientations(extra_orientations)
+              m_orientations(orientations), m_Np(Np), m_face_orientations(face_orientations), m_Nfaces(Nfaces)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -320,6 +320,7 @@ class ComputePMFTWithCellList
             float maxzsq = m_max_z * m_max_z;
 
             Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_z);
+            Index2D q_i = Index2D(m_Nfaces, m_Np);
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -339,69 +340,60 @@ class ComputePMFTWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        // compute r between the two particles
-                        // float3 point = m_points[j];
                         vec3<float> point = m_points[j];
-                        // vec3<float> delta = ref - point;
-                        // float dx = float(ref.x - point.x);
-                        // float dy = float(ref.y - point.y);
-                        // float dz = float(ref.z - point.z);
 
                         // make sure that the particles are wrapped into the box
-                        // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                         vec3<float> delta = m_box.wrap(ref - point);
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
                         // 1e-6 is an arbitrary value that could be set differently if needed
-                        // float xsq = delta.x*delta.x;
-                        // float ysq = delta.y*delta.y;
-                        // float zsq = delta.z*delta.z;
-                        // if ((xsq < 1e-6) && (ysq < 1e-6) && (zsq < 1e-6))
                         if (rsq < 1e-6)
                             {
                             continue;
                             }
-                        // float x = delta.x;
-                        // float y = delta.y;
-                        // float z = delta.z;
-
-                        // rotate interparticle vector
-
-                        // create the reference point quaternion
-                        quat<float> q(m_ref_orientations[i]);
-                        // create the extra quaternion
-                        quat<float> qe(m_extra_orientations[i]);
-                        // create point vector
-                        vec3<float> v(delta);
-                        // rotate the vector
-                        v = rotate(conj(q), v);
-                        v = rotate(qe, v);
-
-                        float x = v.x + m_max_x;
-                        float y = v.y + m_max_y;
-                        float z = v.z + m_max_z;
-
-                        // bin that point
-                        float binx = floorf(x * dx_inv);
-                        float biny = floorf(y * dy_inv);
-                        float binz = floorf(z * dz_inv);
-                        // fast float to int conversion with truncation
-                        #ifdef __SSE2__
-                        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                        unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
-                        #else
-                        unsigned int ibinx = (unsigned int)(binx);
-                        unsigned int ibiny = (unsigned int)(biny);
-                        unsigned int ibinz = (unsigned int)(binz);
-                        #endif
-
-                        // increment the bin; this is handled by atomic operations
-                        // it is possible that this is better handled by an array of atomics...
-                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
+                        for (unsigned int k=0; k<m_Nfaces; k++)
                             {
-                            m_pcf_array[b_i(ibinx, ibiny, ibinz)]++;
+                            // create tmp vector
+                            vec3<float> my_vector(delta);
+                            // rotate vector
+
+                            // create the reference point quaternion
+                            quat<float> q(m_ref_orientations[i]);
+                            // create the extra quaternion
+                            // quat<float> qe(m_face_orientations[i*m_Nfaces + k]);
+                            quat<float> qe(m_face_orientations[q_i(k, i)]);
+                            // create point vector
+                            vec3<float> v(delta);
+                            // rotate the vector
+                            v = rotate(conj(q), v);
+                            v = rotate(qe, v);
+
+                            float x = v.x + m_max_x;
+                            float y = v.y + m_max_y;
+                            float z = v.z + m_max_z;
+
+                            // bin that point
+                            float binx = floorf(x * dx_inv);
+                            float biny = floorf(y * dy_inv);
+                            float binz = floorf(z * dz_inv);
+                            // fast float to int conversion with truncation
+                            #ifdef __SSE2__
+                            unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+                            unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+                            unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
+                            #else
+                            unsigned int ibinx = (unsigned int)(binx);
+                            unsigned int ibiny = (unsigned int)(biny);
+                            unsigned int ibinz = (unsigned int)(binz);
+                            #endif
+
+                            // increment the bin; this is handled by atomic operations
+                            // it is possible that this is better handled by an array of atomics...
+                            if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
+                                {
+                                m_pcf_array[b_i(ibinx, ibiny, ibinz)]++;
+                                }
                             }
                         }
                     }
@@ -446,7 +438,8 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
                       const vec3<float> *points,
                       const quat<float> *orientations,
                       unsigned int Np,
-                      const quat<float> *extra_orientations)
+                      const quat<float> *face_orientations,
+                      const unsigned int Nfaces)
     {
     if (useCells())
         {
@@ -469,7 +462,8 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
                                                                             points,
                                                                             orientations,
                                                                             Np,
-                                                                            extra_orientations));
+                                                                            face_orientations,
+                                                                            Nfaces));
         }
     else
         {
@@ -490,7 +484,8 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
                                                                                points,
                                                                                orientations,
                                                                                Np,
-                                                                               extra_orientations));
+                                                                               face_orientations,
+                                                                               Nfaces));
         }
     }
 
@@ -502,7 +497,7 @@ void PMFXYZ::computePy(boost::python::numeric::array ref_points,
                         boost::python::numeric::array ref_orientations,
                         boost::python::numeric::array points,
                         boost::python::numeric::array orientations,
-                        boost::python::numeric::array extra_orientations)
+                        boost::python::numeric::array face_orientations)
     {
     // validate input type and rank
     num_util::check_type(ref_points, PyArray_FLOAT);
@@ -513,8 +508,8 @@ void PMFXYZ::computePy(boost::python::numeric::array ref_points,
     num_util::check_rank(points, 2);
     num_util::check_type(orientations, PyArray_FLOAT);
     num_util::check_rank(orientations, 2);
-    num_util::check_type(extra_orientations, PyArray_FLOAT);
-    num_util::check_rank(extra_orientations, 2);
+    num_util::check_type(face_orientations, PyArray_FLOAT);
+    num_util::check_rank(face_orientations, 3);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
@@ -523,27 +518,27 @@ void PMFXYZ::computePy(boost::python::numeric::array ref_points,
     num_util::check_dim(ref_points, 1, 3);
     unsigned int Nref = num_util::shape(ref_points)[0];
 
+    num_util::check_dim(face_orientations, 2, 4);
+    const unsigned int Nfaces = num_util::shape(face_orientations)[1];
+
     // check the size of angles to be correct
     num_util::check_dim(ref_orientations, 0, Nref);
     num_util::check_dim(ref_orientations, 1, 4);
     num_util::check_dim(orientations, 0, Np);
     num_util::check_dim(orientations, 1, 4);
-    num_util::check_dim(extra_orientations, 0, Nref);
-    num_util::check_dim(extra_orientations, 1, 4);
+    num_util::check_dim(face_orientations, 0, Nref);
 
     // get the raw data pointers and compute the cell list
-    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
     quat<float>* ref_orientations_raw = (quat<float>*) num_util::data(ref_orientations);
-    // float3* points_raw = (float3*) num_util::data(points);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
-    quat<float>* extra_orientations_raw = (quat<float>*) num_util::data(extra_orientations);
+    quat<float>* face_orientations_raw = (quat<float>*) num_util::data(face_orientations);
 
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_points_raw, ref_orientations_raw, Nref, points_raw, orientations_raw, Np, extra_orientations_raw);
+        compute(ref_points_raw, ref_orientations_raw, Nref, points_raw, orientations_raw, Np, face_orientations_raw, Nfaces);
         }
     }
 

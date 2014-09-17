@@ -67,14 +67,15 @@ class PMFXYZ
                      const vec3<float> *points,
                      const quat<float> *orientations,
                      unsigned int Np,
-                     const quat<float> *extra_orientations);
+                     const quat<float> *face_orientations,
+                     const unsigned int Nfaces);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
                        boost::python::numeric::array orientations,
-                       boost::python::numeric::array extra_orientations);
+                       boost::python::numeric::array face_orientations);
 
         //! Get a reference to the PCF array
         boost::shared_array<unsigned int> getPCF()
