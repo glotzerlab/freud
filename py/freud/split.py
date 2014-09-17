@@ -25,4 +25,6 @@ class Split:
                 splitPositions):
         self.splitHandle.compute(positions, orientations, splitPositions)
         self.shapePositions = self.splitHandle.getShapeSplit()
+        self.shapeOrientations = self.splitHandle.getShapeOrientations()
         self.shapePositions = numpy.copy(self.shapePositions.reshape(len(positions)*len(splitPositions), 3))
+        self.shapeOrientations = numpy.copy(self.shapeOrientations.reshape(len(positions)*len(splitPositions), 4))

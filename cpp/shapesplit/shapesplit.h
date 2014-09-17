@@ -44,17 +44,30 @@ class ShapeSplit
                        boost::python::numeric::array orientations,
                        boost::python::numeric::array split_points);
 
-        //! Get a reference to the last computed rdf
+        //! Get a reference to the last computed split shape
         boost::shared_array<float> getShapeSplit()
             {
             return m_split_array;
             }
 
-        //! Python wrapper for getRDF() (returns a copy)
+        //! Python wrapper for getShapeSplit() (returns a copy)
         boost::python::numeric::array getShapeSplitPy()
             {
             float *arr = m_split_array.get();
             return num_util::makeNum(arr, 3*m_Nsplit*m_Np);
+            }
+
+        //! Get a reference to the last computed split orientations
+        boost::shared_array<float> getShapeOrientations()
+            {
+            return m_orientation_array;
+            }
+
+        //! Python wrapper for getShapeOrientations() (returns a copy)
+        boost::python::numeric::array getShapeOrientationsPy()
+            {
+            float *arr = m_orientation_array.get();
+            return num_util::makeNum(arr, 4*m_Nsplit*m_Np);
             }
 
     private:
@@ -63,6 +76,7 @@ class ShapeSplit
         unsigned int m_Nsplit;
 
         boost::shared_array<float> m_split_array;
+        boost::shared_array<float> m_orientation_array;
     };
 
 /*! \internal
