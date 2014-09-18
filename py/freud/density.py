@@ -6,5 +6,8 @@
 from _freud import GaussianDensity;
 from _freud import LocalDensity;
 from _freud import RDF;
-from _freud import ComplexWRDF;
-from _freud import FloatWRDF;
+from _freud import ComplexCF;
+from _freud import FloatCF;
+
+from _freud import ComplexCF as ComplexWRDF;
+from _freud import FloatCF as FloatWRDF;

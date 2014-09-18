@@ -15,12 +15,12 @@ using namespace std;
 using namespace boost::python;
 using namespace freud;
 
-/*! \file WeightedRDF.cc
+/*! \file CorrelationFunction.cc
     \brief Weighted radial density functions
 */
 
 template<typename T>
-WeightedRDF<T>::WeightedRDF(const trajectory::Box& box, float rmax, float dr)
+CorrelationFunction<T>::CorrelationFunction(const trajectory::Box& box, float rmax, float dr)
     : m_box(box), m_rmax(rmax), m_dr(dr)
     {
     if (dr < 0.0f)
@@ -72,14 +72,14 @@ WeightedRDF<T>::WeightedRDF(const trajectory::Box& box, float rmax, float dr)
     }
 
 template<typename T>
-WeightedRDF<T>::~WeightedRDF()
+CorrelationFunction<T>::~CorrelationFunction()
     {
     if(useCells())
     delete m_lc;
     }
 
 template<typename T>
-bool WeightedRDF<T>::useCells()
+bool CorrelationFunction<T>::useCells()
     {
     float l_min = fmin(m_box.getLx(), m_box.getLy());
 
@@ -93,13 +93,13 @@ bool WeightedRDF<T>::useCells()
     }
 
 template<typename T>
-// void WeightedRDF<T>::compute(const float3 *ref_points,
+// void CorrelationFunction<T>::compute(const float3 *ref_points,
 //                              const T *ref_values,
 //                              unsigned int Nref,
 //                              const float3 *points,
 //                              const T *point_values,
 //                              unsigned int Np)
-void WeightedRDF<T>::compute(const vec3<float> *ref_points,
+void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
                              const T *ref_values,
                              unsigned int Nref,
                              const vec3<float> *points,
@@ -117,13 +117,13 @@ void WeightedRDF<T>::compute(const vec3<float> *ref_points,
     }
 
 template<typename T>
-// void WeightedRDF<T>::computeWithoutCellList(const float3 *ref_points,
+// void CorrelationFunction<T>::computeWithoutCellList(const float3 *ref_points,
 //                  const T *ref_values,
 //                  unsigned int Nref,
 //                  const float3 *points,
 //                  const T *point_values,
 //                  unsigned int Np)
-void WeightedRDF<T>::computeWithoutCellList(const vec3<float> *ref_points,
+void CorrelationFunction<T>::computeWithoutCellList(const vec3<float> *ref_points,
                  const T *ref_values,
                  unsigned int Nref,
                  const vec3<float> *points,
@@ -182,13 +182,13 @@ void WeightedRDF<T>::computeWithoutCellList(const vec3<float> *ref_points,
     }
 
 template<typename T>
-// void WeightedRDF<T>::computeWithCellList(const float3 *ref_points,
+// void CorrelationFunction<T>::computeWithCellList(const float3 *ref_points,
 //                   const T *ref_values,
 //                   unsigned int Nref,
 //                   const float3 *points,
 //                   const T *point_values,
 //                   unsigned int Np)
-void WeightedRDF<T>::computeWithCellList(const vec3<float> *ref_points,
+void CorrelationFunction<T>::computeWithCellList(const vec3<float> *ref_points,
                   const T *ref_values,
                   unsigned int Nref,
                   const vec3<float> *points,
@@ -271,7 +271,7 @@ void WeightedRDF<T>::computeWithCellList(const vec3<float> *ref_points,
     }
 
 template<typename T>
-void WeightedRDF<T>::computePy(boost::python::numeric::array ref_points,
+void CorrelationFunction<T>::computePy(boost::python::numeric::array ref_points,
                             boost::python::numeric::array ref_values,
                             boost::python::numeric::array points,
                             boost::python::numeric::array point_values)
@@ -308,22 +308,22 @@ void WeightedRDF<T>::computePy(boost::python::numeric::array ref_points,
         }
     }
 
-void export_WeightedRDF()
+void export_CorrelationFunction()
     {
-    typedef WeightedRDF<std::complex<float> > ComplexWRDF;
-    class_<ComplexWRDF>("ComplexWRDF", init<trajectory::Box&, float, float>())
-        .def("getBox", &ComplexWRDF::getBox, return_internal_reference<>())
-        .def("compute", &ComplexWRDF::computePy)
-        .def("getRDF", &ComplexWRDF::getRDFPy)
-        .def("getCounts", &ComplexWRDF::getCountsPy)
-        .def("getR", &ComplexWRDF::getRPy)
+    typedef CorrelationFunction<std::complex<float> > ComplexCF;
+    class_<ComplexCF>("ComplexCF", init<trajectory::Box&, float, float>())
+        .def("getBox", &ComplexCF::getBox, return_internal_reference<>())
+        .def("compute", &ComplexCF::computePy)
+        .def("getRDF", &ComplexCF::getRDFPy)
+        .def("getCounts", &ComplexCF::getCountsPy)
+        .def("getR", &ComplexCF::getRPy)
         ;
-    typedef WeightedRDF<float> FloatWRDF;
-    class_<FloatWRDF>("FloatWRDF", init<trajectory::Box&, float, float>())
-        .def("getBox", &FloatWRDF::getBox, return_internal_reference<>())
-        .def("compute", &FloatWRDF::computePy)
-        .def("getRDF", &FloatWRDF::getRDFPy)
-        .def("getCounts", &FloatWRDF::getCountsPy)
-        .def("getR", &FloatWRDF::getRPy)
+    typedef CorrelationFunction<float> FloatCF;
+    class_<FloatCF>("FloatCF", init<trajectory::Box&, float, float>())
+        .def("getBox", &FloatCF::getBox, return_internal_reference<>())
+        .def("compute", &FloatCF::computePy)
+        .def("getRDF", &FloatCF::getRDFPy)
+        .def("getCounts", &FloatCF::getCountsPy)
+        .def("getR", &FloatCF::getRPy)
         ;
     }

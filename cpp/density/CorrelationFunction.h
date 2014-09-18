@@ -10,10 +10,10 @@
 #include "num_util.h"
 #include "trajectory.h"
 
-#ifndef _WEIGHTEDRDF_H__
-#define _WEIGHTEDRDF_H__
+#ifndef _CORRELATIONFUNCTION_H__
+#define _CORRELATIONFUNCTION_H__
 
-/*! \file WeightedRDF.cc
+/*! \file CorrelationFunction.cc
     \brief Weighted radial density functions
 */
 
@@ -31,14 +31,14 @@ namespace freud { namespace density {
     3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
 template<typename T>
-class WeightedRDF
+class CorrelationFunction
     {
     public:
         //! Constructor
-        WeightedRDF(const trajectory::Box& box, float rmax, float dr);
+        CorrelationFunction(const trajectory::Box& box, float rmax, float dr);
 
         //! Destructor
-        ~WeightedRDF();
+        ~CorrelationFunction();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -152,10 +152,10 @@ class WeightedRDF
 /*! \internal
     \brief Exports all classes in this file to python
 */
-void export_WeightedRDF();
+void export_CorrelationFunction();
 
-#include "WeightedRDF.cc"
+#include "CorrelationFunction.cc"
 
 }; }; // end namespace freud::density
 
-#endif // _WEIGHTEDRDF_H__
+#endif // _CORRELATIONFUNCTION_H__

@@ -27,7 +27,7 @@
 #include "triangles.h"
 #include "split.h"
 #include "tbb_config.h"
-#include "WeightedRDF.h"
+#include "CorrelationFunction.h"
 #include "LocalQl.h"
 #include "LocalWl.h"
 #include "SolLiq.h"
@@ -77,7 +77,7 @@ BOOST_PYTHON_MODULE(_freud)
     trajectory::export_trajectory();
     locality::export_LinkCell();
     density::export_RDF();
-    density::export_WeightedRDF();
+    density::export_CorrelationFunction();
     density::export_GaussianDensity();
     density::export_LocalDensity();
     voronoi::export_VoronoiBuffer();

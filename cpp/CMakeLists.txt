@@ -66,6 +66,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
+
+
 set(SOURCES trajectory/trajectory.cc
             trajectory/trajectory.h
             trajectory/DCDLoader.cc
