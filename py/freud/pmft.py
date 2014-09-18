@@ -69,7 +69,7 @@ class pmfXYZ(object):
             if faceShape[0] != len(self.refPos):
                 raise RuntimeError("please supply the same number of quaternion sets as ref particles")
             self.nSets = faceShape[1]
-            for i in faceShape:
+            for i in faceQuaternions:
                 mySet = len(i)
                 if self.nSets != mySet:
                     raise RuntimeError("the same number of face quaternions needs to be supplied for all shapes")
