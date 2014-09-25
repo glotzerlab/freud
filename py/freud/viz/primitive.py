@@ -191,17 +191,24 @@ class Triangles(base.Primitive):
         # -----------------------------------------------------------------
         # set up colors
         if colors is not None:
-            # go ahead and broadcast colors into a per-vertex form
-            tricolors = numpy.repeat(colors, 3, axis=0).reshape((self.N, 3, 4));
-            self.colors = numpy.ascontiguousarray(tricolors);
-
             # error check colors
-            if len(colors.shape) != 2:
-                raise TypeError("colors must be a Nx4 array");
-            if colors.shape[1] != 4:
-                raise ValueError("colors must be a Nx4 array");
             if colors.shape[0] != self.N:
                 raise ValueError("colors must have N the same as positions");
+            if len(colors.shape) == 2:
+                if colors.shape[1] != 4:
+                    raise ValueError("colors must be a Nx4 array");
+
+                # broadcast colors into a per-vertex form
+                tricolors = numpy.repeat(colors, 3, axis=0).reshape((self.N, 3, 4));
+                self.colors[:] = numpy.ascontiguousarray(tricolors);
+            elif len(colors.shape) == 3:
+                if colors.shape[1] != 3 or colors.shape[2] != 4:
+                    raise ValueError("colors must be an Nx4 or Nx3x4 array");
+
+                self.colors[:] = colors;
+            else:
+                raise TypeError("colors must be an Nx4 or Nx3x4 array");
+
             updated.add('color');
 
         try:
