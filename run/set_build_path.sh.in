@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# sets PYTHONPATH so that freud can be run from the build directory
+
+# - To use with Xcode projects:
+#   - Build freud with your preferred configuration (Debug shown here)
+#   - execute the following command on the shell
+#     CONFIGURATION=Debug source /path/to/freud/build/run/set_build_path.sh
+#   - this sets the PYTHONPATH variable for using the debug build of freud in that shell
+
+CONFIGURATION()
+    {
+    echo $CONFIGURATION
+    }
+
+export PYTHONPATH=@FREUD_SOURCE_DIR@/py:@FREUD_MODULE_BUILD_DIR@:${PYTHONPATH}
