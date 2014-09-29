@@ -191,17 +191,24 @@ class Triangles(base.Primitive):
         # -----------------------------------------------------------------
         # set up colors
         if colors is not None:
-            # go ahead and broadcast colors into a per-vertex form
-            tricolors = numpy.repeat(colors, 3, axis=0).reshape((self.N, 3, 4));
-            self.colors = numpy.ascontiguousarray(tricolors);
-
             # error check colors
-            if len(colors.shape) != 2:
-                raise TypeError("colors must be a Nx4 array");
-            if colors.shape[1] != 4:
-                raise ValueError("colors must be a Nx4 array");
             if colors.shape[0] != self.N:
                 raise ValueError("colors must have N the same as positions");
+            if len(colors.shape) == 2:
+                if colors.shape[1] != 4:
+                    raise ValueError("colors must be a Nx4 array");
+
+                # broadcast colors into a per-vertex form
+                tricolors = numpy.repeat(colors, 3, axis=0).reshape((self.N, 3, 4));
+                self.colors[:] = numpy.ascontiguousarray(tricolors);
+            elif len(colors.shape) == 3:
+                if colors.shape[1] != 3 or colors.shape[2] != 4:
+                    raise ValueError("colors must be an Nx4 or Nx3x4 array");
+
+                self.colors[:] = colors;
+            else:
+                raise TypeError("colors must be an Nx4 or Nx3x4 array");
+
             updated.add('color');
 
         try:
@@ -602,7 +609,7 @@ class Arrows(Triangles):
             if self.positions.shape[1] != 2:
                 raise ValueError("positions must be a Nx2 array");
 
-            self.N = self.positions.shape[0];
+            self.NArrows = self.positions.shape[0];
             updated.add('position');
 
         # -----------------------------------------------------------------
@@ -610,12 +617,12 @@ class Arrows(Triangles):
         if widths is not None:
             self.widths = numpy.array(widths, dtype=numpy.float32);
             if len(self.widths.shape) == 0:
-                self.widths = numpy.repeat(self.widths, self.N);
+                self.widths = numpy.repeat(self.widths, self.NArrows);
 
             # error check widths
             if len(self.widths.shape) != 1:
                 raise TypeError("widths must be a scalar or single dimension array");
-            if self.widths.shape[0] != self.N:
+            if self.widths.shape[0] != self.NArrows:
                 raise ValueError("widths must have N the same as positions or 1");
 
             updated.add('position');
@@ -625,12 +632,12 @@ class Arrows(Triangles):
         if lengths is not None:
             self.lengths = numpy.array(lengths, dtype=numpy.float32);
             if len(self.lengths.shape) == 0:
-                self.lengths = numpy.repeat(self.lengths, self.N);
+                self.lengths = numpy.repeat(self.lengths, self.NArrows);
 
             # error check lengths
             if len(self.lengths.shape) != 1:
                 raise TypeError("lengths must be a scalar or single dimension array");
-            if self.lengths.shape[0] != self.N:
+            if self.lengths.shape[0] != self.NArrows:
                 raise ValueError("lengths must have N the same as positions or 1");
 
             updated.add('position');
@@ -643,7 +650,7 @@ class Arrows(Triangles):
             # error check angles
             if len(self.angles.shape) not in [0, 1]:
                 raise TypeError("angles must be a scalar or single dimension array");
-            if len(self.angles.shape) and self.angles.shape[0] != self.N:
+            if len(self.angles.shape) and self.angles.shape[0] != self.NArrows:
                 raise ValueError("angles must have N the same as positions or 1");
 
             updated.add('position');
@@ -653,7 +660,7 @@ class Arrows(Triangles):
         try:
             self.arrColors;
         except AttributeError:
-            self.arrColors = numpy.zeros(shape=(self.N,4), dtype=numpy.float32);
+            self.arrColors = numpy.zeros(shape=(self.NArrows,4), dtype=numpy.float32);
             self.arrColors[:,3] = 1;
 
         if colors is not None:
@@ -664,7 +671,7 @@ class Arrows(Triangles):
                 raise TypeError("colors must be a Nx4 array");
             if self.arrColors.shape[1] != 4:
                 raise ValueError("colors must be a Nx4 array");
-            if self.arrColors.shape[0] != self.N:
+            if self.arrColors.shape[0] != self.NArrows:
                 raise ValueError("colors must have N the same as positions");
 
             updated.add('color');
@@ -691,9 +698,9 @@ class Arrows(Triangles):
             l = 1.5*numpy.sqrt(3);
             tip = numpy.array([[[0, 1.5], [l, 0], [0, -1.5]]], dtype=numpy.float32);
 
-            stem0 = numpy.repeat(stem0, self.N, axis=0);
-            stem1 = numpy.repeat(stem1, self.N, axis=0);
-            tip = numpy.repeat(tip, self.N, axis=0);
+            stem0 = numpy.repeat(stem0, self.NArrows, axis=0);
+            stem1 = numpy.repeat(stem1, self.NArrows, axis=0);
+            tip = numpy.repeat(tip, self.NArrows, axis=0);
 
             # scale the width of stem and the size of the tip by the given line widths
             stem0[:, :, 1] *= self.widths[:, numpy.newaxis];
@@ -714,14 +721,14 @@ class Arrows(Triangles):
             tip[:, :, 0] += delta[:, numpy.newaxis];
 
             # rotate the vertices into the correct orientation
-            rmat = numpy.empty((self.N, 2, 2));
+            rmat = numpy.empty((self.NArrows, 2, 2));
             rmat[:, 0, 0] = rmat[:, 1, 1] = numpy.cos(self.angles);
             rmat[:, 1, 0] = numpy.sin(self.angles);
             rmat[:, 0, 1] = -rmat[:, 1, 0];
 
-            stem0 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem0.reshape(self.N, 3, 1, 2), axis=3);
-            stem1 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem1.reshape(self.N, 3, 1, 2), axis=3);
-            tip = numpy.sum(rmat[:, numpy.newaxis, :, :]*tip.reshape(self.N, 3, 1, 2), axis=3);
+            stem0 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem0.reshape(self.NArrows, 3, 1, 2), axis=3);
+            stem1 = numpy.sum(rmat[:, numpy.newaxis, :, :]*stem1.reshape(self.NArrows, 3, 1, 2), axis=3);
+            tip = numpy.sum(rmat[:, numpy.newaxis, :, :]*tip.reshape(self.NArrows, 3, 1, 2), axis=3);
 
             # put the triangles in the appropriate positions
             stem0 += self.positions[:, numpy.newaxis, :];
