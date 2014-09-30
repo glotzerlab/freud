@@ -111,6 +111,14 @@ class Analysis(QtCore.QObject):
         self.timer.timeout.connect(self.analyzeNextFrame)
 
         # create the dock widgets
+        self.progressBar = QtGui.QProgressBar()
+        self.progressBar.setMinimum(0)
+        self.progressBar.setMaximum(0)
+        self.progressBar.setValue(0)
+        self.progressBar.setTextVisible(True)
+        self.progressDock = QtGui.QDockWidget("Progress")
+        self.progressDock.setWidget(self.progressBar)
+        self.progressDock.setObjectName('Progress')
 
         self.rdfDock = QtGui.QDockWidget("RDF")
         self.rdfDock.setWidget(self.rdfPlot)
@@ -141,7 +149,8 @@ class Analysis(QtCore.QObject):
         self.optionsDock.setObjectName('options')
 
         # initialize the trajectory viewer
-        self.viewer = viz.rt.TrajectoryViewer(dock_widgets=[self.optionsDock,
+        self.viewer = viz.rt.TrajectoryViewer(dock_widgets=[self.progressDock,
+                                                            self.optionsDock,
                                                             self.rdfDock,
                                                             self.cumRdfDock,
                                                             self.ocfDock,
@@ -171,6 +180,9 @@ class Analysis(QtCore.QObject):
         self.traj = trajectory.TrajectoryXMLDCD("{}/{}Init.xml".format(pth, self.params.fileName),
                                                 "{}/{}.dcd".format(pth, self.params.fileName))
         self.numFrames = len(self.traj)
+        self.progressBar.setMinimum(0)
+        self.progressBar.setMaximum(self.numFrames-1)
+        self.progressBar.setValue(0)
         try:
             dataDict = json.load(open("{}/{}Shape.json".format(pth, self.params.fileName)))
         shapeData = loadShape.shape(dataDict)
@@ -306,6 +318,7 @@ class Analysis(QtCore.QObject):
     # analyze the next frame
     # could probably call a function but it's fine here
     def analyzeNextFrame(self):
+        self.progressBar.setValue(self.currentFrame)
         print('Computing frame', self.currentFrame)
         startTime = time.time()
         self.orderParameter.calc(frame=self.currentFrame)
