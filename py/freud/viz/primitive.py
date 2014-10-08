@@ -683,6 +683,7 @@ class Arrows(Triangles):
             if acolor.shape[0] != 4:
                 raise ValueError("color must be a 4 element array");
 
+            self.arrColors[:] = acolor;
             updated.add('color');
 
 
