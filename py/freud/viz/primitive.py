@@ -190,6 +190,13 @@ class Triangles(base.Primitive):
 
         # -----------------------------------------------------------------
         # set up colors
+        try:
+            self.colors;
+        except AttributeError:
+            self.colors = numpy.zeros(shape=(self.N,3,4), dtype=numpy.float32);
+            self.colors[:,:,3] = 1;
+            updated.add('color');
+
         if colors is not None:
             # error check colors
             if colors.shape[0] != self.N:
@@ -209,13 +216,6 @@ class Triangles(base.Primitive):
             else:
                 raise TypeError("colors must be an Nx4 or Nx3x4 array");
 
-            updated.add('color');
-
-        try:
-            self.colors;
-        except AttributeError:
-            self.colors = numpy.zeros(shape=(self.N,3,4), dtype=numpy.float32);
-            self.colors[:,:,3] = 1;
             updated.add('color');
 
         if color is not None:
