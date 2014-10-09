@@ -43,6 +43,8 @@ cRDF::cRDF(const trajectory::Box& box, float rmax, float dr)
     memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
     m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    m_avg_counts = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
 
@@ -85,6 +87,7 @@ class CombineArrays
         unsigned int m_nbins;
         unsigned int *m_bin_counts;
         tbb::combinable<unsigned int> *m_local_bin_counts;
+        float *m_avg_counts;
         float *m_rdf_array;
         float *m_vol_array;
         float m_ndens;
@@ -93,12 +96,13 @@ class CombineArrays
         CombineArrays(unsigned int nbins,
                       unsigned int *bin_counts,
                       tbb::combinable<unsigned int> *local_bin_counts,
+                      float *avg_counts,
                       float *rdf_array,
                       float *vol_array,
                       float ndens,
                       float Nref)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
-              m_vol_array(vol_array), m_ndens(ndens), m_Nref(Nref)
+            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_avg_counts(avg_counts),
+              m_rdf_array(rdf_array), m_vol_array(vol_array), m_ndens(ndens), m_Nref(Nref)
         {
         }
         void operator()( const blocked_range<size_t> &myBin ) const
@@ -106,8 +110,8 @@ class CombineArrays
             for (size_t i = myBin.begin(); i != myBin.end(); i++)
                 {
                 m_bin_counts[i] = m_local_bin_counts[i].combine(std::plus<unsigned int>());
-                float avg_counts = m_bin_counts[i] / m_Nref;
-                m_rdf_array[i] = avg_counts / m_vol_array[i] / m_ndens;
+                m_avg_counts[i] = m_bin_counts[i] / m_Nref;
+                m_rdf_array[i] = m_avg_counts[i] / m_vol_array[i] / m_ndens;
                 }
             }
     };
@@ -327,6 +331,7 @@ void cRDF::compute(const vec3<float> *ref_points,
     {
     // rezero the bins
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     // create combinable object
     tbb::combinable<unsigned int> *local_bin_counts = new tbb::combinable<unsigned int> [m_nbins];
     if (useCells())
@@ -358,16 +363,16 @@ void cRDF::compute(const vec3<float> *ref_points,
         parallel_for(blocked_range<size_t>(1,m_nbins), CombineArrays(m_nbins,
                                                                      m_bin_counts.get(),
                                                                      local_bin_counts,
+                                                                     m_avg_counts.get(),
                                                                      m_rdf_array.get(),
                                                                      m_vol_array.get(),
                                                                      ndens,
                                                                      (float)Nref));
         for (unsigned int bin = 1; bin < m_nbins; bin++)
             {
-            float avg_counts = m_bin_counts[bin] / Nref;
-
+            // float avg_counts = m_bin_counts[bin] / Nref;
             if (bin+1 < m_nbins)
-                m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+                m_N_r_array[bin+1] = m_N_r_array[bin] + m_avg_counts[bin];
             }
     }
     else
