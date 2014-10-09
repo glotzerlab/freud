@@ -85,11 +85,20 @@ class CombineArrays
         unsigned int m_nbins;
         unsigned int *m_bin_counts;
         tbb::combinable<unsigned int> *m_local_bin_counts;
+        float *m_rdf_array;
+        float *m_vol_array;
+        float m_ndens;
+        float m_Nref;
     public:
         CombineArrays(unsigned int nbins,
                       unsigned int *bin_counts,
-                      tbb::combinable<unsigned int> *local_bin_counts)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts)
+                      tbb::combinable<unsigned int> *local_bin_counts,
+                      float *rdf_array,
+                      float *vol_array,
+                      float ndens,
+                      float Nref)
+            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
+              m_vol_array(vol_array), m_ndens(ndens), m_Nref(Nref)
         {
         }
         void operator()( const blocked_range<size_t> &myBin ) const
@@ -97,6 +106,8 @@ class CombineArrays
             for (size_t i = myBin.begin(); i != myBin.end(); i++)
                 {
                 m_bin_counts[i] = m_local_bin_counts[i].combine(std::plus<unsigned int>());
+                float avg_counts = m_bin_counts[i] / m_Nref;
+                m_rdf_array[i] = avg_counts / m_vol_array[i] / m_ndens;
                 }
             }
     };
@@ -339,7 +350,25 @@ void cRDF::compute(const vec3<float> *ref_points,
         // {
         //     m_bin_counts[i] = local_bin_counts[i].combine(std::plus<unsigned int>());
         // }
-        parallel_for(blocked_range<size_t>(0,m_nbins), CombineArrays(m_nbins, m_bin_counts.get(), local_bin_counts));
+        float ndens = float(Np) / m_box.getVolume();
+        m_rdf_array[0] = 0.0f;
+        m_N_r_array[0] = 0.0f;
+        m_N_r_array[1] = 0.0f;
+        // now compute the rdf
+        parallel_for(blocked_range<size_t>(1,m_nbins), CombineArrays(m_nbins,
+                                                                     m_bin_counts.get(),
+                                                                     local_bin_counts,
+                                                                     m_rdf_array.get(),
+                                                                     m_vol_array.get(),
+                                                                     ndens,
+                                                                     (float)Nref));
+        for (unsigned int bin = 1; bin < m_nbins; bin++)
+            {
+            float avg_counts = m_bin_counts[bin] / Nref;
+
+            if (bin+1 < m_nbins)
+                m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+            }
     }
     else
         {
@@ -355,21 +384,19 @@ void cRDF::compute(const vec3<float> *ref_points,
                                                                               Nref,
                                                                               points,
                                                                               Np));
-        }
+        float ndens = float(Np) / m_box.getVolume();
+        m_rdf_array[0] = 0.0f;
+        m_N_r_array[0] = 0.0f;
+        m_N_r_array[1] = 0.0f;
 
-    // now compute the rdf
-    float ndens = float(Np) / m_box.getVolume();
-    m_rdf_array[0] = 0.0f;
-    m_N_r_array[0] = 0.0f;
-    m_N_r_array[1] = 0.0f;
+        for (unsigned int bin = 1; bin < m_nbins; bin++)
+            {
+            float avg_counts = m_bin_counts[bin] / float(Nref);
+            m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
 
-    for (unsigned int bin = 1; bin < m_nbins; bin++)
-        {
-        float avg_counts = m_bin_counts[bin] / float(Nref);
-        m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
-
-        if (bin+1 < m_nbins)
-            m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+            if (bin+1 < m_nbins)
+                m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
+            }
         }
     }
 
