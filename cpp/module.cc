@@ -9,6 +9,7 @@
 #include "LocalDensity.h"
 #include "kspace.h"
 #include "RDF.h"
+#include "cRDF.h"
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
@@ -77,6 +78,7 @@ BOOST_PYTHON_MODULE(_freud)
     trajectory::export_trajectory();
     locality::export_LinkCell();
     density::export_RDF();
+    density::export_cRDF();
     density::export_CorrelationFunction();
     density::export_GaussianDensity();
     density::export_LocalDensity();
