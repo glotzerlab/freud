@@ -45,6 +45,8 @@ cRDF::cRDF(const trajectory::Box& box, float rmax, float dr)
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     m_avg_counts = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
+    m_cum_counts = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_cum_counts.get(), 0, sizeof(float)*m_nbins);
     m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
     m_local_bin_counts = new tbb::combinable<unsigned int> [m_nbins];
@@ -82,6 +84,48 @@ cRDF::~cRDF()
     if(useCells())
     delete m_lc;
     }
+
+class CumulativeCount
+    {
+    private:
+        float m_sum;
+        float* m_N_r_array;
+        float* m_avg_counts;
+    public:
+        CumulativeCount( float *N_r_array,
+              float *avg_counts )
+            : m_sum(0), m_avg_counts(avg_counts), m_N_r_array(N_r_array)
+        {
+        }
+        float get_sum() const
+            {
+            return m_sum;
+            }
+        template<typename Tag>
+        void operator()( const blocked_range<size_t>& r, Tag )
+            {
+            float temp = m_sum;
+            for( size_t i=r.begin(); i<r.end(); i++ )
+                {
+                temp = temp + m_avg_counts[i];
+                if( Tag::is_final_scan() )
+                    m_N_r_array[i] = temp;
+                }
+            m_sum = temp;
+            }
+        CumulativeCount( CumulativeCount& b, split )
+            : m_avg_counts(b.m_avg_counts), m_N_r_array(b.m_N_r_array), m_sum(0)
+        {
+        }
+        void reverse_join( CumulativeCount& a )
+            {
+            m_sum = a.m_sum + m_sum;
+            }
+        void assign( CumulativeCount& b )
+            {
+            m_sum = b.m_sum;
+            }
+    };
 
 class CombineArrays
     {
@@ -335,6 +379,7 @@ void cRDF::compute(const vec3<float> *ref_points,
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     // memset((void*)m_local_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
+    memset((void*)m_cum_counts.get(), 0, sizeof(float)*m_nbins);
     if (useCells())
     {
         m_lc->computeCellList(points, Np);
@@ -369,12 +414,9 @@ void cRDF::compute(const vec3<float> *ref_points,
                                                                      m_vol_array.get(),
                                                                      ndens,
                                                                      (float)Nref));
-        for (unsigned int bin = 1; bin < m_nbins; bin++)
-            {
-            // float avg_counts = m_bin_counts[bin] / Nref;
-            if (bin+1 < m_nbins)
-                m_N_r_array[bin+1] = m_N_r_array[bin] + m_avg_counts[bin];
-            }
+        CumulativeCount myN_r( m_N_r_array.get(), m_avg_counts.get() );
+        parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
+
     }
     else
         {
