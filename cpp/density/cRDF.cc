@@ -47,6 +47,8 @@ cRDF::cRDF(const trajectory::Box& box, float rmax, float dr)
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
+    m_local_bin_counts = new tbb::combinable<unsigned int> [m_nbins];
+    // memset((void*)m_local_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
 
     // precompute the bin center positions
     m_r_array = boost::shared_array<float>(new float[m_nbins]);
@@ -331,16 +333,15 @@ void cRDF::compute(const vec3<float> *ref_points,
     {
     // rezero the bins
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    // memset((void*)m_local_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
-    // create combinable object
-    tbb::combinable<unsigned int> *local_bin_counts = new tbb::combinable<unsigned int> [m_nbins];
     if (useCells())
     {
         m_lc->computeCellList(points, Np);
         parallel_for(blocked_range<size_t>(0,Nref), ComputecRDFWithCellList(m_nbins,
                                                                            (atomic<float>*)m_rdf_array.get(),
                                                                            // (atomic<unsigned int>*)m_bin_counts.get(),
-                                                                           local_bin_counts,
+                                                                           m_local_bin_counts,
                                                                            (atomic<float>*)m_N_r_array.get(),
                                                                            (atomic<float>*)m_vol_array.get(),
                                                                            m_box,
@@ -362,7 +363,7 @@ void cRDF::compute(const vec3<float> *ref_points,
         // now compute the rdf
         parallel_for(blocked_range<size_t>(1,m_nbins), CombineArrays(m_nbins,
                                                                      m_bin_counts.get(),
-                                                                     local_bin_counts,
+                                                                     m_local_bin_counts,
                                                                      m_avg_counts.get(),
                                                                      m_rdf_array.get(),
                                                                      m_vol_array.get(),

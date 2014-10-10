@@ -11,6 +11,8 @@
 #include "trajectory.h"
 #include "Index1D.h"
 
+#include <tbb/tbb.h>
+
 #ifndef _cRDF_H__
 #define _cRDF_H__
 
@@ -114,6 +116,7 @@ class cRDF
         boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
+        tbb::combinable<unsigned int> *m_local_bin_counts; //!< combinable bin object
     };
 
 /*! \internal
