@@ -10,6 +10,8 @@
 #include "num_util.h"
 #include "trajectory.h"
 
+#include <tbb/tbb.h>
+
 #ifndef _CORRELATIONFUNCTION_H__
 #define _CORRELATIONFUNCTION_H__
 
@@ -50,46 +52,12 @@ class CorrelationFunction
         bool useCells();
 
         //! Compute the RDF
-        // void compute(const float3 *ref_points,
-        //              const T *ref_values,
-        //              unsigned int Nref,
-        //              const float3 *points,
-        //              const T *point_values,
-        //              unsigned int Np);
         void compute(const vec3<float> *ref_points,
                      const T *ref_values,
                      unsigned int Nref,
                      const vec3<float> *points,
                      const T *point_values,
                      unsigned int Np);
-
-        //! Compute the RDF
-        // void computeWithoutCellList(const float3 *ref_points,
-        //                             const T *ref_values,
-        //                             unsigned int Nref,
-        //                             const float3 *points,
-        //                             const T *point_values,
-        //                             unsigned int Np);
-        void computeWithoutCellList(const vec3<float> *ref_points,
-                                    const T *ref_values,
-                                    unsigned int Nref,
-                                    const vec3<float> *points,
-                                    const T *point_values,
-                                    unsigned int Np);
-
-        //! Compute the RDF
-        // void computeWithCellList(const float3 *ref_points,
-        //                             const T *ref_values,
-        //                             unsigned int Nref,
-        //                             const float3 *points,
-        //                             const T *point_values,
-        //                             unsigned int Np);
-        void computeWithCellList(const vec3<float> *ref_points,
-                                    const T *ref_values,
-                                    unsigned int Nref,
-                                    const vec3<float> *points,
-                                    const T *point_values,
-                                    unsigned int Np);
 
         //! Python wrapper for compute
         void computePy(boost::python::numeric::array ref_points,
@@ -146,7 +114,8 @@ class CorrelationFunction
         boost::shared_array<T> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
-        boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
+        tbb::combinable<unsigned int> *m_local_bin_counts;   //!< bin counts for each thread
+        tbb::combinable<T> *m_local_rdf_array;   //!< rdf array for each thread
     };
 
 /*! \internal

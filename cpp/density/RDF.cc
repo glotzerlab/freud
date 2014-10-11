@@ -43,8 +43,11 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
     m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    m_avg_counts = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
+    m_local_bin_counts = new tbb::combinable<unsigned int> [m_nbins];
 
     // precompute the bin center positions
     m_r_array = boost::shared_array<float>(new float[m_nbins]);
@@ -79,14 +82,88 @@ RDF::~RDF()
     delete m_lc;
     }
 
+class CumulativeCount
+    {
+    private:
+        float m_sum;
+        float* m_N_r_array;
+        float* m_avg_counts;
+    public:
+        CumulativeCount( float *N_r_array,
+              float *avg_counts )
+            : m_sum(0), m_avg_counts(avg_counts), m_N_r_array(N_r_array)
+        {
+        }
+        float get_sum() const
+            {
+            return m_sum;
+            }
+        template<typename Tag>
+        void operator()( const blocked_range<size_t>& r, Tag )
+            {
+            float temp = m_sum;
+            for( size_t i=r.begin(); i<r.end(); i++ )
+                {
+                temp = temp + m_avg_counts[i];
+                if( Tag::is_final_scan() )
+                    m_N_r_array[i] = temp;
+                }
+            m_sum = temp;
+            }
+        CumulativeCount( CumulativeCount& b, split )
+            : m_avg_counts(b.m_avg_counts), m_N_r_array(b.m_N_r_array), m_sum(0)
+        {
+        }
+        void reverse_join( CumulativeCount& a )
+            {
+            m_sum = a.m_sum + m_sum;
+            }
+        void assign( CumulativeCount& b )
+            {
+            m_sum = b.m_sum;
+            }
+    };
+
+class CombineArrays
+    {
+    private:
+        unsigned int m_nbins;
+        unsigned int *m_bin_counts;
+        tbb::combinable<unsigned int> *m_local_bin_counts;
+        float *m_avg_counts;
+        float *m_rdf_array;
+        float *m_vol_array;
+        float m_ndens;
+        float m_Nref;
+    public:
+        CombineArrays(unsigned int nbins,
+                      unsigned int *bin_counts,
+                      tbb::combinable<unsigned int> *local_bin_counts,
+                      float *avg_counts,
+                      float *rdf_array,
+                      float *vol_array,
+                      float ndens,
+                      float Nref)
+            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_avg_counts(avg_counts),
+              m_rdf_array(rdf_array), m_vol_array(vol_array), m_ndens(ndens), m_Nref(Nref)
+        {
+        }
+        void operator()( const blocked_range<size_t> &myBin ) const
+            {
+            for (size_t i = myBin.begin(); i != myBin.end(); i++)
+                {
+                m_bin_counts[i] = m_local_bin_counts[i].combine(std::plus<unsigned int>());
+                m_avg_counts[i] = m_bin_counts[i] / m_Nref;
+                m_rdf_array[i] = m_avg_counts[i] / m_vol_array[i] / m_ndens;
+                }
+            }
+    };
+
 class ComputeRDFWithoutCellList
     {
     private:
         unsigned int m_nbins;
-        atomic<float> *m_rdf_array;
-        atomic<unsigned int> *m_bin_counts;
-        atomic<float> *m_N_r_array;
-        atomic<float> *m_vol_array;
+        tbb::combinable<unsigned int> *m_bin_counts;
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
@@ -98,22 +175,16 @@ class ComputeRDFWithoutCellList
         const unsigned int m_Np;
     public:
         ComputeRDFWithoutCellList(unsigned int nbins,
-                                  atomic<float> *rdf_array,
-                                  atomic<unsigned int> *bin_counts,
-                                  atomic<float> *N_r_array,
-                                  atomic<float> *vol_array,
+                                  tbb::combinable<unsigned int> *bin_counts,
                                   const trajectory::Box &box,
                                   const float rmax,
                                   const float dr,
-                                  // const float3 *ref_points,
                                   const vec3<float> *ref_points,
                                   unsigned int Nref,
-                                  // const float3 *points,
                                   const vec3<float> *points,
                                   unsigned int Np)
-            : m_nbins(nbins), m_rdf_array(rdf_array), m_bin_counts(bin_counts), m_N_r_array(N_r_array),
-              m_vol_array(vol_array), m_box(box), m_rmax(rmax), m_dr(dr), m_ref_points(ref_points), m_Nref(Nref),
-              m_points(points), m_Np(Np)
+            : m_nbins(nbins), m_bin_counts(bin_counts), m_box(box), m_rmax(rmax), m_dr(dr), m_ref_points(ref_points),
+              m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -124,21 +195,11 @@ class ComputeRDFWithoutCellList
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                // float3 ref = m_ref_points[i];
-                vec3<float> ref = m_ref_points[i];
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    // float3 point = m_points[j];
-                    vec3<float> point = m_points[j];
                     // compute r between the two particles
-                    vec3<float> delta = ref - point;
-                    // float dx = float(ref.x - point.x);
-                    // float dy = float(ref.y - point.y);
-                    // float dz = float(ref.z - point.z);
+                    vec3<float> delta = m_box.wrap(m_points[j] - m_ref_points[i]);
 
-                    delta = m_box.wrap(delta);
-
-                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                     float rsq = dot(delta, delta);
                     if (rsq < rmaxsq)
                         {
@@ -155,7 +216,7 @@ class ComputeRDFWithoutCellList
 
                         if (bin < m_nbins)
                             {
-                            m_bin_counts[bin]++;
+                            ++m_bin_counts[bin].local();
                             }
                         }
                     }
@@ -167,26 +228,18 @@ class ComputeRDFWithCellList
     {
     private:
         unsigned int m_nbins;
-        atomic<float> *m_rdf_array;
-        atomic<unsigned int> *m_bin_counts;
-        atomic<float> *m_N_r_array;
-        atomic<float> *m_vol_array;
+        tbb::combinable<unsigned int> *m_bin_counts;
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
         const locality::LinkCell *m_lc;
-        // const float3 *m_ref_points;
         const vec3<float> *m_ref_points;
         const unsigned int m_Nref;
-        // const float3 *m_points;
         const vec3<float> *m_points;
         const unsigned int m_Np;
     public:
         ComputeRDFWithCellList(unsigned int nbins,
-                               atomic<float> *rdf_array,
-                               atomic<unsigned int> *bin_counts,
-                               atomic<float> *N_r_array,
-                               atomic<float> *vol_array,
+                               tbb::combinable<unsigned int> *bin_counts,
                                const trajectory::Box &box,
                                const float rmax,
                                const float dr,
@@ -197,9 +250,8 @@ class ComputeRDFWithCellList
                                // const float3 *points,
                                const vec3<float> *points,
                                unsigned int Np)
-            : m_nbins(nbins), m_rdf_array(rdf_array), m_bin_counts(bin_counts), m_N_r_array(N_r_array),
-              m_vol_array(vol_array), m_box(box), m_rmax(rmax), m_dr(dr), m_lc(lc), m_ref_points(ref_points),
-              m_Nref(Nref), m_points(points), m_Np(Np)
+            : m_nbins(nbins), m_bin_counts(bin_counts), m_box(box), m_rmax(rmax), m_dr(dr), m_lc(lc),
+              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
         void operator()( const blocked_range<size_t> &myR ) const
@@ -216,7 +268,6 @@ class ComputeRDFWithCellList
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 // get the cell the point is in
-                // float3 ref = m_ref_points[i];
                 vec3<float> ref = m_ref_points[i];
                 unsigned int ref_cell = m_lc->getCell(ref);
 
@@ -231,16 +282,9 @@ class ComputeRDFWithCellList
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
                         // compute r between the two particles
-                        // float3 point = m_points[j];
                         vec3<float> point = m_points[j];
-                        vec3<float> delta = ref - point;
-                        // float dx = float(ref.x - point.x);
-                        // float dy = float(ref.y - point.y);
-                        // float dz = float(ref.z - point.z);
-                        // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                        delta = m_box.wrap(delta);
+                        vec3<float> delta = m_box.wrap(m_points[j] - ref);
 
-                        // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                         float rsq = dot(delta, delta);
 
                         if (rsq < rmaxsq)
@@ -258,7 +302,7 @@ class ComputeRDFWithCellList
 
                             if (bin < m_nbins)
                                 {
-                                m_bin_counts[bin]++;
+                                ++m_bin_counts[bin].local();
                                 }
                             }
                         }
@@ -280,24 +324,18 @@ bool RDF::useCells()
     return false;
     }
 
-// void RDF::compute(const float3 *ref_points,
-//                   unsigned int Nref,
-//                   const float3 *points,
-//                   unsigned int Np)
 void RDF::compute(const vec3<float> *ref_points,
                   unsigned int Nref,
                   const vec3<float> *points,
                   unsigned int Np)
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
         parallel_for(blocked_range<size_t>(0,Nref), ComputeRDFWithCellList(m_nbins,
-                                                                           (atomic<float>*)m_rdf_array.get(),
-                                                                           (atomic<unsigned int>*)m_bin_counts.get(),
-                                                                           (atomic<float>*)m_N_r_array.get(),
-                                                                           (atomic<float>*)m_vol_array.get(),
+                                                                           m_local_bin_counts,
                                                                            m_box,
                                                                            m_rmax,
                                                                            m_dr,
@@ -310,10 +348,7 @@ void RDF::compute(const vec3<float> *ref_points,
     else
         {
         parallel_for(blocked_range<size_t>(0,Nref), ComputeRDFWithoutCellList(m_nbins,
-                                                                              (atomic<float>*)m_rdf_array.get(),
-                                                                              (atomic<unsigned int>*)m_bin_counts.get(),
-                                                                              (atomic<float>*)m_N_r_array.get(),
-                                                                              (atomic<float>*)m_vol_array.get(),
+                                                                              m_local_bin_counts,
                                                                               m_box,
                                                                               m_rmax,
                                                                               m_dr,
@@ -328,15 +363,17 @@ void RDF::compute(const vec3<float> *ref_points,
     m_rdf_array[0] = 0.0f;
     m_N_r_array[0] = 0.0f;
     m_N_r_array[1] = 0.0f;
-
-    for (unsigned int bin = 1; bin < m_nbins; bin++)
-        {
-        float avg_counts = m_bin_counts[bin] / float(Nref);
-        m_rdf_array[bin] = avg_counts / m_vol_array[bin] / ndens;
-
-        if (bin+1 < m_nbins)
-            m_N_r_array[bin+1] = m_N_r_array[bin] + avg_counts;
-        }
+    // now compute the rdf
+    parallel_for(blocked_range<size_t>(1,m_nbins), CombineArrays(m_nbins,
+                                                                 m_bin_counts.get(),
+                                                                 m_local_bin_counts,
+                                                                 m_avg_counts.get(),
+                                                                 m_rdf_array.get(),
+                                                                 m_vol_array.get(),
+                                                                 ndens,
+                                                                 (float)Nref));
+    CumulativeCount myN_r(m_N_r_array.get(), m_avg_counts.get());
+    parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
     }
 
 void RDF::computePy(boost::python::numeric::array ref_points,
@@ -356,8 +393,6 @@ void RDF::computePy(boost::python::numeric::array ref_points,
     unsigned int Nref = num_util::shape(ref_points)[0];
 
     // get the raw data pointers and compute the cell list
-    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
-    // float3* points_raw = (float3*) num_util::data(points);
     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 

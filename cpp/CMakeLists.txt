@@ -78,8 +78,6 @@ set(SOURCES trajectory/trajectory.cc
             locality/NearestNeighbors.cc
             density/RDF.cc
             density/RDF.h
-            density/cRDF.cc
-            density/cRDF.h
             density/GaussianDensity.cc
             density/GaussianDensity.h
             density/LocalDensity.h

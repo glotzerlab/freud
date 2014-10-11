@@ -11,6 +11,8 @@
 #include "trajectory.h"
 #include "Index1D.h"
 
+#include <tbb/tbb.h>
+
 #ifndef _RDF_H__
 #define _RDF_H__
 
@@ -50,10 +52,6 @@ class RDF
         bool useCells();
 
         //! Compute the RDF
-        // void compute(const float3 *ref_points,
-        //              unsigned int Nref,
-        //              const float3 *points,
-        //              unsigned int Np);
         void compute(const vec3<float> *ref_points,
                      unsigned int Nref,
                      const vec3<float> *points,
@@ -110,9 +108,11 @@ class RDF
 
         boost::shared_array<float> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+        boost::shared_array<float> m_avg_counts; //!< bin counts that go into computing the rdf array
         boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
+        tbb::combinable<unsigned int> *m_local_bin_counts; //!< combinable bin object
     };
 
 /*! \internal
