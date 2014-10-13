@@ -128,7 +128,5 @@ class TestPMFXY2D(unittest.TestCase):
         myPMFT.calcPMF()
         npt.assert_allclose(myPMFT.pcfArray, correct, atol=absoluteTolerance)
 
-
-
 if __name__ == '__main__':
     unittest.main()
