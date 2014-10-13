@@ -47,7 +47,9 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
-    m_local_bin_counts = new tbb::combinable<unsigned int> [m_nbins];
+    // m_local_bin_counts = new tbb::combinable<unsigned int> [m_nbins];
+    m_local_bin_counts = tbb::enumerable_thread_specific<unsigned int>(new unsigned int [m_nbins]);
+    // m_local_bin_counts = new tbb::enumerable_thread_specific<unsigned int>(m_nbins);
 
     // precompute the bin center positions
     m_r_array = boost::shared_array<float>(new float[m_nbins]);
@@ -129,7 +131,8 @@ class CombineArrays
     private:
         unsigned int m_nbins;
         unsigned int *m_bin_counts;
-        tbb::combinable<unsigned int> *m_local_bin_counts;
+        // tbb::combinable<unsigned int> *m_local_bin_counts;
+        tbb::enumerable_thread_specific<unsigned int> m_local_bin_counts;
         float *m_avg_counts;
         float *m_rdf_array;
         float *m_vol_array;
@@ -138,7 +141,8 @@ class CombineArrays
     public:
         CombineArrays(unsigned int nbins,
                       unsigned int *bin_counts,
-                      tbb::combinable<unsigned int> *local_bin_counts,
+                      // tbb::combinable<unsigned int> *local_bin_counts,
+                      tbb::enumerable_thread_specific<unsigned int> local_bin_counts,
                       float *avg_counts,
                       float *rdf_array,
                       float *vol_array,
@@ -152,7 +156,14 @@ class CombineArrays
             {
             for (size_t i = myBin.begin(); i != myBin.end(); i++)
                 {
-                m_bin_counts[i] = m_local_bin_counts[i].combine(std::plus<unsigned int>());
+                for (tbb::enumerable_thread_specific<unsigned int>::const_iterator j = m_local_bin_counts.begin();
+                     j != m_local_bin_counts.end(); j++)
+                    {
+                    // no idea how this is supposed to work...
+                    // m_bin_counts[i] += m_local_bin_counts[i][j];
+                    m_bin_counts[i] += (*j)[i];
+                    }
+                // m_bin_counts[i] = m_local_bin_counts[i].combine(std::plus<unsigned int>());
                 m_avg_counts[i] = m_bin_counts[i] / m_Nref;
                 m_rdf_array[i] = m_avg_counts[i] / m_vol_array[i] / m_ndens;
                 }
@@ -163,7 +174,8 @@ class ComputeRDFWithoutCellList
     {
     private:
         unsigned int m_nbins;
-        tbb::combinable<unsigned int> *m_bin_counts;
+        // tbb::combinable<unsigned int> *m_bin_counts;
+        tbb::enumerable_thread_specific<unsigned int> m_bin_counts;
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
@@ -173,7 +185,8 @@ class ComputeRDFWithoutCellList
         const unsigned int m_Np;
     public:
         ComputeRDFWithoutCellList(unsigned int nbins,
-                                  tbb::combinable<unsigned int> *bin_counts,
+                                  // tbb::combinable<unsigned int> *bin_counts,
+                                  tbb::enumerable_thread_specific<unsigned int> bin_counts,
                                   const trajectory::Box &box,
                                   const float rmax,
                                   const float dr,
@@ -189,6 +202,8 @@ class ComputeRDFWithoutCellList
             {
             float dr_inv = 1.0f / m_dr;
             float rmaxsq = m_rmax * m_rmax;
+
+            tbb::enumerable_thread_specific<unsigned int>::reference my_bin_counts = m_bin_counts.local();
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -214,7 +229,9 @@ class ComputeRDFWithoutCellList
 
                         if (bin < m_nbins)
                             {
-                            ++m_bin_counts[bin].local();
+                            // ++m_bin_counts[bin].local();
+                            my_bin_counts = m_bin_counts[bin];
+                            ++my_bin_counts;
                             }
                         }
                     }
@@ -226,7 +243,8 @@ class ComputeRDFWithCellList
     {
     private:
         unsigned int m_nbins;
-        tbb::combinable<unsigned int> *m_bin_counts;
+        // tbb::combinable<unsigned int> *m_bin_counts;
+        tbb::enumerable_thread_specific<unsigned int> m_bin_counts;
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
@@ -237,7 +255,8 @@ class ComputeRDFWithCellList
         const unsigned int m_Np;
     public:
         ComputeRDFWithCellList(unsigned int nbins,
-                               tbb::combinable<unsigned int> *bin_counts,
+                               // tbb::combinable<unsigned int> *bin_counts,
+                               tbb::enumerable_thread_specific<unsigned int> bin_counts,
                                const trajectory::Box &box,
                                const float rmax,
                                const float dr,
@@ -261,6 +280,9 @@ class ComputeRDFWithCellList
 
             float dr_inv = 1.0f / m_dr;
             float rmaxsq = m_rmax * m_rmax;
+
+            // tbb::enumerable_thread_specific<unsigned int>::reference my_bin_counts = m_bin_counts->local();
+            tbb::enumerable_thread_specific<unsigned int>::reference my_bin_counts = m_bin_counts.local();
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -300,7 +322,9 @@ class ComputeRDFWithCellList
 
                             if (bin < m_nbins)
                                 {
-                                ++m_bin_counts[bin].local();
+                                // ++m_bin_counts[bin].local();
+                                my_bin_counts = m_bin_counts.local();
+                                ++my_bin_counts;
                                 }
                             }
                         }
