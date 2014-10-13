@@ -91,6 +91,8 @@ PMFXYZ::PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z
     // create and populate the pcf_array
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y * m_nbins_z]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
+    // looks like this is far too big...may need to limit/change how implemented
+    m_local_pcf_array = new tbb::combinable<unsigned int> [m_nbins_x * m_nbins_y * m_nbins_z];
 
     if (useCells())
         {
@@ -105,6 +107,40 @@ PMFXYZ::~PMFXYZ()
     delete m_lc;
     }
 
+class CombinePCFXYZ
+    {
+    private:
+        unsigned int m_nbins_x;
+        unsigned int m_nbins_y;
+        unsigned int m_nbins_z;
+        unsigned int *m_pcf_array;
+        tbb::combinable<unsigned int> *m_local_pcf_array;
+    public:
+        CombinePCFXYZ(unsigned int nbins_x,
+                      unsigned int nbins_y,
+                      unsigned int nbins_z,
+                      unsigned int *pcf_array,
+                      tbb::combinable<unsigned int> *local_pcf_array)
+            : m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_pcf_array(pcf_array),
+              m_local_pcf_array(local_pcf_array)
+        {
+        }
+        void operator()( const blocked_range<size_t> &myBin ) const
+            {
+            Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_z);
+            for (size_t i = myBin.begin(); i != myBin.end(); i++)
+                {
+                for (size_t j = 0; j < m_nbins_y; j++)
+                    {
+                    for (size_t k = 0; k < m_nbins_z; j++)
+                        {
+                        m_pcf_array[b_i((int)i, (int)j, (int)k)] = m_local_pcf_array[b_i((int)i, (int)j, (int)k)].combine(std::plus<unsigned int>());
+                        }
+                    }
+                }
+            }
+    };
+
 //! \internal
 /*! \brief Helper class to compute PMF in parallel without the cell list
 */
@@ -112,7 +148,7 @@ PMFXYZ::~PMFXYZ()
 class ComputePMFTWithoutCellList
     {
     private:
-        atomic<unsigned int> *m_pcf_array;
+        tbb::combinable<unsigned int> *m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         unsigned int m_nbins_z;
@@ -123,18 +159,16 @@ class ComputePMFTWithoutCellList
         const float m_dx;
         const float m_dy;
         const float m_dz;
-        // const float3 *m_ref_points;
         const vec3<float> *m_ref_points;
         const quat<float> *m_ref_orientations;
         const unsigned int m_Nref;
-        // const float3 *m_points;
         const vec3<float> *m_points;
         const quat<float> *m_orientations;
         const unsigned int m_Np;
         const quat<float> *m_face_orientations;
         const unsigned int m_Nfaces;
     public:
-        ComputePMFTWithoutCellList(atomic<unsigned int> *pcf_array,
+        ComputePMFTWithoutCellList(tbb::combinable<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
                                    unsigned int nbins_y,
                                    unsigned int nbins_z,
@@ -208,7 +242,6 @@ class ComputePMFTWithoutCellList
                         // create the reference point quaternion
                         quat<float> q(m_ref_orientations[i]);
                         // create the extra quaternion
-                        // quat<float> qe(m_face_orientations[i*m_Nfaces + k]);
                         quat<float> qe(m_face_orientations[q_i(k, i)]);
                         // create point vector
                         vec3<float> v(delta);
@@ -239,7 +272,7 @@ class ComputePMFTWithoutCellList
                         // it is possible that this is better handled by an array of atomics...
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                             {
-                            m_pcf_array[b_i(ibinx, ibiny, ibinz)]++;
+                            ++m_pcf_array[b_i(ibinx, ibiny, ibinz)].local();
                             }
                         }
                     }
@@ -253,7 +286,7 @@ class ComputePMFTWithoutCellList
 class ComputePMFTWithCellList
     {
     private:
-        atomic<unsigned int> *m_pcf_array;
+        tbb::combinable<unsigned int> *m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         unsigned int m_nbins_z;
@@ -265,39 +298,35 @@ class ComputePMFTWithCellList
         const float m_dy;
         const float m_dz;
         const locality::LinkCell *m_lc;
-        // const float3 *m_ref_points;
         const vec3<float> *m_ref_points;
         const quat<float> *m_ref_orientations;
         const unsigned int m_Nref;
-        // const float3 *m_points;
         const vec3<float> *m_points;
         const quat<float> *m_orientations;
         const unsigned int m_Np;
         const quat<float> *m_face_orientations;
         const unsigned int m_Nfaces;
     public:
-        ComputePMFTWithCellList(atomic<unsigned int> *pcf_array,
-                               unsigned int nbins_x,
-                               unsigned int nbins_y,
-                               unsigned int nbins_z,
-                               const trajectory::Box &box,
-                               const float max_x,
-                               const float max_y,
-                               const float max_z,
-                               const float dx,
-                               const float dy,
-                               const float dz,
-                               const locality::LinkCell *lc,
-                               // const float3 *ref_points,
-                               const vec3<float> *ref_points,
-                               const quat<float> *ref_orientations,
-                               unsigned int Nref,
-                               // const float3 *points,
-                               const vec3<float> *points,
-                               const quat<float> *orientations,
-                               unsigned int Np,
-                               const quat<float> *face_orientations,
-                               const unsigned int Nfaces)
+        ComputePMFTWithCellList(tbb::combinable<unsigned int> *pcf_array,
+                                unsigned int nbins_x,
+                                unsigned int nbins_y,
+                                unsigned int nbins_z,
+                                const trajectory::Box &box,
+                                const float max_x,
+                                const float max_y,
+                                const float max_z,
+                                const float dx,
+                                const float dy,
+                                const float dz,
+                                const locality::LinkCell *lc,
+                                const vec3<float> *ref_points,
+                                const quat<float> *ref_orientations,
+                                unsigned int Nref,
+                                const vec3<float> *points,
+                                const quat<float> *orientations,
+                                unsigned int Np,
+                                const quat<float> *face_orientations,
+                                const unsigned int Nfaces)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
@@ -326,7 +355,6 @@ class ComputePMFTWithCellList
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
                 // get the cell the point is in
-                // float3 ref = m_ref_points[i];
                 vec3<float> ref = m_ref_points[i];
                 unsigned int ref_cell = m_lc->getCell(ref);
 
@@ -361,7 +389,6 @@ class ComputePMFTWithCellList
                             // create the reference point quaternion
                             quat<float> q(m_ref_orientations[i]);
                             // create the extra quaternion
-                            // quat<float> qe(m_face_orientations[i*m_Nfaces + k]);
                             quat<float> qe(m_face_orientations[q_i(k, i)]);
                             // create point vector
                             vec3<float> v(delta);
@@ -392,7 +419,7 @@ class ComputePMFTWithCellList
                             // it is possible that this is better handled by an array of atomics...
                             if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                                 {
-                                m_pcf_array[b_i(ibinx, ibiny, ibinz)]++;
+                                ++m_pcf_array[b_i(ibinx, ibiny, ibinz)].local();
                                 }
                             }
                         }
@@ -433,18 +460,18 @@ void PMFXYZ::resetPCF()
 /*! \brief Helper functionto direct the calculation to the correct helper class
 */
 void PMFXYZ::compute(const vec3<float> *ref_points,
-                      const quat<float> *ref_orientations,
-                      unsigned int Nref,
-                      const vec3<float> *points,
-                      const quat<float> *orientations,
-                      unsigned int Np,
-                      const quat<float> *face_orientations,
-                      const unsigned int Nfaces)
+                     const quat<float> *ref_orientations,
+                     unsigned int Nref,
+                     const vec3<float> *points,
+                     const quat<float> *orientations,
+                     unsigned int Np,
+                     const quat<float> *face_orientations,
+                     const unsigned int Nfaces)
     {
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList((atomic<unsigned int>*)m_pcf_array.get(),
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList(m_local_pcf_array,
                                                                             m_nbins_x,
                                                                             m_nbins_y,
                                                                             m_nbins_z,
@@ -467,7 +494,7 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
         }
     else
         {
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithoutCellList((atomic<unsigned int>*)m_pcf_array.get(),
+        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithoutCellList(m_local_pcf_array,
                                                                                m_nbins_x,
                                                                                m_nbins_y,
                                                                                m_nbins_z,
@@ -487,6 +514,11 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
                                                                                face_orientations,
                                                                                Nfaces));
         }
+    parallel_for(blocked_range<size_t>(0,m_nbins_x), CombinePCFXYZ(m_nbins_x,
+                                                                   m_nbins_y,
+                                                                   m_nbins_z,
+                                                                   m_pcf_array.get(),
+                                                                   m_local_pcf_array));
     }
 
 //! \internal
@@ -548,6 +580,7 @@ void export_PMFXYZ()
         .def("getBox", &PMFXYZ::getBox, return_internal_reference<>())
         .def("compute", &PMFXYZ::computePy)
         .def("getPCF", &PMFXYZ::getPCFPy)
+        .def("resetPCF", &PMFXYZ::resetPCFPy)
         .def("getX", &PMFXYZ::getXPy)
         .def("getY", &PMFXYZ::getYPy)
         .def("getZ", &PMFXYZ::getZPy)

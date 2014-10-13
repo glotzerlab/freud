@@ -167,10 +167,8 @@ class ComputeRDFWithoutCellList
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
-        // const float3 *m_ref_points;
         const vec3<float> *m_ref_points;
         const unsigned int m_Nref;
-        // const float3 *m_points;
         const vec3<float> *m_points;
         const unsigned int m_Np;
     public:

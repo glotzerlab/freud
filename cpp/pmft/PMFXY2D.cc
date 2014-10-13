@@ -74,6 +74,7 @@ PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx,
     // create and populate the pcf_array
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+    m_local_pcf_array = new tbb::combinable<unsigned int> [m_nbins_x * m_nbins_y];
 
     if (useCells())
         {
@@ -88,6 +89,34 @@ PMFXY2D::~PMFXY2D()
     delete m_lc;
     }
 
+class CombinePCFXY2D
+    {
+    private:
+        unsigned int m_nbins_x;
+        unsigned int m_nbins_y;
+        unsigned int *m_pcf_array;
+        tbb::combinable<unsigned int> *m_local_pcf_array;
+    public:
+        CombinePCFXY2D(unsigned int nbins_x,
+                       unsigned int nbins_y,
+                       unsigned int *pcf_array,
+                       tbb::combinable<unsigned int> *local_pcf_array)
+            : m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_pcf_array(pcf_array), m_local_pcf_array(local_pcf_array)
+        {
+        }
+        void operator()( const blocked_range<size_t> &myBin ) const
+            {
+            Index2D b_i = Index2D(m_nbins_x, m_nbins_y);
+            for (size_t i = myBin.begin(); i != myBin.end(); i++)
+                {
+                for (size_t j = 0; j < m_nbins_y; j++)
+                    {
+                    m_pcf_array[b_i((int)i, (int)j)] = m_local_pcf_array[b_i((int)i, (int)j)].combine(std::plus<unsigned int>());
+                    }
+                }
+            }
+    };
+
 //! \internal
 /*! \brief Helper class to compute PMF in parallel without the cell list
 */
@@ -95,7 +124,7 @@ PMFXY2D::~PMFXY2D()
 class ComputePMFXY2DWithoutCellList
     {
     private:
-        atomic<unsigned int> *m_pcf_array;
+        tbb::combinable<unsigned int> *m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         const trajectory::Box m_box;
@@ -103,16 +132,14 @@ class ComputePMFXY2DWithoutCellList
         const float m_max_y;
         const float m_dx;
         const float m_dy;
-        // const float3 *m_ref_points;
         const vec3<float> *m_ref_points;
         float *m_ref_orientations;
         const unsigned int m_Nref;
-        // const float3 *m_points;
         const vec3<float> *m_points;
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFXY2DWithoutCellList(atomic<unsigned int> *pcf_array,
+        ComputePMFXY2DWithoutCellList(tbb::combinable<unsigned int> *pcf_array,
                                       unsigned int nbins_x,
                                       unsigned int nbins_y,
                                       const trajectory::Box &box,
@@ -120,11 +147,9 @@ class ComputePMFXY2DWithoutCellList
                                       const float max_y,
                                       const float dx,
                                       const float dy,
-                                      // const float3 *ref_points,
                                       const vec3<float> *ref_points,
                                       float *ref_orientations,
                                       unsigned int Nref,
-                                      // const float3 *points,
                                       const vec3<float> *points,
                                       float *orientations,
                                       unsigned int Np)
@@ -151,37 +176,20 @@ class ComputePMFXY2DWithoutCellList
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                // float3 ref = m_ref_points[i];
-                vec3<float> ref = m_ref_points[i];
                 // for each point to check
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    // float3 point = m_points[j];
-                    vec3<float> point = m_points[j];
-                    vec3<float> delta = point - ref;
-                    // compute r between the two particles
-                    // float dx = float(point.x - ref.x);
-                    // float dy = float(point.y - ref.y);
-
-                    // make sure that the particles are wrapped into the box
-                    // float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
-                    delta = m_box.wrap(delta);
+                    vec3<float> delta = m_box.wrap(m_points[j] - m_ref_points[i]);
                     float rsq = dot(delta, delta);
 
                     // check that the particle is not checking itself
                     // 1e-6 is an arbitrary value that could be set differently if needed
-                    // float xsq = delta.x*delta.x;
-                    // float ysq = delta.y*delta.y;
-                    // if ((xsq < 1e-6) && (ysq < 1e-6))
                     if (rsq < 1e-6)
                         {
                         // skip if the same particle
                         continue;
                         }
                     // rotate interparticle vector
-                    // vec2<Scalar> myVec(delta.x, delta.y);
-                    // rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
-                    // vec2<Scalar> rotVec = myMat * myVec;
                     vec2<float> myVec(delta.x, delta.y);
                     rotmat2<float> myMat = rotmat2<float>::fromAngle(-m_ref_orientations[i]);
                     vec2<float> rotVec = myMat * myVec;
@@ -203,7 +211,7 @@ class ComputePMFXY2DWithoutCellList
                     // increment the bin; this is handled by atomic operations
                     if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                         {
-                        m_pcf_array[b_i(ibinx, ibiny)]++;
+                        ++m_pcf_array[b_i(ibinx, ibiny)].local();
                         }
                     }
                 } // done looping over reference points
@@ -217,7 +225,7 @@ class ComputePMFXY2DWithoutCellList
 class ComputePMFXY2DWithCellList
     {
     private:
-        atomic<unsigned int> *m_pcf_array;
+        tbb::combinable<unsigned int> *m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         const trajectory::Box m_box;
@@ -226,16 +234,14 @@ class ComputePMFXY2DWithCellList
         const float m_dx;
         const float m_dy;
         const locality::LinkCell *m_lc;
-        // float3 *m_ref_points;
         vec3<float> *m_ref_points;
         float *m_ref_orientations;
         const unsigned int m_Nref;
-        // float3 *m_points;
         vec3<float> *m_points;
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFXY2DWithCellList(atomic<unsigned int> *pcf_array,
+        ComputePMFXY2DWithCellList(tbb::combinable<unsigned int> *pcf_array,
                                    unsigned int nbins_x,
                                    unsigned int nbins_y,
                                    const trajectory::Box &box,
@@ -244,11 +250,9 @@ class ComputePMFXY2DWithCellList
                                    const float dx,
                                    const float dy,
                                    const locality::LinkCell *lc,
-                                   // float3 *ref_points,
                                    vec3<float> *ref_points,
                                    float *ref_orientations,
                                    unsigned int Nref,
-                                   // float3 *points,
                                    vec3<float> *points,
                                    float *orientations,
                                    unsigned int Np)
@@ -276,7 +280,6 @@ class ComputePMFXY2DWithCellList
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                // float3 ref = m_ref_points[i];
                 vec3<float> ref = m_ref_points[i];
                 // get the cell the point is in
                 unsigned int ref_cell = m_lc->getCell(ref);
@@ -291,32 +294,18 @@ class ComputePMFXY2DWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        // float3 point = m_points[j];
                         vec3<float> point = m_points[j];
-                        vec3<float> delta = point - ref;
-                        // compute r between the two particles
-                        // float dx = float(point.x - ref.x);
-                        // float dy = float(point.y - ref.y);
-
-                        // make sure that the particles are wrapped into the box
-                        // float3 delta = m_box.wrap(make_float3(dx, dy, (float)0));
-                        delta = m_box.wrap(delta);
+                        vec3<float> delta = m_box.wrap(point - ref);
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
                         // 1e-6 is an arbitrary value that could be set differently if needed
-                        // float xsq = delta.x*delta.x;
-                        // float ysq = delta.y*delta.y;
-                        // if ((xsq < 1e-6) && (ysq < 1e-6))
                         if (rsq < 1e-6)
                             {
                             continue;
                             }
 
                         // rotate interparticle vector
-                        // vec2<Scalar> myVec(delta.x, delta.y);
-                        // rotmat2<Scalar> myMat = rotmat2<Scalar>::fromAngle(-m_ref_orientations[i]);
-                        // vec2<Scalar> rotVec = myMat * myVec;
                         vec2<float> myVec(delta.x, delta.y);
                         rotmat2<float> myMat = rotmat2<float>::fromAngle(-m_ref_orientations[i]);
                         vec2<float> rotVec = myMat * myVec;
@@ -339,7 +328,7 @@ class ComputePMFXY2DWithCellList
                         // it is possible that this is better handled by an array of atomics...
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                             {
-                            m_pcf_array[b_i(ibinx, ibiny)]++;
+                            ++m_pcf_array[b_i(ibinx, ibiny)].local();
                             }
                         }
                     }
@@ -379,12 +368,6 @@ void PMFXY2D::resetPCF()
 /*! \brief Helper functionto direct the calculation to the correct helper class
 */
 
-// void PMFXY2D::compute(float3 *ref_points,
-//                       float *ref_orientations,
-//                       unsigned int Nref,
-//                       float3 *points,
-//                       float *orientations,
-//                       unsigned int Np)
 void PMFXY2D::compute(vec3<float> *ref_points,
                       float *ref_orientations,
                       unsigned int Nref,
@@ -396,7 +379,7 @@ void PMFXY2D::compute(vec3<float> *ref_points,
         {
         m_lc->computeCellList(points, Np);
         parallel_for(blocked_range<size_t>(0,Nref),
-                     ComputePMFXY2DWithCellList((atomic<unsigned int>*)m_pcf_array.get(),
+                     ComputePMFXY2DWithCellList(m_local_pcf_array,
                                                 m_nbins_x,
                                                 m_nbins_y,
                                                 m_box,
@@ -415,7 +398,7 @@ void PMFXY2D::compute(vec3<float> *ref_points,
     else
         {
         parallel_for(blocked_range<size_t>(0,Nref),
-                     ComputePMFXY2DWithoutCellList((atomic<unsigned int>*) m_pcf_array.get(),
+                     ComputePMFXY2DWithoutCellList(m_local_pcf_array,
                                                    m_nbins_x,
                                                    m_nbins_y,
                                                    m_box,
@@ -430,6 +413,10 @@ void PMFXY2D::compute(vec3<float> *ref_points,
                                                    orientations,
                                                    Np));
         }
+    parallel_for(blocked_range<size_t>(0,m_nbins_x), CombinePCFXY2D(m_nbins_x,
+                                                                    m_nbins_y,
+                                                                    m_pcf_array.get(),
+                                                                    m_local_pcf_array));
     }
 
 //! \internal

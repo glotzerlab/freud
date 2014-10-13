@@ -11,6 +11,8 @@
 #include "trajectory.h"
 #include "Index1D.h"
 
+#include <tbb/tbb.h>
+
 #ifndef _PMFXYZ_H__
 #define _PMFXYZ_H__
 
@@ -145,6 +147,7 @@ class PMFXYZ
         boost::shared_array<float> m_x_array;           //!< array of x values that the pcf is computed at
         boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
         boost::shared_array<float> m_z_array;           //!< array of z values that the pcf is computed at
+        tbb::combinable<unsigned int> *m_local_pcf_array; //!< combinable bin object
     };
 
 /*! \internal

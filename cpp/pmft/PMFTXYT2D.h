@@ -10,6 +10,8 @@
 #include "num_util.h"
 #include "trajectory.h"
 
+#include <tbb/tbb.h>
+
 #ifndef _PMFTXYT2D_H__
 #define _PMFTXYT2D_H__
 
@@ -48,16 +50,17 @@ class PMFTXYT2D
         //! Check if a cell list should be used or not
         bool useCells();
 
+        //! Reset the PCF array to all zeros
+        void resetPCF();
+
+        //! Python wrapper for reset method
+        void resetPCFPy()
+            {
+            resetPCF();
+            }
+
         //! Compute the RDF
-        // void compute(unsigned int *pcf_array,
-        //              float3 *ref_points,
-        //              float *ref_orientations,
-        //              unsigned int Nref,
-        //              float3 *points,
-        //              float *orientations,
-        //              unsigned int Np);
-        void compute(unsigned int *pcf_array,
-                     vec3<float> *ref_points,
+        void compute(vec3<float> *ref_points,
                      float *ref_orientations,
                      unsigned int Nref,
                      vec3<float> *points,
@@ -65,17 +68,16 @@ class PMFTXYT2D
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array pcf_array,
-                       boost::python::numeric::array ref_points,
+        void computePy(boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
                        boost::python::numeric::array orientations);
 
         //! Get a reference to the last computed pair correlation function
-        // boost::shared_array<unsigned int> getPCF()
-        //     {
-        //     return m_pcf_array;
-        //     }
+        boost::shared_array<unsigned int> getPCF()
+            {
+            return m_pcf_array;
+            }
 
         //! Get a reference to the x array
         boost::shared_array<float> getX()
@@ -96,12 +98,11 @@ class PMFTXYT2D
             }
 
         //! Python wrapper for getPCF() (returns a copy)
-        // boost::python::numeric::array getPCFPy()
-        //     {
-        //     unsigned int *arr = m_pcf_array.get();
-        //     // return num_util::makeNum(arr, m_nbins);
-        //     return num_util::makeNum(arr, m_nbins_x*m_nbins_y*m_nbins_z);
-        //     }
+        boost::python::numeric::array getPCFPy()
+            {
+            unsigned int *arr = m_pcf_array.get();
+            return num_util::makeNum(arr, m_nbins_x * m_nbins_y * m_nbins_T);
+            }
 
         //! Python wrapper for getX() (returns a copy)
         boost::python::numeric::array getXPy()
@@ -137,9 +138,11 @@ class PMFTXYT2D
         unsigned int m_nbins_y;             //!< Number of y bins to compute pcf over
         unsigned int m_nbins_T;             //!< Number of T bins to compute pcf over
 
+        boost::shared_array<unsigned int> m_pcf_array;         //!< array of pcf computed
         boost::shared_array<float> m_x_array;           //!< array of x values that the pcf is computed at
         boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
         boost::shared_array<float> m_T_array;           //!< array of T values that the pcf is computed at
+        tbb::combinable<unsigned int> *m_local_pcf_array; //!< combinable bin object
     };
 
 /*! \internal

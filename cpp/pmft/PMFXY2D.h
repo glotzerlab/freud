@@ -11,6 +11,8 @@
 #include "trajectory.h"
 #include "Index1D.h"
 
+#include <tbb/tbb.h>
+
 #ifndef _PMFXY2D_H__
 #define _PMFXY2D_H__
 
@@ -63,12 +65,6 @@ class PMFXY2D
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        // void compute(float3 *ref_points,
-        //              float *ref_orientations,
-        //              unsigned int Nref,
-        //              float3 *points,
-        //              float *orientations,
-        //              unsigned int Np);
         void compute(vec3<float> *ref_points,
                      float *ref_orientations,
                      unsigned int Nref,
@@ -134,6 +130,7 @@ class PMFXY2D
         boost::shared_array<unsigned int> m_pcf_array;         //!< array of pcf computed
         boost::shared_array<float> m_x_array;           //!< array of x values that the pcf is computed at
         boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
+        tbb::combinable<unsigned int> *m_local_pcf_array; //!< combinable bin object
     };
 
 /*! \internal

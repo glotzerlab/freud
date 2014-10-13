@@ -193,19 +193,18 @@ class pmftXYT2D(object):
         self.dy = dy
         self.dT = dT
         self.pmftHandle = PMFTXYT2D(self.box, self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
+        self.xArray = self.pmfHandle.getX()
+        self.yArray = self.pmfHandle.getY()
+        self.TArray = self.pmfHandle.getT()
+        self.nBinsX = int(len(self.xArray))
+        self.nBinsY = int(len(self.yArray))
+        self.nBinsT = int(len(self.TArray))
 
     ## Compute the pmft for a given set of points (one traj frame)
     # \param refPos Reference point to consider
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    #
-    # after calling compute(), you can access the results via:
-    # self.pcfArray for the positional correlaiton function
-    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
-    # -numpy.log(self.pcfArray) will give the pmft
-    # NOTE: self.pcfArray is of type numpy.int32; if averaging multiple frames,
-    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
     def compute(self, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
@@ -227,16 +226,27 @@ class pmftXYT2D(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.xArray = numpy.copy(self.pmftHandle.getX())
-        self.yArray = numpy.copy(self.pmftHandle.getY())
-        self.TArray = numpy.copy(self.pmftHandle.getT())
-        self.nBinsX = int(len(self.xArray))
-        self.nBinsY = int(len(self.yArray))
-        self.nBinsT = int(len(self.TArray))
-        pcfArray = numpy.zeros(shape=(self.nBinsT, self.nBinsY, self.nBinsX), dtype=numpy.int32)
-        self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
-        self.pcfArray = numpy.copy(pcfArray)
+        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+
+    ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
+    # in addition to self.pmfArray
+    # after calling calcPMF(), you can access the results via:
+    # self.pcfArray for the positional correlation function
+    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
+    # self.pmfArray will give the pmf
+    # NOTE: self.pcfArray is of type numpy.uint32; if averaging multiple frames,
+    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
+    def calcPMF(self):
+        self.pcfArray = self.pmfHandle.getPCF()
+        self.pcfArray = self.pcfArray.reshape((self.nBinsT, self.nBinsY, self.nBinsX))
         self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsX * self.nBinsY * self.nBinsT)
+        self.pmfArray = -numpy.log(numpy.copy(self.pcfArray))
+
+    ## Reset the PCF array
+    # Call when you want to zero out the pcf array in C
+    # This should be done if you need to change the types of particles being compared
+    def reset(self):
+        self.pmfHandle.resetPMF()
 
 ## Computes the 2D anisotropic potential of mean force and torque using \theta = \phi_1 + \phi_2
 class pmftXYTP2D(object):
@@ -258,19 +268,18 @@ class pmftXYTP2D(object):
         self.dy = dy
         self.dT = dT
         self.pmftHandle = PMFTXYTP2D(self.box, self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
+        self.xArray = self.pmfHandle.getX()
+        self.yArray = self.pmfHandle.getY()
+        self.TArray = self.pmfHandle.getT()
+        self.nBinsX = int(len(self.xArray))
+        self.nBinsY = int(len(self.yArray))
+        self.nBinsT = int(len(self.TArray))
 
     ## Compute the pmft for a given set of points (one traj frame)
     # \param refPos Reference point to consider
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    #
-    # after calling compute(), you can access the results via:
-    # self.pcfArray for the positional correlaiton function
-    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
-    # -numpy.log(self.pcfArray) will give the pmft
-    # NOTE: self.pcfArray is of type numpy.int32; if averaging multiple frames,
-    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
     def compute(self, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
@@ -292,16 +301,27 @@ class pmftXYTP2D(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.xArray = numpy.copy(self.pmftHandle.getX())
-        self.yArray = numpy.copy(self.pmftHandle.getY())
-        self.TArray = numpy.copy(self.pmftHandle.getT())
-        self.nBinsX = int(len(self.xArray))
-        self.nBinsY = int(len(self.yArray))
-        self.nBinsT = int(len(self.TArray))
-        pcfArray = numpy.zeros(shape=(self.nBinsT, self.nBinsY, self.nBinsX), dtype=numpy.int32)
-        self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
-        self.pcfArray = numpy.copy(pcfArray)
+        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+
+    ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
+    # in addition to self.pmfArray
+    # after calling calcPMF(), you can access the results via:
+    # self.pcfArray for the positional correlation function
+    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
+    # self.pmfArray will give the pmf
+    # NOTE: self.pcfArray is of type numpy.uint32; if averaging multiple frames,
+    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
+    def calcPMF(self):
+        self.pcfArray = self.pmfHandle.getPCF()
+        self.pcfArray = self.pcfArray.reshape((self.nBinsT, self.nBinsY, self.nBinsX))
         self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsX * self.nBinsY * self.nBinsT)
+        self.pmfArray = -numpy.log(numpy.copy(self.pcfArray))
+
+    ## Reset the PCF array
+    # Call when you want to zero out the pcf array in C
+    # This should be done if you need to change the types of particles being compared
+    def reset(self):
+        self.pmfHandle.resetPMF()
 
 ## Computes the 2D anisotropic potential of mean force and torque using \theta = \phi_1 - \phi_2
 class pmftXYTM2D(object):
@@ -323,19 +343,18 @@ class pmftXYTM2D(object):
         self.dy = dy
         self.dT = dT
         self.pmftHandle = PMFTXYTM2D(self.box, self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
+        self.xArray = self.pmfHandle.getX()
+        self.yArray = self.pmfHandle.getY()
+        self.TArray = self.pmfHandle.getT()
+        self.nBinsX = int(len(self.xArray))
+        self.nBinsY = int(len(self.yArray))
+        self.nBinsT = int(len(self.TArray))
 
     ## Compute the pmft for a given set of points (one traj frame)
     # \param refPos Reference point to consider
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    #
-    # after calling compute(), you can access the results via:
-    # self.pcfArray for the positional correlaiton function
-    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
-    # -numpy.log(self.pcfArray) will give the pmft
-    # NOTE: self.pcfArray is of type numpy.int32; if averaging multiple frames,
-    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
     def compute(self, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
@@ -357,16 +376,27 @@ class pmftXYTM2D(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.xArray = numpy.copy(self.pmftHandle.getX())
-        self.yArray = numpy.copy(self.pmftHandle.getY())
-        self.TArray = numpy.copy(self.pmftHandle.getT())
-        self.nBinsX = int(len(self.xArray))
-        self.nBinsY = int(len(self.yArray))
-        self.nBinsT = int(len(self.TArray))
-        pcfArray = numpy.zeros(shape=(self.nBinsT, self.nBinsY, self.nBinsX), dtype=numpy.int32)
-        self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
-        self.pcfArray = numpy.copy(pcfArray)
+        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+
+    ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
+    # in addition to self.pmfArray
+    # after calling calcPMF(), you can access the results via:
+    # self.pcfArray for the positional correlation function
+    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
+    # self.pmfArray will give the pmf
+    # NOTE: self.pcfArray is of type numpy.uint32; if averaging multiple frames,
+    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
+    def calcPMF(self):
+        self.pcfArray = self.pmfHandle.getPCF()
+        self.pcfArray = self.pcfArray.reshape((self.nBinsT, self.nBinsY, self.nBinsX))
         self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsX * self.nBinsY * self.nBinsT)
+        self.pmfArray = -numpy.log(numpy.copy(self.pcfArray))
+
+    ## Reset the PCF array
+    # Call when you want to zero out the pcf array in C
+    # This should be done if you need to change the types of particles being compared
+    def reset(self):
+        self.pmfHandle.resetPMF()
 
 ## Computes the 2D anisotropic potential of mean force and torque using \theta_+ = \phi_1 + \phi_2, \theta_- = \phi_1 - \phi_2
 class pmftRPM(object):
@@ -388,19 +418,18 @@ class pmftRPM(object):
         self.dTP = dTP
         self.dTM = dTM
         self.pmftHandle = PMFTRPM(self.box, self.maxR, self.maxTP, self.maxTM, self.dr, self.dTP, self.dTM)
+        self.rArray = self.pmfHandle.getR()
+        self.TPArray = self.pmfHandle.getTP()
+        self.TMArray = self.pmfHandle.getTM()
+        self.nBinsR = int(len(self.rArray))
+        self.nBinsTP = int(len(self.TPArray))
+        self.nBinsTM = int(len(self.TMArray))
 
     ## Compute the pmft for a given set of points (one traj frame)
     # \param refPos Reference point to consider
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    #
-    # after calling compute(), you can access the results via:
-    # self.pcfArray for the positional correlaiton function
-    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
-    # -numpy.log(self.pcfArray) will give the pmft
-    # NOTE: self.pcfArray is of type numpy.int32; if averaging multiple frames,
-    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
     def compute(self, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
@@ -422,13 +451,24 @@ class pmftRPM(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.rArray = numpy.copy(self.pmftHandle.getR())
-        self.TPArray = numpy.copy(self.pmftHandle.getTP())
-        self.TMArray = numpy.copy(self.pmftHandle.getTM())
-        self.nBinsR = int(len(self.rArray))
-        self.nBinsTP = int(len(self.TPArray))
-        self.nBinsTM = int(len(self.TMArray))
-        pcfArray = numpy.zeros(shape=(self.nBinsR, self.nBinsTP, self.nBinsTM), dtype=numpy.int32)
-        self.pmftHandle.compute(pcfArray, self.refPos, self.refAng, self.pos, self.ang)
-        self.pcfArray = numpy.copy(pcfArray)
+        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+
+    ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
+    # in addition to self.pmfArray
+    # after calling calcPMF(), you can access the results via:
+    # self.pcfArray for the positional correlation function
+    # self.avgOccupancy for the average bin occupancy (useful for sanity checking)
+    # self.pmfArray will give the pmf
+    # NOTE: self.pcfArray is of type numpy.uint32; if averaging multiple frames,
+    # you need to recast as floats: self.pcfArray.astype(numpy.float32)
+    def calcPMF(self):
+        self.pcfArray = self.pmfHandle.getPCF()
+        self.pcfArray = self.pcfArray.reshape((self.nBinsTM, self.nBinsTP, self.nBinsR))
         self.avgOccupancy = numpy.sum(numpy.sum(numpy.sum(self.pcfArray))) / (self.nBinsR * self.nBinsTP * self.nBinsTM)
+        self.pmfArray = -numpy.log(numpy.copy(self.pcfArray))
+
+    ## Reset the PCF array
+    # Call when you want to zero out the pcf array in C
+    # This should be done if you need to change the types of particles being compared
+    def reset(self):
+        self.pmfHandle.resetPMF()
