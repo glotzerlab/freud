@@ -392,8 +392,7 @@ void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
                                                                             Np));
         }
     // now compute the rdf
-    m_rdf_array[0] = T();
-    parallel_for(tbb::blocked_range<size_t>(1,m_nbins), CombineOCF<T>(m_nbins,
+    parallel_for(tbb::blocked_range<size_t>(0,m_nbins), CombineOCF<T>(m_nbins,
                                                               m_bin_counts.get(),
                                                               m_local_bin_counts,
                                                               m_rdf_array.get(),
