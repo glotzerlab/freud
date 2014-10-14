@@ -26,7 +26,10 @@ Make a build directory, preferably one external to the source dir.
 ~~~
 cd build
 cmake ~/source
+make install -j6
 ~~~
+
+Make sure to set the install path to something like `~/local`
 
 # Tests {#tests_section}
 
