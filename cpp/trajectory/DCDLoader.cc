@@ -1,4 +1,4 @@
-#include "DCDLoader.h"
+    #include "DCDLoader.h"
 
 #include <stdexcept>
 
@@ -94,11 +94,22 @@ void DCDLoader::readNextFrame()
     if (err != MOLFILE_SUCCESS)
         {
         throw runtime_error("Unknown error while reading DCD file");
-        }
+        } 
 
-    // record the box read from this time step
-    m_box = Box(ts.A, ts.B, ts.C);
+    //Convert to LAAMPS triclinic (scaled tilt factors)
+    float lx = ts.A;
+    float xy = ts.B * cos(ts.gamma);
+    float xz = ts.C * cos(ts.beta);
+    float ly = sqrt(ts.B*ts.B - xy*xy);
+    float yz = (ts.B*ts.C*cos(ts.alpha)-xy*xz)/ly;
+    float lz = sqrt(ts.C*ts.C-xz*xz-yz*yz);
+    // rescale tilt factors for HOOMD format
+    xy/=ly;
+    xz/=lz;
+    yz/=lz;
 
+    m_box = Box(lx,ly,lz,xy,xz,yz);
+    
     // record the step
     m_time_step = m_dcd->istart + (m_dcd->setsread-1) * m_dcd->nsavc;
     }

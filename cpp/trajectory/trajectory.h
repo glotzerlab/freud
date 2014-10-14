@@ -2,6 +2,8 @@
 #include "num_util.h"
 
 #include "HOOMDMath.h"
+
+//Magical bullshit command that makes stuff work
 #define swap freud_swap
 #include "VectorMath.h"
 #undef swap
@@ -15,16 +17,16 @@
 
 namespace freud { namespace trajectory {
 
-//! Stores box dimensions and provides common routines for wrapping vectors back into the box
+//! TODO UPDATE FOR TRICLINIC.  Stores box dimensions and provides common routines for wrapping vectors back into the box
 /*! Box stores a standard hoomd simulation box that goes from -L/2 to L/2 in each dimension, with the possibility
-    or assigning \a Lx, \a Ly, and \a Lz independantly. All angles in the box are pi/2 radians.
+    or assigning \a Lx, \a Ly, and \a Lz independently. All angles in the box are pi/2 radians.
 
     A number of utility functions are provided to work with coordinates in boxes. These are provided as inlined methods
     in the header file so they can be called in inner loops without sacrificing performance.
      - wrap()
      - unwrap()
 
-    For performance reasons assuming that many millions of calls to wrap will be made, 1.0 / L is precomputed when
+    For performance reasons assuming that many millions  of calls to wrap will be made, 1.0 / L is precomputed when
     the box is created
 
     A Box can represent either a two or three dimensional box. By default, a Box is 3D, but can be set as 2D with the
@@ -36,27 +38,69 @@ class Box
     {
     public:
         //! Construct a zero box
-        Box() : m_Lx(0), m_Ly(0), m_Lz(0), m_2d(false)
+        Box()
             {
-            setup();
+            m_2d = false;
+            m_lo = m_hi = m_Linv = m_L = vec3<float>(0,0,0);
+            m_xy = m_xz = m_yz = float(0.0);
             }
 
         //! Construct a cubic box
-        Box(float L, bool _2d=false) : m_Lx(L), m_Ly(L), m_Lz(L), m_2d(_2d)
+        Box(float L, bool _2d=false)
             {
-            setup();
-            }
-        //! Construct a non-cubic box
-        Box(float Lx, float Ly, float Lz, bool _2d=false) : m_Lx(Lx), m_Ly(Ly), m_Lz(Lz), m_2d(_2d)
+            m_2d = _2d; //Assign before calling setL!
+            setL(L,L,L);
+            m_periodic = make_uchar3(1,1,1);
+            m_xy = m_xz = m_yz = 0;
+            } 
+        //! Construct an orthorhombic box
+        Box(float Lx, float Ly, float Lz, bool _2d=false)
             {
-            setup();
+            m_2d = _2d;  //Assign before calling setL!
+            setL(Lx,Ly,Lz);
+            m_periodic = make_uchar3(1,1,1);
+            m_xy = m_xz = m_yz = 0;
             }
 
+        //! Construct a triclinic box
+        Box(float Lx, float Ly, float Lz, float xy, float xz, float yz, bool _2d=false)
+            {
+            m_2d = _2d;  //Assign before calling setL!
+            setL(Lx,Ly,Lz);
+            m_periodic = make_uchar3(1,1,1);
+            m_xy = xy; m_xz = xz; m_yz = yz;
+            }
+            
+        //! Set L, box lengths, inverses.  Box is also centered at zero.
+        void setL(const vec3<float> L)
+            {
+            setL(L.x,L.y,L.z);
+            }
+            
+        //! Set L, box lengths, inverses.  Box is also centered at zero.
+        void setL(const float Lx,const float Ly,const float Lz)
+            {
+            m_L = vec3<float>(Lx,Ly,Lz);
+            m_hi = m_L/float(2.0);
+            m_lo = -m_hi;  
+            
+            if(m_2d)
+                {
+                m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 0);
+                m_L.z = float(0);
+                }
+            else 
+                {
+                m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 1/m_L.z);
+                }            
+            }
+            
         //! Set the box to 2D mode
         void set2D(bool _2d)
             {
             m_2d = _2d;
-            setup();
+            m_L.z = 0;
+            m_Linv.z =0; 
             }
 
         //! Test if the box is 2D
@@ -65,49 +109,210 @@ class Box
             return m_2d;
             }
 
-        //! Store as a vec3<float> m_L
 
         //! Get the value of Lx
         float getLx() const
             {
-            return m_Lx;
+            return m_L.x;
             }
         //! Get the value of Ly
         float getLy() const
             {
-            return m_Ly;
+            return m_L.y;
             }
         //! Get the value of Lz
         float getLz() const
             {
-            return m_Lz;
+            return m_L.z;
             }
+        
+        vec3<float> getL() const
+            {
+            return m_L;
+            }
+            
+        vec3<float> getLinv() const
+            {
+            return m_Linv;
+            }
+        float getTiltFactorXY() const
+            {
+            return m_xy;
+            }
+        float getTiltFactorXZ() const
+            {
+            return m_xz;
+            }
+        float getTiltFactorYZ() const
+            {
+            return m_yz;
+            }
+                    
+            
         //! Get the volume of the box (area in 2D)
         float getVolume() const
             {
+            //TODO:  Unit test these
             if (m_2d)
-                return m_Lx*m_Ly;
+                return m_L.x*m_L.y;
             else
-                return m_Lx*m_Ly*m_Lz;
+                return m_L.x*m_L.y*m_L.z;
             }
+            
+        
+        //! Compute the position of the particle in box relative coordinates
+        /*! \param p point
+            \returns alpha
 
-        //! Wrap a given vector back into the box
-        /*! \param p point to wrap
-            \returns The wrapped coordinates
-
-            Vectors are wrapped following the minimum image convention. \b Any x,y,z, no matter how far outside of the
-            box, will be wrapped back into the range [-L/2, L/2]
+            alpha.x is 0 when \a x is on the far left side of the box and 1.0 when it is on the far right. If x is
+            outside of the box in either direction, it will go larger than 1 or less than 0 keeping the same scaling.
         */
-        // float3 wrap(const float3& p) const
-        vec3<float> wrap(const vec3<float>& p) const
+        vec3<float> makeFraction(const vec3<float>& v, const vec3<float>& ghost_width=vec3<float>(0.0,0.0,0.0)) const
+            { 
+            vec3<float> delta = v - m_lo;
+            delta.x -= (m_xz-m_yz*m_xy)*v.z+m_xy*v.y;
+            delta.y -= m_yz * v.z;
+            return (delta + ghost_width)/(m_L + float(2.0)*ghost_width);
+            }
+            
+        //! Convert fractional coordinates into real coordinates
+        /*! \param f Fractional coordinates between 0 and 1 within parallelpipedal box
+            \return A vector inside the box corresponding to f
+        */
+        vec3<float> makeCoordinates(const vec3<float> &f) const  
             {
-            vec3<float> newp = p;
-            newp.x -= m_Lx * rintf(newp.x * m_Lx_inv);
-            newp.y -= m_Ly * rintf(newp.y * m_Ly_inv);
-            newp.z -= m_Lz * rintf(newp.z * m_Lz_inv);
-            return newp;
+            vec3<float> v = m_lo + f*m_L;
+            v.x += m_xy*v.y+m_xz*v.z;
+            v.y += m_yz*v.z;
+            return v;
+            }         
+        
+        //! Get the periodic image a vector belongs to
+        /*! \param v The vector to check
+            \returns the integer coordinates of the periodic image
+         */
+        int3 getImage(const vec3<float> &v) const
+            {
+            vec3<float> f = makeFraction(v) - vec3<float>(0.5,0.5,0.5);
+            int3 img;
+            img.x = (int)((f.x >= float(0.0)) ? f.x + float(0.5) : f.x - float(0.5));
+            img.y = (int)((f.y >= float(0.0)) ? f.y + float(0.5) : f.y - float(0.5));
+            img.z = (int)((f.z >= float(0.0)) ? f.z + float(0.5) : f.z - float(0.5));
+            return img;
+            }
+             
+        //! Wrap a vector back into the box
+        /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
+            \param img Image of the vector, updated to reflect the new image
+            \param flags Vector of flags to force wrapping along certain directions
+            \post \a img and \a v are updated appropriately
+            \note \a v must not extend more than 1 image beyond the box
+        */
+        void wrap(vec3<float>& w, int3& img, char3 flags = make_char3(0,0,0)) const
+            {
+            vec3<float> L = getL();
+
+            if (m_periodic.x)
+                {
+                float tilt_x = (m_xz - m_xy*m_yz) * w.z + m_xy * w.y;
+                if (((w.x >= m_hi.x + tilt_x) && !flags.x) || flags.x == 1)
+                    {
+                    w.x -= L.x;
+                    img.x++;
+                    }
+                else if (((w.x < m_lo.x + tilt_x) && !flags.x) || flags.x == -1)
+                    {
+                    w.x += L.x;
+                    img.x--;
+                    }
+                }
+
+            if (m_periodic.y)
+                {
+                float tilt_y = m_yz * w.z;
+                if (((w.y >= m_hi.y + tilt_y) && !flags.y)  || flags.y == 1)
+                    {
+                    w.y -= L.y;
+                    w.x -= L.y * m_xy;
+                    img.y++;
+                    }
+                else if (((w.y < m_lo.y + tilt_y) && !flags.y) || flags.y == -1)
+                    {
+                    w.y += L.y;
+                    w.x += L.y * m_xy;
+                    img.y--;
+                    }
+                }
+
+            if (m_periodic.z)
+                {
+                if (((w.z >= m_hi.z) && !flags.z) || flags.z == 1)
+                    {
+                    w.z -= L.z;
+                    w.y -= L.z * m_yz;
+                    w.x -= L.z * m_xz;
+                    img.z++;
+                    }
+                else if (((w.z < m_lo.z) && !flags.z) || flags.z == -1)
+                    {
+                    w.z += L.z;
+                    w.y += L.z * m_yz;
+                    w.x += L.z * m_xz;
+                    img.z--;
+                    }
+                }
+           }
+           
+        //! Wrap a vector back into the box.  Legacy float3 version.  Deprecated?
+        /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
+            \param img Image of the vector, updated to reflect the new image
+            \param flags Vector of flags to force wrapping along certain directions
+            \post \a img and \a v are updated appropriately
+            \note \a v must not extend more than 1 image beyond the box
+        */
+        void wrap(float3& w, int3& img, char3 flags = make_char3(0,0,0)) const
+            {
+                vec3<float> tempcopy;
+                tempcopy.x = w.x; tempcopy.y = w.y; tempcopy.z = w.z;
+                wrap(tempcopy, img, flags);
+                w.x = tempcopy.x; w.y = tempcopy.y; w.z=tempcopy.z;
             }
 
+        //! Wrap a vector back into the box
+        /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
+            \param img Image of the vector, updated to reflect the new image
+            \param flags Vector of flags to force wrapping along certain directions
+            \returns w;   
+            
+            \note \a w must not extend more than 1 image beyond the box
+        */
+        //Is this even sane? I assume since we previously had image free version
+        // that I can just use our new getImage to pass through and make as few as possible
+        // changes to the codebase here.
+        // Followup: I don't remember why I put this comment here, better refer later to
+        // original trajectory.h
+        
+        vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
+            {
+            vec3<float> wcopy = w;
+            int3 img = getImage(w);
+            wrap(wcopy, img, flags);
+            return wcopy;
+            }
+            
+        float3 wrap(const float3& w, const char3 flags = make_char3(0,0,0)) const
+            {
+               vec3<float> tempcopy;
+               tempcopy.x = w.x; tempcopy.y = w.y; tempcopy.z = w.z;
+               int3 img = getImage(tempcopy);
+               wrap(tempcopy, img, flags);
+               float3 wrapped;
+               wrapped.x = tempcopy.x; wrapped.y = tempcopy.y; wrapped.z=tempcopy.z;
+               return wrapped;
+            }
+           
+           
+           
         //! Wrap a given array of vectors back into the box from python
         /*! \param vecs numpy array of vectors (Nx3) (or just 3 elements) to wrap
             \note Vectors are wrapped in place to avoid costly memory copies
@@ -122,7 +327,6 @@ class Box
                 {
                 // validate that the 1st dimension is only 3
                 num_util::check_dim(vecs, 0, 3);
-                // float3* vecs_raw = (float3*) num_util::data(vecs);
                 vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
 
                 // wrap the single vector back
@@ -134,7 +338,6 @@ class Box
                 // validate that the 2nd dimension is only 3
                 num_util::check_dim(vecs, 1, 3);
                 unsigned int Np = num_util::shape(vecs)[0];
-                // float3* vecs_raw = (float3*) num_util::data(vecs);
                 vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
 
                 // wrap all the vecs back
@@ -148,60 +351,89 @@ class Box
                 }
             }
 
-
         //! Unwrap a given position to its "real" location
         /*! \param p coordinates to unwrap
             \param image image flags for this point
             \returns The unwrapped coordinates
         */
-        // float3 unwrap(const float3& p, const int3& image) const
-            vec3<float> unwrap(const vec3<float>& p, const int3& image) const
+        vec3<float> unwrap(const vec3<float>& p, const int3& image) const
             {
             vec3<float> newp = p;
-            newp.x += m_Lx * float(image.x);
-            newp.y += m_Ly * float(image.y);
-            newp.z += m_Lz * float(image.z);
+                        
+            newp += getLatticeVector(0) * float(image.x);
+            newp += getLatticeVector(1) * float(image.y);
+            if(!m_2d)
+                newp += getLatticeVector(2) * float(image.z);
             return newp;
+            }                        
+        //! Get the shortest distance between opposite boundary planes of the box
+        /*! The distance between two planes of the lattice is 2 Pi/|b_i|, where
+         *   b_1 is the reciprocal lattice vector of the Bravais lattice normal to
+         *   the lattice vectors a_2 and a_3 etc.
+         *
+         * \return A vec3<float> containing the distance between the a_2-a_3, a_3-a_1 and
+         *         a_1-a_2 planes for the triclinic lattice
+         */
+        vec3<float> getNearestPlaneDistance() const
+            {
+            vec3<float> dist;
+            dist.x = m_L.x/sqrt(1.0f + m_xy*m_xy + (m_xy*m_yz - m_xz)*(m_xy*m_yz - m_xz));
+            dist.y = m_L.y/sqrt(1.0f + m_yz*m_yz);
+            dist.z = m_L.z;
+
+            return dist;
+            }
+        
+        /*! Get the lattice vector with index i
+            \param i Index (0<=i<d) of the lattice vector, where d is dimension (2 or 3)
+            \returns the lattice vector with index i
+         */
+        vec3<float> getLatticeVector(unsigned int i) const
+            {
+            if (i == 0)
+                {
+                return vec3<float>(m_L.x,0.0,0.0);
+                }
+            else if (i == 1)
+                {
+                return vec3<float>(m_L.y*m_xy, m_L.y, 0.0);
+                }
+            else if (i == 2 && !m_2d)
+                {
+                return vec3<float>(m_L.z*m_xz, m_L.z*m_yz, m_L.z);
+                }
+            else 
+                {
+                throw std::out_of_range("box lattice vector index requested does not exist");
+                }
+            return vec3<float>(0.0,0.0,0.0);
             }
 
-        // Python wrapper for unwrap (TODO - possibly write as an array method that will handle many poitns in a single
-        // call
+        uchar3 getPeriodic() const
+            {
+            return m_periodic;
+            }
 
-        //! Compute the position of the particle in box relative coordinates
-        /*! \param p point
-            \returns alpha
-
-            alpha.x is 0 when \a x is on the far left side of the box and 1.0 when it is on the far right. If x is
-            outside of the box in either direction, it will go larger than 1 or less than 0 keeping the same scaling.
-            Similar for y and z.
+        //! Set the periodic flags
+        /*! \param periodic Flags to set
+            \post Period flags are set to \a periodic
+            \note It is invalid to set 1 for a periodic dimension where lo != -hi. This error is not checked for.
         */
-        // float3 makeunit(const float3& p) const
-        vec3<float> makeunit(const vec3<float>& p) const
+        void setPeriodic(uchar3 periodic)
             {
-            vec3<float> newp;
-            newp.x = p.x * m_Lx_inv + 0.5f;
-            newp.y = p.y * m_Ly_inv + 0.5f;
-            newp.z = p.z * m_Lz_inv + 0.5f;
-            return newp;
+            m_periodic = periodic;
             }
-
-        // TODO -makeunit wrapper for python
-
+        
     private:
-        //! Precomputes 1.0/L for performance
-        void setup()
-            {
-            m_Lx_inv = 1.0f / m_Lx;
-            m_Ly_inv = 1.0f / m_Ly;
-            if (m_2d)
-                m_Lz = m_Lz_inv = 0.0f;
-            else
-                m_Lz_inv = 1.0f / m_Lz;
-            }
-
-        float m_Lx, m_Ly, m_Lz;
-        float m_Lx_inv, m_Ly_inv, m_Lz_inv;
-        bool m_2d;
+        vec3<float> m_lo;      //!< Minimum coords in the box
+        vec3<float> m_hi;      //!< Maximum coords in the box
+        vec3<float> m_L;       //!< L precomputed (used to avoid subtractions in boundary conditions)
+        vec3<float> m_Linv;    //!< 1/L precomputed (used to avoid divisions in boundary conditions)
+        float m_xy;       //!< xy tilt factor
+        float m_xz;       //!< xz tilt factor
+        float m_yz;       //!< yz tilt factor
+        uchar3 m_periodic;//!< 0/1 in each direction to tell if the box is periodic in that direction
+        bool m_2d;        //!< Specify whether box is 2D.
     };
 
 /*! \internal
