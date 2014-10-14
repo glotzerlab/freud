@@ -26,9 +26,10 @@ Make a build directory, preferably one external to the source dir.
 ~~~
 cd build
 cmake ~/source
+make install -j6
 ~~~
 
-There is currently no `make install` target. To use pyoptix, set `PYTHONPATH=/path/to/build`.
+Make sure to set the install path to something like `~/local`
 
 # Tests {#tests_section}
 
