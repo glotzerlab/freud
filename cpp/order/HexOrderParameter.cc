@@ -63,20 +63,19 @@ class ComputeHexOrderParameter
                     unsigned int j = neighbors[neigh_idx];
 
                     //compute r between the two particles
-                    vec3<float> delta = m_box.wrap(ref - m_points[j]);
+                    vec3<float> delta = m_box.wrap(points[j] - ref);
 
                     float rsq = dot(delta, delta);
-                    if (rsq < rmaxsq && rsq > 1e-6)
+                    if (rsq > 1e-6)
                         {
                         //compute psi for neighboring particle(only constructed for 2d)
                         float psi_ij = atan2f(delta.y, delta.x);
                         m_psi_array[i] += exp(complex<float>(0,m_k*psi_ij));
-                        num_adjacent++;
                         }
                     }
 
                 if(num_adjacent)
-                    m_psi_array[i] /= complex<float>(num_adjacent);
+                    m_psi_array[i] /= complex<float>(m_k);
                 }
             }
     };
@@ -110,7 +109,6 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute order parameter
-    // float3* points_raw = (float3*) num_util::data(points);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
         // compute the order parameter with the GIL released
