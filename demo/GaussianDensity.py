@@ -20,4 +20,4 @@ gdens.compute(pos)
 Density = gdens.getGaussianDensity()
 
 scipy.io.savemat('Density.mat', dict(N=Density))
-print 'Done.'
+print('Done.')
