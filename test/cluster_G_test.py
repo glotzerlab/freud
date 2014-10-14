@@ -13,7 +13,7 @@ b = 5
 c = 5
 
 # naievly assign each point a random u and v
-for i in xrange(0,N):
+for i in range(0,N):
     u = random.random()*2.0 - 1.0;
     theta = random.random() * 2.0 * math.pi;
 
@@ -29,13 +29,13 @@ box = trajectory.Box(50);
 clp = cluster.ClusterProperties(box);
 clp.computeProperties(points, cluster_idx);
 
-print clp.getClusterCOM()[0]
+print(clp.getClusterCOM()[0])
 G = clp.getClusterG();
-print G[0,:,:]
+print(G[0,:,:])
 
 l, v = numpy.linalg.eig(G[0,:,:])
-print "radii:", numpy.sqrt(l)
-print "v:", v
+print("radii: {}".format(numpy.sqrt(l)))
+print("v: {}".format(v))
 
 #f = open('test.xyz', 'w');
 #f.write("%d\n" % N);
