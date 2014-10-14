@@ -1,0 +1,8 @@
+boxMatrix 1 0 0 0 1 0 0 0 1
+def A "poly3d 4 1 1 1 -1 -1 1 -1 1 -1 1 -1 -1 ffffffff"
+A 0 0 0 1 0 0 0
+eof
+boxMatrix 1 0 0 0 1 0 0 0 1
+def A "poly3d 4 1 1 1 -1 -1 1 -1 1 -1 1 -1 -1 ffffffff"
+A 0 0 0 1 0 0 0
+eof
