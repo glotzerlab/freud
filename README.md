@@ -28,8 +28,6 @@ cd build
 cmake ~/source
 ~~~
 
-There is currently no `make install` target. To use pyoptix, set `PYTHONPATH=/path/to/build`.
-
 # Tests {#tests_section}
 
 Run all unit tests with nosetests in the source directory. To add a test, simply add a file to the `tests` directory,
