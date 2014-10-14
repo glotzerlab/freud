@@ -1,3 +1,4 @@
+# this needs updating
 from freud import locality, trajectory, localql
 import numpy as np
 import numpy.testing as npt
