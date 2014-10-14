@@ -20,7 +20,7 @@ using namespace freud;
 using namespace tbb;
 
 /*! \file CorrelationFunction.cc
-    \brief Weighted radial density functions
+    \brief Generic pairwise correlation functions
 */
 
 template<typename T>
