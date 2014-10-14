@@ -63,7 +63,7 @@ class TestTrajectoryXML(unittest.TestCase):
         expected = {}
         expected['position'] = np.asarray([[-2.45, 2.21, 1.56], [8.76, 1.12, 5.60], [5.67, 8.30, 4.77]])
         expected['velocity'] = np.asarray([[-10.5, -1.2, 0.4], [0.6, 12.0, 0.01], [-0.4, 3.0, 10.0]])
-        expected['image'] = np.asarray([[-12, -5, 12], [18, 22, -10], [13, -5, 0]])
+        expected['image'] = np.asarray([[-12, -5, 12], [18, 22, -10], [13, -5, 2]])
         expected['acceleration'] = np.asarray([[-1.25, -1.2, 1.4], [0.6, 2.25, 0.41], [-0.4, 3.5, 2.20]])
         expected['mass'] = np.asarray([11.0, 2.0, 5.2])
         expected['diameter'] = np.asarray([13.2, 2.0, 1.5])
