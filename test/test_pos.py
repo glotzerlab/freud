@@ -6,6 +6,7 @@ import unittest
 class TestPOS(unittest.TestCase):
     # The pos_test.pos file has cases that will test the gamut of the pos.py
     def test_read(self):
+        # where did this file go?
         pos_file = pos.file("pos_test.pos")
         pos_file.grabData()
         pos_file.grabBox()
