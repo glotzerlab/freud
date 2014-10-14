@@ -53,5 +53,39 @@ class TestOCF(unittest.TestCase):
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
 
+    def test_value_point_with_cell_list(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 10000
+        box_size = rmax*3.1
+        points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
+        ang = np.zeros(int(num_points), dtype=np.float32)
+        comp = np.cos(ang) + 1j * np.sin(ang)
+        conj = np.cos(ang) - 1j * np.sin(ang)
+        ocf = density.ComplexCF(trajectory.Box(box_size), rmax, dr)
+        ocf.compute(points, comp, points, conj)
+
+        correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
+        correct[0] = 0.0 + 1j * 0.0
+        absolute_tolerance = 0.1
+        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+
+    def test_value_point_without_cell_list(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 10000
+        box_size = rmax*2
+        points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
+        ang = np.zeros(int(num_points), dtype=np.float32)
+        comp = np.cos(ang) + 1j * np.sin(ang)
+        conj = np.cos(ang) - 1j * np.sin(ang)
+        ocf = density.ComplexCF(trajectory.Box(box_size), rmax, dr)
+        ocf.compute(points, comp, points, conj)
+
+        correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
+        correct[0] = 0.0 + 1j * 0.0
+        absolute_tolerance = 0.1
+        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+
 if __name__ == '__main__':
     unittest.main()
