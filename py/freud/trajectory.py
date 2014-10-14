@@ -374,6 +374,10 @@ class TrajectoryXML(Trajectory):
         self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
 
 
+        # changed to add into dynamic_props as this would otherwise cause the for loop to barf
+        if "type" in self.dynamic_props:
+            self.dynamic_props['typename'] = self._update('type', configuration)
+            self.dynamic_props['typeid'] = _assign_typeid(self.dynamic_props['typename'])
         for prop in self.dynamic_props.keys():
             if prop == 'typename' or prop == 'typeid':
                 continue
