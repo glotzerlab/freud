@@ -203,6 +203,14 @@ class ComputeOCFWithoutCellList
 
                     float rsq = dot(delta, delta);
 
+                    // check that the particle is not checking itself
+                    // 1e-6 is an arbitrary value that could be set differently if needed
+                    if (rsq < 1e-6)
+                        {
+                        // skip if the same particle
+                        continue;
+                        }
+
                     if (rsq < rmaxsq)
                         {
                         float r = sqrtf(rsq);
@@ -312,6 +320,14 @@ class ComputeOCFWithCellList
                         vec3<float> delta = m_box.wrap(m_points[j] - ref);
 
                         float rsq = dot(delta, delta);
+
+                        // check that the particle is not checking itself
+                        // 1e-6 is an arbitrary value that could be set differently if needed
+                        if (rsq < 1e-6)
+                            {
+                            // skip if the same particle
+                            continue;
+                            }
 
                         if (rsq < rmaxsq)
                             {
