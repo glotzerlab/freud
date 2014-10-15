@@ -2,7 +2,6 @@
 *.pyc
 *.pyo
 *.dcd
-*.xml
 *.mat
 *.swp
 .DS_Store
