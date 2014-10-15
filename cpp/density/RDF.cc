@@ -47,10 +47,6 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
-    // m_local_bin_counts = LocalBinType(new unsigned int[m_nbins]);
-    m_local_bin_counts = new LocalBinType[m_nbins];
-    // m_local_bin_counts = tbb::enumerable_thread_specific<unsigned int>(new unsigned int [m_nbins]);
-    // m_local_bin_counts = new tbb::enumerable_thread_specific<unsigned int>(m_nbins);
 
     // precompute the bin center positions
     m_r_array = boost::shared_array<float>(new float[m_nbins]);
@@ -81,6 +77,10 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
 
 RDF::~RDF()
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        delete[] (*i);
+        }
     if(useCells())
     delete m_lc;
     }
@@ -132,8 +132,7 @@ class CombineArrays
     private:
         unsigned int m_nbins;
         unsigned int *m_bin_counts;
-        // tbb::combinable<unsigned int> *m_local_bin_counts;
-        LocalBinType *m_local_bin_counts;
+        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
         float *m_avg_counts;
         float *m_rdf_array;
         float *m_vol_array;
@@ -142,8 +141,7 @@ class CombineArrays
     public:
         CombineArrays(unsigned int nbins,
                       unsigned int *bin_counts,
-                      // tbb::combinable<unsigned int> *local_bin_counts,
-                      LocalBinType *local_bin_counts,
+                      tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
                       float *avg_counts,
                       float *rdf_array,
                       float *vol_array,
@@ -157,10 +155,10 @@ class CombineArrays
             {
             for (size_t i = myBin.begin(); i != myBin.end(); i++)
                 {
-                for (LocalBinType::const_iterator localBin = m_local_bin_counts[i].begin();
-                     localBin != m_local_bin_counts[i].end(); localBin++)
+                for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+                     local_bins != m_local_bin_counts.end(); ++local_bins)
                     {
-                    m_bin_counts[i] += localBin;
+                    m_bin_counts[i] += (*local_bins)[i];
                     }
                 m_avg_counts[i] = m_bin_counts[i] / m_Nref;
                 m_rdf_array[i] = m_avg_counts[i] / m_vol_array[i] / m_ndens;
@@ -172,8 +170,7 @@ class ComputeRDFWithoutCellList
     {
     private:
         unsigned int m_nbins;
-        // tbb::combinable<unsigned int> *m_bin_counts;
-        LocalBinType *m_bin_counts;
+        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
@@ -183,7 +180,7 @@ class ComputeRDFWithoutCellList
         const unsigned int m_Np;
     public:
         ComputeRDFWithoutCellList(unsigned int nbins,
-                                  LocalBinType *bin_counts,
+                                  tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
                                   const trajectory::Box &box,
                                   const float rmax,
                                   const float dr,
@@ -195,12 +192,18 @@ class ComputeRDFWithoutCellList
               m_Nref(Nref), m_points(points), m_Np(Np)
         {
         }
-        void operator()( const blocked_range<size_t> &myR )
+        void operator()( const blocked_range<size_t> &myR )  const
             {
             float dr_inv = 1.0f / m_dr;
             float rmaxsq = m_rmax * m_rmax;
 
-            // LocalBinType::reference my_bin_counts = m_bin_counts[0].local();
+            bool exists;
+            m_bin_counts.local(exists);
+            if (! exists)
+                {
+                m_bin_counts.local() = new unsigned int [m_nbins];
+                memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
+                }
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -226,8 +229,7 @@ class ComputeRDFWithoutCellList
 
                         if (bin < m_nbins)
                             {
-                            ++m_bin_counts[bin].local();
-                            // my_bin_counts[bin]++;
+                            ++m_bin_counts.local()[bin];
                             }
                         }
                     }
@@ -239,8 +241,7 @@ class ComputeRDFWithCellList
     {
     private:
         unsigned int m_nbins;
-        // tbb::combinable<unsigned int> *m_bin_counts;
-        LocalBinType *m_bin_counts;
+        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
@@ -251,16 +252,13 @@ class ComputeRDFWithCellList
         const unsigned int m_Np;
     public:
         ComputeRDFWithCellList(unsigned int nbins,
-                               // tbb::combinable<unsigned int> *bin_counts,
-                               LocalBinType *bin_counts,
+                               tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
                                const trajectory::Box &box,
                                const float rmax,
                                const float dr,
                                const locality::LinkCell *lc,
-                               // const float3 *ref_points,
                                const vec3<float> *ref_points,
                                unsigned int Nref,
-                               // const float3 *points,
                                const vec3<float> *points,
                                unsigned int Np)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_box(box), m_rmax(rmax), m_dr(dr), m_lc(lc),
@@ -276,6 +274,14 @@ class ComputeRDFWithCellList
 
             float dr_inv = 1.0f / m_dr;
             float rmaxsq = m_rmax * m_rmax;
+
+            bool exists;
+            m_bin_counts.local(exists);
+            if (! exists)
+                {
+                m_bin_counts.local() = new unsigned int [m_nbins];
+                memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
+                }
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -315,7 +321,7 @@ class ComputeRDFWithCellList
 
                             if (bin < m_nbins)
                                 {
-                                ++m_bin_counts[bin].local();
+                                ++m_bin_counts.local()[bin];
                                 }
                             }
                         }
@@ -342,6 +348,10 @@ void RDF::compute(const vec3<float> *ref_points,
                   const vec3<float> *points,
                   unsigned int Np)
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins);
+        }
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     if (useCells())
