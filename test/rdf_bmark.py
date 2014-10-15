@@ -11,7 +11,7 @@ points = numpy.zeros(shape=(N,3), dtype=numpy.float32)
 
 box = trajectory.Box(L);
 
-for i in xrange(0,N):
+for i in range(0,N):
     points[i,0] = (random.random() - 0.5) * L
     points[i,1] = (random.random() - 0.5) * L
     points[i,2] = (random.random() - 0.5) * L
@@ -25,7 +25,7 @@ rdf = density.RDF(box, 5.0, 0.05)
 rdf.compute(points, points);
 
 start = time.time();
-for trial in xrange(0,trials):
+for trial in range(0,trials):
     rdf.compute(points, points);
 end = time.time();
-print 'avg time per trial:', (end-start)/float(trials)
+print('avg time per trial: {}'.format((end-start)/float(trials)))
