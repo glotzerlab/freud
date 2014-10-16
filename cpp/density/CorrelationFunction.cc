@@ -173,9 +173,8 @@ class ComputeOCFWithoutCellList
 
                     float rsq = dot(delta, delta);
 
-                    // check that the particle is not checking itself
-                    // 1e-6 is an arbitrary value that could be set differently if needed
-                    if (rsq < 1e-6)
+                    // check that the particle is not checking itself, if it is the same list
+                    if ( (i == j) && (m_points == m_ref_points) )
                         {
                         // skip if the same particle
                         continue;
@@ -275,9 +274,8 @@ class ComputeOCFWithCellList
 
                         float rsq = dot(delta, delta);
 
-                        // check that the particle is not checking itself
-                        // 1e-6 is an arbitrary value that could be set differently if needed
-                        if (rsq < 1e-6)
+                        // check that the particle is not checking itself, if it is the same list
+                        if ( (i == j) && (m_points == m_ref_points) )
                             {
                             // skip if the same particle
                             continue;
