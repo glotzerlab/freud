@@ -55,7 +55,6 @@ class ComputeHexOrderParameter
                 m_psi_array[i] = 0;
                 vec3<float> ref = m_points[i];
                 boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
-                unsigned int num_adjacent = 0;
 
                 //loop over neighbors
                 for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
