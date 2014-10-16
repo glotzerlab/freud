@@ -20,7 +20,7 @@ using namespace freud;
 using namespace tbb;
 
 /*! \file CorrelationFunction.cc
-    \brief Weighted radial density functions
+    \brief Generic pairwise correlation functions
 */
 
 template<typename T>
@@ -173,7 +173,8 @@ class ComputeOCFWithoutCellList
 
                     float rsq = dot(delta, delta);
 
-                    if (rsq < rmaxsq)
+                    // check that the particle is not checking itself, if it is the same list
+                    if ((i != j || m_points != m_ref_points) && rsq < rmaxsq)
                         {
                         float r = sqrtf(rsq);
 
@@ -267,7 +268,8 @@ class ComputeOCFWithCellList
 
                         float rsq = dot(delta, delta);
 
-                        if (rsq < rmaxsq)
+                        // check that the particle is not checking itself, if it is the same list
+                        if ((i != j || m_points != m_ref_points) && rsq < rmaxsq)
                             {
                             float r = sqrtf(rsq);
 
@@ -338,8 +340,7 @@ void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
                                                                             Np));
         }
     // now compute the rdf
-    m_rdf_array[0] = T();
-    parallel_for(tbb::blocked_range<size_t>(1,m_nbins), CombineOCF<T>(m_nbins,
+    parallel_for(tbb::blocked_range<size_t>(0,m_nbins), CombineOCF<T>(m_nbins,
                                                               m_bin_counts.get(),
                                                               m_local_bin_counts,
                                                               m_rdf_array.get(),
