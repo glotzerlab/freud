@@ -317,7 +317,13 @@ class TrajectoryXML(Trajectory):
 
         # read box
         box_config = configuration.getElementsByTagName('box')[0]
-        self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
+        xy = 0; xz = 0; yz = 0;
+        if (box_config.hasAttribute('xy') and box_config.hasAttribute('xz') and box_config.hasAttribute('yz')):
+            xy = float(box_config.getAttribute('xy'))
+            xz = float(box_config.getAttribute('xz'))
+            yz = float(box_config.getAttribute('yz'))
+
+        self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')),xy,xz,yz, self.ndim == 2)
 
         # Set the number of particles from the positions attribute
         position = configuration.getElementsByTagName('position')
@@ -371,7 +377,12 @@ class TrajectoryXML(Trajectory):
 
         # Update box
         box_config = configuration.getElementsByTagName('box')[0]
-        self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
+        xy = 0; xz = 0; yz = 0;
+        if (box_config.hasAttribute('xy') and box_config.hasAttribute('xz') and box_config.hasAttribute('yz')):
+            xy = float(box_config.getAttribute('xy'))
+            xz = float(box_config.getAttribute('xz'))
+            yz = float(box_config.getAttribute('yz'))
+        self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')),xy,xz,yz, self.ndim == 2)
 
 
         # changed to add into dynamic_props as this would otherwise cause the for loop to barf
@@ -559,8 +570,14 @@ class TrajectoryXMLDCD(Trajectory):
 
         # if there is no dcd file, read box
         if dcd_fname is None:
-            box_config = configuration.getElementsByTagName('box')[0];
-            self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')), self.ndim == 2)
+
+            box_config = configuration.getElementsByTagName('box')[0]
+            xy = 0; xz = 0; yz = 0;
+            if (box_config.hasAttribute('xy') and box_config.hasAttribute('xz') and box_config.hasAttribute('yz')):
+                xy = float(box_config.getAttribute('xy'))
+                xz = float(box_config.getAttribute('xz'))
+                yz = float(box_config.getAttribute('yz'))
+            self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')),xy,xz,yz, self.ndim == 2)
 
         # read the position node just to get the number of particles
         # unless there is no dcd file. Then read positions.
