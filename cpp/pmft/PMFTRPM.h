@@ -142,7 +142,7 @@ class PMFTRPM
         boost::shared_array<float> m_r_array;           //!< array of x values that the pcf is computed at
         boost::shared_array<float> m_TP_array;           //!< array of y values that the pcf is computed at
         boost::shared_array<float> m_TM_array;           //!< array of T values that the pcf is computed at
-        tbb::combinable<unsigned int> *m_local_pcf_array; //!< combinable bin object
+        tbb::enumerable_thread_specific<unsigned int *> m_local_pcf_array;
     };
 
 /*! \internal

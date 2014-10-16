@@ -429,8 +429,7 @@ class ComputePMFTWithCellList
                             unsigned int ibinz = (unsigned int)(binz);
                             #endif
 
-                            // increment the bin; this is handled by atomic operations
-                            // it is possible that this is better handled by an array of atomics...
+                            // increment the bin
                             if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                                 {
                                 ++m_pcf_array.local()[b_i(ibinx, ibiny, ibinz)];

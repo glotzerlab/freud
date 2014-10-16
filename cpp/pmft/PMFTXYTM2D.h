@@ -142,7 +142,7 @@ class PMFTXYTM2D
         boost::shared_array<float> m_x_array;           //!< array of x values that the pcf is computed at
         boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
         boost::shared_array<float> m_T_array;           //!< array of T values that the pcf is computed at
-        tbb::combinable<unsigned int> *m_local_pcf_array; //!< combinable bin object
+        tbb::enumerable_thread_specific<unsigned int *> m_local_pcf_array;
     };
 
 /*! \internal
