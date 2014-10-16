@@ -39,6 +39,8 @@ class HexOrderParameter
             }
 
         //! Compute the hex order parameter
+        // void compute(const float3 *points,
+        //              unsigned int Np);
         void compute(const vec3<float> *points,
                      unsigned int Np);
 
