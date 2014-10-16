@@ -72,7 +72,6 @@ public:
         Index2D b_i = Index2D(m_nNeigh, m_Np);
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {
-            // printf("for particle %d\n", (int)i);
             neighbors.clear();
 
             //get cell point is in
@@ -84,24 +83,19 @@ public:
             const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
             for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
                 {
-                // printf("for neighbor cell %d\n", neigh_idx);
                 unsigned int neigh_cell = neigh_cells[neigh_idx];
 
                 //iterate over particles in cell
                 locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
                 for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                     {
-                    // printf("for neighbor particle %d\n", j);
-                    const vec3<float> posj(m_pos[j]);
-                    // vec3<float> rij(posj - posi);
 
                     //compute r between the two particles
-                    // const float3 wrapped(m_box.wrap(make_float3(rij.x, rij.y, rij.z)));
-                    vec3<float>rij = m_box.wrap(posj - posi);
+                    vec3<float>rij = m_box.wrap(m_pos[j] - posi);
                     const float rsq(dot(rij, rij));
 
                     // adds all neighbors within rsq to list of possible neighbors
-                    if (rsq < rmaxsq && rsq > 1e-6)
+                    if ((rsq < rmaxsq) && (i != j))
                         {
                         // printf("adding particle %d to possible neighbor list\n", j);
                         neighbors.push_back(pair<float, unsigned int>(rsq, j));
