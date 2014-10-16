@@ -16,8 +16,9 @@ using namespace tbb;
 namespace freud { namespace order {
 
 HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax, float k=6)
-    :m_box(box), m_rmax(rmax), m_k(k), m_nn(box, rmax, (unsigned int) k), m_Np(0)
+    :m_box(box), m_rmax(rmax), m_k(k), m_Np(0)
     {
+    m_nn = new locality::NearestNeighbors(box, rmax, k);
     }
 
 HexOrderParameter::~HexOrderParameter()
@@ -31,7 +32,7 @@ class ComputeHexOrderParameter
         const trajectory::Box& m_box;
         const float m_rmax;
         const float m_k;
-        const locality::NearestNeighbors& m_nn;
+        const locality::NearestNeighbors *m_nn;
         const vec3<float> *m_points;
         std::complex<float> *m_psi_array;
     public:
@@ -39,7 +40,7 @@ class ComputeHexOrderParameter
                                  const trajectory::Box& box,
                                  const float rmax,
                                  const float k,
-                                 const locality::NearestNeighbors& nn,
+                                 const locality::NearestNeighbors *nn,
                                  const vec3<float> *points)
             : m_box(box), m_rmax(rmax), m_k(k), m_nn(nn), m_points(points), m_psi_array(psi_array)
             {
@@ -53,7 +54,7 @@ class ComputeHexOrderParameter
                 {
                 m_psi_array[i] = 0;
                 vec3<float> ref = m_points[i];
-                boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+                boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
                 unsigned int num_adjacent = 0;
 
                 //loop over neighbors
@@ -62,7 +63,7 @@ class ComputeHexOrderParameter
                     unsigned int j = neighbors[neigh_idx];
 
                     //compute r between the two particles
-                    vec3<float> delta = m_box.wrap(ref - points[j]);
+                    vec3<float> delta = m_box.wrap(ref - m_points[j]);
 
                     float rsq = dot(delta, delta);
                     if (rsq < rmaxsq && rsq > 1e-6)
@@ -83,7 +84,7 @@ class ComputeHexOrderParameter
 void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
-    m_nn.compute(points,Np);
+    m_nn->compute(points,Np);
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
