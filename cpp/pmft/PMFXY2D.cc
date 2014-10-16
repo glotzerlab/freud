@@ -294,8 +294,7 @@ class ComputePMFXY2DWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        vec3<float> point = m_points[j];
-                        vec3<float> delta = m_box.wrap(point - ref);
+                        vec3<float> delta = m_box.wrap(m_points[j] - ref);
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
@@ -450,10 +449,8 @@ void PMFXY2D::computePy(boost::python::numeric::array ref_points,
     num_util::check_dim(orientations, 0, Np);
 
     // get the raw data pointers and compute the cell list
-    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
     float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
-    // float3* points_raw = (float3*) num_util::data(points);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     float* orientations_raw = (float*) num_util::data(orientations);
 
