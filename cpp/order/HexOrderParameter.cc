@@ -68,9 +68,7 @@ class ComputeHexOrderParameter
                         m_psi_array[i] += exp(complex<float>(0,m_k*psi_ij));
                         }
                     }
-
-                if(num_adjacent)
-                    m_psi_array[i] /= complex<float>(m_k);
+                m_psi_array[i] /= complex<float>(m_k);
                 }
             }
     };
