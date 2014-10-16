@@ -16,21 +16,34 @@
 #define _CORRELATIONFUNCTION_H__
 
 /*! \file CorrelationFunction.cc
-    \brief Weighted radial density functions
+    \brief Generic pairwise correlation functions
 */
 
 namespace freud { namespace density {
 
-//! Computes the RDF (g(r)) for a given set of points, weighted by the product of values associated with each point.
-/*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
-    Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
+//! Computes the pairwise correlation function <p*q>(r) between two sets of points with associated values p and q.
+/*! Two sets of points and two sets of values associated with those
+    points are given. Computing the correlation function results in an
+    array of the expected (average) product of all values at a given
+    radial distance.
 
-    The values of r to compute the rdf at are controlled by the rmax and dr parameters to the constructor. rmax
-    determins the maximum r at which to compute g(r) and dr is the step size for each bin.
+    The values of r to compute the correlation function at are
+    controlled by the rmax and dr parameters to the constructor. rmax
+    determins the maximum r at which to compute the correlation
+    function and dr is the step size for each bin.
 
     <b>2D:</b><br>
-    RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
-    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
+    CorrelationFunction properly handles 2D boxes. As with everything
+    else in freud, 2D points must be passed in as 3 component vectors
+    x,y,0. Failing to set 0 in the third component will lead to
+    undefined behavior.
+
+    <b>Self-correlation:</b><br>
+    It is often the case that we wish to compute the correlation
+    function of a set of points with itself. If given the same arrays
+    for both points and ref_points, we omit accumulating the
+    self-correlation value in the first bin.
+
 */
 template<typename T>
 class CorrelationFunction
@@ -51,7 +64,7 @@ class CorrelationFunction
         //! Check if a cell list should be used or not
         bool useCells();
 
-        //! Compute the RDF
+        //! Compute the correlation function
         void compute(const vec3<float> *ref_points,
                      const T *ref_values,
                      unsigned int Nref,
