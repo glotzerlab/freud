@@ -20,6 +20,11 @@ HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax, flo
     {
     }
 
+HexOrderParameter::~HexOrderParameter()
+    {
+    delete m_nn;
+    }
+
 class ComputeHexOrderParameter
     {
     private:
@@ -27,7 +32,6 @@ class ComputeHexOrderParameter
         const float m_rmax;
         const float m_k;
         const locality::NearestNeighbors& m_nn;
-        // const float3 *m_points;
         const vec3<float> *m_points;
         std::complex<float> *m_psi_array;
     public:
@@ -36,7 +40,6 @@ class ComputeHexOrderParameter
                                  const float rmax,
                                  const float k,
                                  const locality::NearestNeighbors& nn,
-                                 // const float3 *points)
                                  const vec3<float> *points)
             : m_box(box), m_rmax(rmax), m_k(k), m_nn(nn), m_points(points), m_psi_array(psi_array)
             {
@@ -44,16 +47,12 @@ class ComputeHexOrderParameter
 
         void operator()( const blocked_range<size_t>& r ) const
             {
-            // const float3 *points = m_points;
-            const vec3<float> *points = m_points;
             float rmaxsq = m_rmax * m_rmax;
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
                 m_psi_array[i] = 0;
-                //get cell point is in
-                // float3 ref = points[i];
-                vec3<float> ref = points[i];
+                vec3<float> ref = m_points[i];
                 boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
                 unsigned int num_adjacent = 0;
 
@@ -63,14 +62,8 @@ class ComputeHexOrderParameter
                     unsigned int j = neighbors[neigh_idx];
 
                     //compute r between the two particles
-                    vec3<float> delta = ref - points[j];
-                    // float dx = float(ref.x - points[j].x);
-                    // float dy = float(ref.y - points[j].y);
-                    // float dz = float(ref.z - points[j].z);
-                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                    delta = m_box.wrap(delta);
+                    vec3<float> delta = m_box.wrap(ref - points[j]);
 
-                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                     float rsq = dot(delta, delta);
                     if (rsq < rmaxsq && rsq > 1e-6)
                         {
@@ -87,7 +80,6 @@ class ComputeHexOrderParameter
             }
     };
 
-// void HexOrderParameter::compute(const float3 *points, unsigned int Np)
 void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
