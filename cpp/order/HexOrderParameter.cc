@@ -61,7 +61,7 @@ class ComputeHexOrderParameter
                     vec3<float> delta = m_box.wrap(points[j] - ref);
 
                     float rsq = dot(delta, delta);
-                    if (rsq > 1e-6)
+                    if( (i != j) || (points != ref_points) )
                         {
                         //compute psi for neighboring particle(only constructed for 2d)
                         float psi_ij = atan2f(delta.y, delta.x);
