@@ -37,6 +37,13 @@ namespace freud { namespace density {
     else in freud, 2D points must be passed in as 3 component vectors
     x,y,0. Failing to set 0 in the third component will lead to
     undefined behavior.
+
+    <b>Self-correlation:</b><br>
+    It is often the case that we wish to compute the correlation
+    function of a set of points with itself. If given the same arrays
+    for both points and ref_points, we omit accumulating the
+    self-correlation value in the first bin.
+
 */
 template<typename T>
 class CorrelationFunction
