@@ -27,7 +27,6 @@ class ComputeHexOrderParameter
         const float m_rmax;
         const float m_k;
         const locality::NearestNeighbors& m_nn;
-        // const float3 *m_points;
         const vec3<float> *m_points;
         std::complex<float> *m_psi_array;
     public:
@@ -36,7 +35,6 @@ class ComputeHexOrderParameter
                                  const float rmax,
                                  const float k,
                                  const locality::NearestNeighbors& nn,
-                                 // const float3 *points)
                                  const vec3<float> *points)
             : m_box(box), m_rmax(rmax), m_k(k), m_nn(nn), m_points(points), m_psi_array(psi_array)
             {
@@ -44,7 +42,6 @@ class ComputeHexOrderParameter
 
         void operator()( const blocked_range<size_t>& r ) const
             {
-            // const float3 *points = m_points;
             const vec3<float> *points = m_points;
             float rmaxsq = m_rmax * m_rmax;
 
@@ -52,10 +49,8 @@ class ComputeHexOrderParameter
                 {
                 m_psi_array[i] = 0;
                 //get cell point is in
-                // float3 ref = points[i];
                 vec3<float> ref = points[i];
                 boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
-                unsigned int num_adjacent = 0;
 
                 //loop over neighbors
                 for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
@@ -63,26 +58,17 @@ class ComputeHexOrderParameter
                     unsigned int j = neighbors[neigh_idx];
 
                     //compute r between the two particles
-                    vec3<float> delta = ref - points[j];
-                    // float dx = float(ref.x - points[j].x);
-                    // float dy = float(ref.y - points[j].y);
-                    // float dz = float(ref.z - points[j].z);
-                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
-                    delta = m_box.wrap(delta);
+                    vec3<float> delta = m_box.wrap(points[j] - ref);
 
-                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                     float rsq = dot(delta, delta);
-                    if (rsq < rmaxsq && rsq > 1e-6)
+                    if (rsq > 1e-6)
                         {
                         //compute psi for neighboring particle(only constructed for 2d)
                         float psi_ij = atan2f(delta.y, delta.x);
                         m_psi_array[i] += exp(complex<float>(0,m_k*psi_ij));
-                        num_adjacent++;
                         }
                     }
-
-                if(num_adjacent)
-                    m_psi_array[i] /= complex<float>(num_adjacent);
+                m_psi_array[i] /= complex<float>(m_k);
                 }
             }
     };
@@ -117,7 +103,6 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute order parameter
-    // float3* points_raw = (float3*) num_util::data(points);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
         // compute the order parameter with the GIL released
