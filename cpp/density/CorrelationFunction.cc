@@ -41,13 +41,11 @@ CorrelationFunction<T>::CorrelationFunction(const trajectory::Box& box, float rm
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
     m_rdf_array = boost::shared_array<T>(new T[m_nbins]);
-    m_local_rdf_array = new tbb::combinable<T> [m_nbins];
     // Less efficient: initialize each bin sequentially using default ctor
     for(size_t i(0); i < m_nbins; ++i)
         m_rdf_array[i] = T();
     m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-    m_local_bin_counts = new tbb::combinable<unsigned int> [m_nbins];
 
     // precompute the bin center positions
     m_r_array = boost::shared_array<float>(new float[m_nbins]);
@@ -67,6 +65,14 @@ CorrelationFunction<T>::CorrelationFunction(const trajectory::Box& box, float rm
 template<typename T>
 CorrelationFunction<T>::~CorrelationFunction()
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        delete[] (*i);
+        }
+    for (typename tbb::enumerable_thread_specific<T *>::iterator i = m_local_rdf_array.begin(); i != m_local_rdf_array.end(); ++i)
+        {
+        delete[] (*i);
+        }
     if(useCells())
     delete m_lc;
     }
@@ -77,17 +83,17 @@ class CombineOCF
     private:
         unsigned int m_nbins;
         unsigned int *m_bin_counts;
-        tbb::combinable<unsigned int> *m_local_bin_counts;
+        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
         T *m_rdf_array;
-        tbb::combinable<T> *m_local_rdf_array;
+        tbb::enumerable_thread_specific<T *>& m_local_rdf_array;
         float m_Nref;
     public:
         CombineOCF(unsigned int nbins,
-                      unsigned int *bin_counts,
-                      tbb::combinable<unsigned int> *local_bin_counts,
-                      T *rdf_array,
-                      tbb::combinable<T> *local_rdf_array,
-                      float Nref)
+                   unsigned int *bin_counts,
+                   tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
+                   T *rdf_array,
+                   tbb::enumerable_thread_specific<T *>& local_rdf_array,
+                   float Nref)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
               m_local_rdf_array(local_rdf_array), m_Nref(Nref)
         {
@@ -96,8 +102,16 @@ class CombineOCF
             {
             for (size_t i = myBin.begin(); i != myBin.end(); i++)
                 {
-                m_bin_counts[i] = m_local_bin_counts[i].combine(std::plus<unsigned int>());
-                m_rdf_array[i] = m_local_rdf_array[i].combine(std::plus<T>());
+                for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+                     local_bins != m_local_bin_counts.end(); ++local_bins)
+                    {
+                    m_bin_counts[i] += (*local_bins)[i];
+                    }
+                for (typename tbb::enumerable_thread_specific<T *>::const_iterator local_rdf = m_local_rdf_array.begin();
+                     local_rdf != m_local_rdf_array.end(); ++local_rdf)
+                    {
+                    m_rdf_array[i] += (*local_rdf)[i];
+                    }
                 m_rdf_array[i] /= m_bin_counts[i];
                 }
             }
@@ -122,8 +136,8 @@ class ComputeOCFWithoutCellList
     {
     private:
         const unsigned int m_nbins;
-        tbb::combinable<unsigned int> *m_bin_counts;
-        tbb::combinable<T> *m_rdf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
+        tbb::enumerable_thread_specific<T *>& m_rdf_array;
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
@@ -135,17 +149,17 @@ class ComputeOCFWithoutCellList
         unsigned int m_Np;
     public:
         ComputeOCFWithoutCellList(const unsigned int nbins,
-                               tbb::combinable<unsigned int> *bin_counts,
-                               tbb::combinable<T> *rdf_array,
-                               const trajectory::Box &box,
-                               const float rmax,
-                               const float dr,
-                               const vec3<float> *ref_points,
-                               const T *ref_values,
-                               unsigned int Nref,
-                               const vec3<float> *points,
-                               const T *point_values,
-                               unsigned int Np)
+                                  tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
+                                  tbb::enumerable_thread_specific<T *>& rdf_array,
+                                  const trajectory::Box &box,
+                                  const float rmax,
+                                  const float dr,
+                                  const vec3<float> *ref_points,
+                                  const T *ref_values,
+                                  unsigned int Nref,
+                                  const vec3<float> *points,
+                                  const T *point_values,
+                                  unsigned int Np)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_rmax(rmax), m_dr(dr),
               m_ref_points(ref_points), m_ref_values(ref_values), m_Nref(Nref), m_points(points),
               m_point_values(point_values), m_Np(Np)
@@ -162,6 +176,22 @@ class ComputeOCFWithoutCellList
 
             float dr_inv = 1.0f / m_dr;
             float rmaxsq = m_rmax * m_rmax;
+
+            bool bin_exists;
+            m_bin_counts.local(bin_exists);
+            if (! bin_exists)
+                {
+                m_bin_counts.local() = new unsigned int [m_nbins];
+                memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
+                }
+
+            bool rdf_exists;
+            m_rdf_array.local(rdf_exists);
+            if (! rdf_exists)
+                {
+                m_rdf_array.local() = new T [m_nbins];
+                memset((void*)m_rdf_array.local(), 0, sizeof(T)*m_nbins);
+                }
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -188,8 +218,8 @@ class ComputeOCFWithoutCellList
 
                         if (bin < m_nbins)
                             {
-                            ++m_bin_counts[bin].local();
-                            m_rdf_array[bin].local() += m_ref_values[i]*m_point_values[j];
+                            ++m_bin_counts.local()[bin];
+                            m_rdf_array.local()[bin] += m_ref_values[i]*m_point_values[j];
                             }
                         }
                     }
@@ -202,8 +232,8 @@ class ComputeOCFWithCellList
     {
     private:
         const unsigned int m_nbins;
-        tbb::combinable<unsigned int> *m_bin_counts;
-        tbb::combinable<T> *m_rdf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
+        tbb::enumerable_thread_specific<T *>& m_rdf_array;
         const trajectory::Box m_box;
         const float m_rmax;
         const float m_dr;
@@ -216,8 +246,8 @@ class ComputeOCFWithCellList
         unsigned int m_Np;
     public:
         ComputeOCFWithCellList(const unsigned int nbins,
-                               tbb::combinable<unsigned int> *bin_counts,
-                               tbb::combinable<T> *rdf_array,
+                               tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
+                               tbb::enumerable_thread_specific<T *>& rdf_array,
                                const trajectory::Box &box,
                                const float rmax,
                                const float dr,
@@ -244,6 +274,22 @@ class ComputeOCFWithCellList
 
             float dr_inv = 1.0f / m_dr;
             float rmaxsq = m_rmax * m_rmax;
+
+            bool bin_exists;
+            m_bin_counts.local(bin_exists);
+            if (! bin_exists)
+                {
+                m_bin_counts.local() = new unsigned int [m_nbins];
+                memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
+                }
+
+            bool rdf_exists;
+            m_rdf_array.local(rdf_exists);
+            if (! rdf_exists)
+                {
+                m_rdf_array.local() = new T [m_nbins];
+                memset((void*)m_rdf_array.local(), 0, sizeof(T)*m_nbins);
+                }
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -282,8 +328,8 @@ class ComputeOCFWithCellList
 
                             if (bin < m_nbins)
                                 {
-                                ++m_bin_counts[bin].local();
-                                m_rdf_array[bin].local() += m_ref_values[i]*m_point_values[j];
+                                ++m_bin_counts.local()[bin];
+                                m_rdf_array.local()[bin] += m_ref_values[i]*m_point_values[j];
                                 }
                             }
                         }
@@ -301,6 +347,14 @@ void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
                              unsigned int Np)
     {
     // zero the bin counts for totaling
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins);
+        }
+    for (typename tbb::enumerable_thread_specific<T *>::iterator i = m_local_rdf_array.begin(); i != m_local_rdf_array.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(T)*m_nbins);
+        }
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     for(size_t i(0); i < m_nbins; ++i)
         m_rdf_array[i] = T();
