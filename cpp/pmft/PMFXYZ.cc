@@ -91,8 +91,6 @@ PMFXYZ::PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z
     // create and populate the pcf_array
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y * m_nbins_z]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
-    // looks like this is far too big...may need to limit/change how implemented
-    m_local_pcf_array = new tbb::combinable<unsigned int> [m_nbins_x * m_nbins_y * m_nbins_z];
 
     if (useCells())
         {
@@ -103,6 +101,10 @@ PMFXYZ::PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z
 
 PMFXYZ::~PMFXYZ()
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
+        {
+        delete[] (*i);
+        }
     if(useCells())
     delete m_lc;
     }
@@ -114,13 +116,13 @@ class CombinePCFXYZ
         unsigned int m_nbins_y;
         unsigned int m_nbins_z;
         unsigned int *m_pcf_array;
-        tbb::combinable<unsigned int> *m_local_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_local_pcf_array;
     public:
         CombinePCFXYZ(unsigned int nbins_x,
                       unsigned int nbins_y,
                       unsigned int nbins_z,
                       unsigned int *pcf_array,
-                      tbb::combinable<unsigned int> *local_pcf_array)
+                      tbb::enumerable_thread_specific<unsigned int *>& local_pcf_array)
             : m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_pcf_array(pcf_array),
               m_local_pcf_array(local_pcf_array)
         {
@@ -134,7 +136,11 @@ class CombinePCFXYZ
                     {
                     for (size_t k = 0; k < m_nbins_z; j++)
                         {
-                        m_pcf_array[b_i((int)i, (int)j, (int)k)] = m_local_pcf_array[b_i((int)i, (int)j, (int)k)].combine(std::plus<unsigned int>());
+                        for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_pcf_array.begin();
+                             local_bins != m_local_pcf_array.end(); ++local_bins)
+                            {
+                            m_pcf_array[b_i((int)i, (int)j, (int)k)] += (*local_bins)[b_i((int)i, (int)j, (int)k)];
+                            }
                         }
                     }
                 }
@@ -148,7 +154,7 @@ class CombinePCFXYZ
 class ComputePMFTWithoutCellList
     {
     private:
-        tbb::combinable<unsigned int> *m_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         unsigned int m_nbins_z;
@@ -168,7 +174,7 @@ class ComputePMFTWithoutCellList
         const quat<float> *m_face_orientations;
         const unsigned int m_Nfaces;
     public:
-        ComputePMFTWithoutCellList(tbb::combinable<unsigned int> *pcf_array,
+        ComputePMFTWithoutCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
                                    unsigned int nbins_x,
                                    unsigned int nbins_y,
                                    unsigned int nbins_z,
@@ -179,11 +185,9 @@ class ComputePMFTWithoutCellList
                                    const float dx,
                                    const float dy,
                                    const float dz,
-                                   // const float3 *ref_points,
                                    const vec3<float> *ref_points,
                                    const quat<float> *ref_orientations,
                                    unsigned int Nref,
-                                   // const float3 *points,
                                    const vec3<float> *points,
                                    const quat<float> *orientations,
                                    unsigned int Np,
@@ -213,16 +217,21 @@ class ComputePMFTWithoutCellList
             Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_z);
             Index2D q_i = Index2D(m_Nfaces, m_Np);
 
+            bool exists;
+            m_pcf_array.local(exists);
+            if (! exists)
+                {
+                m_pcf_array.local() = new unsigned int [m_nbins_x*m_nbins_y*m_nbins_z];
+                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
+                }
+
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
-                vec3<float> ref = m_ref_points[i];
                 // for each point to check
                 for (unsigned int j = 0; j < m_Np; j++)
                     {
-                    vec3<float> point = m_points[j];
-                    vec3<float> delta = ref - point;
-                    delta = m_box.wrap(delta);
+                    vec3<float> delta = m_box.wrap(m_points[j] - m_ref_points[i]);
 
                     // check that the particle is not checking itself
                     // 1e-6 is an arbitrary value that could be set differently if needed
@@ -268,11 +277,10 @@ class ComputePMFTWithoutCellList
                         unsigned int ibinz = (unsigned int)(binz);
                         #endif
 
-                        // increment the bin; this is handled by atomic operations
-                        // it is possible that this is better handled by an array of atomics...
+                        // increment the bin;
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                             {
-                            ++m_pcf_array[b_i(ibinx, ibiny, ibinz)].local();
+                            ++m_pcf_array.local()[b_i(ibinx, ibiny, ibinz)];
                             }
                         }
                     }
@@ -286,7 +294,7 @@ class ComputePMFTWithoutCellList
 class ComputePMFTWithCellList
     {
     private:
-        tbb::combinable<unsigned int> *m_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         unsigned int m_nbins_z;
@@ -307,7 +315,7 @@ class ComputePMFTWithCellList
         const quat<float> *m_face_orientations;
         const unsigned int m_Nfaces;
     public:
-        ComputePMFTWithCellList(tbb::combinable<unsigned int> *pcf_array,
+        ComputePMFTWithCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
                                 unsigned int nbins_x,
                                 unsigned int nbins_y,
                                 unsigned int nbins_z,
@@ -351,6 +359,14 @@ class ComputePMFTWithCellList
             Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_z);
             Index2D q_i = Index2D(m_Nfaces, m_Np);
 
+            bool exists;
+            m_pcf_array.local(exists);
+            if (! exists)
+                {
+                m_pcf_array.local() = new unsigned int [m_nbins_x*m_nbins_y*m_nbins_z];
+                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
+                }
+
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
                 {
@@ -368,10 +384,8 @@ class ComputePMFTWithCellList
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        vec3<float> point = m_points[j];
-
                         // make sure that the particles are wrapped into the box
-                        vec3<float> delta = m_box.wrap(ref - point);
+                        vec3<float> delta = m_box.wrap(m_points[j] - ref);
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
@@ -419,7 +433,7 @@ class ComputePMFTWithCellList
                             // it is possible that this is better handled by an array of atomics...
                             if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
                                 {
-                                ++m_pcf_array[b_i(ibinx, ibiny, ibinz)].local();
+                                ++m_pcf_array.local()[b_i(ibinx, ibiny, ibinz)];
                                 }
                             }
                         }
@@ -468,6 +482,10 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
                      const quat<float> *face_orientations,
                      const unsigned int Nfaces)
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
+        }
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
