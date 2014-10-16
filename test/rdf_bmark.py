@@ -28,4 +28,4 @@ start = time.time();
 for trial in range(0,trials):
     rdf.compute(points, points);
 end = time.time();
-print('avg time per trial: {}'.format((end-start)/float(trials)))
+print("avg time per trial: {}".format((end-start)/float(trials)))
