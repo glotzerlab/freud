@@ -112,7 +112,6 @@ class RDF
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
-        // tbb::enumerable_thread_specific<unsigned int> m_local_bin_counts;
     };
 
 /*! \internal
