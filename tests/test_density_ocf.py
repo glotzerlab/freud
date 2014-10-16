@@ -66,7 +66,6 @@ class TestOCF(unittest.TestCase):
         ocf.compute(points, comp, points, conj)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
-        correct[0] = 0.0 + 1j * 0.0
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
 
@@ -83,7 +82,6 @@ class TestOCF(unittest.TestCase):
         ocf.compute(points, comp, points, conj)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
-        correct[0] = 0.0 + 1j * 0.0
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
 
