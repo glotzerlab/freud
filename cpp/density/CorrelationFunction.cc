@@ -269,13 +269,7 @@ class ComputeOCFWithCellList
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself, if it is the same list
-                        if ( (i == j) && (m_points == m_ref_points) )
-                            {
-                            // skip if the same particle
-                            continue;
-                            }
-
-                        if (rsq < rmaxsq)
+                        if ((i != j || m_points != m_ref_points) && rsq < rmaxsq)
                             {
                             float r = sqrtf(rsq);
 
