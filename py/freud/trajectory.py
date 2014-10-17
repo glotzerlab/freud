@@ -325,6 +325,7 @@ class TrajectoryXML(Trajectory):
 
         self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')),xy,xz,yz, self.ndim == 2)
 
+
         # Set the number of particles from the positions attribute
         position = configuration.getElementsByTagName('position')
         if len(position) != 1:
@@ -384,7 +385,6 @@ class TrajectoryXML(Trajectory):
             yz = float(box_config.getAttribute('yz'))
         self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')),xy,xz,yz, self.ndim == 2)
 
-
         # changed to add into dynamic_props as this would otherwise cause the for loop to barf
         if "type" in self.dynamic_props:
             self.dynamic_props['typename'] = self._update('type', configuration)
@@ -403,7 +403,11 @@ class TrajectoryXML(Trajectory):
         else:
             curr_ts = 0
 
-        return Frame(self, self.idx, copy.deepcopy(self.dynamic_props), copy.copy(self.box), time_step = curr_ts)
+        # copy.copy or copy.deepbox for self.box doesn't seem to be working, so declare a newBox object and return that, maybe changed later if the commented version works with other's modifications.
+        newBox = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')),xy,xz,yz, self.ndim == 2)
+        return Frame(self, self.idx, copy.deepcopy(self.dynamic_props), newBox, time_step = curr_ts)
+        #return Frame(self, self.idx, copy.deepcopy(self.dynamic_props), copy.copy(self.box), time_step = curr_ts)
+
 
 
     def _parseXML(self, xml_filename):
@@ -568,6 +572,8 @@ class TrajectoryXMLDCD(Trajectory):
         else:
             self.ndim = 3;
 
+        
+        # (Chrisy: seems not possible to reach this if statement since the initialization requires a dcd file)
         # if there is no dcd file, read box
         if dcd_fname is None:
 
@@ -577,6 +583,7 @@ class TrajectoryXMLDCD(Trajectory):
                 xy = float(box_config.getAttribute('xy'))
                 xz = float(box_config.getAttribute('xz'))
                 yz = float(box_config.getAttribute('yz'))
+            
             self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')),xy,xz,yz, self.ndim == 2)
 
         # read the position node just to get the number of particles
@@ -703,11 +710,12 @@ class TrajectoryXMLDCD(Trajectory):
             pos = self.dcd_loader.getPoints();
             dynamic_props['position'] = pos;
             box = copy.copy(self.dcd_loader.getBox());
+            newBox = self.dcd_loader.getBox()
             box.set2D(self.ndim == 2);
             return Frame(self,
                          self.dcd_loader.getLastFrameNum(),
                          dynamic_props,
-                         box,
+                         newBox,
                          time_step=self.dcd_loader.getTimeStep());
         else:
             box = self.box;
