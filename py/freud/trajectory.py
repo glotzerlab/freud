@@ -728,7 +728,7 @@ class TrajectoryPOS(Trajectory):
     ## Initialize an POS trajectory for access
     # \param pos_fname File name of the POS file to read the structure from
     #
-    def __init__(self, pos_fname, dynamic=['position', 'orientation']):
+    def __init__(self, pos_fname, dynamic=['boxMatrix', 'position', 'orientation']):
         Trajectory.__init__(self);
 
         self.dynamic_props = {}
@@ -740,8 +740,8 @@ class TrajectoryPOS(Trajectory):
         # self.pos_file.load();
         self.pos_file = pos.file(pos_fname);
         self.pos_file.grabBox();
-        print("Box orientation")
-        print(self.pos_file.box_orientations)
+        #print("Box orientation")
+        #print(self.pos_file.box_orientations)
 
         # Is there a place in the pos that specs the dims?
         # dim_test = len(self.pos_file.position_list[0][0])
@@ -759,6 +759,9 @@ class TrajectoryPOS(Trajectory):
             lx = box_dims[0];
             ly = box_dims[1];
             lz = box_dims[2];
+            xy = 0;
+            xz = 0;
+            yz = 0;
         else:
             # This whole bit is kludgey and in need of some standardization.
             # Store original box matrix as a static property.
@@ -767,21 +770,34 @@ class TrajectoryPOS(Trajectory):
             e3 = box_dims[[2,5,8]]
             if not 'boxMatrix' in self.dynamic_props:
                 self.static_props['boxMatrix'] = numpy.asarray([e1, e2, e3]).transpose()
+            lx = numpy.sqrt(numpy.dot(e1, e1))
+            a2x = numpy.dot(e1, e2) / lx
+            ly = numpy.sqrt(numpy.dot(e2,e2) - a2x*a2x)
+            xy = a2x / ly
+            v0xv1 = numpy.cross(e1, e2)
+            v0xv1mag = numpy.sqrt(numpy.dot(v0xv1, v0xv1))
+            lz = numpy.dot(e3, v0xv1) / v0xv1mag
+            a3x = numpy.dot(e1, e3) / lx
+            xz = a3x / lz
+            yz = (numpy.dot(e2,e3) - a2x*a3x) / (ly*lz)
+
             # Enlarge tetragonal box to include all of triclinic box. It would be best if
             # the box matrix were upper triangular and right-handed.
-            diagonal = e1 + e2 + e3
-            box_vecs = numpy.asarray([e1, e2, e3, [0, 0, 0], diagonal])
-            lx = box_vecs[:,0].max() - box_vecs[:,0].min()
-            ly = box_vecs[:,1].max() - box_vecs[:,1].min()
-            lz = box_vecs[:,2].max() - box_vecs[:,2].min()
+            #diagonal = e1 + e2 + e3
+            #box_vecs = numpy.asarray([e1, e2, e3, [0, 0, 0], diagonal])
+            #lx = box_vecs[:,0].max() - box_vecs[:,0].min()
+            #ly = box_vecs[:,1].max() - box_vecs[:,1].min()
+            #lz = box_vecs[:,2].max() - box_vecs[:,2].min()
         #print("lx = {0} ly = {1} lz = {2}".format(*box_dims))
-        self.box = Box(float(lx), float(ly), float(lz), self.ndim == 2);
+        self.box = Box(float(lx), float(ly), float(lz), float(xy), float(xz), float(yz), self.ndim == 2);
 
         #Reader can handle changing num particles, but this doesn't
         # self.num_particles = len(self.pos_file.n_box_points[0])
         self.num_particles = int(self.pos_file.n_box_points[0])
 
         # Update the static properties
+        if not 'boxMatrix' in self.dynamic_props:
+            self.static_props['boxMatrix'] = self._update('boxMatrix', 0)
         if not 'position' in self.dynamic_props:
             self.static_props['position'] = self._update('position', 0)
         if not 'orientation' in self.dynamic_props:
@@ -834,6 +850,36 @@ class TrajectoryPOS(Trajectory):
         return self._get_current_frame()
 
     def _update(self, prop, frame_number):
+        if prop == 'boxMatrix':
+            box_dims = numpy.asarray(self.pos_file.box_dims[frame_number], dtype=numpy.float32)
+            # Changed to support box and boxmatrix...
+            # Could be handled in another way
+            if len(box_dims) == 3:
+                lx = box_dims[0];
+                ly = box_dims[1];
+                lz = box_dims[2];
+                xy = 0;
+                xz = 0;
+                yz = 0;
+            else:
+                # This whole bit is kludgey and in need of some standardization.
+                # Store original box matrix as a static property.
+                e1 = box_dims[[0,3,6]]
+                e2 = box_dims[[1,4,7]]
+                e3 = box_dims[[2,5,8]]
+                if not 'boxMatrix' in self.dynamic_props:
+                    self.static_props['boxMatrix'] = numpy.asarray([e1, e2, e3]).transpose()
+                lx = numpy.sqrt(numpy.dot(e1, e1))
+                a2x = numpy.dot(e1, e2) / lx
+                ly = numpy.sqrt(numpy.dot(e2,e2) - a2x*a2x)
+                xy = a2x / ly
+                v0xv1 = numpy.cross(e1, e2)
+                v0xv1mag = numpy.sqrt(numpy.dot(v0xv1, v0xv1))
+                lz = numpy.dot(e3, v0xv1) / v0xv1mag
+                a3x = numpy.dot(e1, e3) / lx
+                xz = a3x / lz
+                yz = (numpy.dot(e2,e3) - a2x*a3x) / (ly*lz)
+            self.box = Box(float(lx), float(ly), float(lz), float(xy), float(xz), float(yz), self.ndim == 2);
         if prop == 'position':
             position = self.pos_file.box_positions[frame_number]
             #if len(position) != 1:
