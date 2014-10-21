@@ -33,7 +33,6 @@ class ComputeLocalDensity
         const float m_volume;
         const float m_diameter;
         const locality::LinkCell& m_lc;
-        // const float3 *m_points;
         const vec3<float> *m_points;
     public:
         ComputeLocalDensity(float *density_array,
@@ -43,7 +42,6 @@ class ComputeLocalDensity
                             const float volume,
                             const float diameter,
                             const locality::LinkCell& lc,
-                            // const float3 *points)
                             const vec3<float> *points)
             : m_density_array(density_array), m_num_neighbors_array(num_neighbors_array), m_box(box), m_rcut(rcut),
               m_volume(volume), m_diameter(diameter), m_lc(lc), m_points(points)
@@ -57,7 +55,6 @@ class ComputeLocalDensity
                 float num_neighbors = 0;
 
                 // get cell point is in
-                // float3 ref = m_points[i];
                 vec3<float> ref = m_points[i];
                 unsigned int ref_cell = m_lc.getCell(ref);
 
@@ -72,11 +69,7 @@ class ComputeLocalDensity
                     for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                         {
                         //compute r between the two particles
-                        vec3<float> delta = ref - m_points[j];
-                        // float dx = float(ref.x - m_points[j].x);
-                        // float dy = float(ref.y - m_points[j].y);
-                        // float dz = float(ref.z - m_points[j].z);
-                        delta = m_box.wrap(delta);
+                        vec3<float> delta = m_box.wrap(m_points[j] - ref);
 
                         // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                         float rsq = dot(delta, delta);
@@ -151,7 +144,6 @@ void LocalDensity::computePy(boost::python::numeric::array points)
     unsigned int Np = num_util::shape(points)[0];
 
     // get the raw data pointers and compute order parameter
-    // float3* points_raw = (float3*) num_util::data(points);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
         // compute the order parameter with the GIL released

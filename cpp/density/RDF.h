@@ -21,7 +21,6 @@
 */
 
 namespace freud { namespace density {
-
 //! Computes the RDF (g(r)) for a given set of points
 /*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
     Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
@@ -112,7 +111,7 @@ class RDF
         boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
-        tbb::combinable<unsigned int> *m_local_bin_counts; //!< combinable bin object
+        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
 /*! \internal

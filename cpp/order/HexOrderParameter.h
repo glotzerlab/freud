@@ -29,6 +29,9 @@ class HexOrderParameter
         //! Constructor
         HexOrderParameter(const trajectory::Box& box, float rmax, float k);
 
+        //! Destructor
+        ~HexOrderParameter();
+
         //! Get the simulation box
         const trajectory::Box& getBox() const
             {
@@ -36,8 +39,6 @@ class HexOrderParameter
             }
 
         //! Compute the hex order parameter
-        // void compute(const float3 *points,
-        //              unsigned int Np);
         void compute(const vec3<float> *points,
                      unsigned int Np);
 
@@ -61,7 +62,7 @@ class HexOrderParameter
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;                        //!< Multiplier in the exponent
-        locality::NearestNeighbors m_nn;          //!< Nearest Neighbors for the computation
+        locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_Np;                //!< Last number of points computed
 
         boost::shared_array< std::complex<float> > m_psi_array;         //!< psi array computed

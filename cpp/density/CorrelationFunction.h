@@ -127,8 +127,8 @@ class CorrelationFunction
         boost::shared_array<T> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
-        tbb::combinable<unsigned int> *m_local_bin_counts;   //!< bin counts for each thread
-        tbb::combinable<T> *m_local_rdf_array;   //!< rdf array for each thread
+        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
+        tbb::enumerable_thread_specific<T *> m_local_rdf_array;
     };
 
 /*! \internal

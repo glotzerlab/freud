@@ -87,7 +87,6 @@ PMFTRPM::PMFTRPM(const trajectory::Box& box, float max_r, float max_TP, float ma
 
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_r*m_nbins_TP*m_nbins_TM]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
-    m_local_pcf_array = new tbb::combinable<unsigned int> [m_nbins_r*m_nbins_TP*m_nbins_TM];
 
     if (useCells())
         {
@@ -108,13 +107,13 @@ class CombinePCFRPM
         unsigned int m_nbins_TP;
         unsigned int m_nbins_TM;
         unsigned int *m_pcf_array;
-        tbb::combinable<unsigned int> *m_local_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_local_pcf_array;
     public:
         CombinePCFRPM(unsigned int nbins_r,
                       unsigned int nbins_TP,
                       unsigned int nbins_TM,
                       unsigned int *pcf_array,
-                      tbb::combinable<unsigned int> *local_pcf_array)
+                      tbb::enumerable_thread_specific<unsigned int *>& local_pcf_array)
             : m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_pcf_array(pcf_array),
               m_local_pcf_array(local_pcf_array)
         {
@@ -128,7 +127,11 @@ class CombinePCFRPM
                     {
                     for (size_t k = 0; k < m_nbins_TP; k++)
                         {
-                        m_pcf_array[b_i((int)i, (int)j, (int)k)] = m_local_pcf_array[b_i((int)i, (int)j, (int)k)].combine(std::plus<unsigned int>());
+                        for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_pcf_array.begin();
+                             local_bins != m_local_pcf_array.end(); ++local_bins)
+                            {
+                            m_pcf_array[b_i((int)i, (int)j, (int)k)] += (*local_bins)[b_i((int)i, (int)j, (int)k)];
+                            }
                         }
                     }
                 }
@@ -138,7 +141,7 @@ class CombinePCFRPM
 class ComputePMFTRPMWithoutCellList
     {
     private:
-        tbb::combinable<unsigned int> *m_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
         unsigned int m_nbins_r;
         unsigned int m_nbins_TP;
         unsigned int m_nbins_TM;
@@ -156,7 +159,7 @@ class ComputePMFTRPMWithoutCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTRPMWithoutCellList(tbb::combinable<unsigned int> *pcf_array,
+        ComputePMFTRPMWithoutCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
                                       unsigned int nbins_r,
                                       unsigned int nbins_TP,
                                       unsigned int nbins_TM,
@@ -187,6 +190,14 @@ class ComputePMFTRPMWithoutCellList
             float dTM_inv = 1.0f / m_dTM;
 
             Index3D b_i = Index3D(m_nbins_r, m_nbins_TP, m_nbins_TM);
+
+            bool exists;
+            m_pcf_array.local(exists);
+            if (! exists)
+                {
+                m_pcf_array.local() = new unsigned int [m_nbins_r*m_nbins_TP*m_nbins_TM];
+                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+                }
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -228,7 +239,7 @@ class ComputePMFTRPMWithoutCellList
 
                         if ((ibinr < m_nbins_r) && (ibinTP < m_nbins_TP) && (ibinTM < m_nbins_TM))
                             {
-                            ++m_pcf_array[b_i(ibinr, ibinTP, ibinTM)].local();
+                            ++m_pcf_array.local()[b_i(ibinr, ibinTP, ibinTM)];
                             }
                         }
                     }
@@ -239,7 +250,7 @@ class ComputePMFTRPMWithoutCellList
 class ComputePMFTRPMWithCellList
     {
     private:
-        tbb::combinable<unsigned int> *m_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
         unsigned int m_nbins_r;
         unsigned int m_nbins_TP;
         unsigned int m_nbins_TM;
@@ -258,7 +269,7 @@ class ComputePMFTRPMWithCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTRPMWithCellList(tbb::combinable<unsigned int> *pcf_array,
+        ComputePMFTRPMWithCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
                                    unsigned int nbins_r,
                                    unsigned int nbins_TP,
                                    unsigned int nbins_TM,
@@ -295,6 +306,14 @@ class ComputePMFTRPMWithCellList
             float dTM_inv = 1.0f / m_dTM;
 
             Index3D b_i = Index3D(m_nbins_r, m_nbins_TP, m_nbins_TM);
+
+            bool exists;
+            m_pcf_array.local(exists);
+            if (! exists)
+                {
+                m_pcf_array.local() = new unsigned int [m_nbins_r*m_nbins_TP*m_nbins_TM];
+                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+                }
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -348,7 +367,7 @@ class ComputePMFTRPMWithCellList
 
                             if ((ibinr < m_nbins_r) && (ibinTP < m_nbins_TP) && (ibinTM < m_nbins_TM))
                                 {
-                                ++m_pcf_array[b_i(ibinr, ibinTP, ibinTM)].local();
+                                ++m_pcf_array.local()[b_i(ibinr, ibinTP, ibinTM)];
                                 }
                             }
                         }
@@ -382,6 +401,10 @@ void PMFTRPM::compute(vec3<float> *ref_points,
                       float *orientations,
                       unsigned int Np)
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+        }
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
