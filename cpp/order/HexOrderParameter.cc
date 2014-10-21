@@ -62,7 +62,7 @@ class ComputeHexOrderParameter
                     unsigned int j = neighbors[neigh_idx];
 
                     //compute r between the two particles
-                    vec3<float> delta = m_box.wrap(points[j] - ref);
+                    vec3<float> delta = m_box.wrap(m_points[j] - ref);
 
                     float rsq = dot(delta, delta);
                     if (rsq > 1e-6)
