@@ -5,6 +5,7 @@
 
 # bring related c++ classes into the sphericalharmonicorderparameters module
 from _freud import LocalQl
+from _freud import LocalQlNear
 #from _freud import LocalWl as LWl
 from _freud import LocalWl
 from _freud import SolLiq

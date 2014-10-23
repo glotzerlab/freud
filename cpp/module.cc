@@ -12,7 +12,6 @@
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
 #include "InterfaceMeasure.h"
-#include "LocalQl.h"
 #include "pairing2D.h"
 #include "PMFXYZ.h"
 #include "PMFXY2D.h"
@@ -29,6 +28,7 @@
 #include "tbb_config.h"
 #include "CorrelationFunction.h"
 #include "LocalQl.h"
+#include "LocalQlNear.h"
 #include "LocalWl.h"
 #include "SolLiq.h"
 #include "wigner3j.h"
@@ -90,6 +90,7 @@ BOOST_PYTHON_MODULE(_freud)
     locality::export_NearestNeighbors();
     interface::export_InterfaceMeasure();
     sphericalharmonicorderparameters::export_LocalQl();
+    sphericalharmonicorderparameters::export_LocalQlNear();
     sphericalharmonicorderparameters::export_LocalWl();
     sphericalharmonicorderparameters::export_SolLiq();
     pairing::export_pairing();

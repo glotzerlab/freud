@@ -129,6 +129,8 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.h
             sphericalharmonicorderparameters/LocalQl.h
             sphericalharmonicorderparameters/LocalQl.cc
+            sphericalharmonicorderparameters/LocalQlNear.h
+            sphericalharmonicorderparameters/LocalQlNear.cc
             sphericalharmonicorderparameters/LocalWl.h
             sphericalharmonicorderparameters/LocalWl.cc
             sphericalharmonicorderparameters/SolLiq.h
