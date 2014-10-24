@@ -45,8 +45,6 @@ class Outline(object):
         """Triangulates an Outline object. Sets the triangles field to
         a Ntx3x2 numpy array of triangles and the inner field to a
         Polygon that is the interior polygon."""
-        print(dir(self))
-        print(dir(self.polygon))
         drs = numpy.roll(self.polygon.vertices, -1, axis=0) - self.polygon.vertices;
         ns = drs/numpy.sqrt(numpy.sum(drs*drs, axis=1)).reshape((len(drs), 1));
         thetas = numpy.arctan2(drs[:, 1], drs[:, 0]);
@@ -469,8 +467,14 @@ class Polygons(base.Primitive):
     # \param colors Npx4 array listing the colors (rgba 0.0-1.0) of each shape (in SRGB)
     # \param color 4 element iterable listing the color to be applied to every triangle (in SRGB)
     #              \a color overrides anything set by colors
+    # \param outline width of the outline to draw around polygon. If set to None, the object must be reconstructed
+    # \param ocolors Npx4 array listing the colors (rgba 0.0-1.0) of each shape (in SRGB)
+    # \param ocolor 4 element iterable listing the color to be applied to every triangle (in SRGB)
+    #              \a color overrides anything set by colors
     #
     # When colors is none, it defaults to (0,0,0,1) for each particle.
+    # When ocolors is none, it defaults to (0,0,0,1) for each particle.
+    # The same coloring method must be specified for each Polygon
     #
     # \note Np **must** be the same for each array
     #
@@ -482,12 +486,12 @@ class Polygons(base.Primitive):
     # scratch to rebuild geometry.
     #
     # will be adding outline width, color in here...will just have it import and use the existing outline code...
-    def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None, outline=None):
+    def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None, outline=None, ocolors=None, ocolor=None):
         base.Primitive.__init__(self);
         self.updated = [];
-        self.update(polygon, positions, orientations, texcoords=texcoords, colors=colors, color=color, tex_fname=tex_fname, outline=outline);
+        self.update(polygon, positions, orientations, texcoords=texcoords, colors=colors, color=color, tex_fname=tex_fname, outline=outline, ocolors=ocolors, ocolor=ocolor);
 
-    def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None, outline=None):
+    def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None, outline=None, ocolors=None, ocolor=None):
         updated = set(self.updated);
 
         # -----------------------------------------------------------------
@@ -508,7 +512,7 @@ class Polygons(base.Primitive):
                                  "triangles must have been corrupted!");
             Nt = self.image.shape[0];
             Nto = 0
-            if outline:
+            if outline is not None:
                 self.outline = Outline(polygon=self.polygon, width=outline)
                 self.oimage = numpy.array(self.outline.triangles, dtype=numpy.float32);
                 # error check the input
@@ -622,6 +626,8 @@ class Polygons(base.Primitive):
 
             self.colors=numpy.zeros(shape=(self.Np, (self.Nt + self.Nto), 3, 4), dtype=numpy.float32)
             self.colors[..., 3] = 1
+            if ocolors is not None:
+                self.colors[:, :(self.Nt+self.Nto), :] = ocolors[:, numpy.newaxis, numpy.newaxis]
             self.colors[:, :self.Nt, :] = colors[:, numpy.newaxis, numpy.newaxis]
             self.colors = self.colors.reshape((-1, 4))
             updated.add('colors');
@@ -632,9 +638,17 @@ class Polygons(base.Primitive):
                 raise TypeError("color must be a 4 element array");
             if acolor.shape[0] != 4:
                 raise ValueError("color must be a 4 element array");
+            if ocolor is not None:
+                aocolor = numpy.array(ocolor, dtype=numpy.float32);
+                if len(aocolor.shape) != 1:
+                    raise TypeError("color must be a 4 element array");
+                if aocolor.shape[0] != 4:
+                    raise ValueError("color must be a 4 element array");
 
             self.colors=numpy.zeros(shape=(self.Np, (self.Nt + self.Nto), 3, 4), dtype=numpy.float32)
             self.colors[..., 3] = 1
+            if ocolor is not None:
+                self.colors[:, :(self.Nt+self.Nto)] = aocolor
             self.colors[:, :self.Nt] = acolor
             self.colors = self.colors.reshape((-1, 4))
 
