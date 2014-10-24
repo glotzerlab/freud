@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import sys
 import numpy
 import math
 
@@ -173,7 +174,12 @@ class WriteSVG(object):
     # # \param out Output stream
     # # \param polygons Disks to polygons
     # #
-    # def write_RepeatedPolygons(self, out, polygons):
+    # I think I need to look at the triangle code maybe...
+    def write_Polygons(self, out, polygons):
+
+    # copy arrows, because this isn't correct
+    # need to do rotation math, etc. here as it was all moved to the gpu in gl.
+
     #     # TODO: Update to do proper edge fills
     #     # initial implementation use stroke and fill on a path to draw polygons. This has 2 issues : 1) The stroke
     #     # goes outside the polygon and 2) The stroke overlaps the fill (looks bad with alpha rendering).
@@ -200,44 +206,132 @@ class WriteSVG(object):
     #     # end path
     #     # end sub
 
-    #     out.write('set lwidth {0}\n'.format(polygons.outline*self.sim_to_cm));
 
-    #     # first, generate a string that writes the whole polygon
-    #     fill_str = "amove {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
-    #     for vert in polygons.polygon[1:]:
-    #         vert_cm = vert * self.sim_to_cm;
-    #         fill_str += "aline {0} {1}\n".format(*vert_cm)
-    #     fill_str += "aline {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
+        # out.write('set lwidth {0}\n'.format(polygons.outline*self.sim_to_cm));
+        # out.write('set lwidth {0}\n'.format(0.1*self.sim_to_cm));
 
-    #     # compute the polygon's radius
-    #     radius = 0;
-    #     for vert in polygons.polygon:
-    #         r = math.sqrt(numpy.dot(vert, vert));
-    #         radius = max(radius, r);
+        # first, generate a string that writes the whole polygon
+        # fill_str = "amove {0} {1}\n".format(*polygons.image[0,:]*self.sim_to_cm);
+        # for vert in polygons.image[1:]:
+        #     vert_cm = vert * self.sim_to_cm;
+        #     fill_str += "aline {0} {1}\n".format(*vert_cm)
+        # fill_str += "aline {0} {1}\n".format(*polygons.image[0,:]*self.sim_to_cm);
 
-    #     for position,ansvg,color in zip(polygons.positions, polygons.ansvgs, polygons.colors):
-    #         # map the position into the view space
-    #         position = (position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
+        # compute the polygon's radius
+        # radius = 1.0;
+        # this won't work as this is already triangulated
+        # I will need to change this...maybe
+        # for vert in polygons.image:
+        #     r = math.sqrt(numpy.dot(vert, vert));
+        #     radius = max(radius, r);
 
-    #         # don't write out polygons that are off the edge
-    #         if position[0]+radius < 0 or position[0]-radius > self.width_cm:
-    #             continue;
-    #         if position[1]+radius < 0 or position[1]-radius > self.height_cm:
-    #             continue;
+        # for idx, (position,orientation,color) in enumerate(zip(polygons.positions, polygons.orientations, polygons.colors)):
+        #     print(len(polygons.positions))
+        #     print(len(polygons.orientations))
+        #     print(len(polygons.colors))
+        #     sys.exit(0)
+        #     # as of now each position is a position of a vertex of a triangle
+        #     # map the position into the view space
+        #     # position = (position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
 
-    #         out.write('begin translate {0} {1}\n'.format(*position));
-    #         out.write('begin rotate {0}\n'.format(180*ansvg/math.pi));
+        #     # # don't write out polygons that are off the edge
+        #     # if position[0]+radius < 0 or position[0]-radius > self.width_cm:
+        #     #     continue;
+        #     # if position[1]+radius < 0 or position[1]-radius > self.height_cm:
+        #     #     continue;
 
-    #         # for the outline color, chose black and the same alpha as the fill color
-    #         out.write('set color rgba(0, 0, 0, {0})\n'.format(color[3]));
+        #     # out.write('begin translate {0} {1}\n'.format(*position));
+        #     # out.write('begin rotate {0}\n'.format(180*orientation/math.pi));
 
-    #         out.write('begin path stroke fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
-    #         out.write(fill_str);
-    #         out.write('closepath\n');
-    #         out.write('end path\n');
+        #     # # for the outline color, chose black and the same alpha as the fill color
+        #     # out.write('set color rgba(0, 0, 0, {0})\n'.format(color[3]));
 
-    #         out.write('end rotate\n');
-    #         out.write('end translate\n');
+        #     # out.write('begin path stroke fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
+        #     # out.write(fill_str);
+        #     # out.write('closepath\n');
+        #     # out.write('end path\n');
+
+        #     # number of polygons
+        #     Np = polygons.Np
+        #     # number of triangles
+        #     Nt = polygons.image.shape[0];
+        #     print(polygons.images.shape)
+        #     print(polygons.image.shape)
+        #     print(Nt)
+        #     # print(Np * Nt)
+
+        #     for tri in range(Nt):
+        #         verts = numpy.empty(shape=(3,2), dtype=numpy.float32)
+        #         for vertex in range(3):
+        #             # figure out where it barfs
+        #             upperLimit = Np*Nt*3
+        #             if idx > Np:
+        #                 raise RuntimeError("idx > Np; idx = {}, Np = {}".format(idx, Np))
+        #             verts[vertex] = polygons.images[idx*tri*vertex].copy();
+
+        #         # gather indices which are inside the drawn box
+        #         # print(verts[:, 0])
+        #         insideIndices = numpy.all([
+        #             numpy.any(verts[:, 0] > self.view_pos[0], axis=0),
+        #             numpy.any(verts[:, 1] > self.view_pos[1], axis=0),
+        #             numpy.any(verts[:, 0] < self.view_pos[0] + self.width, axis=0),
+        #             numpy.any(verts[:, 1] < self.view_pos[1] + self.height, axis=0)], axis=0);
+
+        #         vert = verts[insideIndices] - self.view_pos;
+        #         # vertically flip vertices
+        #         verts[:, 1] = self.height - verts[:, 1];
+        #         # grab the color from the first vertex (currently polygons
+        #         # only supports a single color per triangle)
+        #         # colors = polygons.colors[insideIndices][:, 0];
+        #         # colors[:, :3] *= 100;
+
+        #         # for (verts, color) in zip(vertices, colors):
+        #         d = ('M {verts[0][0]},{verts[0][1]} L {verts[1][0]},{verts[1][1]} '
+        #             'L {verts[2][0]},{verts[2][1]} Z').format(verts=verts);
+        #         out.write('<path d="{d}" fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
+        #                   'fill-opacity="{col[3]}" />'.format(d=d, col=color));
+
+        # for idx, (position,color) in enumerate(zip(polygons.positions, polygons.colors)):
+        Nt = polygons.image.shape[0];
+        for idx in range(polygons.Np):
+            for tri in range(Nt):
+                verts = numpy.empty(shape=(3,2), dtype=numpy.float32)
+                for vertex in range(3):
+                    verts[vertex] = polygons.positions[idx*tri*vertex].copy();
+                    if vertex == 2:
+                        color = polygons.colors[idx*tri*vertex].copy();
+
+                # gather indices which are inside the drawn box
+                # print(verts[:, 0])
+                # insideIndices = numpy.all([
+                #     numpy.any(verts[:, 0] > self.view_pos[0], axis=0),
+                #     numpy.any(verts[:, 1] > self.view_pos[1], axis=0),
+                #     numpy.any(verts[:, 0] < self.view_pos[0] + self.width, axis=0),
+                #     numpy.any(verts[:, 1] < self.view_pos[1] + self.height, axis=0)], axis=0);
+                verts[:, 0] += self.width
+                verts[:, 1] += self.height
+
+                verts = verts - self.view_pos;
+                # vertically flip vertices
+                verts[:, 1] = self.height - verts[:, 1];
+                for vertex in verts:
+                    if (vertex[0] < self.view_pos[0]) or (vertex[0] > self.view_pos[0] + self.width):
+                        continue
+                    if (vertex[1] < self.view_pos[1]) or (vertex[1] > self.view_pos[1] + self.height):
+                        continue
+                # grab the color from the first vertex (currently polygons
+                # only supports a single color per triangle)
+                # colors = polygons.colors[insideIndices][:, 0];
+                # colors[:, :3] *= 100;
+
+                # for (verts, color) in zip(vertices, colors):
+                d = ('M {verts[0][0]},{verts[0][1]} L {verts[1][0]},{verts[1][1]} '
+                    'L {verts[2][0]},{verts[2][1]} Z').format(verts=verts);
+                out.write('<path d="{d}" fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
+                          'fill-opacity="{col[3]}" />\n'.format(d=d, col=color));
+
+        #     out.write('end rotate\n');
+        #     out.write('end translate\n');
 
     # ## \internal
     # # \brief Write out image

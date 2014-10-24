@@ -23,6 +23,59 @@ import _freud;
 # Definition of basic viz primitives
 #
 
+class Outline(object):
+    def __init__(self, polygon, width):
+        """Initialize an outline of a given Polygon object. Takes the
+        polygon in question and the outline width to inset."""
+        self.polygon = polygon;
+        self.width = width;
+
+    @property
+    def width(self):
+        """Property for the width of the outline. Updates the
+        triangulation when set."""
+        return self._width;
+
+    @width.setter
+    def width(self, width):
+        self._width = width;
+        self._triangulate();
+
+    def _triangulate(self):
+        """Triangulates an Outline object. Sets the triangles field to
+        a Ntx3x2 numpy array of triangles and the inner field to a
+        Polygon that is the interior polygon."""
+        print(dir(self))
+        print(dir(self.polygon))
+        drs = numpy.roll(self.polygon.vertices, -1, axis=0) - self.polygon.vertices;
+        ns = drs/numpy.sqrt(numpy.sum(drs*drs, axis=1)).reshape((len(drs), 1));
+        thetas = numpy.arctan2(drs[:, 1], drs[:, 0]);
+        dthetas = (thetas - numpy.roll(thetas, 1))%(2*numpy.pi);
+
+        concave = dthetas > numpy.pi;
+        convex = concave == False;
+
+        hs = numpy.repeat(self.width, len(drs));
+        hs[convex] /= numpy.cos(dthetas[convex]/2);
+        # flip the concave bisectors
+        hs[concave] *= -1;
+        hs[concave] /= numpy.sin((dthetas[concave]-numpy.pi)/2);
+        hs = hs.reshape((len(hs), 1));
+
+        bisectors = ns - numpy.roll(ns, 1, axis=0);
+        bisectors /= numpy.sqrt(numpy.sum(bisectors*bisectors, axis=1)).reshape((len(ns), 1));
+
+        inners = self.polygon.vertices + hs.reshape((len(ns), 1))*bisectors;
+        self.inner = Polygon(inners);
+
+        result = numpy.empty((2, self.polygon.n, 3, 2), dtype=numpy.float32);
+        result[:, :, 0, :] = (self.polygon.vertices, inners);
+        result[:, :, 1, :] = numpy.roll(self.polygon.vertices, -1, axis=0);
+        result[:, :, 2, :] = (inners, numpy.roll(inners, -1, axis=0));
+
+        self.triangles = result.reshape((2*self.polygon.n, 3, 2));
+
+
 ## Disk primitive (2D)
 #
 # Represent N disks in 2D. Each has a given color and a global outline width is specified.
@@ -428,19 +481,24 @@ class Polygons(base.Primitive):
     # renderers. Instead, users should create a new primitive from
     # scratch to rebuild geometry.
     #
-    def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None):
+    # will be adding outline width, color in here...will just have it import and use the existing outline code...
+    def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None, outline=0.1):
         base.Primitive.__init__(self);
         self.updated = [];
-        self.update(polygon, positions, orientations, texcoords=texcoords, colors=colors, color=color, tex_fname=tex_fname);
+        self.update(polygon, positions, orientations, texcoords=texcoords, colors=colors, color=color, tex_fname=tex_fname, outline=outline);
 
-    def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None):
+    def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None, outline=0.1):
         updated = set(self.updated);
 
         # -----------------------------------------------------------------
         # set up polygon image
         # convert to a numpy array
         if polygon is not None:
-            self.image = numpy.array(polygon.triangles, dtype=numpy.float32);
+            # saving for use in export later
+            self.polygon = polygon
+            self.outline = Outline(polygon=self.polygon, width=outline)
+            self.image = numpy.array(self.polygon.triangles, dtype=numpy.float32);
+            self.oimage = numpy.array(self.outline.triangles, dtype=numpy.float32);
             # error check the input
             if len(self.image.shape) != 3:
                 raise TypeError("image must be a Ntx3x2 array; Polygon's "
@@ -451,13 +509,28 @@ class Polygons(base.Primitive):
             if self.image.shape[2] != 2:
                 raise ValueError("image must be a Ntx3x2 array; Polygon's "
                                  "triangles must have been corrupted!");
+            if len(self.oimage.shape) != 3:
+                raise TypeError("image must be a Ntx3x2 array; Polygon's "
+                                "triangles must have been corrupted!");
+            if self.oimage.shape[1] != 3:
+                raise ValueError("image must be a Ntx3x2 array; Polygon's "
+                                 "triangles must have been corrupted!");
+            if self.oimage.shape[2] != 2:
+                raise ValueError("image must be a Ntx3x2 array; Polygon's "
+                                 "triangles must have been corrupted!");
 
             Nt = self.image.shape[0];
+            Nto = self.oimage.shape[0];
+            self.image = numpy.concatenate((self.image, self.oimage), axis=0)
             updated.add('images');
+            # looks like I will need to shove these together
 
             try:
-                self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*Nt, 2));
+                self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*(Nt+Nto), 2));
                 if Nt != self.Nt:
+                    raise RuntimeError('Polygons.update() does not '
+                                       'support changing the number of shapes');
+                if Nto != self.Nto:
                     raise RuntimeError('Polygons.update() does not '
                                        'support changing the number of shapes');
             except AttributeError:
@@ -465,6 +538,7 @@ class Polygons(base.Primitive):
                 # doesn't exist yet; we will re-set self.images in a
                 # few lines, after we set self.Np
                 self.Nt = Nt;
+                self.Nto = Nto;
 
         # -----------------------------------------------------------------
         # set up positions
@@ -480,8 +554,10 @@ class Polygons(base.Primitive):
 
             Np = self.positions.shape[0];
             updated.add('positions');
+            # update to Nt + Nto
+            # need to figure out where the outline triangles are...
             self.positions = numpy.tile(
-                self.positions[:, numpy.newaxis, :], (1, 3*self.Nt, 1)).reshape((3*Np*self.Nt, 2));
+                self.positions[:, numpy.newaxis, :], (1, 3*(self.Nt + self.Nto), 1)).reshape((3*Np*(self.Nt + self.Nto), 2));
 
             try:
                 if Np != self.Np:
@@ -491,8 +567,8 @@ class Polygons(base.Primitive):
                 # we're actually inside the constructor since self.Np
                 # doesn't exist yet
                 self.Np = Np;
-                self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*self.Nt, 2));
-                self.colors = numpy.zeros((3*self.Np*self.Nt, 4), dtype=numpy.float32);
+                self.images = numpy.tile(self.image, (self.Np, 1, 1)).reshape((3*self.Np*(self.Nt + self.Nto), 2));
+                self.colors = numpy.zeros((3*self.Np*(self.Nt + self.Nto), 4), dtype=numpy.float32);
                 self.colors[:, 3] = 1.0;
                 updated.add('images');
                 updated.add('colors');
@@ -511,7 +587,7 @@ class Polygons(base.Primitive):
 
             updated.add('orientations');
             self.orientations = numpy.tile(
-                self.orientations[:, numpy.newaxis], (1, 3*self.Nt)).reshape((3*self.Np*self.Nt, 1));
+                self.orientations[:, numpy.newaxis], (1, 3*(self.Nt + self.Nto))).reshape((3*self.Np*(self.Nt + self.Nto), 1));
 
         if texcoords is not None:
             self.texcoords = numpy.array(texcoords, dtype=numpy.float32);
@@ -528,7 +604,7 @@ class Polygons(base.Primitive):
         try:
             self.texcoords;
         except AttributeError:
-            self.texcoords = numpy.zeros(shape=(self.Np*self.Nt, 3, 2), dtype=numpy.float32);
+            self.texcoords = numpy.zeros(shape=(self.Np*(self.Nt + self.Nto), 3, 2), dtype=numpy.float32);
             self.tex_fname = tex_fname;
             updated.add('texcoords');
 
@@ -543,9 +619,14 @@ class Polygons(base.Primitive):
             if colors.shape[0] != self.Np:
                 raise ValueError("colors must have N the same as positions");
 
-            colors = numpy.asarray(colors, dtype=numpy.float32);
-            self.colors = numpy.tile(colors[:, numpy.newaxis, :],
-                                     (1, 3*self.Nt, 1)).reshape((3*self.Np*self.Nt, 4));
+            self.colors=numpy.empty(shape=(3*self.Np*(self.Nt + self.Nto), 4), dtype=numpy.float32)
+            for idx in range(self.Np):
+                color = colors[idx]
+                myColors = numpy.tile(numpy.array([0, 0, 0, 1], dtype=numpy.float32), 3*self.Nto).reshape(3*self.Nto, 4)
+                ocolors = numpy.tile(numpy.array([0, 0, 0, 1], dtype=numpy.float32), 3*self.Nto).reshape(3*self.Nto, 4)
+                myColors = numpy.concatenate((myColors, ocolors), axis=0)
+                for colorIDX in range(myColors.shape[0]):
+                    self.colors[idx + colorIDX] = myColors[colorIDX]
             updated.add('colors');
 
         if color is not None:
@@ -555,7 +636,11 @@ class Polygons(base.Primitive):
             if acolor.shape[0] != 4:
                 raise ValueError("color must be a 4 element array");
 
-            self.colors = numpy.tile(acolor[numpy.newaxis, :], (3*self.Np*self.Nt, 1));
+            colors = numpy.tile(acolor[numpy.newaxis, :], (3*self.Nt, 1)).reshape(3*self.Nt, 4);
+            ocolor = numpy.array([0, 0, 0, 1], dtype=numpy.float32);
+            ocolors = numpy.tile(ocolor, 3*self.Nto).reshape(3*self.Nto, 4);
+            colors = numpy.concatenate((colors, ocolors), axis=0)
+            self.colors = numpy.tile(colors[:, numpy.newaxis, :], (self.Np, 1)).reshape((3*self.Np*(self.Nt + self.Nto), 4));
 
             updated.add('colors');
 
