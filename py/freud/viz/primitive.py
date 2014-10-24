@@ -482,12 +482,12 @@ class Polygons(base.Primitive):
     # scratch to rebuild geometry.
     #
     # will be adding outline width, color in here...will just have it import and use the existing outline code...
-    def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None, outline=0.1):
+    def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None, outline=None):
         base.Primitive.__init__(self);
         self.updated = [];
         self.update(polygon, positions, orientations, texcoords=texcoords, colors=colors, color=color, tex_fname=tex_fname, outline=outline);
 
-    def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None, outline=0.1):
+    def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None, outline=None):
         updated = set(self.updated);
 
         # -----------------------------------------------------------------
@@ -496,10 +496,7 @@ class Polygons(base.Primitive):
         if polygon is not None:
             # saving for use in export later
             self.polygon = polygon
-            self.outline = Outline(polygon=self.polygon, width=outline)
             self.image = numpy.array(self.polygon.triangles, dtype=numpy.float32);
-            self.oimage = numpy.array(self.outline.triangles, dtype=numpy.float32);
-            # error check the input
             if len(self.image.shape) != 3:
                 raise TypeError("image must be a Ntx3x2 array; Polygon's "
                                 "triangles must have been corrupted!");
@@ -509,19 +506,23 @@ class Polygons(base.Primitive):
             if self.image.shape[2] != 2:
                 raise ValueError("image must be a Ntx3x2 array; Polygon's "
                                  "triangles must have been corrupted!");
-            if len(self.oimage.shape) != 3:
-                raise TypeError("image must be a Ntx3x2 array; Polygon's "
-                                "triangles must have been corrupted!");
-            if self.oimage.shape[1] != 3:
-                raise ValueError("image must be a Ntx3x2 array; Polygon's "
-                                 "triangles must have been corrupted!");
-            if self.oimage.shape[2] != 2:
-                raise ValueError("image must be a Ntx3x2 array; Polygon's "
-                                 "triangles must have been corrupted!");
-
             Nt = self.image.shape[0];
-            Nto = self.oimage.shape[0];
-            self.image = numpy.concatenate((self.image, self.oimage), axis=0)
+            Nto = 0
+            if outline:
+                self.outline = Outline(polygon=self.polygon, width=outline)
+                self.oimage = numpy.array(self.outline.triangles, dtype=numpy.float32);
+                # error check the input
+                if len(self.oimage.shape) != 3:
+                    raise TypeError("image must be a Ntx3x2 array; Polygon's "
+                                    "triangles must have been corrupted!");
+                if self.oimage.shape[1] != 3:
+                    raise ValueError("image must be a Ntx3x2 array; Polygon's "
+                                     "triangles must have been corrupted!");
+                if self.oimage.shape[2] != 2:
+                    raise ValueError("image must be a Ntx3x2 array; Polygon's "
+                                     "triangles must have been corrupted!");
+                Nto = self.oimage.shape[0];
+                self.image = numpy.concatenate((self.image, self.oimage), axis=0)
             updated.add('images');
             # looks like I will need to shove these together
 
@@ -619,14 +620,10 @@ class Polygons(base.Primitive):
             if colors.shape[0] != self.Np:
                 raise ValueError("colors must have N the same as positions");
 
-            self.colors=numpy.empty(shape=(3*self.Np*(self.Nt + self.Nto), 4), dtype=numpy.float32)
-            for idx in range(self.Np):
-                color = colors[idx]
-                myColors = numpy.tile(numpy.array([0, 0, 0, 1], dtype=numpy.float32), 3*self.Nto).reshape(3*self.Nto, 4)
-                ocolors = numpy.tile(numpy.array([0, 0, 0, 1], dtype=numpy.float32), 3*self.Nto).reshape(3*self.Nto, 4)
-                myColors = numpy.concatenate((myColors, ocolors), axis=0)
-                for colorIDX in range(myColors.shape[0]):
-                    self.colors[idx + colorIDX] = myColors[colorIDX]
+            self.colors=numpy.zeros(shape=(self.Np, (self.Nt + self.Nto), 3, 4), dtype=numpy.float32)
+            self.colors[..., 3] = 1
+            self.colors[:, :self.Nt, :] = colors[:, numpy.newaxis, numpy.newaxis]
+            self.colors = self.colors.reshape((-1, 4))
             updated.add('colors');
 
         if color is not None:
@@ -636,11 +633,10 @@ class Polygons(base.Primitive):
             if acolor.shape[0] != 4:
                 raise ValueError("color must be a 4 element array");
 
-            colors = numpy.tile(acolor[numpy.newaxis, :], (3*self.Nt, 1)).reshape(3*self.Nt, 4);
-            ocolor = numpy.array([0, 0, 0, 1], dtype=numpy.float32);
-            ocolors = numpy.tile(ocolor, 3*self.Nto).reshape(3*self.Nto, 4);
-            colors = numpy.concatenate((colors, ocolors), axis=0)
-            self.colors = numpy.tile(colors[:, numpy.newaxis, :], (self.Np, 1)).reshape((3*self.Np*(self.Nt + self.Nto), 4));
+            self.colors=numpy.zeros(shape=(self.Np, (self.Nt + self.Nto), 3, 4), dtype=numpy.float32)
+            self.colors[..., 3] = 1
+            self.colors[:, :self.Nt] = acolor
+            self.colors = self.colors.reshape((-1, 4))
 
             updated.add('colors');
 
