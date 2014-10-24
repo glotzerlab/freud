@@ -194,6 +194,10 @@ class WriteSVG(object):
             angle = -180.0 * polygons.orientations[idx*3*(polygons.Nt + polygons.Nto)].copy()[0] / numpy.pi
             vp = numpy.array(-self.view_pos, dtype=numpy.float32)
             # pos[1] = self.height - pos[1];
+            # if (numpy.all([(-3.0*self.view_pos[0] + pos[0] > 0),
+            #                (-3.0*self.view_pos[1] + pos[1] > 0),
+            #                (-3.0*self.view_pos[0] + pos[0] < self.width),
+            #                (-3.0*self.view_pos[1] + pos[1] < self.height)])):
             out.write('<polygon points="{points}" '
                       'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
                       'fill-opacity="{col[3]}" stroke-width="{outline}" stroke="rgb(0%,0%,0%)" '
