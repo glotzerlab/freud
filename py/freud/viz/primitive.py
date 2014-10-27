@@ -23,6 +23,9 @@ import _freud;
 # Definition of basic viz primitives
 #
 
+
+## \internal Outline class for Polygon
+# is not meant to be called except by Polygon. Use at own discretion
 class Outline(object):
     def __init__(self, polygon, width):
         """Initialize an outline of a given Polygon object. Takes the
