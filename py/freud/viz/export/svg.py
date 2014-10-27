@@ -176,6 +176,7 @@ class WriteSVG(object):
     # # \param polygons polygons to draw
     # #
     def write_Polygons(self, out, polygons):
+        # create defs for the base polygon, the clipping using the base polygon, and the clipped polygon
         out.write('<defs>\n')
         polyID = "poly{}".format(self.id_count)
         self.id_count += 1
@@ -189,29 +190,14 @@ class WriteSVG(object):
 
 
         for idx in range(polygons.Np):
-            # points = " ".join("{point[0]},{point[1]}".format(point=p) for p in polygons.polygon.vertices / 2.0)
+            # get the color and position of the polygon
             color = 100.0*polygons.colors[idx*3*(polygons.Nt + polygons.Nto)].copy()
             ocolor = 100.0*polygons.colors[idx*3*(polygons.Nt + polygons.Nto) + (3*polygons.Nt)].copy()
-            # math for the outline
-            # find a characteristic length by which to scale
-            # L = polygons.polygon.rmax * 2.0
-            # sf = (L / (L + polygons.outline.width))
-            # # move the polygon back to the view_pos
-            # scale_trans = numpy.array(-self.view_pos-(self.view_pos/sf), dtype=numpy.float32)
-            # get the position of the polygon
+            # adjust the position of the polygon to be in svg units
             pos = (polygons.positions[idx*3*(polygons.Nt + polygons.Nto)].copy() / 2.0) - self.view_pos
             pos[1] = self.height - pos[1]
             angle = 180.0 * polygons.orientations[idx*3*(polygons.Nt + polygons.Nto)].copy()[0] / numpy.pi
-            # vp = numpy.array(-self.view_pos, dtype=numpy.float32)
-            # pos[1] = self.height - pos[1];
-            # if (numpy.all([(-3.0*self.view_pos[0] + pos[0] > 0),
-            #                (-3.0*self.view_pos[1] + pos[1] > 0),
-            #                (-3.0*self.view_pos[0] + pos[0] < self.width),
-            #                (-3.0*self.view_pos[1] + pos[1] < self.height)])):
-            # out.write('<polygon points="{points}" '
-            #           'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
-            #           'fill-opacity="{col[3]}" stroke-width="{outline}" stroke="rgb(0%,0%,0%)" '
-            #           'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(points=points, col=color, outline=polygons.outline.width, angle=angle, gp=pos));
+            # write out polygon using the clipped polygon
             out.write('<use xlink:href="#clipped-poly-{polyID}" display="inline" '
                       'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
                       'fill-opacity="{col[3]}" stroke="rgb({ocol[0]}%,{ocol[1]}%,{ocol[2]}%)" '
