@@ -181,7 +181,7 @@ class WriteSVG(object):
         polyID = "poly{}".format(self.id_count)
         self.id_count += 1
         points = " ".join("{point[0]},{point[1]}".format(point=p) for p in polygons.polygon.vertices / 2.0)
-        out.write('<polygon id="{polyID}" points="{points}" stroke-width="{outline}" />\n'.format(polyID=polyID, points=points, outline=2.0*polygons.outline.width));
+        out.write('<polygon id="{polyID}" points="{points}" stroke-width="{outline}" />\n'.format(polyID=polyID, points=points, outline=polygons.outline.width));
         out.write('<clipPath id="clip-poly-{polyID}">\n'.format(polyID=polyID))
         out.write('<use xlink:href="#{polyID}" />\n'.format(polyID=polyID))
         out.write('</clipPath>\n')
