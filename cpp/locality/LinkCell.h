@@ -54,6 +54,7 @@ class IteratorLinkCell
             assert(cell < Nc);
             assert(Np > 0);
             assert(Nc > 0);
+            m_cell = cell;
             m_cur_idx = m_Np + cell;
             }
 
@@ -66,6 +67,14 @@ class IteratorLinkCell
         //! Get the next particle index in the list
         unsigned int next()
             {
+            m_cur_idx = m_cell_list[m_cur_idx];
+            return m_cur_idx;
+            }
+
+        //! Get the first particle index in the list
+        unsigned int begin()
+            {
+            m_cur_idx = m_Np + m_cell;
             m_cur_idx = m_cell_list[m_cur_idx];
             return m_cur_idx;
             }
@@ -89,6 +98,7 @@ class IteratorLinkCell
         unsigned int m_Np;                                //!< Number of particles in the cell list
         unsigned int m_Nc;                                //!< Number of cells in the cell list
         unsigned int m_cur_idx;                           //!< Current index
+        unsigned int m_cell;                              //!< Cell being considered
     };
 
 //! Computes a cell id for each particle and a link cell data structure for iterating through it
