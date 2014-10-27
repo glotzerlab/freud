@@ -124,8 +124,8 @@ class LinkCell
         LinkCell(const trajectory::Box& box, float cell_width);
 
         //! Compute LinkCell dimensions
-        const uint3 computeDimensions() const;
-        
+        const vec3<unsigned int> computeDimensions() const;
+
         //! Get the simulation box
         const trajectory::Box& getBox() const
             {
@@ -147,17 +147,17 @@ class LinkCell
         //! Compute the cell id for a given position
         unsigned int getCell(const vec3<float>& p) const
             {
-            uint3 c = getCellCoord(p);
+            vec3<unsigned int> c = getCellCoord(p);
             return m_cell_index(c.x, c.y, c.z);
             }
-            
+
         //! Compute the cell id for a given position
         unsigned int getCell(const float3 p) const
             {
-            uint3 c = getCellCoord(p);
+            vec3<unsigned int> c = getCellCoord(p);
             return m_cell_index(c.x, c.y, c.z);
-            }    
-        
+            }
+
 
         //! Wrapper for python to getCell (1D index)
         unsigned int getCellPy(boost::python::numeric::array p)
@@ -175,10 +175,10 @@ class LinkCell
             }
 
         //! Compute cell coordinates for a given position
-        uint3 getCellCoord(const vec3<float> p) const
+        vec3<unsigned int> getCellCoord(const vec3<float> p) const
             {
             vec3<float> alpha = m_box.makeFraction(p);
-            uint3 c;
+            vec3<unsigned int> c;
             c.x = floorf(alpha.x * float(m_cell_index.getW()));
             c.x %= m_cell_index.getW();
             c.y = floorf(alpha.y * float(m_cell_index.getH()));
@@ -187,17 +187,18 @@ class LinkCell
             c.z %= m_cell_index.getD();
             return c;
             }
-            
-        //! Compute cell coordinates for a given position
-        uint3 getCellCoord(const float3 p) const
+
+        //! Compute cell coordinates for a given position.  Float3 interface is deprecated.
+        vec3<unsigned int> getCellCoord(const float3 p) const
             {
                 vec3<float> vec3p;
                 vec3p.x = p.x; vec3p.y = p.y; vec3p.z = p.z;
                 return getCellCoord(vec3p);
             }
-            
-        //! Wrapper for python to getCellCoord (3D index)
-        uint3 getCellCoordPy(boost::python::numeric::array p)  //Untested
+
+        /*
+        // Wrapper for python to getCellCoord (3D index)
+        uint3 getCellCoordPy(boost::python::numeric::array p)  //Untested, unsure if uint3 or vec3<unsigned int> even export gracefully to python.  
             {
             // validate input type and rank
             num_util::check_type(p, PyArray_FLOAT);
@@ -208,10 +209,11 @@ class LinkCell
 
             // get the raw data pointers and compute the cell index
             vec3<float>* p_raw = (vec3<float>*) num_util::data(p);
+
             return getCellCoord(*p_raw);
             }
-      
-      
+        */
+
 
         //! Iterate over particles in a cell
         iteratorcell itercell(unsigned int cell) const
@@ -233,7 +235,7 @@ class LinkCell
             return num_util::makeNum(start, m_cell_neighbors[cell].size());
             }
 
-        //! Compute the cell list
+        //! Compute the cell list (deprecated float3 interface)
         void computeCellList(const float3 *points, unsigned int Np);
         //! Compute the cell list
         void computeCellList(const vec3<float> *points, unsigned int Np);
@@ -244,12 +246,12 @@ class LinkCell
 
         //! Rounding helper function.
         static unsigned int roundDown(unsigned int v, unsigned int m);
- 
+
         trajectory::Box m_box;      //!< Simulation box the particles belong in
         Index3D m_cell_index;       //!< Indexer to compute cell indices
         unsigned int m_Np;          //!< Number of particles last placed into the cell list
         float m_cell_width;         //!< Minimum necessary cell width cutoff
-        
+
         boost::shared_array<unsigned int> m_cell_list;    //!< The cell list last computed
 
         std::vector< std::vector<unsigned int> > m_cell_neighbors;    //!< List of cell neighborts to each cell

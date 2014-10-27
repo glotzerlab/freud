@@ -14,37 +14,27 @@ using namespace boost::python;
     \brief Build a cell list from a set of points
 */
 
-namespace freud { namespace locality { 
+namespace freud { namespace locality {
 
 LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width)
     {
     // check if the cell width is too wide for the box
-    uint3 celldim  = computeDimensions();
-    
+    vec3<unsigned int>  celldim  = computeDimensions();
     //Check if box is too small!  Boxes with <3 cells in any dimension are unsupported
-    bool too_wide =  celldim.x < 3 || celldim.y < 3; 
+    bool too_wide =  celldim.x < 3 || celldim.y < 3;
     if (!m_box.is2D())
         {
         too_wide |=  celldim.z < 3;
         }
     if (too_wide)
         {
-        std::cerr << "Cell width is : " << m_cell_width << std::endl;
-        std::cerr << "uint3 celldims are " << celldim.x << ", " << celldim.y << ", " << celldim.z << std::endl;
-        std::cerr << "Is the box 2d? " << m_box.is2D() << std::endl;
-        std::cerr << "Box Lx, Ly, Lz are : " << m_box.getLx() << ", " << m_box.getLy() << ", " << m_box.getLz() << std::endl;
-        std::cerr << "Tilt factors xy, xz, and yz are : " << m_box.getTiltFactorXY() << ", " << m_box.getTiltFactorXZ() << ", " << m_box.getTiltFactorYZ() << std::endl;
         throw runtime_error("Cannot generate a cell list where cell_width is larger than 1/3 of any box dimension. Small boxes cannot use LinkCell.");
         }
-    
-   
-    
     //only 1 cell deep in 2D
     if (m_box.is2D())
         {
         celldim.z = 1;
         }
-        
     m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
     computeCellNeighbors();
     }
@@ -55,16 +45,15 @@ unsigned int LinkCell::roundDown(unsigned int v, unsigned int m)
     unsigned int d = v/m;
     return d*m;
     }
-    
-const uint3 LinkCell::computeDimensions() const
+
+const vec3<unsigned int> LinkCell::computeDimensions() const
     {
-    uint3 dim;
+    vec3<unsigned int> dim;
 
     //m_multiple (renamed multiple here) was in the HOOMD triclinic math.
     //  I don't see why we wouldn't round cell dims to nearest integer.
     //  so here I set it to one, as a magic constant. - newmanrs
     unsigned int multiple = 1;
-    
     vec3<float> L = m_box.getNearestPlaneDistance();
     dim.x = roundDown((unsigned int)((L.x) / (m_cell_width)), multiple);
     dim.y = roundDown((unsigned int)((L.y) / (m_cell_width)), multiple);
@@ -78,16 +67,6 @@ const uint3 LinkCell::computeDimensions() const
     if (m_box.is2D())
         {
         dim.z = 1;
-        /* //newmanrs - I don't see memory issues occuring in CPU codes for reasonable systems, 
-         * so I'm disabling this.
-        // decrease the number of bins if it exceeds the max
-        if (dim.x * dim.y * dim.z > m_max_cells)
-            {
-            float scale_factor = powf(float(m_max_cells) / float(dim.x*dim.y*dim.z), float(1.0)/float(2.0));
-            dim.x = int(float(dim.x)*scale_factor);
-            dim.y = int(float(dim.y)*scale_factor);
-            }
-        */
         }
     else
         {
@@ -95,19 +74,7 @@ const uint3 LinkCell::computeDimensions() const
         // add ghost layer if necessary
         if (! m_box.getPeriodic().z)
             dim.z += 2;
-        /*
-        // newmanrs - More memory management from HOOMD source.  Excising for now.
-        // decrease the number of bins if it exceeds the max
-        if (dim.x * dim.y * dim.z > m_max_cells)
-            {
-            float scale_factor = powf(float(m_max_cells) / float(dim.x*dim.y*dim.z), float(1.0)/float(3.0));
-            dim.x = int(float(dim.x)*scale_factor);
-            dim.y = int(float(dim.y)*scale_factor);
-            dim.z = int(float(dim.z)*scale_factor);
-            }
-        */
         }
-        
 
     // In extremely small boxes, the calculated dimensions could go to zero, but need at least one cell in each dimension
     //  for particles to be in a cell and to pass the checkCondition tests.
@@ -120,9 +87,8 @@ const uint3 LinkCell::computeDimensions() const
     if (dim.z == 0)
         dim.z = 1;
     return dim;
-    }    
-    
-    
+    }
+
 void LinkCell::computeCellListPy(boost::python::numeric::array points)
     {
     // validate input type and rank
@@ -142,6 +108,8 @@ void LinkCell::computeCellListPy(boost::python::numeric::array points)
         computeCellList(points_raw, Np);
         }
     }
+
+//Deprecated.  Users should use the modern vec3<float> interfaces
 void LinkCell::computeCellList(const float3 *points, unsigned int Np)
     {
         //Copy into appropriate vec3<float>;
@@ -154,6 +122,7 @@ void LinkCell::computeCellList(const float3 *points, unsigned int Np)
         computeCellList(pointscopy, Np);
         delete[] pointscopy;
     }
+
 void LinkCell::computeCellList(const vec3<float> *points, unsigned int Np)
     {
     if (Np == 0)
@@ -232,7 +201,7 @@ void export_LinkCell()
         .def("getCellIndexer", &LinkCell::getCellIndexer, return_internal_reference<>())
         .def("getNumCells", &LinkCell::getNumCells)
         .def("getCell", &LinkCell::getCellPy)
-        .def("getCellCoord", &LinkCell::getCellCoordPy)
+        //.def("getCellCoord", &LinkCell::getCellCoordPy)
         .def("itercell", &LinkCell::itercell)
         .def("getCellNeighbors", &LinkCell::getCellNeighborsPy)
         .def("computeCellList", &LinkCell::computeCellListPy)
@@ -240,7 +209,8 @@ void export_LinkCell()
 
     class_<IteratorLinkCell>("IteratorLinkCell",
         init<boost::shared_array<unsigned int>, unsigned int, unsigned int, unsigned int>())
-        .def("next", &IteratorLinkCell::nextPy)
+        .def("next", &IteratorLinkCell::nextPy) //PYthon 2 iterator
+        .def("__next__", &IteratorLinkCell::nextPy) //Python3 iterator
         ;
     }
 
