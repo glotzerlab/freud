@@ -28,6 +28,7 @@ class WriteSVG(object):
     def __init__(self, width_cm=8.0):
         self.width_cm = width_cm;
         self.file_count = 0;
+        self.id_count = 0;
 
     ## \internal
     # \brief Writes a Primitive out to the SVG file
@@ -54,7 +55,7 @@ class WriteSVG(object):
         self.height_cm = height_sim * self.sim_to_cm;
 
         out.write('<svg width="{}cm" height="{}cm" viewBox="{} {} {} {}" '
-                  'xmlns="http://www.w3.org/2000/svg">\n'.format(
+                  'xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n'.format(
             self.width_cm, self.height_cm, 0, 0, width_sim, height_sim));
 
         # loop through the render primitives and write out each one
@@ -175,33 +176,46 @@ class WriteSVG(object):
     # # \param polygons polygons to draw
     # #
     def write_Polygons(self, out, polygons):
+        out.write('<defs>\n')
+        polyID = "poly{}".format(self.id_count)
+        self.id_count += 1
+        points = " ".join("{point[0]},{point[1]}".format(point=p) for p in polygons.polygon.vertices / 2.0)
+        out.write('<polygon id="{polyID}" points="{points}" stroke-width="{outline}" />\n'.format(polyID=polyID, points=points, outline=2.0*polygons.outline.width));
+        out.write('<clipPath id="clip-poly-{polyID}">\n'.format(polyID=polyID))
+        out.write('<use xlink:href="#{polyID}" />\n'.format(polyID=polyID))
+        out.write('</clipPath>\n')
+        out.write('<use id="clipped-poly-{polyID}" xlink:href="#{polyID}" clip-path="url(#clip-poly-{polyID})" />\n'.format(polyID=polyID))
+        out.write('</defs>\n')
+
 
         for idx in range(polygons.Np):
-            # center the polygon on the view position
-            verts = numpy.flipud(polygons.polygon.vertices.copy()) - self.view_pos
-            points = " ".join("{point[0]},{point[1]}".format(point=p) for p in verts)
+            # points = " ".join("{point[0]},{point[1]}".format(point=p) for p in polygons.polygon.vertices / 2.0)
             color = 100.0*polygons.colors[idx*3*(polygons.Nt + polygons.Nto)].copy()
+            ocolor = 100.0*polygons.colors[idx*3*(polygons.Nt + polygons.Nto) + (3*polygons.Nt)].copy()
             # math for the outline
             # find a characteristic length by which to scale
-            L = polygons.polygon.rmax
-            sf = (L / (L + polygons.outline.width))
-            # move the polygon back to the view_pos
-            scale_trans = numpy.array(-self.view_pos-(self.view_pos/sf), dtype=numpy.float32)
+            # L = polygons.polygon.rmax * 2.0
+            # sf = (L / (L + polygons.outline.width))
+            # # move the polygon back to the view_pos
+            # scale_trans = numpy.array(-self.view_pos-(self.view_pos/sf), dtype=numpy.float32)
             # get the position of the polygon
-            pos = (polygons.positions[idx*3*(polygons.Nt + polygons.Nto)].copy())
-            pos[0] += 2.0*self.view_pos[0]
-            pos[1] = 2.0*self.view_pos[1] - pos[1]
-            angle = -180.0 * polygons.orientations[idx*3*(polygons.Nt + polygons.Nto)].copy()[0] / numpy.pi
-            vp = numpy.array(-self.view_pos, dtype=numpy.float32)
+            pos = (polygons.positions[idx*3*(polygons.Nt + polygons.Nto)].copy() / 2.0) - self.view_pos
+            pos[1] = self.height - pos[1]
+            angle = 180.0 * polygons.orientations[idx*3*(polygons.Nt + polygons.Nto)].copy()[0] / numpy.pi
+            # vp = numpy.array(-self.view_pos, dtype=numpy.float32)
             # pos[1] = self.height - pos[1];
             # if (numpy.all([(-3.0*self.view_pos[0] + pos[0] > 0),
             #                (-3.0*self.view_pos[1] + pos[1] > 0),
             #                (-3.0*self.view_pos[0] + pos[0] < self.width),
             #                (-3.0*self.view_pos[1] + pos[1] < self.height)])):
-            out.write('<polygon points="{points}" '
+            # out.write('<polygon points="{points}" '
+            #           'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
+            #           'fill-opacity="{col[3]}" stroke-width="{outline}" stroke="rgb(0%,0%,0%)" '
+            #           'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(points=points, col=color, outline=polygons.outline.width, angle=angle, gp=pos));
+            out.write('<use xlink:href="#clipped-poly-{polyID}" display="inline" '
                       'fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
-                      'fill-opacity="{col[3]}" stroke-width="{outline}" stroke="rgb(0%,0%,0%)" '
-                      'transform="scale({scale}) translate({scale_trans[0]}, {scale_trans[1]}) translate({gp[0]},{gp[1]}) rotate({angle} {vp[0]} {vp[1]})" />\n'.format(points=points, col=color, outline=polygons.outline.width, vp=vp, scale_trans=scale_trans, scale=sf, angle=angle, gp=pos));
+                      'fill-opacity="{col[3]}" stroke="rgb({ocol[0]}%,{ocol[1]}%,{ocol[2]}%)" '
+                      'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(polyID=polyID, col=color, ocol=ocolor, angle=angle, gp=pos));
 
         #     out.write('end rotate\n');
         #     out.write('end translate\n');
