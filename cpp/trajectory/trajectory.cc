@@ -32,12 +32,8 @@ void export_trajectory()
         .def("getTiltFactorXZ", &Box::getTiltFactorXZ)
         .def("getTiltFactorYZ", &Box::getTiltFactorYZ)
         .def("getVolume", &Box::getVolume)
-        //.def("getImage", &Box::getImage)
-        //.def("
         .def("wrap", &Box::wrapPy)
         .enable_pickling()
-        /*.def("unwrap", &Box::unwrapPy)
-        .def("makeunit", &Box::makeunitPy)*/
         ;
     export_dcdloader();
     }
