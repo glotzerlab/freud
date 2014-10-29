@@ -734,6 +734,8 @@ class Polygon:
         points and checks that they are ordered counter-clockwise"""
         self.vertices = numpy.array(verts, dtype=numpy.float32);
 
+        self.rmax = numpy.sqrt(numpy.max(numpy.sum(self.vertices**2, axis=-1)))
+
         if len(self.vertices) < 3:
             raise TypeError("a polygon must have at least 3 vertices");
         if len(self.vertices[1]) != 2:

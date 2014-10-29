@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import sys
 import numpy
 import math
 
@@ -27,6 +28,7 @@ class WriteSVG(object):
     def __init__(self, width_cm=8.0):
         self.width_cm = width_cm;
         self.file_count = 0;
+        self.id_count = 0;
 
     ## \internal
     # \brief Writes a Primitive out to the SVG file
@@ -53,7 +55,7 @@ class WriteSVG(object):
         self.height_cm = height_sim * self.sim_to_cm;
 
         out.write('<svg width="{}cm" height="{}cm" viewBox="{} {} {} {}" '
-                  'xmlns="http://www.w3.org/2000/svg">\n'.format(
+                  'xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n'.format(
             self.width_cm, self.height_cm, 0, 0, width_sim, height_sim));
 
         # loop through the render primitives and write out each one
@@ -171,73 +173,50 @@ class WriteSVG(object):
     # ## \internal
     # # \brief Write out repeated polygons
     # # \param out Output stream
-    # # \param polygons Disks to polygons
+    # # \param polygons polygons to draw
     # #
-    # def write_RepeatedPolygons(self, out, polygons):
-    #     # TODO: Update to do proper edge fills
-    #     # initial implementation use stroke and fill on a path to draw polygons. This has 2 issues : 1) The stroke
-    #     # goes outside the polygon and 2) The stroke overlaps the fill (looks bad with alpha rendering).
-    #     # An improved implementation would need to compute an inner set of vertices for the polygon and use two paths,
-    #     # one to fill and one to draw the edges, like so
-    #     # sub draw_box
-    #     # begin path fill rgba(0,0,0,1.0)
-    #     #     rline 1 0
-    #     #     rline 0 1
-    #     #     rline -1 0
-    #     #     rline 0 -1
-    #     #     rmove w w
-    #     #     rline 0 1-w*2
-    #     #     rline 1-w*2 0
-    #     #     rline 0 -(1-w*2)
-    #     #     rline -(1-w*2) 0
-    #     # end path
-    #     # rmove w w
-    #     # begin path fill rgba(1, 0, 0, 1.0)
-    #     #     rline 1.0-w*2 0
-    #     #     rline 0 1.0-w*2
-    #     #     rline -(1-w*2) 0
-    #     #     rline 0 -(1-w*2)
-    #     # end path
-    #     # end sub
+    def write_Polygons(self, out, polygons):
+        # create defs for the base polygon, the clipping using the base polygon, and the clipped polygon
+        out.write('<defs>\n')
+        polyID = "poly{}".format(self.id_count)
+        self.id_count += 1
+        points = " ".join("{point[0]},{point[1]}".format(point=p) for p in polygons.polygon.vertices / 2.0)
+        out.write('<polygon id="{polyID}" points="{points}" stroke-width="{outline}" />\n'.format(polyID=polyID, points=points, outline=polygons.outline.width));
+        out.write('<clipPath id="clip-poly-{polyID}">\n'.format(polyID=polyID))
+        out.write('<use xlink:href="#{polyID}" />\n'.format(polyID=polyID))
+        out.write('</clipPath>\n')
+        out.write('<use id="clipped-poly-{polyID}" xlink:href="#{polyID}" clip-path="url(#clip-poly-{polyID})" />\n'.format(polyID=polyID))
+        out.write('</defs>\n')
+        # process colors and positions
+        colors = numpy.asarray(255.0*polygons.colors[0:-1:3*(polygons.Nt + polygons.Nto)].copy(), dtype=numpy.int32)
+        ocolors = numpy.asarray(255.0*polygons.colors[(3*polygons.Nt):-1:3*(polygons.Nt + polygons.Nto)].copy(), dtype=numpy.int32)
+        pos = (polygons.positions[0:-1:3*(polygons.Nt + polygons.Nto)].copy() / 2.0) - self.view_pos
+        pos[:, 1] = self.height - pos[:, 1]
+        angles = 180.0 * polygons.orientations[0:-1:3*(polygons.Nt + polygons.Nto)].copy()[:, 0] / numpy.pi
 
-    #     out.write('set lwidth {0}\n'.format(polygons.outline*self.sim_to_cm));
+        insideIndices = numpy.all([
+            pos[:, 0] + polygons.polygon.rmax/2.0 > 0,
+            pos[:, 1] + polygons.polygon.rmax/2.0 > 0,
+            pos[:, 0] - polygons.polygon.rmax/2.0 < self.width,
+            pos[:, 1] - polygons.polygon.rmax/2.0 < self.height], axis=0);
+        # only write shapes in the viewing window
+        # currently does circumsphere check; more extensive check unavailable at current time
+        pos = pos[insideIndices]
+        angles = angles[insideIndices]
+        colors = colors[insideIndices]
+        ocolors = ocolors[insideIndices]
 
-    #     # first, generate a string that writes the whole polygon
-    #     fill_str = "amove {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
-    #     for vert in polygons.polygon[1:]:
-    #         vert_cm = vert * self.sim_to_cm;
-    #         fill_str += "aline {0} {1}\n".format(*vert_cm)
-    #     fill_str += "aline {0} {1}\n".format(*polygons.polygon[0,:]*self.sim_to_cm);
+        for (p, a, c, o) in zip(pos, angles, colors, ocolors):
+            # generate the color string
+            color = "#{color[0]:02x}{color[1]:02x}{color[2]:02x}".format(color=c)
+            ocolor = "#{ocolor[0]:02x}{ocolor[1]:02x}{ocolor[2]:02x}".format(ocolor=o)
+            # write out polygon using the clipped polygon
+            out.write('<use xlink:href="#clipped-poly-{polyID}" display="inline" '
+                      'fill="{col}" fill-opacity="100.0" stroke="{ocol}" '
+                      'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(polyID=polyID, col=color, ocol=ocolor, angle=a, gp=p));
 
-    #     # compute the polygon's radius
-    #     radius = 0;
-    #     for vert in polygons.polygon:
-    #         r = math.sqrt(numpy.dot(vert, vert));
-    #         radius = max(radius, r);
-
-    #     for position,ansvg,color in zip(polygons.positions, polygons.ansvgs, polygons.colors):
-    #         # map the position into the view space
-    #         position = (position - self.view_pos + self.width_height/2.0) * self.sim_to_cm;
-
-    #         # don't write out polygons that are off the edge
-    #         if position[0]+radius < 0 or position[0]-radius > self.width_cm:
-    #             continue;
-    #         if position[1]+radius < 0 or position[1]-radius > self.height_cm:
-    #             continue;
-
-    #         out.write('begin translate {0} {1}\n'.format(*position));
-    #         out.write('begin rotate {0}\n'.format(180*ansvg/math.pi));
-
-    #         # for the outline color, chose black and the same alpha as the fill color
-    #         out.write('set color rgba(0, 0, 0, {0})\n'.format(color[3]));
-
-    #         out.write('begin path stroke fill rgba({0}, {1}, {2}, {3})\n'.format(*color));
-    #         out.write(fill_str);
-    #         out.write('closepath\n');
-    #         out.write('end path\n');
-
-    #         out.write('end rotate\n');
-    #         out.write('end translate\n');
+        #     out.write('end rotate\n');
+        #     out.write('end translate\n');
 
     # ## \internal
     # # \brief Write out image
