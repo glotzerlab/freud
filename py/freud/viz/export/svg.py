@@ -192,13 +192,9 @@ class WriteSVG(object):
         for idx in range(polygons.Np):
             # get the color and position of the polygon
             color = numpy.asarray(255.0*polygons.colors[idx*3*(polygons.Nt + polygons.Nto)].copy(), dtype=numpy.int32)
-            print(color)
             color = "#{color[0]:02x}{color[1]:02x}{color[2]:02x}".format(color=color)
             ocolor = numpy.asarray(255.0*polygons.colors[idx*3*(polygons.Nt + polygons.Nto) + (3*polygons.Nt)].copy(), dtype=numpy.int32)
-            print(ocolor)
             ocolor = "#{ocolor[0]:02x}{ocolor[1]:02x}{ocolor[2]:02x}".format(ocolor=ocolor)
-            print(color)
-            print(ocolor)
             # adjust the position of the polygon to be in svg units
             pos = (polygons.positions[idx*3*(polygons.Nt + polygons.Nto)].copy() / 2.0) - self.view_pos
             pos[1] = self.height - pos[1]
