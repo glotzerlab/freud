@@ -1,4 +1,4 @@
-#include "DCDLoader.h"
+    #include "DCDLoader.h"
 
 #include <stdexcept>
 
@@ -94,11 +94,69 @@ void DCDLoader::readNextFrame()
     if (err != MOLFILE_SUCCESS)
         {
         throw runtime_error("Unknown error while reading DCD file");
+        } 
+
+    //Note: ts.(alpha, beta, gamma) in the dcd files are in units of degree, not radians, so need conversion
+    
+    if ( (ts.gamma == 90) and (ts.beta == 90) and (ts.alpha == 90))
+        {
+        float lx = ts.A;
+        float ly = ts.B;
+        float lz = ts.C;
+        float xy = 0;
+        float yz = 0;
+        float xz = 0;
+        
+        m_box = Box(lx,ly,lz,xy,xz,yz);
+        }
+    else
+        {
+        //Convert to LAAMPS triclinic (scaled tilt factors)
+        #define PI 3.14159265358979
+        float cgamma, calpha, cbeta;
+        // perform the following routine to avoid precision errors
+        // ex: if gamma == 90, cos(gamma*PI/180) might return a value something like 1.3*e-15
+        if (ts.gamma == 90)
+            {
+            cgamma = 0;
+            }
+        else 
+            {
+            cgamma = cos(ts.gamma/180*PI);
+            }
+        if (ts.alpha == 90)
+            {
+            calpha = 0;
+            }
+        else 
+            {
+            calpha = cos(ts.alpha/180*PI);
+            }
+        if (ts.beta == 90)
+            {
+            cbeta = 0;
+            }
+        else 
+            {
+            cbeta = cos(ts.beta/180*PI);
+            }
+            
+        float lx = ts.A;
+        float xy = ts.B * cgamma;
+        float xz = ts.C * cbeta;
+        float ly = sqrt(ts.B*ts.B - xy*xy);
+        float yz = (ts.B*ts.C*calpha-xy*xz)/lx;
+        float lz = sqrt(ts.C*ts.C-xz*xz-yz*yz);
+   
+        // rescale tilt factors for HOOMD format
+        xy/=ly;
+        xz/=lz;
+        yz/=lz;
+
+        m_box = Box(lx,ly,lz,xy,xz,yz);
         }
 
-    // record the box read from this time step
-    m_box = Box(ts.A, ts.B, ts.C);
-
+    
     // record the step
     m_time_step = m_dcd->istart + (m_dcd->setsread-1) * m_dcd->nsavc;
     }
