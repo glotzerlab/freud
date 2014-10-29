@@ -17,32 +17,30 @@
 
 namespace freud { namespace trajectory {
 
-//! TODO UPDATE FOR TRICLINIC.  Stores box dimensions and provides common routines for wrapping vectors back into the box
-/*! Box stores a standard hoomd simulation box that goes from -L/2 to L/2 in each dimension, with the possibility
-    or assigning \a Lx, \a Ly, and \a Lz independently. All angles in the box are pi/2 radians.
+//! Stores box dimensions and provides common routines for wrapping vectors back into the box
+/*! Box stores a standard hoomd simulation box that goes from -L/2 to L/2 in each dimension, allowing Lx, Ly, Lz, and triclinic tilt factors xy, xz, and yz to be specified independently.
+ *
 
     A number of utility functions are provided to work with coordinates in boxes. These are provided as inlined methods
     in the header file so they can be called in inner loops without sacrificing performance.
      - wrap()
      - unwrap()
 
-    For performance reasons assuming that many millions  of calls to wrap will be made, 1.0 / L is precomputed when
-    the box is created
-
     A Box can represent either a two or three dimensional box. By default, a Box is 3D, but can be set as 2D with the
-    method set2D(), or via an arugment to the constructor. is2D() queries if a Box is 2D or not.
+    method set2D(), or via an optional boolean argument to the constructor. is2D() queries if a Box is 2D or not.
     2D boxes have a "volume" of Lx * Ly, and Lz is set to 0. To keep programming simple, all inputs and outputs are
     still 3-component vectors even for 2D boxes. The third component ignored (assumed set to 0).
 */
 class Box
     {
     public:
-        //! Construct a zero box
-        Box()
+        //! Construct a box of length 0.
+        Box() //Lest you think of removing this, it's needed by the DCDLoader. No touching.
             {
-            m_2d = false;
-            m_lo = m_hi = m_Linv = m_L = vec3<float>(0,0,0);
-            m_xy = m_xz = m_yz = float(0.0);
+            m_2d = false; //Assign before calling setL!
+            setL(0,0,0);
+            m_periodic = make_uchar3(1,1,1);
+            m_xy = m_xz = m_yz = 0;
             }
 
         //! Construct a cubic box
@@ -70,40 +68,40 @@ class Box
             m_periodic = make_uchar3(1,1,1);
             m_xy = xy; m_xz = xz; m_yz = yz;
             }
-            
+
         //! Set L, box lengths, inverses.  Box is also centered at zero.
         void setL(const vec3<float> L)
             {
             setL(L.x,L.y,L.z);
             }
-            
+
         //! Set L, box lengths, inverses.  Box is also centered at zero.
         void setL(const float Lx,const float Ly,const float Lz)
             {
             m_L = vec3<float>(Lx,Ly,Lz);
             m_hi = m_L/float(2.0);
-            m_lo = -m_hi;  
-            
+            m_lo = -m_hi;
+
             if(m_2d)
                 {
                 m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 0);
                 m_L.z = float(0);
                 }
-            else 
+            else
                 {
                 m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 1/m_L.z);
-                }            
+                }
             }
-            
-        //! Set the box to 2D mode
+
+        //! Set whether box is 2D
         void set2D(bool _2d)
             {
             m_2d = _2d;
             m_L.z = 0;
-            m_Linv.z =0; 
+            m_Linv.z =0;
             }
 
-        //! Test if the box is 2D
+        //! Returns whether box is two dimensional
         bool is2D() const
             {
             return m_2d;
@@ -125,30 +123,33 @@ class Box
             {
             return m_L.z;
             }
-        
+        //! Get current L
         vec3<float> getL() const
             {
             return m_L;
             }
-            
+        //! Get current stored inverse of L
         vec3<float> getLinv() const
             {
             return m_Linv;
             }
+
+        //! Get tilt factor xy
         float getTiltFactorXY() const
             {
             return m_xy;
             }
+        //! Get tilt factor xz
         float getTiltFactorXZ() const
             {
             return m_xz;
             }
+        //! Get tilt factor yz
         float getTiltFactorYZ() const
             {
             return m_yz;
             }
-                    
-            
+
         //! Get the volume of the box (area in 2D)
         float getVolume() const
             {
@@ -282,8 +283,8 @@ class Box
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
             \param img Image of the vector, updated to reflect the new image
             \param flags Vector of flags to force wrapping along certain directions
-            \returns w;   
-            
+            \returns w;
+
             \note \a w must not extend more than 1 image beyond the box
         */
         //Is this even sane? I assume since we previously had image free version
@@ -291,7 +292,7 @@ class Box
         // changes to the codebase here.
         // Followup: I don't remember why I put this comment here, better refer later to
         // original trajectory.h
-        
+
         vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
             {
             vec3<float> wcopy = w;
@@ -299,7 +300,7 @@ class Box
             wrap(wcopy, img, flags);
             return wcopy;
             }
-            
+
         float3 wrap(const float3& w, const char3 flags = make_char3(0,0,0)) const
             {
                vec3<float> tempcopy;
@@ -310,9 +311,9 @@ class Box
                wrapped.x = tempcopy.x; wrapped.y = tempcopy.y; wrapped.z=tempcopy.z;
                return wrapped;
             }
-           
-           
-           
+
+
+
         //! Wrap a given array of vectors back into the box from python
         /*! \param vecs numpy array of vectors (Nx3) (or just 3 elements) to wrap
             \note Vectors are wrapped in place to avoid costly memory copies
@@ -359,13 +360,13 @@ class Box
         vec3<float> unwrap(const vec3<float>& p, const int3& image) const
             {
             vec3<float> newp = p;
-                        
+
             newp += getLatticeVector(0) * float(image.x);
             newp += getLatticeVector(1) * float(image.y);
             if(!m_2d)
                 newp += getLatticeVector(2) * float(image.z);
             return newp;
-            }                        
+            }
         //! Get the shortest distance between opposite boundary planes of the box
         /*! The distance between two planes of the lattice is 2 Pi/|b_i|, where
          *   b_1 is the reciprocal lattice vector of the Bravais lattice normal to
@@ -383,7 +384,7 @@ class Box
 
             return dist;
             }
-        
+
         /*! Get the lattice vector with index i
             \param i Index (0<=i<d) of the lattice vector, where d is dimension (2 or 3)
             \returns the lattice vector with index i
@@ -423,7 +424,7 @@ class Box
             {
             m_periodic = periodic;
             }
-        
+
     private:
         vec3<float> m_lo;      //!< Minimum coords in the box
         vec3<float> m_hi;      //!< Maximum coords in the box

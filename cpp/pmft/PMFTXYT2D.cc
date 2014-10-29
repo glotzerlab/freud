@@ -89,7 +89,6 @@ PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float
     // create and populate the pcf_array
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_T * m_nbins_y * m_nbins_x]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_T * m_nbins_y * m_nbins_x);
-    m_local_pcf_array = new tbb::combinable<unsigned int> [m_nbins_T * m_nbins_y * m_nbins_x];
 
     if (useCells())
         {
@@ -100,6 +99,10 @@ PMFTXYT2D::PMFTXYT2D(const trajectory::Box& box, float max_x, float max_y, float
 
 PMFTXYT2D::~PMFTXYT2D()
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
+        {
+        delete[] (*i);
+        }
     if(useCells())
     delete m_lc;
     }
@@ -111,13 +114,13 @@ class CombinePCFXYT2D
         unsigned int m_nbins_y;
         unsigned int m_nbins_T;
         unsigned int *m_pcf_array;
-        tbb::combinable<unsigned int> *m_local_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_local_pcf_array;
     public:
         CombinePCFXYT2D(unsigned int nbins_x,
                         unsigned int nbins_y,
                         unsigned int nbins_T,
                         unsigned int *pcf_array,
-                        tbb::combinable<unsigned int> *local_pcf_array)
+                        tbb::enumerable_thread_specific<unsigned int *>& local_pcf_array)
             : m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T), m_pcf_array(pcf_array), m_local_pcf_array(local_pcf_array)
         {
         }
@@ -130,7 +133,11 @@ class CombinePCFXYT2D
                     {
                     for (size_t k = 0; k < m_nbins_y; k++)
                         {
-                        m_pcf_array[b_i((int)i, (int)j, (int)k)] = m_local_pcf_array[b_i((int)i, (int)j, (int)k)].combine(std::plus<unsigned int>());
+                        for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_pcf_array.begin();
+                             local_bins != m_local_pcf_array.end(); ++local_bins)
+                            {
+                            m_pcf_array[b_i((int)i, (int)j, (int)k)] += (*local_bins)[b_i((int)i, (int)j, (int)k)];
+                            }
                         }
                     }
                 }
@@ -140,7 +147,7 @@ class CombinePCFXYT2D
 class ComputePMFTXYT2DWithoutCellList
     {
     private:
-        tbb::combinable<unsigned int> *m_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         unsigned int m_nbins_T;
@@ -158,7 +165,7 @@ class ComputePMFTXYT2DWithoutCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTXYT2DWithoutCellList(tbb::combinable<unsigned int> *pcf_array,
+        ComputePMFTXYT2DWithoutCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
                                         unsigned int nbins_x,
                                         unsigned int nbins_y,
                                         unsigned int nbins_T,
@@ -190,6 +197,14 @@ class ComputePMFTXYT2DWithoutCellList
             float dT_inv = 1.0f / m_dT;
 
             Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_T);
+
+            bool exists;
+            m_pcf_array.local(exists);
+            if (! exists)
+                {
+                m_pcf_array.local() = new unsigned int [m_nbins_x*m_nbins_y*m_nbins_T];
+                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
+                }
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -229,7 +244,7 @@ class ComputePMFTXYT2DWithoutCellList
 
                     if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
                         {
-                        ++m_pcf_array[b_i(ibinx, ibiny, ibinT)].local();
+                        ++m_pcf_array.local()[b_i(ibinx, ibiny, ibinT)];
                         }
                     }
                 } // done looping over reference points
@@ -239,7 +254,7 @@ class ComputePMFTXYT2DWithoutCellList
 class ComputePMFTXYT2DWithCellList
     {
     private:
-        tbb::combinable<unsigned int> *m_pcf_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
         unsigned int m_nbins_x;
         unsigned int m_nbins_y;
         unsigned int m_nbins_T;
@@ -258,7 +273,7 @@ class ComputePMFTXYT2DWithCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTXYT2DWithCellList(tbb::combinable<unsigned int> *pcf_array,
+        ComputePMFTXYT2DWithCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
                                      unsigned int nbins_x,
                                      unsigned int nbins_y,
                                      unsigned int nbins_T,
@@ -296,6 +311,14 @@ class ComputePMFTXYT2DWithCellList
             float dT_inv = 1.0f / m_dT;
 
             Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_T);
+
+            bool exists;
+            m_pcf_array.local(exists);
+            if (! exists)
+                {
+                m_pcf_array.local() = new unsigned int [m_nbins_x*m_nbins_y*m_nbins_T];
+                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
+                }
 
             // for each reference point
             for (size_t i = myR.begin(); i != myR.end(); i++)
@@ -346,7 +369,7 @@ class ComputePMFTXYT2DWithCellList
 
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
                             {
-                            ++m_pcf_array[b_i(ibinx, ibiny, ibinT)].local();
+                            ++m_pcf_array.local()[b_i(ibinx, ibiny, ibinT)];
                             }
                         }
                     }
@@ -385,6 +408,10 @@ void PMFTXYT2D::compute(vec3<float> *ref_points,
                         float *orientations,
                         unsigned int Np)
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
+        }
     if (useCells())
         {
         m_lc->computeCellList(points, Np);
