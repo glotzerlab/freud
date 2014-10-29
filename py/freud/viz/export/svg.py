@@ -187,28 +187,33 @@ class WriteSVG(object):
         out.write('</clipPath>\n')
         out.write('<use id="clipped-poly-{polyID}" xlink:href="#{polyID}" clip-path="url(#clip-poly-{polyID})" />\n'.format(polyID=polyID))
         out.write('</defs>\n')
+        # process colors and positions
+        colors = numpy.asarray(255.0*polygons.colors[0:-1:3*(polygons.Nt + polygons.Nto)].copy(), dtype=numpy.int32)
+        ocolors = numpy.asarray(255.0*polygons.colors[(3*polygons.Nt):-1:3*(polygons.Nt + polygons.Nto)].copy(), dtype=numpy.int32)
+        pos = (polygons.positions[0:-1:3*(polygons.Nt + polygons.Nto)].copy() / 2.0) - self.view_pos
+        pos[:, 1] = self.height - pos[:, 1]
+        angles = 180.0 * polygons.orientations[0:-1:3*(polygons.Nt + polygons.Nto)].copy()[:, 0] / numpy.pi
 
+        insideIndices = numpy.all([
+            pos[:, 0] + polygons.polygon.rmax/2.0 > 0,
+            pos[:, 1] + polygons.polygon.rmax/2.0 > 0,
+            pos[:, 0] - polygons.polygon.rmax/2.0 < self.width,
+            pos[:, 1] - polygons.polygon.rmax/2.0 < self.height], axis=0);
+        # only write shapes in the viewing window
+        # currently does circumsphere check; more extensive check unavailable at current time
+        pos = pos[insideIndices]
+        angles = angles[insideIndices]
+        colors = colors[insideIndices]
+        ocolors = ocolors[insideIndices]
 
-        for idx in range(polygons.Np):
-            # get the color and position of the polygon
-            color = numpy.asarray(255.0*polygons.colors[idx*3*(polygons.Nt + polygons.Nto)].copy(), dtype=numpy.int32)
-            color = "#{color[0]:02x}{color[1]:02x}{color[2]:02x}".format(color=color)
-            ocolor = numpy.asarray(255.0*polygons.colors[idx*3*(polygons.Nt + polygons.Nto) + (3*polygons.Nt)].copy(), dtype=numpy.int32)
-            ocolor = "#{ocolor[0]:02x}{ocolor[1]:02x}{ocolor[2]:02x}".format(ocolor=ocolor)
-            # adjust the position of the polygon to be in svg units
-            pos = (polygons.positions[idx*3*(polygons.Nt + polygons.Nto)].copy() / 2.0) - self.view_pos
-            pos[1] = self.height - pos[1]
-            angle = 180.0 * polygons.orientations[idx*3*(polygons.Nt + polygons.Nto)].copy()[0] / numpy.pi
+        for (p, a, c, o) in zip(pos, angles, colors, ocolors):
+            # generate the color string
+            color = "#{color[0]:02x}{color[1]:02x}{color[2]:02x}".format(color=c)
+            ocolor = "#{ocolor[0]:02x}{ocolor[1]:02x}{ocolor[2]:02x}".format(ocolor=o)
             # write out polygon using the clipped polygon
-            # only write shapes in the viewing window
-            # currently does circumsphere check; more extensive check unavailable at current time
-            if numpy.all([pos[0] - polygons.polygon.rmax/2.0 > 0.0,
-                          pos[1] - polygons.polygon.rmax/2.0 > 0.0,
-                          pos[0] + polygons.polygon.rmax/2.0 < self.width,
-                          pos[1] + polygons.polygon.rmax/2.0 < self.height], axis=0):
-                out.write('<use xlink:href="#clipped-poly-{polyID}" display="inline" '
-                          'fill="{col}" fill-opacity="100.0" stroke="{ocol}" '
-                          'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(polyID=polyID, col=color, ocol=ocolor, angle=angle, gp=pos));
+            out.write('<use xlink:href="#clipped-poly-{polyID}" display="inline" '
+                      'fill="{col}" fill-opacity="100.0" stroke="{ocol}" '
+                      'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(polyID=polyID, col=color, ocol=ocolor, angle=a, gp=p));
 
         #     out.write('end rotate\n');
         #     out.write('end translate\n');
