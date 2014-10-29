@@ -1,5 +1,5 @@
 import numpy
-import warning
+import warnings
 
 from freud.shape import Polygon
 
