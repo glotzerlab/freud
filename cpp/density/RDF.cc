@@ -55,15 +55,7 @@ RDF::RDF(float rmax, float dr)
 
     // precompute cell volumes
     m_vol_array = boost::shared_array<float>(new float[m_nbins]);
-    for (unsigned int i = 0; i < m_nbins; i++)
-        {
-        float r = float(i) * m_dr;
-        float nextr = float(i+1) * m_dr;
-        if (m_box.is2D())
-            m_vol_array[i] = M_PI * (nextr*nextr - r*r);
-        else
-            m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
-        }
+    memset((void*)m_vol_array.get(), 0, sizeof(float)*m_nbins);
     m_lc = new locality::LinkCell();
     }
 
@@ -87,6 +79,15 @@ void RDF::updateBox(trajectory::Box& box)
     if (m_box != box)
         {
         m_box = box;
+        for (unsigned int i = 0; i < m_nbins; i++)
+            {
+            float r = float(i) * m_dr;
+            float nextr = float(i+1) * m_dr;
+            if (m_box.is2D())
+                m_vol_array[i] = M_PI * (nextr*nextr - r*r);
+            else
+                m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
+            }
         // update the box. In the future, this may be checked to see if it really needs re-initing
         if (useCells())
             {
