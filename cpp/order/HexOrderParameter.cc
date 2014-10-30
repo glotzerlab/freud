@@ -15,15 +15,36 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax, float k=6)
-    :m_box(box), m_rmax(rmax), m_k(k), m_Np(0)
+HexOrderParameter::HexOrderParameter(float rmax, float k=6)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
-    m_nn = new locality::NearestNeighbors(box, rmax, k);
+    m_nn = new locality::NearestNeighbors();
     }
 
 HexOrderParameter::~HexOrderParameter()
     {
     delete m_nn;
+    }
+
+void HexOrderParameter::updateBox(trajectory::Box& box)
+    {
+    // check to make sure the provided box is valid
+    if (m_rmax > box.getLx()/2 || m_rmax > box.getLy()/2)
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    if (m_rmax > box.getLz()/2 && !box.is2D())
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    // see if it is different than the current box
+    bool isUpdated = ( (m_box.getL() != box.getL()) ||
+                       (m_box.getTiltFactorXY() != box.getTiltFactorXY()) ||
+                       (m_box.getTiltFactorXZ() != box.getTiltFactorXZ()) ||
+                       (m_box.getTiltFactorYZ() != box.getTiltFactorYZ()) );
+    if (isUpdated)
+        {
+        m_box = box;
+        locality::NearestNeighbors* tmp = new locality::NearestNeighbors(m_box, m_rmax, m_k);
+        delete m_nn;
+        m_nn = tmp;
+        }
     }
 
 class ComputeHexOrderParameter
@@ -95,9 +116,11 @@ void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
     }
 
-void HexOrderParameter::computePy(boost::python::numeric::array points)
+void HexOrderParameter::computePy(trajectory::Box& box,
+                                  boost::python::numeric::array points)
     {
     //validate input type and rank
+    updateBox(box);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
 
@@ -117,8 +140,8 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
 
 void export_HexOrderParameter()
     {
-    class_<HexOrderParameter>("HexOrderParameter", init<trajectory::Box&, float>())
-        .def(init<trajectory::Box&, float, float>())
+    class_<HexOrderParameter>("HexOrderParameter", init<float>())
+        .def(init<float, float>())
         .def("getBox", &HexOrderParameter::getBox, return_internal_reference<>())
         .def("compute", &HexOrderParameter::computePy)
         .def("getPsi", &HexOrderParameter::getPsiPy)

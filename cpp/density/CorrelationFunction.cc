@@ -24,8 +24,8 @@ using namespace tbb;
 */
 
 template<typename T>
-CorrelationFunction<T>::CorrelationFunction(const trajectory::Box& box, float rmax, float dr)
-    : m_box(box), m_rmax(rmax), m_dr(dr)
+CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr)
     {
     if (dr < 0.0f)
         throw invalid_argument("dr must be positive");
@@ -33,10 +33,6 @@ CorrelationFunction<T>::CorrelationFunction(const trajectory::Box& box, float rm
         throw invalid_argument("rmax must be positive");
     if (dr > rmax)
         throw invalid_argument("rmax must be greater than dr");
-    if (rmax > box.getLx()/2 || rmax > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (rmax > box.getLz()/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
@@ -55,11 +51,7 @@ CorrelationFunction<T>::CorrelationFunction(const trajectory::Box& box, float rm
         float nextr = float(i+1) * m_dr;
         m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
-
-    if (useCells())
-        {
-        m_lc = new locality::LinkCell(box, rmax);
-        }
+    m_lc = new locality::LinkCell();
     }
 
 template<typename T>
@@ -73,8 +65,33 @@ CorrelationFunction<T>::~CorrelationFunction()
         {
         delete[] (*i);
         }
-    if(useCells())
     delete m_lc;
+    }
+
+template<typename T>
+void CorrelationFunction<T>::updateBox(trajectory::Box& box)
+    {
+    // check to make sure the provided box is valid
+    if (m_rmax > box.getLx()/2 || m_rmax > box.getLy()/2)
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    if (m_rmax > box.getLz()/2 && !box.is2D())
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    // see if it is different than the current box
+    bool isUpdated = ( (m_box.getL() != box.getL()) ||
+                       (m_box.getTiltFactorXY() != box.getTiltFactorXY()) ||
+                       (m_box.getTiltFactorXZ() != box.getTiltFactorXZ()) ||
+                       (m_box.getTiltFactorYZ() != box.getTiltFactorYZ()) );
+    if (isUpdated)
+        {
+        m_box = box;
+        // update the box. In the future, this may be checked to see if it really needs re-initing
+        if (useCells())
+            {
+            locality::LinkCell* tmp = new locality::LinkCell(m_box, m_rmax);
+            delete m_lc;
+            m_lc = tmp;
+            }
+        }
     }
 
 template<typename T>
@@ -403,12 +420,14 @@ void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
     }
 
 template<typename T>
-void CorrelationFunction<T>::computePy(boost::python::numeric::array ref_points,
-                            boost::python::numeric::array ref_values,
-                            boost::python::numeric::array points,
-                            boost::python::numeric::array point_values)
+void CorrelationFunction<T>::computePy(trajectory::Box& box,
+                                       boost::python::numeric::array ref_points,
+                                       boost::python::numeric::array ref_values,
+                                       boost::python::numeric::array points,
+                                       boost::python::numeric::array point_values)
     {
     // validate input type and rank
+    updateBox(box);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_rank(ref_values, 1);
@@ -441,7 +460,7 @@ void CorrelationFunction<T>::computePy(boost::python::numeric::array ref_points,
 void export_CorrelationFunction()
     {
     typedef CorrelationFunction<std::complex<float> > ComplexCF;
-    class_<ComplexCF>("ComplexCF", init<trajectory::Box&, float, float>())
+    class_<ComplexCF>("ComplexCF", init<float, float>())
         .def("getBox", &ComplexCF::getBox, return_internal_reference<>())
         .def("compute", &ComplexCF::computePy)
         .def("getRDF", &ComplexCF::getRDFPy)
@@ -449,7 +468,7 @@ void export_CorrelationFunction()
         .def("getR", &ComplexCF::getRPy)
         ;
     typedef CorrelationFunction<float> FloatCF;
-    class_<FloatCF>("FloatCF", init<trajectory::Box&, float, float>())
+    class_<FloatCF>("FloatCF", init<float, float>())
         .def("getBox", &FloatCF::getBox, return_internal_reference<>())
         .def("compute", &FloatCF::computePy)
         .def("getRDF", &FloatCF::getRDFPy)

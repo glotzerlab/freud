@@ -50,10 +50,13 @@ class CorrelationFunction
     {
     public:
         //! Constructor
-        CorrelationFunction(const trajectory::Box& box, float rmax, float dr);
+        CorrelationFunction(float rmax, float dr);
 
         //! Destructor
         ~CorrelationFunction();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -73,7 +76,8 @@ class CorrelationFunction
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_values,
                        boost::python::numeric::array points,
                        boost::python::numeric::array point_values);
