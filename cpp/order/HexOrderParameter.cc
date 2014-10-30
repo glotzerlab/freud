@@ -34,11 +34,7 @@ void HexOrderParameter::updateBox(trajectory::Box& box)
     if (m_rmax > box.getLz()/2 && !box.is2D())
         throw invalid_argument("rmax must be smaller than half the smallest box size");
     // see if it is different than the current box
-    bool isUpdated = ( (m_box.getL() != box.getL()) ||
-                       (m_box.getTiltFactorXY() != box.getTiltFactorXY()) ||
-                       (m_box.getTiltFactorXZ() != box.getTiltFactorXZ()) ||
-                       (m_box.getTiltFactorYZ() != box.getTiltFactorYZ()) );
-    if (isUpdated)
+    if (m_box != box)
         {
         m_box = box;
         locality::NearestNeighbors* tmp = new locality::NearestNeighbors(m_box, m_rmax, m_k);

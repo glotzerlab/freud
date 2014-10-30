@@ -37,10 +37,13 @@ class PMFXYZ
     {
     public:
         //! Constructor
-        PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz);
+        PMFXYZ(float max_x, float max_y, float max_z, float dx, float dy, float dz);
 
         //! Destructor
         ~PMFXYZ();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -73,7 +76,8 @@ class PMFXYZ
                      const unsigned int Nfaces);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
                        boost::python::numeric::array orientations,

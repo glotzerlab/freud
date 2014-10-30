@@ -27,8 +27,8 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTRPM::PMFTRPM(const trajectory::Box& box, float max_r, float max_TP, float max_TM, float dr, float dTP, float dTM)
-    : m_box(box), m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM)
+PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, float dTM)
+    : m_box(trajectory::Box()), m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM)
     {
     if (dr < 0.0f)
         throw invalid_argument("dr must be positive");
@@ -48,10 +48,6 @@ PMFTRPM::PMFTRPM(const trajectory::Box& box, float max_r, float max_TP, float ma
         throw invalid_argument("max_TP must be greater than dTP");
     if (dTM > max_TM)
         throw invalid_argument("max_TM must be greater than dTM");
-    if (max_r > box.getLx()/2 || max_r > box.getLy()/2)
-        throw invalid_argument("max_r, max_r must be smaller than half the smallest box size");
-    if (!box.is2D())
-        throw invalid_argument("box must be 2D");
 
     m_nbins_r = int(2 * floorf(m_max_r / m_dr));
     assert(m_nbins_r > 0);
@@ -88,9 +84,28 @@ PMFTRPM::PMFTRPM(const trajectory::Box& box, float max_r, float max_TP, float ma
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_r*m_nbins_TP*m_nbins_TM]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
 
-    if (useCells())
+    m_lc = new locality::LinkCell();
+
+    }
+
+void PMFTRPM::updateBox(trajectory::Box& box)
+    {
+    // check to make sure the provided box is valid
+    if (m_max_r > box.getLx()/2 || m_max_r > box.getLy()/2)
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    if (!box.is2D())
+        throw invalid_argument("box must be 2D");
+    // see if it is different than the current box
+    if (m_box != box)
         {
-        m_lc = new locality::LinkCell(box, max_r);
+        m_box = box;
+        // update the box. In the future, this may be checked to see if it really needs re-initing
+        if (useCells())
+            {
+            locality::LinkCell* tmp = new locality::LinkCell(m_box, m_max_r);
+            delete m_lc;
+            m_lc = tmp;
+            }
         }
     }
 
@@ -456,12 +471,14 @@ void PMFTRPM::compute(vec3<float> *ref_points,
                                                                        m_local_pcf_array));
     }
 
-void PMFTRPM::computePy(boost::python::numeric::array ref_points,
+void PMFTRPM::computePy(trajectory::Box& box,
+                        boost::python::numeric::array ref_points,
                         boost::python::numeric::array ref_orientations,
                         boost::python::numeric::array points,
                         boost::python::numeric::array orientations)
     {
     // validate input type and rank
+    updateBox(box);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, PyArray_FLOAT);
@@ -502,7 +519,7 @@ void PMFTRPM::computePy(boost::python::numeric::array ref_points,
 
 void export_PMFTRPM()
     {
-    class_<PMFTRPM>("PMFTRPM", init<trajectory::Box&, float, float, float, float, float, float>())
+    class_<PMFTRPM>("PMFTRPM", init<float, float, float, float, float, float>())
         .def("getBox", &PMFTRPM::getBox, return_internal_reference<>())
         .def("compute", &PMFTRPM::computePy)
         .def("getPCF", &PMFTRPM::getPCFPy)

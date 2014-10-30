@@ -19,11 +19,10 @@ using namespace tbb;
 
 namespace freud { namespace pairing {
 
-pairing::pairing(const trajectory::Box& box,
-                 const float rmax,
+pairing::pairing(const float rmax,
                  const unsigned int k,
                  const float comp_dot_tol)
-    : m_box(box), m_rmax(rmax), m_k(k), m_nn(box, rmax, (unsigned int) k), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
     {
     // create the unsigned int array to store whether or not a particle is paired
     m_match_array = boost::shared_array<unsigned int>(new unsigned int[m_Np]);
@@ -39,13 +38,31 @@ pairing::pairing(const trajectory::Box& box,
         {
         m_pair_array[i] = i;
         }
+    m_nn = new locality::NearestNeighbors();
     }
 
-// void pairing::ComputePairing2D(const float3 *points,
-//                                const float *orientations,
-//                                const float *comp_orientations,
-//                                const unsigned int Np,
-//                                const unsigned int No)
+pairing::~pairing()
+    {
+    delete m_nn;
+    }
+
+void pairing::updateBox(trajectory::Box& box)
+    {
+    // check to make sure the provided box is valid
+    if (m_rmax > box.getLx()/2 || m_rmax > box.getLy()/2)
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    if (m_rmax > box.getLz()/2 && !box.is2D())
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    // see if it is different than the current box
+    if (m_box != box)
+        {
+        m_box = box;
+        locality::NearestNeighbors* tmp = new locality::NearestNeighbors(m_box, m_rmax, m_k);
+        delete m_nn;
+        m_nn = tmp;
+        }
+    }
+
 void pairing::ComputePairing2D(const vec3<float> *points,
                                const float *orientations,
                                const float *comp_orientations,
@@ -62,7 +79,7 @@ void pairing::ComputePairing2D(const vec3<float> *points,
             }
         const vec2<float> r_i(points[i].x, points[i].y);
         // get the neighbors of i
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         // loop over all neighboring particles
         bool is_paired = false;
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
@@ -141,18 +158,13 @@ void pairing::ComputePairing2D(const vec3<float> *points,
         } // done looping over reference points
     }
 
-// void pairing::compute(const float3* points,
-//                       const float* orientations,
-//                       const float* comp_orientations,
-//                       const unsigned int Np,
-//                       const unsigned int No)
 void pairing::compute(const vec3<float>* points,
                       const float* orientations,
                       const float* comp_orientations,
                       const unsigned int Np,
                       const unsigned int No)
     {
-    m_nn.compute(points,Np);
+    m_nn->compute(points,Np);
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
         {
@@ -177,13 +189,15 @@ void pairing::compute(const vec3<float>* points,
     m_No = No;
     }
 
-void pairing::computePy(boost::python::numeric::array points,
+void pairing::computePy(trajectory::Box& box,
+                        boost::python::numeric::array points,
                         boost::python::numeric::array orientations,
                         boost::python::numeric::array comp_orientations)
     {
     // points contains all the particle positions; Np x 3
     // orientations contains the orientations of each particle; Np (x1)
     // orientations contains the local orientations of possible interfaces; Np x No
+    updateBox(box);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
     num_util::check_type(orientations, PyArray_FLOAT);
@@ -214,7 +228,7 @@ void pairing::computePy(boost::python::numeric::array points,
 
 void export_pairing()
     {
-    class_<pairing>("pairing", init<trajectory::Box&, float, unsigned int, float>())
+    class_<pairing>("pairing", init<float, unsigned int, float>())
         .def("getBox", &pairing::getBox, return_internal_reference<>())
         .def("compute", &pairing::computePy)
         .def("getMatch", &pairing::getMatchPy)

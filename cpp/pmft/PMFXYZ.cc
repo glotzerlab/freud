@@ -28,8 +28,8 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFXYZ::PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz)
-    : m_box(box), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz)
+PMFXYZ::PMFXYZ(float max_x, float max_y, float max_z, float dx, float dy, float dz)
+    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz)
     {
     if (dx < 0.0f)
         throw invalid_argument("dx must be positive");
@@ -49,10 +49,6 @@ PMFXYZ::PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z
         throw invalid_argument("max_y must be greater than dy");
     if (dz > max_z)
         throw invalid_argument("max_z must be greater than dz");
-    if (max_x > box.getLx()/2 || max_y > box.getLy()/2)
-        throw invalid_argument("max_x, max_y must be smaller than half the smallest box size");
-    if (max_z > box.getLz()/2 && !box.is2D())
-        throw invalid_argument("max_z must be smaller than half the smallest box size");
 
     m_nbins_x = int(2 * floorf(m_max_x / m_dx));
     assert(m_nbins_x > 0);
@@ -92,11 +88,8 @@ PMFXYZ::PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y * m_nbins_z]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
 
-    if (useCells())
-        {
-        float max_val = sqrtf(max_x*max_x + max_y*max_y + max_z*max_z);
-        m_lc = new locality::LinkCell(box, max_val);
-        }
+    m_lc = new locality::LinkCell();
+
     }
 
 PMFXYZ::~PMFXYZ()
@@ -105,8 +98,29 @@ PMFXYZ::~PMFXYZ()
         {
         delete[] (*i);
         }
-    if(useCells())
     delete m_lc;
+    }
+
+void PMFXYZ::updateBox(trajectory::Box& box)
+    {
+    // check to make sure the provided box is valid
+    if (m_max_x > box.getLx()/2 || m_max_y > box.getLy()/2)
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    if (m_max_z > box.getLz()/2 && !box.is2D())
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    // see if it is different than the current box
+    if (m_box != box)
+        {
+        m_box = box;
+        // update the box. In the future, this may be checked to see if it really needs re-initing
+        if (useCells())
+            {
+            float max_val = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
+            locality::LinkCell* tmp = new locality::LinkCell(m_box, max_val);
+            delete m_lc;
+            m_lc = tmp;
+            }
+        }
     }
 
 class CombinePCFXYZ
@@ -542,13 +556,15 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
 /*! \brief Exposed function to python to calculate the PMF
 */
 
-void PMFXYZ::computePy(boost::python::numeric::array ref_points,
-                        boost::python::numeric::array ref_orientations,
-                        boost::python::numeric::array points,
-                        boost::python::numeric::array orientations,
-                        boost::python::numeric::array face_orientations)
+void PMFXYZ::computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
+                       boost::python::numeric::array ref_orientations,
+                       boost::python::numeric::array points,
+                       boost::python::numeric::array orientations,
+                       boost::python::numeric::array face_orientations)
     {
     // validate input type and rank
+    updateBox(box);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, PyArray_FLOAT);
@@ -593,7 +609,7 @@ void PMFXYZ::computePy(boost::python::numeric::array ref_points,
 
 void export_PMFXYZ()
     {
-    class_<PMFXYZ>("PMFXYZ", init<trajectory::Box&, float, float, float, float, float, float>())
+    class_<PMFXYZ>("PMFXYZ", init<float, float, float, float, float, float>())
         .def("getBox", &PMFXYZ::getBox, return_internal_reference<>())
         .def("compute", &PMFXYZ::computePy)
         .def("getPCF", &PMFXYZ::getPCFPy)

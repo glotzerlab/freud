@@ -69,6 +69,22 @@ class Box
             m_xy = xy; m_xz = xz; m_yz = yz;
             }
 
+        inline bool operator ==(Box&b)
+            {
+            return ( (this->getL() == b.getL()) &&
+                       (this->getTiltFactorXY() == b.getTiltFactorXY()) &&
+                       (this->getTiltFactorXZ() == b.getTiltFactorXZ()) &&
+                       (this->getTiltFactorYZ() == b.getTiltFactorYZ()) );
+            }
+
+        inline bool operator !=(Box&b)
+            {
+            return ( (this->getL() != b.getL()) ||
+                       (this->getTiltFactorXY() != b.getTiltFactorXY()) ||
+                       (this->getTiltFactorXZ() != b.getTiltFactorXZ()) ||
+                       (this->getTiltFactorYZ() != b.getTiltFactorYZ()) );
+            }
+
         //! Set L, box lengths, inverses.  Box is also centered at zero.
         void setL(const vec3<float> L)
             {
