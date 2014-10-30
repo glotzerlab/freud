@@ -30,6 +30,7 @@
 #include "LocalQl.h"
 #include "LocalQlNear.h"
 #include "LocalWl.h"
+#include "LocalWlNear.h"
 #include "SolLiq.h"
 #include "wigner3j.h"
 #include "lindemann.h"
@@ -92,6 +93,7 @@ BOOST_PYTHON_MODULE(_freud)
     sphericalharmonicorderparameters::export_LocalQl();
     sphericalharmonicorderparameters::export_LocalQlNear();
     sphericalharmonicorderparameters::export_LocalWl();
+    sphericalharmonicorderparameters::export_LocalWlNear();
     sphericalharmonicorderparameters::export_SolLiq();
     pairing::export_pairing();
     pmft::export_PMFXYZ();
