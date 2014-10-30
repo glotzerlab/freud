@@ -133,6 +133,8 @@ set(SOURCES trajectory/trajectory.cc
             sphericalharmonicorderparameters/LocalQlNear.cc
             sphericalharmonicorderparameters/LocalWl.h
             sphericalharmonicorderparameters/LocalWl.cc
+            sphericalharmonicorderparameters/LocalWlNear.h
+            sphericalharmonicorderparameters/LocalWlNear.cc
             sphericalharmonicorderparameters/SolLiq.h
             sphericalharmonicorderparameters/SolLiq.cc
             sphericalharmonicorderparameters/wigner3j.cc

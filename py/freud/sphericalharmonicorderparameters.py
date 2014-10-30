@@ -8,6 +8,7 @@ from _freud import LocalQl
 from _freud import LocalQlNear
 #from _freud import LocalWl as LWl
 from _freud import LocalWl
+from _freud import LocalWlNear
 from _freud import SolLiq
 import scipy.io as sio
 import numpy as np
