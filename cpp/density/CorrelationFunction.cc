@@ -125,7 +125,10 @@ class CombineOCF
                     {
                     m_rdf_array[i] += (*local_rdf)[i];
                     }
-                m_rdf_array[i] /= m_bin_counts[i];
+                if (m_bin_counts[i])
+                    {
+                    m_rdf_array[i] /= m_bin_counts[i];
+                    }
                 }
             }
     };
