@@ -50,7 +50,7 @@ class Box
             setL(L,L,L);
             m_periodic = make_uchar3(1,1,1);
             m_xy = m_xz = m_yz = 0;
-            } 
+            }
         //! Construct an orthorhombic box
         Box(float Lx, float Ly, float Lz, bool _2d=false)
             {
@@ -159,8 +159,7 @@ class Box
             else
                 return m_L.x*m_L.y*m_L.z;
             }
-            
-        
+
         //! Compute the position of the particle in box relative coordinates
         /*! \param p point
             \returns alpha
@@ -169,25 +168,25 @@ class Box
             outside of the box in either direction, it will go larger than 1 or less than 0 keeping the same scaling.
         */
         vec3<float> makeFraction(const vec3<float>& v, const vec3<float>& ghost_width=vec3<float>(0.0,0.0,0.0)) const
-            { 
+            {
             vec3<float> delta = v - m_lo;
             delta.x -= (m_xz-m_yz*m_xy)*v.z+m_xy*v.y;
             delta.y -= m_yz * v.z;
             return (delta + ghost_width)/(m_L + float(2.0)*ghost_width);
             }
-            
+
         //! Convert fractional coordinates into real coordinates
         /*! \param f Fractional coordinates between 0 and 1 within parallelpipedal box
             \return A vector inside the box corresponding to f
         */
-        vec3<float> makeCoordinates(const vec3<float> &f) const  
+        vec3<float> makeCoordinates(const vec3<float> &f) const
             {
             vec3<float> v = m_lo + f*m_L;
             v.x += m_xy*v.y+m_xz*v.z;
             v.y += m_yz*v.z;
             return v;
-            }         
-        
+            }
+
         //! Get the periodic image a vector belongs to
         /*! \param v The vector to check
             \returns the integer coordinates of the periodic image
@@ -201,7 +200,7 @@ class Box
             img.z = (int)((f.z >= float(0.0)) ? f.z + float(0.5) : f.z - float(0.5));
             return img;
             }
-             
+
         //! Wrap a vector back into the box
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
             \param img Image of the vector, updated to reflect the new image
@@ -263,7 +262,7 @@ class Box
                     }
                 }
            }
-           
+
         //! Wrap a vector back into the box.  Legacy float3 version.  Deprecated?
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
             \param img Image of the vector, updated to reflect the new image
@@ -403,7 +402,7 @@ class Box
                 {
                 return vec3<float>(m_L.z*m_xz, m_L.z*m_yz, m_L.z);
                 }
-            else 
+            else
                 {
                 throw std::out_of_range("box lattice vector index requested does not exist");
                 }
