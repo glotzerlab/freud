@@ -20,6 +20,8 @@ using namespace tbb;
 
 namespace freud { namespace locality {
 
+NearestNeighbors::NearestNeighbors(){}
+
 NearestNeighbors::NearestNeighbors(const trajectory::Box& box,
                                    float rmax,
                                    unsigned int nNeigh):

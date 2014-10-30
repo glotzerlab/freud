@@ -133,6 +133,9 @@ class LinkCell
         //! Constructor
         LinkCell(const trajectory::Box& box, float cell_width);
 
+        //! Null Constructor for triclinic behavior
+        LinkCell();
+
         //! Compute LinkCell dimensions
         const vec3<unsigned int> computeDimensions() const;
 

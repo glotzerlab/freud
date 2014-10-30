@@ -27,6 +27,8 @@ namespace freud { namespace locality {
 class NearestNeighbors
     {
 public:
+    // Null constructor for use in triclinic; will be removed when cell list is fixed
+    NearestNeighbors();
     //! Constructor
     //!
     //! \param box This frame's box
