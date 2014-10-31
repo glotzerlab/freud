@@ -1,4 +1,5 @@
 #include <boost/python.hpp>
+#include <boost/shared_array.hpp>
 #include "num_util.h"
 
 #include "HOOMDMath.h"
@@ -10,6 +11,8 @@
 
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
+
+// using namespace boost::python;
 
 /*! \file trajectory.h
     \brief Helper routines for trajectory
@@ -201,6 +204,33 @@ class Box
             v.x += m_xy*v.y+m_xz*v.z;
             v.y += m_yz*v.z;
             return v;
+            }
+
+        //! Python wrapper for makeCoordinates() (returns a copy)
+        boost::python::numeric::array getCoordinatesPy(boost::python::numeric::array f)
+            {
+            num_util::check_type(f, PyArray_FLOAT);
+            num_util::check_rank(f, 1);
+
+            // validate that the 2nd dimension is only 3
+            num_util::check_dim(f, 0, 3);
+
+            // get the raw data pointers and compute the cell list
+            vec3<float>* f_raw = (vec3<float>*) num_util::data(f);
+
+            // now get the coordinates
+            vec3<float> v = makeCoordinates(*f_raw);
+            boost::shared_array<float> v_array = boost::shared_array<float>(new float[3]);
+            memset((void*)v_array.get(), 0, sizeof(float)*3);
+            v_array[0] = v.x;
+            v_array[1] = v.y;
+            v_array[2] = v.z;
+            if (m_2d)
+                {
+                v_array[2] = 0.0;
+                }
+            float *arr = v_array.get();
+            return num_util::makeNum(arr, 3);
             }
 
         //! Get the periodic image a vector belongs to
