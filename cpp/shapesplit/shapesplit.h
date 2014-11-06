@@ -24,7 +24,10 @@ class ShapeSplit
     {
     public:
         //! Constructor
-        ShapeSplit(const trajectory::Box& box);
+        ShapeSplit();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -40,7 +43,8 @@ class ShapeSplit
                      unsigned int Nsplit);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array points,
                        boost::python::numeric::array orientations,
                        boost::python::numeric::array split_points);
 

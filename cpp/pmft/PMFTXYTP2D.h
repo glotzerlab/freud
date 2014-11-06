@@ -36,10 +36,13 @@ class PMFTXYTP2D
     {
     public:
         //! Constructor
-        PMFTXYTP2D(const trajectory::Box& box, float max_x, float max_y, float max_T, float dx, float dy, float dT);
+        PMFTXYTP2D(float max_x, float max_y, float max_T, float dx, float dy, float dT);
 
         //! Destructor
         ~PMFTXYTP2D();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -68,7 +71,8 @@ class PMFTXYTP2D
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
                        boost::python::numeric::array orientations);

@@ -27,10 +27,13 @@ class HexOrderParameter
     {
     public:
         //! Constructor
-        HexOrderParameter(const trajectory::Box& box, float rmax, float k);
+        HexOrderParameter(float rmax, float k);
 
         //! Destructor
         ~HexOrderParameter();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -39,13 +42,12 @@ class HexOrderParameter
             }
 
         //! Compute the hex order parameter
-        // void compute(const float3 *points,
-        //              unsigned int Np);
         void compute(const vec3<float> *points,
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array points);
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array points);
 
         //! Get a reference to the last computed psi
         boost::shared_array< std::complex<float> > getPsi()

@@ -36,10 +36,13 @@ class RDF
     {
     public:
         //! Constructor
-        RDF(const trajectory::Box& box, float rmax, float dr);
+        RDF(float rmax, float dr);
 
         //! Destructor
         ~RDF();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -57,7 +60,8 @@ class RDF
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array points);
 
         //! Get a reference to the last computed rdf

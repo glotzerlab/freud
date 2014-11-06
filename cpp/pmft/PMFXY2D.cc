@@ -28,8 +28,8 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx, float dy)
-    : m_box(box), m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy)
+PMFXY2D::PMFXY2D(float max_x, float max_y, float dx, float dy)
+    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy)
     {
     if (dx < 0.0f)
         throw invalid_argument("dx must be positive");
@@ -43,10 +43,6 @@ PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx,
         throw invalid_argument("max_x must be greater than dx");
     if (dy > max_y)
         throw invalid_argument("max_y must be greater than dy");
-    if (max_x > box.getLx()/2 || max_y > box.getLy()/2)
-        throw invalid_argument("max_x, max_y must be smaller than half the smallest box size");
-    if (!box.is2D())
-        throw invalid_argument("box must be 2D");
 
     m_nbins_x = int(2 * floorf(m_max_x / m_dx));
     assert(m_nbins_x > 0);
@@ -75,11 +71,7 @@ PMFXY2D::PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx,
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
 
-    if (useCells())
-        {
-        float max_val = sqrtf(max_x*max_x + max_y*max_y);
-        m_lc = new locality::LinkCell(box, max_val);
-        }
+    m_lc = new locality::LinkCell();
     }
 
 PMFXY2D::~PMFXY2D()
@@ -88,8 +80,29 @@ PMFXY2D::~PMFXY2D()
         {
         delete[] (*i);
         }
-    if(useCells())
     delete m_lc;
+    }
+
+void PMFXY2D::updateBox(trajectory::Box& box)
+    {
+    // check to make sure the provided box is valid
+    if (m_max_x > box.getLx()/2 || m_max_y > box.getLy()/2)
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    if (!box.is2D())
+        throw invalid_argument("box must be 2D");
+    // see if it is different than the current box
+    if (m_box != box)
+        {
+        m_box = box;
+        // update the box. In the future, this may be checked to see if it really needs re-initing
+        if (useCells())
+            {
+            float max_val = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
+            locality::LinkCell* tmp = new locality::LinkCell(m_box, max_val);
+            delete m_lc;
+            m_lc = tmp;
+            }
+        }
     }
 
 class CombinePCFXY2D
@@ -448,12 +461,14 @@ void PMFXY2D::compute(vec3<float> *ref_points,
 /*! \brief Exposed function to python to calculate the PMF
 */
 
-void PMFXY2D::computePy(boost::python::numeric::array ref_points,
+void PMFXY2D::computePy(trajectory::Box& box,
+                        boost::python::numeric::array ref_points,
                         boost::python::numeric::array ref_orientations,
                         boost::python::numeric::array points,
                         boost::python::numeric::array orientations)
     {
     // validate input type and rank
+    updateBox(box);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, PyArray_FLOAT);
@@ -494,7 +509,7 @@ void PMFXY2D::computePy(boost::python::numeric::array ref_points,
 
 void export_PMFXY2D()
     {
-    class_<PMFXY2D>("PMFXY2D", init<trajectory::Box&, float, float, float, float>())
+    class_<PMFXY2D>("PMFXY2D", init<float, float, float, float>())
         .def("getBox", &PMFXY2D::getBox, return_internal_reference<>())
         .def("compute", &PMFXY2D::computePy)
         .def("getPCF", &PMFXY2D::getPCFPy)

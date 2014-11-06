@@ -25,16 +25,15 @@ class pmfXYZ(object):
     # \param dx The bin size in the x-direction
     # \param dy The bin size in the y-direction
     # \param dz The bin size in the z-direction
-    def __init__(self, box, maxX, maxY, maxZ, dx, dy, dz):
+    def __init__(self, maxX, maxY, maxZ, dx, dy, dz):
         super(pmfXYZ, self).__init__()
-        self.box = box
         self.maxX = maxX
         self.maxY = maxY
         self.maxZ = maxZ
         self.dx = dx
         self.dy = dy
         self.dz = dz
-        self.pmfHandle = PMFXYZ(self.box, self.maxX, self.maxY, self.maxZ, self.dx, self.dy, self.dz)
+        self.pmfHandle = PMFXYZ(self.maxX, self.maxY, self.maxZ, self.dx, self.dy, self.dz)
         self.xArray = self.pmfHandle.getX()
         self.yArray = self.pmfHandle.getY()
         self.zArray = self.pmfHandle.getZ()
@@ -48,7 +47,7 @@ class pmfXYZ(object):
     # \param pos points to consider
     # \param orientations orientations to consider as quaternion
     # \param faceQuaternions orientations to rotate after bringing into local coordinates
-    def compute(self, refPos=None, refOrientations=None, pos=None, orientations=None, faceQuaternions=None):
+    def compute(self, box, refPos=None, refOrientations=None, pos=None, orientations=None, faceQuaternions=None):
         if refPos is not None:
             self.refPos = refPos
         else:
@@ -80,7 +79,7 @@ class pmfXYZ(object):
             # create a unit quaternion
             self.faceQuaternions = numpy.zeros(shape=(len(self.refPos), 1, 4), dtype=numpy.float32)
             self.faceQuaternions[:,:,0] = 1.0
-        self.pmfHandle.compute(self.refPos, self.refOrientations, self.pos, self.orientations, self.faceQuaternions)
+        self.pmfHandle.compute(box, self.refPos, self.refOrientations, self.pos, self.orientations, self.faceQuaternions)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
     # in addition to self.pmfArray
@@ -112,14 +111,13 @@ class pmfXY2D(object):
     # \param maxY The maximum distance to consider in the y-direction (both + and -)
     # \param dx The bin size in the x-direction
     # \param dy The bin size in the y-direction
-    def __init__(self, box, maxX, maxY, dx, dy):
+    def __init__(self, maxX, maxY, dx, dy):
         super(pmfXY2D, self).__init__()
-        self.box = box
         self.maxX = maxX
         self.maxY = maxY
         self.dx = dx
         self.dy = dy
-        self.pmfHandle = PMFXY2D(self.box, self.maxX, self.maxY, self.dx, self.dy)
+        self.pmfHandle = PMFXY2D(self.maxX, self.maxY, self.dx, self.dy)
         self.xArray = self.pmfHandle.getX()
         self.yArray = self.pmfHandle.getY()
         self.nBinsX = int(len(self.xArray))
@@ -130,7 +128,7 @@ class pmfXY2D(object):
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    def compute(self, refPos=None, refAng=None, pos=None, ang=None):
+    def compute(self, box, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
         else:
@@ -151,7 +149,7 @@ class pmfXY2D(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.pmfHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+        self.pmfHandle.compute(box, self.refPos, self.refAng, self.pos, self.ang)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
     # in addition to self.pmfArray
@@ -183,16 +181,15 @@ class pmftXYT2D(object):
     # \param dx The bin size in the x-direction
     # \param dy The bin size in the y-direction
     # \param dT The angle bin size
-    def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
+    def __init__(self, maxX, maxY, maxT, dx, dy, dT):
         super(pmftXYT2D, self).__init__()
-        self.box = box
         self.maxX = maxX
         self.maxY = maxY
         self.maxT = maxT
         self.dx = dx
         self.dy = dy
         self.dT = dT
-        self.pmftHandle = PMFTXYT2D(self.box, self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
+        self.pmftHandle = PMFTXYT2D(self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
         self.xArray = self.pmfHandle.getX()
         self.yArray = self.pmfHandle.getY()
         self.TArray = self.pmfHandle.getT()
@@ -205,7 +202,7 @@ class pmftXYT2D(object):
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    def compute(self, refPos=None, refAng=None, pos=None, ang=None):
+    def compute(self, box, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
         else:
@@ -226,7 +223,7 @@ class pmftXYT2D(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+        self.pmftHandle.compute(box, self.refPos, self.refAng, self.pos, self.ang)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
     # in addition to self.pmfArray
@@ -258,16 +255,15 @@ class pmftXYTP2D(object):
     # \param dx The bin size in the x-direction
     # \param dy The bin size in the y-direction
     # \param dT The angle bin size
-    def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
+    def __init__(self, maxX, maxY, maxT, dx, dy, dT):
         super(pmftXYTP2D, self).__init__()
-        self.box = box
         self.maxX = maxX
         self.maxY = maxY
         self.maxT = maxT
         self.dx = dx
         self.dy = dy
         self.dT = dT
-        self.pmftHandle = PMFTXYTP2D(self.box, self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
+        self.pmftHandle = PMFTXYTP2D(self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
         self.xArray = self.pmfHandle.getX()
         self.yArray = self.pmfHandle.getY()
         self.TArray = self.pmfHandle.getT()
@@ -280,7 +276,7 @@ class pmftXYTP2D(object):
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    def compute(self, refPos=None, refAng=None, pos=None, ang=None):
+    def compute(self, box, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
         else:
@@ -301,7 +297,7 @@ class pmftXYTP2D(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+        self.pmftHandle.compute(box, self.refPos, self.refAng, self.pos, self.ang)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
     # in addition to self.pmfArray
@@ -333,16 +329,15 @@ class pmftXYTM2D(object):
     # \param dx The bin size in the x-direction
     # \param dy The bin size in the y-direction
     # \param dT The angle bin size
-    def __init__(self, box, maxX, maxY, maxT, dx, dy, dT):
+    def __init__(self, maxX, maxY, maxT, dx, dy, dT):
         super(pmftXYTM2D, self).__init__()
-        self.box = box
         self.maxX = maxX
         self.maxY = maxY
         self.maxT = maxT
         self.dx = dx
         self.dy = dy
         self.dT = dT
-        self.pmftHandle = PMFTXYTM2D(self.box, self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
+        self.pmftHandle = PMFTXYTM2D(self.maxX, self.maxY, self.maxT, self.dx, self.dy, self.dT)
         self.xArray = self.pmfHandle.getX()
         self.yArray = self.pmfHandle.getY()
         self.TArray = self.pmfHandle.getT()
@@ -355,7 +350,7 @@ class pmftXYTM2D(object):
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    def compute(self, refPos=None, refAng=None, pos=None, ang=None):
+    def compute(self, box, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
         else:
@@ -376,7 +371,7 @@ class pmftXYTM2D(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+        self.pmftHandle.compute(box, self.refPos, self.refAng, self.pos, self.ang)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
     # in addition to self.pmfArray
@@ -408,7 +403,7 @@ class pmftRPM(object):
     # \param dr The distance bin size
     # \param dTP The angle sum bin size
     # \param dTM The angle difference bin size
-    def __init__(self, box, maxR, maxTP, maxTM, dr, dTP, dTM):
+    def __init__(self, maxR, maxTP, maxTM, dr, dTP, dTM):
         super(pmftRPM, self).__init__()
         self.box = box
         self.maxR = maxR
@@ -417,7 +412,7 @@ class pmftRPM(object):
         self.dr = dr
         self.dTP = dTP
         self.dTM = dTM
-        self.pmftHandle = PMFTRPM(self.box, self.maxR, self.maxTP, self.maxTM, self.dr, self.dTP, self.dTM)
+        self.pmftHandle = PMFTRPM(self.maxR, self.maxTP, self.maxTM, self.dr, self.dTP, self.dTM)
         self.rArray = self.pmfHandle.getR()
         self.TPArray = self.pmfHandle.getTP()
         self.TMArray = self.pmfHandle.getTM()
@@ -430,7 +425,7 @@ class pmftRPM(object):
     # \param refAng Reference angles to consider as floats
     # \param pos Points to consider
     # \param ang Angles to consider as floats
-    def compute(self, refPos=None, refAng=None, pos=None, ang=None):
+    def compute(self, box, refPos=None, refAng=None, pos=None, ang=None):
         if refPos is not None:
             self.refPos = refPos
         else:
@@ -451,7 +446,7 @@ class pmftRPM(object):
         else:
             if self.ang is None:
                 raise RuntimeError("must input orientations")
-        self.pmftHandle.compute(self.refPos, self.refAng, self.pos, self.ang)
+        self.pmftHandle.compute(box, self.refPos, self.refAng, self.pos, self.ang)
 
     ## Calculate the PMF from the PCF. This has the side-effect of also populating the self.pcfArray
     # in addition to self.pmfArray

@@ -26,14 +26,20 @@ class LocalDensity
     {
     public:
         //! Constructor
-        LocalDensity(const trajectory::Box& box, float r_cut, float volume, float diameter);
+        LocalDensity(float r_cut, float volume, float diameter);
+
+       ~LocalDensity();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Compute the local density
         void compute(const vec3<float> *points,
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array points);
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array points);
 
         //! Get a reference to the last computed density
         boost::shared_array< float > getDensity()
@@ -66,7 +72,7 @@ class LocalDensity
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles
-        locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
+        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_Np;                //!< Last number of points computed
 
         boost::shared_array< float > m_density_array;         //!< density array computed

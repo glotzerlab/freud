@@ -23,8 +23,8 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(const trajectory::Box& box, float rmax, float dr)
-    : m_box(box), m_rmax(rmax), m_dr(dr)
+RDF::RDF(float rmax, float dr)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr)
     {
     if (dr < 0.0f)
         throw invalid_argument("dr must be positive");
@@ -32,10 +32,6 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
         throw invalid_argument("rmax must be positive");
     if (dr > rmax)
         throw invalid_argument("rmax must be greater than dr");
-    if (rmax > box.getLx()/2 || rmax > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (rmax > box.getLz()/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
@@ -59,20 +55,8 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
 
     // precompute cell volumes
     m_vol_array = boost::shared_array<float>(new float[m_nbins]);
-    for (unsigned int i = 0; i < m_nbins; i++)
-        {
-        float r = float(i) * m_dr;
-        float nextr = float(i+1) * m_dr;
-        if (m_box.is2D())
-            m_vol_array[i] = M_PI * (nextr*nextr - r*r);
-        else
-            m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
-        }
-
-    if (useCells())
-        {
-        m_lc = new locality::LinkCell(box, rmax);
-        }
+    memset((void*)m_vol_array.get(), 0, sizeof(float)*m_nbins);
+    m_lc = new locality::LinkCell();
     }
 
 RDF::~RDF()
@@ -81,8 +65,37 @@ RDF::~RDF()
         {
         delete[] (*i);
         }
-    if(useCells())
     delete m_lc;
+    }
+
+void RDF::updateBox(trajectory::Box& box)
+    {
+    // check to make sure the provided box is valid
+    if (m_rmax > box.getLx()/2 || m_rmax > box.getLy()/2)
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    if (m_rmax > box.getLz()/2 && !box.is2D())
+        throw invalid_argument("rmax must be smaller than half the smallest box size");
+    // see if it is different than the current box
+    if (m_box != box)
+        {
+        m_box = box;
+        for (unsigned int i = 0; i < m_nbins; i++)
+            {
+            float r = float(i) * m_dr;
+            float nextr = float(i+1) * m_dr;
+            if (m_box.is2D())
+                m_vol_array[i] = M_PI * (nextr*nextr - r*r);
+            else
+                m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
+            }
+        // update the box. In the future, this may be checked to see if it really needs re-initing
+        if (useCells())
+            {
+            locality::LinkCell* tmp = new locality::LinkCell(m_box, m_rmax);
+            delete m_lc;
+            m_lc = tmp;
+            }
+        }
     }
 
 class CumulativeCount
@@ -399,10 +412,12 @@ void RDF::compute(const vec3<float> *ref_points,
     parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
     }
 
-void RDF::computePy(boost::python::numeric::array ref_points,
+void RDF::computePy(trajectory::Box& box,
+                    boost::python::numeric::array ref_points,
                     boost::python::numeric::array points)
     {
     // validate input type and rank
+    updateBox(box);
     num_util::check_type(ref_points, PyArray_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(points, PyArray_FLOAT);
@@ -428,7 +443,7 @@ void RDF::computePy(boost::python::numeric::array ref_points,
 
 void export_RDF()
     {
-    class_<RDF>("RDF", init<trajectory::Box&, float, float>())
+    class_<RDF>("RDF", init<float, float>())
         .def("getBox", &RDF::getBox, return_internal_reference<>())
         .def("compute", &RDF::computePy)
         .def("getRDF", &RDF::getRDFPy)

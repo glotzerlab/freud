@@ -32,6 +32,7 @@ void export_trajectory()
         .def("getTiltFactorXZ", &Box::getTiltFactorXZ)
         .def("getTiltFactorYZ", &Box::getTiltFactorYZ)
         .def("getVolume", &Box::getVolume)
+        .def("getCoordinates", &Box::getCoordinatesPy)
         .def("wrap", &Box::wrapPy)
         .enable_pickling()
         ;

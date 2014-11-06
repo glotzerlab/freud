@@ -23,9 +23,18 @@ using namespace tbb;
 
 namespace freud { namespace shapesplit {
 
-ShapeSplit::ShapeSplit(const trajectory::Box& box)
-    : m_box(box), m_Np(0), m_Nsplit(0)
+ShapeSplit::ShapeSplit()
+    : m_box(trajectory::Box()), m_Np(0), m_Nsplit(0)
     {
+    }
+
+void ShapeSplit::updateBox(trajectory::Box& box)
+    {
+    // see if it is different than the current box
+    if (m_box != box)
+        {
+        m_box = box;
+        }
     }
 
 class SplitPoints
@@ -105,15 +114,15 @@ void ShapeSplit::compute(const vec3<float> *points,
     m_Nsplit = Nsplit;
     }
 
-void ShapeSplit::computePy(boost::python::numeric::array points,
+void ShapeSplit::computePy(trajectory::Box& box,
+                           boost::python::numeric::array points,
                            boost::python::numeric::array orientations,
                            boost::python::numeric::array split_points)
     {
     // validate input type and rank
+    updateBox(box);
     num_util::check_type(points, PyArray_FLOAT);
     num_util::check_rank(points, 2);
-    // num_util::check_type(orientations, PyArray_FLOAT);
-    // num_util::check_rank(orientations, 2);
     num_util::check_type(split_points, PyArray_FLOAT);
     num_util::check_rank(split_points, 2);
 
@@ -158,7 +167,7 @@ void ShapeSplit::computePy(boost::python::numeric::array points,
 
 void export_ShapeSplit()
     {
-    class_<ShapeSplit>("ShapeSplit", init<trajectory::Box&>())
+    class_<ShapeSplit>("ShapeSplit", init<>())
         .def("getBox", &ShapeSplit::getBox, return_internal_reference<>())
         .def("compute", &ShapeSplit::computePy)
         .def("getShapeSplit", &ShapeSplit::getShapeSplitPy)

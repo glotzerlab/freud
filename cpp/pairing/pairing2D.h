@@ -29,10 +29,15 @@ class pairing
     {
     public:
         //! Constructor
-        pairing(const trajectory::Box& box,
-                const float rmax,
+        pairing(const float rmax,
                 const unsigned int k,
                 float comp_dot_tol);
+
+        //! Destructor
+        ~pairing();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -66,22 +71,14 @@ class pairing
             return num_util::makeNum(arr, m_Np);
             }
 
-        // void ComputePairing2D(const float3 *points,
-        //                       const float *orientations,
-        //                       const float *comp_orientations,
-        //                       const unsigned int Np,
-        //                       const unsigned int No);
+
         void ComputePairing2D(const vec3<float> *points,
                               const float *orientations,
                               const float *comp_orientations,
                               const unsigned int Np,
                               const unsigned int No);
+
         //! Compute the pairing function
-        // void compute(const float3* points,
-        //              const float* orientations,
-        //              const float* comp_orientations,
-        //              const unsigned int Np,
-        //              const unsigned int No);
         void compute(const vec3<float>* points,
                      const float* orientations,
                      const float* comp_orientations,
@@ -89,7 +86,8 @@ class pairing
                      const unsigned int No);
 
         //! Python wrapper for compute with a specific orientations
-        void computePy(boost::python::numeric::array points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array points,
                        boost::python::numeric::array orientations,
                        boost::python::numeric::array comp_orientations);
 
@@ -97,7 +95,7 @@ class pairing
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r to check for nearest neighbors
         float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
-        locality::NearestNeighbors m_nn;          //!< Nearest Neighbors for the computation
+        locality::NearestNeighbors* m_nn;          //!< Nearest Neighbors for the computation
         boost::shared_array<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
         boost::shared_array<unsigned int> m_pair_array;         //!< array of pairs for particle i
         unsigned int m_nmatch;             //!< Number of matches

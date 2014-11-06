@@ -16,6 +16,11 @@ using namespace boost::python;
 
 namespace freud { namespace locality {
 
+// This is only used to initialize a pointer for the new triclinic setup
+// this will be phased out when the one true cell list is created
+// but until then, enjoy this mediocre hack
+LinkCell::LinkCell(){}
+
 LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width)
     {
     // check if the cell width is too wide for the box

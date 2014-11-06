@@ -25,13 +25,12 @@ class Pair2D:
     # \param rmax The max distance to search for nearest neighbors
     # \param k The number of nearest neighbors to check
     # \params cDotTol The tolerance for the complementary dot product as an angle, in radians
-    def __init__(self,box,rmax,k,cDotTol):
+    def __init__(self,rmax,k,cDotTol):
         super(Pair2D, self).__init__()
-        self.box = box
         self.rmax = rmax
         self.k = int(k)
         self.cDotTol = cDotTol
-        self.pairHandle = pairing(self.box, self.rmax, self.k, self.cDotTol)
+        self.pairHandle = pairing(self.rmax, self.k, self.cDotTol)
 
     ## Update relevant variables. Mainly called through compute
     # \params positions The positions of the particles
@@ -54,6 +53,7 @@ class Pair2D:
     # \params orientations The orientation of the shape itself
     # \params compOrientations The orientation of the complementary interface
     def compute(self,
+                box,
                 positions,
                 orientations,
                 compOrientations):
@@ -64,7 +64,7 @@ class Pair2D:
             raise RuntimeError("no orientations specified")
         if self.compOrientations is None:
             raise RuntimeError("no complementary orientations specified")
-        self.pairHandle.compute(self.positions, self.orientations, self.compOrientations)
+        self.pairHandle.compute(box, self.positions, self.orientations, self.compOrientations)
         self.matchList = self.pairHandle.getMatch()
         self.pairList = self.pairHandle.getPair()
         self.nMatch = numpy.sum(self.matchList)
