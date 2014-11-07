@@ -16,7 +16,7 @@ class TestR(unittest.TestCase):
             r2 = r1 + dr
             r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
 
-        rdf = density.RDF(trajectory.Box(rmax*3.1), rmax, dr)
+        rdf = density.RDF(rmax, dr)
 
         npt.assert_almost_equal(rdf.getR(), r_list, decimal=3)
 
@@ -27,8 +27,8 @@ class TestRDF(unittest.TestCase):
         num_points = 10000
         box_size = rmax*3.1
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
-        rdf = density.RDF(trajectory.Box(box_size), rmax, dr)
-        rdf.compute(points, points)
+        rdf = density.RDF(rmax, dr)
+        rdf.compute(trajectory.Box(box_size), points, points)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32)
         correct[0] = 0.0
@@ -41,8 +41,8 @@ class TestRDF(unittest.TestCase):
         num_points = 10000
         box_size = rmax*2
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
-        rdf = density.RDF(trajectory.Box(box_size), rmax, dr)
-        rdf.compute(points, points)
+        rdf = density.RDF(rmax, dr)
+        rdf.compute(trajectory.Box(box_size), points, points)
 
         correct = np.ones(int(rmax/dr))
         correct[0] = 0.0
