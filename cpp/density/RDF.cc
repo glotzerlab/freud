@@ -80,6 +80,8 @@ void RDF::updateBox(trajectory::Box& box)
         {
         m_box = box;
         m_lc->updateBox(m_box, m_rmax);
+        // this does not need calculating multiple times...
+        // maybe calc both on init and use the correct one when the time comes?
         for (unsigned int i = 0; i < m_nbins; i++)
             {
             float r = float(i) * m_dr;
@@ -89,13 +91,6 @@ void RDF::updateBox(trajectory::Box& box)
             else
                 m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
             }
-        // update the box. In the future, this may be checked to see if it really needs re-initing
-        // if (useCells())
-        //     {
-        //     locality::LinkCell* tmp = new locality::LinkCell(m_box, m_rmax);
-        //     delete m_lc;
-        //     m_lc = tmp;
-        //     }
         }
     }
 

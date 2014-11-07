@@ -80,13 +80,7 @@ void CorrelationFunction<T>::updateBox(trajectory::Box& box)
     if (m_box != box)
         {
         m_box = box;
-        // update the box. In the future, this may be checked to see if it really needs re-initing
-        if (useCells())
-            {
-            locality::LinkCell* tmp = new locality::LinkCell(m_box, m_rmax);
-            delete m_lc;
-            m_lc = tmp;
-            }
+        m_lc->updateBox(m_box, m_rmax);
         }
     }
 

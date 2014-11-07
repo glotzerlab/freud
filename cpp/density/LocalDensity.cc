@@ -37,9 +37,7 @@ void LocalDensity::updateBox(trajectory::Box& box)
     if (m_box != box)
         {
         m_box = box;
-        locality::LinkCell* tmp = new locality::LinkCell(box, m_rcut+m_diameter/2.0f);
-        delete m_lc;
-        m_lc = tmp;
+        m_lc->updateBox(m_box, m_rcut);
         }
     }
 
