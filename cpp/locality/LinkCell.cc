@@ -29,14 +29,14 @@ LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m
     // check if the cell width is too wide for the box
     m_celldim  = computeDimensions();
     //Check if box is too small!
-    bool too_wide =  m_cell_width > m_box.getLx() || m_cell_width > m_box.getLy();
+    bool too_wide =  m_cell_width > m_box.getLx()/2.0 || m_cell_width > m_box.getLy()/2.0;
     if (!m_box.is2D())
         {
-        too_wide |=  m_cell_width > m_box.getLz();
+        too_wide |=  m_cell_width > m_box.getLz()/2.0;
         }
     if (too_wide)
         {
-        throw runtime_error("Cannot generate a cell list where cell_width is larger than the box.");
+        throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
         }
     //only 1 cell deep in 2D
     if (m_box.is2D())
@@ -52,10 +52,10 @@ void LinkCell::updateBox(const trajectory::Box& box, float cell_width)
     // check if the cell width is too wide for the box
     vec3<unsigned int> celldim  = computeDimensions(box, cell_width);
     //Check if box is too small!
-    bool too_wide =  cell_width > box.getLx() || cell_width > box.getLy();
+    bool too_wide =  cell_width > box.getLx()/2.0 || cell_width > box.getLy()/2.0;
     if (!box.is2D())
         {
-        too_wide |=  cell_width > box.getLz();
+        too_wide |=  cell_width > box.getLz()/2.0;
         }
     if (too_wide)
         {
@@ -68,6 +68,7 @@ void LinkCell::updateBox(const trajectory::Box& box, float cell_width)
         }
     // check if the box is changed
     m_box = box;
+    m_cell_width = cell_width;
     if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
         {
         m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
@@ -75,9 +76,9 @@ void LinkCell::updateBox(const trajectory::Box& box, float cell_width)
             {
             throw runtime_error("At least one cell must be present");
             }
+        m_celldim  = celldim;
         computeCellNeighbors();
         }
-    m_celldim  = computeDimensions();
     }
 
 unsigned int LinkCell::roundDown(unsigned int v, unsigned int m)
@@ -96,9 +97,7 @@ const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box,
     {
     vec3<unsigned int> dim;
 
-    //m_multiple (renamed multiple here) was in the HOOMD triclinic math.
-    //  I don't see why we wouldn't round cell dims to nearest integer.
-    //  so here I set it to one, as a magic constant. - newmanrs
+    //multiple is a holdover from hpmc...doesn't really need to be kept
     unsigned int multiple = 1;
     vec3<float> L = box.getNearestPlaneDistance();
     dim.x = roundDown((unsigned int)((L.x) / (cell_width)), multiple);
@@ -216,7 +215,6 @@ void LinkCell::computeCellNeighbors()
                 unsigned int cur_cell = m_cell_index(i,j,k);
                 m_cell_neighbors[cur_cell].clear();
 
-                // loop over the 27 neighbor cells (9 in 2d)
                 // loop over the neighbor cells
                 int starti, startj, startk;
                 int endi, endj, endk;
@@ -269,8 +267,6 @@ void LinkCell::computeCellNeighbors()
                     {
                     endk = (int)k + 1;
                     }
-                // int startk = (int)k-1;
-                // int endk = (int)k+1;
                 if (m_box.is2D())
                     startk = endk = k;
 
