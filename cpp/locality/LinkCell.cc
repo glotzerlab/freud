@@ -19,29 +19,65 @@ namespace freud { namespace locality {
 // This is only used to initialize a pointer for the new triclinic setup
 // this will be phased out when the one true cell list is created
 // but until then, enjoy this mediocre hack
-LinkCell::LinkCell(){}
+LinkCell::LinkCell() : m_box(trajectory::Box()), m_Np(0), m_cell_width(0)
+    {
+    m_celldim = vec3<unsigned int>(0,0,0);
+    }
 
 LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width)
     {
     // check if the cell width is too wide for the box
-    vec3<unsigned int>  celldim  = computeDimensions();
-    //Check if box is too small!  Boxes with <3 cells in any dimension are unsupported
-    bool too_wide =  celldim.x < 3 || celldim.y < 3;
+    m_celldim  = computeDimensions();
+    //Check if box is too small!
+    bool too_wide =  m_cell_width > m_box.getLx() || m_cell_width > m_box.getLy();
     if (!m_box.is2D())
         {
-        too_wide |=  celldim.z < 3;
+        too_wide |=  m_cell_width > m_box.getLz();
         }
     if (too_wide)
         {
-        throw runtime_error("Cannot generate a cell list where cell_width is larger than 1/3 of any box dimension. Small boxes cannot use LinkCell.");
+        throw runtime_error("Cannot generate a cell list where cell_width is larger than the box.");
         }
     //only 1 cell deep in 2D
     if (m_box.is2D())
         {
+        m_celldim.z = 1;
+        }
+    m_cell_index = Index3D(m_celldim.x, m_celldim.y, m_celldim.z);
+    computeCellNeighbors();
+    }
+
+void LinkCell::updateBox(const trajectory::Box& box, float cell_width)
+    {
+    // check if the cell width is too wide for the box
+    vec3<unsigned int> celldim  = computeDimensions(box, cell_width);
+    //Check if box is too small!
+    bool too_wide =  cell_width > box.getLx() || cell_width > box.getLy();
+    if (!box.is2D())
+        {
+        too_wide |=  cell_width > box.getLz();
+        }
+    if (too_wide)
+        {
+        throw runtime_error("Cannot generate a cell list where cell_width is larger than the box.");
+        }
+    //only 1 cell deep in 2D
+    if (box.is2D())
+        {
         celldim.z = 1;
         }
-    m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
-    computeCellNeighbors();
+    // check if the box is changed
+    m_box = box;
+    if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
+        {
+        m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
+        if (m_cell_index.getNumElements() < 1)
+            {
+            throw runtime_error("At least one cell must be present");
+            }
+        computeCellNeighbors();
+        }
+    m_celldim  = computeDimensions();
     }
 
 unsigned int LinkCell::roundDown(unsigned int v, unsigned int m)
@@ -53,31 +89,36 @@ unsigned int LinkCell::roundDown(unsigned int v, unsigned int m)
 
 const vec3<unsigned int> LinkCell::computeDimensions() const
     {
+    return computeDimensions(m_box, m_cell_width);
+    }
+
+const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box, float cell_width) const
+    {
     vec3<unsigned int> dim;
 
     //m_multiple (renamed multiple here) was in the HOOMD triclinic math.
     //  I don't see why we wouldn't round cell dims to nearest integer.
     //  so here I set it to one, as a magic constant. - newmanrs
     unsigned int multiple = 1;
-    vec3<float> L = m_box.getNearestPlaneDistance();
-    dim.x = roundDown((unsigned int)((L.x) / (m_cell_width)), multiple);
-    dim.y = roundDown((unsigned int)((L.y) / (m_cell_width)), multiple);
+    vec3<float> L = box.getNearestPlaneDistance();
+    dim.x = roundDown((unsigned int)((L.x) / (cell_width)), multiple);
+    dim.y = roundDown((unsigned int)((L.y) / (cell_width)), multiple);
 
     // Add a ghost layer on every side where boundary conditions are non-periodic
-    if (! m_box.getPeriodic().x)
+    if (! box.getPeriodic().x)
         dim.x += 2;
-    if (! m_box.getPeriodic().y)
+    if (! box.getPeriodic().y)
         dim.y += 2;
 
-    if (m_box.is2D())
+    if (box.is2D())
         {
         dim.z = 1;
         }
     else
         {
-        dim.z = roundDown((unsigned int)((L.z) / (m_cell_width)), multiple);
+        dim.z = roundDown((unsigned int)((L.z) / (cell_width)), multiple);
         // add ghost layer if necessary
-        if (! m_box.getPeriodic().z)
+        if (! box.getPeriodic().z)
             dim.z += 2;
         }
 
@@ -140,6 +181,7 @@ void LinkCell::computeCellList(const vec3<float> *points, unsigned int Np)
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
     assert(Nc > 0);
+    // shouldn't this be deleted?
     m_cell_list = boost::shared_array<unsigned int>(new unsigned int[Np + Nc]);
 
     // initialize memory
@@ -175,14 +217,66 @@ void LinkCell::computeCellNeighbors()
                 m_cell_neighbors[cur_cell].clear();
 
                 // loop over the 27 neighbor cells (9 in 2d)
-                int startk = (int)k-1;
-                int endk = (int)k+1;
+                // loop over the neighbor cells
+                int starti, startj, startk;
+                int endi, endj, endk;
+                if (m_celldim.x < 3)
+                    {
+                    starti = (int)i;
+                    }
+                else
+                    {
+                    starti = (int)i - 1;
+                    }
+                if (m_celldim.y < 3)
+                    {
+                    startj = (int)j;
+                    }
+                else
+                    {
+                    startj = (int)j - 1;
+                    }
+                if (m_celldim.z < 3)
+                    {
+                    startk = (int)k;
+                    }
+                else
+                    {
+                    startk = (int)k - 1;
+                    }
+
+                if (m_celldim.x < 2)
+                    {
+                    endi = (int)i;
+                    }
+                else
+                    {
+                    endi = (int)i + 1;
+                    }
+                if (m_celldim.y < 2)
+                    {
+                    endj = (int)j;
+                    }
+                else
+                    {
+                    endj = (int)j + 1;
+                    }
+                if (m_celldim.z < 2)
+                    {
+                    endk = (int)k;
+                    }
+                else
+                    {
+                    endk = (int)k + 1;
+                    }
+                // int startk = (int)k-1;
+                // int endk = (int)k+1;
                 if (m_box.is2D())
                     startk = endk = k;
 
                 for (int neighk = startk; neighk <= endk; neighk++)
-                    for (int neighj = (int)j-1; neighj <= (int)j+1; neighj++)
-                        for (int neighi = (int)i-1; neighi <= (int)i+1; neighi++)
+                    for (int neighj = startj; neighj <= endj; neighj++)
+                        for (int neighi = starti; neighi <= endi; neighi++)
                             {
                             // wrap back into the box
                             int wrapi = (m_cell_index.getW()+neighi) % m_cell_index.getW();
