@@ -37,9 +37,7 @@ void HexOrderParameter::updateBox(trajectory::Box& box)
     if (m_box != box)
         {
         m_box = box;
-        locality::NearestNeighbors* tmp = new locality::NearestNeighbors(m_box, m_rmax, m_k);
-        delete m_nn;
-        m_nn = tmp;
+        m_nn->updateBox(m_box, m_rmax, m_k);
         }
     }
 

@@ -20,14 +20,38 @@ using namespace tbb;
 
 namespace freud { namespace locality {
 
-NearestNeighbors::NearestNeighbors(){}
+NearestNeighbors::NearestNeighbors():
+    m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_deficits()
+    {
+    m_lc = new locality::LinkCell();
+    m_deficits = 0;
+    }
 
-NearestNeighbors::NearestNeighbors(const trajectory::Box& box,
+NearestNeighbors::NearestNeighbors(trajectory::Box& box,
                                    float rmax,
                                    unsigned int nNeigh):
-    m_box(box), m_rmax(rmax), m_nNeigh(nNeigh), m_lc(box, rmax), m_Np(0), m_deficits()
+    m_box(box), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_deficits()
     {
+    m_lc = new locality::LinkCell(m_box, m_rmax);
     m_deficits = 0;
+    }
+
+NearestNeighbors::~NearestNeighbors()
+    {
+    delete m_lc;
+    }
+
+void NearestNeighbors::updateBox(trajectory::Box& box,
+                                 float rmax,
+                                 unsigned int nNeigh)
+    {
+    if (m_box != box)
+        {
+        m_box = box;
+        m_rmax = rmax;
+        m_nNeigh = nNeigh;
+        m_lc->updateBox(m_box, m_rmax);
+        }
     }
 
 //! Utility function to sort a pair<float, unsigned int> on the first
@@ -48,7 +72,7 @@ private:
     const unsigned int m_Np;
     const unsigned int m_nNeigh;
     const float m_rmax;
-    const locality::LinkCell& m_lc;
+    const locality::LinkCell* m_lc;
     const vec3<float> *m_pos;
 public:
     ComputeNearestNeighbors(atomic<unsigned int> &deficits,
@@ -58,7 +82,7 @@ public:
                             const unsigned int Np,
                             const unsigned int nNeigh,
                             const float rmax,
-                            const locality::LinkCell& lc,
+                            const locality::LinkCell* lc,
                             const vec3<float> *pos):
         m_deficits(deficits), m_rsq_array(r_array), m_neighbor_array(neighbor_array), m_box(box), m_Np(Np), m_nNeigh(nNeigh), m_rmax(rmax), m_lc(lc),
         m_pos(pos)
@@ -78,17 +102,17 @@ public:
 
             //get cell point is in
             const vec3<float> posi(m_pos[i]);
-            unsigned int ref_cell = m_lc.getCell(posi);
+            unsigned int ref_cell = m_lc->getCell(posi);
             unsigned int num_adjacent = 0;
 
             //loop over neighboring cells
-            const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
+            const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
             for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
                 {
                 unsigned int neigh_cell = neigh_cells[neigh_idx];
 
                 //iterate over particles in cell
-                locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
+                locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                 for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                     {
 
@@ -137,7 +161,7 @@ void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
     do
         {
         // compute the cell list
-        m_lc.computeCellList(pos, Np);
+        m_lc->computeCellList(pos, Np);
 
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,Np),
@@ -155,7 +179,7 @@ void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
         if(m_deficits > 0)
             {
             m_rmax *= 1.1;
-            m_lc = locality::LinkCell(m_box, m_rmax);
+            m_lc->updateBox(m_box, m_rmax);
             }
         } while(m_deficits > 0);
     // save the last computed number of particles
