@@ -110,14 +110,8 @@ void PMFTXYTM2D::updateBox(trajectory::Box& box)
     if (m_box != box)
         {
         m_box = box;
-        // update the box. In the future, this may be checked to see if it really needs re-initing
-        if (useCells())
-            {
-            float max_val = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
-            locality::LinkCell* tmp = new locality::LinkCell(m_box, max_val);
-            delete m_lc;
-            m_lc = tmp;
-            }
+        float max_val = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
+        m_lc->updateBox(m_box, max_val);
         }
     }
 
@@ -158,118 +152,7 @@ class CombinePCFXYTM2D
             }
     };
 
-class ComputePMFTXYTM2DWithoutCellList
-    {
-    private:
-        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
-        unsigned int m_nbins_x;
-        unsigned int m_nbins_y;
-        unsigned int m_nbins_T;
-        const trajectory::Box m_box;
-        const float m_max_x;
-        const float m_max_y;
-        const float m_max_T;
-        const float m_dx;
-        const float m_dy;
-        const float m_dT;
-        const vec3<float> *m_ref_points;
-        float *m_ref_orientations;
-        const unsigned int m_Nref;
-        const vec3<float> *m_points;
-        float *m_orientations;
-        const unsigned int m_Np;
-    public:
-        ComputePMFTXYTM2DWithoutCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
-                                         unsigned int nbins_x,
-                                         unsigned int nbins_y,
-                                         unsigned int nbins_T,
-                                         const trajectory::Box &box,
-                                         const float max_x,
-                                         const float max_y,
-                                         const float max_T,
-                                         const float dx,
-                                         const float dy,
-                                         const float dT,
-                                         const vec3<float> *ref_points,
-                                         float *ref_orientations,
-                                         unsigned int Nref,
-                                         const vec3<float> *points,
-                                         float *orientations,
-                                         unsigned int Np)
-            : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T), m_box(box),
-              m_max_x(max_x), m_max_y(max_y), m_max_T(max_T), m_dx(dx), m_dy(dy), m_dT(dT), m_ref_points(ref_points),
-              m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations),
-              m_Np(Np)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myR ) const
-            {
-            float dx_inv = 1.0f / m_dx;
-            float maxxsq = m_max_x * m_max_x;
-            float dy_inv = 1.0f / m_dy;
-            float maxysq = m_max_y * m_max_y;
-            float dT_inv = 1.0f / m_dT;
-
-            Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_T);
-
-            bool exists;
-            m_pcf_array.local(exists);
-            if (! exists)
-                {
-                m_pcf_array.local() = new unsigned int [m_nbins_x*m_nbins_y*m_nbins_T];
-                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
-                }
-
-            // for each reference point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
-                {
-                for (unsigned int j = 0; j < m_Np; j++)
-                    {
-                    vec3<float> delta = m_box.wrap(m_points[j] - m_ref_points[i]);
-
-                    float rsq = dot(delta, delta);
-
-                    if (rsq < 1e-6)
-                        {
-                        continue;
-                        }
-                    vec2<float> myVec(delta.x, delta.y);
-                    rotmat2<float> myMat = rotmat2<float>::fromAngle(-m_ref_orientations[i]);
-                    vec2<float> rotVec = myMat * myVec;
-                    float x = rotVec.x + m_max_x;
-                    float y = rotVec.y + m_max_y;
-                    // calculate angles
-                    float dTheta1 = atan2(delta.y, delta.x);
-                    float dTheta2 = atan2(-delta.y, -delta.x);
-                    float T1 = dTheta1 - m_ref_orientations[i];
-                    float T2 = dTheta2 - m_orientations[j];
-                    float T = T1 - T2 + m_max_T;
-
-                    // bin that point
-                    float binx = floorf(x * dx_inv);
-                    float biny = floorf(y * dy_inv);
-                    float binT = floorf(T * dT_inv);
-                    // fast float to int conversion with truncation
-                    #ifdef __SSE2__
-                    unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                    unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                    unsigned int ibinT = _mm_cvtt_ss2si(_mm_load_ss(&binT));
-                    #else
-                    unsigned int ibinx = (unsigned int)(binx);
-                    unsigned int ibiny = (unsigned int)(biny);
-                    unsigned int ibinT = (unsigned int)(binT);
-                    #endif
-
-                    if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinT < m_nbins_T))
-                        {
-                        ++m_pcf_array.local()[b_i(ibinx, ibiny, ibinT)];
-                        }
-                    }
-                } // done looping over reference points
-            }
-    };
-
-class ComputePMFTXYTM2DWithCellList
+class ComputePMFTXYTM2D
     {
     private:
         tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
@@ -291,24 +174,24 @@ class ComputePMFTXYTM2DWithCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTXYTM2DWithCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
-                                      unsigned int nbins_x,
-                                      unsigned int nbins_y,
-                                      unsigned int nbins_T,
-                                      const trajectory::Box &box,
-                                      const float max_x,
-                                      const float max_y,
-                                      const float max_T,
-                                      const float dx,
-                                      const float dy,
-                                      const float dT,
-                                      const locality::LinkCell *lc,
-                                      vec3<float> *ref_points,
-                                      float *ref_orientations,
-                                      unsigned int Nref,
-                                      vec3<float> *points,
-                                      float *orientations,
-                                      unsigned int Np)
+        ComputePMFTXYTM2D(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
+                          unsigned int nbins_x,
+                          unsigned int nbins_y,
+                          unsigned int nbins_T,
+                          const trajectory::Box &box,
+                          const float max_x,
+                          const float max_y,
+                          const float max_T,
+                          const float dx,
+                          const float dy,
+                          const float dT,
+                          const locality::LinkCell *lc,
+                          vec3<float> *ref_points,
+                          float *ref_orientations,
+                          unsigned int Nref,
+                          vec3<float> *points,
+                          float *orientations,
+                          unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_T(max_T), m_dx(dx), m_dy(dy), m_dT(dT), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
@@ -435,55 +318,32 @@ void PMFTXYTM2D::compute(vec3<float> *ref_points,
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
         }
-    if (useCells())
-        {
-        m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref),
-                     ComputePMFTXYTM2DWithCellList(m_local_pcf_array,
-                                                   m_nbins_x,
-                                                   m_nbins_y,
-                                                   m_nbins_T,
-                                                   m_box,
-                                                   m_max_x,
-                                                   m_max_y,
-                                                   m_max_T,
-                                                   m_dx,
-                                                   m_dy,
-                                                   m_dT,
-                                                   m_lc,
-                                                   ref_points,
-                                                   ref_orientations,
-                                                   Nref,
-                                                   points,
-                                                   orientations,
-                                                   Np));
-        }
-    else
-        {
-        parallel_for(blocked_range<size_t>(0,Nref),
-                     ComputePMFTXYTM2DWithoutCellList(m_local_pcf_array,
-                                                      m_nbins_x,
-                                                      m_nbins_y,
-                                                      m_nbins_T,
-                                                      m_box,
-                                                      m_max_x,
-                                                      m_max_y,
-                                                      m_max_T,
-                                                      m_dx,
-                                                      m_dy,
-                                                      m_dT,
-                                                      ref_points,
-                                                      ref_orientations,
-                                                      Nref,
-                                                      points,
-                                                      orientations,
-                                                      Np));
-        }
-    parallel_for(blocked_range<size_t>(0,m_nbins_x), CombinePCFXYTM2D(m_nbins_x,
-                                                                      m_nbins_y,
-                                                                      m_nbins_T,
-                                                                      m_pcf_array.get(),
-                                                                      m_local_pcf_array));
+    m_lc->computeCellList(points, Np);
+    parallel_for(blocked_range<size_t>(0,Nref),
+                 ComputePMFTXYTM2D(m_local_pcf_array,
+                                   m_nbins_x,
+                                   m_nbins_y,
+                                   m_nbins_T,
+                                   m_box,
+                                   m_max_x,
+                                   m_max_y,
+                                   m_max_T,
+                                   m_dx,
+                                   m_dy,
+                                   m_dT,
+                                   m_lc,
+                                   ref_points,
+                                   ref_orientations,
+                                   Nref,
+                                   points,
+                                   orientations,
+                                   Np));
+    parallel_for(blocked_range<size_t>(0,m_nbins_x),
+                 CombinePCFXYTM2D(m_nbins_x,
+                                  m_nbins_y,
+                                  m_nbins_T,
+                                  m_pcf_array.get(),
+                                  m_local_pcf_array));
     }
 
 void PMFTXYTM2D::computePy(trajectory::Box& box,

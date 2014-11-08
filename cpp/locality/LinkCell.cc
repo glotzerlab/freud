@@ -50,8 +50,6 @@ LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m
 void LinkCell::updateBox(const trajectory::Box& box, float cell_width)
     {
     // check if the cell width is too wide for the box
-    printf("box size: %f %f %f\n", box.getLx(), box.getLy(), box.getLz());
-    printf("cell width: %f\n", cell_width);
     vec3<unsigned int> celldim  = computeDimensions(box, cell_width);
     //Check if box is too small!
     bool too_wide =  cell_width > box.getLx()/2.0 || cell_width > box.getLy()/2.0;

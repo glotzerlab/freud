@@ -50,9 +50,6 @@ class RDF
             return m_box;
             }
 
-        //! Check if a cell list should be used or not
-        bool useCells();
-
         //! Compute the RDF
         void compute(const vec3<float> *ref_points,
                      unsigned int Nref,

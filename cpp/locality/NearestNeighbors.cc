@@ -123,7 +123,6 @@ public:
                     // adds all neighbors within rsq to list of possible neighbors
                     if ((rsq < rmaxsq) && (i != j))
                         {
-                        // printf("adding particle %d to possible neighbor list\n", j);
                         neighbors.push_back(pair<float, unsigned int>(rsq, j));
                         num_adjacent++;
                         }

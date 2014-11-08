@@ -51,9 +51,6 @@ class PMFXYZ
             return m_box;
             }
 
-        //! Check if a cell list should be used or not
-        bool useCells();
-
         //! Reset the PCF array to all zeros
         void resetPCF();
 

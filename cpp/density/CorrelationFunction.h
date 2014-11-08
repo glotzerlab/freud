@@ -64,9 +64,6 @@ class CorrelationFunction
             return m_box;
             }
 
-        //! Check if a cell list should be used or not
-        bool useCells();
-
         //! Compute the correlation function
         void compute(const vec3<float> *ref_points,
                      const T *ref_values,
