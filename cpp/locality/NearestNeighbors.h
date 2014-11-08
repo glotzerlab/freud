@@ -34,12 +34,9 @@ public:
     //! \param box This frame's box
     //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
     //! \param nNeigh Number of neighbors to find
-    NearestNeighbors(trajectory::Box& box,
+    NearestNeighbors(const trajectory::Box& box,
                      float rmax,
                      unsigned int nNeigh);
-
-    //! Update box used in NearestNeighbors
-    void updateBox(trajectory::Box& box, float cell_width);
 
     //! Get the simulation box
     const trajectory::Box& getBox() const
@@ -160,7 +157,7 @@ private:
     unsigned int m_nNeigh;            //!< Number of neighbors to calculate
     float m_rmax;                     //!< Maximum r at which to determine neighbors
     unsigned int m_Np;                //!< Number of particles for which nearest neighbors calc'd
-    locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
+    locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
     tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
     boost::shared_array<unsigned int> m_neighbor_array;         //!< array of nearest neighbors computed
     boost::shared_array<float> m_rsq_array;         //!< array of distances to neighbors

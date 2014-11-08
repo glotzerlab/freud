@@ -37,7 +37,9 @@ void HexOrderParameter::updateBox(trajectory::Box& box)
     if (m_box != box)
         {
         m_box = box;
-        m_nn->updateBox(m_box, m_rmax);
+        locality::NearestNeighbors* tmp = new locality::NearestNeighbors(m_box, m_rmax, m_k);
+        delete m_nn;
+        m_nn = tmp;
         }
     }
 
@@ -69,9 +71,7 @@ class ComputeHexOrderParameter
                 {
                 m_psi_array[i] = 0;
                 vec3<float> ref = m_points[i];
-                printf("getting neighbors\n");
                 boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
-                printf("got neighbors\n");
 
                 //loop over neighbors
                 for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
