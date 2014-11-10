@@ -42,13 +42,14 @@ class NNeighbors:
 
     # find nearest neighbors
     def compute(self,
-                positions):
-        self.handle.compute(positions)
+                ref_pos,
+                pos):
+        self.handle.compute(ref_pos,pos)
         self.rmax = self.handle.getRMax()
         self.neighborList = self.handle.getNeighborList()
-        self.neighborList = self.neighborList.reshape(shape=(len(positions), self.n))
+        self.neighborList = self.neighborList.reshape(shape=(len(ref_pos), self.n))
         self.RsqList = self.handle.getRsqList()
-        self.RsqList = self.RsqList.reshape(shape=(len(positions), self.n))
+        self.RsqList = self.RsqList.reshape(shape=(len(ref_pos), self.n))
 
     # return the nearest neighbors of point idx
     def neighbors(self,

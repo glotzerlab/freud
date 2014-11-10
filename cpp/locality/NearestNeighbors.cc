@@ -73,6 +73,7 @@ private:
     const unsigned int m_nNeigh;
     const float m_rmax;
     const locality::LinkCell* m_lc;
+    const vec3<float> *m_ref_pos;
     const vec3<float> *m_pos;
 public:
     ComputeNearestNeighbors(atomic<unsigned int> &deficits,
@@ -83,9 +84,10 @@ public:
                             const unsigned int nNeigh,
                             const float rmax,
                             const locality::LinkCell* lc,
+                            const vec3<float> *ref_pos,
                             const vec3<float> *pos):
         m_deficits(deficits), m_rsq_array(r_array), m_neighbor_array(neighbor_array), m_box(box), m_Np(Np), m_nNeigh(nNeigh), m_rmax(rmax), m_lc(lc),
-        m_pos(pos)
+        m_ref_pos(ref_pos), m_pos(pos)
         {
         }
 
@@ -101,7 +103,7 @@ public:
             neighbors.clear();
 
             //get cell point is in
-            const vec3<float> posi(m_pos[i]);
+            vec3<float> posi = m_ref_pos[i];
             unsigned int ref_cell = m_lc->getCell(posi);
             unsigned int num_adjacent = 0;
 
@@ -148,13 +150,13 @@ public:
         }
     };
 
-void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
+void NearestNeighbors::compute(const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np)
     {
     // reallocate the output array if it is not the right size
-    if (Np != m_Np)
+    if (Nref != m_Nref)
         {
-        m_rsq_array = boost::shared_array<float>(new float[Np * m_nNeigh]);
-        m_neighbor_array = boost::shared_array<unsigned int>(new unsigned int[Np * m_nNeigh]);
+        m_rsq_array = boost::shared_array<float>(new float[Nref * m_nNeigh]);
+        m_neighbor_array = boost::shared_array<unsigned int>(new unsigned int[Nref * m_nNeigh]);
         }
     // find the nearest neighbors
     do
@@ -172,6 +174,7 @@ void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
                                     m_nNeigh,
                                     m_rmax,
                                     m_lc,
+                                    ref_pos,
                                     pos));
 
         // Increase m_rmax
@@ -182,26 +185,32 @@ void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
             }
         } while(m_deficits > 0);
     // save the last computed number of particles
+    m_Nref = Nref;
     m_Np = Np;
     }
 
-void NearestNeighbors::computePy(boost::python::numeric::array pos)
+void NearestNeighbors::computePy(boost::python::numeric::array ref_pos, boost::python::numeric::array pos)
     {
     //validate input type and rank
+    num_util::check_type(ref_pos, NPY_FLOAT);
+    num_util::check_rank(ref_pos, 2);
     num_util::check_type(pos, NPY_FLOAT);
     num_util::check_rank(pos, 2);
 
     // validate that the 2nd dimension is only 3 for r and 4 for q
+    num_util::check_dim(ref_pos, 1, 3);
+    unsigned int Nref = num_util::shape(ref_pos)[0];
     num_util::check_dim(pos, 1, 3);
     unsigned int Np = num_util::shape(pos)[0];
 
     // get the raw data pointers and compute order parameter
+    vec3<float>* ref_pos_raw = (vec3<float>*) num_util::data(ref_pos);
     vec3<float>* pos_raw = (vec3<float>*) num_util::data(pos);
 
     // compute the order parameter with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(pos_raw, Np);
+        compute(ref_pos_raw, Nref, pos_raw, Np);
         }
     }
 

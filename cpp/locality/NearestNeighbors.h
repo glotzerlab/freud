@@ -107,7 +107,7 @@ public:
     boost::python::numeric::array getNeighborListPy()
         {
         unsigned int *arr = m_neighbor_array.get();
-        return num_util::makeNum(arr, m_nNeigh*m_Np);
+        return num_util::makeNum(arr, m_nNeigh*m_Nref);
         }
 
     //! Get a reference to the distance array
@@ -153,16 +153,17 @@ public:
         }
 
     //! find the requested nearest neighbors
-    void compute(const vec3<float> *r, unsigned int Np);
+    void compute(const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np);
 
     //! Python wrapper for compute
-    void computePy(boost::python::numeric::array r);
+    void computePy(boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
 
 private:
     trajectory::Box m_box;            //!< Simulation box the particles belong in
     unsigned int m_nNeigh;            //!< Number of neighbors to calculate
     float m_rmax;                     //!< Maximum r at which to determine neighbors
-    unsigned int m_Np;                //!< Number of particles for which nearest neighbors calc'd
+    unsigned int m_Np;                //!< Number of particles for which nearest neighbors checks
+    unsigned int m_Nref;                //!< Number of particles for which nearest neighbors calcs
     locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
     tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
     boost::shared_array<unsigned int> m_neighbor_array;         //!< array of nearest neighbors computed
