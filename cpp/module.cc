@@ -56,9 +56,10 @@ The following #defines help get around this
 #endif
 
 #ifdef MY_PY_VER_3x
-int my_import_array()
+void *my_import_array()
     {
     import_array();
+    return NULL;
     }
 #endif
 #ifdef MY_PY_VER_2x
