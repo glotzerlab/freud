@@ -72,9 +72,10 @@ template<typename T>
 void CorrelationFunction<T>::updateBox(trajectory::Box& box)
     {
     // check to make sure the provided box is valid
-    if (m_rmax > box.getLx()/2 || m_rmax > box.getLy()/2)
+    vec3<float> L = box.getNearestPlaneDistance();
+    if (m_rmax > L.x/2 || m_rmax > L.y/2)
         throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (m_rmax > box.getLz()/2 && !box.is2D())
+    if (m_rmax > L.z/2 && !box.is2D())
         throw invalid_argument("rmax must be smaller than half the smallest box size");
     // see if it is different than the current box
     if (m_box != box)

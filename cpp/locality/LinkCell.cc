@@ -29,10 +29,11 @@ LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m
     // check if the cell width is too wide for the box
     m_celldim  = computeDimensions();
     //Check if box is too small!
-    bool too_wide =  m_cell_width > m_box.getLx()/2.0 || m_cell_width > m_box.getLy()/2.0;
+    vec3<float> L = m_box.getNearestPlaneDistance();
+    bool too_wide =  m_cell_width > L.x/2.0 || m_cell_width > L.y/2.0;
     if (!m_box.is2D())
         {
-        too_wide |=  m_cell_width > m_box.getLz()/2.0;
+        too_wide |=  m_cell_width > L.z/2.0;
         }
     if (too_wide)
         {
@@ -50,12 +51,13 @@ LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m
 void LinkCell::updateBox(const trajectory::Box& box, float cell_width)
     {
     // check if the cell width is too wide for the box
+    vec3<float> L = box.getNearestPlaneDistance();
     vec3<unsigned int> celldim  = computeDimensions(box, cell_width);
     //Check if box is too small!
-    bool too_wide =  cell_width > box.getLx()/2.0 || cell_width > box.getLy()/2.0;
+    bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
     if (!box.is2D())
         {
-        too_wide |=  cell_width > box.getLz()/2.0;
+        too_wide |=  cell_width > L.z/2.0;
         }
     if (too_wide)
         {

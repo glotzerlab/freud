@@ -29,9 +29,10 @@ LocalDensity::~LocalDensity()
 void LocalDensity::updateBox(trajectory::Box& box)
     {
     // check to make sure the provided box is valid
-    if (m_rcut > box.getLx()/2 || m_rcut > box.getLy()/2)
+    vec3<float> L = box.getNearestPlaneDistance();
+    if (m_rcut > L.x/2 || m_rcut > L.y/2)
         throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (m_rcut > box.getLz()/2 && !box.is2D())
+    if (m_rcut > L.z/2 && !box.is2D())
         throw invalid_argument("rmax must be smaller than half the smallest box size");
     // see if it is different than the current box
     if (m_box != box)
