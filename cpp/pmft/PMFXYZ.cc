@@ -376,15 +376,15 @@ void PMFXYZ::computePy(trajectory::Box& box,
     {
     // validate input type and rank
     updateBox(box);
-    num_util::check_type(ref_points, PyArray_FLOAT);
+    num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
-    num_util::check_type(ref_orientations, PyArray_FLOAT);
+    num_util::check_type(ref_orientations, NPY_FLOAT);
     num_util::check_rank(ref_orientations, 2);
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
-    num_util::check_type(orientations, PyArray_FLOAT);
+    num_util::check_type(orientations, NPY_FLOAT);
     num_util::check_rank(orientations, 2);
-    num_util::check_type(face_orientations, PyArray_FLOAT);
+    num_util::check_type(face_orientations, NPY_FLOAT);
     num_util::check_rank(face_orientations, 3);
 
     // validate that the 2nd dimension is only 3

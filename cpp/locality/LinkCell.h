@@ -180,7 +180,7 @@ class LinkCell
         unsigned int getCellPy(boost::python::numeric::array p)
             {
             // validate input type and rank
-            num_util::check_type(p, PyArray_FLOAT);
+            num_util::check_type(p, NPY_FLOAT);
             num_util::check_rank(p, 1);
 
             // validate that the 2nd dimension is only 3
@@ -218,7 +218,7 @@ class LinkCell
         uint3 getCellCoordPy(boost::python::numeric::array p)  //Untested, unsure if uint3 or vec3<unsigned int> even export gracefully to python.  
             {
             // validate input type and rank
-            num_util::check_type(p, PyArray_FLOAT);
+            num_util::check_type(p, NPY_FLOAT);
             num_util::check_rank(p, 1);
 
             // validate that the 2nd dimension is only 3

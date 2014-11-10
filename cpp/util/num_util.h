@@ -43,7 +43,7 @@ namespace num_util{
    *@param t elements' numpy type. Default is double.
    *@return a numeric array of size n with elements initialized to zero.
    */
-  boost::python::numeric::array makeNum(intp n, PyArray_TYPES t);
+  boost::python::numeric::array makeNum(intp n, NPY_TYPES t);
 
   /**
    *Creates a n-dimensional numpy array with dimensions dimens and numpy
@@ -53,72 +53,72 @@ namespace num_util{
    *@return a numeric array of shape dimens with elements initialized to zero.
    */
   boost::python::numeric::array makeNum(std::vector<intp> dimens,
-                    PyArray_TYPES t);
+                    NPY_TYPES t);
 
   /**
-   *Function template returns PyArray_Type for C++ type
+   *Function template returns NPY_Type for C++ type
    *See num_util.cpp for specializations
    *@param T C++ type
    *@return numpy type enum
    */
 
-  template<typename T> PyArray_TYPES getEnum(void)
+  template<typename T> NPY_TYPES getEnum(void)
   {
     PyErr_SetString(PyExc_ValueError, "no mapping available for this type");
     boost::python::throw_error_already_set();
-    return PyArray_VOID;
+    return NPY_VOID;
   }
 
     //specializations for use by makeNum
 
 
   template <>
-  PyArray_TYPES getEnum<unsigned char>(void);
+  NPY_TYPES getEnum<unsigned char>(void);
 
   template <>
-  PyArray_TYPES getEnum<signed char>(void);
+  NPY_TYPES getEnum<signed char>(void);
 
   template <>
-  PyArray_TYPES getEnum<short>(void);
+  NPY_TYPES getEnum<short>(void);
 
   template <>
-  PyArray_TYPES getEnum<unsigned short>(void);
+  NPY_TYPES getEnum<unsigned short>(void);
 
   template <>
-  PyArray_TYPES getEnum<unsigned int>(void);
+  NPY_TYPES getEnum<unsigned int>(void);
 
   template <>
-  PyArray_TYPES getEnum<int>(void);
+  NPY_TYPES getEnum<int>(void);
 
   template <>
-  PyArray_TYPES getEnum<long>(void);
+  NPY_TYPES getEnum<long>(void);
 
   template <>
-  PyArray_TYPES getEnum<unsigned long>(void);
+  NPY_TYPES getEnum<unsigned long>(void);
 
   template <>
-  PyArray_TYPES getEnum<long long>(void);
+  NPY_TYPES getEnum<long long>(void);
 
   template <>
-  PyArray_TYPES getEnum<unsigned long long>(void);
+  NPY_TYPES getEnum<unsigned long long>(void);
 
   template <>
-  PyArray_TYPES getEnum<float>(void);
+  NPY_TYPES getEnum<float>(void);
 
   template <>
-  PyArray_TYPES getEnum<double>(void);
+  NPY_TYPES getEnum<double>(void);
 
   template <>
-  PyArray_TYPES getEnum<long double>(void);
+  NPY_TYPES getEnum<long double>(void);
 
   template <>
-  PyArray_TYPES getEnum<std::complex<float> >(void);
+  NPY_TYPES getEnum<std::complex<float> >(void);
 
   template <>
-  PyArray_TYPES getEnum<std::complex<double> >(void);
+  NPY_TYPES getEnum<std::complex<double> >(void);
 
   template <>
-  PyArray_TYPES getEnum<std::complex<long double> >(void);
+  NPY_TYPES getEnum<std::complex<long double> >(void);
 
 
   /**
@@ -169,7 +169,7 @@ namespace num_util{
    *@param arr a Boost/Python numeric array.
    *@return the numpy type of the array's elements
    */
-  PyArray_TYPES type(boost::python::numeric::array arr);
+  NPY_TYPES type(boost::python::numeric::array arr);
 
   /**
    *Throws an exception if the actual array type is not equal to the expected
@@ -179,7 +179,7 @@ namespace num_util{
    *@return -----
    */
   void check_type(boost::python::numeric::array arr,
-          PyArray_TYPES expected_type);
+          NPY_TYPES expected_type);
 
   /**
    *A free function that retrieves the number of dimensions of a numpy array.
@@ -286,11 +286,11 @@ namespace num_util{
   /**
    *Returns a clone of this array with a new type.
    *@param arr a Boost/Python numeric array.
-   *@param t PyArray_TYPES of the output array.
+   *@param t NPY_TYPES of the output array.
    *@return a replicate of 'arr' with type set to 't'.
    */
   boost::python::numeric::array astype(boost::python::numeric::array arr,
-                       PyArray_TYPES t);
+                       NPY_TYPES t);
 
 
 /*    *Returns the reference count of the array. */
@@ -308,47 +308,47 @@ namespace num_util{
 
   /**
    *Throws an exception if the element of a numpy array is type cast to
-   *PyArray_OBJECT.
+   *NPY_OBJECT.
    *@param newo a Boost/Python object.
    *@return -----
    */
   void check_PyArrayElementType(boost::python::object newo);
 
   /**
-   *Mapping from a PyArray_TYPE to its corresponding name in string.
+   *Mapping from a NPY_TYPE to its corresponding name in string.
    */
-  typedef std::map<PyArray_TYPES, std::string> KindStringMap;
+  typedef std::map<NPY_TYPES, std::string> KindStringMap;
 
   /**
-   *Mapping from a PyArray_TYPE to its corresponding typeID in char.
+   *Mapping from a NPY_TYPE to its corresponding typeID in char.
    */
-  typedef std::map<PyArray_TYPES, char> KindCharMap;
+  typedef std::map<NPY_TYPES, char> KindCharMap;
 
   /**
-   *Mapping from a typeID to its corresponding PyArray_TYPE.
+   *Mapping from a typeID to its corresponding NPY_TYPE.
    */
-  typedef std::map<char, PyArray_TYPES> KindTypeMap;
+  typedef std::map<char, NPY_TYPES> KindTypeMap;
 
   /**
-   *Converts a PyArray_TYPE to its name in string.
-   *@param t_type a PyArray_TYPES.
+   *Converts a NPY_TYPE to its name in string.
+   *@param t_type a NPY_TYPES.
    *@return the corresponding name in string.
    */
-  std::string type2string(PyArray_TYPES t_type);
+  std::string type2string(NPY_TYPES t_type);
 
   /**
-   *Converts a PyArray_TYPE to its single character typecode.
-   *@param t_type a PyArray_TYPES.
+   *Converts a NPY_TYPE to its single character typecode.
+   *@param t_type a NPY_TYPES.
    *@return the corresponding typecode in char.
    */
-  char type2char(PyArray_TYPES t_type);
+  char type2char(NPY_TYPES t_type);
 
   /**
-   *Coverts a single character typecode to its PyArray_TYPES.
-   *@param e_type a PyArray_TYPES typecode in char.
-   *@return its corresponding PyArray_TYPES.
+   *Coverts a single character typecode to its NPY_TYPES.
+   *@param e_type a NPY_TYPES typecode in char.
+   *@return its corresponding NPY_TYPES.
    */
-  PyArray_TYPES char2type(char e_type);
+  NPY_TYPES char2type(char e_type);
 
   /**
    *Constructs a string which contains a list of elements extracted from the

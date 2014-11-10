@@ -315,9 +315,9 @@ void RDF::computePy(trajectory::Box& box,
     {
     // validate input type and rank
     updateBox(box);
-    num_util::check_type(ref_points, PyArray_FLOAT);
+    num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3

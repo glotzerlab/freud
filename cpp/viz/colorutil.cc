@@ -28,7 +28,7 @@ namespace freud { namespace viz {
 void linearToFromSRGBAPy(boost::python::numeric::array cmap, float p)
     {
     //validate input type and rank
-    num_util::check_type(cmap, PyArray_FLOAT);
+    num_util::check_type(cmap, NPY_FLOAT);
     num_util::check_rank(cmap, 2);
 
     // validate that the 2nd dimension is 4

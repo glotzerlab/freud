@@ -45,6 +45,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 include (FREUDNumpySetup)
 include_directories(${NUMPY_INCLUDE_DIR})
 add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
+add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
 
 add_subdirectory(cpp)

@@ -43,7 +43,7 @@ Bootstrap::Bootstrap(const unsigned int nBootstrap, boost::python::numeric::arra
     : m_nBootstrap(nBootstrap)
     {
 
-    num_util::check_type(data_array, PyArray_UINT);
+    num_util::check_type(data_array, NPY_UINT);
     num_util::check_rank(data_array, 1);
     m_arrSize = num_util::shape(data_array)[0];
     unsigned int* data_array_raw = (unsigned int*) num_util::data(data_array);

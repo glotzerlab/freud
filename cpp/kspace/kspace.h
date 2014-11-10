@@ -39,7 +39,7 @@ class FTdelta
         void set_K_Py(boost::python::numeric::array K)
             {
             // validate input type and rank
-            num_util::check_type(K, PyArray_FLOAT);
+            num_util::check_type(K, NPY_FLOAT);
             num_util::check_rank(K, 2);
             // validate width of the 2nd dimension
             num_util::check_dim(K, 1, 3);
@@ -69,9 +69,9 @@ class FTdelta
                     boost::python::numeric::array orientation)
             {
             // validate input type and rank
-            num_util::check_type(position, PyArray_FLOAT);
+            num_util::check_type(position, NPY_FLOAT);
             num_util::check_rank(position, 2);
-            num_util::check_type(orientation, PyArray_FLOAT);
+            num_util::check_type(orientation, NPY_FLOAT);
             num_util::check_rank(orientation, 2);
 
             // validate width of the 2nd dimension

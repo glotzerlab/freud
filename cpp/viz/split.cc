@@ -68,25 +68,25 @@ void splitPy(boost::python::numeric::array split_array,
     //validate input type and rank
     //
 
-    num_util::check_type(split_array, PyArray_FLOAT);
+    num_util::check_type(split_array, NPY_FLOAT);
     num_util::check_rank(split_array, 2);
 
-    num_util::check_type(sangle_array, PyArray_FLOAT);
+    num_util::check_type(sangle_array, NPY_FLOAT);
     num_util::check_rank(sangle_array, 1);
 
     // validate that the 2nd dimension is 2
     num_util::check_dim(split_array, 1, 3);
 
-    num_util::check_type(position_array, PyArray_FLOAT);
+    num_util::check_type(position_array, NPY_FLOAT);
     num_util::check_rank(position_array, 2);
     unsigned int N = num_util::shape(position_array)[0];
 
-    num_util::check_type(angle_array, PyArray_FLOAT);
+    num_util::check_type(angle_array, NPY_FLOAT);
     num_util::check_rank(angle_array, 1);
     if (num_util::shape(angle_array)[0] != N)
         throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
 
-    num_util::check_type(centers_array, PyArray_FLOAT);
+    num_util::check_type(centers_array, NPY_FLOAT);
     num_util::check_rank(centers_array, 2);
     unsigned int NS = num_util::shape(centers_array)[0];
 

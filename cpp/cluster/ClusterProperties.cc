@@ -153,7 +153,7 @@ void ClusterProperties::computePropertiesPy(boost::python::numeric::array points
                                             boost::python::numeric::array cluster_idx)
     {
     // validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -161,7 +161,7 @@ void ClusterProperties::computePropertiesPy(boost::python::numeric::array points
     unsigned int Np = num_util::shape(points)[0];
 
     // validate that cluster_idx is a 1D array
-    num_util::check_type(cluster_idx, PyArray_UINT32);
+    num_util::check_type(cluster_idx, NPY_UINT32);
     num_util::check_rank(cluster_idx, 1);
 
     // Check that there is one key per point

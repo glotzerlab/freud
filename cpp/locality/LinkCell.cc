@@ -137,7 +137,7 @@ const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box,
 void LinkCell::computeCellListPy(boost::python::numeric::array points)
     {
     // validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3

@@ -89,8 +89,8 @@ unsigned int InterfaceMeasure::computePy(boost::python::numeric::array ref_point
                                          boost::python::numeric::array points)
 {
     // validate input type
-    num_util::check_type(ref_points, PyArray_FLOAT);
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(ref_points, NPY_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
 
     // validate input rank
     num_util::check_rank(ref_points, 2);

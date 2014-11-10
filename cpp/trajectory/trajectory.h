@@ -209,7 +209,7 @@ class Box
         //! Python wrapper for makeCoordinates() (returns a copy)
         boost::python::numeric::array getCoordinatesPy(boost::python::numeric::array f)
             {
-            num_util::check_type(f, PyArray_FLOAT);
+            num_util::check_type(f, NPY_FLOAT);
             num_util::check_rank(f, 1);
 
             // validate that the 2nd dimension is only 3
@@ -366,7 +366,7 @@ class Box
         void wrapPy(boost::python::numeric::array vecs)
             {
             // validate input type and dimensions
-            num_util::check_type(vecs, PyArray_FLOAT);
+            num_util::check_type(vecs, NPY_FLOAT);
 
             // if this is a rank 1 array, then it must be a simple 3-vector of points
             if (num_util::rank(vecs) == 1)

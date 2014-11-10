@@ -196,11 +196,11 @@ void pairing::computePy(trajectory::Box& box,
     // orientations contains the orientations of each particle; Np (x1)
     // orientations contains the local orientations of possible interfaces; Np x No
     updateBox(box);
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
-    num_util::check_type(orientations, PyArray_FLOAT);
+    num_util::check_type(orientations, NPY_FLOAT);
     num_util::check_rank(orientations, 1);
-    num_util::check_type(comp_orientations, PyArray_FLOAT);
+    num_util::check_type(comp_orientations, NPY_FLOAT);
     num_util::check_rank(comp_orientations, 2);
 
     // get the number of particles

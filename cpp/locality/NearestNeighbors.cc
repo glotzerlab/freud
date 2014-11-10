@@ -188,7 +188,7 @@ void NearestNeighbors::compute(const vec3<float> *pos, unsigned int Np)
 void NearestNeighbors::computePy(boost::python::numeric::array pos)
     {
     //validate input type and rank
-    num_util::check_type(pos, PyArray_FLOAT);
+    num_util::check_type(pos, NPY_FLOAT);
     num_util::check_rank(pos, 2);
 
     // validate that the 2nd dimension is only 3 for r and 4 for q
