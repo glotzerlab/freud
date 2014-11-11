@@ -28,10 +28,9 @@ NearestNeighbors::NearestNeighbors():
     m_deficits = 0;
     }
 
-NearestNeighbors::NearestNeighbors(trajectory::Box& box,
-                                   float rmax,
+NearestNeighbors::NearestNeighbors(float rmax,
                                    unsigned int nNeigh):
-    m_box(box), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_deficits()
+    m_box(trajectory::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_deficits()
     {
     m_lc = new locality::LinkCell(m_box, m_rmax);
     m_deficits = 0;
@@ -211,7 +210,7 @@ void NearestNeighbors::computePy(trajectory::Box& box,
 
 void export_NearestNeighbors()
     {
-    class_<NearestNeighbors>("NearestNeighbors", init<trajectory::Box&, float, unsigned int>())
+    class_<NearestNeighbors>("NearestNeighbors", init<float, unsigned int>())
         .def("getBox", &NearestNeighbors::getBox, return_internal_reference<>())
         .def("getNNeigh", &NearestNeighbors::getNNeigh)
         .def("getRMax", &NearestNeighbors::getRMaxPy)

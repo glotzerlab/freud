@@ -32,8 +32,7 @@ public:
     //! \param box This frame's box
     //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
     //! \param nNeigh Number of neighbors to find
-    NearestNeighbors(trajectory::Box& box,
-                     float rmax,
+    NearestNeighbors(float rmax,
                      unsigned int nNeigh);
 
     ~NearestNeighbors();

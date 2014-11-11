@@ -18,7 +18,7 @@ namespace freud { namespace order {
 HexOrderParameter::HexOrderParameter(float rmax, float k=6)
     : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
-    m_nn = new locality::NearestNeighbors(m_box, m_rmax, m_k);
+    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
 
 HexOrderParameter::~HexOrderParameter()

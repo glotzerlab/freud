@@ -38,7 +38,7 @@ pairing::pairing(const float rmax,
         {
         m_pair_array[i] = i;
         }
-    m_nn = new locality::NearestNeighbors(m_box, m_rmax, m_k);
+    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
 
 pairing::~pairing()

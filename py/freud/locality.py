@@ -18,12 +18,11 @@ class NNeighbors:
     # \param box The simulation box
     # \param rmax The maximum distance to search for nearest neighbors
     # \param n The number of nearest neighbors to find
-    def __init__(self,box,rmax,n):
+    def __init__(self,rmax,n):
         super(NNeighbors, self).__init__()
-        self.box = box
         self.rmax = rmax
         self.n = int(n)
-        self.handle = NearestNeighbors(self.box, self.rmax, self.n)
+        self.handle = NearestNeighbors(self.rmax, self.n)
         self.neighborList = None
         self.RsqList = None
 
@@ -38,13 +37,15 @@ class NNeighbors:
         if n is not None:
             self.n = n
         if not ((box is None) and (rmax is None) and (n is None)):
-            self.handle = NearestNeighbors(self.box, self.rmax, self.n)
+            self.handle = NearestNeighbors(self.rmax, self.n)
 
     # find nearest neighbors
     def compute(self,
+                box,
                 ref_pos,
                 pos):
-        self.handle.compute(ref_pos,pos)
+        self.box = box
+        self.handle.compute(self.box,ref_pos,pos)
         self.rmax = self.handle.getRMax()
         self.neighborList = self.handle.getNeighborList()
         self.neighborList = self.neighborList.reshape(shape=(len(ref_pos), self.n))
