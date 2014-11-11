@@ -38,6 +38,12 @@ public:
 
     ~NearestNeighbors();
 
+    void setRMax(float rmax)
+        {
+        m_rmax = rmax;
+        m_lc->setCellWidth(m_rmax);
+        }
+
     //! Get the simulation box
     const trajectory::Box& getBox() const
         {

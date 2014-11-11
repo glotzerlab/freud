@@ -81,6 +81,7 @@ void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
     m_nn->compute(m_box,points,Np,points,Np);
+    m_nn->setRMax(m_rmax);
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)

@@ -164,6 +164,12 @@ class LinkCell
             return m_cell_index.getNumElements();
             }
 
+        //! Get the cell width
+        float getCellWidth() const
+            {
+            return m_cell_width;
+            }
+
         //! Compute the cell id for a given position
         unsigned int getCell(const vec3<float>& p) const
             {

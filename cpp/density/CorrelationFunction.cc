@@ -51,7 +51,7 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
         float nextr = float(i+1) * m_dr;
         m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
-    m_lc = new locality::LinkCell();
+    m_lc = new locality::LinkCell(m_box, m_rmax);
     }
 
 template<typename T>

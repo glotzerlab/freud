@@ -84,7 +84,7 @@ PMFTXYTM2D::PMFTXYTM2D(float max_x, float max_y, float max_T, float dx, float dy
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_T * m_nbins_y * m_nbins_x]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_T * m_nbins_y * m_nbins_x);
 
-    m_lc = new locality::LinkCell();
+    m_lc = new locality::LinkCell(m_box, sqrtf(m_max_x*m_max_x + m_max_y*m_max_y));
 
     }
 
@@ -264,21 +264,6 @@ class ComputePMFTXYTM2D
                 } // done looping over reference points
             }
     };
-
-bool PMFTXYTM2D::useCells()
-    {
-    float l_min = fmin(m_box.getLx(), m_box.getLy());
-
-    if (!m_box.is2D())
-        l_min = fmin(l_min, m_box.getLz());
-
-    float rmax = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
-
-    if (rmax < l_min/3.0f)
-        return true;
-
-    return false;
-    }
 
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types

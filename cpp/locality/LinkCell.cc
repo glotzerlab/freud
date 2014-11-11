@@ -54,35 +54,38 @@ LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m
 
 void LinkCell::setCellWidth(float cell_width)
     {
-    vec3<float> L = m_box.getNearestPlaneDistance();
-    vec3<unsigned int> celldim  = computeDimensions(m_box, cell_width);
-    //Check if box is too small!
-    bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
-    if (!m_box.is2D())
+    if (cell_width != m_cell_width)
         {
-        too_wide |=  cell_width > L.z/2.0;
-        }
-    if (too_wide)
-        {
-        throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
-        }
-    //only 1 cell deep in 2D
-    if (m_box.is2D())
-        {
-        celldim.z = 1;
-        }
-    // check if the dims changed
-    if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
-        {
-        m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
-        if (m_cell_index.getNumElements() < 1)
+        vec3<float> L = m_box.getNearestPlaneDistance();
+        vec3<unsigned int> celldim  = computeDimensions(m_box, cell_width);
+        //Check if box is too small!
+        bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
+        if (!m_box.is2D())
             {
-            throw runtime_error("At least one cell must be present");
+            too_wide |=  cell_width > L.z/2.0;
             }
-        m_celldim  = celldim;
-        computeCellNeighbors();
+        if (too_wide)
+            {
+            throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
+            }
+        //only 1 cell deep in 2D
+        if (m_box.is2D())
+            {
+            celldim.z = 1;
+            }
+        // check if the dims changed
+        if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
+            {
+            m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
+            if (m_cell_index.getNumElements() < 1)
+                {
+                throw runtime_error("At least one cell must be present");
+                }
+            m_celldim  = celldim;
+            computeCellNeighbors();
+            }
+        m_cell_width = cell_width;
         }
-    m_cell_width = cell_width;
     }
 
 void LinkCell::updateBox(const trajectory::Box& box)

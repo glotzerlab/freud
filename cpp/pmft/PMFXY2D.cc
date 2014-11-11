@@ -69,7 +69,7 @@ PMFXY2D::PMFXY2D(float max_x, float max_y, float dx, float dy)
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
 
-    m_lc = new locality::LinkCell();
+    m_lc = new locality::LinkCell(m_box, sqrtf(m_max_x*m_max_x + m_max_y*m_max_y));
     }
 
 PMFXY2D::~PMFXY2D()

@@ -18,7 +18,7 @@ namespace freud { namespace density {
 LocalDensity::LocalDensity(float rcut, float volume, float diameter)
     : m_box(trajectory::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_Np(0)
     {
-    m_lc = new locality::LinkCell();
+    m_lc = new locality::LinkCell(m_box, m_rcut);
     }
 
 LocalDensity::~LocalDensity()
@@ -115,7 +115,7 @@ class ComputeLocalDensity
 void LocalDensity::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
-    m_lc->computeCellList(m_box, points,Np);
+    m_lc->computeCellList(m_box, points, Np);
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)

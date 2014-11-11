@@ -82,7 +82,7 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, f
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_r*m_nbins_TP*m_nbins_TM]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
 
-    m_lc = new locality::LinkCell();
+    m_lc = new locality::LinkCell(m_box, m_max_r);
 
     }
 

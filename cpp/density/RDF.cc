@@ -68,7 +68,7 @@ RDF::RDF(float rmax, float dr)
         m_vol_array3D[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
         }
 
-    m_lc = new locality::LinkCell();
+    m_lc = new locality::LinkCell(m_box, m_rmax);
     }
 
 RDF::~RDF()
