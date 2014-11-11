@@ -27,7 +27,7 @@ LinkCell::LinkCell() : m_box(trajectory::Box()), m_Np(0), m_cell_width(0)
 LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width)
     {
     // check if the cell width is too wide for the box
-    m_celldim  = computeDimensions();
+    m_celldim  = computeDimensions(m_box, m_cell_width);
     //Check if box is too small!
     // will only check if the box is not null
     if (box != trajectory::Box())
@@ -129,11 +129,6 @@ unsigned int LinkCell::roundDown(unsigned int v, unsigned int m)
     return d*m;
     }
 
-const vec3<unsigned int> LinkCell::computeDimensions() const
-    {
-    return computeDimensions(m_box, m_cell_width);
-    }
-
 const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box, float cell_width) const
     {
     vec3<unsigned int> dim;
@@ -222,13 +217,15 @@ void LinkCell::computeCellList(trajectory::Box& box,
         throw runtime_error("Cannot generate a cell list of 0 particles");
         }
 
-    m_Np = Np;
-
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
     assert(Nc > 0);
-    // shouldn't this be deleted?
-    m_cell_list = boost::shared_array<unsigned int>(new unsigned int[Np + Nc]);
+    if ((m_Np != Np) || (m_Nc != Nc))
+        {
+        m_cell_list = boost::shared_array<unsigned int>(new unsigned int[Np + Nc]);
+        }
+    m_Np = Np;
+    m_Nc = Nc;
 
     // initialize memory
     for (unsigned int cell = 0; cell < Nc; cell++)

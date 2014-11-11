@@ -143,7 +143,6 @@ class LinkCell
         void updateBox(const trajectory::Box& box);
 
         //! Compute LinkCell dimensions
-        const vec3<unsigned int> computeDimensions() const;
         const vec3<unsigned int> computeDimensions(const trajectory::Box& box, float cell_width) const;
 
         //! Get the simulation box
@@ -276,6 +275,7 @@ class LinkCell
         trajectory::Box m_box;      //!< Simulation box the particles belong in
         Index3D m_cell_index;       //!< Indexer to compute cell indices
         unsigned int m_Np;          //!< Number of particles last placed into the cell list
+        unsigned int m_Nc;          //!< Number of cells last used
         float m_cell_width;         //!< Minimum necessary cell width cutoff
         vec3<unsigned int> m_celldim; //!< Cell dimensions
 
