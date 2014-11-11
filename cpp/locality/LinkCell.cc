@@ -139,12 +139,6 @@ const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box,
     dim.x = roundDown((unsigned int)((L.x) / (cell_width)), multiple);
     dim.y = roundDown((unsigned int)((L.y) / (cell_width)), multiple);
 
-    // Add a ghost layer on every side where boundary conditions are non-periodic
-    if (! box.getPeriodic().x)
-        dim.x += 2;
-    if (! box.getPeriodic().y)
-        dim.y += 2;
-
     if (box.is2D())
         {
         dim.z = 1;
@@ -152,9 +146,6 @@ const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box,
     else
         {
         dim.z = roundDown((unsigned int)((L.z) / (cell_width)), multiple);
-        // add ghost layer if necessary
-        if (! box.getPeriodic().z)
-            dim.z += 2;
         }
 
     // In extremely small boxes, the calculated dimensions could go to zero, but need at least one cell in each dimension
