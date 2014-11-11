@@ -93,7 +93,7 @@ void Cluster::computeClusters(const vec3<float> *points,
     DisjointSet dj(m_num_particles);
 
     // bin the particles
-    m_lc.computeCellList(points, m_num_particles);
+    m_lc.computeCellList(m_box, points, m_num_particles);
 
     // for each point
     for (unsigned int i = 0; i < m_num_particles; i++)

@@ -54,7 +54,7 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_lc.computeCellList(points,m_Np);
+    m_lc.computeCellList(m_box,points,m_Np);
 
     double rminsq = m_rmin * m_rmin;
     double rmaxsq = m_rmax * m_rmax;
@@ -136,7 +136,7 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_lc.computeCellList(points,m_Np);
+    m_lc.computeCellList(m_box,points,m_Np);
 
     double rminsq = m_rmin * m_rmin;
     double rmaxsq = m_rmax * m_rmax;

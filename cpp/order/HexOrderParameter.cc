@@ -18,27 +18,12 @@ namespace freud { namespace order {
 HexOrderParameter::HexOrderParameter(float rmax, float k=6)
     : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
-    m_nn = new locality::NearestNeighbors();
+    m_nn = new locality::NearestNeighbors(m_box, m_rmax, m_k);
     }
 
 HexOrderParameter::~HexOrderParameter()
     {
     delete m_nn;
-    }
-
-void HexOrderParameter::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    if (m_rmax > box.getLx()/2 || m_rmax > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (m_rmax > box.getLz()/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        m_nn->updateBox(m_box, m_rmax, m_k);
-        }
     }
 
 class ComputeHexOrderParameter
@@ -95,7 +80,7 @@ class ComputeHexOrderParameter
 void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
-    m_nn->compute(points,Np,points,Np);
+    m_nn->compute(m_box,points,Np,points,Np);
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
@@ -114,7 +99,7 @@ void HexOrderParameter::computePy(trajectory::Box& box,
                                   boost::python::numeric::array points)
     {
     //validate input type and rank
-    updateBox(box);
+    m_box = box;
     num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 

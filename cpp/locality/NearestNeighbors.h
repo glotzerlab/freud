@@ -4,9 +4,7 @@
 #include "LinkCell.h"
 // hack to keep VectorMath's swap from polluting the global namespace
 // if this is a problem, we need to solve it
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
@@ -39,10 +37,6 @@ public:
                      unsigned int nNeigh);
 
     ~NearestNeighbors();
-
-    void updateBox(trajectory::Box& box,
-                   float rmax,
-                   unsigned int nNeigh);
 
     //! Get the simulation box
     const trajectory::Box& getBox() const
@@ -153,10 +147,10 @@ public:
         }
 
     //! find the requested nearest neighbors
-    void compute(const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np);
+    void compute(trajectory::Box& box, const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np);
 
     //! Python wrapper for compute
-    void computePy(boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
+    void computePy(trajectory::Box& box, boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
 
 private:
     trajectory::Box m_box;            //!< Simulation box the particles belong in

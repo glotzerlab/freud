@@ -17,7 +17,7 @@ using namespace boost::python;
 namespace freud { namespace locality {
 
 // This is only used to initialize a pointer for the new triclinic setup
-// this will be phased out when the one true cell list is created
+// this shouldn't be needed any longer, but will be left for now
 // but until then, enjoy this mediocre hack
 LinkCell::LinkCell() : m_box(trajectory::Box()), m_Np(0), m_cell_width(0)
     {
@@ -29,11 +29,38 @@ LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m
     // check if the cell width is too wide for the box
     m_celldim  = computeDimensions();
     //Check if box is too small!
+    // will only check if the box is not null
+    if (box != trajectory::Box())
+        {
+        vec3<float> L = m_box.getNearestPlaneDistance();
+        bool too_wide =  m_cell_width > L.x/2.0 || m_cell_width > L.y/2.0;
+        if (!m_box.is2D())
+            {
+            too_wide |=  m_cell_width > L.z/2.0;
+            }
+        if (too_wide)
+            {
+            throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
+            }
+        //only 1 cell deep in 2D
+        if (m_box.is2D())
+            {
+            m_celldim.z = 1;
+            }
+        }
+    m_cell_index = Index3D(m_celldim.x, m_celldim.y, m_celldim.z);
+    computeCellNeighbors();
+    }
+
+void LinkCell::setCellWidth(float cell_width)
+    {
     vec3<float> L = m_box.getNearestPlaneDistance();
-    bool too_wide =  m_cell_width > L.x/2.0 || m_cell_width > L.y/2.0;
+    vec3<unsigned int> celldim  = computeDimensions(m_box, cell_width);
+    //Check if box is too small!
+    bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
     if (!m_box.is2D())
         {
-        too_wide |=  m_cell_width > L.z/2.0;
+        too_wide |=  cell_width > L.z/2.0;
         }
     if (too_wide)
         {
@@ -42,22 +69,32 @@ LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m
     //only 1 cell deep in 2D
     if (m_box.is2D())
         {
-        m_celldim.z = 1;
+        celldim.z = 1;
         }
-    m_cell_index = Index3D(m_celldim.x, m_celldim.y, m_celldim.z);
-    computeCellNeighbors();
+    // check if the dims changed
+    if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
+        {
+        m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
+        if (m_cell_index.getNumElements() < 1)
+            {
+            throw runtime_error("At least one cell must be present");
+            }
+        m_celldim  = celldim;
+        computeCellNeighbors();
+        }
+    m_cell_width = cell_width;
     }
 
-void LinkCell::updateBox(const trajectory::Box& box, float cell_width)
+void LinkCell::updateBox(const trajectory::Box& box)
     {
     // check if the cell width is too wide for the box
     vec3<float> L = box.getNearestPlaneDistance();
-    vec3<unsigned int> celldim  = computeDimensions(box, cell_width);
+    vec3<unsigned int> celldim  = computeDimensions(box, m_cell_width);
     //Check if box is too small!
-    bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
+    bool too_wide =  m_cell_width > L.x/2.0 || m_cell_width > L.y/2.0;
     if (!box.is2D())
         {
-        too_wide |=  cell_width > L.z/2.0;
+        too_wide |=  m_cell_width > L.z/2.0;
         }
     if (too_wide)
         {
@@ -70,7 +107,6 @@ void LinkCell::updateBox(const trajectory::Box& box, float cell_width)
         }
     // check if the box is changed
     m_box = box;
-    m_cell_width = cell_width;
     if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
         {
         m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
@@ -136,7 +172,8 @@ const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box,
     return dim;
     }
 
-void LinkCell::computeCellListPy(boost::python::numeric::array points)
+void LinkCell::computeCellListPy(trajectory::Box& box,
+                                 boost::python::numeric::array points)
     {
     // validate input type and rank
     num_util::check_type(points, NPY_FLOAT);
@@ -152,12 +189,14 @@ void LinkCell::computeCellListPy(boost::python::numeric::array points)
         // compute the cell list with the GIL released
         {
         util::ScopedGILRelease gil;
-        computeCellList(points_raw, Np);
+        computeCellList(box, points_raw, Np);
         }
     }
 
 //Deprecated.  Users should use the modern vec3<float> interfaces
-void LinkCell::computeCellList(const float3 *points, unsigned int Np)
+void LinkCell::computeCellList(trajectory::Box& box,
+                               const float3 *points,
+                               unsigned int Np)
     {
         //Copy into appropriate vec3<float>;
         vec3<float>* pointscopy = new vec3<float>[Np];
@@ -166,12 +205,15 @@ void LinkCell::computeCellList(const float3 *points, unsigned int Np)
             pointscopy[i].y=points[i].y;
             pointscopy[i].z=points[i].z;
         }
-        computeCellList(pointscopy, Np);
+        computeCellList(box, pointscopy, Np);
         delete[] pointscopy;
     }
 
-void LinkCell::computeCellList(const vec3<float> *points, unsigned int Np)
+void LinkCell::computeCellList(trajectory::Box& box,
+                               const vec3<float> *points,
+                               unsigned int Np)
     {
+    updateBox(box);
     if (Np == 0)
         {
         throw runtime_error("Cannot generate a cell list of 0 particles");

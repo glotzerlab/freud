@@ -58,7 +58,7 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_lc.computeCellList(points,m_Np);
+    m_lc.computeCellList(m_box,points,m_Np);
 
     double rmaxsq = m_rmax * m_rmax;
 
@@ -162,7 +162,7 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_lc.computeCellList(points,m_Np);
+    m_lc.computeCellList(m_box,points,m_Np);
 
     double rmaxsq = m_rmax * m_rmax;
     double normalizationfactor = 4*M_PI/(2*m_l+1);

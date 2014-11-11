@@ -136,8 +136,11 @@ class LinkCell
         //! Null Constructor for triclinic behavior
         LinkCell();
 
+        //! Update cell_width
+        void setCellWidth(float cell_width);
+
         //! Update box used in linkCell
-        void updateBox(const trajectory::Box& box, float cell_width);
+        void updateBox(const trajectory::Box& box);
 
         //! Compute LinkCell dimensions
         const vec3<unsigned int> computeDimensions() const;
@@ -253,12 +256,12 @@ class LinkCell
             }
 
         //! Compute the cell list (deprecated float3 interface)
-        void computeCellList(const float3 *points, unsigned int Np);
+        void computeCellList(trajectory::Box& box, const float3 *points, unsigned int Np);
         //! Compute the cell list
-        void computeCellList(const vec3<float> *points, unsigned int Np);
+        void computeCellList(trajectory::Box& box, const vec3<float> *points, unsigned int Np);
 
         //! Python wrapper for computeCellList
-        void computeCellListPy(boost::python::numeric::array points);
+        void computeCellListPy(trajectory::Box& box, boost::python::numeric::array points);
     private:
 
         //! Rounding helper function.

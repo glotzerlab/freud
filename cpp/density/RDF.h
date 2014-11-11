@@ -2,9 +2,7 @@
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -40,9 +38,6 @@ class RDF
 
         //! Destructor
         ~RDF();
-
-        //! Update the simulation box
-        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -112,6 +107,8 @@ class RDF
         boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
+        boost::shared_array<float> m_vol_array2D;         //!< array of volumes for each slice of r
+        boost::shared_array<float> m_vol_array3D;         //!< array of volumes for each slice of r
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 

@@ -2,9 +2,7 @@
 #include <boost/shared_array.hpp>
 
 #include "NearestNeighbors.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
@@ -35,9 +33,6 @@ class pairing
 
         //! Destructor
         ~pairing();
-
-        //! Update the simulation box
-        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const

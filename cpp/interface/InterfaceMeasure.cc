@@ -31,7 +31,7 @@ unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
     assert(Np > 0);
 
     // bin the second set of points
-    m_lc.computeCellList(points, Np);
+    m_lc.computeCellList(m_box, points, Np);
 
     unsigned int interfaceCount = 0;
     float rcutsq = m_rcut * m_rcut;

@@ -69,23 +69,6 @@ CorrelationFunction<T>::~CorrelationFunction()
     }
 
 template<typename T>
-void CorrelationFunction<T>::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    vec3<float> L = box.getNearestPlaneDistance();
-    if (m_rmax > L.x/2 || m_rmax > L.y/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (m_rmax > L.z/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        m_lc->updateBox(m_box, m_rmax);
-        }
-    }
-
-template<typename T>
 class CombineOCF
     {
     private:
@@ -260,7 +243,7 @@ void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     for(size_t i(0); i < m_nbins; ++i)
         m_rdf_array[i] = T();
-    m_lc->computeCellList(points, Np);
+    m_lc->computeCellList(m_box, points, Np);
     parallel_for(tbb::blocked_range<size_t>(0, Nref), ComputeOCF<T>(m_nbins,
                                                                     m_local_bin_counts,
                                                                     m_local_rdf_array,
@@ -292,7 +275,7 @@ void CorrelationFunction<T>::computePy(trajectory::Box& box,
                                        boost::python::numeric::array point_values)
     {
     // validate input type and rank
-    updateBox(box);
+    m_box = box;
     num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_rank(ref_values, 1);

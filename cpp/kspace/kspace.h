@@ -3,9 +3,7 @@
 
 #include "num_util.h"
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #ifndef _KSPACE_H__
 #define _KSPACE_H__

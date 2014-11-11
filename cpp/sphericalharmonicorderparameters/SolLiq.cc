@@ -113,7 +113,7 @@ void SolLiq::Y4m(const float theta, const float phi, std::vector<std::complex<fl
 // void SolLiq::compute(const float3 *points, unsigned int Np)
 void SolLiq::compute(const vec3<float> *points, unsigned int Np)
     {
-    m_lc.computeCellList(points,Np);
+    m_lc.computeCellList(m_box,points,Np);
 
     //Initialize Qlmi
     computeClustersQ(points,Np);
@@ -129,7 +129,7 @@ void SolLiq::compute(const vec3<float> *points, unsigned int Np)
 // void SolLiq::computeSolLiqVariant(const float3 *points, unsigned int Np)
 void SolLiq::computeSolLiqVariant(const vec3<float> *points, unsigned int Np)
     {
-    m_lc.computeCellList(points,Np);
+    m_lc.computeCellList(m_box,points,Np);
     //Initialize Qlmi
     computeClustersQ(points,Np);
     vector< vector<unsigned int> > SolidlikeNeighborlist;
@@ -142,7 +142,7 @@ void SolLiq::computeSolLiqVariant(const vec3<float> *points, unsigned int Np)
 // void SolLiq::computeSolLiqNoNorm(const float3 *points, unsigned int Np)
 void SolLiq::computeSolLiqNoNorm(const vec3<float> *points, unsigned int Np)
     {
-    m_lc.computeCellList(points,Np);
+    m_lc.computeCellList(m_box,points,Np);
     //Initialize Qlmi
     computeClustersQ(points,Np);
     //Determines number of solid or liquid like bonds

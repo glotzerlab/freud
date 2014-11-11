@@ -12,9 +12,7 @@
 
 #include <tbb/tbb.h>
 
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 using namespace std;
 using namespace boost::python;

@@ -12,9 +12,7 @@
 
 #include <tbb/tbb.h>
 
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 using namespace std;
 using namespace boost::python;
@@ -97,22 +95,6 @@ PMFTXYTP2D::~PMFTXYTP2D()
         delete[] (*i);
         }
     delete m_lc;
-    }
-
-void PMFTXYTP2D::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    if (m_max_x > box.getLx()/2 || m_max_y > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (!box.is2D())
-        throw invalid_argument("box must be 2D");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        float max_val = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
-        m_lc->updateBox(m_box, max_val);
-        }
     }
 
 class CombinePCFXYTP2D
@@ -303,7 +285,7 @@ void PMFTXYTP2D::compute(vec3<float> *ref_points,
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
         }
-    m_lc->computeCellList(points, Np);
+    m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFTXYTP2D(m_local_pcf_array,
                                    m_nbins_x,
@@ -338,7 +320,7 @@ void PMFTXYTP2D::computePy(trajectory::Box& box,
                            boost::python::numeric::array orientations)
     {
     // validate input type and rank
-    updateBox(box);
+    m_box = box;
     num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, NPY_FLOAT);

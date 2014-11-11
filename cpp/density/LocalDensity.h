@@ -2,9 +2,7 @@
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -29,9 +27,6 @@ class LocalDensity
         LocalDensity(float r_cut, float volume, float diameter);
 
        ~LocalDensity();
-
-        //! Update the simulation box
-        void updateBox(trajectory::Box& box);
 
         //! Compute the local density
         void compute(const vec3<float> *points,

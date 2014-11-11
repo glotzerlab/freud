@@ -12,9 +12,7 @@
 
 #include <tbb/tbb.h>
 
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 using namespace std;
 using namespace boost::python;
@@ -86,21 +84,6 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, f
 
     m_lc = new locality::LinkCell();
 
-    }
-
-void PMFTRPM::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    if (m_max_r > box.getLx()/2 || m_max_r > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (!box.is2D())
-        throw invalid_argument("box must be 2D");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        m_lc->updateBox(m_box, m_max_r);
-        }
     }
 
 PMFTRPM::~PMFTRPM()
@@ -291,7 +274,7 @@ void PMFTRPM::compute(vec3<float> *ref_points,
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
         }
-    m_lc->computeCellList(points, Np);
+    m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFTRPM(m_local_pcf_array,
                                 m_nbins_r,
@@ -326,7 +309,7 @@ void PMFTRPM::computePy(trajectory::Box& box,
                         boost::python::numeric::array orientations)
     {
     // validate input type and rank
-    updateBox(box);
+    m_box = box;
     num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(ref_orientations, NPY_FLOAT);

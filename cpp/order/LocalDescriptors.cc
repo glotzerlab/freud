@@ -237,7 +237,7 @@ void LocalDescriptors::compute(const vec3<float> *r, const quat<float> *q, unsig
         {
         // compute the cell list
         // m_lc.computeCellList((float3*)r, Np);
-            m_lc.computeCellList(r, Np);
+            m_lc.computeCellList(m_box, r, Np);
 
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,Np),

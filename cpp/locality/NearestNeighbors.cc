@@ -20,6 +20,7 @@ using namespace tbb;
 
 namespace freud { namespace locality {
 
+// stop using
 NearestNeighbors::NearestNeighbors():
     m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_deficits()
     {
@@ -39,19 +40,6 @@ NearestNeighbors::NearestNeighbors(trajectory::Box& box,
 NearestNeighbors::~NearestNeighbors()
     {
     delete m_lc;
-    }
-
-void NearestNeighbors::updateBox(trajectory::Box& box,
-                                 float rmax,
-                                 unsigned int nNeigh)
-    {
-    if (m_box != box)
-        {
-        m_box = box;
-        m_rmax = rmax;
-        m_nNeigh = nNeigh;
-        m_lc->updateBox(m_box, m_rmax);
-        }
     }
 
 //! Utility function to sort a pair<float, unsigned int> on the first
@@ -150,8 +138,13 @@ public:
         }
     };
 
-void NearestNeighbors::compute(const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np)
+void NearestNeighbors::compute(trajectory::Box& box,
+                               const vec3<float> *ref_pos,
+                               unsigned int Nref,
+                               const vec3<float> *pos,
+                               unsigned int Np)
     {
+    m_box = box;
     // reallocate the output array if it is not the right size
     if (Nref != m_Nref)
         {
@@ -162,7 +155,7 @@ void NearestNeighbors::compute(const vec3<float> *ref_pos, unsigned int Nref, co
     do
         {
         // compute the cell list
-        m_lc->computeCellList(pos, Np);
+        m_lc->computeCellList(m_box, pos, Np);
 
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,Np),
@@ -181,7 +174,7 @@ void NearestNeighbors::compute(const vec3<float> *ref_pos, unsigned int Nref, co
         if(m_deficits > 0)
             {
             m_rmax *= 1.1;
-            m_lc->updateBox(m_box, m_rmax);
+            m_lc->setCellWidth(m_rmax);
             }
         } while(m_deficits > 0);
     // save the last computed number of particles
@@ -189,7 +182,9 @@ void NearestNeighbors::compute(const vec3<float> *ref_pos, unsigned int Nref, co
     m_Np = Np;
     }
 
-void NearestNeighbors::computePy(boost::python::numeric::array ref_pos, boost::python::numeric::array pos)
+void NearestNeighbors::computePy(trajectory::Box& box,
+                                 boost::python::numeric::array ref_pos,
+                                 boost::python::numeric::array pos)
     {
     //validate input type and rank
     num_util::check_type(ref_pos, NPY_FLOAT);
@@ -210,7 +205,7 @@ void NearestNeighbors::computePy(boost::python::numeric::array ref_pos, boost::p
     // compute the order parameter with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_pos_raw, Nref, pos_raw, Np);
+        compute(box, ref_pos_raw, Nref, pos_raw, Np);
         }
     }
 

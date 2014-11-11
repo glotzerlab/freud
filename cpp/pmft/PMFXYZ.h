@@ -2,9 +2,7 @@
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -41,9 +39,6 @@ class PMFXYZ
 
         //! Destructor
         ~PMFXYZ();
-
-        //! Update the simulation box
-        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const

@@ -56,6 +56,18 @@ RDF::RDF(float rmax, float dr)
     // precompute cell volumes
     m_vol_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_vol_array.get(), 0, sizeof(float)*m_nbins);
+    m_vol_array2D = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_vol_array2D.get(), 0, sizeof(float)*m_nbins);
+    m_vol_array3D = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_vol_array3D.get(), 0, sizeof(float)*m_nbins);
+    for (unsigned int i = 0; i < m_nbins; i++)
+        {
+        float r = float(i) * m_dr;
+        float nextr = float(i+1) * m_dr;
+        m_vol_array2D[i] = M_PI * (nextr*nextr - r*r);
+        m_vol_array3D[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
+        }
+
     m_lc = new locality::LinkCell();
     }
 
@@ -66,33 +78,6 @@ RDF::~RDF()
         delete[] (*i);
         }
     delete m_lc;
-    }
-
-void RDF::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    vec3<float> L = box.getNearestPlaneDistance();
-    if (m_rmax > L.x/2 || m_rmax > L.y/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (m_rmax > L.z/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        m_lc->updateBox(m_box, m_rmax);
-        // this does not need calculating multiple times...
-        // maybe calc both on init and use the correct one when the time comes?
-        for (unsigned int i = 0; i < m_nbins; i++)
-            {
-            float r = float(i) * m_dr;
-            float nextr = float(i+1) * m_dr;
-            if (m_box.is2D())
-                m_vol_array[i] = M_PI * (nextr*nextr - r*r);
-            else
-                m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
-            }
-        }
     }
 
 class CumulativeCount
@@ -280,7 +265,7 @@ void RDF::compute(const vec3<float> *ref_points,
         }
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
-    m_lc->computeCellList(points, Np);
+    m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref), ComputeRDF(m_nbins,
                                                            m_local_bin_counts,
                                                            m_box,
@@ -297,6 +282,10 @@ void RDF::compute(const vec3<float> *ref_points,
     m_rdf_array[0] = 0.0f;
     m_N_r_array[0] = 0.0f;
     m_N_r_array[1] = 0.0f;
+    if (m_box.is2D())
+        m_vol_array = m_vol_array2D;
+    else
+        m_vol_array = m_vol_array3D;
     // now compute the rdf
     parallel_for(blocked_range<size_t>(1,m_nbins), CombineArrays(m_nbins,
                                                                  m_bin_counts.get(),
@@ -315,7 +304,7 @@ void RDF::computePy(trajectory::Box& box,
                     boost::python::numeric::array points)
     {
     // validate input type and rank
-    updateBox(box);
+    m_box = box;
     num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
     num_util::check_type(points, NPY_FLOAT);

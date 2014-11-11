@@ -4,10 +4,7 @@
 
 #include "HOOMDMath.h"
 
-//Magical bullshit command that makes stuff work
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
@@ -72,7 +69,7 @@ class Box
             m_xy = xy; m_xz = xz; m_yz = yz;
             }
 
-        inline bool operator ==(Box&b)
+        inline bool operator ==(const Box&b) const
             {
             return ( (this->getL() == b.getL()) &&
                        (this->getTiltFactorXY() == b.getTiltFactorXY()) &&
@@ -80,7 +77,7 @@ class Box
                        (this->getTiltFactorYZ() == b.getTiltFactorYZ()) );
             }
 
-        inline bool operator !=(Box&b)
+        inline bool operator !=(const Box&b) const
             {
             return ( (this->getL() != b.getL()) ||
                        (this->getTiltFactorXY() != b.getTiltFactorXY()) ||

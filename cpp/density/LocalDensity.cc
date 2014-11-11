@@ -26,22 +26,6 @@ LocalDensity::~LocalDensity()
     delete m_lc;
     }
 
-void LocalDensity::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    vec3<float> L = box.getNearestPlaneDistance();
-    if (m_rcut > L.x/2 || m_rcut > L.y/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (m_rcut > L.z/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        m_lc->updateBox(m_box, m_rcut);
-        }
-    }
-
 //! \internal
 /*! \brief Helper class to compute local density in parallel
 */
@@ -131,7 +115,7 @@ class ComputeLocalDensity
 void LocalDensity::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
-    m_lc->computeCellList(points,Np);
+    m_lc->computeCellList(m_box, points,Np);
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
@@ -158,7 +142,7 @@ void LocalDensity::computePy(trajectory::Box& box,
                              boost::python::numeric::array points)
     {
     //validate input type and rank
-    updateBox(box);
+    m_box = box;
     num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 

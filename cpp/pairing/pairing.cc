@@ -761,7 +761,7 @@ void pairing::compute(unsigned int* match,
         //                     shape_angles,
         //                     comp_angles,
         //                     Np);
-        m_lc->computeCellList(points, Np);
+        m_lc->computeCellList(m_box, points, Np);
         parallel_for(blocked_range<size_t>(0,Np), ComputePairing2DCellList(match,
                                                                            dist2,
                                                                            sdots,
@@ -813,7 +813,7 @@ void pairing::compute(unsigned int* match,
         //                     shape_angles,
         //                     comp_angles,
         //                     Np);
-        m_lc->computeCellList(points, Np);
+        m_lc->computeCellList(m_box, points, Np);
         parallel_for(blocked_range<size_t>(0,Np), ComputePairing3DCellList(match,
                                                                            dist2,
                                                                            sdots,
