@@ -12,9 +12,7 @@
 
 #include <tbb/tbb.h>
 
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 using namespace std;
 using namespace boost::python;
@@ -88,8 +86,7 @@ PMFXYZ::PMFXYZ(float max_x, float max_y, float max_z, float dx, float dy, float 
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y * m_nbins_z]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
 
-    m_lc = new locality::LinkCell();
-
+    m_lc = new locality::LinkCell(m_box, sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z));
     }
 
 PMFXYZ::~PMFXYZ()
@@ -99,28 +96,6 @@ PMFXYZ::~PMFXYZ()
         delete[] (*i);
         }
     delete m_lc;
-    }
-
-void PMFXYZ::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    if (m_max_x > box.getLx()/2 || m_max_y > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (m_max_z > box.getLz()/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        // update the box. In the future, this may be checked to see if it really needs re-initing
-        if (useCells())
-            {
-            float max_val = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
-            locality::LinkCell* tmp = new locality::LinkCell(m_box, max_val);
-            delete m_lc;
-            m_lc = tmp;
-            }
-        }
     }
 
 class CombinePCFXYZ
@@ -162,150 +137,9 @@ class CombinePCFXYZ
     };
 
 //! \internal
-/*! \brief Helper class to compute PMF in parallel without the cell list
-*/
-
-class ComputePMFTWithoutCellList
-    {
-    private:
-        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
-        unsigned int m_nbins_x;
-        unsigned int m_nbins_y;
-        unsigned int m_nbins_z;
-        const trajectory::Box m_box;
-        const float m_max_x;
-        const float m_max_y;
-        const float m_max_z;
-        const float m_dx;
-        const float m_dy;
-        const float m_dz;
-        const vec3<float> *m_ref_points;
-        const quat<float> *m_ref_orientations;
-        const unsigned int m_Nref;
-        const vec3<float> *m_points;
-        const quat<float> *m_orientations;
-        const unsigned int m_Np;
-        const quat<float> *m_face_orientations;
-        const unsigned int m_Nfaces;
-    public:
-        ComputePMFTWithoutCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
-                                   unsigned int nbins_x,
-                                   unsigned int nbins_y,
-                                   unsigned int nbins_z,
-                                   const trajectory::Box &box,
-                                   const float max_x,
-                                   const float max_y,
-                                   const float max_z,
-                                   const float dx,
-                                   const float dy,
-                                   const float dz,
-                                   const vec3<float> *ref_points,
-                                   const quat<float> *ref_orientations,
-                                   unsigned int Nref,
-                                   const vec3<float> *points,
-                                   const quat<float> *orientations,
-                                   unsigned int Np,
-                                   const quat<float> *face_orientations,
-                                   const unsigned int Nfaces)
-            : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
-              m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_ref_points(ref_points),
-              m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations), m_Np(Np),
-              m_face_orientations(face_orientations), m_Nfaces(Nfaces)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myR ) const
-            {
-            assert(m_ref_points);
-            assert(m_points);
-            assert(m_Nref > 0);
-            assert(m_Np > 0);
-
-            // precalc some values for faster computation within the loop
-            float dx_inv = 1.0f / m_dx;
-            float maxxsq = m_max_x * m_max_x;
-            float dy_inv = 1.0f / m_dy;
-            float maxysq = m_max_y * m_max_y;
-            float dz_inv = 1.0f / m_dz;
-            float maxzsq = m_max_z * m_max_z;
-
-            Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_z);
-            Index2D q_i = Index2D(m_Nfaces, m_Np);
-
-            bool exists;
-            m_pcf_array.local(exists);
-            if (! exists)
-                {
-                m_pcf_array.local() = new unsigned int [m_nbins_x*m_nbins_y*m_nbins_z];
-                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
-                }
-
-            // for each reference point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
-                {
-                // for each point to check
-                for (unsigned int j = 0; j < m_Np; j++)
-                    {
-                    vec3<float> delta = m_box.wrap(m_points[j] - m_ref_points[i]);
-
-                    // check that the particle is not checking itself
-                    // 1e-6 is an arbitrary value that could be set differently if needed
-                    float rsq = dot(delta, delta);
-
-                    if (rsq < 1e-6)
-                        {
-                        // skip if the same particle
-                        continue;
-                        }
-                    for (unsigned int k=0; k<m_Nfaces; k++)
-                        {
-                        // create tmp vector
-                        vec3<float> my_vector(delta);
-                        // rotate vector
-
-                        // create the reference point quaternion
-                        quat<float> q(m_ref_orientations[i]);
-                        // create the extra quaternion
-                        quat<float> qe(m_face_orientations[q_i(k, i)]);
-                        // create point vector
-                        vec3<float> v(delta);
-                        // rotate the vector
-                        v = rotate(conj(q), v);
-                        v = rotate(qe, v);
-
-                        float x = v.x + m_max_x;
-                        float y = v.y + m_max_y;
-                        float z = v.z + m_max_z;
-
-                        // bin that point
-                        float binx = floorf(x * dx_inv);
-                        float biny = floorf(y * dy_inv);
-                        float binz = floorf(z * dz_inv);
-                        // fast float to int conversion with truncation
-                        #ifdef __SSE2__
-                        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                        unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
-                        #else
-                        unsigned int ibinx = (unsigned int)(binx);
-                        unsigned int ibiny = (unsigned int)(biny);
-                        unsigned int ibinz = (unsigned int)(binz);
-                        #endif
-
-                        // increment the bin;
-                        if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibinz < m_nbins_z))
-                            {
-                            ++m_pcf_array.local()[b_i(ibinx, ibiny, ibinz)];
-                            }
-                        }
-                    }
-                } // done looping over reference points
-            }
-    };
-
-//! \internal
 /*! \brief Helper class to compute PMF in parallel with the cell list
 */
-class ComputePMFTWithCellList
+class ComputePMFT
     {
     private:
         tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
@@ -329,26 +163,26 @@ class ComputePMFTWithCellList
         const quat<float> *m_face_orientations;
         const unsigned int m_Nfaces;
     public:
-        ComputePMFTWithCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
-                                unsigned int nbins_x,
-                                unsigned int nbins_y,
-                                unsigned int nbins_z,
-                                const trajectory::Box &box,
-                                const float max_x,
-                                const float max_y,
-                                const float max_z,
-                                const float dx,
-                                const float dy,
-                                const float dz,
-                                const locality::LinkCell *lc,
-                                const vec3<float> *ref_points,
-                                const quat<float> *ref_orientations,
-                                unsigned int Nref,
-                                const vec3<float> *points,
-                                const quat<float> *orientations,
-                                unsigned int Np,
-                                const quat<float> *face_orientations,
-                                const unsigned int Nfaces)
+        ComputePMFT(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
+                    unsigned int nbins_x,
+                    unsigned int nbins_y,
+                    unsigned int nbins_z,
+                    const trajectory::Box &box,
+                    const float max_x,
+                    const float max_y,
+                    const float max_z,
+                    const float dx,
+                    const float dy,
+                    const float dz,
+                    const locality::LinkCell *lc,
+                    const vec3<float> *ref_points,
+                    const quat<float> *ref_orientations,
+                    unsigned int Nref,
+                    const vec3<float> *points,
+                    const quat<float> *orientations,
+                    unsigned int Np,
+                    const quat<float> *face_orientations,
+                    const unsigned int Nfaces)
             : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_z(nbins_z), m_box(box),
               m_max_x(max_x), m_max_y(max_y), m_max_z(max_z), m_dx(dx), m_dy(dy), m_dz(dz), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
@@ -456,25 +290,6 @@ class ComputePMFTWithCellList
     };
 
 //! \internal
-/*! \brief Function to determine if the cell list should be used or not
-*/
-
-bool PMFXYZ::useCells()
-    {
-    float l_min = fmin(m_box.getLx(), m_box.getLy());
-
-    if (!m_box.is2D())
-        l_min = fmin(l_min, m_box.getLz());
-
-    float rmax = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
-
-    if (rmax < l_min/3.0f)
-        return true;
-
-    return false;
-    }
-
-//! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
 
@@ -499,57 +314,34 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
         }
-    if (useCells())
-        {
-        m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithCellList(m_local_pcf_array,
-                                                                            m_nbins_x,
-                                                                            m_nbins_y,
-                                                                            m_nbins_z,
-                                                                            m_box,
-                                                                            m_max_x,
-                                                                            m_max_y,
-                                                                            m_max_z,
-                                                                            m_dx,
-                                                                            m_dy,
-                                                                            m_dz,
-                                                                            m_lc,
-                                                                            ref_points,
-                                                                            ref_orientations,
-                                                                            Nref,
-                                                                            points,
-                                                                            orientations,
-                                                                            Np,
-                                                                            face_orientations,
-                                                                            Nfaces));
-        }
-    else
-        {
-        parallel_for(blocked_range<size_t>(0,Nref), ComputePMFTWithoutCellList(m_local_pcf_array,
-                                                                               m_nbins_x,
-                                                                               m_nbins_y,
-                                                                               m_nbins_z,
-                                                                               m_box,
-                                                                               m_max_x,
-                                                                               m_max_y,
-                                                                               m_max_z,
-                                                                               m_dx,
-                                                                               m_dy,
-                                                                               m_dz,
-                                                                               ref_points,
-                                                                               ref_orientations,
-                                                                               Nref,
-                                                                               points,
-                                                                               orientations,
-                                                                               Np,
-                                                                               face_orientations,
-                                                                               Nfaces));
-        }
-    parallel_for(blocked_range<size_t>(0,m_nbins_x), CombinePCFXYZ(m_nbins_x,
-                                                                   m_nbins_y,
-                                                                   m_nbins_z,
-                                                                   m_pcf_array.get(),
-                                                                   m_local_pcf_array));
+    m_lc->computeCellList(m_box, points, Np);
+    parallel_for(blocked_range<size_t>(0,Nref),
+                 ComputePMFT(m_local_pcf_array,
+                             m_nbins_x,
+                             m_nbins_y,
+                             m_nbins_z,
+                             m_box,
+                             m_max_x,
+                             m_max_y,
+                             m_max_z,
+                             m_dx,
+                             m_dy,
+                             m_dz,
+                             m_lc,
+                             ref_points,
+                             ref_orientations,
+                             Nref,
+                             points,
+                             orientations,
+                             Np,
+                             face_orientations,
+                             Nfaces));
+    parallel_for(blocked_range<size_t>(0,m_nbins_x),
+                 CombinePCFXYZ(m_nbins_x,
+                               m_nbins_y,
+                               m_nbins_z,
+                               m_pcf_array.get(),
+                               m_local_pcf_array));
     }
 
 //! \internal
@@ -564,16 +356,16 @@ void PMFXYZ::computePy(trajectory::Box& box,
                        boost::python::numeric::array face_orientations)
     {
     // validate input type and rank
-    updateBox(box);
-    num_util::check_type(ref_points, PyArray_FLOAT);
+    m_box = box;
+    num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
-    num_util::check_type(ref_orientations, PyArray_FLOAT);
+    num_util::check_type(ref_orientations, NPY_FLOAT);
     num_util::check_rank(ref_orientations, 2);
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
-    num_util::check_type(orientations, PyArray_FLOAT);
+    num_util::check_type(orientations, NPY_FLOAT);
     num_util::check_rank(orientations, 2);
-    num_util::check_type(face_orientations, PyArray_FLOAT);
+    num_util::check_type(face_orientations, NPY_FLOAT);
     num_util::check_rank(face_orientations, 3);
 
     // validate that the 2nd dimension is only 3

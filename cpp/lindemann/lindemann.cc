@@ -149,7 +149,7 @@ void Lind::compute(const vec3<float> *points,
 void Lind::computePy(boost::python::numeric::array points)
     {
     // validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 3);
 
     // validate that the 3rd dimension is only 3

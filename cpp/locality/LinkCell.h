@@ -136,8 +136,14 @@ class LinkCell
         //! Null Constructor for triclinic behavior
         LinkCell();
 
+        //! Update cell_width
+        void setCellWidth(float cell_width);
+
+        //! Update box used in linkCell
+        void updateBox(const trajectory::Box& box);
+
         //! Compute LinkCell dimensions
-        const vec3<unsigned int> computeDimensions() const;
+        const vec3<unsigned int> computeDimensions(const trajectory::Box& box, float cell_width) const;
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -155,6 +161,12 @@ class LinkCell
         unsigned int getNumCells() const
             {
             return m_cell_index.getNumElements();
+            }
+
+        //! Get the cell width
+        float getCellWidth() const
+            {
+            return m_cell_width;
             }
 
         //! Compute the cell id for a given position
@@ -176,7 +188,7 @@ class LinkCell
         unsigned int getCellPy(boost::python::numeric::array p)
             {
             // validate input type and rank
-            num_util::check_type(p, PyArray_FLOAT);
+            num_util::check_type(p, NPY_FLOAT);
             num_util::check_rank(p, 1);
 
             // validate that the 2nd dimension is only 3
@@ -214,7 +226,7 @@ class LinkCell
         uint3 getCellCoordPy(boost::python::numeric::array p)  //Untested, unsure if uint3 or vec3<unsigned int> even export gracefully to python.  
             {
             // validate input type and rank
-            num_util::check_type(p, PyArray_FLOAT);
+            num_util::check_type(p, NPY_FLOAT);
             num_util::check_rank(p, 1);
 
             // validate that the 2nd dimension is only 3
@@ -249,12 +261,12 @@ class LinkCell
             }
 
         //! Compute the cell list (deprecated float3 interface)
-        void computeCellList(const float3 *points, unsigned int Np);
+        void computeCellList(trajectory::Box& box, const float3 *points, unsigned int Np);
         //! Compute the cell list
-        void computeCellList(const vec3<float> *points, unsigned int Np);
+        void computeCellList(trajectory::Box& box, const vec3<float> *points, unsigned int Np);
 
         //! Python wrapper for computeCellList
-        void computeCellListPy(boost::python::numeric::array points);
+        void computeCellListPy(trajectory::Box& box, boost::python::numeric::array points);
     private:
 
         //! Rounding helper function.
@@ -263,7 +275,9 @@ class LinkCell
         trajectory::Box m_box;      //!< Simulation box the particles belong in
         Index3D m_cell_index;       //!< Indexer to compute cell indices
         unsigned int m_Np;          //!< Number of particles last placed into the cell list
+        unsigned int m_Nc;          //!< Number of cells last used
         float m_cell_width;         //!< Minimum necessary cell width cutoff
+        vec3<unsigned int> m_celldim; //!< Cell dimensions
 
         boost::shared_array<unsigned int> m_cell_list;    //!< The cell list last computed
 

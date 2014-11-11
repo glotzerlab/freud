@@ -12,9 +12,7 @@
 
 #include <tbb/tbb.h>
 
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 using namespace std;
 using namespace boost::python;
@@ -84,34 +82,12 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, f
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_r*m_nbins_TP*m_nbins_TM]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
 
-    m_lc = new locality::LinkCell();
+    m_lc = new locality::LinkCell(m_box, m_max_r);
 
-    }
-
-void PMFTRPM::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    if (m_max_r > box.getLx()/2 || m_max_r > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (!box.is2D())
-        throw invalid_argument("box must be 2D");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        // update the box. In the future, this may be checked to see if it really needs re-initing
-        if (useCells())
-            {
-            locality::LinkCell* tmp = new locality::LinkCell(m_box, m_max_r);
-            delete m_lc;
-            m_lc = tmp;
-            }
-        }
     }
 
 PMFTRPM::~PMFTRPM()
     {
-    if(useCells())
     delete m_lc;
     }
 
@@ -153,116 +129,7 @@ class CombinePCFRPM
             }
     };
 
-class ComputePMFTRPMWithoutCellList
-    {
-    private:
-        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
-        unsigned int m_nbins_r;
-        unsigned int m_nbins_TP;
-        unsigned int m_nbins_TM;
-        const trajectory::Box m_box;
-        const float m_max_r;
-        const float m_max_TP;
-        const float m_max_TM;
-        const float m_dr;
-        const float m_dTP;
-        const float m_dTM;
-        const vec3<float> *m_ref_points;
-        float *m_ref_orientations;
-        const unsigned int m_Nref;
-        const vec3<float> *m_points;
-        float *m_orientations;
-        const unsigned int m_Np;
-    public:
-        ComputePMFTRPMWithoutCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
-                                      unsigned int nbins_r,
-                                      unsigned int nbins_TP,
-                                      unsigned int nbins_TM,
-                                      const trajectory::Box &box,
-                                      const float max_r,
-                                      const float max_TP,
-                                      const float max_TM,
-                                      const float dr,
-                                      const float dTP,
-                                      const float dTM,
-                                      const vec3<float> *ref_points,
-                                      float *ref_orientations,
-                                      unsigned int Nref,
-                                      const vec3<float> *points,
-                                      float *orientations,
-                                      unsigned int Np)
-            : m_pcf_array(pcf_array), m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_box(box),
-              m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM),
-              m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
-              m_orientations(orientations), m_Np(Np)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myR ) const
-            {
-            float dr_inv = 1.0f / m_dr;
-            float maxrsq = m_max_r * m_max_r;
-            float dTP_inv = 1.0f / m_dTP;
-            float dTM_inv = 1.0f / m_dTM;
-
-            Index3D b_i = Index3D(m_nbins_r, m_nbins_TP, m_nbins_TM);
-
-            bool exists;
-            m_pcf_array.local(exists);
-            if (! exists)
-                {
-                m_pcf_array.local() = new unsigned int [m_nbins_r*m_nbins_TP*m_nbins_TM];
-                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
-                }
-
-            // for each reference point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
-                {
-                for (unsigned int j = 0; j < m_Np; j++)
-                    {
-                    vec3<float> delta = m_box.wrap(m_points[j] - m_ref_points[i]);
-
-                    float rsq = dot(delta, delta);
-                    if (rsq < 1e-6)
-                        {
-                        continue;
-                        }
-                    if (rsq < maxrsq)
-                        {
-                        float r = sqrtf(rsq);
-                        // calculate angles
-                        float dTheta1 = atan2(delta.y, delta.x);
-                        float dTheta2 = atan2(-delta.y, -delta.x);
-                        float T1 = dTheta1 - m_ref_orientations[i];
-                        float T2 = dTheta2 - m_orientations[j];
-                        float TP = T1 + T2 + m_max_TP;
-                        float TM = T1 - T2 + m_max_TM;
-
-                        // bin that point
-                        float binr = r * dr_inv;
-                        float binTP = floorf(TP * dTP_inv);
-                        float binTM = floorf(TM * dTM_inv);
-                        // fast float to int conversion with truncation
-                        #ifdef __SSE2__
-                        unsigned int ibinr = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                        unsigned int ibinTP = _mm_cvtt_ss2si(_mm_load_ss(&binTP));
-                        unsigned int ibinTM = _mm_cvtt_ss2si(_mm_load_ss(&binTM));
-                        #else
-                        unsigned int ibinr = (unsigned int)(binr);
-                        unsigned int ibinTP = (unsigned int)(binTP);
-                        unsigned int ibinTM = (unsigned int)(binTM);
-                        #endif
-
-                        if ((ibinr < m_nbins_r) && (ibinTP < m_nbins_TP) && (ibinTM < m_nbins_TM))
-                            {
-                            ++m_pcf_array.local()[b_i(ibinr, ibinTP, ibinTM)];
-                            }
-                        }
-                    }
-                } // done looping over reference points
-            }
-    };
-
-class ComputePMFTRPMWithCellList
+class ComputePMFTRPM
     {
     private:
         tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
@@ -284,24 +151,24 @@ class ComputePMFTRPMWithCellList
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTRPMWithCellList(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
-                                   unsigned int nbins_r,
-                                   unsigned int nbins_TP,
-                                   unsigned int nbins_TM,
-                                   const trajectory::Box &box,
-                                   const float max_r,
-                                   const float max_TP,
-                                   const float max_TM,
-                                   const float dr,
-                                   const float dTP,
-                                   const float dTM,
-                                   const locality::LinkCell *lc,
-                                   vec3<float> *ref_points,
-                                   float *ref_orientations,
-                                   unsigned int Nref,
-                                   vec3<float> *points,
-                                   float *orientations,
-                                   unsigned int Np)
+        ComputePMFTRPM(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
+                       unsigned int nbins_r,
+                       unsigned int nbins_TP,
+                       unsigned int nbins_TM,
+                       const trajectory::Box &box,
+                       const float max_r,
+                       const float max_TP,
+                       const float max_TM,
+                       const float dr,
+                       const float dTP,
+                       const float dTM,
+                       const locality::LinkCell *lc,
+                       vec3<float> *ref_points,
+                       float *ref_orientations,
+                       unsigned int Nref,
+                       vec3<float> *points,
+                       float *orientations,
+                       unsigned int Np)
             : m_pcf_array(pcf_array), m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_box(box),
               m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
@@ -391,19 +258,6 @@ class ComputePMFTRPMWithCellList
             }
     };
 
-bool PMFTRPM::useCells()
-    {
-    float l_min = fmin(m_box.getLx(), m_box.getLy());
-
-    if (!m_box.is2D())
-        l_min = fmin(l_min, m_box.getLz());
-
-    if (m_max_r < l_min/3.0f)
-        return true;
-
-    return false;
-    }
-
 void PMFTRPM::resetPCF()
     {
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
@@ -420,55 +274,32 @@ void PMFTRPM::compute(vec3<float> *ref_points,
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
         }
-    if (useCells())
-        {
-        m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref),
-                     ComputePMFTRPMWithCellList(m_local_pcf_array,
-                                                m_nbins_r,
-                                                m_nbins_TP,
-                                                m_nbins_TM,
-                                                m_box,
-                                                m_max_r,
-                                                m_max_TP,
-                                                m_max_TM,
-                                                m_dr,
-                                                m_dTP,
-                                                m_dTM,
-                                                m_lc,
-                                                ref_points,
-                                                ref_orientations,
-                                                Nref,
-                                                points,
-                                                orientations,
-                                                Np));
-        }
-    else
-        {
-        parallel_for(blocked_range<size_t>(0,Nref),
-                     ComputePMFTRPMWithoutCellList(m_local_pcf_array,
-                                                   m_nbins_r,
-                                                   m_nbins_TP,
-                                                   m_nbins_TM,
-                                                   m_box,
-                                                   m_max_r,
-                                                   m_max_TP,
-                                                   m_max_TM,
-                                                   m_dr,
-                                                   m_dTP,
-                                                   m_dTM,
-                                                   ref_points,
-                                                   ref_orientations,
-                                                   Nref,
-                                                   points,
-                                                   orientations,
-                                                   Np));
-        }
-        parallel_for(blocked_range<size_t>(0,m_nbins_r), CombinePCFRPM(m_nbins_r,
-                                                                       m_nbins_TP,
-                                                                       m_nbins_TM,
-                                                                       m_pcf_array.get(),
-                                                                       m_local_pcf_array));
+    m_lc->computeCellList(m_box, points, Np);
+    parallel_for(blocked_range<size_t>(0,Nref),
+                 ComputePMFTRPM(m_local_pcf_array,
+                                m_nbins_r,
+                                m_nbins_TP,
+                                m_nbins_TM,
+                                m_box,
+                                m_max_r,
+                                m_max_TP,
+                                m_max_TM,
+                                m_dr,
+                                m_dTP,
+                                m_dTM,
+                                m_lc,
+                                ref_points,
+                                ref_orientations,
+                                Nref,
+                                points,
+                                orientations,
+                                Np));
+        parallel_for(blocked_range<size_t>(0,m_nbins_r),
+                     CombinePCFRPM(m_nbins_r,
+                                   m_nbins_TP,
+                                   m_nbins_TM,
+                                   m_pcf_array.get(),
+                                   m_local_pcf_array));
     }
 
 void PMFTRPM::computePy(trajectory::Box& box,
@@ -478,14 +309,14 @@ void PMFTRPM::computePy(trajectory::Box& box,
                         boost::python::numeric::array orientations)
     {
     // validate input type and rank
-    updateBox(box);
-    num_util::check_type(ref_points, PyArray_FLOAT);
+    m_box = box;
+    num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
-    num_util::check_type(ref_orientations, PyArray_FLOAT);
+    num_util::check_type(ref_orientations, NPY_FLOAT);
     num_util::check_rank(ref_orientations, 1);
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
-    num_util::check_type(orientations, PyArray_FLOAT);
+    num_util::check_type(orientations, NPY_FLOAT);
     num_util::check_rank(orientations, 1);
 
     // validate that the 2nd dimension is only 3

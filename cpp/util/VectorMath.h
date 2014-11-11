@@ -1213,14 +1213,14 @@ DEVICE inline Vec project(const Vec& a, const Vec& b)
     \returns void
     \note can be applied to vec2, vec3, quaternions, or anything with a sufficiently deep copy constructor.
 */
-template < class T >
-DEVICE inline void swap(T& a, T&b)
-    {
-    T tmp;
-    tmp = a;
-    a = b;
-    b = tmp;
-    }
+// template < class T >
+// DEVICE inline void swap(T& a, T&b)
+//     {
+//     T tmp;
+//     tmp = a;
+//     a = b;
+//     b = tmp;
+//     }
 
 // end group math
 /*! @}*/

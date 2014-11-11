@@ -3,9 +3,7 @@
 
 #include "LinkCell.h"
 // hack to keep VectorMath's swap from polluting the global namespace
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 #include "num_util.h"
 #include "trajectory.h"
 

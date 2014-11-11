@@ -2,9 +2,7 @@
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -44,17 +42,11 @@ class PMFXY2D
         //! Destructor
         ~PMFXY2D();
 
-        //! Update the simulation box
-        void updateBox(trajectory::Box& box);
-
         //! Get the simulation box
         const trajectory::Box& getBox() const
             {
             return m_box;
             }
-
-        //! Check if a cell list should be used or not
-        bool useCells();
 
         //! Reset the PCF array to all zeros
         void resetPCF();

@@ -18,29 +18,12 @@ namespace freud { namespace density {
 LocalDensity::LocalDensity(float rcut, float volume, float diameter)
     : m_box(trajectory::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_Np(0)
     {
-    m_lc = new locality::LinkCell();
+    m_lc = new locality::LinkCell(m_box, m_rcut);
     }
 
 LocalDensity::~LocalDensity()
     {
     delete m_lc;
-    }
-
-void LocalDensity::updateBox(trajectory::Box& box)
-    {
-    // check to make sure the provided box is valid
-    if (m_rcut > box.getLx()/2 || m_rcut > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (m_rcut > box.getLz()/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    // see if it is different than the current box
-    if (m_box != box)
-        {
-        m_box = box;
-        locality::LinkCell* tmp = new locality::LinkCell(box, m_rcut+m_diameter/2.0f);
-        delete m_lc;
-        m_lc = tmp;
-        }
     }
 
 //! \internal
@@ -132,7 +115,7 @@ class ComputeLocalDensity
 void LocalDensity::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
-    m_lc->computeCellList(points,Np);
+    m_lc->computeCellList(m_box, points, Np);
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
@@ -159,8 +142,8 @@ void LocalDensity::computePy(trajectory::Box& box,
                              boost::python::numeric::array points)
     {
     //validate input type and rank
-    updateBox(box);
-    num_util::check_type(points, PyArray_FLOAT);
+    m_box = box;
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3

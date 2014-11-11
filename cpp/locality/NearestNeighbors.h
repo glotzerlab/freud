@@ -4,9 +4,7 @@
 #include "LinkCell.h"
 // hack to keep VectorMath's swap from polluting the global namespace
 // if this is a problem, we need to solve it
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
@@ -34,9 +32,16 @@ public:
     //! \param box This frame's box
     //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
     //! \param nNeigh Number of neighbors to find
-    NearestNeighbors(const trajectory::Box& box,
-                     float rmax,
+    NearestNeighbors(float rmax,
                      unsigned int nNeigh);
+
+    ~NearestNeighbors();
+
+    void setRMax(float rmax)
+        {
+        m_rmax = rmax;
+        m_lc->setCellWidth(m_rmax);
+        }
 
     //! Get the simulation box
     const trajectory::Box& getBox() const
@@ -101,7 +106,7 @@ public:
     boost::python::numeric::array getNeighborListPy()
         {
         unsigned int *arr = m_neighbor_array.get();
-        return num_util::makeNum(arr, m_nNeigh*m_Np);
+        return num_util::makeNum(arr, m_nNeigh*m_Nref);
         }
 
     //! Get a reference to the distance array
@@ -147,17 +152,18 @@ public:
         }
 
     //! find the requested nearest neighbors
-    void compute(const vec3<float> *r, unsigned int Np);
+    void compute(trajectory::Box& box, const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np);
 
     //! Python wrapper for compute
-    void computePy(boost::python::numeric::array r);
+    void computePy(trajectory::Box& box, boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
 
 private:
     trajectory::Box m_box;            //!< Simulation box the particles belong in
     unsigned int m_nNeigh;            //!< Number of neighbors to calculate
     float m_rmax;                     //!< Maximum r at which to determine neighbors
-    unsigned int m_Np;                //!< Number of particles for which nearest neighbors calc'd
-    locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
+    unsigned int m_Np;                //!< Number of particles for which nearest neighbors checks
+    unsigned int m_Nref;                //!< Number of particles for which nearest neighbors calcs
+    locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
     tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
     boost::shared_array<unsigned int> m_neighbor_array;         //!< array of nearest neighbors computed
     boost::shared_array<float> m_rsq_array;         //!< array of distances to neighbors
