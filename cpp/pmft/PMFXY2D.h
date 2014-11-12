@@ -1,3 +1,11 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
@@ -8,8 +16,6 @@
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
-
-#include <tbb/tbb.h>
 
 #ifndef _PMFXY2D_H__
 #define _PMFXY2D_H__

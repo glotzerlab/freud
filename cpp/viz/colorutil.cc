@@ -1,8 +1,9 @@
+#include "colorutil.h"
+
 #include <boost/python.hpp>
 #include <stdexcept>
 
 #include "num_util.h"
-#include "colorutil.h"
 #include "ScopedGILRelease.h"
 // #include "colorutil.ispc.h"
 

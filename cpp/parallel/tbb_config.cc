@@ -1,8 +1,6 @@
-#include <boost/python.hpp>
-
-#include <tbb/tbb.h>
-
 #include "tbb_config.h"
+
+#include <boost/python.hpp>
 
 using namespace boost::python;
 using namespace tbb;
