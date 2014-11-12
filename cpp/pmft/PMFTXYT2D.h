@@ -3,7 +3,7 @@
 
 // work around nasty issue where python #defines isalpha, toupper, etc....
 #undef __APPLE__
-#include <python.h>
+#include <Python.h>
 #define __APPLE__
 
 #include <boost/python.hpp>
