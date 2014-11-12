@@ -3,7 +3,6 @@
 
 #include <stdexcept>
 #include <complex>
-#include <tbb/tbb.h>
 
 using namespace std;
 using namespace boost::python;

@@ -1,12 +1,12 @@
+#include "colormap.h"
+
 #include <boost/python.hpp>
 #include <stdexcept>
 
 #include "num_util.h"
-#include "colormap.h"
 #include "ScopedGILRelease.h"
 
 #include <iostream>
-#include <tbb/tbb.h>
 
 using namespace std;
 using namespace boost::python;

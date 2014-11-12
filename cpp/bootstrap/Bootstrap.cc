@@ -10,8 +10,6 @@
 #include <omp.h>
 #endif
 
-#include <tbb/tbb.h>
-
 #include "VectorMath.h"
 
 using namespace std;
