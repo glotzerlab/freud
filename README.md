@@ -21,15 +21,17 @@ open doc/html/index.html
 
 # Build {#build_section}
 
-Make a build directory, preferably one external to the source dir.
-
 ~~~
+mkdir build
 cd build
-cmake ~/source
-make install -j6
+cmake ../
+make install -j12
+# enjoy
 ~~~
 
-Make sure to set the install path to something like `~/local`
+By default, freud installs to the [USER_SITE](https://docs.python.org/2/install/index.html) directory. Which is in
+`~/.local` on linux and in `~/Library` on mac. `USER_SITE` is on the python search path by default, there is no need to
+modify `PYTHONPATH`.
 
 # Tests {#tests_section}
 
