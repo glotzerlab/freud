@@ -54,5 +54,4 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 add_subdirectory(cpp)
 add_subdirectory(py)
-add_subdirectory(run)
 add_subdirectory(doc)
