@@ -16,10 +16,7 @@ endif(PY_ERR)
 endmacro(run_python)
 
 # find the python interpreter, first
-# find the python interpreter, first
-if (NOT PYTHON_SITEDIR)
-    find_program(PYTHON_EXECUTABLE NAMES python3 python)
-endif()
+find_program(PYTHON_EXECUTABLE NAMES python3 python)
 find_package(PythonInterp REQUIRED)
 
 # get the python installation prefix and version
@@ -40,6 +37,9 @@ else()
     run_python("from distutils import sysconfig\; print sysconfig.get_config_var('LIBRARY')" _python_static_lib_name)
     run_python("from distutils import sysconfig\; print sysconfig.get_config_var('LDLIBRARY')" _python_dynamic_lib_name)
 endif()
+
+# determine the user site dir
+run_python("import site\; print(site.USER_SITE)" PYTHON_USER_SITE)
 
 # always link the dynamic python library
 get_filename_component(_python_lib_first ${_python_dynamic_lib_name} NAME)

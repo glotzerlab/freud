@@ -1,12 +1,6 @@
-if (PYTHON_SITEDIR)
-    set(_sitedir ${PYTHON_SITEDIR})
-else()
-    set(_sitedir lib/python)
-endif()
-
 # install the hoomd_analyze python module
 install(DIRECTORY freud
-    DESTINATION ${_sitedir}
+    DESTINATION .
     PATTERN "*.pyc" EXCLUDE
     PATTERN "*.pyo" EXCLUDE
     )

@@ -47,8 +47,11 @@ include_directories(${NUMPY_INCLUDE_DIR})
 add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
 add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
+# set the default install prefix
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    SET(CMAKE_INSTALL_PREFIX ${PYTHON_USER_SITE} CACHE PATH "Python site installation diretory (defaults to USER_SITE)" FORCE)
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 add_subdirectory(cpp)
 add_subdirectory(py)
-add_subdirectory(run)
 add_subdirectory(doc)
