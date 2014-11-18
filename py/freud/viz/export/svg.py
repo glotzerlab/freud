@@ -211,10 +211,11 @@ class WriteSVG(object):
             color = "#{color[0]:02x}{color[1]:02x}{color[2]:02x}".format(color=c)
             ocolor = "#{ocolor[0]:02x}{ocolor[1]:02x}{ocolor[2]:02x}".format(ocolor=o)
             alpha = "{}".format(float(c[3])/255.0)
+            oalpha = "{}".format(float(o[3])/255.0)
             # write out polygon using the clipped polygon
             out.write('<use xlink:href="#clipped-poly-{polyID}" display="inline" '
-                      'fill="{col}" fill-opacity="{alpha}" stroke="{ocol}" '
-                      'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(polyID=polyID, col=color, alpha=alpha, ocol=ocolor, angle=a, gp=p));
+                      'fill="{col}" fill-opacity="{alpha}" stroke="{ocol}" stroke-opacity="{oalpha}" '
+                      'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(polyID=polyID, col=color, alpha=alpha, oalpha=oalpha, ocol=ocolor, angle=a, gp=p));
 
         #     out.write('end rotate\n');
         #     out.write('end translate\n');
