@@ -23,8 +23,8 @@ class NNeighbors:
         self.rmax = rmax
         self.n = int(n)
         self.handle = NearestNeighbors(self.rmax, self.n)
-        self.neighborList = None
-        self.RsqList = None
+        self.neighborList = [None] * self.nFrames
+        self.RsqList = [None] * self.nFrames
 
     # change any parameters
     def update(box=None,
@@ -48,9 +48,9 @@ class NNeighbors:
         self.handle.compute(self.box,ref_pos,pos)
         self.rmax = self.handle.getRMax()
         self.neighborList = self.handle.getNeighborList()
-        self.neighborList = self.neighborList.reshape(shape=(len(ref_pos), self.n))
+        self.neighborList = self.neighborList.reshape((len(ref_pos), self.n))
         self.RsqList = self.handle.getRsqList()
-        self.RsqList = self.RsqList.reshape(shape=(len(ref_pos), self.n))
+        self.RsqList = self.RsqList.reshape((len(ref_pos), self.n))
 
     # return the nearest neighbors of point idx
     def neighbors(self,
@@ -73,4 +73,8 @@ class NNeighbors:
                 return self.handle.getRsq(idx)
             except:
                 raise RuntimeError("neighbors have not been calculated")
+
+    def setRMax(self, rmax):
+        self.rmax=rmax
+        self.handle.setRMax(rmax)
 
