@@ -74,11 +74,6 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                 {
                 break;
                 }
-            // m_match_array[i] = 1;
-            // m_match_array[j] = 1;
-            // m_pair_array[i] = j;
-            // m_pair_array[j] = i;
-            // is_paired = true;
             const vec2<float> r_j(points[j].x, points[j].y);
             vec2<float> r_ij(r_j - r_i);
             vec2<float> r_ji(r_i - r_j);
@@ -137,10 +132,6 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                         // to check again
                         if ((d_ij < m_comp_dot_tol) && (d_ji < m_comp_dot_tol) && (is_paired==false) && (rsq < (m_rmax * m_rmax)))
                             {
-                            // printf("r_ij = %f %f\n", r_ij.x, r_ij.y);
-                            // printf("r_ji = %f %f\n", r_ji.x, r_ji.y);
-                            // printf("d_ij = %f\n", d_ij);
-                            // printf("d_ji = %f\n", d_ji);
                             m_match_array[i] = 1;
                             m_match_array[j] = 1;
                             m_pair_array[i] = j;
