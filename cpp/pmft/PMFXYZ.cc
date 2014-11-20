@@ -121,7 +121,7 @@ class CombinePCFXYZ
                 {
                 for (size_t j = 0; j < m_nbins_y; j++)
                     {
-                    for (size_t k = 0; k < m_nbins_z; j++)
+                    for (size_t k = 0; k < m_nbins_z; k++)
                         {
                         for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_pcf_array.begin();
                              local_bins != m_local_pcf_array.end(); ++local_bins)
