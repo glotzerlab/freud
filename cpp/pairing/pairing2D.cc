@@ -123,10 +123,10 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                         vec2<float> c_j(cosf(theta_cj), sinf(theta_cj));
                         c_j = c_j / sqrt(dot(c_j, c_j));
                         // calculate the dot products
-                        // float d_ij = acos(dot(c_i, u_ij));
-                        // float d_ji = acos(dot(c_j, u_ji));
-                        float d_ij = abs(1.0 - dot(c_i, u_ij));
-                        float d_ji = abs(1.0 - dot(c_j, u_ji));
+                        float d_ij = acos(dot(c_i, u_ij));
+                        float d_ji = acos(dot(c_j, u_ji));
+                        // float d_ij = abs(1.0 - dot(c_i, u_ij));
+                        // float d_ji = abs(1.0 - dot(c_j, u_ji));
                         // this check assumes that the target angle between the interparticle vector and the complementary
                         // interface is 0. As the nearest neighbor list may use a larger rmax than was initialized, it has
                         // to check again
