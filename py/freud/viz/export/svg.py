@@ -102,8 +102,8 @@ class WriteSVG(object):
             d = ('M {},{} '.format(verts[0][0], verts[0][1]) +
                  ' '.join('L {v[0]} {v[1]}'.format(v=v) for v in verts[1:]) +
                  'Z')
-            out.write('<path d="{d}" fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
-                      'fill-opacity="{col[3]}" />\n'.format(d=d, col=color));
+            out.write('<path d="{d:.2f}" fill="rgb({col[0]:.2f}%,{col[1]:.2f}%,{col[2]:.2f}%)" '
+                      'fill-opacity="{col[3]:.2f}" />\n'.format(d=d, col=color));
 
     ## \internal
     # \brief Write out disks
@@ -165,10 +165,10 @@ class WriteSVG(object):
         colors[:, :3] *= 100;
 
         for (verts, color) in zip(vertices, colors):
-            d = ('M {verts[0][0]},{verts[0][1]} L {verts[1][0]},{verts[1][1]} '
-                'L {verts[2][0]},{verts[2][1]} Z').format(verts=verts);
-            out.write('<path d="{d}" fill="rgb({col[0]}%,{col[1]}%,{col[2]}%)" '
-                      'fill-opacity="{col[3]}" />'.format(d=d, col=color));
+            d = ('M {verts[0][0]:.2f},{verts[0][1]:.2f} L {verts[1][0]:.2f},{verts[1][1]:.2f} '
+                'L {verts[2][0]:.2f},{verts[2][1]:.2f} Z').format(verts=verts);
+            out.write('<path d="{d:.2f}" fill="rgb({col[0]:.2f}%,{col[1]:.2f}%,{col[2]:.2f}%)" '
+                      'fill-opacity="{col[3]:.2f}" />'.format(d=d, col=color));
 
     # ## \internal
     # # \brief Write out repeated polygons
@@ -214,7 +214,7 @@ class WriteSVG(object):
             oalpha = "{}".format(float(o[3])/255.0)
             # write out polygon using the clipped polygon
             out.write('<use xlink:href="#clipped-poly-{polyID}" display="inline" '
-                      'fill="{col}" fill-opacity="{alpha}" stroke="{ocol}" stroke-opacity="{oalpha}" '
+                      'fill="{col}" fill-opacity="{alpha:.2f}" stroke="{ocol}" stroke-opacity="{oalpha:.2f}" '
                       'transform="translate({gp[0]:.2f},{gp[1]:.2f}) scale(1,-1) rotate({angle:.2f},0,0)" />\n'.format(polyID=polyID, col=color, alpha=alpha, oalpha=oalpha, ocol=ocolor, angle=a, gp=p));
 
         #     out.write('end rotate\n');
