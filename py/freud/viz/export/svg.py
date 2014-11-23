@@ -54,7 +54,7 @@ class WriteSVG(object):
         self.view_pos_to_cm = self.view_pos*self.sim_to_cm;
         self.height_cm = height_sim * self.sim_to_cm;
 
-        out.write('<svg width="{}cm" height="{}cm" viewBox="{} {} {} {}" '
+        out.write('<svg width="{:.2f}cm" height="{:.2f}cm" viewBox="{:.2f} {:.2f} {:.2f} {:.2f}" '
                   'xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n'.format(
             self.width_cm, self.height_cm, 0, 0, width_sim, height_sim));
 
@@ -180,7 +180,7 @@ class WriteSVG(object):
         out.write('<defs>\n')
         polyID = "poly{}".format(self.id_count)
         self.id_count += 1
-        points = " ".join("{point[0]},{point[1]}".format(point=p) for p in polygons.polygon.vertices / 2.0)
+        points = " ".join("{point[0]:.2f},{point[1]:.2f}".format(point=p) for p in polygons.polygon.vertices / 2.0)
         out.write('<polygon id="{polyID}" points="{points}" stroke-width="{outline}" />\n'.format(polyID=polyID, points=points, outline=polygons.outline.width));
         out.write('<clipPath id="clip-poly-{polyID}">\n'.format(polyID=polyID))
         out.write('<use xlink:href="#{polyID}" />\n'.format(polyID=polyID))
@@ -215,7 +215,7 @@ class WriteSVG(object):
             # write out polygon using the clipped polygon
             out.write('<use xlink:href="#clipped-poly-{polyID}" display="inline" '
                       'fill="{col}" fill-opacity="{alpha}" stroke="{ocol}" stroke-opacity="{oalpha}" '
-                      'transform="translate({gp[0]},{gp[1]}) scale(1,-1) rotate({angle},0,0)" />\n'.format(polyID=polyID, col=color, alpha=alpha, oalpha=oalpha, ocol=ocolor, angle=a, gp=p));
+                      'transform="translate({gp[0]:.2f},{gp[1]:.2f}) scale(1,-1) rotate({angle:.2f},0,0)" />\n'.format(polyID=polyID, col=color, alpha=alpha, oalpha=oalpha, ocol=ocolor, angle=a, gp=p));
 
         #     out.write('end rotate\n');
         #     out.write('end translate\n');
