@@ -109,7 +109,11 @@ class PMFXYZ
         boost::python::numeric::array getPCFPy()
             {
             unsigned int *arr = m_pcf_array.get();
-            return num_util::makeNum(arr, m_nbins_x * m_nbins_y * m_nbins_z);
+            std::vector<intp> dims(3);
+            dims[0] = m_nbins_z;
+            dims[1] = m_nbins_y;
+            dims[2] = m_nbins_x;
+            return num_util::makeNum(arr, dims);
             }
 
         //! Python wrapper for getX() (returns a copy)

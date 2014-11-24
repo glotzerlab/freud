@@ -64,7 +64,11 @@ class ShapeSplit
         boost::python::numeric::array getShapeSplitPy()
             {
             float *arr = m_split_array.get();
-            return num_util::makeNum(arr, 3*m_Nsplit*m_Np);
+            std::vector<intp> dims(3);
+            dims[0] = m_Np;
+            dims[1] = m_Nsplit;
+            dims[2] = 3;
+            return num_util::makeNum(arr, dims);
             }
 
         //! Get a reference to the last computed split orientations
@@ -77,7 +81,11 @@ class ShapeSplit
         boost::python::numeric::array getShapeOrientationsPy()
             {
             float *arr = m_orientation_array.get();
-            return num_util::makeNum(arr, 4*m_Nsplit*m_Np);
+            std::vector<intp> dims(3);
+            dims[0] = m_Np;
+            dims[1] = m_Nsplit;
+            dims[2] = 4;
+            return num_util::makeNum(arr, dims);
             }
 
     private:

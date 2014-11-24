@@ -112,7 +112,10 @@ public:
     boost::python::numeric::array getNeighborListPy()
         {
         unsigned int *arr = m_neighbor_array.get();
-        return num_util::makeNum(arr, m_nNeigh*m_Nref);
+        std::vector<intp> dims(2);
+        dims[0] = m_Nref;
+        dims[1] = m_nNeigh;
+        return num_util::makeNum(arr, dims);
         }
 
     //! Get a reference to the distance array
