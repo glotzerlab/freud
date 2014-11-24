@@ -103,7 +103,11 @@ class PMFTRPM
         boost::python::numeric::array getPCFPy()
             {
             unsigned int *arr = m_pcf_array.get();
-            return num_util::makeNum(arr, m_nbins_r * m_nbins_TP * m_nbins_TM);
+            std::vector<intp> dims(3);
+            dims[0] = m_nbins_TM;
+            dims[1] = m_nbins_TP;
+            dims[2] = m_nbins_r;
+            return num_util::makeNum(arr, dims);
             }
 
         //! Python wrapper for getX() (returns a copy)
