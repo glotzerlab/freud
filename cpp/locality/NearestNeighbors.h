@@ -43,6 +43,12 @@ public:
         m_lc->setCellWidth(m_rmax);
         }
 
+    void setRMaxPy(float rmax)
+        {
+        m_rmax = rmax;
+        m_lc->setCellWidth(m_rmax);
+        }
+
     //! Get the simulation box
     const trajectory::Box& getBox() const
         {

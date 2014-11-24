@@ -56,6 +56,7 @@ void pairing::ComputePairing2D(const vec3<float> *points,
     Index2D b_i = Index2D(m_No, m_Np);
     for (unsigned int i = 0; i < m_Np; i++)
         {
+        // if particle is paired already, skip it
         if (m_pair_array[i] != i)
             {
             continue;
@@ -76,12 +77,9 @@ void pairing::ComputePairing2D(const vec3<float> *points,
             const vec2<float> r_j(points[j].x, points[j].y);
             vec2<float> r_ij(r_j - r_i);
             vec2<float> r_ji(r_i - r_j);
-            vec3<float> delta = vec3<float>(r_ij.x, r_ij.y, 0.0);
-            // float3 wrapped(m_box.wrap(make_float3(r_ij.x, r_ij.y, 0.0)));
-            delta = m_box.wrap(delta);
+            vec3<float> delta = m_box.wrap(vec3<float>(r_ij.x, r_ij.y, 0.0));
             r_ij = vec2<float>(delta.x, delta.y);
-            delta = vec3<float>(r_ji.x, r_ji.y, 0.0);
-            delta = m_box.wrap(delta);
+            delta = m_box.wrap(vec3<float>(r_ji.x, r_ji.y, 0.0));
             r_ji = vec2<float>(delta.x, delta.y);
             float rsq(dot(r_ij, r_ij));
 
@@ -97,10 +95,12 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                 rotmat2<float> my_mat = rotmat2<float>::fromAngle(-orientations[i]);
                 vec2<float> u_ij(r_ij/sqrt(rsq));
                 u_ij = my_mat * u_ij;
+                u_ij = u_ij / sqrt(dot(u_ij, u_ij));
                 my_mat = rotmat2<float>::fromAngle(-orientations[j]);
                 rsq = dot(r_ji, r_ji);
                 vec2<float> u_ji(r_ji/sqrt(rsq));
                 u_ji = my_mat * u_ji;
+                u_ji = u_ji / sqrt(dot(u_ji, u_ji));
 
                 // for each potential complementary orientation for particle i
                 for (unsigned int a=0; a<m_No; a++)
@@ -112,6 +112,7 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                     // generate vectors
                     float theta_ci = comp_orientations[b_i(a, i)];
                     vec2<float> c_i(cosf(theta_ci), sinf(theta_ci));
+                    c_i = c_i / sqrt(dot(c_i, c_i));
 
                     // for each potential complementary orientation for particle j
                     for (unsigned int b=0; b<m_No; b++)
@@ -120,6 +121,7 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                             break;
                         float theta_cj = comp_orientations[b_i(b, j)];
                         vec2<float> c_j(cosf(theta_cj), sinf(theta_cj));
+                        c_j = c_j / sqrt(dot(c_j, c_j));
                         // calculate the dot products
                         float d_ij = acos(dot(c_i, u_ij));
                         float d_ji = acos(dot(c_j, u_ji));
