@@ -66,9 +66,10 @@ void pairing::ComputePairing2D(const vec3<float> *points,
         boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         // loop over all neighboring particles
         bool is_paired = false;
-        for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
+        //iterate over neighbors
+        locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
+        for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
             {
-            unsigned int j = neighbors[neigh_idx];
             // need to check to make sure that neither i nor j are paired, as i could become paired in the inner loop
             if ((m_pair_array[j] != j) || (m_pair_array[i] != i))
                 {
