@@ -125,18 +125,11 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                         // calculate the dot products
                         float d_ij = acos(dot(c_i, u_ij));
                         float d_ji = acos(dot(c_j, u_ji));
-                        // float d_ij = abs(1.0 - dot(c_i, u_ij));
-                        // float d_ji = abs(1.0 - dot(c_j, u_ji));
                         // this check assumes that the target angle between the interparticle vector and the complementary
                         // interface is 0. As the nearest neighbor list may use a larger rmax than was initialized, it has
                         // to check again
                         if ((d_ij < m_comp_dot_tol) && (d_ji < m_comp_dot_tol) && (is_paired==false) && (rsq < (m_rmax * m_rmax)))
                             {
-                            // for debugging, print what the angles would be
-                            // float a_ij = acos(dot(c_i, u_ij));
-                            // float a_ji = acos(dot(c_j, u_ji));
-                            // printf("a_ij = %f\n", a_ij);
-                            // printf("a_ji = %f\n", a_ji);
                             m_match_array[i] = 1;
                             m_match_array[j] = 1;
                             m_pair_array[i] = j;
