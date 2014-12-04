@@ -53,8 +53,8 @@ class ComputeNearestNeighbors
     {
 private:
     atomic<unsigned int> &m_deficits;
-    atomic<float> *m_rsq_array;
-    atomic<unsigned int> *m_neighbor_array;
+    float *m_rsq_array;
+    unsigned int *m_neighbor_array;
     const trajectory::Box& m_box;
     const unsigned int m_Np;
     const unsigned int m_nNeigh;
@@ -64,8 +64,8 @@ private:
     const vec3<float> *m_pos;
 public:
     ComputeNearestNeighbors(atomic<unsigned int> &deficits,
-                            atomic<float> *r_array,
-                            atomic<unsigned int> *neighbor_array,
+                            float *r_array,
+                            unsigned int *neighbor_array,
                             const trajectory::Box& box,
                             const unsigned int Np,
                             const unsigned int nNeigh,
@@ -159,8 +159,8 @@ void NearestNeighbors::compute(trajectory::Box& box,
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,Np),
             ComputeNearestNeighbors(m_deficits,
-                                    (atomic<float>*)m_rsq_array.get(),
-                                    (atomic<unsigned int>*)m_neighbor_array.get(),
+                                    (float*)m_rsq_array.get(),
+                                    (unsigned int*)m_neighbor_array.get(),
                                     m_box,
                                     m_Np,
                                     m_nNeigh,
