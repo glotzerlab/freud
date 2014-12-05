@@ -107,7 +107,7 @@ public:
 
                     //compute r between the two particles
                     vec3<float>rij = m_box.wrap(m_pos[j] - posi);
-                    const float rsq(dot(rij, rij));
+                    const float rsq = dot(rij, rij);
 
                     // adds all neighbors within rsq to list of possible neighbors
                     if ((rsq < rmaxsq) && (i != j))
