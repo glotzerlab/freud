@@ -125,6 +125,23 @@ public:
                 {
                 // sort based on rsq
                 sort(neighbors.begin(), neighbors.end(), compareRsqVectors);
+                // vector< pair<float, unsigned int> > new_neighbors;
+                // new_neighbors.resize(m_nNeigh);
+                // float local_min = FLT_MAX;
+                // int local_idx = INT_MAX;
+                // for (unsigned int k = 0; k < m_nNeigh; k++)
+                //     {
+                //     for (unsigned int m = 0; m < num_adjacent; m++)
+                //         {
+                //         if (neighbors[m].first < local_min)
+                //             {
+                //             local_min = neighbors[m].first;
+                //             local_idx = neighbors[m].second;
+                //             }
+                //         }
+                //         new_neighbors[k].first = local_min;
+                //         new_neighbors[k].second = local_idx;
+                //     }
                 for (unsigned int k = 0; k < m_nNeigh; k++)
                     {
                     // put the idx into the neighbor array
