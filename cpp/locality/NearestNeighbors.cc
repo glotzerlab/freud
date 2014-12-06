@@ -53,8 +53,8 @@ class ComputeNearestNeighbors
     {
 private:
     atomic<unsigned int> &m_deficits;
-    atomic<float> *m_rsq_array;
-    atomic<unsigned int> *m_neighbor_array;
+    float *m_rsq_array;
+    unsigned int *m_neighbor_array;
     const trajectory::Box& m_box;
     const unsigned int m_Np;
     const unsigned int m_nNeigh;
@@ -64,8 +64,8 @@ private:
     const vec3<float> *m_pos;
 public:
     ComputeNearestNeighbors(atomic<unsigned int> &deficits,
-                            atomic<float> *r_array,
-                            atomic<unsigned int> *neighbor_array,
+                            float *r_array,
+                            unsigned int *neighbor_array,
                             const trajectory::Box& box,
                             const unsigned int Np,
                             const unsigned int nNeigh,
@@ -107,7 +107,7 @@ public:
 
                     //compute r between the two particles
                     vec3<float>rij = m_box.wrap(m_pos[j] - posi);
-                    const float rsq(dot(rij, rij));
+                    const float rsq = dot(rij, rij);
 
                     // adds all neighbors within rsq to list of possible neighbors
                     if ((rsq < rmaxsq) && (i != j))
@@ -125,6 +125,23 @@ public:
                 {
                 // sort based on rsq
                 sort(neighbors.begin(), neighbors.end(), compareRsqVectors);
+                // vector< pair<float, unsigned int> > new_neighbors;
+                // new_neighbors.resize(m_nNeigh);
+                // float local_min = FLT_MAX;
+                // int local_idx = INT_MAX;
+                // for (unsigned int k = 0; k < m_nNeigh; k++)
+                //     {
+                //     for (unsigned int m = 0; m < num_adjacent; m++)
+                //         {
+                //         if (neighbors[m].first < local_min)
+                //             {
+                //             local_min = neighbors[m].first;
+                //             local_idx = neighbors[m].second;
+                //             }
+                //         }
+                //         new_neighbors[k].first = local_min;
+                //         new_neighbors[k].second = local_idx;
+                //     }
                 for (unsigned int k = 0; k < m_nNeigh; k++)
                     {
                     // put the idx into the neighbor array
@@ -159,8 +176,8 @@ void NearestNeighbors::compute(trajectory::Box& box,
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,Np),
             ComputeNearestNeighbors(m_deficits,
-                                    (atomic<float>*)m_rsq_array.get(),
-                                    (atomic<unsigned int>*)m_neighbor_array.get(),
+                                    (float*)m_rsq_array.get(),
+                                    (unsigned int*)m_neighbor_array.get(),
                                     m_box,
                                     m_Np,
                                     m_nNeigh,
