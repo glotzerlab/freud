@@ -44,6 +44,9 @@ class SolLiqNear
         **/
         SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn);
 
+        //! Destructor
+        ~SolLiqNear();
+
         //! Get the simulation box
         const trajectory::Box& getBox()
             {
@@ -54,8 +57,8 @@ class SolLiqNear
         void setBox(const trajectory::Box newbox)
             {
             m_box = newbox;  //Set
-            locality::NearestNeighbors newNeighbors(m_box, std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list
-            m_nn = newNeighbors;
+            locality::NearestNeighbors newNeighbors(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list
+            m_nn = &newNeighbors;
             } 
 
 
@@ -67,8 +70,8 @@ class SolLiqNear
                 //May not be necessary if std::max(m_rmax, m_rmax_cluster) is used to rebuild cell list here, and in setBox.
 
             m_rmax_cluster = rcut_cluster;  //Set
-            locality::NearestNeighbors newNeighbor(m_box, std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list.
-            m_nn = newNeighbor;
+            locality::NearestNeighbors newNeighbor(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list.
+            m_nn = &newNeighbor;
             }
 
         //! Compute the Solid-Liquid Order Parameter
@@ -278,7 +281,7 @@ class SolLiqNear
         float m_rmax;               //!< Maximum cutoff radius at which to determine local environment
         float m_rmax_cluster;       //!< Maximum radius at which to cluster solid-like particles;
         float m_k;                  //!< Number of neighbors
-        locality::NearestNeighbors m_nn;    //!< NearestNeighbors to bin particles for the computation of local environments
+        locality::NearestNeighbors *m_nn;    //!< NearestNeighbors to bin particles for the computation of local environments
 
         unsigned int m_Np;          //!< Last number of points computed
         boost::shared_array< std::complex<float> > m_Qlmi_array; //!< Stores Qlm for each particle i

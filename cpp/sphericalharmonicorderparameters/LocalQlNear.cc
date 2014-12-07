@@ -14,12 +14,10 @@ using namespace boost::python;
 namespace freud { namespace sphericalharmonicorderparameters {
 
 LocalQlNear::LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn = 12)
-    :m_box(box), m_rmax(rmax), m_nn(box, rmax, kn), m_l(l), m_k(kn)
+    :m_box(box), m_rmax(rmax), m_l(l), m_k(kn)
     {
     if (m_rmax < 0.0f)
         throw invalid_argument("rmax must be positive!");
-    if (kn < 0)
-        throw invalid_argument("# of nearest neighbors must be positive!");
     if (m_l < 2)
         throw invalid_argument("l must be two or greater (and even)!");
     if (m_l%2 == 1)
@@ -27,6 +25,12 @@ LocalQlNear::LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l,
         fprintf(stderr,"Current value of m_l is %d\n",m_l);
         throw invalid_argument("This method requires even values of l!");
         }
+    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
+    }
+
+LocalQlNear::~LocalQlNear()
+    {
+    delete m_nn;
     }
 
 void LocalQlNear::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
@@ -53,8 +57,7 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_nn.compute(points,Np);
-    //m_nn.computeCellList(points,m_Np);
+    m_nn->compute(m_box,points,Np,points,Np);
 
     double rmaxsq = m_rmax * m_rmax;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -74,12 +77,9 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
         //get cell point is in
         // float3 ref = points[i];
         vec3<float> ref = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
-        //unsigned int ref_cell = m_nn.getCell(ref);
-        //unsigned int neighborcount=0;
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
 
         //loop over neighboring cells
-        //const std::vector<unsigned int>& neigh_cells = m_nn.getCellNeighbors(ref_cell);
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             unsigned int j = neighbors[neigh_idx];
@@ -87,7 +87,7 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
             //compute r between the two particles.
             vec3<float> delta = m_box.wrap(points[j] - ref);
             float rsq = dot(delta, delta);
-            
+
             if (rsq > 1e-6)
                 {
                 double phi = atan2(delta.y,delta.x);      //0..2Pi
@@ -120,7 +120,7 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     // compute the cell list
-    m_nn.compute(points,Np);
+    m_nn->compute(m_box,points,Np,points,Np);
 
     double rmaxsq = m_rmax * m_rmax;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -138,15 +138,9 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
-        // float3 ref = points[i];
         vec3<float> ref = points[i];
         unsigned int neighborcount = 1;
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
-        //unsigned int ref_cell = m_nn.getCell(ref);
-        //unsigned int neighborcount=1;
-
-        //loop over neighboring cells
-        //const std::vector<unsigned int>& neigh_cells = m_nn.getCellNeighbors(ref_cell);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         //loop over neighbors
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
@@ -160,11 +154,11 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
 
             vec3<float> ref1 = points[j];
             vec3<float> delta = m_box.wrap(points[j] - ref);
-            
+
             float rsq = dot(delta, delta);
             if (rsq > 1e-6)
                 {
-                boost::shared_array<unsigned int> neighbors_2 = m_nn.getNeighbors(j);
+                boost::shared_array<unsigned int> neighbors_2 = m_nn->getNeighbors(j);
 
                 for (unsigned int neigh1_idx = 0; neigh1_idx < m_k; neigh1_idx++)
                     {
@@ -220,7 +214,7 @@ void LocalQlNear::computeNorm(const vec3<float> *points, unsigned int Np)
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
         {
         m_Qlm[k]/= m_Np;
-        } 
+        }
 
     for(unsigned int i = 0; i < m_Np; ++i)
         {
@@ -265,7 +259,7 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
 void LocalQlNear::computePy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -281,7 +275,7 @@ void LocalQlNear::computePy(boost::python::numeric::array points)
 void LocalQlNear::computeAvePy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -298,7 +292,7 @@ void LocalQlNear::computeAvePy(boost::python::numeric::array points)
 void LocalQlNear::computeNormPy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -315,7 +309,7 @@ void LocalQlNear::computeNormPy(boost::python::numeric::array points)
 void LocalQlNear::computeAveNormPy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3

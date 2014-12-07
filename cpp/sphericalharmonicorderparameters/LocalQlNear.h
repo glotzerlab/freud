@@ -46,7 +46,11 @@ class LocalQlNear
         @param rmax Cutoff radius for running the local order parameter. Values near first minima of the rdf are recommended.
         @param l Spherical harmonic quantum number l.  Must be a positive even number.
         **/
+        //! Constructor
         LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn);
+
+        //! Destructor
+        ~LocalQlNear();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -58,9 +62,9 @@ class LocalQlNear
         void setBox(const trajectory::Box newbox)
             {
             m_box = newbox;  //Set
-            locality::NearestNeighbors newNeighbors(m_box, m_rmax, m_k);
+            locality::NearestNeighbors newNeighbors(m_rmax, m_k);
             //Rebuild cell list
-            m_nn = newNeighbors;
+            m_nn = &newNeighbors;
             }
 
 
@@ -160,7 +164,7 @@ class LocalQlNear
         float m_rmin;                     //!< Minimum r at which to determine neighbors
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;             //!< Number of neighbors
-        locality::NearestNeighbors m_nn;          //!< NearestNeighbors to bin particles for the computation
+        locality::NearestNeighbors *m_nn;          //!< NearestNeighbors to bin particles for the computation
         unsigned int m_l;                 //!< Spherical harmonic l value.
         unsigned int m_Np;                //!< Last number of points computed
         boost::shared_array< std::complex<double> > m_Qlmi;        //!  Qlm for each particle i

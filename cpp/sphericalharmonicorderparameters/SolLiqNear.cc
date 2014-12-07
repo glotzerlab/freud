@@ -10,7 +10,7 @@ using namespace boost::python;
 namespace freud { namespace sphericalharmonicorderparameters {
 
 SolLiqNear::SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn = 12)
-    :m_box(box), m_rmax(rmax), m_rmax_cluster(rmax), m_nn(box, rmax, kn), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold), m_l(l), m_k(kn)
+    :m_box(box), m_rmax(rmax), m_rmax_cluster(rmax), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold), m_l(l), m_k(kn)
     {
     m_Np = 0;
     if (m_rmax < 0.0f)
@@ -23,10 +23,13 @@ SolLiqNear::SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold,
         throw invalid_argument("l should be even!");
     if (m_l == 0)
         throw invalid_argument("l shouldbe greater than zero!");
-    if (kn < 0)
-        throw invalid_argument("# of nearest neighbors must be positive!");
+    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
 
+SolLiqNear::~SolLiqNear()
+    {
+    delete m_nn;
+    }
 
 //Spherical harmonics from boost.  Chooses appropriate l from m_l local var.
 void SolLiqNear::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
@@ -112,11 +115,10 @@ void SolLiqNear::Y4m(const float theta, const float phi, std::vector<std::comple
 
 //Begins calculation of the solid-liq order parameters.
 //Note that the SolLiq container class conatins the threshold cutoffs
-// void SolLiq::compute(const float3 *points, unsigned int Np)
 void SolLiqNear::compute(const vec3<float> *points, unsigned int Np)
     {
 
-    m_nn.compute(points,Np);
+    m_nn->compute(m_box,points,Np,points,Np);
 
     //Initialize Qlmi
     computeClustersQ(points,Np);
@@ -129,10 +131,9 @@ void SolLiqNear::compute(const vec3<float> *points, unsigned int Np)
 
 //Begins calculation of solliq order parameter.  This variant requires particles to share at least S_threshold neighbors
 // in order to cluster them, rather than each possess S_threshold neighbors.
-// void SolLiq::computeSolLiqVariant(const float3 *points, unsigned int Np)
 void SolLiqNear::computeSolLiqVariant(const vec3<float> *points, unsigned int Np)
     {
-    m_nn.compute(points,Np);
+    m_nn->compute(m_box,points,Np,points,Np);
     //Initialize Qlmi
     computeClustersQ(points,Np);
     vector< vector<unsigned int> > SolidlikeNeighborlist;
@@ -145,7 +146,7 @@ void SolLiqNear::computeSolLiqVariant(const vec3<float> *points, unsigned int Np
 // void SolLiq::computeSolLiqNoNorm(const float3 *points, unsigned int Np)
 void SolLiqNear::computeSolLiqNoNorm(const vec3<float> *points, unsigned int Np)
     {
-    m_nn.compute(points,Np);
+    m_nn->compute(m_box,points,Np,points,Np);
     //Initialize Qlmi
     computeClustersQ(points,Np);
     //Determines number of solid or liquid like bonds
@@ -175,7 +176,7 @@ void SolLiqNear::computeClustersQ(const vec3<float> *points, unsigned int Np)
         //get cell point is in
         // float3 ref = points[i];
         vec3<float> ref = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int ref_cell = m_lc.getCell(ref);
 
         //loop over neighboring cells
@@ -241,7 +242,7 @@ void SolLiqNear::computeClustersQdot(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
@@ -310,7 +311,7 @@ void SolLiqNear::computeClustersQdotNoNorm(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
@@ -369,7 +370,7 @@ void SolLiqNear::computeClustersQS(const vec3<float> *points, unsigned int Np)
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
@@ -497,7 +498,7 @@ void SolLiqNear::computeListOfSolidLikeNeighbors(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         //Empty list
@@ -568,7 +569,7 @@ void SolLiqNear::computeClustersSharedNeighbors(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
@@ -643,7 +644,7 @@ void SolLiqNear::computeClustersSharedNeighbors(const vec3<float> *points,
 void SolLiqNear::computePy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -659,7 +660,7 @@ void SolLiqNear::computePy(boost::python::numeric::array points)
 void SolLiqNear::computeSolLiqVariantPy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -675,7 +676,7 @@ void SolLiqNear::computeSolLiqVariantPy(boost::python::numeric::array points)
 void SolLiqNear::computeSolLiqNoNormPy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3

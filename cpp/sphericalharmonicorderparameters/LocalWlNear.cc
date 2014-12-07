@@ -15,12 +15,10 @@ using namespace boost::python;
 namespace freud { namespace sphericalharmonicorderparameters {
 
 LocalWlNear::LocalWlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn = 12)
-    :m_box(box), m_rmax(rmax), m_nn(box, rmax, kn), m_l(l), m_k(kn)
+    :m_box(box), m_rmax(rmax), m_l(l), m_k(kn)
     {
     if (m_rmax < 0.0f)
         throw invalid_argument("rmax must be positive!");
-    if (kn < 0)
-        throw invalid_argument("# of nearest neighbors must be positive!");
     if (m_l < 2)
         throw invalid_argument("l must be two or greater (and even)!");
     if (m_l%2 == 1)
@@ -29,6 +27,12 @@ LocalWlNear::LocalWlNear(const trajectory::Box& box, float rmax, unsigned int l,
         throw invalid_argument("This method requires even values of l!");
         }
     m_normalizeWl = false;
+    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
+    }
+
+LocalWlNear::~LocalWlNear()
+    {
+    delete m_nn;
     }
 
 void LocalWlNear::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
@@ -47,7 +51,6 @@ void LocalWlNear::Ylm(const double theta, const double phi, std::vector<std::com
         Y[i+m_l] = Y[-i+m_l];
     }
 
-// void LocalWl::compute(const float3 *points, unsigned int Np)
 void LocalWlNear::compute(const vec3<float> *points, unsigned int Np)
     {
     //Get wigner3j coefficients from wigner3j.cc
@@ -59,7 +62,7 @@ void LocalWlNear::compute(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_nn.compute(points,m_Np);
+    m_nn->compute(m_box,points,m_Np,points,m_Np);
 
     double rmaxsq = m_rmax * m_rmax;
 
@@ -77,9 +80,8 @@ void LocalWlNear::compute(const vec3<float> *points, unsigned int Np)
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
-        // float3 ref = points[i];
         vec3<float> ref = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
 
         //loop over neighboring cells
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
@@ -133,7 +135,6 @@ void LocalWlNear::compute(const vec3<float> *points, unsigned int Np)
         }
     }
 
-// void LocalWl::computeAve(const float3 *points, unsigned int Np)
 void LocalWlNear::computeAve(const vec3<float> *points, unsigned int Np)
     {
 
@@ -146,7 +147,7 @@ void LocalWlNear::computeAve(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_nn.compute(points,m_Np);
+    m_nn->compute(m_box,points,m_Np,points,m_Np);
 
     double rmaxsq = m_rmax * m_rmax;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -165,7 +166,7 @@ void LocalWlNear::computeAve(const vec3<float> *points, unsigned int Np)
         // float3 ref = points[i];
         vec3<float> ref = points[i];
         unsigned int neighborcount=1;
-        boost::shared_array<unsigned int> neighbors = m_nn.getNeighbors(i);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
 
         //loop over neighboring cells
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
@@ -185,7 +186,7 @@ void LocalWlNear::computeAve(const vec3<float> *points, unsigned int Np)
             float rsq = dot(delta, delta);
             if (rsq > 1e-6)
                 {
-                boost::shared_array<unsigned int> neighbors_2 = m_nn.getNeighbors(j);
+                boost::shared_array<unsigned int> neighbors_2 = m_nn->getNeighbors(j);
 
                 //loop over 2nd neighboring cells
                 for (unsigned int neigh1_idx = 0; neigh1_idx < m_k; neigh1_idx++)
@@ -276,7 +277,7 @@ void LocalWlNear::computeNorm(const vec3<float> *points, unsigned int Np)
 void LocalWlNear::computePy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -292,7 +293,7 @@ void LocalWlNear::computePy(boost::python::numeric::array points)
 void LocalWlNear::computeNormPy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -309,7 +310,7 @@ void LocalWlNear::computeNormPy(boost::python::numeric::array points)
 void LocalWlNear::computeAvePy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
