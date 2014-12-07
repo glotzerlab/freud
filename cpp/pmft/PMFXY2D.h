@@ -1,17 +1,21 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
-
-#include <tbb/tbb.h>
 
 #ifndef _PMFXY2D_H__
 #define _PMFXY2D_H__
@@ -39,7 +43,7 @@ class PMFXY2D
     {
     public:
         //! Constructor
-        PMFXY2D(const trajectory::Box& box, float max_x, float max_y, float dx, float dy);
+        PMFXY2D(float max_x, float max_y, float dx, float dy);
 
         //! Destructor
         ~PMFXY2D();
@@ -49,9 +53,6 @@ class PMFXY2D
             {
             return m_box;
             }
-
-        //! Check if a cell list should be used or not
-        bool useCells();
 
         //! Reset the PCF array to all zeros
         void resetPCF();
@@ -73,7 +74,8 @@ class PMFXY2D
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
                        boost::python::numeric::array orientations);
@@ -100,7 +102,10 @@ class PMFXY2D
         boost::python::numeric::array getPCFPy()
             {
             unsigned int *arr = m_pcf_array.get();
-            return num_util::makeNum(arr, m_nbins_x * m_nbins_y);
+            std::vector<intp> dims(2);
+            dims[0] = m_nbins_y;
+            dims[1] = m_nbins_x;
+            return num_util::makeNum(arr, dims);
             }
 
         //! Python wrapper for getX() (returns a copy)

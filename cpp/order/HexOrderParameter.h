@@ -1,10 +1,16 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "NearestNeighbors.h"
 #include "num_util.h"
@@ -27,7 +33,7 @@ class HexOrderParameter
     {
     public:
         //! Constructor
-        HexOrderParameter(const trajectory::Box& box, float rmax, float k);
+        HexOrderParameter(float rmax, float k);
 
         //! Destructor
         ~HexOrderParameter();
@@ -43,7 +49,8 @@ class HexOrderParameter
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array points);
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array points);
 
         //! Get a reference to the last computed psi
         boost::shared_array< std::complex<float> > getPsi()

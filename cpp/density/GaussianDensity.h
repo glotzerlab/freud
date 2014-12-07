@@ -2,9 +2,7 @@
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "num_util.h"
 #include "trajectory.h"

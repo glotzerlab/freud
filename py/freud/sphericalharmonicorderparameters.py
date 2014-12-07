@@ -15,7 +15,7 @@ import scipy.io as sio
 import numpy as np
 
 '''class LocalWl(LWl):
-    
+
     def __init__(self,box,rmax,l):
         #Initialize those wigner3j values as mx1 numpy arra
         # type of numpy should nd.type=float64??? check.
@@ -26,8 +26,8 @@ import numpy as np
         else:
             print('l too big, need sympy library')
             super(LocalWl,self).setWigner3j(self.wigner3j(l))
-   
-    #read of wigner3j coefficients from wigner3j.mat  
+
+    #read of wigner3j coefficients from wigner3j.mat
     def getwigner(self,l):
         allwig = sio.loadmat('wigner3j.mat')
         W_l = np.array(allwig['l'+str(l)][0],dtype=np.float64)
@@ -54,12 +54,12 @@ import numpy as np
 #How to set up wigner3j.mat file
 #The structure of this .mat file is a list of float numbers in the order of l
 # 1st row: l=2 wigner3j, 2nd row: l=4 wigner3j...
-#The coefficients are in the order of how the loop is written 
+#The coefficients are in the order of how the loop is written
 
 ''' import scipy.io as sio
  from sympy.physics.wigner import wigner_3j
  import numpy as np
- 
+
  wigner={}
  for i in range(10):
      counter = 0
@@ -68,7 +68,7 @@ import numpy as np
          for u2 in range(max(l-u1,0),min(2*l+1,3*l-u1+1)):
              counter += 1
      W_l = np.zeros(counter,dtype=np.float64)
- 
+
      j = 0
      for u1 in range(2*l+1):
          for u2 in range(max(l-u1,0),min(2*l+1,3*l-u1+1)):
@@ -76,6 +76,5 @@ import numpy as np
              W_l[j] = float(wigner_3j(l,l,l,u1-l,u2-l,u3-l))
              j += 1
      wigner['l'+str(l)]=W_l
- 
+
 sio.savemat('wigner3j.mat',wigner)'''
-                                 

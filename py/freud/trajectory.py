@@ -572,7 +572,7 @@ class TrajectoryXMLDCD(Trajectory):
         else:
             self.ndim = 3;
 
-        
+
         # (Chrisy: seems not possible to reach this if statement since the initialization requires a dcd file)
         # if there is no dcd file, read box
         if dcd_fname is None:
@@ -583,7 +583,7 @@ class TrajectoryXMLDCD(Trajectory):
                 xy = float(box_config.getAttribute('xy'))
                 xz = float(box_config.getAttribute('xz'))
                 yz = float(box_config.getAttribute('yz'))
-            
+
             self.box = Box(float(box_config.getAttribute('lx')),float(box_config.getAttribute('ly')),float(box_config.getAttribute('lz')),xy,xz,yz, self.ndim == 2)
 
         # read the position node just to get the number of particles
@@ -709,9 +709,14 @@ class TrajectoryXMLDCD(Trajectory):
         if self.dcd_loader is not None:
             pos = self.dcd_loader.getPoints();
             dynamic_props['position'] = pos;
-            box = copy.copy(self.dcd_loader.getBox());
-            newBox = self.dcd_loader.getBox()
-            box.set2D(self.ndim == 2);
+            dcdBox = self.dcd_loader.getBox();
+            newBox = Box(dcdBox.getLx(),
+                         dcdBox.getLy(),
+                         dcdBox.getLz(),
+                         dcdBox.getTiltFactorXY(),
+                         dcdBox.getTiltFactorXZ(),
+                         dcdBox.getTiltFactorYZ(),
+                         self.ndim == 2)
             return Frame(self,
                          self.dcd_loader.getLastFrameNum(),
                          dynamic_props,

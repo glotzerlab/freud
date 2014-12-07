@@ -1,16 +1,20 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
-
-#include <tbb/tbb.h>
 
 #ifndef _PMFTXYTM2D_H__
 #define _PMFTXYTM2D_H__
@@ -36,7 +40,7 @@ class PMFTXYTM2D
     {
     public:
         //! Constructor
-        PMFTXYTM2D(const trajectory::Box& box, float max_x, float max_y, float max_T, float dx, float dy, float dT);
+        PMFTXYTM2D(float max_x, float max_y, float max_T, float dx, float dy, float dT);
 
         //! Destructor
         ~PMFTXYTM2D();
@@ -46,9 +50,6 @@ class PMFTXYTM2D
             {
             return m_box;
             }
-
-        //! Check if a cell list should be used or not
-        bool useCells();
 
         //! Reset the PCF array to all zeros
         void resetPCF();
@@ -68,7 +69,8 @@ class PMFTXYTM2D
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
                        boost::python::numeric::array orientations);
@@ -101,7 +103,11 @@ class PMFTXYTM2D
         boost::python::numeric::array getPCFPy()
             {
             unsigned int *arr = m_pcf_array.get();
-            return num_util::makeNum(arr, m_nbins_x * m_nbins_y * m_nbins_T);
+            std::vector<intp> dims(3);
+            dims[0] = m_nbins_T;
+            dims[1] = m_nbins_y;
+            dims[2] = m_nbins_x;
+            return num_util::makeNum(arr, dims);
             }
 
         //! Python wrapper for getX() (returns a copy)

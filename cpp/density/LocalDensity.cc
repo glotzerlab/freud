@@ -3,7 +3,6 @@
 
 #include <stdexcept>
 #include <complex>
-#include <tbb/tbb.h>
 
 using namespace std;
 using namespace boost::python;
@@ -15,9 +14,15 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-LocalDensity::LocalDensity(const trajectory::Box& box, float rcut, float volume, float diameter)
-    : m_box(box), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_lc(box, rcut+diameter/2.0f), m_Np(0)
+LocalDensity::LocalDensity(float rcut, float volume, float diameter)
+    : m_box(trajectory::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_Np(0)
     {
+    m_lc = new locality::LinkCell(m_box, m_rcut);
+    }
+
+LocalDensity::~LocalDensity()
+    {
+    delete m_lc;
     }
 
 //! \internal
@@ -32,7 +37,7 @@ class ComputeLocalDensity
         const float m_rcut;
         const float m_volume;
         const float m_diameter;
-        const locality::LinkCell& m_lc;
+        const locality::LinkCell *m_lc;
         const vec3<float> *m_points;
     public:
         ComputeLocalDensity(float *density_array,
@@ -41,7 +46,7 @@ class ComputeLocalDensity
                             const float rcut,
                             const float volume,
                             const float diameter,
-                            const locality::LinkCell& lc,
+                            const locality::LinkCell *lc,
                             const vec3<float> *points)
             : m_density_array(density_array), m_num_neighbors_array(num_neighbors_array), m_box(box), m_rcut(rcut),
               m_volume(volume), m_diameter(diameter), m_lc(lc), m_points(points)
@@ -56,16 +61,16 @@ class ComputeLocalDensity
 
                 // get cell point is in
                 vec3<float> ref = m_points[i];
-                unsigned int ref_cell = m_lc.getCell(ref);
+                unsigned int ref_cell = m_lc->getCell(ref);
 
                 //loop over neighboring cells
-                const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
+                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
                 for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
                     {
                     unsigned int neigh_cell = neigh_cells[neigh_idx];
 
                     //iterate over particles in cell
-                    locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
+                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                         {
                         //compute r between the two particles
@@ -106,11 +111,10 @@ class ComputeLocalDensity
             }
     };
 
-// void LocalDensity::compute(const float3 *points, unsigned int Np)
 void LocalDensity::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
-    m_lc.computeCellList(points,Np);
+    m_lc->computeCellList(m_box, points, Np);
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
@@ -133,10 +137,12 @@ void LocalDensity::compute(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
     }
 
-void LocalDensity::computePy(boost::python::numeric::array points)
+void LocalDensity::computePy(trajectory::Box& box,
+                             boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    m_box = box;
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -155,7 +161,7 @@ void LocalDensity::computePy(boost::python::numeric::array points)
 
 void export_LocalDensity()
     {
-    class_<LocalDensity>("LocalDensity", init<trajectory::Box&, float, float, float>())
+    class_<LocalDensity>("LocalDensity", init<float, float, float>())
         .def("compute", &LocalDensity::computePy)
         .def("getDensity", &LocalDensity::getDensityPy)
         .def("getNumNeighbors", &LocalDensity::getNumNeighborsPy)

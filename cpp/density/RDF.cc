@@ -10,8 +10,6 @@
 #include <omp.h>
 #endif
 
-#include <tbb/tbb.h>
-
 using namespace std;
 using namespace boost::python;
 
@@ -23,8 +21,8 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(const trajectory::Box& box, float rmax, float dr)
-    : m_box(box), m_rmax(rmax), m_dr(dr)
+RDF::RDF(float rmax, float dr)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr)
     {
     if (dr < 0.0f)
         throw invalid_argument("dr must be positive");
@@ -32,10 +30,6 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
         throw invalid_argument("rmax must be positive");
     if (dr > rmax)
         throw invalid_argument("rmax must be greater than dr");
-    if (rmax > box.getLx()/2 || rmax > box.getLy()/2)
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
-    if (rmax > box.getLz()/2 && !box.is2D())
-        throw invalid_argument("rmax must be smaller than half the smallest box size");
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
@@ -59,20 +53,20 @@ RDF::RDF(const trajectory::Box& box, float rmax, float dr)
 
     // precompute cell volumes
     m_vol_array = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_vol_array.get(), 0, sizeof(float)*m_nbins);
+    m_vol_array2D = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_vol_array2D.get(), 0, sizeof(float)*m_nbins);
+    m_vol_array3D = boost::shared_array<float>(new float[m_nbins]);
+    memset((void*)m_vol_array3D.get(), 0, sizeof(float)*m_nbins);
     for (unsigned int i = 0; i < m_nbins; i++)
         {
         float r = float(i) * m_dr;
         float nextr = float(i+1) * m_dr;
-        if (m_box.is2D())
-            m_vol_array[i] = M_PI * (nextr*nextr - r*r);
-        else
-            m_vol_array[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
+        m_vol_array2D[i] = M_PI * (nextr*nextr - r*r);
+        m_vol_array3D[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
         }
 
-    if (useCells())
-        {
-        m_lc = new locality::LinkCell(box, rmax);
-        }
+    m_lc = new locality::LinkCell(m_box, m_rmax);
     }
 
 RDF::~RDF()
@@ -81,7 +75,6 @@ RDF::~RDF()
         {
         delete[] (*i);
         }
-    if(useCells())
     delete m_lc;
     }
 
@@ -166,78 +159,7 @@ class CombineArrays
             }
     };
 
-class ComputeRDFWithoutCellList
-    {
-    private:
-        unsigned int m_nbins;
-        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
-        const trajectory::Box m_box;
-        const float m_rmax;
-        const float m_dr;
-        const vec3<float> *m_ref_points;
-        const unsigned int m_Nref;
-        const vec3<float> *m_points;
-        const unsigned int m_Np;
-    public:
-        ComputeRDFWithoutCellList(unsigned int nbins,
-                                  tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
-                                  const trajectory::Box &box,
-                                  const float rmax,
-                                  const float dr,
-                                  const vec3<float> *ref_points,
-                                  unsigned int Nref,
-                                  const vec3<float> *points,
-                                  unsigned int Np)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_box(box), m_rmax(rmax), m_dr(dr), m_ref_points(ref_points),
-              m_Nref(Nref), m_points(points), m_Np(Np)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myR )  const
-            {
-            float dr_inv = 1.0f / m_dr;
-            float rmaxsq = m_rmax * m_rmax;
-
-            bool exists;
-            m_bin_counts.local(exists);
-            if (! exists)
-                {
-                m_bin_counts.local() = new unsigned int [m_nbins];
-                memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
-                }
-
-            // for each reference point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
-                {
-                for (unsigned int j = 0; j < m_Np; j++)
-                    {
-                    // compute r between the two particles
-                    vec3<float> delta = m_box.wrap(m_points[j] - m_ref_points[i]);
-
-                    float rsq = dot(delta, delta);
-                    if (rsq < rmaxsq)
-                        {
-                        float r = sqrtf(rsq);
-
-                        // bin that r
-                        float binr = r * dr_inv;
-                        // fast float to int conversion with truncation
-                        #ifdef __SSE2__
-                        unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                        #else
-                        unsigned int bin = (unsigned int)(binr);
-                        #endif
-
-                        if (bin < m_nbins)
-                            {
-                            ++m_bin_counts.local()[bin];
-                            }
-                        }
-                    }
-                } // done looping over reference points
-            }
-    };
-
-class ComputeRDFWithCellList
+class ComputeRDF
     {
     private:
         unsigned int m_nbins;
@@ -251,16 +173,16 @@ class ComputeRDFWithCellList
         const vec3<float> *m_points;
         const unsigned int m_Np;
     public:
-        ComputeRDFWithCellList(unsigned int nbins,
-                               tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
-                               const trajectory::Box &box,
-                               const float rmax,
-                               const float dr,
-                               const locality::LinkCell *lc,
-                               const vec3<float> *ref_points,
-                               unsigned int Nref,
-                               const vec3<float> *points,
-                               unsigned int Np)
+        ComputeRDF(unsigned int nbins,
+                   tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
+                   const trajectory::Box &box,
+                   const float rmax,
+                   const float dr,
+                   const locality::LinkCell *lc,
+                   const vec3<float> *ref_points,
+                   unsigned int Nref,
+                   const vec3<float> *points,
+                   unsigned int Np)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_box(box), m_rmax(rmax), m_dr(dr), m_lc(lc),
               m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
         {
@@ -330,19 +252,6 @@ class ComputeRDFWithCellList
             }
     };
 
-bool RDF::useCells()
-    {
-    float l_min = fmin(m_box.getLx(), m_box.getLy());
-
-    if (!m_box.is2D())
-        l_min = fmin(l_min, m_box.getLz());
-
-    if (m_rmax < l_min/3.0f)
-        return true;
-
-    return false;
-    }
-
 void RDF::compute(const vec3<float> *ref_points,
                   unsigned int Nref,
                   const vec3<float> *points,
@@ -354,38 +263,27 @@ void RDF::compute(const vec3<float> *ref_points,
         }
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
-    if (useCells())
-        {
-        m_lc->computeCellList(points, Np);
-        parallel_for(blocked_range<size_t>(0,Nref), ComputeRDFWithCellList(m_nbins,
-                                                                           m_local_bin_counts,
-                                                                           m_box,
-                                                                           m_rmax,
-                                                                           m_dr,
-                                                                           m_lc,
-                                                                           ref_points,
-                                                                           Nref,
-                                                                           points,
-                                                                           Np));
-        }
-    else
-        {
-        parallel_for(blocked_range<size_t>(0,Nref), ComputeRDFWithoutCellList(m_nbins,
-                                                                              m_local_bin_counts,
-                                                                              m_box,
-                                                                              m_rmax,
-                                                                              m_dr,
-                                                                              ref_points,
-                                                                              Nref,
-                                                                              points,
-                                                                              Np));
-        }
+    m_lc->computeCellList(m_box, points, Np);
+    parallel_for(blocked_range<size_t>(0,Nref), ComputeRDF(m_nbins,
+                                                           m_local_bin_counts,
+                                                           m_box,
+                                                           m_rmax,
+                                                           m_dr,
+                                                           m_lc,
+                                                           ref_points,
+                                                           Nref,
+                                                           points,
+                                                           Np));
 
     // now compute the rdf
     float ndens = float(Np) / m_box.getVolume();
     m_rdf_array[0] = 0.0f;
     m_N_r_array[0] = 0.0f;
     m_N_r_array[1] = 0.0f;
+    if (m_box.is2D())
+        m_vol_array = m_vol_array2D;
+    else
+        m_vol_array = m_vol_array3D;
     // now compute the rdf
     parallel_for(blocked_range<size_t>(1,m_nbins), CombineArrays(m_nbins,
                                                                  m_bin_counts.get(),
@@ -399,13 +297,15 @@ void RDF::compute(const vec3<float> *ref_points,
     parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
     }
 
-void RDF::computePy(boost::python::numeric::array ref_points,
+void RDF::computePy(trajectory::Box& box,
+                    boost::python::numeric::array ref_points,
                     boost::python::numeric::array points)
     {
     // validate input type and rank
-    num_util::check_type(ref_points, PyArray_FLOAT);
+    m_box = box;
+    num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -428,7 +328,7 @@ void RDF::computePy(boost::python::numeric::array ref_points,
 
 void export_RDF()
     {
-    class_<RDF>("RDF", init<trajectory::Box&, float, float>())
+    class_<RDF>("RDF", init<float, float>())
         .def("getBox", &RDF::getBox, return_internal_reference<>())
         .def("compute", &RDF::computePy)
         .def("getRDF", &RDF::getRDFPy)

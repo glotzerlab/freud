@@ -176,7 +176,7 @@ void triangle_rotatePy(boost::python::numeric::array vert_array,
     //validate input type and rank
     //
 
-    num_util::check_type(vert_array, PyArray_FLOAT);
+    num_util::check_type(vert_array, NPY_FLOAT);
     num_util::check_rank(vert_array, 3);
 
     // validate that the 2nd dimension is 4
@@ -184,25 +184,25 @@ void triangle_rotatePy(boost::python::numeric::array vert_array,
     //unsigned int N = num_util::shape(vert_array)[0];
 
     // check that u is consistent
-    num_util::check_type(position_array, PyArray_FLOAT);
+    num_util::check_type(position_array, NPY_FLOAT);
     num_util::check_rank(position_array, 2);
     unsigned int N = num_util::shape(position_array)[0];
     //if (num_util::shape(position_array)[0] != N)
     //    throw std::invalid_argument("Input lengths for vert_array and position_array must match");
 
     // check that s is consistent
-    num_util::check_type(angle_array, PyArray_FLOAT);
+    num_util::check_type(angle_array, NPY_FLOAT);
     num_util::check_rank(angle_array, 1);
     if (num_util::shape(angle_array)[0] != N)
         throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
 
     // check that v is consistent
-    num_util::check_type(triangle_array, PyArray_FLOAT);
+    num_util::check_type(triangle_array, NPY_FLOAT);
     // I think this should be N_Tx3X2
     num_util::check_rank(triangle_array, 3);
     unsigned int NT = num_util::shape(triangle_array)[0];
 
-    num_util::check_type(poly_colors, PyArray_FLOAT);
+    num_util::check_type(poly_colors, NPY_FLOAT);
     // I think this should be N_Tx3X2
     num_util::check_rank(poly_colors, 2);
     if (num_util::shape(poly_colors)[0] != N)
@@ -250,7 +250,7 @@ void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
     //validate input type and rank
     //
 
-    num_util::check_type(vert_array, PyArray_FLOAT);
+    num_util::check_type(vert_array, NPY_FLOAT);
     num_util::check_rank(vert_array, 3);
 
     // validate that the 2nd dimension is 4
@@ -258,25 +258,25 @@ void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
     //unsigned int N = num_util::shape(vert_array)[0];
 
     // check that u is consistent
-    num_util::check_type(position_array, PyArray_FLOAT);
+    num_util::check_type(position_array, NPY_FLOAT);
     num_util::check_rank(position_array, 2);
     unsigned int N = num_util::shape(position_array)[0];
     //if (num_util::shape(position_array)[0] != N)
     //    throw std::invalid_argument("Input lengths for vert_array and position_array must match");
 
     // check that s is consistent
-    num_util::check_type(angle_array, PyArray_FLOAT);
+    num_util::check_type(angle_array, NPY_FLOAT);
     num_util::check_rank(angle_array, 1);
     if (num_util::shape(angle_array)[0] != N)
         throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
 
     // check that v is consistent
-    num_util::check_type(triangle_array, PyArray_FLOAT);
+    num_util::check_type(triangle_array, NPY_FLOAT);
     // I think this should be N_Tx3X2
     num_util::check_rank(triangle_array, 3);
     unsigned int NT = num_util::shape(triangle_array)[0];
 
-    num_util::check_type(poly_colors, PyArray_FLOAT);
+    num_util::check_type(poly_colors, NPY_FLOAT);
     // I think this should be N_Tx3X2
     num_util::check_rank(poly_colors, 2);
     if (num_util::shape(poly_colors)[0] != N)

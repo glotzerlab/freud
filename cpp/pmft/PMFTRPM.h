@@ -1,16 +1,20 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
-
-#include <tbb/tbb.h>
 
 #ifndef _PMFTRPM_H__
 #define _PMFTRPM_H__
@@ -36,7 +40,7 @@ class PMFTRPM
     {
     public:
         //! Constructor
-        PMFTRPM(const trajectory::Box& box, float max_r, float max_TP, float max_TM, float dr, float dTP, float dTM);
+        PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, float dTM);
 
         //! Destructor
         ~PMFTRPM();
@@ -46,9 +50,6 @@ class PMFTRPM
             {
             return m_box;
             }
-
-        //! Check if a cell list should be used or not
-        bool useCells();
 
         //! Reset the PCF array to all zeros
         void resetPCF();
@@ -68,7 +69,8 @@ class PMFTRPM
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
                        boost::python::numeric::array orientations);
@@ -101,7 +103,11 @@ class PMFTRPM
         boost::python::numeric::array getPCFPy()
             {
             unsigned int *arr = m_pcf_array.get();
-            return num_util::makeNum(arr, m_nbins_r * m_nbins_TP * m_nbins_TM);
+            std::vector<intp> dims(3);
+            dims[0] = m_nbins_TM;
+            dims[1] = m_nbins_TP;
+            dims[2] = m_nbins_r;
+            return num_util::makeNum(arr, dims);
             }
 
         //! Python wrapper for getX() (returns a copy)

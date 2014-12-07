@@ -1,9 +1,15 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
@@ -24,7 +30,10 @@ class ShapeSplit
     {
     public:
         //! Constructor
-        ShapeSplit(const trajectory::Box& box);
+        ShapeSplit();
+
+        //! Update the simulation box
+        void updateBox(trajectory::Box& box);
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -40,7 +49,8 @@ class ShapeSplit
                      unsigned int Nsplit);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array points,
                        boost::python::numeric::array orientations,
                        boost::python::numeric::array split_points);
 
@@ -54,7 +64,11 @@ class ShapeSplit
         boost::python::numeric::array getShapeSplitPy()
             {
             float *arr = m_split_array.get();
-            return num_util::makeNum(arr, 3*m_Nsplit*m_Np);
+            std::vector<intp> dims(3);
+            dims[0] = m_Np;
+            dims[1] = m_Nsplit;
+            dims[2] = 3;
+            return num_util::makeNum(arr, dims);
             }
 
         //! Get a reference to the last computed split orientations
@@ -67,7 +81,11 @@ class ShapeSplit
         boost::python::numeric::array getShapeOrientationsPy()
             {
             float *arr = m_orientation_array.get();
-            return num_util::makeNum(arr, 4*m_Nsplit*m_Np);
+            std::vector<intp> dims(3);
+            dims[0] = m_Np;
+            dims[1] = m_Nsplit;
+            dims[2] = 4;
+            return num_util::makeNum(arr, dims);
             }
 
     private:

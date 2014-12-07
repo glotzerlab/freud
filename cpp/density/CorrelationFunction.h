@@ -2,9 +2,7 @@
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
@@ -50,7 +48,7 @@ class CorrelationFunction
     {
     public:
         //! Constructor
-        CorrelationFunction(const trajectory::Box& box, float rmax, float dr);
+        CorrelationFunction(float rmax, float dr);
 
         //! Destructor
         ~CorrelationFunction();
@@ -61,9 +59,6 @@ class CorrelationFunction
             return m_box;
             }
 
-        //! Check if a cell list should be used or not
-        bool useCells();
-
         //! Compute the correlation function
         void compute(const vec3<float> *ref_points,
                      const T *ref_values,
@@ -73,7 +68,8 @@ class CorrelationFunction
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_values,
                        boost::python::numeric::array points,
                        boost::python::numeric::array point_values);

@@ -93,7 +93,7 @@ void Cluster::computeClusters(const vec3<float> *points,
     DisjointSet dj(m_num_particles);
 
     // bin the particles
-    m_lc.computeCellList(points, m_num_particles);
+    m_lc.computeCellList(m_box, points, m_num_particles);
 
     // for each point
     for (unsigned int i = 0; i < m_num_particles; i++)
@@ -163,7 +163,7 @@ void Cluster::computeClusters(const vec3<float> *points,
 void Cluster::computeClustersPy(boost::python::numeric::array points)
     {
     // validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -212,7 +212,7 @@ void Cluster::computeClusterMembership(const unsigned int *keys)
 void Cluster::computeClusterMembershipPy(boost::python::numeric::array keys)
     {
     // validate input type and rank
-    num_util::check_type(keys, PyArray_UINT32);
+    num_util::check_type(keys, NPY_UINT32);
     num_util::check_rank(keys, 1);
 
     // Check that there is one key per point

@@ -1,17 +1,21 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
-
-#include <tbb/tbb.h>
 
 #ifndef _PMFXYZ_H__
 #define _PMFXYZ_H__
@@ -37,7 +41,7 @@ class PMFXYZ
     {
     public:
         //! Constructor
-        PMFXYZ(const trajectory::Box& box, float max_x, float max_y, float max_z, float dx, float dy, float dz);
+        PMFXYZ(float max_x, float max_y, float max_z, float dx, float dy, float dz);
 
         //! Destructor
         ~PMFXYZ();
@@ -47,9 +51,6 @@ class PMFXYZ
             {
             return m_box;
             }
-
-        //! Check if a cell list should be used or not
-        bool useCells();
 
         //! Reset the PCF array to all zeros
         void resetPCF();
@@ -73,7 +74,8 @@ class PMFXYZ
                      const unsigned int Nfaces);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array ref_orientations,
                        boost::python::numeric::array points,
                        boost::python::numeric::array orientations,
@@ -107,7 +109,11 @@ class PMFXYZ
         boost::python::numeric::array getPCFPy()
             {
             unsigned int *arr = m_pcf_array.get();
-            return num_util::makeNum(arr, m_nbins_x * m_nbins_y * m_nbins_z);
+            std::vector<intp> dims(3);
+            dims[0] = m_nbins_z;
+            dims[1] = m_nbins_y;
+            dims[2] = m_nbins_x;
+            return num_util::makeNum(arr, dims);
             }
 
         //! Python wrapper for getX() (returns a copy)

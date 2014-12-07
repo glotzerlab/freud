@@ -1,3 +1,11 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 
 #include "trajectory.h"
@@ -58,9 +66,10 @@ The following #defines help get around this
 #endif
 
 #ifdef MY_PY_VER_3x
-int my_import_array()
+void *my_import_array()
     {
     import_array();
+    return NULL;
     }
 #endif
 #ifdef MY_PY_VER_2x

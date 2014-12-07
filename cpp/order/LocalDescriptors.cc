@@ -237,7 +237,7 @@ void LocalDescriptors::compute(const vec3<float> *r, const quat<float> *q, unsig
         {
         // compute the cell list
         // m_lc.computeCellList((float3*)r, Np);
-            m_lc.computeCellList(r, Np);
+            m_lc.computeCellList(m_box, r, Np);
 
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,Np),
@@ -261,9 +261,9 @@ void LocalDescriptors::computePy(boost::python::numeric::array r,
     boost::python::numeric::array q)
     {
     //validate input type and rank
-    num_util::check_type(r, PyArray_FLOAT);
+    num_util::check_type(r, NPY_FLOAT);
     num_util::check_rank(r, 2);
-    num_util::check_type(q, PyArray_FLOAT);
+    num_util::check_type(q, NPY_FLOAT);
     num_util::check_rank(q, 2);
 
     // validate that the 2nd dimension is only 3 for r and 4 for q

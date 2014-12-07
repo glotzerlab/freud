@@ -58,7 +58,7 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_lc.computeCellList(points,m_Np);
+    m_lc.computeCellList(m_box,points,m_Np);
 
     double rmaxsq = m_rmax * m_rmax;
 
@@ -162,7 +162,7 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
 
     //Initialize cell list
-    m_lc.computeCellList(points,m_Np);
+    m_lc.computeCellList(m_box,points,m_Np);
 
     double rmaxsq = m_rmax * m_rmax;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -315,7 +315,7 @@ void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
 void LocalWl::computePy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -331,7 +331,7 @@ void LocalWl::computePy(boost::python::numeric::array points)
 void LocalWl::computeNormPy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -348,7 +348,7 @@ void LocalWl::computeNormPy(boost::python::numeric::array points)
 void LocalWl::computeAvePy(boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -368,7 +368,7 @@ void LocalWl::computeAvePy(boost::python::numeric::array points)
 void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
 	{
 	//validate input type and rank
-    num_util::check_type(wigner3jvalues, PyArray_DOUBLE);
+    num_util::check_type(wigner3jvalues, NPY_DOUBLE);
     num_util::check_rank(wigner3jvalues, 1);
 
     // get dimension

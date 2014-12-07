@@ -3,7 +3,6 @@
 
 #include <stdexcept>
 #include <complex>
-#include <tbb/tbb.h>
 
 using namespace std;
 using namespace boost::python;
@@ -15,10 +14,10 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-HexOrderParameter::HexOrderParameter(const trajectory::Box& box, float rmax, float k=6)
-    :m_box(box), m_rmax(rmax), m_k(k), m_Np(0)
+HexOrderParameter::HexOrderParameter(float rmax, float k=6)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
-    m_nn = new locality::NearestNeighbors(box, rmax, k);
+    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
 
 HexOrderParameter::~HexOrderParameter()
@@ -54,12 +53,11 @@ class ComputeHexOrderParameter
                 {
                 m_psi_array[i] = 0;
                 vec3<float> ref = m_points[i];
-                boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
 
                 //loop over neighbors
-                for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
+                locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
+                for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
                     {
-                    unsigned int j = neighbors[neigh_idx];
 
                     //compute r between the two particles
                     vec3<float> delta = m_box.wrap(m_points[j] - ref);
@@ -80,7 +78,8 @@ class ComputeHexOrderParameter
 void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
-    m_nn->compute(points,Np);
+    m_nn->compute(m_box,points,Np,points,Np);
+    m_nn->setRMax(m_rmax);
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
@@ -95,10 +94,12 @@ void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
     }
 
-void HexOrderParameter::computePy(boost::python::numeric::array points)
+void HexOrderParameter::computePy(trajectory::Box& box,
+                                  boost::python::numeric::array points)
     {
     //validate input type and rank
-    num_util::check_type(points, PyArray_FLOAT);
+    m_box = box;
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
     // validate that the 2nd dimension is only 3
@@ -117,8 +118,8 @@ void HexOrderParameter::computePy(boost::python::numeric::array points)
 
 void export_HexOrderParameter()
     {
-    class_<HexOrderParameter>("HexOrderParameter", init<trajectory::Box&, float>())
-        .def(init<trajectory::Box&, float, float>())
+    class_<HexOrderParameter>("HexOrderParameter", init<float>())
+        .def(init<float, float>())
         .def("getBox", &HexOrderParameter::getBox, return_internal_reference<>())
         .def("compute", &HexOrderParameter::computePy)
         .def("getPsi", &HexOrderParameter::getPsiPy)

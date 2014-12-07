@@ -1,12 +1,12 @@
+#include "colormap.h"
+
 #include <boost/python.hpp>
 #include <stdexcept>
 
 #include "num_util.h"
-#include "colormap.h"
 #include "ScopedGILRelease.h"
 
 #include <iostream>
-#include <tbb/tbb.h>
 
 using namespace std;
 using namespace boost::python;
@@ -34,7 +34,7 @@ void hsv2RGBAPy(boost::python::numeric::array cmap,
                 float a)
     {
     //validate input type and rank
-    num_util::check_type(cmap, PyArray_FLOAT);
+    num_util::check_type(cmap, NPY_FLOAT);
     num_util::check_rank(cmap, 2);
 
     // validate that the 2nd dimension is 4
@@ -42,19 +42,19 @@ void hsv2RGBAPy(boost::python::numeric::array cmap,
     unsigned int N = num_util::shape(cmap)[0];
 
     // check that u is consistent
-    num_util::check_type(theta, PyArray_FLOAT);
+    num_util::check_type(theta, NPY_FLOAT);
     num_util::check_rank(theta, 1);
     if (num_util::shape(theta)[0] != N)
         throw std::invalid_argument("Input lengths for cmap and theta must match");
 
     // check that s is consistent
-    num_util::check_type(s, PyArray_FLOAT);
+    num_util::check_type(s, NPY_FLOAT);
     num_util::check_rank(s, 1);
     if (num_util::shape(s)[0] != N)
         throw std::invalid_argument("Input lengths for cmap and s must match");
 
     // check that v is consistent
-    num_util::check_type(v, PyArray_FLOAT);
+    num_util::check_type(v, NPY_FLOAT);
     num_util::check_rank(v, 1);
     if (num_util::shape(v)[0] != N)
         throw std::invalid_argument("Input lengths for cmap and v must match");
@@ -201,7 +201,7 @@ void jetPy(boost::python::numeric::array cmap,
            float a)
     {
     //validate input type and rank
-    num_util::check_type(cmap, PyArray_FLOAT);
+    num_util::check_type(cmap, NPY_FLOAT);
     num_util::check_rank(cmap, 2);
 
     // validate that the 2nd dimension is 4
@@ -209,7 +209,7 @@ void jetPy(boost::python::numeric::array cmap,
     unsigned int N = num_util::shape(cmap)[0];
 
     // check that u is consistent
-    num_util::check_type(u, PyArray_FLOAT);
+    num_util::check_type(u, NPY_FLOAT);
     num_util::check_rank(u, 1);
     if (num_util::shape(u)[0] != N)
         throw std::invalid_argument("Input lengths for cmap and u must match");
@@ -316,7 +316,7 @@ void cubehelixPy(boost::python::numeric::array cmap,
            bool reverse)
     {
     //validate input type and rank
-    num_util::check_type(cmap, PyArray_FLOAT);
+    num_util::check_type(cmap, NPY_FLOAT);
     num_util::check_rank(cmap, 2);
 
     // validate that the 2nd dimension is 4
@@ -324,7 +324,7 @@ void cubehelixPy(boost::python::numeric::array cmap,
     unsigned int N = num_util::shape(cmap)[0];
 
     // check that lambda is consistent
-    num_util::check_type(lambda, PyArray_FLOAT);
+    num_util::check_type(lambda, NPY_FLOAT);
     num_util::check_rank(lambda, 1);
     if (num_util::shape(lambda)[0] != N)
         throw std::invalid_argument("Input lengths for cmap and lambda must match");

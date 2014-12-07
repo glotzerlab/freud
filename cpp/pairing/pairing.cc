@@ -761,7 +761,7 @@ void pairing::compute(unsigned int* match,
         //                     shape_angles,
         //                     comp_angles,
         //                     Np);
-        m_lc->computeCellList(points, Np);
+        m_lc->computeCellList(m_box, points, Np);
         parallel_for(blocked_range<size_t>(0,Np), ComputePairing2DCellList(match,
                                                                            dist2,
                                                                            sdots,
@@ -813,7 +813,7 @@ void pairing::compute(unsigned int* match,
         //                     shape_angles,
         //                     comp_angles,
         //                     Np);
-        m_lc->computeCellList(points, Np);
+        m_lc->computeCellList(m_box, points, Np);
         parallel_for(blocked_range<size_t>(0,Np), ComputePairing3DCellList(match,
                                                                            dist2,
                                                                            sdots,
@@ -867,19 +867,19 @@ void pairing::computePy(boost::python::numeric::array match,
     // ref_verts contains the vert index that will be checked
     // check_verts contains the vert index that will be checked
     // match will contain the particle index of the ref that is matched
-    num_util::check_type(match, PyArray_INT);
+    num_util::check_type(match, NPY_INT);
     num_util::check_rank(match, 1);
-    num_util::check_type(dist2, PyArray_FLOAT);
+    num_util::check_type(dist2, NPY_FLOAT);
     num_util::check_rank(dist2, 1);
-    num_util::check_type(sdots, PyArray_FLOAT);
+    num_util::check_type(sdots, NPY_FLOAT);
     num_util::check_rank(sdots, 1);
-    num_util::check_type(cdots, PyArray_FLOAT);
+    num_util::check_type(cdots, NPY_FLOAT);
     num_util::check_rank(cdots, 1);
-    num_util::check_type(points, PyArray_FLOAT);
+    num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
-    num_util::check_type(shape_orientations, PyArray_FLOAT);
+    num_util::check_type(shape_orientations, NPY_FLOAT);
     unsigned int orientation_rank = num_util::rank(shape_orientations);
-    num_util::check_type(comp_orientations, PyArray_FLOAT);
+    num_util::check_type(comp_orientations, NPY_FLOAT);
     // num_util::check_rank(comp_orientations, 1);
 
     // get the number of particles

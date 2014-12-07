@@ -1,17 +1,21 @@
+#include <tbb/tbb.h>
+#include <ostream>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#define swap freud_swap
 #include "VectorMath.h"
-#undef swap
 
 #include "LinkCell.h"
 #include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
-
-#include <tbb/tbb.h>
 
 #ifndef _RDF_H__
 #define _RDF_H__
@@ -36,7 +40,7 @@ class RDF
     {
     public:
         //! Constructor
-        RDF(const trajectory::Box& box, float rmax, float dr);
+        RDF(float rmax, float dr);
 
         //! Destructor
         ~RDF();
@@ -47,9 +51,6 @@ class RDF
             return m_box;
             }
 
-        //! Check if a cell list should be used or not
-        bool useCells();
-
         //! Compute the RDF
         void compute(const vec3<float> *ref_points,
                      unsigned int Nref,
@@ -57,7 +58,8 @@ class RDF
                      unsigned int Np);
 
         //! Python wrapper for compute
-        void computePy(boost::python::numeric::array ref_points,
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
                        boost::python::numeric::array points);
 
         //! Get a reference to the last computed rdf
@@ -111,6 +113,8 @@ class RDF
         boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
         boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
         boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
+        boost::shared_array<float> m_vol_array2D;         //!< array of volumes for each slice of r
+        boost::shared_array<float> m_vol_array3D;         //!< array of volumes for each slice of r
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
