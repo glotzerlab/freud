@@ -15,7 +15,7 @@ using namespace tbb;
 namespace freud { namespace density {
 
 LocalDensity::LocalDensity(float rcut, float volume, float diameter)
-    : m_box(trajectory::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_Np(0)
+    : m_box(trajectory::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_Nref(0)
     {
     m_lc = new locality::LinkCell(m_box, m_rcut);
     }
@@ -38,6 +38,7 @@ class ComputeLocalDensity
         const float m_volume;
         const float m_diameter;
         const locality::LinkCell *m_lc;
+        const vec3<float> *m_ref_points;
         const vec3<float> *m_points;
     public:
         ComputeLocalDensity(float *density_array,
@@ -47,9 +48,10 @@ class ComputeLocalDensity
                             const float volume,
                             const float diameter,
                             const locality::LinkCell *lc,
+                            const vec3<float> *ref_points,
                             const vec3<float> *points)
             : m_density_array(density_array), m_num_neighbors_array(num_neighbors_array), m_box(box), m_rcut(rcut),
-              m_volume(volume), m_diameter(diameter), m_lc(lc), m_points(points)
+              m_volume(volume), m_diameter(diameter), m_lc(lc), m_ref_points(ref_points), m_points(points)
             {
             }
 
@@ -60,7 +62,7 @@ class ComputeLocalDensity
                 float num_neighbors = 0;
 
                 // get cell point is in
-                vec3<float> ref = m_points[i];
+                vec3<float> ref = m_ref_points[i];
                 unsigned int ref_cell = m_lc->getCell(ref);
 
                 //loop over neighboring cells
@@ -111,58 +113,77 @@ class ComputeLocalDensity
             }
     };
 
-void LocalDensity::compute(const vec3<float> *points, unsigned int Np)
+void LocalDensity::compute(const vec3<float> *ref_points, unsigned int Nref, const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
     m_lc->computeCellList(m_box, points, Np);
 
     // reallocate the output array if it is not the right size
-    if (Np != m_Np)
+    if (Nref != m_Nref)
         {
-        m_density_array = boost::shared_array<float>(new float[Np]);
-        m_num_neighbors_array = boost::shared_array<float>(new float[Np]);
+        m_density_array = boost::shared_array<float>(new float[Nref]);
+        m_num_neighbors_array = boost::shared_array<float>(new float[Nref]);
         }
 
-    // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,Np), ComputeLocalDensity(m_density_array.get(),
-                                                                  m_num_neighbors_array.get(),
-                                                                  m_box,
-                                                                  m_rcut,
-                                                                  m_volume,
-                                                                  m_diameter,
-                                                                  m_lc,
-                                                                  points));
+    // compute the local density
+    parallel_for(blocked_range<size_t>(0,Nref), ComputeLocalDensity(m_density_array.get(),
+                                                                    m_num_neighbors_array.get(),
+                                                                    m_box,
+                                                                    m_rcut,
+                                                                    m_volume,
+                                                                    m_diameter,
+                                                                    m_lc,
+                                                                    ref_points,
+                                                                    points));
 
     // save the last computed number of particles
-    m_Np = Np;
+    m_Nref = Nref;
     }
 
 void LocalDensity::computePy(trajectory::Box& box,
+                             boost::python::numeric::array ref_points,
                              boost::python::numeric::array points)
     {
     //validate input type and rank
     m_box = box;
     num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
+    num_util::check_type(ref_points, NPY_FLOAT);
+    num_util::check_rank(ref_points, 2);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
+    num_util::check_dim(ref_points, 1, 3);
+    unsigned int Nref = num_util::shape(ref_points)[0];
 
     // get the raw data pointers and compute order parameter
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
 
         // compute the order parameter with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(points_raw, Np);
+        compute(ref_points_raw, Nref, points_raw, Np);
         }
     }
 
+void LocalDensity::computePy(trajectory::Box& box,
+                             boost::python::numeric::array points)
+    {
+    computePy(box, points, points);
+    }
+
+
 void export_LocalDensity()
     {
+    void (LocalDensity::*fx1)(trajectory::Box&, boost::python::numeric::array, boost::python::numeric::array) = &LocalDensity::computePy;
+    void (LocalDensity::*fx2)(trajectory::Box&, boost::python::numeric::array) = &LocalDensity::computePy;
+
+
     class_<LocalDensity>("LocalDensity", init<float, float, float>())
-        .def("compute", &LocalDensity::computePy)
+        .def("compute", fx1)
+        .def("compute", fx2)
         .def("getDensity", &LocalDensity::getDensityPy)
         .def("getNumNeighbors", &LocalDensity::getNumNeighborsPy)
         ;
