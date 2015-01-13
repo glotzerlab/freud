@@ -57,9 +57,8 @@ class SolLiqNear
         void setBox(const trajectory::Box newbox)
             {
             m_box = newbox;  //Set
-            locality::NearestNeighbors newNeighbors(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list
-            m_nn = &newNeighbors;
-            } 
+            m_nn = new locality::NearestNeighbors(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list
+            }
 
 
         //! Reset the simulation box size
@@ -70,8 +69,7 @@ class SolLiqNear
                 //May not be necessary if std::max(m_rmax, m_rmax_cluster) is used to rebuild cell list here, and in setBox.
 
             m_rmax_cluster = rcut_cluster;  //Set
-            locality::NearestNeighbors newNeighbor(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list.
-            m_nn = &newNeighbor;
+            m_nn = new locality::NearestNeighbors(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list
             }
 
         //! Compute the Solid-Liquid Order Parameter
