@@ -61,9 +61,7 @@ class LocalWlNear
         void setBox(const trajectory::Box newbox)
             {
             m_box = newbox; //Set
-            locality::NearestNeighbors newNeighbors(m_rmax, m_k );
-            //Rebuild cell list
-            m_nn = &newNeighbors;
+            m_nn = new locality::NearestNeighbors(m_rmax, m_k );
             }
 
         //! Compute the local rotationally invariant Wl order parameter
