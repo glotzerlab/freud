@@ -492,6 +492,7 @@ class Polygons(base.Primitive):
     def __init__(self, polygon, positions, orientations, texcoords=None, colors=None, color=None, tex_fname=None, outline=None, ocolors=None, ocolor=None):
         base.Primitive.__init__(self);
         self.updated = [];
+        self.outline = None;
         self.update(polygon, positions, orientations, texcoords=texcoords, colors=colors, color=color, tex_fname=tex_fname, outline=outline, ocolors=ocolors, ocolor=ocolor);
 
     def update(self, polygon=None, positions=None, orientations=None, texcoords=None, colors=None, color=None, tex_fname=None, outline=None, ocolors=None, ocolor=None):
