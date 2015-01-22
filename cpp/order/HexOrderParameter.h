@@ -33,7 +33,7 @@ class HexOrderParameter
     {
     public:
         //! Constructor
-        HexOrderParameter(float rmax, float k);
+        HexOrderParameter(float rmax, float k=6, unsigned int n=0);
 
         //! Destructor
         ~HexOrderParameter();
