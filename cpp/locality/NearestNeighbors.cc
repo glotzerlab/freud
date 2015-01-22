@@ -22,7 +22,7 @@ namespace freud { namespace locality {
 
 // stop using
 NearestNeighbors::NearestNeighbors():
-    m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_deficits()
+    m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_Nref(0), m_deficits()
     {
     m_lc = new locality::LinkCell();
     m_deficits = 0;
@@ -30,7 +30,7 @@ NearestNeighbors::NearestNeighbors():
 
 NearestNeighbors::NearestNeighbors(float rmax,
                                    unsigned int nNeigh):
-    m_box(trajectory::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_deficits()
+    m_box(trajectory::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_Nref(0), m_deficits()
     {
     m_lc = new locality::LinkCell(m_box, m_rmax);
     m_deficits = 0;
