@@ -14,10 +14,10 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-HexOrderParameter::HexOrderParameter(float rmax, float k=6)
+HexOrderParameter::HexOrderParameter(float rmax, float k, unsigned int n)
     : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
-    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
+    m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
     }
 
 HexOrderParameter::~HexOrderParameter()
@@ -120,6 +120,7 @@ void export_HexOrderParameter()
     {
     class_<HexOrderParameter>("HexOrderParameter", init<float>())
         .def(init<float, float>())
+        .def(init<float, float, unsigned int>())
         .def("getBox", &HexOrderParameter::getBox, return_internal_reference<>())
         .def("compute", &HexOrderParameter::computePy)
         .def("getPsi", &HexOrderParameter::getPsiPy)
