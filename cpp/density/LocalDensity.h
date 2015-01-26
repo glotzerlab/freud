@@ -37,10 +37,17 @@ class LocalDensity
        ~LocalDensity();
 
         //! Compute the local density
-        void compute(const vec3<float> *points,
+        void compute(const vec3<float> *ref_points,
+                     unsigned int Nref,
+                     const vec3<float> *points,
                      unsigned int Np);
 
         //! Python wrapper for compute
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
+                       boost::python::numeric::array points);
+
+        //! Backwards compatible python wrapper for compute
         void computePy(trajectory::Box& box,
                        boost::python::numeric::array points);
 
@@ -54,7 +61,7 @@ class LocalDensity
         boost::python::numeric::array getDensityPy()
             {
             float *arr = m_density_array.get();
-            return num_util::makeNum(arr, m_Np);
+            return num_util::makeNum(arr, m_Nref);
             }
 
         //! Get a reference to the last computed number of neighbors
@@ -63,11 +70,11 @@ class LocalDensity
             return m_num_neighbors_array;
             }
 
-        //! Python wrapper for getDensity() (returns a copy)
+        //! Python wrapper for getNumNeighbors() (returns a copy)
         boost::python::numeric::array getNumNeighborsPy()
             {
             float *arr = m_num_neighbors_array.get();
-            return num_util::makeNum(arr, m_Np);
+            return num_util::makeNum(arr, m_Nref);
             }
 
     private:
@@ -76,7 +83,7 @@ class LocalDensity
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
-        unsigned int m_Np;                //!< Last number of points computed
+        unsigned int m_Nref;                //!< Last number of points computed
 
         boost::shared_array< float > m_density_array;         //!< density array computed
         boost::shared_array< float > m_num_neighbors_array;   //!< number of neighbors array computed
