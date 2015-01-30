@@ -9,8 +9,8 @@ class TestLinkCell(unittest.TestCase):
         rcut = 3 #Cutoff radius
 
         box = trajectory.Box(L)#Initialize Box
-        cl = locality.LinkCell(box,rcut)#Initialize cell list
-        cl.computeCellList(np.zeros((1,3), dtype=np.float32))#Compute cell list
+        cl = locality.LinkCell(box, rcut)#Initialize cell list
+        cl.computeCellList(box,np.zeros((1,3), dtype=np.float32))#Compute cell list
 
         # 27 is the total number of cells
         for i in range(27):
@@ -26,7 +26,7 @@ class TestLinkCell(unittest.TestCase):
         testpoints = np.array([[-4.95,0,0],[4.95,0,0]], dtype=np.float32);
         box = trajectory.Box(L);#Initialize Box
         cl = locality.LinkCell(box,rcut);#Initialize cell list
-        cl.computeCellList(testpoints);#Compute cell list
+        cl.computeCellList(box,testpoints);#Compute cell list
 
         #Get cell index
         cell_index0 = cl.getCell(testpoints[0])

@@ -6,14 +6,14 @@ import unittest
 class TestBox(unittest.TestCase):
     def test_BoxLength(self):
         box = trajectory.Box(2, 2, 2, 1, 0, 0)
-    
+
         Lx = box.getLx()
         Ly = box.getLy()
         Lz = box.getLz()
 
         npt.assert_almost_equal(Lx, 2, decimal=2, err_msg="LxFail")
         npt.assert_almost_equal(Ly, 2, decimal=2, err_msg="LyFail")
-        npt.assert_almost_equal(Lz, 2, decimal=2, err_msg="LzFail")    
+        npt.assert_almost_equal(Lz, 2, decimal=2, err_msg="LzFail")
 
     def test_TiltFactor(self):
         box = trajectory.Box(2,	2, 2, 1, 0, 0);
@@ -38,7 +38,7 @@ class TestBox(unittest.TestCase):
         testpoints = np.array([[0, -1, -1], 
                                [0, 0.5, 0]], dtype=np.float32)
         box.wrap(testpoints)
-        
+
         npt.assert_almost_equal(testpoints[0,0], -2, decimal=2, err_msg="WrapFail")
 
 class TestXML(unittest.TestCase):
@@ -70,7 +70,7 @@ class TestXML(unittest.TestCase):
         xy = xml.box.getTiltFactorXY()
         xz = xml.box.getTiltFactorXZ()
         yz = xml.box.getTiltFactorYZ()
-        
+
         npt.assert_almost_equal(lx, 6.94586, decimal=4, err_msg="XML_LxFail")
         npt.assert_almost_equal(ly, 6.94586, decimal=4, err_msg="XML_LyFail")
         npt.assert_almost_equal(lz, 6.94586, decimal=4, err_msg="XML_LzFail")
@@ -91,7 +91,7 @@ class TestXMLDCD(unittest.TestCase):
         xy = []
         xz = []
         yz = []
-        
+
         expected_lx = [6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586]
         expected_ly = [6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586]
         expected_lz = [6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586]
@@ -124,7 +124,7 @@ class TestPOS(unittest.TestCase):
         xy = []
         xz = []
         yz = []
-        
+
         expected_lx = [6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586]
         expected_ly = [6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586]
         expected_lz = [6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586, 6.94586]
@@ -146,6 +146,6 @@ class TestPOS(unittest.TestCase):
         npt.assert_almost_equal(xz, expected_xz, decimal=1, err_msg="XML_XZFail")
         npt.assert_almost_equal(yz, expected_yz, decimal=1, err_msg="XML_YZFail")
 
- 
+
 if __name__ == '__main__':
     unittest.main()
