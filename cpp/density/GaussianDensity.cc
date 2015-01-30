@@ -63,14 +63,12 @@ GaussianDensity::~GaussianDensity()
 class CombineGaussianArrays
     {
     private:
-        Index3D m_bi;
         float *m_bin_counts;
         tbb::enumerable_thread_specific<float *>& m_local_bin_counts;
     public:
-        CombineGaussianArrays(Index3D bi,
-                      float *bin_counts,
-                      tbb::enumerable_thread_specific<float *>& local_bin_counts)
-            : m_bi(bi), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts)
+        CombineGaussianArrays(float *bin_counts,
+                              tbb::enumerable_thread_specific<float *>& local_bin_counts)
+            : m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts)
         {
         }
         void operator()( const blocked_range<size_t> &myBin ) const
@@ -211,7 +209,6 @@ void GaussianDensity::compute(const vec3<float> *points, unsigned int Np)
         memset((void*)(*i), 0, sizeof(float)*m_bi.getNumElements());
         }
     memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
-    printf("calculate the density\n");
     parallel_for(blocked_range<size_t>(0,Np), ComputeGaussianDensity(m_bi,
                                                                      m_local_bin_counts,
                                                                      m_box,
@@ -222,12 +219,9 @@ void GaussianDensity::compute(const vec3<float> *points, unsigned int Np)
                                                                      m_width_z,
                                                                      points,
                                                                      Np));
-    printf("getting ready to combine arrays\n");
     // combine arrays
-    parallel_for(blocked_range<size_t>(0,m_bi.getNumElements()), CombineGaussianArrays(m_bi,
-                                                                               m_Density_array.get(),
-                                                                               m_local_bin_counts));
-    printf("arrays combined\n");
+    parallel_for(blocked_range<size_t>(0,m_bi.getNumElements()), CombineGaussianArrays(m_Density_array.get(),
+                                                                                       m_local_bin_counts));
     }
 
 void GaussianDensity::computePy(trajectory::Box& box,
