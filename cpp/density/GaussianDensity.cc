@@ -22,15 +22,6 @@ GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
             throw invalid_argument("width must be a positive integer");
     if (r_cut <= 0.0f)
             throw invalid_argument("r_cut must be positive");
-
-    // index proper
-    if (m_box.is2D())
-        m_bi = Index3D(m_width_x, m_width_y, 1);
-    else
-        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
-
-    m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
-    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
     }
 
 GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y,
@@ -41,15 +32,6 @@ GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y,
             throw invalid_argument("width must be a positive integer");
     if (r_cut <= 0.0f)
             throw invalid_argument("r_cut must be positive");
-
-    // index proper
-    if (m_box.is2D())
-        m_bi = Index3D(m_width_x, m_width_y, 1);
-    else
-        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
-
-    m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
-    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
     }
 
 GaussianDensity::~GaussianDensity()
@@ -138,14 +120,14 @@ class ComputeGaussianDensity
             float A = sqrt(1.0f/(2.0f*M_PI*sigmasq));
 
             // for each reference point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
+            for (size_t idx = myR.begin(); idx != myR.end(); idx++)
                 {
                 // find the distance of that particle to bins
                 // will use this information to evaluate the Gaussian
                 // Find the which bin the particle is in
-                int bin_x = int((m_points[i].x+lx/2.0f)/grid_size_x);
-                int bin_y = int((m_points[i].y+ly/2.0f)/grid_size_y);
-                int bin_z = int((m_points[i].z+lz/2.0f)/grid_size_z);
+                int bin_x = int((m_points[idx].x+lx/2.0f)/grid_size_x);
+                int bin_y = int((m_points[idx].y+ly/2.0f)/grid_size_y);
+                int bin_z = int((m_points[idx].z+lz/2.0f)/grid_size_z);
 
                 // Find the number of bins within r_cut
                 int bin_cut_x = int(m_rcut/grid_size_x);
@@ -162,16 +144,16 @@ class ComputeGaussianDensity
                 // Only evaluate over bins that are within the cut off to reduce the number of computations
                 for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
                     {
-                    float dz = float((grid_size_z*k + grid_size_z/2.0f) - m_points[i].z - lz/2.0f);
+                    float dz = float((grid_size_z*k + grid_size_z/2.0f) - m_points[idx].z - lz/2.0f);
 
                     for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
                         {
-                        float dy = float((grid_size_y*j + grid_size_y/2.0f) - m_points[i].y - ly/2.0f);
+                        float dy = float((grid_size_y*j + grid_size_y/2.0f) - m_points[idx].y - ly/2.0f);
 
                         for (int i = bin_x - bin_cut_x; i<= bin_x + bin_cut_x; i++)
                             {
                             // calculate the distance from the grid cell to particular particle
-                            float dx = float((grid_size_x*i + grid_size_x/2.0f) - m_points[i].x - lx/2.0f);
+                            float dx = float((grid_size_x*i + grid_size_x/2.0f) - m_points[idx].x - lx/2.0f);
                             vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
 
                             float rsq = dot(delta, delta);
@@ -229,6 +211,16 @@ void GaussianDensity::computePy(trajectory::Box& box,
     {
     // validate input type and rank
     m_box = box;
+    if (m_box.is2D())
+        {
+        m_bi = Index3D(m_width_x, m_width_y, 1);
+        }
+    else
+        {
+        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
+        }
+    // this does not agree with rest of freud
+    m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
     num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
 
