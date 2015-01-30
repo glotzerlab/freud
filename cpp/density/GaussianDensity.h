@@ -1,3 +1,10 @@
+#include <tbb/tbb.h>
+
+// work around nasty issue where python #defines isalpha, toupper, etc....
+#undef __APPLE__
+#include <Python.h>
+#define __APPLE__
+
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
@@ -26,9 +33,20 @@ class GaussianDensity
     {
     public:
         //! Constructor
-        GaussianDensity(const trajectory::Box& box, unsigned int width, float r_cut, float sigma);
-        GaussianDensity(const trajectory::Box& box, unsigned int width_x, unsigned int width_y, unsigned int width_z,
-                        float r_cut, float sigma);
+        // GaussianDensity(const trajectory::Box& box, unsigned int width, float r_cut, float sigma);
+        // GaussianDensity(const trajectory::Box& box, unsigned int width_x, unsigned int width_y, unsigned int width_z,
+        //                 float r_cut, float sigma);
+        GaussianDensity(unsigned int width,
+                        float r_cut,
+                        float sigma);
+        GaussianDensity(unsigned int width_x,
+                        unsigned int width_y,
+                        unsigned int width_z,
+                        float r_cut,
+                        float sigma);
+
+        // Destructor
+        ~GaussianDensity();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -40,10 +58,11 @@ class GaussianDensity
         // void compute(const float3 *points,
         //                          unsigned int Np);
         void compute(const vec3<float> *points,
-                                 unsigned int Np);
+                     unsigned int Np);
 
         //!Python wrapper for compute
-        void computePy(boost::python::numeric::array points);
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array points);
 
         //!Get a reference to the last computed Density
         boost::shared_array<float> getDensity()
@@ -64,13 +83,14 @@ class GaussianDensity
                 return num_util::makeNum(arr, dims);
                 }
     private:
-        const trajectory::Box m_box;    //!< Simulation box the particles belong in
+        trajectory::Box m_box;    //!< Simulation box the particles belong in
         unsigned int m_width_x,m_width_y,m_width_z;           //!< Num of bins on one side of the cube
-        float m_r_cut;                  //!< Max r at which to compute density
+        float m_rcut;                  //!< Max r at which to compute density
         float m_sigma;                  //!< Variance
         Index3D m_bi;                   //!< Bin indexer
 
         boost::shared_array<float> m_Density_array;            //! computed density array
+        tbb::enumerable_thread_specific<float *> m_local_bin_counts;
     };
 
 
@@ -81,4 +101,4 @@ void export_GaussianDensity();
 
 }; }; // end namespace freud::density
 
-#endif 
+#endif
