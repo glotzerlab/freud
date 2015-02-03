@@ -326,10 +326,10 @@ class TestLocalAveQl(unittest.TestCase):
         #Assert these tests have same value as literature
         #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
         #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
-        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="Q4fail")
-        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="Q6fail")
-        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="Q8fail")
-        npt.assert_almost_equal(meanq10, 0.02, decimal=2, err_msg="Q10fail")
+        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="AveQ4fail")
+        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="AveQ6fail")
+        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="AveQ8fail")
+        npt.assert_almost_equal(meanq10, 0.02, decimal=2, err_msg="AveQ10fail")
 
 class TestLocalQlNorm(unittest.TestCase):
     def test_QlNormfcc(self):
@@ -360,10 +360,10 @@ class TestLocalQlNorm(unittest.TestCase):
         #Assert these tests have same value as literature
         #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
         #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
-        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="Q4fail")
-        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="Q6fail")
-        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="Q8fail")
-        npt.assert_almost_equal(meanq10, 0.01, decimal=2, err_msg="Q10fail")
+        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="Q4Normfail")
+        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="Q6Normfail")
+        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="Q8Normfail")
+        npt.assert_almost_equal(meanq10, 0.01, decimal=2, err_msg="Q10Normfail")
 
 class TestLocalAveNormQl(unittest.TestCase):
     def test_AveNormQlfcc(self):
@@ -394,14 +394,146 @@ class TestLocalAveNormQl(unittest.TestCase):
         #Assert these tests have same value as literature
         #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
         #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
-        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="Q4fail")
-        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="Q6fail")
-        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="Q8fail")
-        npt.assert_almost_equal(meanq10, 0.01, decimal=2, err_msg="Q10fail")
+        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="AveNormQ4fail")
+        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="AveNormQ6fail")
+        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="AveNormQ8fail")
+        npt.assert_almost_equal(meanq10, 0.01, decimal=2, err_msg="AveNormQ10fail")
 
+class TestLocalQlNear(unittest.TestCase):
+    def test_QlNearfcc(self):
+        rcut = 3.7;
+        testpoints = FCC256();
+        box = trajectory.Box(17.661,17.661,17.661);
 
+        localq4 = shop.LocalQlNear(box, rcut, 4, 12);
+        localq4.compute(testpoints);
+        q4vals = localq4.getQl();
+        meanq4 = np.mean(q4vals);
 
+        localq6 = shop.LocalQlNear(box, rcut, 6, 12);
+        localq6.compute(testpoints);
+        q6vals = localq6.getQl();
+        meanq6 = np.mean(q6vals);
 
+        localq8 = shop.LocalQlNear(box, rcut, 8, 12);
+        localq8.compute(testpoints);
+        q8vals = localq8.getQl();
+        meanq8 = np.mean(q8vals);
+
+        localq10 = shop.LocalQlNear(box, rcut, 10, 12);
+        localq10.compute(testpoints);
+        q10vals = localq10.getQl();
+        meanq10 = np.mean(q10vals);
+
+        #Assert these tests have same value as literature
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
+        #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
+        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="Q4Nearfail")
+        npt.assert_almost_equal(meanq6, 0.56, decimal=2, err_msg="Q6Nearfail")
+        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="Q8Nearfail")
+        npt.assert_almost_equal(meanq10, 0.09, decimal=2, err_msg="Q10Nearfail")
+
+class TestLocalAveQlNear(unittest.TestCase):
+    def test_AveQlNearfcc(self):
+        rcut = 3.7;
+        testpoints = FCC256();
+        box = trajectory.Box(17.661,17.661,17.661);
+
+        localq4 = shop.LocalQlNear(box, rcut, 4, 12);
+        localq4.computeAve(testpoints);
+        q4vals = localq4.getAveQl();
+        meanq4 = np.mean(q4vals);
+
+        localq6 = shop.LocalQlNear(box, rcut, 6, 12);
+        localq6.computeAve(testpoints);
+        q6vals = localq6.getAveQl();
+        meanq6 = np.mean(q6vals);
+
+        localq8 = shop.LocalQlNear(box, rcut, 8, 12);
+        localq8.computeAve(testpoints);
+        q8vals = localq8.getAveQl();
+        meanq8 = np.mean(q8vals);
+
+        localq10 = shop.LocalQlNear(box, rcut, 10, 12);
+        localq10.computeAve(testpoints);
+        q10vals = localq10.getAveQl();
+        meanq10 = np.mean(q10vals);
+
+        #Assert these tests have same value as literature
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
+        #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
+        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="AveQ4Nearfail")
+        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="AveQ6Nearfail")
+        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="AveQ8Nearfail")
+        npt.assert_almost_equal(meanq10, 0.02, decimal=2, err_msg="AveQ10Nearfail")
+
+class TestLocalQlNormNear(unittest.TestCase):
+    def test_QlNormNearfcc(self):
+        rcut = 3.7;
+        testpoints = FCC256();
+        box = trajectory.Box(17.661,17.661,17.661);
+
+        localq4 = shop.LocalQlNear(box, rcut, 4, 12);
+        localq4.computeNorm(testpoints);
+        q4vals = localq4.getQlNorm();
+        meanq4 = np.mean(q4vals);
+
+        localq6 = shop.LocalQlNear(box, rcut, 6, 12);
+        localq6.computeNorm(testpoints);
+        q6vals = localq6.getQlNorm();
+        meanq6 = np.mean(q6vals);
+
+        localq8 = shop.LocalQlNear(box, rcut, 8, 12);
+        localq8.computeNorm(testpoints);
+        q8vals = localq8.getQlNorm();
+        meanq8 = np.mean(q8vals);
+
+        localq10 = shop.LocalQlNear(box, rcut, 10, 12);
+        localq10.computeNorm(testpoints);
+        q10vals = localq10.getQlNorm();
+        meanq10 = np.mean(q10vals);
+
+        #Assert these tests have same value as literature
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
+        #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
+        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="Q4NormNearfail")
+        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="Q6NormNearfail")
+        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="Q8NormNearfail")
+        npt.assert_almost_equal(meanq10, 0.01, decimal=2, err_msg="Q10NormNearfail")
+
+class TestLocalAveNormQlNear(unittest.TestCase):
+    def test_AveNormQlNearfcc(self):
+        rcut = 3.7;
+        testpoints = FCC256();
+        box = trajectory.Box(17.661,17.661,17.661);
+
+        localq4 = shop.LocalQlNear(box, rcut, 4, 12);
+        localq4.computeAveNorm(testpoints);
+        q4vals = localq4.getQlAveNorm();
+        meanq4 = np.mean(q4vals);
+
+        localq6 = shop.LocalQlNear(box, rcut, 6, 12);
+        localq6.computeAveNorm(testpoints);
+        q6vals = localq6.getQlAveNorm();
+        meanq6 = np.mean(q6vals);
+
+        localq8 = shop.LocalQlNear(box, rcut, 8, 12);
+        localq8.computeAveNorm(testpoints);
+        q8vals = localq8.getQlAveNorm();
+        meanq8 = np.mean(q8vals);
+
+        localq10 = shop.LocalQlNear(box, rcut, 10, 12);
+        localq10.computeAveNorm(testpoints);
+        q10vals = localq10.getQlAveNorm();
+        meanq10 = np.mean(q10vals);
+
+        #Assert these tests have same value as literature
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
+        #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
+        npt.assert_almost_equal(meanq4, 0.19, decimal=2, err_msg="AveNormQ4Nearfail")
+        npt.assert_almost_equal(meanq6, 0.55, decimal=2, err_msg="AveNormQ6Nearfail")
+        npt.assert_almost_equal(meanq8, 0.38, decimal=2, err_msg="AveNormQ8Nearfail")
+        npt.assert_almost_equal(meanq10, 0.01, decimal=2, err_msg="AveNormQ10Nearfail")
 
 if __name__ == '__main__':
     unittest.main()

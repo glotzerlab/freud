@@ -79,6 +79,10 @@ class LocalWl
         void computeAve(const vec3<float> *points,
                         unsigned int Np);
 
+        //! Compute the global Wl order parameter with second shell (averaging over the second shell Qlm)
+        void computeAveNorm(const vec3<float> *points,
+                            unsigned int Np);
+
        //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
         void computePy(boost::python::numeric::array points);
 
@@ -88,10 +92,13 @@ class LocalWl
         //! Python wrapper for computing the Wl order parameter with second shell (averaging over the second shell Qlm)
         void computeAvePy(boost::python::numeric::array points);
 
+        //! Python wrapper for compute the global Wl order parameter with second shell (averaging over the second shell Qlm)
+        void computeAveNormPy(boost::python::numeric::array points);
+
         //! Python wrapper for computing wigner3jvalues
         void setWigner3jPy(boost::python::numeric::array wigner3jvalues);
 
-        //! Get a reference to the last computed Wl/WlNorm for each particle.  Returns NaN instead of Ql for particles with no neighbors.
+        //! Get a reference to the last computed Wl/WlNorm for each particle.  Returns NaN instead of Wl for particles with no neighbors.
         boost::shared_array<std::complex<double> > getWl()
             {
             return m_Wli;
@@ -99,6 +106,16 @@ class LocalWl
         boost::shared_array<std::complex<double> > getWlNorm()
             {
             return m_WliNorm;
+            }
+
+        //! Get a reference to the last computed AveWl/AveWlNorm for each particle.  Returns NaN instead of Wl for particles with no neighbors.
+        boost::shared_array<std::complex<double> > getAveWl()
+            {
+            return m_AveWli;
+            }
+        boost::shared_array<std::complex<double> > getAveNormWl()
+            {
+            return m_WliAveNorm;
             }
 
         //! Get a reference to last computed Ql for each particle.
@@ -113,7 +130,7 @@ class LocalWl
             //return m_wigner3jvalues;
            // }
 
-        //! Python wrapper for getWl()/getWlNorm() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
+        //! Python wrapper for getWl()/getWlNorm() (returns a copy of array).  Returns NaN instead of Wl for particles with no neighbors.
         boost::python::numeric::array getWlPy()
             {
             std::complex<double> *arr = m_Wli.get();
@@ -124,9 +141,16 @@ class LocalWl
             std::complex<double> *arr = m_WliNorm.get();
             return num_util::makeNum(arr, m_Np);
             }
+
+        //! Python wrapper for getAveWl()/getWlAveNorm() (returns a copy of array).  Returns NaN instead of Wl for particles with no neighbors.
         boost::python::numeric::array getAveWlPy()
             {
             std::complex<double> *arr = m_AveWli.get();
+            return num_util::makeNum(arr, m_Np);
+            }
+        boost::python::numeric::array getWlAveNormPy()
+            {
+            std::complex<double> *arr = m_WliAveNorm.get();
             return num_util::makeNum(arr, m_Np);
             }
 
@@ -170,12 +194,14 @@ class LocalWl
         //unsigned int num_wigner3jcoefs;
         bool m_normalizeWl;               //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.
 
-        boost::shared_array< std::complex<double> > m_Qlm;
-        boost::shared_array< std::complex<double> > m_Qlmi;        //!  Qlm for each particle i
-        boost::shared_array< std::complex<double> > m_AveQlmi;
+        boost::shared_array< std::complex<double> > m_Qlm;         //!< Normalized Qlm for the whole system
+        boost::shared_array< std::complex<double> > m_Qlmi;        //!< Qlm for each particle i
+        boost::shared_array< std::complex<double> > m_AveQlmi;     //!< Averaged Qlm with 2nd neighbor shell for each particle i
+        boost::shared_array< std::complex<double> > m_AveQlm;      //!< Normalized AveQlmi for the whole system
         boost::shared_array< std::complex<double> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
-        boost::shared_array< std::complex<double> > m_AveWli;
-        boost::shared_array< std::complex<double> > m_WliNorm;
+        boost::shared_array< std::complex<double> > m_AveWli;      //!< Averaged Wl with 2nd neighbor shell for each particle i
+        boost::shared_array< std::complex<double> > m_WliNorm;     //!< Normalized Wl for the whole system
+        boost::shared_array< std::complex<double> > m_WliAveNorm;  //!< Normalized AveWl for the whole system
         boost::shared_array< double > m_Qli; //!<  Need copy of Qli for normalization
         boost::shared_array< double > m_wigner3jvalues;  //!<Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
     };

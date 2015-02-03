@@ -13,7 +13,7 @@
 #ifndef _LOCAL_QL_NEAR_H__
 #define _LOCAL_QL_NEAR_H__
 
-/*! \file LocalQl.h
+/*! \file LocalQlNear.h
     \brief Compute a Ql per particle using N nearest neighbors instead of r_cut
 */
 
@@ -45,6 +45,7 @@ class LocalQlNear
         @param box A freud box object containing the dimensions of the box associated with the particles that will be fed into compute.
         @param rmax Cutoff radius for running the local order parameter. Values near first minima of the rdf are recommended.
         @param l Spherical harmonic quantum number l.  Must be a positive even number.
+        @param kn Number of nearest neighbors.  Must be a positive integer.
         **/
         //! Constructor
         LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn);
@@ -93,7 +94,7 @@ class LocalQlNear
         //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32
         void computeNormPy(boost::python::numeric::array points);
 
-      //! Compute the Ql order parameter globally (averaging over the system AveQlm)
+        //! Compute the Ql order parameter globally (averaging over the system AveQlm)
         // void computeAveNorm(const float3 *points,
         //                  unsigned int Np);
         void computeAveNorm(const vec3<float> *points,
@@ -131,9 +132,9 @@ class LocalQlNear
 
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
         boost::shared_array< double > getQlNorm()
-        {
-        return m_QliNorm;
-        }
+            {
+            return m_QliNorm;
+            }
 
         //! Python wrapper for getQlNorm() (returns a copy of array). Returns NaN instead of QlNorm for particles with no neighbors.
         boost::python::numeric::array getQlNormPy()
@@ -144,9 +145,9 @@ class LocalQlNear
 
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
         boost::shared_array< double > getQlAveNorm()
-        {
-        return m_QliAveNorm;
-        }
+            {
+            return m_QliAveNorm;
+            }
 
         //! Python wrapper for getQlNorm() (returns a copy of array). Returns NaN instead of QlNorm for particles with no neighbors.
         boost::python::numeric::array getQlAveNormPy()
@@ -154,6 +155,7 @@ class LocalQlNear
             double *arr = m_QliAveNorm.get();
             return num_util::makeNum(arr, m_Np);
             }
+
         //!Spherical harmonics calculation for Ylm filling a vector<complex<double>> with values for m = -l..l.
         void Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y);
 
