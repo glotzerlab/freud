@@ -290,7 +290,7 @@ class TestLocalWl(unittest.TestCase):
         meanw10 = np.mean(np.real(w10vals));
 
         #Assert these tests have same value as literature
-        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these w are ~6e-4, -2.6e-3, 5.06e-3, (hard to read -tiny).
         #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
         npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="W4fail")
         npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="W6fail")
@@ -324,12 +324,12 @@ class TestLocalAveWl(unittest.TestCase):
         meanw10 = np.mean(np.real(w10vals));
 
         #Assert these tests have same value as literature
-        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these w are ~6e-4, -2.6e-3, 5.06e-3, (hard to read -tiny).
         #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
-        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="W4fail")
-        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="W6fail")
-        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="W8fail")
-        npt.assert_almost_equal(meanw10, -4.14e-7, decimal=7, err_msg="W10fail")
+        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="AveW4fail")
+        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="AveW6fail")
+        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="AveW8fail")
+        npt.assert_almost_equal(meanw10, -4.14e-7, decimal=7, err_msg="AveW10fail")
 
 class TestLocalWlNorm(unittest.TestCase):
     def test_WlNormfcc(self):
@@ -358,14 +358,14 @@ class TestLocalWlNorm(unittest.TestCase):
         meanw10 = np.mean(np.real(w10vals));
 
         #Assert these tests have same value as literature
-        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these w are ~6e-4, -2.6e-3, 5.06e-3, (hard to read -tiny).
         #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
-        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="W4fail")
-        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="W6fail")
-        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="W8fail")
-        npt.assert_almost_equal(meanw10, -3.14e-7, decimal=7, err_msg="W10fail")
+        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="W4Normfail")
+        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="W6Normfail")
+        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="W8Normfail")
+        npt.assert_almost_equal(meanw10, -3.14e-7, decimal=7, err_msg="W10Normfail")
 
-'''class TestLocalAveNormWl(unittest.TestCase):
+class TestLocalAveNormWl(unittest.TestCase):
     def test_AveNormWlfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
@@ -374,34 +374,166 @@ class TestLocalWlNorm(unittest.TestCase):
         localw4 = shop.LocalWl(box, rcut, 4);
         localw4.computeAveNorm(testpoints);
         w4vals = localw4.getWlAveNorm();
-        meanw4 = np.mean(w4vals);
+        meanw4 = np.mean(np.real(w4vals));
 
         localw6 = shop.LocalWl(box, rcut, 6);
         localw6.computeAveNorm(testpoints);
         w6vals = localw6.getWlAveNorm();
-        meanw6 = np.mean(w6vals);
+        meanw6 = np.mean(np.real(w6vals));
 
         localw8 = shop.LocalWl(box, rcut, 8);
         localw8.computeAveNorm(testpoints);
         w8vals = localw8.getWlAveNorm();
-        meanw8 = np.mean(w8vals);
+        meanw8 = np.mean(np.real(w8vals));
 
         localw10 = shop.LocalWl(box, rcut, 10);
         localw10.computeAveNorm(testpoints);
         w10vals = localw10.getWlAveNorm();
-        meanw10 = np.mean(w10vals);
+        meanw10 = np.mean(np.real(w10vals));
 
         #Assert these tests have same value as literature
-        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these q are ~0.2, 0.56, 0.4, (hard to read -tiny).
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these w are ~6e-4, -2.6e-3, 5.06e-3, (hard to read -tiny).
         #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
-        npt.assert_almost_equal(meanw4, 0.19, decimal=2, err_msg="W4fail")
-        npt.assert_almost_equal(meanw6, 0.55, decimal=2, err_msg="W6fail")
-        npt.assert_almost_equal(meanw8, 0.38, decimal=2, err_msg="W8fail")
-        npt.assert_almost_equal(meanw10, 0.01, decimal=2, err_msg="W10fail")'''
+        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="AveNormW4fail")
+        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="AveNormW6fail")
+        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="AveNormW8fail")
+        npt.assert_almost_equal(meanw10, -3.14e-7, decimal=7, err_msg="AveNormW10fail")
 
+class TestLocalWlNear(unittest.TestCase):
+    def test_WlNearfcc(self):
+        rcut = 3.7;
+        testpoints = FCC256();
+        box = trajectory.Box(17.661,17.661,17.661);
 
+        localw4 = shop.LocalWlNear(box, rcut, 4, 12);
+        localw4.compute(testpoints);
+        w4vals = localw4.getWl();
+        meanw4 = np.mean(np.real(w4vals));
 
+        localw6 = shop.LocalWlNear(box, rcut, 6, 12);
+        localw6.compute(testpoints);
+        w6vals = localw6.getWl();
+        meanw6 = np.mean(np.real(w6vals));
 
+        localw8 = shop.LocalWlNear(box, rcut, 8, 12);
+        localw8.compute(testpoints);
+        w8vals = localw8.getWl();
+        meanw8 = np.mean(np.real(w8vals));
+
+        localw10 = shop.LocalWlNear(box, rcut, 10, 12);
+        localw10.compute(testpoints);
+        w10vals = localw10.getWl();
+        meanw10 = np.mean(np.real(w10vals));
+
+        #Assert these tests have same value as literature
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these w are ~6e-4, -2.6e-3, 5.06e-3, (hard to read -tiny).
+        #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
+        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="W4Nearfail")
+        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="W6Nearfail")
+        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="W8Nearfail")
+        npt.assert_almost_equal(meanw10, -4.6e-6, decimal=6, err_msg="W10Nearfail")
+
+class TestLocalAveWlNear(unittest.TestCase):
+    def test_AveWlNearfcc(self):
+        rcut = 3.7;
+        testpoints = FCC256();
+        box = trajectory.Box(17.661,17.661,17.661);
+
+        localw4 = shop.LocalWlNear(box, rcut, 4, 12);
+        localw4.computeAve(testpoints);
+        w4vals = localw4.getAveWl();
+        meanw4 = np.mean(np.real(w4vals));
+
+        localw6 = shop.LocalWlNear(box, rcut, 6, 12);
+        localw6.computeAve(testpoints);
+        w6vals = localw6.getAveWl();
+        meanw6 = np.mean(np.real(w6vals));
+
+        localw8 = shop.LocalWlNear(box, rcut, 8, 12);
+        localw8.computeAve(testpoints);
+        w8vals = localw8.getAveWl();
+        meanw8 = np.mean(np.real(w8vals));
+
+        localw10 = shop.LocalWlNear(box, rcut, 10, 12);
+        localw10.computeAve(testpoints);
+        w10vals = localw10.getAveWl();
+        meanw10 = np.mean(np.real(w10vals));
+
+        #Assert these tests have same value as literature
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these w are ~6e-4, -2.6e-3, 5.06e-3, (hard to read -tiny).
+        #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
+        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="AveW4Nearfail")
+        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="AveW6Nearfail")
+        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="AveW8Nearfail")
+        npt.assert_almost_equal(meanw10, -4.34e-7, decimal=7, err_msg="AveW10Nearfail")
+
+class TestLocalWlNormNear(unittest.TestCase):
+    def test_WlNormNearfcc(self):
+        rcut = 3.7;
+        testpoints = FCC256();
+        box = trajectory.Box(17.661,17.661,17.661);
+
+        localw4 = shop.LocalWlNear(box, rcut, 4, 12);
+        localw4.computeNorm(testpoints);
+        w4vals = localw4.getWlNorm();
+        meanw4 = np.mean(np.real(w4vals));
+
+        localw6 = shop.LocalWlNear(box, rcut, 6, 12);
+        localw6.computeNorm(testpoints);
+        w6vals = localw6.getWlNorm();
+        meanw6 = np.mean(np.real(w6vals));
+
+        localw8 = shop.LocalWlNear(box, rcut, 8, 12);
+        localw8.computeNorm(testpoints);
+        w8vals = localw8.getWlNorm();
+        meanw8 = np.mean(np.real(w8vals));
+
+        localw10 = shop.LocalWlNear(box, rcut, 10, 12);
+        localw10.computeNorm(testpoints);
+        w10vals = localw10.getWlNorm();
+        meanw10 = np.mean(np.real(w10vals));
+
+        #Assert these tests have same value as literature
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these w are ~6e-4, -2.6e-3, 5.06e-3, (hard to read -tiny).
+        #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
+        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="W4NormNearfail")
+        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="W6NormNearfail")
+        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="W8NormNearfail")
+        npt.assert_almost_equal(meanw10, -3.14e-7, decimal=7, err_msg="W10NormNearfail")
+
+class TestLocalAveNormWlNear(unittest.TestCase):
+    def test_AveNormWlNearfcc(self):
+        rcut = 3.7;
+        testpoints = FCC256();
+        box = trajectory.Box(17.661,17.661,17.661);
+
+        localw4 = shop.LocalWlNear(box, rcut, 4, 12);
+        localw4.computeAveNorm(testpoints);
+        w4vals = localw4.getWlAveNorm();
+        meanw4 = np.mean(np.real(w4vals));
+
+        localw6 = shop.LocalWlNear(box, rcut, 6, 12);
+        localw6.computeAveNorm(testpoints);
+        w6vals = localw6.getWlAveNorm();
+        meanw6 = np.mean(np.real(w6vals));
+
+        localw8 = shop.LocalWlNear(box, rcut, 8, 12);
+        localw8.computeAveNorm(testpoints);
+        w8vals = localw8.getWlAveNorm();
+        meanw8 = np.mean(np.real(w8vals));
+
+        localw10 = shop.LocalWlNear(box, rcut, 10, 12);
+        localw10.computeAveNorm(testpoints);
+        w10vals = localw10.getWlAveNorm();
+        meanw10 = np.mean(np.real(w10vals));
+
+        #Assert these tests have same value as literature
+        #In Steinhardt 1983 (DOI: 10.1103/PhysRevB.28.784)  Fig2 these w are ~6e-4, -2.6e-3, 5.06e-3, (hard to read -tiny).
+        #  Note:  Not given exactly as a table, but agreement is within a few percent for l=4,6,8,10.
+        npt.assert_almost_equal(meanw4, -6.72e-4, decimal=4, err_msg="AveNormW4Nearfail")
+        npt.assert_almost_equal(meanw6, -2.63e-3, decimal=3, err_msg="AveNormW6Nearfail")
+        npt.assert_almost_equal(meanw8, 5.06e-3, decimal=3, err_msg="AveNormW8Nearfail")
+        npt.assert_almost_equal(meanw10, -3.14e-7, decimal=7, err_msg="AveNormW10Nearfail")
 
 if __name__ == '__main__':
     unittest.main()

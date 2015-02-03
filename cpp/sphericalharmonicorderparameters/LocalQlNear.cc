@@ -56,7 +56,7 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
     //Set local data size
     m_Np = Np;
 
-    //Initialize cell list
+    //Initialize neighbor list
     m_nn->compute(m_box,points,Np,points,Np);
 
     double rmaxsq = m_rmax * m_rmax;
@@ -119,7 +119,7 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
     //Set local data size
     m_Np = Np;
 
-    // compute the cell list
+    // compute the neighbor list
     m_nn->compute(m_box,points,Np,points,Np);
 
     double rmaxsq = m_rmax * m_rmax;
@@ -130,10 +130,10 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
     // for safety and debugging laziness, reallocate each time
     m_AveQlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
     m_AveQli = boost::shared_array<double>(new double[m_Np]);
-    m_AveQlm = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
+    m_AveQlm = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)]);
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQli.get(), 0, sizeof(double)*m_Np);
-    memset((void*)m_AveQlm.get(), 0, sizeof(double)*m_Np);
+    memset((void*)m_AveQlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
@@ -171,7 +171,7 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
 
                     vec3<float> delta1 = m_box.wrap(points[n1] - ref1);
                     float rsq1 = dot(delta1, delta1);
-    
+
                     if (rsq1 > 1e-6)
                         {
                         for(unsigned int k = 0; k < (2*m_l+1); ++k)
@@ -219,17 +219,17 @@ void LocalQlNear::computeNorm(const vec3<float> *points, unsigned int Np)
     for(unsigned int i = 0; i < m_Np; ++i)
         {
         for(unsigned int k = 0; k < (2*m_l+1); ++k)
-             {
+            {
             m_QliNorm[i]+= abs( m_Qlm[k]*conj(m_Qlm[k]) ); //Square by multiplying self w/ complex conj, then take real comp
             }
             m_QliNorm[i]*=normalizationfactor;
             m_QliNorm[i]=sqrt(m_QliNorm[i]);
-        } 
+        }
     }
 
 // void LocalQl::computeAveNorm(const float3 *points, unsigned int Np)
 void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
-    { 
+    {
 
     //Set local data size
     m_Np = Np;
@@ -242,10 +242,10 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
         {
         m_AveQlm[k]/= m_Np;
-        } 
+        }
 
     for(unsigned int i = 0; i < m_Np; ++i)
-        { 
+        {
         for(unsigned int k = 0; k < (2*m_l+1); ++k)
             {
             m_QliAveNorm[i]+= abs( m_AveQlm[k]*conj(m_AveQlm[k]) ); //Square by multiplying self w/ complex conj, then take real comp

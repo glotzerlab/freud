@@ -147,10 +147,10 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
     // for safety and debugging laziness, reallocate each time
     m_AveQlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
     m_AveQli = boost::shared_array<double>(new double[m_Np]);
-    m_AveQlm = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
+    m_AveQlm = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)]);
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQli.get(), 0, sizeof(double)*m_Np);
-    memset((void*)m_AveQlm.get(), 0, sizeof(double)*m_Np);
+    memset((void*)m_AveQlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
