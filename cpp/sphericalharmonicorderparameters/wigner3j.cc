@@ -1,3 +1,4 @@
+#include <iostream>
 #include "wigner3j.h"
 #include <vector>
 
@@ -80,5 +81,7 @@ vector<double> getWigner3j(unsigned int l)
             break;
         }
     }
+    cout << "Not Implemented";
+    return vector<double> ();
 }
 
