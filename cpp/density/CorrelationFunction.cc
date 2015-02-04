@@ -278,10 +278,12 @@ void CorrelationFunction<T>::computePy(trajectory::Box& box,
     m_box = box;
     num_util::check_type(ref_points, NPY_FLOAT);
     num_util::check_rank(ref_points, 2);
-    num_util::check_rank(ref_values, 1);
     num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
+    num_util::check_rank(ref_values, 1);
+    checkCFType<T>(ref_values);
     num_util::check_rank(point_values, 1);
+    checkCFType<T>(point_values);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
@@ -303,6 +305,19 @@ void CorrelationFunction<T>::computePy(trajectory::Box& box,
         util::ScopedGILRelease gil;
         compute(ref_points_raw, ref_values_raw, Nref, points_raw, point_values_raw, Np);
         }
+    }
+
+// Default implementation: assume we're dealing with floats
+template<typename T>
+void checkCFType(boost::python::numeric::array values)
+    {
+    num_util::check_type(values, NPY_FLOAT);
+    }
+
+template<>
+void checkCFType<std::complex<float> >(boost::python::numeric::array values)
+    {
+    num_util::check_type(values, NPY_COMPLEX64);
     }
 
 void export_CorrelationFunction()

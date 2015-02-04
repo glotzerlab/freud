@@ -128,6 +128,13 @@ class CorrelationFunction
     };
 
 /*! \internal
+    \brief Template function to check the type of a given correlation
+        function value array. Should be specialized for its argument.
+*/
+template<typename T>
+void checkCFType(boost::python::numeric::array values);
+
+/*! \internal
     \brief Exports all classes in this file to python
 */
 void export_CorrelationFunction();
