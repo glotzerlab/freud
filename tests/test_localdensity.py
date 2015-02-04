@@ -16,7 +16,7 @@ class TestLD:
     def test_density(self):
         """Test that LocalDensity can compute a correct density at each point"""
 
-        self.ld.compute(self.box, self.pos, self.pos);
+        self.ld.compute(self.box, self.pos);
         density = self.ld.getDensity();
 
         for i in range(0,len(self.pos)):
