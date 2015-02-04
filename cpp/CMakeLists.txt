@@ -129,10 +129,16 @@ set(SOURCES trajectory/trajectory.cc
             interface/InterfaceMeasure.h
             sphericalharmonicorderparameters/LocalQl.h
             sphericalharmonicorderparameters/LocalQl.cc
+            sphericalharmonicorderparameters/LocalQlNear.h
+            sphericalharmonicorderparameters/LocalQlNear.cc
             sphericalharmonicorderparameters/LocalWl.h
             sphericalharmonicorderparameters/LocalWl.cc
+            sphericalharmonicorderparameters/LocalWlNear.h
+            sphericalharmonicorderparameters/LocalWlNear.cc
             sphericalharmonicorderparameters/SolLiq.h
             sphericalharmonicorderparameters/SolLiq.cc
+            sphericalharmonicorderparameters/SolLiqNear.h
+            sphericalharmonicorderparameters/SolLiqNear.cc
             sphericalharmonicorderparameters/wigner3j.cc
             sphericalharmonicorderparameters/wigner3j.h
             viz/colormap.h

@@ -1,19 +1,20 @@
 #include <boost/python.hpp>
 #include <boost/shared_array.hpp>
-//include <boost/math/special_functions.hpp>
 
 #include "HOOMDMath.h"
+#define swap freud_swap
 #include "VectorMath.h"
+#undef swap
 
-#include "LinkCell.h"
+#include "NearestNeighbors.h"
 #include "num_util.h"
 #include "trajectory.h"
 
-#ifndef _LOCAL_QL_H__
-#define _LOCAL_QL_H__
+#ifndef _LOCAL_QL_NEAR_H__
+#define _LOCAL_QL_NEAR_H__
 
-/*! \file LocalQl.h
-    \brief Compute a Ql per particle
+/*! \file LocalQlNear.h
+    \brief Compute a Ql per particle using N nearest neighbors instead of r_cut
 */
 
 namespace freud { namespace sphericalharmonicorderparameters {
@@ -36,17 +37,21 @@ namespace freud { namespace sphericalharmonicorderparameters {
  *
  * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
-class LocalQl
+class LocalQlNear
     {
     public:
-        //! LocalQl Class Constructor
+        //! LocalQlNear Class Constructor
         /**Constructor for LocalQl  analysis class.
         @param box A freud box object containing the dimensions of the box associated with the particles that will be fed into compute.
         @param rmax Cutoff radius for running the local order parameter. Values near first minima of the rdf are recommended.
         @param l Spherical harmonic quantum number l.  Must be a positive even number.
-        @param rmin (optional) can look at only the second shell or some arbitrary rdf region
+        @param kn Number of nearest neighbors.  Must be a positive integer.
         **/
-        LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float rmin);
+        //! Constructor
+        LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn);
+
+        //! Destructor
+        ~LocalQlNear();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -58,9 +63,7 @@ class LocalQl
         void setBox(const trajectory::Box newbox)
             {
             m_box = newbox;  //Set
-            locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );
-            //Rebuild cell list
-            m_lc = newLinkCell;
+            m_nn = new locality::NearestNeighbors(m_rmax, m_k);
             }
 
 
@@ -160,8 +163,8 @@ class LocalQl
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmin;                     //!< Minimum r at which to determine neighbors
         float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_rmax_cluster;             //!< Maximum radius at which to cluster one crystal
-        locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
+        float m_k;             //!< Number of neighbors
+        locality::NearestNeighbors *m_nn;          //!< NearestNeighbors to bin particles for the computation
         unsigned int m_l;                 //!< Spherical harmonic l value.
         unsigned int m_Np;                //!< Last number of points computed
         boost::shared_array< std::complex<double> > m_Qlmi;        //!  Qlm for each particle i
@@ -175,8 +178,8 @@ class LocalQl
     };
 
 //! Exports all classes in this file to python
-void export_LocalQl();
+void export_LocalQlNear();
 
-}; }; // end namespace freud::localql
+}; }; // end namespace freud::localqlnear
 
-#endif // #define _LOCAL_QL_H__
+#endif // #define _LOCAL_QL_NEAR_H__
