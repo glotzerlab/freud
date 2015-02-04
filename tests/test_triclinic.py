@@ -42,25 +42,7 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(testpoints[0,0], -2, decimal=2, err_msg="WrapFail")
 
 class TestXML(unittest.TestCase):
-    def test_readBox2D(self):
-        xmllist = ["triclinic2d.xml"]
-        xml = trajectory.TrajectoryXML(xmllist)
-        lx = xml.box.getLx()
-        ly = xml.box.getLy()
-        lz = xml.box.getLz()
-
-        xy = xml.box.getTiltFactorXY()
-        xz = xml.box.getTiltFactorXZ()
-        yz = xml.box.getTiltFactorYZ()
-        
-        npt.assert_almost_equal(lx, 10.0, decimal=1, err_msg="XML2D_LxFail")
-        npt.assert_almost_equal(ly, 10.0, decimal=1, err_msg="XML2D_LyFail")
-        npt.assert_almost_equal(lz, 0.5, decimal=1, err_msg="XML2D_LzFail")
-        npt.assert_almost_equal(xy, 0.09989, decimal=4, err_msg="XML_XYFail")
-        npt.assert_almost_equal(xz, 0.0, decimal=1, err_msg="XML_XZFail")
-        npt.assert_almost_equal(yz, 0.0, decimal=1, err_msg="XML_YZFail")
-
-    def test_readBox3D(self):
+    def test_readBox(self):
         xmllist = ["triclinic.xml"]
         xml = trajectory.TrajectoryXML(xmllist)
         lx = xml.box.getLx()
