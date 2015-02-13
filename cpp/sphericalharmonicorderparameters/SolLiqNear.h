@@ -57,6 +57,7 @@ class SolLiqNear
         void setBox(const trajectory::Box newbox)
             {
             m_box = newbox;  //Set
+            delete m_nn;
             m_nn = new locality::NearestNeighbors(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list
             }
 
