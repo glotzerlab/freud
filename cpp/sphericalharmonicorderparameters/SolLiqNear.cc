@@ -17,8 +17,6 @@ SolLiqNear::SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold,
         throw invalid_argument("rmax must be positive");
     if (m_Qthreshold < 0.0)
         throw invalid_argument("Dot product cutoff must be nonnegative");
-    if (m_Sthreshold < 0)
-        throw invalid_argument("Number of solid-like bonds should be positive");
     if (m_l % 2 == 1)
         throw invalid_argument("l should be even!");
     if (m_l == 0)
