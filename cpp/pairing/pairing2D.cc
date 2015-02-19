@@ -68,7 +68,8 @@ void pairing::ComputePairing2D(const vec3<float> *points,
         for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
             {
             // need to check to make sure that neither i nor j are paired, as i could become paired in the inner loop
-            if ((m_pair_array[j] != j) || (m_pair_array[i] != i))
+            // if ((m_pair_array[j] != j) || (m_pair_array[i] != i))
+            if (m_pair_array[i] != i)
                 {
                 break;
                 }
