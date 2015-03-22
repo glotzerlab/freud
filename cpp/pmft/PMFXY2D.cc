@@ -235,30 +235,58 @@ class ComputePMFXY2D
             }
     };
 
+//! Get a reference to the PCF array
+boost::shared_array<unsigned int> PMFXY2D::getPCF()
+    {
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+    parallel_for(blocked_range<size_t>(0,m_nbins_x),
+                 CombinePCFXY2D(m_nbins_x,
+                                m_nbins_y,
+                                m_pcf_array.get(),
+                                m_local_pcf_array));
+    return m_pcf_array;
+    }
+
+//! Get a reference to the PCF array
+boost::python::numeric::array PMFXY2D::getPCFPy()
+    {
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+    parallel_for(blocked_range<size_t>(0,m_nbins_x),
+                 CombinePCFXY2D(m_nbins_x,
+                                m_nbins_y,
+                                m_pcf_array.get(),
+                                m_local_pcf_array));
+    unsigned int *arr = m_pcf_array.get();
+    std::vector<intp> dims(2);
+    dims[0] = m_nbins_y;
+    dims[1] = m_nbins_x;
+    return num_util::makeNum(arr, dims);
+    }
+
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
 
 void PMFXY2D::resetPCF()
     {
-    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+        }
+    // memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
     }
 
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
 */
 
-void PMFXY2D::compute(vec3<float> *ref_points,
-                      float *ref_orientations,
-                      unsigned int Nref,
-                      vec3<float> *points,
-                      float *orientations,
-                      unsigned int Np)
+void PMFXY2D::accumulate(vec3<float> *ref_points,
+                         float *ref_orientations,
+                         unsigned int Nref,
+                         vec3<float> *points,
+                         float *orientations,
+                         unsigned int Np)
     {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
-        {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
-        }
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFXY2D(m_local_pcf_array,
@@ -276,22 +304,22 @@ void PMFXY2D::compute(vec3<float> *ref_points,
                                 points,
                                 orientations,
                                 Np));
-    parallel_for(blocked_range<size_t>(0,m_nbins_x),
-                 CombinePCFXY2D(m_nbins_x,
-                                m_nbins_y,
-                                m_pcf_array.get(),
-                                m_local_pcf_array));
+    // parallel_for(blocked_range<size_t>(0,m_nbins_x),
+    //              CombinePCFXY2D(m_nbins_x,
+    //                             m_nbins_y,
+    //                             m_pcf_array.get(),
+    //                             m_local_pcf_array));
     }
 
 //! \internal
 /*! \brief Exposed function to python to calculate the PMF
 */
 
-void PMFXY2D::computePy(trajectory::Box& box,
-                        boost::python::numeric::array ref_points,
-                        boost::python::numeric::array ref_orientations,
-                        boost::python::numeric::array points,
-                        boost::python::numeric::array orientations)
+void PMFXY2D::accumulatePy(trajectory::Box& box,
+                           boost::python::numeric::array ref_points,
+                           boost::python::numeric::array ref_orientations,
+                           boost::python::numeric::array points,
+                           boost::python::numeric::array orientations)
     {
     // validate input type and rank
     m_box = box;
@@ -324,12 +352,12 @@ void PMFXY2D::computePy(trajectory::Box& box,
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_points_raw,
-                ref_orientations_raw,
-                Nref,
-                points_raw,
-                orientations_raw,
-                Np);
+        accumulate(ref_points_raw,
+                   ref_orientations_raw,
+                   Nref,
+                   points_raw,
+                   orientations_raw,
+                   Np);
         }
     }
 
@@ -337,7 +365,7 @@ void export_PMFXY2D()
     {
     class_<PMFXY2D>("PMFXY2D", init<float, float, float, float>())
         .def("getBox", &PMFXY2D::getBox, return_internal_reference<>())
-        .def("compute", &PMFXY2D::computePy)
+        .def("accumulate", &PMFXY2D::accumulatePy)
         .def("getPCF", &PMFXY2D::getPCFPy)
         .def("getX", &PMFXY2D::getXPy)
         .def("getY", &PMFXY2D::getYPy)
