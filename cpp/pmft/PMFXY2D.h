@@ -67,18 +67,22 @@ class PMFXY2D
             of the pcf
         */
         void accumulate(vec3<float> *ref_points,
-                     float *ref_orientations,
-                     unsigned int Nref,
-                     vec3<float> *points,
-                     float *orientations,
-                     unsigned int Np);
+                        float *ref_orientations,
+                        unsigned int Nref,
+                        vec3<float> *points,
+                        float *orientations,
+                        unsigned int Np);
 
         //! Python wrapper for accumulate
         void accumulatePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations);
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array ref_orientations,
+                          boost::python::numeric::array points,
+                          boost::python::numeric::array orientations);
+
+        //! \internal
+        //! helper function to reduce the thread specific arrays into the boost array
+        void reducePCF();
 
         //! Get a reference to the PCF array
         boost::shared_array<unsigned int> getPCF();

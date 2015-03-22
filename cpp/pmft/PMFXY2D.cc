@@ -235,8 +235,9 @@ class ComputePMFXY2D
             }
     };
 
-//! Get a reference to the PCF array
-boost::shared_array<unsigned int> PMFXY2D::getPCF()
+//! \internal
+//! helper function to reduce the thread specific arrays into the boost array
+void PMFXY2D::reducePCF()
     {
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
     parallel_for(blocked_range<size_t>(0,m_nbins_x),
@@ -244,18 +245,19 @@ boost::shared_array<unsigned int> PMFXY2D::getPCF()
                                 m_nbins_y,
                                 m_pcf_array.get(),
                                 m_local_pcf_array));
+    }
+
+//! Get a reference to the PCF array
+boost::shared_array<unsigned int> PMFXY2D::getPCF()
+    {
+    reducePCF();
     return m_pcf_array;
     }
 
 //! Get a reference to the PCF array
 boost::python::numeric::array PMFXY2D::getPCFPy()
     {
-    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
-    parallel_for(blocked_range<size_t>(0,m_nbins_x),
-                 CombinePCFXY2D(m_nbins_x,
-                                m_nbins_y,
-                                m_pcf_array.get(),
-                                m_local_pcf_array));
+    reducePCF();
     unsigned int *arr = m_pcf_array.get();
     std::vector<intp> dims(2);
     dims[0] = m_nbins_y;
