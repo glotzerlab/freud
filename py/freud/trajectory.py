@@ -1072,7 +1072,7 @@ class TrajectoryHOOMD(Trajectory):
         dynamic_props['velocity'] = velocity;
 
         hoomd_box = self.sysdef.box;
-        box = Box(hoomd_box[0], hoomd_box[1], hoomd_box[2], self.sysdef.dimensions == 2);
+        box = Box(hoomd_box.Lx, hoomd_box.Ly, hoomd_box.Lz, hoomd_box.dimensions == 2)
 
         return Frame(self, 0, dynamic_props, box);
 
