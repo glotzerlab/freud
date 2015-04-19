@@ -129,8 +129,7 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                         // only use the abs angle (direction is not necessary)
                         float d_ij = abs(atan2(((c_i.x*u_ij.y)-(c_i.y*u_ij.x)),dot(c_i, u_ij)));
                         float d_ji = abs(atan2(((c_j.x*u_ji.y)-(c_j.y*u_ji.x)),dot(c_j, u_ji)));
-                        // this check assumes that the target angle between the interparticle vector and the complementary
-                        // interface is 0. As the nearest neighbor list may use a larger rmax than was initialized, it has
+                        // As the nearest neighbor list may use a larger rmax than was initialized, it has
                         // to check again
                         if ((d_ij < m_comp_dot_tol) && (d_ji < m_comp_dot_tol) && (is_paired==false) && (rsq < (m_rmax * m_rmax)))
                             {
