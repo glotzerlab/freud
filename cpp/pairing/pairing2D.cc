@@ -127,6 +127,7 @@ void pairing::ComputePairing2D(const vec3<float> *points,
                         c_j = c_j / sqrt(dot(c_j, c_j));
                         // calculate the angle between vectors using cross and dot method
                         // only use the abs angle (direction is not necessary)
+                        // using method from http://stackoverflow.com/questions/21483999/using-atan2-to-find-angle-between-two-vectors
                         float d_ij = abs(atan2(((c_i.x*u_ij.y)-(c_i.y*u_ij.x)),dot(c_i, u_ij)));
                         float d_ji = abs(atan2(((c_j.x*u_ji.y)-(c_j.y*u_ji.x)),dot(c_j, u_ji)));
                         // As the nearest neighbor list may use a larger rmax than was initialized, it has
