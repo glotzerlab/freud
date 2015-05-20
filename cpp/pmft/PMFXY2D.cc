@@ -306,11 +306,6 @@ void PMFXY2D::accumulate(vec3<float> *ref_points,
                                 points,
                                 orientations,
                                 Np));
-    // parallel_for(blocked_range<size_t>(0,m_nbins_x),
-    //              CombinePCFXY2D(m_nbins_x,
-    //                             m_nbins_y,
-    //                             m_pcf_array.get(),
-    //                             m_local_pcf_array));
     }
 
 //! \internal
