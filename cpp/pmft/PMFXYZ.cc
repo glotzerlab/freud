@@ -334,14 +334,14 @@ void PMFXYZ::resetPCF()
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
 */
-void PMFXYZ::accumulate(const vec3<float> *ref_points,
-                     const quat<float> *ref_orientations,
-                     unsigned int Nref,
-                     const vec3<float> *points,
-                     const quat<float> *orientations,
-                     unsigned int Np,
-                     const quat<float> *face_orientations,
-                     const unsigned int Nfaces)
+void PMFXYZ::accumulate(vec3<float> *ref_points,
+                        quat<float> *ref_orientations,
+                        unsigned int Nref,
+                        vec3<float> *points,
+                        quat<float> *orientations,
+                        unsigned int Np,
+                        quat<float> *face_orientations,
+                        unsigned int Nfaces)
     {
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
@@ -365,18 +365,11 @@ void PMFXYZ::accumulate(const vec3<float> *ref_points,
                              Np,
                              face_orientations,
                              Nfaces));
-    parallel_for(blocked_range<size_t>(0,m_nbins_x),
-                 CombinePCFXYZ(m_nbins_x,
-                               m_nbins_y,
-                               m_nbins_z,
-                               m_pcf_array.get(),
-                               m_local_pcf_array));
     }
 
 //! \internal
 /*! \brief Exposed function to python to calculate the PMF
 */
-
 void PMFXYZ::accumulatePy(trajectory::Box& box,
                           boost::python::numeric::array ref_points,
                           boost::python::numeric::array ref_orientations,

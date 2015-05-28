@@ -64,14 +64,14 @@ class PMFXYZ
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void accumulate(const vec3<float> *ref_points,
-                        const quat<float> *ref_orientations,
+        void accumulate(vec3<float> *ref_points,
+                        quat<float> *ref_orientations,
                         unsigned int Nref,
-                        const vec3<float> *points,
-                        const quat<float> *orientations,
+                        vec3<float> *points,
+                        quat<float> *orientations,
                         unsigned int Np,
-                        const quat<float> *face_orientations,
-                        const unsigned int Nfaces);
+                        quat<float> *face_orientations,
+                        unsigned int Nfaces);
 
         //! Python wrapper for compute
         void accumulatePy(trajectory::Box& box,
