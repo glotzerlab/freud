@@ -17,7 +17,8 @@ using namespace boost::python;
 
 using namespace tbb;
 
-/*! \file PMFTRPM.cc
+/*! \internal
+    \file PMFTRPM.cc
     \brief Routines for computing radial density functions
 */
 
@@ -52,7 +53,7 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, f
     m_nbins_TM = int(2 * floorf(m_max_TM / m_dTM));
     assert(m_nbins_TM > 0);
 
-    // precompute the bin center positions for r, TP, TM
+    // precompute the bin center positions for r
     m_r_array = boost::shared_array<float>(new float[m_nbins_r]);
     for (unsigned int i = 0; i < m_nbins_r; i++)
         {
@@ -61,6 +62,7 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, f
         m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
 
+    // precompute the bin center positions for TP
     m_TP_array = boost::shared_array<float>(new float[m_nbins_TP]);
     for (unsigned int i = 0; i < m_nbins_TP; i++)
         {
@@ -69,6 +71,7 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, f
         m_TP_array[i] = -m_max_TP + ((TP + nextTP) / 2.0);
         }
 
+    // precompute the bin center positions for TM
     m_TM_array = boost::shared_array<float>(new float[m_nbins_TM]);
     for (unsigned int i = 0; i < m_nbins_TM; i++)
         {
@@ -77,15 +80,19 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, f
         m_TM_array[i] = -m_max_TM + ((TM + nextTM) / 2.0);
         }
 
+    // create and populate the pcf_array
     m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_r*m_nbins_TP*m_nbins_TM]);
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
 
     m_lc = new locality::LinkCell(m_box, m_max_r);
-
     }
 
 PMFTRPM::~PMFTRPM()
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
+        {
+        delete[] (*i);
+        }
     delete m_lc;
     }
 
@@ -256,22 +263,54 @@ class ComputePMFTRPM
             }
     };
 
-void PMFTRPM::resetPCF()
+//! \internal
+//! helper function to reduce the thread specific arrays into the boost array
+void PMFTRPM::reducePCF()
     {
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+    parallel_for(blocked_range<size_t>(0,m_nbins_r),
+                 CombinePCFRPM(m_nbins_r,
+                               m_nbins_TP,
+                               m_nbins_TM,
+                               m_pcf_array.get(),
+                               m_local_pcf_array));
     }
 
-void PMFTRPM::compute(vec3<float> *ref_points,
-                      float *ref_orientations,
-                      unsigned int Nref,
-                      vec3<float> *points,
-                      float *orientations,
-                      unsigned int Np)
+//! Get a reference to the PCF array
+boost::shared_array<unsigned int> PMFTRPM::getPCF()
+    {
+    reducePCF();
+    return m_pcf_array;
+    }
+
+//! Get a reference to the PCF array
+boost::python::numeric::array PMFTRPM::getPCFPy()
+    {
+    reducePCF();
+    unsigned int *arr = m_pcf_array.get();
+    std::vector<intp> dims(3);
+    dims[0] = m_nbins_TM;
+    dims[1] = m_nbins_TP;
+    dims[2] = m_nbins_r;
+    return num_util::makeNum(arr, dims);
+    }
+
+void PMFTRPM::resetPCF()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
         }
+    // memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+    }
+
+void PMFTRPM::accumulate(vec3<float> *ref_points,
+                         float *ref_orientations,
+                         unsigned int Nref,
+                         vec3<float> *points,
+                         float *orientations,
+                         unsigned int Np)
+    {
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFTRPM(m_local_pcf_array,
@@ -292,19 +331,16 @@ void PMFTRPM::compute(vec3<float> *ref_points,
                                 points,
                                 orientations,
                                 Np));
-        parallel_for(blocked_range<size_t>(0,m_nbins_r),
-                     CombinePCFRPM(m_nbins_r,
-                                   m_nbins_TP,
-                                   m_nbins_TM,
-                                   m_pcf_array.get(),
-                                   m_local_pcf_array));
     }
 
-void PMFTRPM::computePy(trajectory::Box& box,
-                        boost::python::numeric::array ref_points,
-                        boost::python::numeric::array ref_orientations,
-                        boost::python::numeric::array points,
-                        boost::python::numeric::array orientations)
+//! \internal
+/*! \brief Exposed function to python to calculate the PMF
+*/
+void PMFTRPM::accumulatePy(trajectory::Box& box,
+                           boost::python::numeric::array ref_points,
+                           boost::python::numeric::array ref_orientations,
+                           boost::python::numeric::array points,
+                           boost::python::numeric::array orientations)
     {
     // validate input type and rank
     m_box = box;
@@ -337,7 +373,7 @@ void PMFTRPM::computePy(trajectory::Box& box,
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_points_raw,
+        accumulate(ref_points_raw,
                 ref_orientations_raw,
                 Nref,
                 points_raw,
@@ -350,7 +386,7 @@ void export_PMFTRPM()
     {
     class_<PMFTRPM>("PMFTRPM", init<float, float, float, float, float, float>())
         .def("getBox", &PMFTRPM::getBox, return_internal_reference<>())
-        .def("compute", &PMFTRPM::computePy)
+        .def("accumulate", &PMFTRPM::accumulatePy)
         .def("getPCF", &PMFTRPM::getPCFPy)
         .def("resetPCF", &PMFTRPM::resetPCFPy)
         .def("getR", &PMFTRPM::getRPy)
