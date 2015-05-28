@@ -83,7 +83,6 @@ PMFTXYT2D::PMFTXYT2D(float max_x, float max_y, float max_T, float dx, float dy, 
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_T * m_nbins_y * m_nbins_x);
 
     m_lc = new locality::LinkCell(m_box, sqrtf(m_max_x*m_max_x + m_max_y*m_max_y));
-
     }
 
 PMFTXYT2D::~PMFTXYT2D()
@@ -259,25 +258,57 @@ class ComputePMFTXYT2D
     };
 
 //! \internal
+//! helper function to reduce the thread specific arrays into the boost array
+void PMFTXYT2D::reducePCF()
+    {
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
+    parallel_for(blocked_range<size_t>(0,m_nbins_x),
+                 CombinePCFXYT2D(m_nbins_x,
+                                 m_nbins_y,
+                                 m_nbins_T,
+                                 m_pcf_array.get(),
+                                 m_local_pcf_array));
+    }
+
+//! Get a reference to the PCF array
+boost::shared_array<unsigned int> PMFTXYT2D::getPCF()
+    {
+    reducePCF();
+    return m_pcf_array;
+    }
+
+//! Get a reference to the PCF array
+boost::python::numeric::array PMFTXYT2D::getPCFPy()
+    {
+    reducePCF();
+    unsigned int *arr = m_pcf_array.get();
+    std::vector<intp> dims(3);
+    dims[0] = m_nbins_T;
+    dims[1] = m_nbins_y;
+    dims[2] = m_nbins_x;
+    return num_util::makeNum(arr, dims);
+    }
+
+//! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
 
 void PMFTXYT2D::resetPCF()
     {
-    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
-    }
-
-void PMFTXYT2D::compute(vec3<float> *ref_points,
-                        float *ref_orientations,
-                        unsigned int Nref,
-                        vec3<float> *points,
-                        float *orientations,
-                        unsigned int Np)
-    {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
         }
+    // memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_T);
+    }
+
+void PMFTXYT2D::accumulate(vec3<float> *ref_points,
+                           float *ref_orientations,
+                           unsigned int Nref,
+                           vec3<float> *points,
+                           float *orientations,
+                           unsigned int Np)
+    {
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFTXYT2D(m_local_pcf_array,
@@ -298,19 +329,13 @@ void PMFTXYT2D::compute(vec3<float> *ref_points,
                                   points,
                                   orientations,
                                   Np));
-    parallel_for(blocked_range<size_t>(0,m_nbins_x),
-                 CombinePCFXYT2D(m_nbins_x,
-                                 m_nbins_y,
-                                 m_nbins_T,
-                                 m_pcf_array.get(),
-                                 m_local_pcf_array));
     }
 
-void PMFTXYT2D::computePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations)
+void PMFTXYT2D::accumulatePy(trajectory::Box& box,
+                             boost::python::numeric::array ref_points,
+                             boost::python::numeric::array ref_orientations,
+                             boost::python::numeric::array points,
+                             boost::python::numeric::array orientations)
     {
     // validate input type and rank
     m_box = box;
@@ -343,7 +368,7 @@ void PMFTXYT2D::computePy(trajectory::Box& box,
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_points_raw,
+        accumulate(ref_points_raw,
                 ref_orientations_raw,
                 Nref,
                 points_raw,
@@ -356,7 +381,7 @@ void export_PMFTXYT2D()
     {
     class_<PMFTXYT2D>("PMFTXYT2D", init<float, float, float, float, float, float>())
         .def("getBox", &PMFTXYT2D::getBox, return_internal_reference<>())
-        .def("compute", &PMFTXYT2D::computePy)
+        .def("accumulate", &PMFTXYT2D::accumulatePy)
         .def("getPCF", &PMFTXYT2D::getPCFPy)
         .def("resetPCF", &PMFTXYT2D::resetPCFPy)
         .def("getX", &PMFTXYT2D::getXPy)
