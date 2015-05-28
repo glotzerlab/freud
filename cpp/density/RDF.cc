@@ -22,7 +22,7 @@ using namespace tbb;
 namespace freud { namespace density {
 
 RDF::RDF(float rmax, float dr)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
     {
     if (dr < 0.0f)
         throw invalid_argument("dr must be positive");
@@ -252,31 +252,14 @@ class ComputeRDF
             }
     };
 
-void RDF::compute(const vec3<float> *ref_points,
-                  unsigned int Nref,
-                  const vec3<float> *points,
-                  unsigned int Np)
+//! \internal
+//! helper function to reduce the thread specific arrays into the boost array
+void RDF::reduceRDF()
     {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
-        {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins);
-        }
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
-    m_lc->computeCellList(m_box, points, Np);
-    parallel_for(blocked_range<size_t>(0,Nref), ComputeRDF(m_nbins,
-                                                           m_local_bin_counts,
-                                                           m_box,
-                                                           m_rmax,
-                                                           m_dr,
-                                                           m_lc,
-                                                           ref_points,
-                                                           Nref,
-                                                           points,
-                                                           Np));
-
     // now compute the rdf
-    float ndens = float(Np) / m_box.getVolume();
+    float ndens = float(m_Np) / m_box.getVolume();
     m_rdf_array[0] = 0.0f;
     m_N_r_array[0] = 0.0f;
     m_N_r_array[1] = 0.0f;
@@ -292,14 +275,68 @@ void RDF::compute(const vec3<float> *ref_points,
                                                                  m_rdf_array.get(),
                                                                  m_vol_array.get(),
                                                                  ndens,
-                                                                 (float)Nref));
+                                                                 (float)m_Nref));
     CumulativeCount myN_r(m_N_r_array.get(), m_avg_counts.get());
     parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
+    for (unsigned int i=0; i<m_nbins; i++)
+        {
+        m_rdf_array[i] /= m_frame_counter;
+        m_N_r_array[i] /= m_frame_counter;
+        }
     }
 
-void RDF::computePy(trajectory::Box& box,
-                    boost::python::numeric::array ref_points,
-                    boost::python::numeric::array points)
+//! Get a reference to the PCF array
+boost::shared_array<float> RDF::getRDF()
+    {
+    reduceRDF();
+    return m_rdf_array;
+    }
+
+//! Get a reference to the PCF array
+boost::python::numeric::array RDF::getRDFPy()
+    {
+    reduceRDF();
+    float *arr = m_rdf_array.get();
+    return num_util::makeNum(arr, m_nbins);
+    }
+
+//! \internal
+/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
+*/
+void RDF::resetRDF()
+    {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins);
+        }
+    // reset the frame counter
+    m_frame_counter = 0;
+    }
+
+void RDF::accumulate(const vec3<float> *ref_points,
+                     unsigned int Nref,
+                     const vec3<float> *points,
+                     unsigned int Np)
+    {
+    m_Np = Np;
+    m_Nref = Nref;
+    m_lc->computeCellList(m_box, points, Np);
+    parallel_for(blocked_range<size_t>(0,Nref), ComputeRDF(m_nbins,
+                                                           m_local_bin_counts,
+                                                           m_box,
+                                                           m_rmax,
+                                                           m_dr,
+                                                           m_lc,
+                                                           ref_points,
+                                                           Nref,
+                                                           points,
+                                                           Np));
+    m_frame_counter += 1;
+    }
+
+void RDF::accumulatePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
+                       boost::python::numeric::array points)
     {
     // validate input type and rank
     m_box = box;
@@ -322,7 +359,7 @@ void RDF::computePy(trajectory::Box& box,
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_points_raw, Nref, points_raw, Np);
+        accumulate(ref_points_raw, Nref, points_raw, Np);
         }
     }
 
@@ -330,7 +367,7 @@ void export_RDF()
     {
     class_<RDF>("RDF", init<float, float>())
         .def("getBox", &RDF::getBox, return_internal_reference<>())
-        .def("compute", &RDF::computePy)
+        .def("accumulate", &RDF::accumulatePy)
         .def("getRDF", &RDF::getRDFPy)
         .def("getR", &RDF::getRPy)
         .def("getNr", &RDF::getNrPy)

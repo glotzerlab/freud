@@ -51,22 +51,32 @@ class RDF
             return m_box;
             }
 
-        //! Compute the RDF
-        void compute(const vec3<float> *ref_points,
-                     unsigned int Nref,
-                     const vec3<float> *points,
-                     unsigned int Np);
+        //! Reset the PCF array to all zeros
+        void resetRDF();
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array points);
+        //! Python wrapper for reset method
+        void resetRDFPy()
+            {
+            resetRDF();
+            }
+
+        //! Compute the RDF
+        void accumulate(const vec3<float> *ref_points,
+                        unsigned int Nref,
+                        const vec3<float> *points,
+                        unsigned int Np);
+
+        //! Python wrapper for accumulate
+        void accumulatePy(trajectory::Box& box,
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array points);
+
+        //! \internal
+        //! helper function to reduce the thread specific arrays into the boost array
+        void reduceRDF();
 
         //! Get a reference to the last computed rdf
-        boost::shared_array<float> getRDF()
-            {
-            return m_rdf_array;
-            }
+        boost::shared_array<float> getRDF();
 
         //! Get a reference to the r array
         boost::shared_array<float> getR()
@@ -81,11 +91,7 @@ class RDF
             }
 
         //! Python wrapper for getRDF() (returns a copy)
-        boost::python::numeric::array getRDFPy()
-            {
-            float *arr = m_rdf_array.get();
-            return num_util::makeNum(arr, m_nbins);
-            }
+        boost::python::numeric::array getRDFPy();
 
         //! Python wrapper for getR() (returns a copy)
         boost::python::numeric::array getRPy()
@@ -106,6 +112,9 @@ class RDF
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
+        unsigned int m_Nref;                  //!< number of reference particles
+        unsigned int m_Np;                  //!< number of check particles
+        unsigned int m_frame_counter;       //!< number of frames calc'd
 
         boost::shared_array<float> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
