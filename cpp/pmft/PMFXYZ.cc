@@ -332,7 +332,7 @@ void PMFXYZ::resetPCF()
     }
 
 //! \internal
-/*! \brief Helper functionto direct the calculation to the correct helper class
+/*! \brief Helper function to direct the calculation to the correct helper class
 */
 void PMFXYZ::accumulate(vec3<float> *ref_points,
                         quat<float> *ref_orientations,
