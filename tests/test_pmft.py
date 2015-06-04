@@ -65,7 +65,7 @@ class TestPMFXY2D(unittest.TestCase):
         #                       dx=dx,
         #                       dy=dy)
         myPMFT = pmft.PMFXY2D(maxX, maxY, dx, dy)
-        myPMFT.compute(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
+        myPMFT.accumulate(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
 
         correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.float32)
         # calculation for array idxs
@@ -97,7 +97,7 @@ class TestPMFXY2D(unittest.TestCase):
         dx = 0.1
         dy = 0.1
         myPMFT = pmft.PMFXY2D(maxX, maxY, dx, dy)
-        myPMFT.compute(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
+        myPMFT.accumulate(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
 
         correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.float32)
         # calculation for array idxs
