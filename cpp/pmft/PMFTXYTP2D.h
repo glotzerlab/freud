@@ -25,16 +25,15 @@
 
 namespace freud { namespace pmft {
 
-//! Computes the RDF (g(r)) for a given set of points
-/*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
-    Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
+//! Computes the PCF for a given set of points
+/*! A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
+    Computing the PCF results in a pcf array listing the value of the PCF at each given x, y, z listed in the x, y, and z arrays.
 
-    The values of r to compute the rdf at are controlled by the rmax and dr parameters to the constructor. rmax
-    determins the maximum r at which to compute g(r) and dr is the step size for each bin.
+    The values of x, y, T to compute the pcf at are controlled by the xmax, ymax, Tmax and nbins_x, nbins_y, nbins_T parameters to the constructor.
+    xmax, ymax, Tmax determines the minimum/maximum x, y, T at which to compute the pcf and nbins_x, nbins_y, nbins_T is the number of bins in x, y, T.
 
     <b>2D:</b><br>
-    RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
-    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
+    This PCF works for 3D boxes (while it will work for 2D boxes, you should use the 2D version).
 */
 class PMFTXYTP2D
     {

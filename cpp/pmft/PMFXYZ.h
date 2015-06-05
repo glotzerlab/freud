@@ -31,8 +31,8 @@ namespace freud { namespace pmft {
 /*! A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given x, y, z listed in the x, y, and z arrays.
 
-    The values of x, y, z to compute the pcf at are controlled by the xmax, ymax, zmax and dx, dy, dz parameters to the constructor.
-    xmax, ymax, zmax determines the minimum/maximum x, y, z at which to compute the pcf and dx, dy, dz is the step size for each bin.
+    The values of x, y, z to compute the pcf at are controlled by the xmax, ymax, zmax and nbins_x, nbins_y, nbins_z parameters to the constructor.
+    xmax, ymax, zmax determines the minimum/maximum x, y, z at which to compute the pcf and nbins_x, nbins_y, nbins_z is the number of bins in x, y, z.
 
     <b>2D:</b><br>
     This PCF works for 3D boxes (while it will work for 2D boxes, you should use the 2D version).
