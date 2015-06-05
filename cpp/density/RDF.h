@@ -29,9 +29,8 @@ namespace freud { namespace density {
 /*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
     Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
 
-    The values of r to compute the rdf at are controlled by the rmax and nbins parameters to the constructor. rmax
-    determins the maximum r at which to compute g(r) and nbins is the number of bins for the histogram. dr is calc'd
-    from these 2
+    The values of r to compute the rdf at are controlled by the rmax and dr parameters to the constructor. rmax
+    determins the maximum r at which to compute g(r) and dr is the step size for each bin.
 
     <b>2D:</b><br>
     RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
@@ -41,7 +40,7 @@ class RDF
     {
     public:
         //! Constructor
-        RDF(float rmax, int nbins);
+        RDF(float rmax, float dr);
 
         //! Destructor
         ~RDF();
