@@ -6,8 +6,8 @@ import unittest
 class TestR(unittest.TestCase):
     def test_generateR(self):
         rmax = 51.23
-        dr = 0.1
-        nbins = int(rmax / dr)
+        nbins = 107
+        dr = rmax / float(nbins)
 
         # make sure the radius for each bin is generated correctly
         r_list = np.zeros(nbins, dtype=np.float32)
@@ -16,18 +16,20 @@ class TestR(unittest.TestCase):
             r2 = r1 + dr
             r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
 
-        rdf = density.RDF(rmax, dr)
+        rdf = density.RDF(rmax, nbins)
 
         npt.assert_almost_equal(rdf.getR(), r_list, decimal=3)
 
 class TestRDF(unittest.TestCase):
     def test_random_point_with_cell_list(self):
         rmax = 10.0
-        dr = 1.0
+        # dr = 1.0
+        nbins = 10
+        dr = rmax / float(nbins)
         num_points = 10000
         box_size = rmax*3.1
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
-        rdf = density.RDF(rmax, dr)
+        rdf = density.RDF(rmax, nbins)
         rdf.accumulate(trajectory.Box(box_size), points, points)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32)

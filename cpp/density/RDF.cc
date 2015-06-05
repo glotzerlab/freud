@@ -21,18 +21,19 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float rmax, float dr)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
+RDF::RDF(float rmax, int nbins)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_frame_counter(0)
     {
-    if (dr < 0.0f)
-        throw invalid_argument("dr must be positive");
+    // make sure that nbins is > 0
+    nbins = abs(nbins);
+    m_nbins = (unsigned int)(nbins);
+    if (nbins < 1)
+        throw invalid_argument("must specify at least one bin");
     if (rmax < 0.0f)
         throw invalid_argument("rmax must be positive");
-    if (dr > rmax)
-        throw invalid_argument("rmax must be greater than dr");
 
-    m_nbins = int(floorf(m_rmax / m_dr));
-    assert(m_nbins > 0);
+    m_dr = (m_rmax / float(m_nbins));
+    assert(m_dr > 0);
     m_rdf_array = boost::shared_array<float>(new float[m_nbins]);
     memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
     m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
