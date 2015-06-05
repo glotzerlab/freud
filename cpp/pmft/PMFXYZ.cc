@@ -288,30 +288,61 @@ class ComputePMFT
     };
 
 //! \internal
-/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
-*/
-
-void PMFXYZ::resetPCF()
+//! helper function to reduce the thread specific arrays into the boost array
+void PMFXYZ::reducePCF()
     {
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
+    parallel_for(blocked_range<size_t>(0,m_nbins_x),
+                 CombinePCFXYZ(m_nbins_x,
+                               m_nbins_y,
+                               m_nbins_z,
+                               m_pcf_array.get(),
+                               m_local_pcf_array));
+    }
+
+//! Get a reference to the PCF array
+boost::shared_array<unsigned int> PMFXYZ::getPCF()
+    {
+    reducePCF();
+    return m_pcf_array;
+    }
+
+//! Get a reference to the PCF array
+boost::python::numeric::array PMFXYZ::getPCFPy()
+    {
+    reducePCF();
+    unsigned int *arr = m_pcf_array.get();
+    std::vector<intp> dims(3);
+    dims[0] = m_nbins_z;
+    dims[1] = m_nbins_y;
+    dims[2] = m_nbins_x;
+    return num_util::makeNum(arr, dims);
     }
 
 //! \internal
-/*! \brief Helper functionto direct the calculation to the correct helper class
+/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
-void PMFXYZ::compute(const vec3<float> *ref_points,
-                     const quat<float> *ref_orientations,
-                     unsigned int Nref,
-                     const vec3<float> *points,
-                     const quat<float> *orientations,
-                     unsigned int Np,
-                     const quat<float> *face_orientations,
-                     const unsigned int Nfaces)
+void PMFXYZ::resetPCF()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
         }
+    // memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y*m_nbins_z);
+    }
+
+//! \internal
+/*! \brief Helper function to direct the calculation to the correct helper class
+*/
+void PMFXYZ::accumulate(vec3<float> *ref_points,
+                        quat<float> *ref_orientations,
+                        unsigned int Nref,
+                        vec3<float> *points,
+                        quat<float> *orientations,
+                        unsigned int Np,
+                        quat<float> *face_orientations,
+                        unsigned int Nfaces)
+    {
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFT(m_local_pcf_array,
@@ -334,24 +365,17 @@ void PMFXYZ::compute(const vec3<float> *ref_points,
                              Np,
                              face_orientations,
                              Nfaces));
-    parallel_for(blocked_range<size_t>(0,m_nbins_x),
-                 CombinePCFXYZ(m_nbins_x,
-                               m_nbins_y,
-                               m_nbins_z,
-                               m_pcf_array.get(),
-                               m_local_pcf_array));
     }
 
 //! \internal
 /*! \brief Exposed function to python to calculate the PMF
 */
-
-void PMFXYZ::computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations,
-                       boost::python::numeric::array face_orientations)
+void PMFXYZ::accumulatePy(trajectory::Box& box,
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array ref_orientations,
+                          boost::python::numeric::array points,
+                          boost::python::numeric::array orientations,
+                          boost::python::numeric::array face_orientations)
     {
     // validate input type and rank
     m_box = box;
@@ -393,7 +417,13 @@ void PMFXYZ::computePy(trajectory::Box& box,
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_points_raw, ref_orientations_raw, Nref, points_raw, orientations_raw, Np, face_orientations_raw, Nfaces);
+        accumulate(ref_points_raw,
+                   ref_orientations_raw,
+                   Nref,
+                   points_raw,
+                   orientations_raw,
+                   Np,
+                   face_orientations_raw, Nfaces);
         }
     }
 
@@ -401,7 +431,7 @@ void export_PMFXYZ()
     {
     class_<PMFXYZ>("PMFXYZ", init<float, float, float, float, float, float>())
         .def("getBox", &PMFXYZ::getBox, return_internal_reference<>())
-        .def("compute", &PMFXYZ::computePy)
+        .def("accumulate", &PMFXYZ::accumulatePy)
         .def("getPCF", &PMFXYZ::getPCFPy)
         .def("resetPCF", &PMFXYZ::resetPCFPy)
         .def("getX", &PMFXYZ::getXPy)

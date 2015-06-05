@@ -66,25 +66,26 @@ class PMFXY2D
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void compute(vec3<float> *ref_points,
-                     float *ref_orientations,
-                     unsigned int Nref,
-                     vec3<float> *points,
-                     float *orientations,
-                     unsigned int Np);
+        void accumulate(vec3<float> *ref_points,
+                        float *ref_orientations,
+                        unsigned int Nref,
+                        vec3<float> *points,
+                        float *orientations,
+                        unsigned int Np);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations);
+        //! Python wrapper for accumulate
+        void accumulatePy(trajectory::Box& box,
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array ref_orientations,
+                          boost::python::numeric::array points,
+                          boost::python::numeric::array orientations);
+
+        //! \internal
+        //! helper function to reduce the thread specific arrays into the boost array
+        void reducePCF();
 
         //! Get a reference to the PCF array
-        boost::shared_array<unsigned int> getPCF()
-            {
-            return m_pcf_array;
-            }
+        boost::shared_array<unsigned int> getPCF();
 
         //! Get a reference to the x array
         boost::shared_array<float> getX()
@@ -99,14 +100,7 @@ class PMFXY2D
             }
 
         //! Python wrapper for getPCF() (returns a copy)
-        boost::python::numeric::array getPCFPy()
-            {
-            unsigned int *arr = m_pcf_array.get();
-            std::vector<intp> dims(2);
-            dims[0] = m_nbins_y;
-            dims[1] = m_nbins_x;
-            return num_util::makeNum(arr, dims);
-            }
+        boost::python::numeric::array getPCFPy();
 
         //! Python wrapper for getX() (returns a copy)
         boost::python::numeric::array getXPy()
