@@ -40,7 +40,7 @@ class PMFTRPM
     {
     public:
         //! Constructor
-        PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, float dTM);
+        PMFTRPM(float max_r, float max_TP, float max_TM, unsigned int nbins_r, unsigned int nbins_TP, unsigned int nbins_TM);
 
         //! Destructor
         ~PMFTRPM();

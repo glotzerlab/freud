@@ -43,7 +43,7 @@ class PMFXY2D
     {
     public:
         //! Constructor
-        PMFXY2D(float max_x, float max_y, float dx, float dy);
+        PMFXY2D(float max_x, float max_y, unsigned int nbins_x, unsigned int nbins_y);
 
         //! Destructor
         ~PMFXY2D();

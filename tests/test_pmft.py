@@ -8,14 +8,14 @@ class TestBins(unittest.TestCase):
     def test_generateBins(self):
         # parallel.setNumThreads(1)
         maxX = 5.23
-        dx = 0.1
+        nbinsX = 100
         maxY = 5.23
-        dy = 0.1
+        nbinsY = 100
         maxZ = 5.23
-        dz = 0.1
-        nbinsX = int(2 * numpy.floor(maxX / dx))
-        nbinsY = int(2 * numpy.floor(maxX / dy))
-        nbinsZ = int(2 * numpy.floor(maxX / dz))
+        nbinsZ = 100
+        dx = (2.0 * maxX / float(nbinsX))
+        dy = (2.0 * maxY / float(nbinsY))
+        dz = (2.0 * maxZ / float(nbinsZ))
 
         # make sure the radius for each bin is generated correctly
         listX = numpy.zeros(nbinsX, dtype=numpy.float32)
@@ -38,7 +38,7 @@ class TestBins(unittest.TestCase):
             listZ[i] = -maxZ + ((z + nextZ) / 2.0)
 
         # myPMFT = pmft.PMFXYZ(box=trajectory.Box(maxX*3.1, maxY*3.1, maxZ*3.1, False),
-        myPMFT = pmft.PMFXYZ(maxX, maxY, maxZ, dx, dy, dz)
+        myPMFT = pmft.PMFXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
 
         # get the info from pmft
 
@@ -57,14 +57,11 @@ class TestPMFXY2D(unittest.TestCase):
         angles = numpy.array([0.0, 0.0], dtype=numpy.float32)
         maxX = 3.0
         maxY = 3.0
-        dx = 0.1
-        dy = 0.1
-        # myPMFT = pmft.pmfXY2D(box=trajectory.Box(boxSize, boxSize, 0, True),
-        #                       maxX=maxX,
-        #                       maxY=maxY,
-        #                       dx=dx,
-        #                       dy=dy)
-        myPMFT = pmft.PMFXY2D(maxX, maxY, dx, dy)
+        nbinsX = 100
+        nbinsY = 100
+        dx = (2.0 * maxX / float(nbinsX))
+        dy = (2.0 * maxY / float(nbinsY))
+        myPMFT = pmft.PMFXY2D(maxX, maxY, nbinsX, nbinsY)
         myPMFT.accumulate(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
 
         correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.float32)
@@ -94,9 +91,11 @@ class TestPMFXY2D(unittest.TestCase):
         angles = numpy.array([0.0, 0.0], dtype=numpy.float32)
         maxX = 3.0
         maxY = 3.0
-        dx = 0.1
-        dy = 0.1
-        myPMFT = pmft.PMFXY2D(maxX, maxY, dx, dy)
+        nbinsX = 100
+        nbinsY = 100
+        dx = (2.0 * maxX / float(nbinsX))
+        dy = (2.0 * maxY / float(nbinsY))
+        myPMFT = pmft.PMFXY2D(maxX, maxY, nbinsX, nbinsY)
         myPMFT.accumulate(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
 
         correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.float32)

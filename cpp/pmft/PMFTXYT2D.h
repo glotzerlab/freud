@@ -40,7 +40,7 @@ class PMFTXYT2D
     {
     public:
         //! Constructor
-        PMFTXYT2D(float max_x, float max_y, float max_T, float dx, float dy, float dT);
+        PMFTXYT2D(float max_x, float max_y, float max_T, unsigned int nbins_x, unsigned int nbins_y, unsigned int nbins_T);
 
         //! Destructor
         ~PMFTXYT2D();

@@ -41,7 +41,7 @@ class PMFXYZ
     {
     public:
         //! Constructor
-        PMFXYZ(float max_x, float max_y, float max_z, float dx, float dy, float dz);
+        PMFXYZ(float max_x, float max_y, float max_z, unsigned int nbins_x, unsigned int nbins_y, unsigned int nbins_z);
 
         //! Destructor
         ~PMFXYZ();
