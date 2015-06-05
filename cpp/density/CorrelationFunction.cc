@@ -25,7 +25,7 @@ using namespace tbb;
 
 template<typename T>
 CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
     {
     if (dr < 0.0f)
         throw invalid_argument("dr must be positive");
@@ -223,13 +223,54 @@ class ComputeOCF
             }
     };
 
+//! \internal
+//! helper function to reduce the thread specific arrays into the boost array
 template<typename T>
-void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
-                             const T *ref_values,
-                             unsigned int Nref,
-                             const vec3<float> *points,
-                             const T *point_values,
-                             unsigned int Np)
+void CorrelationFunction<T>::reduceCorrelationFunction()
+    {
+    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
+    for(size_t i(0); i < m_nbins; ++i)
+        m_rdf_array[i] = T();
+    // now compute the rdf
+    parallel_for(tbb::blocked_range<size_t>(0,m_nbins), CombineOCF<T>(m_nbins,
+                                                              m_bin_counts.get(),
+                                                              m_local_bin_counts,
+                                                              m_rdf_array.get(),
+                                                              m_local_rdf_array,
+                                                              (float)m_Nref));
+    }
+
+//! Get a reference to the RDF array
+template<typename T>
+boost::shared_array<T> CorrelationFunction<T>::getRDF()
+    {
+    reduceCorrelationFunction();
+    return m_rdf_array;
+    }
+
+//! Get a reference to the RDF array
+template<typename T>
+boost::python::numeric::array CorrelationFunction<T>::getRDFPy()
+    {
+    reduceCorrelationFunction();
+    T *arr = m_rdf_array.get();
+    return num_util::makeNum(arr, m_nbins);
+    }
+
+//! Get a reference to the counts array
+template<typename T>
+boost::python::numeric::array CorrelationFunction<T>::getCountsPy()
+    {
+    reduceCorrelationFunction();
+    unsigned int *arr = m_bin_counts.get();
+    return num_util::makeNum(arr, m_nbins);
+    }
+
+//! \internal
+/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
+*/
+template<typename T>
+void CorrelationFunction<T>::resetCorrelationFunction()
     {
     // zero the bin counts for totaling
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
@@ -240,9 +281,18 @@ void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
         {
         memset((void*)(*i), 0, sizeof(T)*m_nbins);
         }
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-    for(size_t i(0); i < m_nbins; ++i)
-        m_rdf_array[i] = T();
+    // reset the frame counter
+    m_frame_counter = 0;
+    }
+
+template<typename T>
+void CorrelationFunction<T>::accumulate(const vec3<float> *ref_points,
+                             const T *ref_values,
+                             unsigned int Nref,
+                             const vec3<float> *points,
+                             const T *point_values,
+                             unsigned int Np)
+    {
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(tbb::blocked_range<size_t>(0, Nref), ComputeOCF<T>(m_nbins,
                                                                     m_local_bin_counts,
@@ -257,18 +307,11 @@ void CorrelationFunction<T>::compute(const vec3<float> *ref_points,
                                                                     points,
                                                                     point_values,
                                                                     Np));
-
-    // now compute the rdf
-    parallel_for(tbb::blocked_range<size_t>(0,m_nbins), CombineOCF<T>(m_nbins,
-                                                              m_bin_counts.get(),
-                                                              m_local_bin_counts,
-                                                              m_rdf_array.get(),
-                                                              m_local_rdf_array,
-                                                              (float)Nref));
+    m_frame_counter += 1;
     }
 
 template<typename T>
-void CorrelationFunction<T>::computePy(trajectory::Box& box,
+void CorrelationFunction<T>::accumulatePy(trajectory::Box& box,
                                        boost::python::numeric::array ref_points,
                                        boost::python::numeric::array ref_values,
                                        boost::python::numeric::array points,
@@ -293,17 +336,19 @@ void CorrelationFunction<T>::computePy(trajectory::Box& box,
     num_util::check_dim(ref_points, 1, 3);
     unsigned int Nref = num_util::shape(ref_points)[0];
     assert(Nref == num_util::shape(ref_values)[0]);
+    m_Np = Np;
+    m_Nref = Nref;
 
-    // get the raw data pointers and compute the cell list
+    // get the raw data pointers and accumulate the cell list
     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
     T* ref_values_raw = (T*) num_util::data(ref_values);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
     T* point_values_raw = (T*) num_util::data(point_values);
 
-        // compute with the GIL released
+        // accumulate with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(ref_points_raw, ref_values_raw, Nref, points_raw, point_values_raw, Np);
+        accumulate(ref_points_raw, ref_values_raw, Nref, points_raw, point_values_raw, Np);
         }
     }
 
@@ -325,7 +370,7 @@ void export_CorrelationFunction()
     typedef CorrelationFunction<std::complex<float> > ComplexCF;
     class_<ComplexCF>("ComplexCF", init<float, float>())
         .def("getBox", &ComplexCF::getBox, return_internal_reference<>())
-        .def("compute", &ComplexCF::computePy)
+        .def("accumulate", &ComplexCF::accumulatePy)
         .def("getRDF", &ComplexCF::getRDFPy)
         .def("getCounts", &ComplexCF::getCountsPy)
         .def("getR", &ComplexCF::getRPy)
@@ -333,7 +378,7 @@ void export_CorrelationFunction()
     typedef CorrelationFunction<float> FloatCF;
     class_<FloatCF>("FloatCF", init<float, float>())
         .def("getBox", &FloatCF::getBox, return_internal_reference<>())
-        .def("compute", &FloatCF::computePy)
+        .def("accumulate", &FloatCF::accumulatePy)
         .def("getRDF", &FloatCF::getRDFPy)
         .def("getCounts", &FloatCF::getCountsPy)
         .def("getR", &FloatCF::getRPy)

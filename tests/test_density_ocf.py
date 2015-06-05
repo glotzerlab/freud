@@ -16,7 +16,7 @@ class TestR(unittest.TestCase):
             r2 = r1 + dr
             r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
 
-        ocf = density.ComplexCF( rmax, dr)
+        ocf = density.ComplexCF(rmax, dr)
 
         npt.assert_almost_equal(ocf.getR(), r_list, decimal=3)
 
@@ -31,7 +31,7 @@ class TestOCF(unittest.TestCase):
         comp = np.cos(ang) + 1j * np.sin(ang)
         conj = np.cos(ang) - 1j * np.sin(ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.compute(trajectory.Box(box_size),points, comp, points, conj)
+        ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
 
         correct = np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
@@ -47,7 +47,7 @@ class TestOCF(unittest.TestCase):
         comp = np.cos(ang) + 1j * np.sin(ang)
         conj = np.cos(ang) - 1j * np.sin(ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.compute(trajectory.Box(box_size),points, comp, points, conj)
+        ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
 
         correct = np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
@@ -63,7 +63,7 @@ class TestOCF(unittest.TestCase):
         comp = np.cos(ang) + 1j * np.sin(ang)
         conj = np.cos(ang) - 1j * np.sin(ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.compute(trajectory.Box(box_size),points, comp, points, conj)
+        ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
@@ -79,7 +79,7 @@ class TestOCF(unittest.TestCase):
         comp = np.cos(ang) + 1j * np.sin(ang)
         conj = np.cos(ang) - 1j * np.sin(ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.compute(trajectory.Box(box_size),points, comp, points, conj)
+        ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
