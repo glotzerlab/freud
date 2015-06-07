@@ -63,6 +63,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
+                    ${CMAKE_CURRENT_SOURCE_DIR}/network
+                    ${CMAKE_CURRENT_SOURCE_DIR}/extern
                     ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
@@ -151,6 +153,12 @@ set(SOURCES trajectory/trajectory.cc
             viz/split.cc
             parallel/tbb_config.h
             parallel/tbb_config.cc
+            network/IMDReader.h
+            network/IMDReader.cc
+            extern/imd.h
+            extern/imd.cc
+            extern/vmdsock.h
+            extern/vmdsock.cc
             )
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 
