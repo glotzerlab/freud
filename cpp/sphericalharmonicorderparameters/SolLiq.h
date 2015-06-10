@@ -160,6 +160,13 @@ class SolLiq
             {
             return m_number_of_connections;
             }
+
+        //! Number of neighbors in the local coordinate shell of each particle.
+        boost::shared_array<unsigned int> getNumberOfNeighbors()
+            {
+            return m_number_of_neighbors;
+            }
+
         //! Python wrapper for retrieving number of connections per particle
         boost::python::numeric::array getNumberOfConnectionsPy()
             {
