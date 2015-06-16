@@ -16,7 +16,8 @@ namespace freud { namespace density {
 
 
 GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
-    : m_box(trajectory::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma)
+    : m_box(trajectory::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma),
+      m_frame_counter(0)
     {
     if (width <= 0)
             throw invalid_argument("width must be a positive integer");
@@ -184,13 +185,50 @@ class ComputeGaussianDensity
             }
     };
 
-void GaussianDensity::compute(const vec3<float> *points, unsigned int Np)
+void GaussianDensity::reduceDensity()
+    {
+    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
+    // combine arrays
+    parallel_for(blocked_range<size_t>(0,m_bi.getNumElements()), CombineGaussianArrays(m_Density_array.get(),
+                                                                                       m_local_bin_counts));
+    }
+
+//!Get a reference to the last computed Density
+boost::shared_array<float> GaussianDensity::getDensity()
+    {
+    reduceDensity();
+    return m_Density_array;
+    }
+
+//!Python wrapper for getDensity() (returns a copy)
+boost::python::numeric::array GaussianDensity::getDensityPy()
+    {
+    reduceDensity();
+    float *arr = m_Density_array.get();
+    std::vector<intp> dims;
+    if (!m_box.is2D())
+        dims.push_back(m_width_z);
+    dims.push_back(m_width_y);
+    dims.push_back(m_width_x);
+
+    return num_util::makeNum(arr, dims);
+    }
+
+//! \internal
+/*! \brief Function to reset the density array if needed e.g. calculating between new particle types
+*/
+void GaussianDensity::resetDensity()
     {
     for (tbb::enumerable_thread_specific<float *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
         memset((void*)(*i), 0, sizeof(float)*m_bi.getNumElements());
         }
-    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
+    // reset the frame counter
+    m_frame_counter = 0;
+    }
+
+void GaussianDensity::accumulate(const vec3<float> *points, unsigned int Np)
+    {
     parallel_for(blocked_range<size_t>(0,Np), ComputeGaussianDensity(m_bi,
                                                                      m_local_bin_counts,
                                                                      m_box,
@@ -201,13 +239,10 @@ void GaussianDensity::compute(const vec3<float> *points, unsigned int Np)
                                                                      m_width_z,
                                                                      points,
                                                                      Np));
-    // combine arrays
-    parallel_for(blocked_range<size_t>(0,m_bi.getNumElements()), CombineGaussianArrays(m_Density_array.get(),
-                                                                                       m_local_bin_counts));
     }
 
-void GaussianDensity::computePy(trajectory::Box& box,
-                                boost::python::numeric::array points)
+void GaussianDensity::accumulatePy(trajectory::Box& box,
+                                   boost::python::numeric::array points)
     {
     // validate input type and rank
     m_box = box;
@@ -234,8 +269,15 @@ void GaussianDensity::computePy(trajectory::Box& box,
         // compute with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(points_raw, Np);
+        accumulate(points_raw, Np);
         }
+    }
+
+void GaussianDensity::computePy(trajectory::Box& box,
+                                boost::python::numeric::array points)
+    {
+    resetDensity();
+    accumulatePy(box, points);
     }
 
 void export_GaussianDensity()
@@ -243,8 +285,10 @@ void export_GaussianDensity()
     class_<GaussianDensity>("GaussianDensity", init<unsigned int, float, float>())
             .def(init<unsigned int, unsigned int, unsigned int, float, float>())
             .def("getBox", &GaussianDensity::getBox, return_internal_reference<>())
+            .def("accumulate", &GaussianDensity::accumulatePy)
             .def("compute", &GaussianDensity::computePy)
             .def("getGaussianDensity", &GaussianDensity::getDensityPy)
+            .def("resetDensity", &GaussianDensity::resetDensityPy)
             ;
     }
 

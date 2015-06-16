@@ -312,10 +312,10 @@ void CorrelationFunction<T>::accumulate(const vec3<float> *ref_points,
 
 template<typename T>
 void CorrelationFunction<T>::accumulatePy(trajectory::Box& box,
-                                       boost::python::numeric::array ref_points,
-                                       boost::python::numeric::array ref_values,
-                                       boost::python::numeric::array points,
-                                       boost::python::numeric::array point_values)
+                                          boost::python::numeric::array ref_points,
+                                          boost::python::numeric::array ref_values,
+                                          boost::python::numeric::array points,
+                                          boost::python::numeric::array point_values)
     {
     // validate input type and rank
     m_box = box;
@@ -352,6 +352,19 @@ void CorrelationFunction<T>::accumulatePy(trajectory::Box& box,
         }
     }
 
+//! provides interface for deprecated interface
+template<typename T>
+void CorrelationFunction<T>::computePy(trajectory::Box& box,
+                                       boost::python::numeric::array ref_points,
+                                       boost::python::numeric::array ref_values,
+                                       boost::python::numeric::array points,
+                                       boost::python::numeric::array point_values)
+    {
+    // validate input type and rank
+    resetCorrelationFunction();
+    accumulatePy(box, ref_points, ref_values, points, point_values);
+    }
+
 // Default implementation: assume we're dealing with floats
 template<typename T>
 void checkCFType(boost::python::numeric::array values)
@@ -371,6 +384,7 @@ void export_CorrelationFunction()
     class_<ComplexCF>("ComplexCF", init<float, float>())
         .def("getBox", &ComplexCF::getBox, return_internal_reference<>())
         .def("accumulate", &ComplexCF::accumulatePy)
+        .def("compute", &ComplexCF::computePy)
         .def("getRDF", &ComplexCF::getRDFPy)
         .def("getCounts", &ComplexCF::getCountsPy)
         .def("getR", &ComplexCF::getRPy)
@@ -379,6 +393,7 @@ void export_CorrelationFunction()
     class_<FloatCF>("FloatCF", init<float, float>())
         .def("getBox", &FloatCF::getBox, return_internal_reference<>())
         .def("accumulate", &FloatCF::accumulatePy)
+        .def("compute", &FloatCF::computePy)
         .def("getRDF", &FloatCF::getRDFPy)
         .def("getCounts", &FloatCF::getCountsPy)
         .def("getR", &FloatCF::getRPy)

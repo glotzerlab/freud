@@ -301,7 +301,7 @@ boost::python::numeric::array RDF::getRDFPy()
     }
 
 //! \internal
-/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
+/*! \brief Function to reset the rdf array if needed e.g. calculating between new particle types
 */
 void RDF::resetRDF()
     {
@@ -363,14 +363,25 @@ void RDF::accumulatePy(trajectory::Box& box,
         }
     }
 
+//! provides interface for deprecated interface
+void RDF::computePy(trajectory::Box& box,
+                    boost::python::numeric::array ref_points,
+                    boost::python::numeric::array points)
+    {
+    resetRDF();
+    accumulatePy(box, ref_points, points);
+    }
+
 void export_RDF()
     {
     class_<RDF>("RDF", init<float, float>())
         .def("getBox", &RDF::getBox, return_internal_reference<>())
         .def("accumulate", &RDF::accumulatePy)
+        .def("compute", &RDF::computePy)
         .def("getRDF", &RDF::getRDFPy)
         .def("getR", &RDF::getRPy)
         .def("getNr", &RDF::getNrPy)
+        .def("resetRDF", &RDF::resetRDFPy)
         ;
     }
 

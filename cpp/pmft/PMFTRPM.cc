@@ -382,11 +382,25 @@ void PMFTRPM::accumulatePy(trajectory::Box& box,
         }
     }
 
+//! \internal
+/*! \brief Exposed function to python to calculate the PMF
+*/
+void PMFTRPM::computePy(trajectory::Box& box,
+                        boost::python::numeric::array ref_points,
+                        boost::python::numeric::array ref_orientations,
+                        boost::python::numeric::array points,
+                        boost::python::numeric::array orientations)
+    {
+    resetPCF();
+    accumulatePy(box, ref_points, ref_orientations, points, orientations);
+    }
+
 void export_PMFTRPM()
     {
     class_<PMFTRPM>("PMFTRPM", init<float, float, float, float, float, float>())
         .def("getBox", &PMFTRPM::getBox, return_internal_reference<>())
         .def("accumulate", &PMFTRPM::accumulatePy)
+        .def("compute", &PMFTRPM::computePy)
         .def("getPCF", &PMFTRPM::getPCFPy)
         .def("resetPCF", &PMFTRPM::resetPCFPy)
         .def("getR", &PMFTRPM::getRPy)

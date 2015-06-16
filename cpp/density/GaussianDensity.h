@@ -54,40 +54,44 @@ class GaussianDensity
                 return m_box;
                 }
 
+        //! Reset the PCF array to all zeros
+        void resetDensity();
+
+        //! Python wrapper for reset method
+        void resetDensityPy()
+            {
+            resetDensity();
+            }
+
+        //! \internal
+        //! helper function to reduce the thread specific arrays into the boost array
+        void reduceDensity();
+
         //! Compute the Density
-        // void compute(const float3 *points,
-        //                          unsigned int Np);
-        void compute(const vec3<float> *points,
-                     unsigned int Np);
+        void accumulate(const vec3<float> *points,
+                        unsigned int Np);
+
+        //!Python wrapper for accumulate
+        void accumulatePy(trajectory::Box& box,
+                          boost::python::numeric::array points);
 
         //!Python wrapper for compute
         void computePy(trajectory::Box& box,
                        boost::python::numeric::array points);
 
         //!Get a reference to the last computed Density
-        boost::shared_array<float> getDensity()
-                {
-                return m_Density_array;
-                }
+        boost::shared_array<float> getDensity();
 
         //!Python wrapper for getDensity() (returns a copy)
-        boost::python::numeric::array getDensityPy()
-                {
-                float *arr = m_Density_array.get();
-                std::vector<intp> dims;
-                if (!m_box.is2D())
-                    dims.push_back(m_width_z);
-                dims.push_back(m_width_y);
-                dims.push_back(m_width_x);
+        boost::python::numeric::array getDensityPy();
 
-                return num_util::makeNum(arr, dims);
-                }
     private:
         trajectory::Box m_box;    //!< Simulation box the particles belong in
         unsigned int m_width_x,m_width_y,m_width_z;           //!< Num of bins on one side of the cube
         float m_rcut;                  //!< Max r at which to compute density
         float m_sigma;                  //!< Variance
         Index3D m_bi;                   //!< Bin indexer
+        unsigned int m_frame_counter;       //!< number of frames calc'd
 
         boost::shared_array<float> m_Density_array;            //! computed density array
         tbb::enumerable_thread_specific<float *> m_local_bin_counts;
