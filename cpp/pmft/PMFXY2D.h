@@ -31,8 +31,8 @@ namespace freud { namespace pmft {
 /*! A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given x, y, listed in the x, y arrays.
 
-    The values of x, y to compute the pcf at are controlled by the xmax, ymax and dx, dy parameters to the constructor.
-    xmax, ymax determines the minimum/maximum x, y at which to compute the pcf and dx, dy is the step size for each bin.
+    The values of x, y to compute the pcf at are controlled by the xmax, ymax and nbins_x, nbins_y parameters to the constructor.
+    xmax, ymax determines the minimum/maximum x, y at which to compute the pcf and nbins_x, nbins_y is the number of bins in x, y.
 
     <b>2D:</b><br>
     This PCF only works for 2D boxes. As with everything else in freud, 2D points must be passed in as
@@ -43,7 +43,7 @@ class PMFXY2D
     {
     public:
         //! Constructor
-        PMFXY2D(float max_x, float max_y, float dx, float dy);
+        PMFXY2D(float max_x, float max_y, unsigned int nbins_x, unsigned int nbins_y);
 
         //! Destructor
         ~PMFXY2D();
