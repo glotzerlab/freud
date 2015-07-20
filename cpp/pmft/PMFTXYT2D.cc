@@ -377,11 +377,25 @@ void PMFTXYT2D::accumulatePy(trajectory::Box& box,
         }
     }
 
+//! \internal
+/*! \brief Exposed function to python to calculate the PMF
+*/
+void PMFTXYT2D::computePy(trajectory::Box& box,
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array ref_orientations,
+                          boost::python::numeric::array points,
+                          boost::python::numeric::array orientations)
+    {
+    resetPCF();
+    accumulatePy(box, ref_points, ref_orientations, points, orientations);
+    }
+
 void export_PMFTXYT2D()
     {
     class_<PMFTXYT2D>("PMFTXYT2D", init<float, float, float, float, float, float>())
         .def("getBox", &PMFTXYT2D::getBox, return_internal_reference<>())
         .def("accumulate", &PMFTXYT2D::accumulatePy)
+        .def("compute", &PMFTXYT2D::computePy)
         .def("getPCF", &PMFTXYT2D::getPCFPy)
         .def("resetPCF", &PMFTXYT2D::resetPCFPy)
         .def("getX", &PMFTXYT2D::getXPy)

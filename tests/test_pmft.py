@@ -37,7 +37,6 @@ class TestBins(unittest.TestCase):
             nextZ = float(i + 1) * dz
             listZ[i] = -maxZ + ((z + nextZ) / 2.0)
 
-        # myPMFT = pmft.PMFXYZ(box=trajectory.Box(maxX*3.1, maxY*3.1, maxZ*3.1, False),
         myPMFT = pmft.PMFXYZ(maxX, maxY, maxZ, dx, dy, dz)
 
         # get the info from pmft
@@ -50,7 +49,7 @@ class TestBins(unittest.TestCase):
         npt.assert_almost_equal(yArray, listY, decimal=3)
         npt.assert_almost_equal(zArray, listZ, decimal=3)
 
-class TestPMFXY2D(unittest.TestCase):
+class TestPMFXY2DAccumulate(unittest.TestCase):
     def test_twoParticlesWithCellList(self):
         boxSize = 16.0
         points = numpy.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]], dtype=numpy.float32)
@@ -59,15 +58,10 @@ class TestPMFXY2D(unittest.TestCase):
         maxY = 3.0
         dx = 0.1
         dy = 0.1
-        # myPMFT = pmft.pmfXY2D(box=trajectory.Box(boxSize, boxSize, 0, True),
-        #                       maxX=maxX,
-        #                       maxY=maxY,
-        #                       dx=dx,
-        #                       dy=dy)
         myPMFT = pmft.PMFXY2D(maxX, maxY, dx, dy)
         myPMFT.accumulate(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
 
-        correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.float32)
+        correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.int32)
         # calculation for array idxs
         # particle 0
         deltaX = points[0][0] - points[1][0]
@@ -99,7 +93,72 @@ class TestPMFXY2D(unittest.TestCase):
         myPMFT = pmft.PMFXY2D(maxX, maxY, dx, dy)
         myPMFT.accumulate(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
 
-        correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.float32)
+        correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.int32)
+        # calculation for array idxs
+        # particle 0
+        deltaX = points[0][0] - points[1][0]
+        deltaY = points[0][1] - points[1][1]
+        x = deltaX + maxX
+        y = deltaY + maxY
+        binX = numpy.floor(x / dx)
+        binY = numpy.floor(y / dy)
+        correct[binY][binX] = 1
+        deltaX = points[1][0] - points[0][0]
+        deltaY = points[1][1] - points[0][1]
+        x = deltaX + maxX
+        y = deltaY + maxY
+        binX = numpy.floor(x / dx)
+        binY = numpy.floor(y / dy)
+        correct[binY][binX] = 1
+        absoluteTolerance = 0.1
+        pcfArray = myPMFT.getPCF()
+        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+
+class TestPMFXY2DCompute(unittest.TestCase):
+    def test_twoParticlesWithCellList(self):
+        boxSize = 16.0
+        points = numpy.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]], dtype=numpy.float32)
+        angles = numpy.array([0.0, 0.0], dtype=numpy.float32)
+        maxX = 3.0
+        maxY = 3.0
+        dx = 0.1
+        dy = 0.1
+        myPMFT = pmft.PMFXY2D(maxX, maxY, dx, dy)
+        myPMFT.compute(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
+
+        correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.int32)
+        # calculation for array idxs
+        # particle 0
+        deltaX = points[0][0] - points[1][0]
+        deltaY = points[0][1] - points[1][1]
+        x = deltaX + maxX
+        y = deltaY + maxY
+        binX = numpy.floor(x / dx)
+        binY = numpy.floor(y / dy)
+        correct[binY][binX] = 1
+        deltaX = points[1][0] - points[0][0]
+        deltaY = points[1][1] - points[0][1]
+        x = deltaX + maxX
+        y = deltaY + maxY
+        binX = numpy.floor(x / dx)
+        binY = numpy.floor(y / dy)
+        correct[binY][binX] = 1
+        absoluteTolerance = 0.1
+        pcfArray = myPMFT.getPCF()
+        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+
+    def test_twoParticlesWithoutCellList(self):
+        boxSize = 16.0
+        points = numpy.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]], dtype=numpy.float32)
+        angles = numpy.array([0.0, 0.0], dtype=numpy.float32)
+        maxX = 3.0
+        maxY = 3.0
+        dx = 0.1
+        dy = 0.1
+        myPMFT = pmft.PMFXY2D(maxX, maxY, dx, dy)
+        myPMFT.compute(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
+
+        correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.int32)
         # calculation for array idxs
         # particle 0
         deltaX = points[0][0] - points[1][0]
@@ -121,4 +180,5 @@ class TestPMFXY2D(unittest.TestCase):
         npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
 
 if __name__ == '__main__':
+    print("testing pmft")
     unittest.main()
