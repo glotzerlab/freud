@@ -27,6 +27,7 @@
 #include "PMFTXYTP2D.h"
 #include "PMFTXYTM2D.h"
 #include "PMFTRPM.h"
+#include "PMFTR12.h"
 #include "Bootstrap.h"
 #include "shapesplit.h"
 #include "colormap.h"
@@ -113,6 +114,7 @@ BOOST_PYTHON_MODULE(_freud)
     pmft::export_PMFTXYTP2D();
     pmft::export_PMFTXYTM2D();
     pmft::export_PMFTRPM();
+    pmft::export_PMFTR12();
     shapesplit::export_ShapeSplit();
     bootstrap::export_Bootstrap();
     viz::export_colormap();
