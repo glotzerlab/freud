@@ -59,13 +59,29 @@ class CorrelationFunction
             return m_box;
             }
 
-        //! Compute the correlation function
-        void compute(const vec3<float> *ref_points,
-                     const T *ref_values,
-                     unsigned int Nref,
-                     const vec3<float> *points,
-                     const T *point_values,
-                     unsigned int Np);
+        //! Reset the PCF array to all zeros
+        void resetCorrelationFunction();
+
+        //! Python wrapper for reset method
+        void resetCorrelationFunctionPy()
+            {
+            resetCorrelationFunction();
+            }
+
+        //! accumulate the correlation function
+        void accumulate(const vec3<float> *ref_points,
+                        const T *ref_values,
+                        unsigned int Nref,
+                        const vec3<float> *points,
+                        const T *point_values,
+                        unsigned int Np);
+
+        //! Python wrapper for accumulate
+        void accumulatePy(trajectory::Box& box,
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array ref_values,
+                          boost::python::numeric::array points,
+                          boost::python::numeric::array point_values);
 
         //! Python wrapper for compute
         void computePy(trajectory::Box& box,
@@ -74,11 +90,12 @@ class CorrelationFunction
                        boost::python::numeric::array points,
                        boost::python::numeric::array point_values);
 
+        //! \internal
+        //! helper function to reduce the thread specific arrays into the boost array
+        void reduceCorrelationFunction();
+
         //! Get a reference to the last computed rdf
-        boost::shared_array<T> getRDF()
-            {
-            return m_rdf_array;
-            }
+        boost::shared_array<T> getRDF();
 
         //! Get a reference to the bin counts array
         boost::shared_array<unsigned int> getCounts()
@@ -93,18 +110,18 @@ class CorrelationFunction
             }
 
         //! Python wrapper for getRDF() (returns a copy)
-        boost::python::numeric::array getRDFPy()
-            {
-            T *arr = m_rdf_array.get();
-            return num_util::makeNum(arr, m_nbins);
-            }
+        boost::python::numeric::array getRDFPy();
+            // {
+            // T *arr = m_rdf_array.get();
+            // return num_util::makeNum(arr, m_nbins);
+            // }
 
         //! Python wrapper for getCounts() (returns a copy)
-        boost::python::numeric::array getCountsPy()
-            {
-            unsigned int *arr = m_bin_counts.get();
-            return num_util::makeNum(arr, m_nbins);
-            }
+        boost::python::numeric::array getCountsPy();
+            // {
+            // unsigned int *arr = m_bin_counts.get();
+            // return num_util::makeNum(arr, m_nbins);
+            // }
 
         //! Python wrapper for getR() (returns a copy)
         boost::python::numeric::array getRPy()
@@ -119,6 +136,9 @@ class CorrelationFunction
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
+        unsigned int m_Nref;                  //!< number of reference particles
+        unsigned int m_Np;                  //!< number of check particles
+        unsigned int m_frame_counter;       //!< number of frames calc'd
 
         boost::shared_array<T> m_rdf_array;         //!< rdf array computed
         boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array

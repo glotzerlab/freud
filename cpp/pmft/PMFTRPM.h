@@ -76,6 +76,13 @@ class PMFTRPM
                           boost::python::numeric::array points,
                           boost::python::numeric::array orientations);
 
+        //! Python wrapper for compute
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
+                       boost::python::numeric::array ref_orientations,
+                       boost::python::numeric::array points,
+                       boost::python::numeric::array orientations);
+
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
         void reducePCF();

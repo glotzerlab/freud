@@ -71,6 +71,11 @@ class RDF
                           boost::python::numeric::array ref_points,
                           boost::python::numeric::array points);
 
+        //! Python wrapper for compute
+        void computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
+                       boost::python::numeric::array points);
+
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
         void reduceRDF();

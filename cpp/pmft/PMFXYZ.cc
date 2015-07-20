@@ -427,11 +427,27 @@ void PMFXYZ::accumulatePy(trajectory::Box& box,
         }
     }
 
+//! \internal
+/*! \brief Exposed function to python to calculate the PMF
+*/
+void PMFXYZ::computePy(trajectory::Box& box,
+                       boost::python::numeric::array ref_points,
+                       boost::python::numeric::array ref_orientations,
+                       boost::python::numeric::array points,
+                       boost::python::numeric::array orientations,
+                       boost::python::numeric::array face_orientations)
+    {
+    // validate input type and rank
+    resetPCF();
+    accumulatePy(box, ref_points, ref_orientations, points, orientations, face_orientations);
+    }
+
 void export_PMFXYZ()
     {
     class_<PMFXYZ>("PMFXYZ", init<float, float, float, float, float, float>())
         .def("getBox", &PMFXYZ::getBox, return_internal_reference<>())
         .def("accumulate", &PMFXYZ::accumulatePy)
+        .def("compute", &PMFXYZ::computePy)
         .def("getPCF", &PMFXYZ::getPCFPy)
         .def("resetPCF", &PMFXYZ::resetPCFPy)
         .def("getX", &PMFXYZ::getXPy)
