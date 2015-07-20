@@ -24,8 +24,8 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTR12::PMFTR12(float max_r, float max_T1, float max_T2, unsigned int nbins_r, unsigned int nbins_T1, unsigned int nbins_T2)
-    : m_box(trajectory::Box()), m_max_r(max_r), m_max_T1(max_T1), m_max_T2(max_T2),
+PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_T1, unsigned int nbins_T2)
+    : m_box(trajectory::Box()), m_max_r(max_r), m_max_T1(2.0*M_PI), m_max_T2(2.0*M_PI),
       m_nbins_r(nbins_r), m_nbins_T1(nbins_T1), m_nbins_T2(nbins_T2)
     {
     if (nbins_r < 1)
@@ -36,20 +36,16 @@ PMFTR12::PMFTR12(float max_r, float max_T1, float max_T2, unsigned int nbins_r, 
         throw invalid_argument("must be at least 1 bin in T2");
     if (max_r < 0.0f)
         throw invalid_argument("max_r must be positive");
-    if (max_T1 < 0.0f)
-        throw invalid_argument("max_T1 must be positive");
-    if (max_T2 < 0.0f)
-        throw invalid_argument("max_T2 must be positive");
     // calculate dr, dT1, dT2
-    m_dr = 2.0 * m_max_r / float(m_nbins_r);
-    m_dT1 = 2.0 * m_max_T1 / float(m_nbins_T1);
-    m_dT2 = 2.0 * m_max_T2 / float(m_nbins_T2);
+    m_dr = m_max_r / float(m_nbins_r);
+    m_dT1 = m_max_T1 / float(m_nbins_T1);
+    m_dT2 = m_max_T2 / float(m_nbins_T2);
 
     if (m_dr > max_r)
         throw invalid_argument("max_r must be greater than dr");
-    if (m_dT1 > max_T1)
+    if (m_dT1 > m_max_T1)
         throw invalid_argument("max_T1 must be greater than dT1");
-    if (m_dT2 > max_T2)
+    if (m_dT2 > m_max_T2)
         throw invalid_argument("max_T2 must be greater than dT2");
 
     // precompute the bin center positions for r
@@ -67,7 +63,7 @@ PMFTR12::PMFTR12(float max_r, float max_T1, float max_T2, unsigned int nbins_r, 
         {
         float T1 = float(i) * m_dT1;
         float nextT1 = float(i+1) * m_dT1;
-        m_T1_array[i] = -m_max_T1 + ((T1 + nextT1) / 2.0);
+        m_T1_array[i] = ((T1 + nextT1) / 2.0);
         }
 
     // precompute the bin center positions for T2
@@ -76,7 +72,7 @@ PMFTR12::PMFTR12(float max_r, float max_T1, float max_T2, unsigned int nbins_r, 
         {
         float T2 = float(i) * m_dT2;
         float nextT2 = float(i+1) * m_dT2;
-        m_T2_array[i] = -m_max_T2 + ((T2 + nextT2) / 2.0);
+        m_T2_array[i] = ((T2 + nextT2) / 2.0);
         }
 
     // create and populate the pcf_array
@@ -233,9 +229,35 @@ class ComputePMFTR12
                             float dTheta2 = atan2(-delta.y, -delta.x);
                             float T1 = dTheta1 - m_ref_orientations[i];
                             float T2 = dTheta2 - m_orientations[j];
-                            T1 += m_max_T1;
-                            T2 += m_max_T2;
-
+                            // make sure that T1, T2 are bounded between 0 and PI
+                            if (T1 < 0.0)
+                                {
+                                while (T1 < 0.0)
+                                    {
+                                    T1 += 2.0*M_PI;
+                                    }
+                                }
+                            if (T1 > 2.0*M_PI)
+                                {
+                                while (T1 > 2.0*M_PI)
+                                    {
+                                    T1 -= 2.0*M_PI;
+                                    }
+                                }
+                            if (T2 < 0.0)
+                                {
+                                while (T2 < 0.0)
+                                    {
+                                    T2 += 2.0*M_PI;
+                                    }
+                                }
+                            if (T2 > 2.0*M_PI)
+                                {
+                                while (T2 > 2.0*M_PI)
+                                    {
+                                    T2 -= 2.0*M_PI;
+                                    }
+                                }
                             // bin that point
                             float binr = r * dr_inv;
                             float binT1 = floorf(T1 * dT1_inv);
@@ -395,7 +417,7 @@ void PMFTR12::computePy(trajectory::Box& box,
 
 void export_PMFTR12()
     {
-    class_<PMFTR12>("PMFTR12", init<float, float, float, float, float, float>())
+    class_<PMFTR12>("PMFTR12", init<float, unsigned int, unsigned int, unsigned int>())
         .def("getBox", &PMFTR12::getBox, return_internal_reference<>())
         .def("accumulate", &PMFTR12::accumulatePy)
         .def("compute", &PMFTR12::computePy)

@@ -39,7 +39,7 @@ class PMFTR12
     {
     public:
         //! Constructor
-        PMFTR12(float max_r, float max_T1, float max_T2, unsigned int nbins_r, unsigned int nbins_T1, unsigned int nbins_T2);
+        PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_T1, unsigned int nbins_T2);
 
         //! Destructor
         ~PMFTR12();
