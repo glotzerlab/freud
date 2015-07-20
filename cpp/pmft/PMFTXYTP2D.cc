@@ -45,11 +45,11 @@ PMFTXYTP2D::PMFTXYTP2D(float max_x, float max_y, float max_T, unsigned int nbins
     m_dy = 2.0 * m_max_y / float(m_nbins_y);
     m_dT = 2.0 * m_max_T / float(m_nbins_T);
 
-    if (dx > max_x)
+    if (m_dx > max_x)
         throw invalid_argument("max_x must be greater than dx");
-    if (dy > max_y)
+    if (m_dy > max_y)
         throw invalid_argument("max_y must be greater than dy");
-    if (dT > max_T)
+    if (m_dT > max_T)
         throw invalid_argument("max_T must be greater than dT");
 
     // precompute the bin center positions for x
