@@ -23,34 +23,34 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTXYTM2D::PMFTXYTM2D(float max_x, float max_y, float max_T, float dx, float dy, float dT)
-    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_max_T(max_T), m_dx(dx), m_dy(dy), m_dT(dT)
+PMFTXYTM2D::PMFTXYTM2D(float max_x, float max_y, float max_T, unsigned int nbins_x, unsigned int nbins_y, unsigned int nbins_T)
+    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y),
+      m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T)
     {
-    if (dx < 0.0f)
-        throw invalid_argument("dx must be positive");
-    if (dy < 0.0f)
-        throw invalid_argument("dy must be positive");
-    if (dT < 0.0f)
-        throw invalid_argument("dT must be positive");
+    if (nbins_x < 1)
+        throw invalid_argument("must be at least 1 bin in x");
+    if (nbins_y < 1)
+        throw invalid_argument("must be at least 1 bin in y");
+    if (nbins_T < 1)
+        throw invalid_argument("must be at least 1 bin in T");
     if (max_x < 0.0f)
         throw invalid_argument("max_x must be positive");
     if (max_y < 0.0f)
         throw invalid_argument("max_y must be positive");
     if (max_T < 0.0f)
         throw invalid_argument("max_T must be positive");
+
+    // calculate dx, dy, dT
+    m_dx = 2.0 * m_max_x / float(m_nbins_x);
+    m_dy = 2.0 * m_max_y / float(m_nbins_y);
+    m_dT = 2.0 * m_max_T / float(m_nbins_T);
+
     if (dx > max_x)
         throw invalid_argument("max_x must be greater than dx");
     if (dy > max_y)
         throw invalid_argument("max_y must be greater than dy");
     if (dT > max_T)
         throw invalid_argument("max_T must be greater than dT");
-
-    m_nbins_x = int(2 * floorf(m_max_x / m_dx));
-    assert(m_nbins_x > 0);
-    m_nbins_y = int(2 * floorf(m_max_y / m_dy));
-    assert(m_nbins_y > 0);
-    m_nbins_T = int(2 * floorf(m_max_T / m_dT));
-    assert(m_nbins_T > 0);
 
     // precompute the bin center positions for x
     m_x_array = boost::shared_array<float>(new float[m_nbins_x]);

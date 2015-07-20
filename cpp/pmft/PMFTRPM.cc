@@ -24,34 +24,33 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, float dr, float dTP, float dTM)
-    : m_box(trajectory::Box()), m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM)
+PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, unsigned int nbins_r, unsigned int nbins_TP, unsigned int nbins_TM)
+    : m_box(trajectory::Box()), m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM),
+      m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM)
     {
-    if (dr < 0.0f)
-        throw invalid_argument("dr must be positive");
-    if (dTP < 0.0f)
-        throw invalid_argument("dTP must be positive");
-    if (dTM < 0.0f)
-        throw invalid_argument("dTM must be positive");
+    if (nbins_r < 1)
+        throw invalid_argument("must be at least 1 bin in r");
+    if (nbins_TP < 1)
+        throw invalid_argument("must be at least 1 bin in TP");
+    if (nbins_TM < 1)
+        throw invalid_argument("must be at least 1 bin in TM");
     if (max_r < 0.0f)
         throw invalid_argument("max_r must be positive");
     if (max_TP < 0.0f)
         throw invalid_argument("max_TP must be positive");
     if (max_TM < 0.0f)
         throw invalid_argument("max_TM must be positive");
-    if (dr > max_r)
-        throw invalid_argument("max_r must be greater than dr");
-    if (dTP > max_TP)
-        throw invalid_argument("max_TP must be greater than dTP");
-    if (dTM > max_TM)
-        throw invalid_argument("max_TM must be greater than dTM");
+    // calculate dr, dTP, dTM
+    m_dr = 2.0 * m_max_r / float(m_nbins_r);
+    m_dTP = 2.0 * m_max_TP / float(m_nbins_TP);
+    m_dTM = 2.0 * m_max_TM / float(m_nbins_TM);
 
-    m_nbins_r = int(2 * floorf(m_max_r / m_dr));
-    assert(m_nbins_r > 0);
-    m_nbins_TP = int(2 * floorf(m_max_TP / m_dTP));
-    assert(m_nbins_TP > 0);
-    m_nbins_TM = int(2 * floorf(m_max_TM / m_dTM));
-    assert(m_nbins_TM > 0);
+    if (m_dr > max_r)
+        throw invalid_argument("max_r must be greater than dr");
+    if (m_dTP > max_TP)
+        throw invalid_argument("max_TP must be greater than dTP");
+    if (m_dTM > max_TM)
+        throw invalid_argument("max_TM must be greater than dTM");
 
     // precompute the bin center positions for r
     m_r_array = boost::shared_array<float>(new float[m_nbins_r]);
