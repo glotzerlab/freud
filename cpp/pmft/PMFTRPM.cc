@@ -24,8 +24,8 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, unsigned int nbins_r, unsigned int nbins_TP, unsigned int nbins_TM)
-    : m_box(trajectory::Box()), m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM),
+PMFTRPM::PMFTRPM(float max_r, unsigned int nbins_r, unsigned int nbins_TP, unsigned int nbins_TM)
+    : m_box(trajectory::Box()), m_max_r(max_r), m_max_TP(2.0*M_PI), m_max_TM(2.0*M_PI),
       m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM)
     {
     if (nbins_r < 1)
@@ -36,20 +36,16 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, unsigned int nbins_r, 
         throw invalid_argument("must be at least 1 bin in TM");
     if (max_r < 0.0f)
         throw invalid_argument("max_r must be positive");
-    if (max_TP < 0.0f)
-        throw invalid_argument("max_TP must be positive");
-    if (max_TM < 0.0f)
-        throw invalid_argument("max_TM must be positive");
     // calculate dr, dTP, dTM
-    m_dr = 2.0 * m_max_r / float(m_nbins_r);
-    m_dTP = 2.0 * m_max_TP / float(m_nbins_TP);
-    m_dTM = 2.0 * m_max_TM / float(m_nbins_TM);
+    m_dr = m_max_r / float(m_nbins_r);
+    m_dTP = m_max_TP / float(m_nbins_TP);
+    m_dTM = m_max_TM / float(m_nbins_TM);
 
-    if (m_dr > max_r)
+    if (m_dr > m_max_r)
         throw invalid_argument("max_r must be greater than dr");
-    if (m_dTP > max_TP)
+    if (m_dTP > m_max_TP)
         throw invalid_argument("max_TP must be greater than dTP");
-    if (m_dTM > max_TM)
+    if (m_dTM > m_max_TM)
         throw invalid_argument("max_TM must be greater than dTM");
 
     // precompute the bin center positions for r
@@ -67,7 +63,7 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, unsigned int nbins_r, 
         {
         float TP = float(i) * m_dTP;
         float nextTP = float(i+1) * m_dTP;
-        m_TP_array[i] = -m_max_TP + ((TP + nextTP) / 2.0);
+        m_TP_array[i] = ((TP + nextTP) / 2.0);
         }
 
     // precompute the bin center positions for TM
@@ -76,7 +72,7 @@ PMFTRPM::PMFTRPM(float max_r, float max_TP, float max_TM, unsigned int nbins_r, 
         {
         float TM = float(i) * m_dTM;
         float nextTM = float(i+1) * m_dTM;
-        m_TM_array[i] = -m_max_TM + ((TM + nextTM) / 2.0);
+        m_TM_array[i] = ((TM + nextTM) / 2.0);
         }
 
     // create and populate the pcf_array
@@ -233,8 +229,38 @@ class ComputePMFTRPM
                             float dTheta2 = atan2(-delta.y, -delta.x);
                             float T1 = dTheta1 - m_ref_orientations[i];
                             float T2 = dTheta2 - m_orientations[j];
-                            float TP = T1 + T2 + m_max_TP;
-                            float TM = T1 - T2 + m_max_TM;
+                            float TP = T1 + T2;
+                            float TM = T1 - T2;
+
+                            // make sure that TP, TM are bounded between 0 and PI
+                            if (TP < 0.0)
+                                {
+                                while (TP < 0.0)
+                                    {
+                                    TP += 2.0*M_PI;
+                                    }
+                                }
+                            if (TP > 2.0*M_PI)
+                                {
+                                while (TP > 2.0*M_PI)
+                                    {
+                                    TP -= 2.0*M_PI;
+                                    }
+                                }
+                            if (TM < 0.0)
+                                {
+                                while (TM < 0.0)
+                                    {
+                                    TM += 2.0*M_PI;
+                                    }
+                                }
+                            if (TM > 2.0*M_PI)
+                                {
+                                while (TM > 2.0*M_PI)
+                                    {
+                                    TM -= 2.0*M_PI;
+                                    }
+                                }
 
                             // bin that point
                             float binr = r * dr_inv;
@@ -396,7 +422,7 @@ void PMFTRPM::computePy(trajectory::Box& box,
 
 void export_PMFTRPM()
     {
-    class_<PMFTRPM>("PMFTRPM", init<float, float, float, float, float, float>())
+    class_<PMFTRPM>("PMFTRPM", init<float, unsigned int, unsigned int, unsigned int>())
         .def("getBox", &PMFTRPM::getBox, return_internal_reference<>())
         .def("accumulate", &PMFTRPM::accumulatePy)
         .def("compute", &PMFTRPM::computePy)

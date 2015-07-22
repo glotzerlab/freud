@@ -23,8 +23,8 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTXYTM2D::PMFTXYTM2D(float max_x, float max_y, float max_T, unsigned int nbins_x, unsigned int nbins_y, unsigned int nbins_T)
-    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y),
+PMFTXYTM2D::PMFTXYTM2D(float max_x, float max_y, unsigned int nbins_x, unsigned int nbins_y, unsigned int nbins_T)
+    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_max_T(2.0*M_PI),
       m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T)
     {
     if (nbins_x < 1)
@@ -37,19 +37,17 @@ PMFTXYTM2D::PMFTXYTM2D(float max_x, float max_y, float max_T, unsigned int nbins
         throw invalid_argument("max_x must be positive");
     if (max_y < 0.0f)
         throw invalid_argument("max_y must be positive");
-    if (max_T < 0.0f)
-        throw invalid_argument("max_T must be positive");
 
     // calculate dx, dy, dT
     m_dx = 2.0 * m_max_x / float(m_nbins_x);
     m_dy = 2.0 * m_max_y / float(m_nbins_y);
-    m_dT = 2.0 * m_max_T / float(m_nbins_T);
+    m_dT = m_max_T / float(m_nbins_T);
 
     if (m_dx > max_x)
         throw invalid_argument("max_x must be greater than dx");
     if (m_dy > max_y)
         throw invalid_argument("max_y must be greater than dy");
-    if (m_dT > max_T)
+    if (m_dT > m_max_T)
         throw invalid_argument("max_T must be greater than dT");
 
     // precompute the bin center positions for x
@@ -76,7 +74,7 @@ PMFTXYTM2D::PMFTXYTM2D(float max_x, float max_y, float max_T, unsigned int nbins
         {
         float T = float(i) * m_dT;
         float nextT = float(i+1) * m_dT;
-        m_T_array[i] = -m_max_T + ((T + nextT) / 2.0);
+        m_T_array[i] = ((T + nextT) / 2.0);
         }
 
     // create and populate the pcf_array
@@ -236,7 +234,23 @@ class ComputePMFTXYTM2D
                         float dTheta2 = atan2(-delta.y, -delta.x);
                         float T1 = dTheta1 - m_ref_orientations[i];
                         float T2 = dTheta2 - m_orientations[j];
-                        float T = T1 - T2 + m_max_T;
+                        float T = T1 - T2;
+
+                        // make sure that T is bounded between 0 and 2PI
+                        if (T < 0.0)
+                            {
+                            while (T < 0.0)
+                                {
+                                T += 2.0*M_PI;
+                                }
+                            }
+                        if (T > 2.0*M_PI)
+                            {
+                            while (T > 2.0*M_PI)
+                                {
+                                T -= 2.0*M_PI;
+                                }
+                            }
 
                         // bin that point
                         float binx = floorf(x * dx_inv);
@@ -400,7 +414,7 @@ void PMFTXYTM2D::computePy(trajectory::Box& box,
 
 void export_PMFTXYTM2D()
     {
-    class_<PMFTXYTM2D>("PMFTXYTM2D", init<float, float, float, float, float, float>())
+    class_<PMFTXYTM2D>("PMFTXYTM2D", init<float, float, unsigned int, unsigned int, unsigned int>())
         .def("getBox", &PMFTXYTM2D::getBox, return_internal_reference<>())
         .def("accumulate", &PMFTXYTM2D::accumulatePy)
         .def("compute", &PMFTXYTM2D::computePy)

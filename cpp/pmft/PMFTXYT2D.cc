@@ -23,8 +23,8 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTXYT2D::PMFTXYT2D(float max_x, float max_y, float max_T, unsigned int nbins_x, unsigned int nbins_y, unsigned int nbins_T)
-    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_max_T(max_T),
+PMFTXYT2D::PMFTXYT2D(float max_x, float max_y, unsigned int nbins_x, unsigned int nbins_y, unsigned int nbins_T)
+    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_max_T(2.0*M_PI),
       m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_nbins_T(nbins_T)
     {
     if (nbins_x < 1)
@@ -37,19 +37,17 @@ PMFTXYT2D::PMFTXYT2D(float max_x, float max_y, float max_T, unsigned int nbins_x
         throw invalid_argument("max_x must be positive");
     if (max_y < 0.0f)
         throw invalid_argument("max_y must be positive");
-    if (max_T < 0.0f)
-        throw invalid_argument("max_T must be positive");
 
     // calculate dx, dy, dT
     m_dx = 2.0 * m_max_x / float(m_nbins_x);
     m_dy = 2.0 * m_max_y / float(m_nbins_y);
-    m_dT = 2.0 * m_max_T / float(m_nbins_T);
+    m_dT = m_max_T / float(m_nbins_T);
 
-    if (m_dx > max_x)
+    if (m_dx > m_max_x)
         throw invalid_argument("max_x must be greater than dx");
-    if (m_dy > max_y)
+    if (m_dy > m_max_y)
         throw invalid_argument("max_y must be greater than dy");
-    if (m_dT > max_T)
+    if (m_dT > m_max_T)
         throw invalid_argument("max_T must be greater than dT");
 
     // precompute the bin center positions for x
@@ -75,7 +73,7 @@ PMFTXYT2D::PMFTXYT2D(float max_x, float max_y, float max_T, unsigned int nbins_x
         {
         float T = float(i) * m_dT;
         float nextT = float(i+1) * m_dT;
-        m_T_array[i] = -m_max_T + ((T + nextT) / 2.0);
+        m_T_array[i] = ((T + nextT) / 2.0);
         }
 
     // create and populate the pcf_array
@@ -230,7 +228,23 @@ class ComputePMFTXYT2D
                         vec2<float> rotVec = myMat * myVec;
                         float x = rotVec.x + m_max_x;
                         float y = rotVec.y + m_max_y;
-                        float T = m_orientations[j] - m_ref_orientations[i] + m_max_T;
+                        float T = m_orientations[j] - m_ref_orientations[i];
+
+                        // make sure that T is bounded between 0 and 2PI
+                        if (T < 0.0)
+                            {
+                            while (T < 0.0)
+                                {
+                                T += 2.0*M_PI;
+                                }
+                            }
+                        if (T > 2.0*M_PI)
+                            {
+                            while (T > 2.0*M_PI)
+                                {
+                                T -= 2.0*M_PI;
+                                }
+                            }
 
                         // bin that point
                         float binx = floorf(x * dx_inv);
@@ -392,7 +406,7 @@ void PMFTXYT2D::computePy(trajectory::Box& box,
 
 void export_PMFTXYT2D()
     {
-    class_<PMFTXYT2D>("PMFTXYT2D", init<float, float, float, float, float, float>())
+    class_<PMFTXYT2D>("PMFTXYT2D", init<float, float, unsigned int, unsigned int, unsigned int>())
         .def("getBox", &PMFTXYT2D::getBox, return_internal_reference<>())
         .def("accumulate", &PMFTXYT2D::accumulatePy)
         .def("compute", &PMFTXYT2D::computePy)
