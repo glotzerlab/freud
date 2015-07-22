@@ -229,7 +229,7 @@ class ComputePMFTR12
                             float dTheta2 = atan2(-delta.y, -delta.x);
                             float T1 = dTheta1 - m_ref_orientations[i];
                             float T2 = dTheta2 - m_orientations[j];
-                            // make sure that T1, T2 are bounded between 0 and PI
+                            // make sure that T1, T2 are bounded between 0 and 2PI
                             if (T1 < 0.0)
                                 {
                                 while (T1 < 0.0)
