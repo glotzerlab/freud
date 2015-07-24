@@ -94,6 +94,8 @@ set(SOURCES trajectory/trajectory.cc
             cluster/ClusterProperties.cc
             order/HexOrderParameter.h
             order/HexOrderParameter.cc
+            order/BondOrder.h
+            order/BondOrder.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
             util/Index1D.h

@@ -1,4 +1,4 @@
-#include "HexOrderParameter.h"
+#include "BondOrder.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
@@ -8,27 +8,86 @@ using namespace std;
 using namespace boost::python;
 using namespace tbb;
 
-/*! \file HexOrderParameter.h
+/*! \file BondOrder.h
     \brief Compute the hexatic order parameter for each particle
 */
 
 namespace freud { namespace order {
 
-HexOrderParameter::HexOrderParameter(float rmax, float k, unsigned int n)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
+BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_Np(0)
     {
+    // sanity checks, but this is actually kinda dumb if these values are 1
+    if (nbins_t < 1)
+        throw invalid_argument("must be at least 1 bin in theta");
+    if (nbins_p < 1)
+        throw invalid_argument("must be at least 1 bin in p");
+    // calculate dt, dp
+    /*
+    0 < \theta < 2PI; 0 < \phi < PI
+    */
+    m_dt = 2.0 * M_PI / float(m_nbins_t);
+    m_dp = M_PI / float(m_nbins_p);
+    // this shouldn't be able to happen, but it's always better to check
+    if (m_dt > 2.0 * M_PI)
+        throw invalid_argument("2PI must be greater than dt");
+    if (m_dp > M_PI)
+        throw invalid_argument("PI must be greater than dp");
+
+    // precompute the bin center positions for t
+    m_theta_array = boost::shared_array<float>(new float[m_nbins_t]);
+    for (unsigned int i = 0; i < m_nbins_t; i++)
+        {
+        float t = float(i) * m_dt;
+        float nextt = float(i+1) * m_dt;
+        m_theta_array[i] = ((t + nextt) / 2.0);
+        }
+
+    // precompute the bin center positions for p
+    m_phi_array = boost::shared_array<float>(new float[m_nbins_p]);
+    for (unsigned int i = 0; i < m_nbins_p; i++)
+        {
+        float p = float(i) * m_dp;
+        float nextp = float(i+1) * m_dp;
+        m_phi_array[i] = ((p + nextp) / 2.0);
+        }
+
+    // precompute the surface area array
+    m_sa_array = boost::shared_array<float>(new float[m_nbins_t*m_nbins_p]);
+    memset((void*)m_sa_array.get(), 0, sizeof(float)*m_nbins_t*m_nbins_p);
+    Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
+    for (unsigned int i = 0; i < m_nbins_t; i++)
+        {
+        float theta = (float)i * m_dt;
+        for (unsigned int j = 0; j < m_nbins_p; j++)
+            {
+            float phi = (float)j * m_dp;
+            float sa = m_dt * (cos(phi) - cos(phi + m_dp));
+            m_sa_array[sa_i((int)i, (int)j)] = sa;
+            }
+        }
+
+    // initialize the bin counts
+    m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins_t*m_nbins_p]);
+    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
+
+    // initialize the bond order array
+    m_bo_array = boost::shared_array<float>(new float[m_nbins_t*m_nbins_p]);
+    memset((void*)m_bin_counts.get(), 0, sizeof(float)*m_nbins_t*m_nbins_p);
+
+    // create NearestNeighbors object
     // if n is zero, set the number of neighbors to k
     // otherwise set to n
     // this is super dangerous...
     m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
     }
 
-HexOrderParameter::~HexOrderParameter()
+BondOrder::~BondOrder()
     {
     delete m_nn;
     }
 
-class ComputeHexOrderParameter
+class ComputeBondOrder
     {
     private:
         const trajectory::Box& m_box;
@@ -38,7 +97,7 @@ class ComputeHexOrderParameter
         const vec3<float> *m_points;
         std::complex<float> *m_psi_array;
     public:
-        ComputeHexOrderParameter(std::complex<float> *psi_array,
+        ComputeBondOrder(std::complex<float> *psi_array,
                                  const trajectory::Box& box,
                                  const float rmax,
                                  const float k,
@@ -78,7 +137,7 @@ class ComputeHexOrderParameter
             }
     };
 
-void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
+void BondOrder::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
     m_nn->compute(m_box,points,Np,points,Np);
@@ -91,13 +150,13 @@ void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
         }
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_k, m_nn, points));
+    parallel_for(blocked_range<size_t>(0,Np), ComputeBondOrder(m_psi_array.get(), m_box, m_rmax, m_k, m_nn, points));
 
     // save the last computed number of particles
     m_Np = Np;
     }
 
-void HexOrderParameter::computePy(trajectory::Box& box,
+void BondOrder::computePy(trajectory::Box& box,
                                   boost::python::numeric::array points)
     {
     //validate input type and rank
@@ -119,14 +178,14 @@ void HexOrderParameter::computePy(trajectory::Box& box,
         }
     }
 
-void export_HexOrderParameter()
+void export_BondOrder()
     {
-    class_<HexOrderParameter>("HexOrderParameter", init<float>())
+    class_<BondOrder>("BondOrder", init<float>())
         .def(init<float, float>())
         .def(init<float, float, unsigned int>())
-        .def("getBox", &HexOrderParameter::getBox, return_internal_reference<>())
-        .def("compute", &HexOrderParameter::computePy)
-        .def("getPsi", &HexOrderParameter::getPsiPy)
+        .def("getBox", &BondOrder::getBox, return_internal_reference<>())
+        .def("compute", &BondOrder::computePy)
+        .def("getPsi", &BondOrder::getPsiPy)
         ;
     }
 
