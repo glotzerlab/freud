@@ -115,6 +115,7 @@ class BondOrder
         boost::shared_array<float> m_sa_array;         //!< bond order array computed
         boost::shared_array<float> m_theta_array;         //!< theta array computed
         boost::shared_array<float> m_phi_array;         //!< phi order array computed
+        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
 //! Exports all classes in this file to python

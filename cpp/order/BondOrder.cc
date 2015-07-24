@@ -84,6 +84,10 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
 
 BondOrder::~BondOrder()
     {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        delete[] (*i);
+        }
     delete m_nn;
     }
 
@@ -180,9 +184,7 @@ void BondOrder::computePy(trajectory::Box& box,
 
 void export_BondOrder()
     {
-    class_<BondOrder>("BondOrder", init<float>())
-        .def(init<float, float>())
-        .def(init<float, float, unsigned int>())
+    class_<BondOrder>("BondOrder", init<float, float, unsigned int, unsigned int, unsigned int>())
         .def("getBox", &BondOrder::getBox, return_internal_reference<>())
         .def("compute", &BondOrder::computePy)
         .def("getPsi", &BondOrder::getPsiPy)
