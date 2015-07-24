@@ -372,7 +372,7 @@ void PMFXY2D::computePy(trajectory::Box& box,
 
 void export_PMFXY2D()
     {
-    class_<PMFXY2D>("PMFXY2D", init<float, float, float, float>())
+    class_<PMFXY2D>("PMFXY2D", init<float, float, unsigned int, unsigned int>())
         .def("getBox", &PMFXY2D::getBox, return_internal_reference<>())
         .def("accumulate", &PMFXY2D::accumulatePy)
         .def("compute", &PMFXY2D::computePy)

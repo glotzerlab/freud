@@ -122,6 +122,8 @@ set(SOURCES trajectory/trajectory.cc
             pmft/PMFTXYTM2D.h
             pmft/PMFTRPM.cc
             pmft/PMFTRPM.h
+            pmft/PMFTR12.cc
+            pmft/PMFTR12.h
             bootstrap/Bootstrap.cc
             bootstrap/Bootstrap.h
             shapesplit/shapesplit.cc

@@ -444,7 +444,7 @@ void PMFXYZ::computePy(trajectory::Box& box,
 
 void export_PMFXYZ()
     {
-    class_<PMFXYZ>("PMFXYZ", init<float, float, float, float, float, float>())
+    class_<PMFXYZ>("PMFXYZ", init<float, float, float, unsigned int, unsigned int, unsigned int>())
         .def("getBox", &PMFXYZ::getBox, return_internal_reference<>())
         .def("accumulate", &PMFXYZ::accumulatePy)
         .def("compute", &PMFXYZ::computePy)

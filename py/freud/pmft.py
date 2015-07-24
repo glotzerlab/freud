@@ -12,3 +12,4 @@ from _freud import PMFTXYT2D
 from _freud import PMFTXYTP2D
 from _freud import PMFTXYTM2D
 from _freud import PMFTRPM
+from _freud import PMFTR12

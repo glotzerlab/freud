@@ -1,4 +1,4 @@
-#include "PMFTRPM.h"
+#include "PMFTR12.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
@@ -18,35 +18,35 @@ using namespace boost::python;
 using namespace tbb;
 
 /*! \internal
-    \file PMFTRPM.cc
+    \file PMFTR12.cc
     \brief Routines for computing radial density functions
 */
 
 namespace freud { namespace pmft {
 
-PMFTRPM::PMFTRPM(float max_r, unsigned int nbins_r, unsigned int nbins_TP, unsigned int nbins_TM)
-    : m_box(trajectory::Box()), m_max_r(max_r), m_max_TP(2.0*M_PI), m_max_TM(2.0*M_PI),
-      m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM)
+PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_T1, unsigned int nbins_T2)
+    : m_box(trajectory::Box()), m_max_r(max_r), m_max_T1(2.0*M_PI), m_max_T2(2.0*M_PI),
+      m_nbins_r(nbins_r), m_nbins_T1(nbins_T1), m_nbins_T2(nbins_T2)
     {
     if (nbins_r < 1)
         throw invalid_argument("must be at least 1 bin in r");
-    if (nbins_TP < 1)
-        throw invalid_argument("must be at least 1 bin in TP");
-    if (nbins_TM < 1)
-        throw invalid_argument("must be at least 1 bin in TM");
+    if (nbins_T1 < 1)
+        throw invalid_argument("must be at least 1 bin in T1");
+    if (nbins_T2 < 1)
+        throw invalid_argument("must be at least 1 bin in T2");
     if (max_r < 0.0f)
         throw invalid_argument("max_r must be positive");
-    // calculate dr, dTP, dTM
+    // calculate dr, dT1, dT2
     m_dr = m_max_r / float(m_nbins_r);
-    m_dTP = m_max_TP / float(m_nbins_TP);
-    m_dTM = m_max_TM / float(m_nbins_TM);
+    m_dT1 = m_max_T1 / float(m_nbins_T1);
+    m_dT2 = m_max_T2 / float(m_nbins_T2);
 
-    if (m_dr > m_max_r)
+    if (m_dr > max_r)
         throw invalid_argument("max_r must be greater than dr");
-    if (m_dTP > m_max_TP)
-        throw invalid_argument("max_TP must be greater than dTP");
-    if (m_dTM > m_max_TM)
-        throw invalid_argument("max_TM must be greater than dTM");
+    if (m_dT1 > m_max_T1)
+        throw invalid_argument("max_T1 must be greater than dT1");
+    if (m_dT2 > m_max_T2)
+        throw invalid_argument("max_T2 must be greater than dT2");
 
     // precompute the bin center positions for r
     m_r_array = boost::shared_array<float>(new float[m_nbins_r]);
@@ -57,32 +57,32 @@ PMFTRPM::PMFTRPM(float max_r, unsigned int nbins_r, unsigned int nbins_TP, unsig
         m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
 
-    // precompute the bin center positions for TP
-    m_TP_array = boost::shared_array<float>(new float[m_nbins_TP]);
-    for (unsigned int i = 0; i < m_nbins_TP; i++)
+    // precompute the bin center positions for T1
+    m_T1_array = boost::shared_array<float>(new float[m_nbins_T1]);
+    for (unsigned int i = 0; i < m_nbins_T1; i++)
         {
-        float TP = float(i) * m_dTP;
-        float nextTP = float(i+1) * m_dTP;
-        m_TP_array[i] = ((TP + nextTP) / 2.0);
+        float T1 = float(i) * m_dT1;
+        float nextT1 = float(i+1) * m_dT1;
+        m_T1_array[i] = ((T1 + nextT1) / 2.0);
         }
 
-    // precompute the bin center positions for TM
-    m_TM_array = boost::shared_array<float>(new float[m_nbins_TM]);
-    for (unsigned int i = 0; i < m_nbins_TM; i++)
+    // precompute the bin center positions for T2
+    m_T2_array = boost::shared_array<float>(new float[m_nbins_T2]);
+    for (unsigned int i = 0; i < m_nbins_T2; i++)
         {
-        float TM = float(i) * m_dTM;
-        float nextTM = float(i+1) * m_dTM;
-        m_TM_array[i] = ((TM + nextTM) / 2.0);
+        float T2 = float(i) * m_dT2;
+        float nextT2 = float(i+1) * m_dT2;
+        m_T2_array[i] = ((T2 + nextT2) / 2.0);
         }
 
     // create and populate the pcf_array
-    m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_r*m_nbins_TP*m_nbins_TM]);
-    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+    m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_r*m_nbins_T1*m_nbins_T2]);
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_T1*m_nbins_T2);
 
     m_lc = new locality::LinkCell(m_box, m_max_r);
     }
 
-PMFTRPM::~PMFTRPM()
+PMFTR12::~PMFTR12()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
         {
@@ -95,28 +95,28 @@ class CombinePCFRPM
     {
     private:
         unsigned int m_nbins_r;
-        unsigned int m_nbins_TP;
-        unsigned int m_nbins_TM;
+        unsigned int m_nbins_T1;
+        unsigned int m_nbins_T2;
         unsigned int *m_pcf_array;
         tbb::enumerable_thread_specific<unsigned int *>& m_local_pcf_array;
     public:
         CombinePCFRPM(unsigned int nbins_r,
-                      unsigned int nbins_TP,
-                      unsigned int nbins_TM,
+                      unsigned int nbins_T1,
+                      unsigned int nbins_T2,
                       unsigned int *pcf_array,
                       tbb::enumerable_thread_specific<unsigned int *>& local_pcf_array)
-            : m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_pcf_array(pcf_array),
+            : m_nbins_r(nbins_r), m_nbins_T1(nbins_T1), m_nbins_T2(nbins_T2), m_pcf_array(pcf_array),
               m_local_pcf_array(local_pcf_array)
         {
         }
         void operator()( const blocked_range<size_t> &myBin ) const
             {
-            Index3D b_i = Index3D(m_nbins_r, m_nbins_TP, m_nbins_TM);
+            Index3D b_i = Index3D(m_nbins_r, m_nbins_T1, m_nbins_T2);
             for (size_t i = myBin.begin(); i != myBin.end(); i++)
                 {
-                for (size_t j = 0; j < m_nbins_TP; j++)
+                for (size_t j = 0; j < m_nbins_T1; j++)
                     {
-                    for (size_t k = 0; k < m_nbins_TM; k++)
+                    for (size_t k = 0; k < m_nbins_T2; k++)
                         {
                         for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_pcf_array.begin();
                              local_bins != m_local_pcf_array.end(); ++local_bins)
@@ -129,20 +129,20 @@ class CombinePCFRPM
             }
     };
 
-class ComputePMFTRPM
+class ComputePMFTR12
     {
     private:
         tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
         unsigned int m_nbins_r;
-        unsigned int m_nbins_TP;
-        unsigned int m_nbins_TM;
+        unsigned int m_nbins_T1;
+        unsigned int m_nbins_T2;
         const trajectory::Box m_box;
         const float m_max_r;
-        const float m_max_TP;
-        const float m_max_TM;
+        const float m_max_T1;
+        const float m_max_T2;
         const float m_dr;
-        const float m_dTP;
-        const float m_dTM;
+        const float m_dT1;
+        const float m_dT2;
         const locality::LinkCell *m_lc;
         vec3<float> *m_ref_points;
         float *m_ref_orientations;
@@ -151,17 +151,17 @@ class ComputePMFTRPM
         float *m_orientations;
         const unsigned int m_Np;
     public:
-        ComputePMFTRPM(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
+        ComputePMFTR12(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
                        unsigned int nbins_r,
-                       unsigned int nbins_TP,
-                       unsigned int nbins_TM,
+                       unsigned int nbins_T1,
+                       unsigned int nbins_T2,
                        const trajectory::Box &box,
                        const float max_r,
-                       const float max_TP,
-                       const float max_TM,
+                       const float max_T1,
+                       const float max_T2,
                        const float dr,
-                       const float dTP,
-                       const float dTM,
+                       const float dT1,
+                       const float dT2,
                        const locality::LinkCell *lc,
                        vec3<float> *ref_points,
                        float *ref_orientations,
@@ -169,8 +169,8 @@ class ComputePMFTRPM
                        vec3<float> *points,
                        float *orientations,
                        unsigned int Np)
-            : m_pcf_array(pcf_array), m_nbins_r(nbins_r), m_nbins_TP(nbins_TP), m_nbins_TM(nbins_TM), m_box(box),
-              m_max_r(max_r), m_max_TP(max_TP), m_max_TM(max_TM), m_dr(dr), m_dTP(dTP), m_dTM(dTM), m_lc(lc),
+            : m_pcf_array(pcf_array), m_nbins_r(nbins_r), m_nbins_T1(nbins_T1), m_nbins_T2(nbins_T2), m_box(box),
+              m_max_r(max_r), m_max_T1(max_T1), m_max_T2(max_T2), m_dr(dr), m_dT1(dT1), m_dT2(dT2), m_lc(lc),
               m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points),
               m_orientations(orientations), m_Np(Np)
         {
@@ -184,17 +184,17 @@ class ComputePMFTRPM
 
             float dr_inv = 1.0f / m_dr;
             float maxrsq = m_max_r * m_max_r;
-            float dTP_inv = 1.0f / m_dTP;
-            float dTM_inv = 1.0f / m_dTM;
+            float dT1_inv = 1.0f / m_dT1;
+            float dT2_inv = 1.0f / m_dT2;
 
-            Index3D b_i = Index3D(m_nbins_r, m_nbins_TP, m_nbins_TM);
+            Index3D b_i = Index3D(m_nbins_r, m_nbins_T1, m_nbins_T2);
 
             bool exists;
             m_pcf_array.local(exists);
             if (! exists)
                 {
-                m_pcf_array.local() = new unsigned int [m_nbins_r*m_nbins_TP*m_nbins_TM];
-                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+                m_pcf_array.local() = new unsigned int [m_nbins_r*m_nbins_T1*m_nbins_T2];
+                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_T1*m_nbins_T2);
                 }
 
             // for each reference point
@@ -229,57 +229,53 @@ class ComputePMFTRPM
                             float dTheta2 = atan2(-delta.y, -delta.x);
                             float T1 = dTheta1 - m_ref_orientations[i];
                             float T2 = dTheta2 - m_orientations[j];
-                            float TP = T1 + T2;
-                            float TM = T1 - T2;
-
-                            // make sure that TP, TM are bounded between 0 and PI
-                            if (TP < 0.0)
+                            // make sure that T1, T2 are bounded between 0 and 2PI
+                            if (T1 < 0.0)
                                 {
-                                while (TP < 0.0)
+                                while (T1 < 0.0)
                                     {
-                                    TP += 2.0*M_PI;
+                                    T1 += 2.0*M_PI;
                                     }
                                 }
-                            if (TP > 2.0*M_PI)
+                            if (T1 > 2.0*M_PI)
                                 {
-                                while (TP > 2.0*M_PI)
+                                while (T1 > 2.0*M_PI)
                                     {
-                                    TP -= 2.0*M_PI;
+                                    T1 -= 2.0*M_PI;
                                     }
                                 }
-                            if (TM < 0.0)
+                            if (T2 < 0.0)
                                 {
-                                while (TM < 0.0)
+                                while (T2 < 0.0)
                                     {
-                                    TM += 2.0*M_PI;
+                                    T2 += 2.0*M_PI;
                                     }
                                 }
-                            if (TM > 2.0*M_PI)
+                            if (T2 > 2.0*M_PI)
                                 {
-                                while (TM > 2.0*M_PI)
+                                while (T2 > 2.0*M_PI)
                                     {
-                                    TM -= 2.0*M_PI;
+                                    T2 -= 2.0*M_PI;
                                     }
                                 }
-
                             // bin that point
                             float binr = r * dr_inv;
-                            float binTP = floorf(TP * dTP_inv);
-                            float binTM = floorf(TM * dTM_inv);
+                            float binT1 = floorf(T1 * dT1_inv);
+                            float binT2 = floorf(T2 * dT2_inv);
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
                             unsigned int ibinr = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                            unsigned int ibinTP = _mm_cvtt_ss2si(_mm_load_ss(&binTP));
-                            unsigned int ibinTM = _mm_cvtt_ss2si(_mm_load_ss(&binTM));
+                            unsigned int ibinT1 = _mm_cvtt_ss2si(_mm_load_ss(&binT1));
+                            unsigned int ibinT2 = _mm_cvtt_ss2si(_mm_load_ss(&binT2));
                             #else
                             unsigned int ibinr = (unsigned int)(binr);
-                            unsigned int ibinTP = (unsigned int)(binTP);
-                            unsigned int ibinTM = (unsigned int)(binTM);
+                            unsigned int ibinT1 = (unsigned int)(binT1);
+                            unsigned int ibinT2 = (unsigned int)(binT2);
                             #endif
 
-                            if ((ibinr < m_nbins_r) && (ibinTP < m_nbins_TP) && (ibinTM < m_nbins_TM))
+                            if ((ibinr < m_nbins_r) && (ibinT1 < m_nbins_T1) && (ibinT2 < m_nbins_T2))
                                 {
-                                ++m_pcf_array.local()[b_i(ibinr, ibinTP, ibinTM)];
+                                ++m_pcf_array.local()[b_i(ibinr, ibinT1, ibinT2)];
                                 }
                             }
                         }
@@ -290,46 +286,45 @@ class ComputePMFTRPM
 
 //! \internal
 //! helper function to reduce the thread specific arrays into the boost array
-void PMFTRPM::reducePCF()
+void PMFTR12::reducePCF()
     {
-    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_T1*m_nbins_T2);
     parallel_for(blocked_range<size_t>(0,m_nbins_r),
                  CombinePCFRPM(m_nbins_r,
-                               m_nbins_TP,
-                               m_nbins_TM,
+                               m_nbins_T1,
+                               m_nbins_T2,
                                m_pcf_array.get(),
                                m_local_pcf_array));
     }
 
 //! Get a reference to the PCF array
-boost::shared_array<unsigned int> PMFTRPM::getPCF()
+boost::shared_array<unsigned int> PMFTR12::getPCF()
     {
     reducePCF();
     return m_pcf_array;
     }
 
 //! Get a reference to the PCF array
-boost::python::numeric::array PMFTRPM::getPCFPy()
+boost::python::numeric::array PMFTR12::getPCFPy()
     {
     reducePCF();
     unsigned int *arr = m_pcf_array.get();
     std::vector<intp> dims(3);
-    dims[0] = m_nbins_TM;
-    dims[1] = m_nbins_TP;
+    dims[0] = m_nbins_T2;
+    dims[1] = m_nbins_T1;
     dims[2] = m_nbins_r;
     return num_util::makeNum(arr, dims);
     }
 
-void PMFTRPM::resetPCF()
+void PMFTR12::resetPCF()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
         {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_T1*m_nbins_T2);
         }
-    // memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_TP*m_nbins_TM);
     }
 
-void PMFTRPM::accumulate(vec3<float> *ref_points,
+void PMFTR12::accumulate(vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int Nref,
                          vec3<float> *points,
@@ -338,17 +333,17 @@ void PMFTRPM::accumulate(vec3<float> *ref_points,
     {
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
-                 ComputePMFTRPM(m_local_pcf_array,
+                 ComputePMFTR12(m_local_pcf_array,
                                 m_nbins_r,
-                                m_nbins_TP,
-                                m_nbins_TM,
+                                m_nbins_T1,
+                                m_nbins_T2,
                                 m_box,
                                 m_max_r,
-                                m_max_TP,
-                                m_max_TM,
+                                m_max_T1,
+                                m_max_T2,
                                 m_dr,
-                                m_dTP,
-                                m_dTM,
+                                m_dT1,
+                                m_dT2,
                                 m_lc,
                                 ref_points,
                                 ref_orientations,
@@ -361,7 +356,7 @@ void PMFTRPM::accumulate(vec3<float> *ref_points,
 //! \internal
 /*! \brief Exposed function to python to calculate the PMF
 */
-void PMFTRPM::accumulatePy(trajectory::Box& box,
+void PMFTR12::accumulatePy(trajectory::Box& box,
                            boost::python::numeric::array ref_points,
                            boost::python::numeric::array ref_orientations,
                            boost::python::numeric::array points,
@@ -410,7 +405,7 @@ void PMFTRPM::accumulatePy(trajectory::Box& box,
 //! \internal
 /*! \brief Exposed function to python to calculate the PMF
 */
-void PMFTRPM::computePy(trajectory::Box& box,
+void PMFTR12::computePy(trajectory::Box& box,
                         boost::python::numeric::array ref_points,
                         boost::python::numeric::array ref_orientations,
                         boost::python::numeric::array points,
@@ -420,17 +415,17 @@ void PMFTRPM::computePy(trajectory::Box& box,
     accumulatePy(box, ref_points, ref_orientations, points, orientations);
     }
 
-void export_PMFTRPM()
+void export_PMFTR12()
     {
-    class_<PMFTRPM>("PMFTRPM", init<float, unsigned int, unsigned int, unsigned int>())
-        .def("getBox", &PMFTRPM::getBox, return_internal_reference<>())
-        .def("accumulate", &PMFTRPM::accumulatePy)
-        .def("compute", &PMFTRPM::computePy)
-        .def("getPCF", &PMFTRPM::getPCFPy)
-        .def("resetPCF", &PMFTRPM::resetPCFPy)
-        .def("getR", &PMFTRPM::getRPy)
-        .def("getTP", &PMFTRPM::getTPPy)
-        .def("getTM", &PMFTRPM::getTMPy)
+    class_<PMFTR12>("PMFTR12", init<float, unsigned int, unsigned int, unsigned int>())
+        .def("getBox", &PMFTR12::getBox, return_internal_reference<>())
+        .def("accumulate", &PMFTR12::accumulatePy)
+        .def("compute", &PMFTR12::computePy)
+        .def("getPCF", &PMFTR12::getPCFPy)
+        .def("resetPCF", &PMFTR12::resetPCFPy)
+        .def("getR", &PMFTR12::getRPy)
+        .def("getT1", &PMFTR12::getT1Py)
+        .def("getT2", &PMFTR12::getT2Py)
         ;
     }
 
