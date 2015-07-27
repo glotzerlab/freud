@@ -19,6 +19,7 @@
 #include "RDF.h"
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
+#include "TransOrderParameter.h"
 #include "InterfaceMeasure.h"
 #include "pairing2D.h"
 #include "PMFXYZ.h"
@@ -98,6 +99,7 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
+    order::export_TransOrderParameter();
     order::export_LocalDescriptors();
     locality::export_NearestNeighbors();
     interface::export_InterfaceMeasure();
