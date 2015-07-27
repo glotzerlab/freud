@@ -1,4 +1,4 @@
-#include "TransOrderParameter.h"
+#include "HexOrderParameter.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
@@ -8,24 +8,24 @@ using namespace std;
 using namespace boost::python;
 using namespace tbb;
 
-/*! \file TransOrderParameter.h
-    \brief Compute the translational order parameter for each particle
+/*! \file HexOrderParameter.h
+    \brief Compute the hexatic order parameter for each particle
 */
 
 namespace freud { namespace order {
 
-TransOrderParameter::TransOrderParameter(float rmax, float k, unsigned int n)
+HexOrderParameter::HexOrderParameter(float rmax, float k, unsigned int n)
     : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
     m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
     }
 
-TransOrderParameter::~TransOrderParameter()
+HexOrderParameter::~HexOrderParameter()
     {
     delete m_nn;
     }
 
-class ComputeTransOrderParameter
+class ComputeHexOrderParameter
     {
     private:
         const trajectory::Box& m_box;
@@ -33,15 +33,15 @@ class ComputeTransOrderParameter
         const float m_k;
         const locality::NearestNeighbors *m_nn;
         const vec3<float> *m_points;
-        std::complex<float> *m_dr_array;
+        std::complex<float> *m_psi_array;
     public:
-        ComputeTransOrderParameter(std::complex<float> *dr_array,
+        ComputeHexOrderParameter(std::complex<float> *psi_array,
                                  const trajectory::Box& box,
                                  const float rmax,
                                  const float k,
                                  const locality::NearestNeighbors *nn,
                                  const vec3<float> *points)
-            : m_box(box), m_rmax(rmax), m_k(k), m_nn(nn), m_points(points), m_dr_array(dr_array)
+            : m_box(box), m_rmax(rmax), m_k(k), m_nn(nn), m_points(points), m_psi_array(psi_array)
             {
             }
 
@@ -51,7 +51,7 @@ class ComputeTransOrderParameter
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
-                m_dr_array[i] = 0;
+                m_psi_array[i] = 0;
                 vec3<float> ref = m_points[i];
 
                 //loop over neighbors
@@ -65,16 +65,17 @@ class ComputeTransOrderParameter
                     float rsq = dot(delta, delta);
                     if (rsq > 1e-6)
                         {
-                        //compute dr for neighboring particle(only constructed for 2d)
-                        m_dr_array[i] += complex<float>(delta.x, delta.y);
+                        //compute psi for neighboring particle(only constructed for 2d)
+                        float psi_ij = atan2f(delta.y, delta.x);
+                        m_psi_array[i] += exp(complex<float>(0,m_k*psi_ij));
                         }
                     }
-                m_dr_array[i] /= complex<float>(m_k);
+                m_psi_array[i] /= complex<float>(m_k);
                 }
             }
     };
 
-void TransOrderParameter::compute(const vec3<float> *points, unsigned int Np)
+void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
     m_nn->compute(m_box,points,Np,points,Np);
@@ -83,17 +84,17 @@ void TransOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
         {
-        m_dr_array = boost::shared_array<complex<float> >(new complex<float> [Np]);
+        m_psi_array = boost::shared_array<complex<float> >(new complex<float> [Np]);
         }
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,Np), ComputeTransOrderParameter(m_dr_array.get(), m_box, m_rmax, m_k, m_nn, points));
+    parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_k, m_nn, points));
 
     // save the last computed number of particles
     m_Np = Np;
     }
 
-void TransOrderParameter::computePy(trajectory::Box& box,
+void HexOrderParameter::computePy(trajectory::Box& box,
                                   boost::python::numeric::array points)
     {
     //validate input type and rank
@@ -115,14 +116,14 @@ void TransOrderParameter::computePy(trajectory::Box& box,
         }
     }
 
-void export_TransOrderParameter()
+void export_HexOrderParameter()
     {
-    class_<TransOrderParameter>("TransOrderParameter", init<float>())
+    class_<HexOrderParameter>("HexOrderParameter", init<float>())
         .def(init<float, float>())
         .def(init<float, float, unsigned int>())
-        .def("getBox", &TransOrderParameter::getBox, return_internal_reference<>())
-        .def("compute", &TransOrderParameter::computePy)
-        .def("getDr", &TransOrderParameter::getDrPy)
+        .def("getBox", &HexOrderParameter::getBox, return_internal_reference<>())
+        .def("compute", &HexOrderParameter::computePy)
+        .def("getPsi", &HexOrderParameter::getPsiPy)
         ;
     }
 
