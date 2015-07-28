@@ -4,4 +4,5 @@
 #
 
 from _freud import HexOrderParameter;
+from _freud import TransOrderParameter;
 from _freud import LocalDescriptors;
