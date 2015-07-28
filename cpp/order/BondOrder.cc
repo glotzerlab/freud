@@ -2,6 +2,15 @@
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
+
+#ifdef ENABLE_OPENMP
+#include <omp.h>
+#endif
+
+#include <stdexcept>
 #include <complex>
 
 using namespace std;
@@ -91,34 +100,99 @@ BondOrder::~BondOrder()
     delete m_nn;
     }
 
+class CombineBondOrder
+    {
+    private:
+        unsigned int m_nbins_t;
+        unsigned int m_nbins_p;
+        unsigned int *m_bin_counts;
+        float *m_bo_array;
+        float *m_sa_array;
+        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
+    public:
+        CombinePCFXYZ(unsigned int nbins_t,
+                      unsigned int nbins_p,
+                      unsigned int *bin_counts,
+                      float *bo_array,
+                      float *sa_array,
+                      tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts)
+            : m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_bin_counts(bin_counts), m_bo_array(bo_array), m_sa_array(sa_array),
+              m_local_bin_counts(local_bin_counts)
+        {
+        }
+        void operator()( const blocked_range<size_t> &myBin ) const
+            {
+            Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
+            for (size_t i = myBin.begin(); i != myBin.end(); i++)
+                {
+                for (size_t j = 0; j < m_nbins_p; j++)
+                    {
+                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+                         local_bins != m_local_bin_counts.end(); ++local_bins)
+                        {
+                        m_bin_counts[sa_i((int)i, (int)j)] += (*local_bins)[sa_i((int)i, (int)j)];
+                        }
+                    m_bo_array[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / sa_array[sa_i((int)i, (int)j)];
+                    }
+                }
+            }
+    };
+
 class ComputeBondOrder
     {
     private:
+        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
+        unsigned int m_nbins_t;
+        unsigned int m_nbins_p;
         const trajectory::Box& m_box;
         const float m_rmax;
         const float m_k;
         const locality::NearestNeighbors *m_nn;
+        const vec3<float> *m_ref_points;
+        const quat<float> *m_ref_orientations;
+        const unsigned int m_Nref;
         const vec3<float> *m_points;
-        std::complex<float> *m_psi_array;
+        const quat<float> *m_orientations;
+        const unsigned int m_Np;
     public:
-        ComputeBondOrder(std::complex<float> *psi_array,
-                                 const trajectory::Box& box,
-                                 const float rmax,
-                                 const float k,
-                                 const locality::NearestNeighbors *nn,
-                                 const vec3<float> *points)
-            : m_box(box), m_rmax(rmax), m_k(k), m_nn(nn), m_points(points), m_psi_array(psi_array)
+        ComputeBondOrder(tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
+                         unsigned int nbins_t,
+                         unsigned int nbins_p,
+                         const trajectory::Box& box,
+                         const float rmax,
+                         const float k,
+                         const locality::NearestNeighbors *nn,
+                         const vec3<float> *ref_points,
+                         const quat<float> *ref_orientations,
+                         const unsigned int Nref,
+                         const vec3<float> *points,
+                         const quat<float> *orientations,
+                         const unsigned int Np)
+            : m_local_bin_counts(local_bin_counts), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_box(box), m_rmax(rmax),
+              m_k(k), m_nn(nn), m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref),
+              m_points(points), m_orientations(orientations), m_Np(Np), m_psi_array(psi_array)
             {
             }
 
         void operator()( const blocked_range<size_t>& r ) const
             {
+            float dt_inv = 1.0f / m_dt;
+            float dp_inv = 1.0f / m_dp;
             float rmaxsq = m_rmax * m_rmax;
+            Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
+
+            bool exists;
+            m_local_bin_counts.local(exists);
+            if (! exists)
+                {
+                m_local_bin_counts.local() = new unsigned int [m_nbins_t*m_nbins_p];
+                memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
+                }
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
-                m_psi_array[i] = 0;
-                vec3<float> ref = m_points[i];
+                vec3<float> ref_pos = m_ref_points[i];
+                quat<float> ref_orient(m_ref_orientations[i]);
 
                 //loop over neighbors
                 locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
@@ -126,20 +200,78 @@ class ComputeBondOrder
                     {
 
                     //compute r between the two particles
-                    vec3<float> delta = m_box.wrap(m_points[j] - ref);
+                    vec3<float> delta = m_box.wrap(m_points[j] - ref_pos);
 
                     float rsq = dot(delta, delta);
                     if (rsq > 1e-6)
                         {
                         //compute psi for neighboring particle(only constructed for 2d)
-                        float psi_ij = atan2f(delta.y, delta.x);
-                        m_psi_array[i] += exp(complex<float>(0,m_k*psi_ij));
+                        // get orientation
+                        // I don't think this is needed
+                        // quat<float> orient(m_orientations[j]);
+                        vec3<float> v(delta);
+                        v = rotate(conj(q), v);
+                        // get theta, phi
+                        float theta = atan2f(v.y, v.x);
+                        float phi = atan2f(sqrt(v.x*v.x + v.y*v.y), v.z);
+                        // bin the point
+                        float bint = floorf(theta * dt_inv);
+                        float binp = floorf(phi * dp_inv);
+                        // fast float to int conversion with truncation
+                        #ifdef __SSE2__
+                        unsigned int ibint = _mm_cvtt_ss2si(_mm_load_ss(&bint));
+                        unsigned int ibinp = _mm_cvtt_ss2si(_mm_load_ss(&binp));
+                        #else
+                        unsigned int ibint = (unsigned int)(bint);
+                        unsigned int ibinp = (unsigned int)(binp);
+                        #endif
+
+                        // increment the bin
+                        if ((ibint < m_nbins_t) && (ibinp < m_nbins_p))
+                            {
+                            ++m_local_bin_counts.local()[sa_i(ibint, ibinp)];
+                            }
                         }
                     }
-                m_psi_array[i] /= complex<float>(m_k);
                 }
             }
     };
+
+void BondOrder::reduceBondOrder()
+    {
+    memset((void*)m_bo_array.get(), 0, sizeof(float)*m_nbins_t*m_nbins_p);
+    parallel_for(blocked_range<size_t>(0,m_nbins_t),
+                 CombineBondOrder(m_nbins_t,
+                                  m_nbins_p,
+                                  m_bin_counts.get(),
+                                  m_bo_array.get(),
+                                  m_sa_array.get(),
+                                  m_local_bin_counts));
+    }
+
+boost::shared_array<float> BondOrder::getBondOrder()
+    {
+    reduceBondOrder();
+    return m_bo_array;
+    }
+
+boost::shared_array<float> BondOrder::getBondOrderPy()
+    {
+    reduceBondOrder();
+    float *arr = m_bo_array.get();
+    std::vector<intp> dims(2);
+    dims[0] = m_nbins_p;
+    dims[1] = m_nbins_t;
+    return num_util::makeNum(arr, dims);
+    }
+
+void BondOrder::resetBondOrder()
+    {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
+        }
+    }
 
 void BondOrder::compute(const vec3<float> *points, unsigned int Np)
     {
@@ -161,7 +293,7 @@ void BondOrder::compute(const vec3<float> *points, unsigned int Np)
     }
 
 void BondOrder::computePy(trajectory::Box& box,
-                                  boost::python::numeric::array points)
+                          boost::python::numeric::array points)
     {
     //validate input type and rank
     m_box = box;
