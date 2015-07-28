@@ -24,7 +24,8 @@ using namespace tbb;
 namespace freud { namespace order {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_Np(0)
+    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_Np(0),
+      m_frame_counter(0)
     {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (nbins_t < 1)
@@ -110,12 +111,12 @@ class CombineBondOrder
         float *m_sa_array;
         tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
     public:
-        CombinePCFXYZ(unsigned int nbins_t,
-                      unsigned int nbins_p,
-                      unsigned int *bin_counts,
-                      float *bo_array,
-                      float *sa_array,
-                      tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts)
+        CombineBondOrder(unsigned int nbins_t,
+                         unsigned int nbins_p,
+                         unsigned int *bin_counts,
+                         float *bo_array,
+                         float *sa_array,
+                         tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts)
             : m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_bin_counts(bin_counts), m_bo_array(bo_array), m_sa_array(sa_array),
               m_local_bin_counts(local_bin_counts)
         {
@@ -132,7 +133,7 @@ class CombineBondOrder
                         {
                         m_bin_counts[sa_i((int)i, (int)j)] += (*local_bins)[sa_i((int)i, (int)j)];
                         }
-                    m_bo_array[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / sa_array[sa_i((int)i, (int)j)];
+                    m_bo_array[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / m_sa_array[sa_i((int)i, (int)j)];
                     }
                 }
             }
@@ -147,6 +148,8 @@ class ComputeBondOrder
         const trajectory::Box& m_box;
         const float m_rmax;
         const float m_k;
+        const float m_dt;
+        const float m_dp;
         const locality::NearestNeighbors *m_nn;
         const vec3<float> *m_ref_points;
         const quat<float> *m_ref_orientations;
@@ -161,6 +164,8 @@ class ComputeBondOrder
                          const trajectory::Box& box,
                          const float rmax,
                          const float k,
+                         const float dt,
+                         const float dp,
                          const locality::NearestNeighbors *nn,
                          const vec3<float> *ref_points,
                          const quat<float> *ref_orientations,
@@ -169,8 +174,8 @@ class ComputeBondOrder
                          const quat<float> *orientations,
                          const unsigned int Np)
             : m_local_bin_counts(local_bin_counts), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_box(box), m_rmax(rmax),
-              m_k(k), m_nn(nn), m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref),
-              m_points(points), m_orientations(orientations), m_Np(Np), m_psi_array(psi_array)
+              m_k(k), m_dt(dt), m_dp(dp), m_nn(nn), m_ref_points(ref_points), m_ref_orientations(ref_orientations), m_Nref(Nref),
+              m_points(points), m_orientations(orientations), m_Np(Np)
             {
             }
 
@@ -192,7 +197,7 @@ class ComputeBondOrder
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
                 vec3<float> ref_pos = m_ref_points[i];
-                quat<float> ref_orient(m_ref_orientations[i]);
+                quat<float> ref_q(m_ref_orientations[i]);
 
                 //loop over neighbors
                 locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
@@ -210,7 +215,7 @@ class ComputeBondOrder
                         // I don't think this is needed
                         // quat<float> orient(m_orientations[j]);
                         vec3<float> v(delta);
-                        v = rotate(conj(q), v);
+                        v = rotate(conj(ref_q), v);
                         // get theta, phi
                         float theta = atan2f(v.y, v.x);
                         float phi = atan2f(sqrt(v.x*v.x + v.y*v.y), v.z);
@@ -247,6 +252,15 @@ void BondOrder::reduceBondOrder()
                                   m_bo_array.get(),
                                   m_sa_array.get(),
                                   m_local_bin_counts));
+    Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
+    for (unsigned int i=0; i<m_nbins_t; i++)
+        {
+        for (unsigned int j=0; j<m_nbins_p; j++)
+            {
+            m_bin_counts[sa_i((int)i, (int)j)] /= m_frame_counter;
+            m_bo_array[sa_i((int)i, (int)j)] /= m_frame_counter;
+            }
+        }
     }
 
 boost::shared_array<float> BondOrder::getBondOrder()
@@ -255,7 +269,7 @@ boost::shared_array<float> BondOrder::getBondOrder()
     return m_bo_array;
     }
 
-boost::shared_array<float> BondOrder::getBondOrderPy()
+boost::python::numeric::array BondOrder::getBondOrderPy()
     {
     reduceBondOrder();
     float *arr = m_bo_array.get();
@@ -271,55 +285,116 @@ void BondOrder::resetBondOrder()
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
         }
+    // reset the frame counter
+    m_frame_counter = 0;
     }
 
-void BondOrder::compute(const vec3<float> *points, unsigned int Np)
+void BondOrder::accumulate(vec3<float> *ref_points,
+                           quat<float> *ref_orientations,
+                           unsigned int Nref,
+                           vec3<float> *points,
+                           quat<float> *orientations,
+                           unsigned int Np)
     {
     // compute the cell list
-    m_nn->compute(m_box,points,Np,points,Np);
+    m_nn->compute(m_box,ref_points,Nref,points,Np);
     m_nn->setRMax(m_rmax);
 
-    // reallocate the output array if it is not the right size
-    if (Np != m_Np)
-        {
-        m_psi_array = boost::shared_array<complex<float> >(new complex<float> [Np]);
-        }
-
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,Np), ComputeBondOrder(m_psi_array.get(), m_box, m_rmax, m_k, m_nn, points));
+    parallel_for(blocked_range<size_t>(0,Nref),
+                 ComputeBondOrder(m_local_bin_counts,
+                                  m_nbins_t,
+                                  m_nbins_p,
+                                  m_box,
+                                  m_rmax,
+                                  m_k,
+                                  m_dt,
+                                  m_dp,
+                                  m_nn,
+                                  ref_points,
+                                  ref_orientations,
+                                  Nref,
+                                  points,
+                                  orientations,
+                                  Np));
 
     // save the last computed number of particles
+    m_Nref = Nref;
     m_Np = Np;
     }
 
-void BondOrder::computePy(trajectory::Box& box,
-                          boost::python::numeric::array points)
+void BondOrder::accumulatePy(trajectory::Box& box,
+                             boost::python::numeric::array ref_points,
+                             boost::python::numeric::array ref_orientations,
+                             boost::python::numeric::array points,
+                             boost::python::numeric::array orientations)
     {
     //validate input type and rank
     m_box = box;
+    num_util::check_type(ref_points, NPY_FLOAT);
+    num_util::check_rank(ref_points, 2);
+    num_util::check_type(ref_orientations, NPY_FLOAT);
+    num_util::check_rank(ref_orientations, 2);
     num_util::check_type(points, NPY_FLOAT);
     num_util::check_rank(points, 2);
+    num_util::check_type(orientations, NPY_FLOAT);
+    num_util::check_rank(orientations, 2);
 
     // validate that the 2nd dimension is only 3
     num_util::check_dim(points, 1, 3);
     unsigned int Np = num_util::shape(points)[0];
 
+    num_util::check_dim(ref_points, 1, 3);
+    unsigned int Nref = num_util::shape(ref_points)[0];
+
+    // check the size of angles to be correct
+    num_util::check_dim(ref_orientations, 0, Nref);
+    num_util::check_dim(ref_orientations, 1, 4);
+    num_util::check_dim(orientations, 0, Np);
+    num_util::check_dim(orientations, 1, 4);
+
     // get the raw data pointers and compute order parameter
+    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+    quat<float>* ref_orientations_raw = (quat<float>*) num_util::data(ref_orientations);
     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+    quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
 
         // compute the order parameter with the GIL released
         {
         util::ScopedGILRelease gil;
-        compute(points_raw, Np);
+        accumulate(ref_points_raw,
+                   ref_orientations_raw,
+                   Nref,
+                   points_raw,
+                   orientations_raw,
+                   Np);
         }
+    }
+
+//! \internal
+/*! \brief Exposed function to python to calculate the PMF
+*/
+void BondOrder::computePy(trajectory::Box& box,
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array ref_orientations,
+                          boost::python::numeric::array points,
+                          boost::python::numeric::array orientations)
+    {
+    // validate input type and rank
+    resetBondOrder();
+    accumulatePy(box, ref_points, ref_orientations, points, orientations);
     }
 
 void export_BondOrder()
     {
     class_<BondOrder>("BondOrder", init<float, float, unsigned int, unsigned int, unsigned int>())
         .def("getBox", &BondOrder::getBox, return_internal_reference<>())
+        .def("accumulate", &BondOrder::accumulatePy)
         .def("compute", &BondOrder::computePy)
-        .def("getPsi", &BondOrder::getPsiPy)
+        .def("getBondOrder", &BondOrder::getBondOrderPy)
+        .def("getTheta", &BondOrder::getThetaPy)
+        .def("getPhi", &BondOrder::getPhiPy)
+        .def("resetBondOrder", &BondOrder::resetBondOrderPy)
         ;
     }
 

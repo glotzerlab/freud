@@ -33,7 +33,7 @@ class BondOrder
     {
     public:
         //! Constructor
-        BondOrder(float rmax, float k=6, unsigned int n=0);
+        BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
 
         //! Destructor
         ~BondOrder();
@@ -54,20 +54,36 @@ class BondOrder
             }
 
         //! accumulate the bond order
-        void accumulate(const vec3<float> *points,
+        void accumulate(vec3<float> *ref_points,
+                        quat<float> *ref_orientations,
+                        unsigned int Nref,
+                        vec3<float> *points,
+                        quat<float> *orientations,
                         unsigned int Np);
 
         //! Python wrapper for accumulate
         void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array points);
+                          boost::python::numeric::array ref_points,
+                          boost::python::numeric::array ref_orientations,
+                          boost::python::numeric::array points,
+                          boost::python::numeric::array orientations);
 
         //! Compute the bond order
-        void compute(const vec3<float> *points,
+        void compute(vec3<float> *ref_points,
+                     quat<float> *ref_orientations,
+                     unsigned int Nref,
+                     vec3<float> *points,
+                     quat<float> *orientations,
                      unsigned int Np);
 
         //! Python wrapper for compute
         void computePy(trajectory::Box& box,
-                       boost::python::numeric::array points);
+                       boost::python::numeric::array ref_points,
+                       boost::python::numeric::array ref_orientations,
+                       boost::python::numeric::array points,
+                       boost::python::numeric::array orientations);
+
+        void reduceBondOrder();
 
         //! Get a reference to the last computed rdf
         boost::shared_array<float> getBondOrder();
@@ -75,13 +91,13 @@ class BondOrder
         //! Get a reference to the r array
         boost::shared_array<float> getTheta()
             {
-            return m_t_array;
+            return m_theta_array;
             }
 
         //! Get a reference to the N_r array
         boost::shared_array<float> getPhi()
             {
-            return m_p_array;
+            return m_phi_array;
             }
 
         //! Python wrapper for getRDF() (returns a copy)
@@ -90,14 +106,14 @@ class BondOrder
         //! Python wrapper for getR() (returns a copy)
         boost::python::numeric::array getThetaPy()
             {
-            float *arr = m_t_array.get();
+            float *arr = m_theta_array.get();
             return num_util::makeNum(arr, m_nbins_t);
             }
 
         //! Python wrapper for getNr() (returns a copy)
         boost::python::numeric::array getPhiPy()
             {
-            float *arr = m_p_array.get();
+            float *arr = m_phi_array.get();
             return num_util::makeNum(arr, m_nbins_p);
             }
 
@@ -105,10 +121,14 @@ class BondOrder
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;                        //!< Multiplier in the exponent
+        float m_dt;
+        float m_dp;
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
+        unsigned int m_Nref;                //!< Last number of points computed
         unsigned int m_Np;                //!< Last number of points computed
         unsigned int m_nbins_t;           //!< number of bins for theta
         unsigned int m_nbins_p;           //!< number of bins for phi
+        unsigned int m_frame_counter;       //!< number of frames calc'd
 
         boost::shared_array<unsigned int> m_bin_counts;         //!< bin counts computed
         boost::shared_array<float> m_bo_array;         //!< bond order array computed
