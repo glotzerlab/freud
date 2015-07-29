@@ -257,8 +257,8 @@ void BondOrder::reduceBondOrder()
         {
         for (unsigned int j=0; j<m_nbins_p; j++)
             {
-            m_bin_counts[sa_i((int)i, (int)j)] /= m_frame_counter;
-            m_bo_array[sa_i((int)i, (int)j)] /= m_frame_counter;
+            m_bin_counts[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / (float)m_frame_counter;
+            m_bo_array[sa_i((int)i, (int)j)] = m_bo_array[sa_i((int)i, (int)j)] / (float)m_frame_counter;
             }
         }
     }
