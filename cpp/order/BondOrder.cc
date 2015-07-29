@@ -321,6 +321,7 @@ void BondOrder::accumulate(vec3<float> *ref_points,
     // save the last computed number of particles
     m_Nref = Nref;
     m_Np = Np;
+    m_frame_counter++;
     }
 
 void BondOrder::accumulatePy(trajectory::Box& box,
