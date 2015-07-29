@@ -218,7 +218,11 @@ class ComputeBondOrder
                         v = rotate(conj(ref_q), v);
                         // get theta, phi
                         float theta = atan2f(v.y, v.x);
+                        theta = (theta < 0) ? theta+2*M_PI : theta;
+                        theta = (theta > 2*M_PI) ? theta-2*M_PI : theta;
                         float phi = atan2f(sqrt(v.x*v.x + v.y*v.y), v.z);
+                        phi = (phi < 0) ? phi+2*M_PI : phi;
+                        phi = (phi > 2*M_PI) ? phi-2*M_PI : phi;
                         // bin the point
                         float bint = floorf(theta * dt_inv);
                         float binp = floorf(phi * dp_inv);
