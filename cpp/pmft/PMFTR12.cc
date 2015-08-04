@@ -230,34 +230,10 @@ class ComputePMFTR12
                             float T1 = dTheta1 - m_ref_orientations[i];
                             float T2 = dTheta2 - m_orientations[j];
                             // make sure that T1, T2 are bounded between 0 and 2PI
-                            if (T1 < 0.0)
-                                {
-                                while (T1 < 0.0)
-                                    {
-                                    T1 += 2.0*M_PI;
-                                    }
-                                }
-                            if (T1 > 2.0*M_PI)
-                                {
-                                while (T1 > 2.0*M_PI)
-                                    {
-                                    T1 -= 2.0*M_PI;
-                                    }
-                                }
-                            if (T2 < 0.0)
-                                {
-                                while (T2 < 0.0)
-                                    {
-                                    T2 += 2.0*M_PI;
-                                    }
-                                }
-                            if (T2 > 2.0*M_PI)
-                                {
-                                while (T2 > 2.0*M_PI)
-                                    {
-                                    T2 -= 2.0*M_PI;
-                                    }
-                                }
+                            T1 = (T1 < 0) ? T1+2*M_PI : T1;
+                            T1 = (T1 > 2*M_PI) ? T1-2*M_PI : T1;
+                            T2 = (T2 < 0) ? T2+2*M_PI : T2;
+                            T2 = (T2 > 2*M_PI) ? T2-2*M_PI : T2;
                             // bin that point
                             float binr = r * dr_inv;
                             float binT1 = floorf(T1 * dT1_inv);
