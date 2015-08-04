@@ -206,8 +206,8 @@ void SolLiq::computeClustersQ(const vec3<float> *points, unsigned int Np)
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
                         m_Qlmi_array[(2*m_l+1)*i+k]+=Y[k];
-                        m_number_of_neighbors[i]++;
                         }
+                    m_number_of_neighbors[i]++;
                     }
                 }//End loop over a particular neighbor cell
             }  //End loops of neighboring cells
@@ -756,6 +756,7 @@ void export_SolLiq()
         .def("getQlmi", &SolLiq::getQlmiPy)
         .def("getClusters", &SolLiq::getClustersPy)
         .def("getNumberOfConnections",&SolLiq::getNumberOfConnectionsPy)
+        .def("getNumberOfNeighbors",&SolLiq::getNumberOfNeighborsPy)
         .def("getNumberOfSharedConnections",&SolLiq::getNumberOfSharedConnectionsPy)
         .def("getQldot_ij",&SolLiq::getQldot_ijPy)
         .def("calcY4m", &SolLiq::calcY4mPy)
