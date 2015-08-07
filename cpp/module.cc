@@ -19,6 +19,7 @@
 #include "RDF.h"
 #include "ClusterProperties.h"
 #include "HexOrderParameter.h"
+#include "TransOrderParameter.h"
 #include "BondOrder.h"
 #include "InterfaceMeasure.h"
 #include "pairing2D.h"
