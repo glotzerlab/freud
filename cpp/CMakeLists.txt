@@ -96,6 +96,8 @@ set(SOURCES trajectory/trajectory.cc
             order/HexOrderParameter.cc
             order/TransOrderParameter.h
             order/TransOrderParameter.cc
+            order/BondOrder.h
+            order/BondOrder.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
             util/Index1D.h
