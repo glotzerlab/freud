@@ -101,6 +101,7 @@ BOOST_PYTHON_MODULE(_freud)
     cluster::export_ClusterProperties();
     order::export_HexOrderParameter();
     order::export_BondOrder();
+    order::export_TransOrderParameter();
     order::export_LocalDescriptors();
     locality::export_NearestNeighbors();
     interface::export_InterfaceMeasure();
