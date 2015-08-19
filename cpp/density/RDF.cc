@@ -300,6 +300,14 @@ boost::python::numeric::array RDF::getRDFPy()
     return num_util::makeNum(arr, m_nbins);
     }
 
+//! Python wrapper for getNr() (returns a copy)
+boost::python::numeric::array RDF::getNrPy()
+    {
+    reduceRDF();
+    float *arr = m_N_r_array.get();
+    return num_util::makeNum(arr, m_nbins);
+    }
+
 //! \internal
 /*! \brief Function to reset the rdf array if needed e.g. calculating between new particle types
 */

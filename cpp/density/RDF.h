@@ -98,6 +98,8 @@ class RDF
         //! Python wrapper for getRDF() (returns a copy)
         boost::python::numeric::array getRDFPy();
 
+        boost::python::numeric::array getNrPy();
+
         //! Python wrapper for getR() (returns a copy)
         boost::python::numeric::array getRPy()
             {
@@ -105,12 +107,6 @@ class RDF
             return num_util::makeNum(arr, m_nbins);
             }
 
-        //! Python wrapper for getNr() (returns a copy)
-        boost::python::numeric::array getNrPy()
-            {
-            float *arr = m_N_r_array.get();
-            return num_util::makeNum(arr, m_nbins);
-            }
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
