@@ -1,7 +1,6 @@
 #include "InterfaceMeasure.h"
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file InterfaceMeasure.h
     \brief Compute the size of an interface between two point clouds
@@ -85,41 +84,41 @@ unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
     return interfaceCount;
 }
 
-unsigned int InterfaceMeasure::computePy(boost::python::numeric::array ref_points,
-                                         boost::python::numeric::array points)
-{
-    // validate input type
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_type(points, NPY_FLOAT);
+// unsigned int InterfaceMeasure::computePy(boost::python::numeric::array ref_points,
+//                                          boost::python::numeric::array points)
+// {
+//     // validate input type
+//     num_util::check_type(ref_points, NPY_FLOAT);
+//     num_util::check_type(points, NPY_FLOAT);
 
-    // validate input rank
-    num_util::check_rank(ref_points, 2);
-    num_util::check_rank(points, 2);
+//     // validate input rank
+//     num_util::check_rank(ref_points, 2);
+//     num_util::check_rank(points, 2);
 
-    // validate that the second dimension is only 3
-    num_util::check_dim(ref_points, 1, 3);
-    num_util::check_dim(points, 1, 3);
+//     // validate that the second dimension is only 3
+//     num_util::check_dim(ref_points, 1, 3);
+//     num_util::check_dim(points, 1, 3);
 
-    // get the number of points in the arrays
-    unsigned int Nref = num_util::shape(points)[0];
-    unsigned int Np = num_util::shape(ref_points)[0];
+//     // get the number of points in the arrays
+//     unsigned int Nref = num_util::shape(points)[0];
+//     unsigned int Np = num_util::shape(ref_points)[0];
 
-    // get the raw data pointers and compute the interface
-    // float3* ref_points_raw = (float3*) num_util::data(ref_points);
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     // get the raw data pointers and compute the interface
+//     // float3* ref_points_raw = (float3*) num_util::data(ref_points);
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
-    return compute(ref_points_raw, Nref, points_raw, Np);
-}
+//     return compute(ref_points_raw, Nref, points_raw, Np);
+// }
 
-// Export the methods inside the InterfaceMeasure class
-void export_InterfaceMeasure()
-{
-    class_<InterfaceMeasure>("InterfaceMeasure", init<trajectory::Box&, float>())
-        .def("getBox", &InterfaceMeasure::getBox, return_internal_reference<>())
-        .def("compute",&InterfaceMeasure::computePy)
-        ;
-}
+// // Export the methods inside the InterfaceMeasure class
+// void export_InterfaceMeasure()
+// {
+//     class_<InterfaceMeasure>("InterfaceMeasure", init<trajectory::Box&, float>())
+//         .def("getBox", &InterfaceMeasure::getBox, return_internal_reference<>())
+//         .def("compute",&InterfaceMeasure::computePy)
+//         ;
+// }
 
 }; }; // end namespace freud::density

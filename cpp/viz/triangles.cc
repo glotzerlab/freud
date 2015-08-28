@@ -1,7 +1,5 @@
-#include <boost/python.hpp>
 #include <stdexcept>
 
-#include "num_util.h"
 #include "triangles.h"
 #include "ScopedGILRelease.h"
 
@@ -9,7 +7,6 @@
 #include <math.h>
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file triangles.cc
     \brief Helper routines for generating triangle geometry
@@ -164,141 +161,141 @@ float2 mat_rotate(float2 point, float angle)
 
 */
 
-void triangle_rotatePy(boost::python::numeric::array vert_array,
-                boost::python::numeric::array color_array,
-                boost::python::numeric::array position_array,
-                boost::python::numeric::array angle_array,
-                boost::python::numeric::array triangle_array,
-                boost::python::numeric::array poly_colors
-                )
-    {
-    //ugh I can't remember which is input and which is output...
-    //validate input type and rank
-    //
+// void triangle_rotatePy(boost::python::numeric::array vert_array,
+//                 boost::python::numeric::array color_array,
+//                 boost::python::numeric::array position_array,
+//                 boost::python::numeric::array angle_array,
+//                 boost::python::numeric::array triangle_array,
+//                 boost::python::numeric::array poly_colors
+//                 )
+//     {
+//     //ugh I can't remember which is input and which is output...
+//     //validate input type and rank
+//     //
 
-    num_util::check_type(vert_array, NPY_FLOAT);
-    num_util::check_rank(vert_array, 3);
+//     num_util::check_type(vert_array, NPY_FLOAT);
+//     num_util::check_rank(vert_array, 3);
 
-    // validate that the 2nd dimension is 4
-    num_util::check_dim(vert_array, 2, 2);
-    //unsigned int N = num_util::shape(vert_array)[0];
+//     // validate that the 2nd dimension is 4
+//     num_util::check_dim(vert_array, 2, 2);
+//     //unsigned int N = num_util::shape(vert_array)[0];
 
-    // check that u is consistent
-    num_util::check_type(position_array, NPY_FLOAT);
-    num_util::check_rank(position_array, 2);
-    unsigned int N = num_util::shape(position_array)[0];
-    //if (num_util::shape(position_array)[0] != N)
-    //    throw std::invalid_argument("Input lengths for vert_array and position_array must match");
+//     // check that u is consistent
+//     num_util::check_type(position_array, NPY_FLOAT);
+//     num_util::check_rank(position_array, 2);
+//     unsigned int N = num_util::shape(position_array)[0];
+//     //if (num_util::shape(position_array)[0] != N)
+//     //    throw std::invalid_argument("Input lengths for vert_array and position_array must match");
 
-    // check that s is consistent
-    num_util::check_type(angle_array, NPY_FLOAT);
-    num_util::check_rank(angle_array, 1);
-    if (num_util::shape(angle_array)[0] != N)
-        throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
+//     // check that s is consistent
+//     num_util::check_type(angle_array, NPY_FLOAT);
+//     num_util::check_rank(angle_array, 1);
+//     if (num_util::shape(angle_array)[0] != N)
+//         throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
 
-    // check that v is consistent
-    num_util::check_type(triangle_array, NPY_FLOAT);
-    // I think this should be N_Tx3X2
-    num_util::check_rank(triangle_array, 3);
-    unsigned int NT = num_util::shape(triangle_array)[0];
+//     // check that v is consistent
+//     num_util::check_type(triangle_array, NPY_FLOAT);
+//     // I think this should be N_Tx3X2
+//     num_util::check_rank(triangle_array, 3);
+//     unsigned int NT = num_util::shape(triangle_array)[0];
 
-    num_util::check_type(poly_colors, NPY_FLOAT);
-    // I think this should be N_Tx3X2
-    num_util::check_rank(poly_colors, 2);
-    if (num_util::shape(poly_colors)[0] != N)
-        throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
-    if (num_util::shape(poly_colors)[1] != 4)
-        throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
+//     num_util::check_type(poly_colors, NPY_FLOAT);
+//     // I think this should be N_Tx3X2
+//     num_util::check_rank(poly_colors, 2);
+//     if (num_util::shape(poly_colors)[0] != N)
+//         throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
+//     if (num_util::shape(poly_colors)[1] != 4)
+//         throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
 
-    // get the raw data pointers and compute conversion
-    float2* vert_array_raw = (float2*) num_util::data(vert_array);
-    float4* color_array_raw = (float4*) num_util::data(color_array);
-    float2* position_array_raw = (float2*) num_util::data(position_array);
-    float* angle_array_raw = (float*) num_util::data(angle_array);
-    float2* triangle_array_raw = (float2*) num_util::data(triangle_array);
-    float4* poly_colors_raw = (float4*) num_util::data(poly_colors);
+//     // get the raw data pointers and compute conversion
+//     float2* vert_array_raw = (float2*) num_util::data(vert_array);
+//     float4* color_array_raw = (float4*) num_util::data(color_array);
+//     float2* position_array_raw = (float2*) num_util::data(position_array);
+//     float* angle_array_raw = (float*) num_util::data(angle_array);
+//     float2* triangle_array_raw = (float2*) num_util::data(triangle_array);
+//     float4* poly_colors_raw = (float4*) num_util::data(poly_colors);
 
-        // compute the colormap with the GIL released
+//         // compute the colormap with the GIL released
 
-        {
-        util::ScopedGILRelease gil;
-        triangle_rotate(vert_array_raw, color_array_raw, position_array_raw, angle_array_raw, triangle_array_raw, poly_colors_raw, N, NT);
-        }
-    }
+//         {
+//         util::ScopedGILRelease gil;
+//         triangle_rotate(vert_array_raw, color_array_raw, position_array_raw, angle_array_raw, triangle_array_raw, poly_colors_raw, N, NT);
+//         }
+//     }
 
-/*! \internal
-    \brief Python wrapper for triangle_rotate
+// /*! \internal
+//     \brief Python wrapper for triangle_rotate
 
-    \param vert_array Output triangle vertices (N*NTx3x2 float32 array)
-    \param color_array Output triangle colors (N*NTx4 float32 array)
-    \param position_array Input values: positions (N element float32 array)
-    \param angle_array Input values: angles (N element float32 array)
-    \param triangle_array Input values: array of triangle vertices in local coordinates (NTx3x2 element float32 array)
-    \param poly_colors Input polygon color array (Nx4 float32 array)
+//     \param vert_array Output triangle vertices (N*NTx3x2 float32 array)
+//     \param color_array Output triangle colors (N*NTx4 float32 array)
+//     \param position_array Input values: positions (N element float32 array)
+//     \param angle_array Input values: angles (N element float32 array)
+//     \param triangle_array Input values: array of triangle vertices in local coordinates (NTx3x2 element float32 array)
+//     \param poly_colors Input polygon color array (Nx4 float32 array)
 
-*/
+// */
 
-void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
-                boost::python::numeric::array color_array,
-                boost::python::numeric::array position_array,
-                boost::python::numeric::array angle_array,
-                boost::python::numeric::array triangle_array,
-                boost::python::numeric::array poly_colors
-                )
-    {
-    //ugh I can't remember which is input and which is output...
-    //validate input type and rank
-    //
+// void triangle_rotatePy_mat(boost::python::numeric::array vert_array,
+//                 boost::python::numeric::array color_array,
+//                 boost::python::numeric::array position_array,
+//                 boost::python::numeric::array angle_array,
+//                 boost::python::numeric::array triangle_array,
+//                 boost::python::numeric::array poly_colors
+//                 )
+//     {
+//     //ugh I can't remember which is input and which is output...
+//     //validate input type and rank
+//     //
 
-    num_util::check_type(vert_array, NPY_FLOAT);
-    num_util::check_rank(vert_array, 3);
+//     num_util::check_type(vert_array, NPY_FLOAT);
+//     num_util::check_rank(vert_array, 3);
 
-    // validate that the 2nd dimension is 4
-    num_util::check_dim(vert_array, 2, 2);
-    //unsigned int N = num_util::shape(vert_array)[0];
+//     // validate that the 2nd dimension is 4
+//     num_util::check_dim(vert_array, 2, 2);
+//     //unsigned int N = num_util::shape(vert_array)[0];
 
-    // check that u is consistent
-    num_util::check_type(position_array, NPY_FLOAT);
-    num_util::check_rank(position_array, 2);
-    unsigned int N = num_util::shape(position_array)[0];
-    //if (num_util::shape(position_array)[0] != N)
-    //    throw std::invalid_argument("Input lengths for vert_array and position_array must match");
+//     // check that u is consistent
+//     num_util::check_type(position_array, NPY_FLOAT);
+//     num_util::check_rank(position_array, 2);
+//     unsigned int N = num_util::shape(position_array)[0];
+//     //if (num_util::shape(position_array)[0] != N)
+//     //    throw std::invalid_argument("Input lengths for vert_array and position_array must match");
 
-    // check that s is consistent
-    num_util::check_type(angle_array, NPY_FLOAT);
-    num_util::check_rank(angle_array, 1);
-    if (num_util::shape(angle_array)[0] != N)
-        throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
+//     // check that s is consistent
+//     num_util::check_type(angle_array, NPY_FLOAT);
+//     num_util::check_rank(angle_array, 1);
+//     if (num_util::shape(angle_array)[0] != N)
+//         throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
 
-    // check that v is consistent
-    num_util::check_type(triangle_array, NPY_FLOAT);
-    // I think this should be N_Tx3X2
-    num_util::check_rank(triangle_array, 3);
-    unsigned int NT = num_util::shape(triangle_array)[0];
+//     // check that v is consistent
+//     num_util::check_type(triangle_array, NPY_FLOAT);
+//     // I think this should be N_Tx3X2
+//     num_util::check_rank(triangle_array, 3);
+//     unsigned int NT = num_util::shape(triangle_array)[0];
 
-    num_util::check_type(poly_colors, NPY_FLOAT);
-    // I think this should be N_Tx3X2
-    num_util::check_rank(poly_colors, 2);
-    if (num_util::shape(poly_colors)[0] != N)
-        throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
-    if (num_util::shape(poly_colors)[1] != 4)
-        throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
+//     num_util::check_type(poly_colors, NPY_FLOAT);
+//     // I think this should be N_Tx3X2
+//     num_util::check_rank(poly_colors, 2);
+//     if (num_util::shape(poly_colors)[0] != N)
+//         throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
+//     if (num_util::shape(poly_colors)[1] != 4)
+//         throw std::invalid_argument("Input lengths for vert_array and poly_colors must match");
 
-    // get the raw data pointers and compute conversion
-    float2* vert_array_raw = (float2*) num_util::data(vert_array);
-    float4* color_array_raw = (float4*) num_util::data(color_array);
-    float2* position_array_raw = (float2*) num_util::data(position_array);
-    float* angle_array_raw = (float*) num_util::data(angle_array);
-    float2* triangle_array_raw = (float2*) num_util::data(triangle_array);
-    float4* poly_colors_raw = (float4*) num_util::data(poly_colors);
+//     // get the raw data pointers and compute conversion
+//     float2* vert_array_raw = (float2*) num_util::data(vert_array);
+//     float4* color_array_raw = (float4*) num_util::data(color_array);
+//     float2* position_array_raw = (float2*) num_util::data(position_array);
+//     float* angle_array_raw = (float*) num_util::data(angle_array);
+//     float2* triangle_array_raw = (float2*) num_util::data(triangle_array);
+//     float4* poly_colors_raw = (float4*) num_util::data(poly_colors);
 
-        // compute the colormap with the GIL released
+//         // compute the colormap with the GIL released
 
-        {
-        util::ScopedGILRelease gil;
-        triangle_rotate_mat(vert_array_raw, color_array_raw, position_array_raw, angle_array_raw, triangle_array_raw, poly_colors_raw, N, NT);
-        }
-    }
+//         {
+//         util::ScopedGILRelease gil;
+//         triangle_rotate_mat(vert_array_raw, color_array_raw, position_array_raw, angle_array_raw, triangle_array_raw, poly_colors_raw, N, NT);
+//         }
+//     }
 
 /*! \param vert_array Output colormap (Nx4 float32 array)
     \param theta_array Input values: hue angle (N element float32 array)
@@ -394,13 +391,6 @@ void triangle_rotate_mat(float2 *vert_array,
             }
 
         }
-    }
-
-void export_triangles()
-    {
-    def("triangle_rotate", &triangle_rotatePy);
-    def("triangle_rotate_mat", &triangle_rotatePy_mat);
-    //def("quat_mult", &quat_multPy);
     }
 
 }; }; // end namespace freud::viz

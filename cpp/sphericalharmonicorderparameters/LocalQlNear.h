@@ -1,5 +1,5 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
+#include <complex>
 
 #include "HOOMDMath.h"
 #define swap freud_swap
@@ -7,7 +7,6 @@
 #undef swap
 
 #include "NearestNeighbors.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #ifndef _LOCAL_QL_NEAR_H__
@@ -74,8 +73,8 @@ class LocalQlNear
         void compute(const vec3<float> *points,
                      unsigned int Np);
 
-        //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
-        void computePy(boost::python::numeric::array points);
+        // //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.
+        // void computePy(boost::python::numeric::array points);
 
         //! Compute the local rotationally invariant (with 2nd shell) Ql order parameter
         // void computeAve(const float3 *points,
@@ -83,8 +82,8 @@ class LocalQlNear
         void computeAve(const vec3<float> *points,
                         unsigned int Np);
 
-        //! Python wrapper for computing the order parameter (with 2nd shell) from a Nx3 numpy array of float32.
-        void computeAvePy(boost::python::numeric::array points);
+        // //! Python wrapper for computing the order parameter (with 2nd shell) from a Nx3 numpy array of float32.
+        // void computeAvePy(boost::python::numeric::array points);
 
         //! Compute the Ql order parameter globally (averaging over the system Qlm)
         // void computeNorm(const float3 *points,
@@ -92,8 +91,8 @@ class LocalQlNear
         void computeNorm(const vec3<float> *points,
                          unsigned int Np);
 
-        //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32
-        void computeNormPy(boost::python::numeric::array points);
+        // //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32
+        // void computeNormPy(boost::python::numeric::array points);
 
         //! Compute the Ql order parameter globally (averaging over the system AveQlm)
         // void computeAveNorm(const float3 *points,
@@ -101,8 +100,8 @@ class LocalQlNear
         void computeAveNorm(const vec3<float> *points,
                          unsigned int Np);
 
-        //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32
-        void computeAveNormPy(boost::python::numeric::array points);
+        // //! Python wrapper for computing the global Ql order parameter from Nx3 numpy array of float32
+        // void computeAveNormPy(boost::python::numeric::array points);
 
 
         //! Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
@@ -111,12 +110,12 @@ class LocalQlNear
             return m_Qli;
             }
 
-        //! Python wrapper for getQl() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
-        boost::python::numeric::array getQlPy()
-            {
-            double *arr = m_Qli.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for getQl() (returns a copy of array).  Returns NaN instead of Ql for particles with no neighbors.
+        // boost::python::numeric::array getQlPy()
+        //     {
+        //     double *arr = m_Qli.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
         //! Get a reference to the last computed AveQl for each particle.  Returns NaN instead of AveQl for particles with no neighbors.
         boost::shared_array< double > getAveQl()
@@ -124,12 +123,12 @@ class LocalQlNear
             return m_AveQli;
             }
 
-        //! Python wrapper for getAveQl() (returns a copy of array).  Returns NaN instead of AveQl for particles with no neighbors.
-        boost::python::numeric::array getAveQlPy()
-            {
-            double *arr = m_AveQli.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for getAveQl() (returns a copy of array).  Returns NaN instead of AveQl for particles with no neighbors.
+        // boost::python::numeric::array getAveQlPy()
+        //     {
+        //     double *arr = m_AveQli.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
         boost::shared_array< double > getQlNorm()
@@ -137,12 +136,12 @@ class LocalQlNear
             return m_QliNorm;
             }
 
-        //! Python wrapper for getQlNorm() (returns a copy of array). Returns NaN instead of QlNorm for particles with no neighbors.
-        boost::python::numeric::array getQlNormPy()
-            {
-            double *arr = m_QliNorm.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for getQlNorm() (returns a copy of array). Returns NaN instead of QlNorm for particles with no neighbors.
+        // boost::python::numeric::array getQlNormPy()
+        //     {
+        //     double *arr = m_QliNorm.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
         boost::shared_array< double > getQlAveNorm()
@@ -150,12 +149,12 @@ class LocalQlNear
             return m_QliAveNorm;
             }
 
-        //! Python wrapper for getQlNorm() (returns a copy of array). Returns NaN instead of QlNorm for particles with no neighbors.
-        boost::python::numeric::array getQlAveNormPy()
-            {
-            double *arr = m_QliAveNorm.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for getQlNorm() (returns a copy of array). Returns NaN instead of QlNorm for particles with no neighbors.
+        // boost::python::numeric::array getQlAveNormPy()
+        //     {
+        //     double *arr = m_QliAveNorm.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
         //!Spherical harmonics calculation for Ylm filling a vector<complex<double>> with values for m = -l..l.
         void Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y);
@@ -177,9 +176,6 @@ class LocalQlNear
         boost::shared_array< std::complex<double> > m_AveQlm; //! AveNormQlm for the system
         boost::shared_array< double > m_QliAveNorm;     //! < QlAveNorm order paramter for each particle i
     };
-
-//! Exports all classes in this file to python
-void export_LocalQlNear();
 
 }; }; // end namespace freud::localqlnear
 

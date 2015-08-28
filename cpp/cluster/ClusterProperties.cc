@@ -4,9 +4,9 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file ClusterProperties.cc
     \brief Routines for computing properties of point clusters
@@ -149,44 +149,44 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
     // done!
     }
 
-void ClusterProperties::computePropertiesPy(boost::python::numeric::array points,
-                                            boost::python::numeric::array cluster_idx)
-    {
-    // validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void ClusterProperties::computePropertiesPy(boost::python::numeric::array points,
+//                                             boost::python::numeric::array cluster_idx)
+//     {
+//     // validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // validate that cluster_idx is a 1D array
-    num_util::check_type(cluster_idx, NPY_UINT32);
-    num_util::check_rank(cluster_idx, 1);
+//     // validate that cluster_idx is a 1D array
+//     num_util::check_type(cluster_idx, NPY_UINT32);
+//     num_util::check_rank(cluster_idx, 1);
 
-    // Check that there is one key per point
-    unsigned int Nidx = num_util::shape(cluster_idx)[0];
+//     // Check that there is one key per point
+//     unsigned int Nidx = num_util::shape(cluster_idx)[0];
 
-    if (!(Np == Nidx))
-        throw invalid_argument("Number of points must match the number of cluster_idx values");
+//     if (!(Np == Nidx))
+//         throw invalid_argument("Number of points must match the number of cluster_idx values");
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    unsigned int *cluster_idx_raw = (unsigned int*) num_util::data(cluster_idx);
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     unsigned int *cluster_idx_raw = (unsigned int*) num_util::data(cluster_idx);
 
-    computeProperties(points_raw, cluster_idx_raw, Np);
-    }
+//     computeProperties(points_raw, cluster_idx_raw, Np);
+//     }
 
-void export_ClusterProperties()
-    {
-    class_<ClusterProperties>("ClusterProperties", init<trajectory::Box&>())
-        .def("getBox", &ClusterProperties::getBox, return_internal_reference<>())
-        .def("computeProperties", &ClusterProperties::computePropertiesPy)
-        .def("getNumClusters", &ClusterProperties::getNumClusters)
-        .def("getClusterCOM", &ClusterProperties::getClusterCOMPy)
-        .def("getClusterG", &ClusterProperties::getClusterGPy)
-        .def("getClusterSize", &ClusterProperties::getClusterSizePy)
-        ;
-    }
+// void export_ClusterProperties()
+//     {
+//     class_<ClusterProperties>("ClusterProperties", init<trajectory::Box&>())
+//         .def("getBox", &ClusterProperties::getBox, return_internal_reference<>())
+//         .def("computeProperties", &ClusterProperties::computePropertiesPy)
+//         .def("getNumClusters", &ClusterProperties::getNumClusters)
+//         .def("getClusterCOM", &ClusterProperties::getClusterCOMPy)
+//         .def("getClusterG", &ClusterProperties::getClusterGPy)
+//         .def("getClusterSize", &ClusterProperties::getClusterSizePy)
+//         ;
+//     }
 }; }; // end namespace freud::cluster

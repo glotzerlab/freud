@@ -6,14 +6,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -66,15 +64,15 @@ class RDF
                         const vec3<float> *points,
                         unsigned int Np);
 
-        //! Python wrapper for accumulate
-        void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array points);
+        // //! Python wrapper for accumulate
+        // void accumulatePy(trajectory::Box& box,
+        //                   boost::python::numeric::array ref_points,
+        //                   boost::python::numeric::array points);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array points);
+        // //! Python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array ref_points,
+        //                boost::python::numeric::array points);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -95,17 +93,17 @@ class RDF
             return m_N_r_array;
             }
 
-        //! Python wrapper for getRDF() (returns a copy)
-        boost::python::numeric::array getRDFPy();
+        // //! Python wrapper for getRDF() (returns a copy)
+        // boost::python::numeric::array getRDFPy();
 
-        boost::python::numeric::array getNrPy();
+        // boost::python::numeric::array getNrPy();
 
-        //! Python wrapper for getR() (returns a copy)
-        boost::python::numeric::array getRPy()
-            {
-            float *arr = m_r_array.get();
-            return num_util::makeNum(arr, m_nbins);
-            }
+        // //! Python wrapper for getR() (returns a copy)
+        // boost::python::numeric::array getRPy()
+        //     {
+        //     float *arr = m_r_array.get();
+        //     return num_util::makeNum(arr, m_nbins);
+        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -127,11 +125,6 @@ class RDF
         boost::shared_array<float> m_vol_array3D;         //!< array of volumes for each slice of r
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_RDF();
 
 }; }; // end namespace freud::density
 

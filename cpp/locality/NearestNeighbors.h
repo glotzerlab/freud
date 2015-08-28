@@ -1,11 +1,9 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "LinkCell.h"
 // hack to keep VectorMath's swap from polluting the global namespace
 // if this is a problem, we need to solve it
 #include "VectorMath.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -74,19 +72,19 @@ class IteratorNeighborList
             return m_neighbor_list[m_idx*m_k + m_cur_idx];
             }
 
-        //! Get the next particle index in the list with python StopIteration
-        unsigned int nextPy()
-            {
-            m_cur_idx++;
+        // //! Get the next particle index in the list with python StopIteration
+        // unsigned int nextPy()
+        //     {
+        //     m_cur_idx++;
 
-            if (atEnd())
-                {
-                PyErr_SetNone(PyExc_StopIteration);
-                boost::python::throw_error_already_set();
-                }
+        //     if (atEnd())
+        //         {
+        //         PyErr_SetNone(PyExc_StopIteration);
+        //         boost::python::throw_error_already_set();
+        //         }
 
-            return m_neighbor_list[m_idx*m_k + m_cur_idx];
-            }
+        //     return m_neighbor_list[m_idx*m_k + m_cur_idx];
+        //     }
 
     private:
         const unsigned int *m_neighbor_list;                  //!< The neighbor list
@@ -172,20 +170,20 @@ class NearestNeighbors
             return requested_neighbors;
             }
 
-        //! Python wrapper for getNeighbors() (returns a copy)
-        boost::python::numeric::array getNeighborsPy(unsigned int i)
-            {
-            // create the array
-            boost::shared_array<unsigned int> requested_neighbors = boost::shared_array<unsigned int>(new unsigned int[m_nNeigh]);
-            // find the position from which to read neighbors
-            unsigned int start_idx = i*m_nNeigh;
-            for (unsigned int j=0; j<m_nNeigh; j++)
-                {
-                requested_neighbors[j] = m_neighbor_array[start_idx + j];
-                }
-            unsigned int *arr = requested_neighbors.get();
-            return num_util::makeNum(arr, m_nNeigh);
-            }
+        // //! Python wrapper for getNeighbors() (returns a copy)
+        // boost::python::numeric::array getNeighborsPy(unsigned int i)
+        //     {
+        //     // create the array
+        //     boost::shared_array<unsigned int> requested_neighbors = boost::shared_array<unsigned int>(new unsigned int[m_nNeigh]);
+        //     // find the position from which to read neighbors
+        //     unsigned int start_idx = i*m_nNeigh;
+        //     for (unsigned int j=0; j<m_nNeigh; j++)
+        //         {
+        //         requested_neighbors[j] = m_neighbor_array[start_idx + j];
+        //         }
+        //     unsigned int *arr = requested_neighbors.get();
+        //     return num_util::makeNum(arr, m_nNeigh);
+        //     }
 
         //! Get a reference to the neighborlist array
         boost::shared_array<unsigned int> getNeighborList() const
@@ -193,15 +191,15 @@ class NearestNeighbors
             return m_neighbor_array;
             }
 
-        //! Python wrapper for getNeighbors() (returns a copy)
-        boost::python::numeric::array getNeighborListPy()
-            {
-            unsigned int *arr = m_neighbor_array.get();
-            std::vector<intp> dims(2);
-            dims[0] = m_Nref;
-            dims[1] = m_nNeigh;
-            return num_util::makeNum(arr, dims);
-            }
+        // //! Python wrapper for getNeighbors() (returns a copy)
+        // boost::python::numeric::array getNeighborListPy()
+        //     {
+        //     unsigned int *arr = m_neighbor_array.get();
+        //     std::vector<intp> dims(2);
+        //     dims[0] = m_Nref;
+        //     dims[1] = m_nNeigh;
+        //     return num_util::makeNum(arr, dims);
+        //     }
 
         //! Get a reference to the distance array
         boost::shared_array<float> getRsq(float i) const
@@ -217,20 +215,20 @@ class NearestNeighbors
             return requested_rsq;
             }
 
-        //! Python wrapper for getR() (returns a copy)
-        boost::python::numeric::array getRsqPy(float i)
-            {
-            // create the array
-            boost::shared_array<float> requested_rsq = boost::shared_array<float>(new float[m_nNeigh]);
-            // find the position from which to read neighbors
-            unsigned int start_idx = i*m_nNeigh;
-            for (unsigned int j=0; j<m_nNeigh; j++)
-                {
-                requested_rsq[j] = m_rsq_array[start_idx + j];
-                }
-            float *arr = requested_rsq.get();
-            return num_util::makeNum(arr, m_nNeigh);
-            }
+        // //! Python wrapper for getR() (returns a copy)
+        // boost::python::numeric::array getRsqPy(float i)
+        //     {
+        //     // create the array
+        //     boost::shared_array<float> requested_rsq = boost::shared_array<float>(new float[m_nNeigh]);
+        //     // find the position from which to read neighbors
+        //     unsigned int start_idx = i*m_nNeigh;
+        //     for (unsigned int j=0; j<m_nNeigh; j++)
+        //         {
+        //         requested_rsq[j] = m_rsq_array[start_idx + j];
+        //         }
+        //     float *arr = requested_rsq.get();
+        //     return num_util::makeNum(arr, m_nNeigh);
+        //     }
 
         //! Get a reference to the distanceList array
         boost::shared_array<float> getRsqList() const
@@ -238,18 +236,18 @@ class NearestNeighbors
             return m_rsq_array;
             }
 
-        //! Python wrapper for getRList() (returns a copy)
-        boost::python::numeric::array getRsqListPy()
-            {
-            float *arr = m_rsq_array.get();
-            return num_util::makeNum(arr, m_nNeigh*m_Np);
-            }
+        // //! Python wrapper for getRList() (returns a copy)
+        // boost::python::numeric::array getRsqListPy()
+        //     {
+        //     float *arr = m_rsq_array.get();
+        //     return num_util::makeNum(arr, m_nNeigh*m_Np);
+        //     }
 
         //! find the requested nearest neighbors
         void compute(trajectory::Box& box, const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box, boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
+        // //! Python wrapper for compute
+        // void computePy(trajectory::Box& box, boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -262,9 +260,6 @@ class NearestNeighbors
         boost::shared_array<unsigned int> m_neighbor_array;         //!< array of nearest neighbors computed
         boost::shared_array<float> m_rsq_array;         //!< array of distances to neighbors
         };
-
-    //! Exports all classes in this file to python
-    void export_NearestNeighbors();
 
 }; }; // end namespace freud::locality
 

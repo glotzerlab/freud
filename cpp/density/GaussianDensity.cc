@@ -4,7 +4,6 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -200,19 +199,19 @@ boost::shared_array<float> GaussianDensity::getDensity()
     return m_Density_array;
     }
 
-//!Python wrapper for getDensity() (returns a copy)
-boost::python::numeric::array GaussianDensity::getDensityPy()
-    {
-    reduceDensity();
-    float *arr = m_Density_array.get();
-    std::vector<intp> dims;
-    if (!m_box.is2D())
-        dims.push_back(m_width_z);
-    dims.push_back(m_width_y);
-    dims.push_back(m_width_x);
+// //!Python wrapper for getDensity() (returns a copy)
+// boost::python::numeric::array GaussianDensity::getDensityPy()
+//     {
+//     reduceDensity();
+//     float *arr = m_Density_array.get();
+//     std::vector<intp> dims;
+//     if (!m_box.is2D())
+//         dims.push_back(m_width_z);
+//     dims.push_back(m_width_y);
+//     dims.push_back(m_width_x);
 
-    return num_util::makeNum(arr, dims);
-    }
+//     return num_util::makeNum(arr, dims);
+//     }
 
 //! \internal
 /*! \brief Function to reset the density array if needed e.g. calculating between new particle types
@@ -241,55 +240,55 @@ void GaussianDensity::accumulate(const vec3<float> *points, unsigned int Np)
                                                                      Np));
     }
 
-void GaussianDensity::accumulatePy(trajectory::Box& box,
-                                   boost::python::numeric::array points)
-    {
-    // validate input type and rank
-    m_box = box;
-    if (m_box.is2D())
-        {
-        m_bi = Index3D(m_width_x, m_width_y, 1);
-        }
-    else
-        {
-        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
-        }
-    // this does not agree with rest of freud
-    m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void GaussianDensity::accumulatePy(trajectory::Box& box,
+//                                    boost::python::numeric::array points)
+//     {
+//     // validate input type and rank
+//     m_box = box;
+//     if (m_box.is2D())
+//         {
+//         m_bi = Index3D(m_width_x, m_width_y, 1);
+//         }
+//     else
+//         {
+//         m_bi = Index3D(m_width_x, m_width_y, m_width_z);
+//         }
+//     // this does not agree with rest of freud
+//     m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     // get the raw data pointers
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        accumulate(points_raw, Np);
-        }
-    }
+//         // compute with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         accumulate(points_raw, Np);
+//         }
+//     }
 
-void GaussianDensity::computePy(trajectory::Box& box,
-                                boost::python::numeric::array points)
-    {
-    resetDensity();
-    accumulatePy(box, points);
-    }
+// void GaussianDensity::computePy(trajectory::Box& box,
+//                                 boost::python::numeric::array points)
+//     {
+//     resetDensity();
+//     accumulatePy(box, points);
+//     }
 
-void export_GaussianDensity()
-    {
-    class_<GaussianDensity>("GaussianDensity", init<unsigned int, float, float>())
-            .def(init<unsigned int, unsigned int, unsigned int, float, float>())
-            .def("getBox", &GaussianDensity::getBox, return_internal_reference<>())
-            .def("accumulate", &GaussianDensity::accumulatePy)
-            .def("compute", &GaussianDensity::computePy)
-            .def("getGaussianDensity", &GaussianDensity::getDensityPy)
-            .def("resetDensity", &GaussianDensity::resetDensityPy)
-            ;
-    }
+// void export_GaussianDensity()
+//     {
+//     class_<GaussianDensity>("GaussianDensity", init<unsigned int, float, float>())
+//             .def(init<unsigned int, unsigned int, unsigned int, float, float>())
+//             .def("getBox", &GaussianDensity::getBox, return_internal_reference<>())
+//             .def("accumulate", &GaussianDensity::accumulatePy)
+//             .def("compute", &GaussianDensity::computePy)
+//             .def("getGaussianDensity", &GaussianDensity::getDensityPy)
+//             .def("resetDensity", &GaussianDensity::resetDensityPy)
+//             ;
+//     }
 
 }; }; // end namespace freud::density

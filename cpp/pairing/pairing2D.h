@@ -6,12 +6,10 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "NearestNeighbors.h"
 #include "VectorMath.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -60,19 +58,19 @@ class pairing
             return m_pair_array;
             }
 
-        //! Python wrapper for getMatch() (returns a copy)
-        boost::python::numeric::array getMatchPy()
-            {
-            unsigned int *arr = m_match_array.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for getMatch() (returns a copy)
+        // boost::python::numeric::array getMatchPy()
+        //     {
+        //     unsigned int *arr = m_match_array.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
-        //! Python wrapper for getPair() (returns a copy)
-        boost::python::numeric::array getPairPy()
-            {
-            unsigned int *arr = m_pair_array.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for getPair() (returns a copy)
+        // boost::python::numeric::array getPairPy()
+        //     {
+        //     unsigned int *arr = m_pair_array.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
 
         void ComputePairing2D(const vec3<float> *points,
@@ -88,11 +86,11 @@ class pairing
                      const unsigned int Np,
                      const unsigned int No);
 
-        //! Python wrapper for compute with a specific orientations
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations,
-                       boost::python::numeric::array comp_orientations);
+        // //! Python wrapper for compute with a specific orientations
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array points,
+        //                boost::python::numeric::array orientations,
+        //                boost::python::numeric::array comp_orientations);
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -107,11 +105,6 @@ class pairing
         unsigned int m_No;                //!< Last number of complementary orientations used
 
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_pairing();
 
 }; }; // end namespace freud::pairing
 

@@ -1,11 +1,9 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #include <tbb/tbb.h>
@@ -76,19 +74,19 @@ class CorrelationFunction
                         const T *point_values,
                         unsigned int Np);
 
-        //! Python wrapper for accumulate
-        void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_values,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array point_values);
+        // //! Python wrapper for accumulate
+        // void accumulatePy(trajectory::Box& box,
+        //                   boost::python::numeric::array ref_points,
+        //                   boost::python::numeric::array ref_values,
+        //                   boost::python::numeric::array points,
+        //                   boost::python::numeric::array point_values);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_values,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array point_values);
+        // //! Python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array ref_points,
+        //                boost::python::numeric::array ref_values,
+        //                boost::python::numeric::array points,
+        //                boost::python::numeric::array point_values);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -109,26 +107,26 @@ class CorrelationFunction
             return m_r_array;
             }
 
-        //! Python wrapper for getRDF() (returns a copy)
-        boost::python::numeric::array getRDFPy();
-            // {
-            // T *arr = m_rdf_array.get();
-            // return num_util::makeNum(arr, m_nbins);
-            // }
+        // //! Python wrapper for getRDF() (returns a copy)
+        // boost::python::numeric::array getRDFPy();
+        //     // {
+        //     // T *arr = m_rdf_array.get();
+        //     // return num_util::makeNum(arr, m_nbins);
+        //     // }
 
-        //! Python wrapper for getCounts() (returns a copy)
-        boost::python::numeric::array getCountsPy();
-            // {
-            // unsigned int *arr = m_bin_counts.get();
-            // return num_util::makeNum(arr, m_nbins);
-            // }
+        // //! Python wrapper for getCounts() (returns a copy)
+        // boost::python::numeric::array getCountsPy();
+        //     // {
+        //     // unsigned int *arr = m_bin_counts.get();
+        //     // return num_util::makeNum(arr, m_nbins);
+        //     // }
 
-        //! Python wrapper for getR() (returns a copy)
-        boost::python::numeric::array getRPy()
-            {
-            float *arr = m_r_array.get();
-            return num_util::makeNum(arr, m_nbins);
-            }
+        // //! Python wrapper for getR() (returns a copy)
+        // boost::python::numeric::array getRPy()
+        //     {
+        //     float *arr = m_r_array.get();
+        //     return num_util::makeNum(arr, m_nbins);
+        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -153,11 +151,6 @@ class CorrelationFunction
 */
 template<typename T>
 void checkCFType(boost::python::numeric::array values);
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_CorrelationFunction();
 
 #include "CorrelationFunction.cc"
 

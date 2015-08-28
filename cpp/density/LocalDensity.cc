@@ -5,7 +5,6 @@
 #include <complex>
 
 using namespace std;
-using namespace boost::python;
 using namespace tbb;
 
 /*! \file LocalDensity.h
@@ -140,53 +139,53 @@ void LocalDensity::compute(const vec3<float> *ref_points, unsigned int Nref, con
     m_Nref = Nref;
     }
 
-void LocalDensity::computePy(trajectory::Box& box,
-                             boost::python::numeric::array ref_points,
-                             boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    m_box = box;
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_rank(ref_points, 2);
+// void LocalDensity::computePy(trajectory::Box& box,
+//                              boost::python::numeric::array ref_points,
+//                              boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     m_box = box;
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+//     num_util::check_type(ref_points, NPY_FLOAT);
+//     num_util::check_rank(ref_points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
+//     num_util::check_dim(ref_points, 1, 3);
+//     unsigned int Nref = num_util::shape(ref_points)[0];
 
-    // get the raw data pointers and compute order parameter
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+//     // get the raw data pointers and compute order parameter
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
 
-        // compute the order parameter with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        compute(ref_points_raw, Nref, points_raw, Np);
-        }
-    }
+//         // compute the order parameter with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         compute(ref_points_raw, Nref, points_raw, Np);
+//         }
+//     }
 
-void LocalDensity::computePy(trajectory::Box& box,
-                             boost::python::numeric::array points)
-    {
-    computePy(box, points, points);
-    }
-
-
-void export_LocalDensity()
-    {
-    void (LocalDensity::*fx1)(trajectory::Box&, boost::python::numeric::array, boost::python::numeric::array) = &LocalDensity::computePy;
-    void (LocalDensity::*fx2)(trajectory::Box&, boost::python::numeric::array) = &LocalDensity::computePy;
+// void LocalDensity::computePy(trajectory::Box& box,
+//                              boost::python::numeric::array points)
+//     {
+//     computePy(box, points, points);
+//     }
 
 
-    class_<LocalDensity>("LocalDensity", init<float, float, float>())
-        .def("compute", fx1)
-        .def("compute", fx2)
-        .def("getDensity", &LocalDensity::getDensityPy)
-        .def("getNumNeighbors", &LocalDensity::getNumNeighborsPy)
-        ;
-    }
+// void export_LocalDensity()
+//     {
+//     void (LocalDensity::*fx1)(trajectory::Box&, boost::python::numeric::array, boost::python::numeric::array) = &LocalDensity::computePy;
+//     void (LocalDensity::*fx2)(trajectory::Box&, boost::python::numeric::array) = &LocalDensity::computePy;
+
+
+//     class_<LocalDensity>("LocalDensity", init<float, float, float>())
+//         .def("compute", fx1)
+//         .def("compute", fx2)
+//         .def("getDensity", &LocalDensity::getDensityPy)
+//         .def("getNumNeighbors", &LocalDensity::getNumNeighborsPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::density

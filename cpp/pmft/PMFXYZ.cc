@@ -13,7 +13,6 @@
 #include "VectorMath.h"
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -307,17 +306,17 @@ boost::shared_array<unsigned int> PMFXYZ::getPCF()
     return m_pcf_array;
     }
 
-//! Get a reference to the PCF array
-boost::python::numeric::array PMFXYZ::getPCFPy()
-    {
-    reducePCF();
-    unsigned int *arr = m_pcf_array.get();
-    std::vector<intp> dims(3);
-    dims[0] = m_nbins_z;
-    dims[1] = m_nbins_y;
-    dims[2] = m_nbins_x;
-    return num_util::makeNum(arr, dims);
-    }
+// //! Get a reference to the PCF array
+// boost::python::numeric::array PMFXYZ::getPCFPy()
+//     {
+//     reducePCF();
+//     unsigned int *arr = m_pcf_array.get();
+//     std::vector<intp> dims(3);
+//     dims[0] = m_nbins_z;
+//     dims[1] = m_nbins_y;
+//     dims[2] = m_nbins_x;
+//     return num_util::makeNum(arr, dims);
+//     }
 
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
@@ -367,93 +366,93 @@ void PMFXYZ::accumulate(vec3<float> *ref_points,
                              Nfaces));
     }
 
-//! \internal
-/*! \brief Exposed function to python to calculate the PMF
-*/
-void PMFXYZ::accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations,
-                          boost::python::numeric::array face_orientations)
-    {
-    // validate input type and rank
-    m_box = box;
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_rank(ref_points, 2);
-    num_util::check_type(ref_orientations, NPY_FLOAT);
-    num_util::check_rank(ref_orientations, 2);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(orientations, NPY_FLOAT);
-    num_util::check_rank(orientations, 2);
-    num_util::check_type(face_orientations, NPY_FLOAT);
-    num_util::check_rank(face_orientations, 3);
+// //! \internal
+// /*! \brief Exposed function to python to calculate the PMF
+// */
+// void PMFXYZ::accumulatePy(trajectory::Box& box,
+//                           boost::python::numeric::array ref_points,
+//                           boost::python::numeric::array ref_orientations,
+//                           boost::python::numeric::array points,
+//                           boost::python::numeric::array orientations,
+//                           boost::python::numeric::array face_orientations)
+//     {
+//     // validate input type and rank
+//     m_box = box;
+//     num_util::check_type(ref_points, NPY_FLOAT);
+//     num_util::check_rank(ref_points, 2);
+//     num_util::check_type(ref_orientations, NPY_FLOAT);
+//     num_util::check_rank(ref_orientations, 2);
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+//     num_util::check_type(orientations, NPY_FLOAT);
+//     num_util::check_rank(orientations, 2);
+//     num_util::check_type(face_orientations, NPY_FLOAT);
+//     num_util::check_rank(face_orientations, 3);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
+//     num_util::check_dim(ref_points, 1, 3);
+//     unsigned int Nref = num_util::shape(ref_points)[0];
 
-    num_util::check_dim(face_orientations, 2, 4);
-    const unsigned int Nfaces = num_util::shape(face_orientations)[1];
+//     num_util::check_dim(face_orientations, 2, 4);
+//     const unsigned int Nfaces = num_util::shape(face_orientations)[1];
 
-    // check the size of angles to be correct
-    num_util::check_dim(ref_orientations, 0, Nref);
-    num_util::check_dim(ref_orientations, 1, 4);
-    num_util::check_dim(orientations, 0, Np);
-    num_util::check_dim(orientations, 1, 4);
-    num_util::check_dim(face_orientations, 0, Nref);
+//     // check the size of angles to be correct
+//     num_util::check_dim(ref_orientations, 0, Nref);
+//     num_util::check_dim(ref_orientations, 1, 4);
+//     num_util::check_dim(orientations, 0, Np);
+//     num_util::check_dim(orientations, 1, 4);
+//     num_util::check_dim(face_orientations, 0, Nref);
 
-    // get the raw data pointers and compute the cell list
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    quat<float>* ref_orientations_raw = (quat<float>*) num_util::data(ref_orientations);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
-    quat<float>* face_orientations_raw = (quat<float>*) num_util::data(face_orientations);
+//     // get the raw data pointers and compute the cell list
+//     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+//     quat<float>* ref_orientations_raw = (quat<float>*) num_util::data(ref_orientations);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
+//     quat<float>* face_orientations_raw = (quat<float>*) num_util::data(face_orientations);
 
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        accumulate(ref_points_raw,
-                   ref_orientations_raw,
-                   Nref,
-                   points_raw,
-                   orientations_raw,
-                   Np,
-                   face_orientations_raw, Nfaces);
-        }
-    }
+//         // compute with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         accumulate(ref_points_raw,
+//                    ref_orientations_raw,
+//                    Nref,
+//                    points_raw,
+//                    orientations_raw,
+//                    Np,
+//                    face_orientations_raw, Nfaces);
+//         }
+//     }
 
-//! \internal
-/*! \brief Exposed function to python to calculate the PMF
-*/
-void PMFXYZ::computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations,
-                       boost::python::numeric::array face_orientations)
-    {
-    // validate input type and rank
-    resetPCF();
-    accumulatePy(box, ref_points, ref_orientations, points, orientations, face_orientations);
-    }
+// //! \internal
+// /*! \brief Exposed function to python to calculate the PMF
+// */
+// void PMFXYZ::computePy(trajectory::Box& box,
+//                        boost::python::numeric::array ref_points,
+//                        boost::python::numeric::array ref_orientations,
+//                        boost::python::numeric::array points,
+//                        boost::python::numeric::array orientations,
+//                        boost::python::numeric::array face_orientations)
+//     {
+//     // validate input type and rank
+//     resetPCF();
+//     accumulatePy(box, ref_points, ref_orientations, points, orientations, face_orientations);
+//     }
 
-void export_PMFXYZ()
-    {
-    class_<PMFXYZ>("PMFXYZ", init<float, float, float, unsigned int, unsigned int, unsigned int>())
-        .def("getBox", &PMFXYZ::getBox, return_internal_reference<>())
-        .def("accumulate", &PMFXYZ::accumulatePy)
-        .def("compute", &PMFXYZ::computePy)
-        .def("getPCF", &PMFXYZ::getPCFPy)
-        .def("resetPCF", &PMFXYZ::resetPCFPy)
-        .def("getX", &PMFXYZ::getXPy)
-        .def("getY", &PMFXYZ::getYPy)
-        .def("getZ", &PMFXYZ::getZPy)
-        ;
-    }
+// void export_PMFXYZ()
+//     {
+//     class_<PMFXYZ>("PMFXYZ", init<float, float, float, unsigned int, unsigned int, unsigned int>())
+//         .def("getBox", &PMFXYZ::getBox, return_internal_reference<>())
+//         .def("accumulate", &PMFXYZ::accumulatePy)
+//         .def("compute", &PMFXYZ::computePy)
+//         .def("getPCF", &PMFXYZ::getPCFPy)
+//         .def("resetPCF", &PMFXYZ::resetPCFPy)
+//         .def("getX", &PMFXYZ::getXPy)
+//         .def("getY", &PMFXYZ::getYPy)
+//         .def("getZ", &PMFXYZ::getZPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::pmft

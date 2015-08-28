@@ -1,8 +1,5 @@
 #include "tbb_config.h"
 
-#include <boost/python.hpp>
-
-using namespace boost::python;
 using namespace tbb;
 
 /*! \file tbb_config.cc
@@ -39,11 +36,6 @@ void setNumThreads(unsigned int N)
 
     // then recreate it
     ts = new task_scheduler_init(N);
-    }
-
-void export_tbb_config()
-    {
-    def("setNumThreads", &setNumThreads);
     }
 
 }; }; // end namespace freud::parallel

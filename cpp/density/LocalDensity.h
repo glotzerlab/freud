@@ -6,14 +6,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #ifndef _LOCAL_DENSITY_H__
@@ -42,14 +40,14 @@ class LocalDensity
                      const vec3<float> *points,
                      unsigned int Np);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array points);
+        // //! Python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array ref_points,
+        //                boost::python::numeric::array points);
 
-        //! Backwards compatible python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array points);
+        // //! Backwards compatible python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array points);
 
         //! Get a reference to the last computed density
         boost::shared_array< float > getDensity()
@@ -57,12 +55,12 @@ class LocalDensity
             return m_density_array;
             }
 
-        //! Python wrapper for getDensity() (returns a copy)
-        boost::python::numeric::array getDensityPy()
-            {
-            float *arr = m_density_array.get();
-            return num_util::makeNum(arr, m_Nref);
-            }
+        // //! Python wrapper for getDensity() (returns a copy)
+        // boost::python::numeric::array getDensityPy()
+        //     {
+        //     float *arr = m_density_array.get();
+        //     return num_util::makeNum(arr, m_Nref);
+        //     }
 
         //! Get a reference to the last computed number of neighbors
         boost::shared_array< float > getNumNeighbors()
@@ -70,12 +68,12 @@ class LocalDensity
             return m_num_neighbors_array;
             }
 
-        //! Python wrapper for getNumNeighbors() (returns a copy)
-        boost::python::numeric::array getNumNeighborsPy()
-            {
-            float *arr = m_num_neighbors_array.get();
-            return num_util::makeNum(arr, m_Nref);
-            }
+        // //! Python wrapper for getNumNeighbors() (returns a copy)
+        // boost::python::numeric::array getNumNeighborsPy()
+        //     {
+        //     float *arr = m_num_neighbors_array.get();
+        //     return num_util::makeNum(arr, m_Nref);
+        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -88,9 +86,6 @@ class LocalDensity
         boost::shared_array< float > m_density_array;         //!< density array computed
         boost::shared_array< float > m_num_neighbors_array;   //!< number of neighbors array computed
     };
-
-//! Exports all classes in this file to python
-void export_LocalDensity();
 
 }; }; // end namespace freud::density
 

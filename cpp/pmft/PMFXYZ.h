@@ -6,14 +6,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -73,21 +71,21 @@ class PMFXYZ
                         quat<float> *face_orientations,
                         unsigned int Nfaces);
 
-        //! Python wrapper for compute
-        void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations,
-                          boost::python::numeric::array face_orientations);
+        // //! Python wrapper for compute
+        // void accumulatePy(trajectory::Box& box,
+        //                   boost::python::numeric::array ref_points,
+        //                   boost::python::numeric::array ref_orientations,
+        //                   boost::python::numeric::array points,
+        //                   boost::python::numeric::array orientations,
+        //                   boost::python::numeric::array face_orientations);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations,
-                       boost::python::numeric::array face_orientations);
+        // //! Python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array ref_points,
+        //                boost::python::numeric::array ref_orientations,
+        //                boost::python::numeric::array points,
+        //                boost::python::numeric::array orientations,
+        //                boost::python::numeric::array face_orientations);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -114,29 +112,29 @@ class PMFXYZ
             return m_z_array;
             }
 
-        //! Python wrapper for getPCF() (returns a copy)
-        boost::python::numeric::array getPCFPy();
+        // //! Python wrapper for getPCF() (returns a copy)
+        // boost::python::numeric::array getPCFPy();
 
-        //! Python wrapper for getX() (returns a copy)
-        boost::python::numeric::array getXPy()
-            {
-            float *arr = m_x_array.get();
-            return num_util::makeNum(arr, m_nbins_x);
-            }
+        // //! Python wrapper for getX() (returns a copy)
+        // boost::python::numeric::array getXPy()
+        //     {
+        //     float *arr = m_x_array.get();
+        //     return num_util::makeNum(arr, m_nbins_x);
+        //     }
 
-        //! Python wrapper for getY() (returns a copy)
-        boost::python::numeric::array getYPy()
-            {
-            float *arr = m_y_array.get();
-            return num_util::makeNum(arr, m_nbins_y);
-            }
+        // //! Python wrapper for getY() (returns a copy)
+        // boost::python::numeric::array getYPy()
+        //     {
+        //     float *arr = m_y_array.get();
+        //     return num_util::makeNum(arr, m_nbins_y);
+        //     }
 
-        //! Python wrapper for getZ() (returns a copy)
-        boost::python::numeric::array getZPy()
-            {
-            float *arr = m_z_array.get();
-            return num_util::makeNum(arr, m_nbins_z);
-            }
+        // //! Python wrapper for getZ() (returns a copy)
+        // boost::python::numeric::array getZPy()
+        //     {
+        //     float *arr = m_z_array.get();
+        //     return num_util::makeNum(arr, m_nbins_z);
+        //     }
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_max_x;                     //!< Maximum x at which to compute pcf
@@ -156,11 +154,6 @@ class PMFXYZ
         boost::shared_array<float> m_z_array;           //!< array of z values that the pcf is computed at
         tbb::enumerable_thread_specific<unsigned int *> m_local_pcf_array;
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_PMFXYZ();
 
 }; }; // end namespace freud::pmft
 

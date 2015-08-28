@@ -6,11 +6,8 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
-
 #include "HOOMDMath.h"
 #include "Index1D.h"
-#include "num_util.h"
 
 #ifndef _COLORMAP_H__
 #define _COLORMAP_H__
@@ -51,11 +48,6 @@ void cubehelix(float4 *cmap,
                float h,
                float gamma,
                bool reverse);
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_colormap();
 
 } } // end namespace freud::viz
 

@@ -6,14 +6,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "NearestNeighbors.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -61,12 +59,12 @@ class BondOrder
                         quat<float> *orientations,
                         unsigned int Np);
 
-        //! Python wrapper for accumulate
-        void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations);
+        // //! Python wrapper for accumulate
+        // void accumulatePy(trajectory::Box& box,
+        //                   boost::python::numeric::array ref_points,
+        //                   boost::python::numeric::array ref_orientations,
+        //                   boost::python::numeric::array points,
+        //                   boost::python::numeric::array orientations);
 
         //! Compute the bond order
         void compute(vec3<float> *ref_points,
@@ -76,12 +74,12 @@ class BondOrder
                      quat<float> *orientations,
                      unsigned int Np);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations);
+        // //! Python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array ref_points,
+        //                boost::python::numeric::array ref_orientations,
+        //                boost::python::numeric::array points,
+        //                boost::python::numeric::array orientations);
 
         void reduceBondOrder();
 
@@ -100,22 +98,22 @@ class BondOrder
             return m_phi_array;
             }
 
-        //! Python wrapper for getRDF() (returns a copy)
-        boost::python::numeric::array getBondOrderPy();
+        // //! Python wrapper for getRDF() (returns a copy)
+        // boost::python::numeric::array getBondOrderPy();
 
-        //! Python wrapper for getR() (returns a copy)
-        boost::python::numeric::array getThetaPy()
-            {
-            float *arr = m_theta_array.get();
-            return num_util::makeNum(arr, m_nbins_t);
-            }
+        // //! Python wrapper for getR() (returns a copy)
+        // boost::python::numeric::array getThetaPy()
+        //     {
+        //     float *arr = m_theta_array.get();
+        //     return num_util::makeNum(arr, m_nbins_t);
+        //     }
 
-        //! Python wrapper for getNr() (returns a copy)
-        boost::python::numeric::array getPhiPy()
-            {
-            float *arr = m_phi_array.get();
-            return num_util::makeNum(arr, m_nbins_p);
-            }
+        // //! Python wrapper for getNr() (returns a copy)
+        // boost::python::numeric::array getPhiPy()
+        //     {
+        //     float *arr = m_phi_array.get();
+        //     return num_util::makeNum(arr, m_nbins_p);
+        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -137,9 +135,6 @@ class BondOrder
         boost::shared_array<float> m_phi_array;         //!< phi order array computed
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
-
-//! Exports all classes in this file to python
-void export_BondOrder();
 
 }; }; // end namespace freud::order
 

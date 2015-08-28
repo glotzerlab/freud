@@ -14,7 +14,6 @@
 #include <tbb/tbb.h>
 
 using namespace std;
-using namespace boost::python;
 using namespace freud;
 
 using namespace tbb;
@@ -248,23 +247,23 @@ boost::shared_array<T> CorrelationFunction<T>::getRDF()
     return m_rdf_array;
     }
 
-//! Get a reference to the RDF array
-template<typename T>
-boost::python::numeric::array CorrelationFunction<T>::getRDFPy()
-    {
-    reduceCorrelationFunction();
-    T *arr = m_rdf_array.get();
-    return num_util::makeNum(arr, m_nbins);
-    }
+// //! Get a reference to the RDF array
+// template<typename T>
+// boost::python::numeric::array CorrelationFunction<T>::getRDFPy()
+//     {
+//     reduceCorrelationFunction();
+//     T *arr = m_rdf_array.get();
+//     return num_util::makeNum(arr, m_nbins);
+//     }
 
-//! Get a reference to the counts array
-template<typename T>
-boost::python::numeric::array CorrelationFunction<T>::getCountsPy()
-    {
-    reduceCorrelationFunction();
-    unsigned int *arr = m_bin_counts.get();
-    return num_util::makeNum(arr, m_nbins);
-    }
+// //! Get a reference to the counts array
+// template<typename T>
+// boost::python::numeric::array CorrelationFunction<T>::getCountsPy()
+//     {
+//     reduceCorrelationFunction();
+//     unsigned int *arr = m_bin_counts.get();
+//     return num_util::makeNum(arr, m_nbins);
+//     }
 
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
@@ -310,92 +309,70 @@ void CorrelationFunction<T>::accumulate(const vec3<float> *ref_points,
     m_frame_counter += 1;
     }
 
-template<typename T>
-void CorrelationFunction<T>::accumulatePy(trajectory::Box& box,
-                                          boost::python::numeric::array ref_points,
-                                          boost::python::numeric::array ref_values,
-                                          boost::python::numeric::array points,
-                                          boost::python::numeric::array point_values)
-    {
-    // validate input type and rank
-    m_box = box;
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_rank(ref_points, 2);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_rank(ref_values, 1);
-    checkCFType<T>(ref_values);
-    num_util::check_rank(point_values, 1);
-    checkCFType<T>(point_values);
+// template<typename T>
+// void CorrelationFunction<T>::accumulatePy(trajectory::Box& box,
+//                                           boost::python::numeric::array ref_points,
+//                                           boost::python::numeric::array ref_values,
+//                                           boost::python::numeric::array points,
+//                                           boost::python::numeric::array point_values)
+//     {
+//     // validate input type and rank
+//     m_box = box;
+//     num_util::check_type(ref_points, NPY_FLOAT);
+//     num_util::check_rank(ref_points, 2);
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+//     num_util::check_rank(ref_values, 1);
+//     checkCFType<T>(ref_values);
+//     num_util::check_rank(point_values, 1);
+//     checkCFType<T>(point_values);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
-    assert(Np == num_util::shape(point_values)[0]);
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
+//     assert(Np == num_util::shape(point_values)[0]);
 
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
-    assert(Nref == num_util::shape(ref_values)[0]);
-    m_Np = Np;
-    m_Nref = Nref;
+//     num_util::check_dim(ref_points, 1, 3);
+//     unsigned int Nref = num_util::shape(ref_points)[0];
+//     assert(Nref == num_util::shape(ref_values)[0]);
+//     m_Np = Np;
+//     m_Nref = Nref;
 
-    // get the raw data pointers and accumulate the cell list
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    T* ref_values_raw = (T*) num_util::data(ref_values);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    T* point_values_raw = (T*) num_util::data(point_values);
+//     // get the raw data pointers and accumulate the cell list
+//     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+//     T* ref_values_raw = (T*) num_util::data(ref_values);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     T* point_values_raw = (T*) num_util::data(point_values);
 
-        // accumulate with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        accumulate(ref_points_raw, ref_values_raw, Nref, points_raw, point_values_raw, Np);
-        }
-    }
+//         // accumulate with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         accumulate(ref_points_raw, ref_values_raw, Nref, points_raw, point_values_raw, Np);
+//         }
+//     }
 
-//! provides interface for deprecated interface
-template<typename T>
-void CorrelationFunction<T>::computePy(trajectory::Box& box,
-                                       boost::python::numeric::array ref_points,
-                                       boost::python::numeric::array ref_values,
-                                       boost::python::numeric::array points,
-                                       boost::python::numeric::array point_values)
-    {
-    // validate input type and rank
-    resetCorrelationFunction();
-    accumulatePy(box, ref_points, ref_values, points, point_values);
-    }
+// //! provides interface for deprecated interface
+// template<typename T>
+// void CorrelationFunction<T>::computePy(trajectory::Box& box,
+//                                        boost::python::numeric::array ref_points,
+//                                        boost::python::numeric::array ref_values,
+//                                        boost::python::numeric::array points,
+//                                        boost::python::numeric::array point_values)
+//     {
+//     // validate input type and rank
+//     resetCorrelationFunction();
+//     accumulatePy(box, ref_points, ref_values, points, point_values);
+//     }
 
-// Default implementation: assume we're dealing with floats
-template<typename T>
-void checkCFType(boost::python::numeric::array values)
-    {
-    num_util::check_type(values, NPY_FLOAT);
-    }
+// // Default implementation: assume we're dealing with floats
+// template<typename T>
+// void checkCFType(boost::python::numeric::array values)
+//     {
+//     num_util::check_type(values, NPY_FLOAT);
+//     }
 
-template<>
-void checkCFType<std::complex<float> >(boost::python::numeric::array values)
-    {
-    num_util::check_type(values, NPY_COMPLEX64);
-    }
-
-void export_CorrelationFunction()
-    {
-    typedef CorrelationFunction<std::complex<float> > ComplexCF;
-    class_<ComplexCF>("ComplexCF", init<float, float>())
-        .def("getBox", &ComplexCF::getBox, return_internal_reference<>())
-        .def("accumulate", &ComplexCF::accumulatePy)
-        .def("compute", &ComplexCF::computePy)
-        .def("getRDF", &ComplexCF::getRDFPy)
-        .def("getCounts", &ComplexCF::getCountsPy)
-        .def("getR", &ComplexCF::getRPy)
-        ;
-    typedef CorrelationFunction<float> FloatCF;
-    class_<FloatCF>("FloatCF", init<float, float>())
-        .def("getBox", &FloatCF::getBox, return_internal_reference<>())
-        .def("accumulate", &FloatCF::accumulatePy)
-        .def("compute", &FloatCF::computePy)
-        .def("getRDF", &FloatCF::getRDFPy)
-        .def("getCounts", &FloatCF::getCountsPy)
-        .def("getR", &FloatCF::getRPy)
-        ;
-    }
+// template<>
+// void checkCFType<std::complex<float> >(boost::python::numeric::array values)
+//     {
+//     num_util::check_type(values, NPY_COMPLEX64);
+//     }

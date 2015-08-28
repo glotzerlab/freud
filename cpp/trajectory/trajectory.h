@@ -1,6 +1,5 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
-#include "num_util.h"
+#include <stdexcept>
 
 #include "HOOMDMath.h"
 
@@ -8,8 +7,6 @@
 
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
-
-// using namespace boost::python;
 
 /*! \file trajectory.h
     \brief Helper routines for trajectory
@@ -203,32 +200,32 @@ class Box
             return v;
             }
 
-        //! Python wrapper for makeCoordinates() (returns a copy)
-        boost::python::numeric::array getCoordinatesPy(boost::python::numeric::array f)
-            {
-            num_util::check_type(f, NPY_FLOAT);
-            num_util::check_rank(f, 1);
+        // //! Python wrapper for makeCoordinates() (returns a copy)
+        // boost::python::numeric::array getCoordinatesPy(boost::python::numeric::array f)
+        //     {
+        //     num_util::check_type(f, NPY_FLOAT);
+        //     num_util::check_rank(f, 1);
 
-            // validate that the 2nd dimension is only 3
-            num_util::check_dim(f, 0, 3);
+        //     // validate that the 2nd dimension is only 3
+        //     num_util::check_dim(f, 0, 3);
 
-            // get the raw data pointers and compute the cell list
-            vec3<float>* f_raw = (vec3<float>*) num_util::data(f);
+        //     // get the raw data pointers and compute the cell list
+        //     vec3<float>* f_raw = (vec3<float>*) num_util::data(f);
 
-            // now get the coordinates
-            vec3<float> v = makeCoordinates(*f_raw);
-            boost::shared_array<float> v_array = boost::shared_array<float>(new float[3]);
-            memset((void*)v_array.get(), 0, sizeof(float)*3);
-            v_array[0] = v.x;
-            v_array[1] = v.y;
-            v_array[2] = v.z;
-            if (m_2d)
-                {
-                v_array[2] = 0.0;
-                }
-            float *arr = v_array.get();
-            return num_util::makeNum(arr, 3);
-            }
+        //     // now get the coordinates
+        //     vec3<float> v = makeCoordinates(*f_raw);
+        //     boost::shared_array<float> v_array = boost::shared_array<float>(new float[3]);
+        //     memset((void*)v_array.get(), 0, sizeof(float)*3);
+        //     v_array[0] = v.x;
+        //     v_array[1] = v.y;
+        //     v_array[2] = v.z;
+        //     if (m_2d)
+        //         {
+        //         v_array[2] = 0.0;
+        //         }
+        //     float *arr = v_array.get();
+        //     return num_util::makeNum(arr, 3);
+        //     }
 
         //! Get the periodic image a vector belongs to
         /*! \param v The vector to check
@@ -356,43 +353,43 @@ class Box
 
 
 
-        //! Wrap a given array of vectors back into the box from python
-        /*! \param vecs numpy array of vectors (Nx3) (or just 3 elements) to wrap
-            \note Vectors are wrapped in place to avoid costly memory copies
-        */
-        void wrapPy(boost::python::numeric::array vecs)
-            {
-            // validate input type and dimensions
-            num_util::check_type(vecs, NPY_FLOAT);
+        // //! Wrap a given array of vectors back into the box from python
+        // /*! \param vecs numpy array of vectors (Nx3) (or just 3 elements) to wrap
+        //     \note Vectors are wrapped in place to avoid costly memory copies
+        // */
+        // void wrapPy(boost::python::numeric::array vecs)
+        //     {
+        //     // validate input type and dimensions
+        //     num_util::check_type(vecs, NPY_FLOAT);
 
-            // if this is a rank 1 array, then it must be a simple 3-vector of points
-            if (num_util::rank(vecs) == 1)
-                {
-                // validate that the 1st dimension is only 3
-                num_util::check_dim(vecs, 0, 3);
-                vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
+        //     // if this is a rank 1 array, then it must be a simple 3-vector of points
+        //     if (num_util::rank(vecs) == 1)
+        //         {
+        //         // validate that the 1st dimension is only 3
+        //         num_util::check_dim(vecs, 0, 3);
+        //         vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
 
-                // wrap the single vector back
-                vecs_raw[0] = wrap(vecs_raw[0]);
-                }
-            else
-            if (num_util::rank(vecs) == 2)
-                {
-                // validate that the 2nd dimension is only 3
-                num_util::check_dim(vecs, 1, 3);
-                unsigned int Np = num_util::shape(vecs)[0];
-                vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
+        //         // wrap the single vector back
+        //         vecs_raw[0] = wrap(vecs_raw[0]);
+        //         }
+        //     else
+        //     if (num_util::rank(vecs) == 2)
+        //         {
+        //         // validate that the 2nd dimension is only 3
+        //         num_util::check_dim(vecs, 1, 3);
+        //         unsigned int Np = num_util::shape(vecs)[0];
+        //         vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
 
-                // wrap all the vecs back
-                for (unsigned int i = 0; i < Np; i++)
-                    vecs_raw[i] = wrap(vecs_raw[i]);
-                }
-            else
-                {
-                PyErr_SetString(PyExc_ValueError, "no mapping available for this type");
-                boost::python::throw_error_already_set();
-                }
-            }
+        //         // wrap all the vecs back
+        //         for (unsigned int i = 0; i < Np; i++)
+        //             vecs_raw[i] = wrap(vecs_raw[i]);
+        //         }
+        //     else
+        //         {
+        //         PyErr_SetString(PyExc_ValueError, "no mapping available for this type");
+        //         boost::python::throw_error_already_set();
+        //         }
+        //     }
 
         //! Unwrap a given position to its "real" location
         /*! \param p coordinates to unwrap
@@ -479,13 +476,6 @@ class Box
         bool m_2d;        //!< Specify whether box is 2D.
     };
 
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_trajectory();
-
 }; };
 
 #endif // _TRAJECTORY_H__
-
-

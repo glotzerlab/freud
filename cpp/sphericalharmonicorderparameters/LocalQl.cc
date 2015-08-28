@@ -6,7 +6,6 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file LocalQl.cc
     \brief Compute a Ql per particle
@@ -302,88 +301,88 @@ void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
     }
 
 
-void LocalQl::computePy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LocalQl::computePy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     }
 
-void LocalQl::computeAvePy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LocalQl::computeAvePy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    computeAve(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     computeAve(points_raw, Np);
+//     }
 
-void LocalQl::computeNormPy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LocalQl::computeNormPy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    computeNorm(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     computeNorm(points_raw, Np);
+//     }
 
-void LocalQl::computeAveNormPy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LocalQl::computeAveNormPy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    computeAve(points_raw, Np);
-    computeAveNorm(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     computeAve(points_raw, Np);
+//     computeAveNorm(points_raw, Np);
+//     }
 
-void export_LocalQl()
-    {
-    class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int, optional<float> >())
-        .def("getBox", &LocalQl::getBox, return_internal_reference<>())
-        .def("setBox", &LocalQl::setBox)
-        .def("compute", &LocalQl::computePy)
-        .def("computeAve", &LocalQl::computeAvePy)
-        .def("computeNorm", &LocalQl::computeNormPy)
-        .def("computeAveNorm", &LocalQl::computeAveNormPy)
-        .def("getQl", &LocalQl::getQlPy)
-        .def("getAveQl", &LocalQl::getAveQlPy)
-        .def("getQlNorm", &LocalQl::getQlNormPy)
-        .def("getQlAveNorm", &LocalQl::getQlAveNormPy)
-        ;
-    }
+// void export_LocalQl()
+//     {
+//     class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int, optional<float> >())
+//         .def("getBox", &LocalQl::getBox, return_internal_reference<>())
+//         .def("setBox", &LocalQl::setBox)
+//         .def("compute", &LocalQl::computePy)
+//         .def("computeAve", &LocalQl::computeAvePy)
+//         .def("computeNorm", &LocalQl::computeNormPy)
+//         .def("computeAveNorm", &LocalQl::computeAveNormPy)
+//         .def("getQl", &LocalQl::getQlPy)
+//         .def("getAveQl", &LocalQl::getAveQlPy)
+//         .def("getQlNorm", &LocalQl::getQlNormPy)
+//         .def("getQlAveNorm", &LocalQl::getQlAveNormPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::localqi

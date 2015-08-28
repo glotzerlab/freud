@@ -1,8 +1,6 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #ifndef _pairing_H__
@@ -117,14 +115,14 @@ class pairing
                      const float4* comp_quats,
                      const unsigned int Np);
 
-        //! Python wrapper for compute
-        void computePy(boost::python::numeric::array match,
-                       boost::python::numeric::array dist2,
-                       boost::python::numeric::array sdots,
-                       boost::python::numeric::array cdots,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array shape_orientations,
-                       boost::python::numeric::array comp_orientations);
+        // //! Python wrapper for compute
+        // void computePy(boost::python::numeric::array match,
+        //                boost::python::numeric::array dist2,
+        //                boost::python::numeric::array sdots,
+        //                boost::python::numeric::array cdots,
+        //                boost::python::numeric::array points,
+        //                boost::python::numeric::array shape_orientations,
+        //                boost::python::numeric::array comp_orientations);
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -137,11 +135,6 @@ class pairing
         unsigned int m_nmatch;             //!< Number of matches
 
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_pairing();
 
 }; }; // end namespace freud::pairing
 

@@ -11,7 +11,6 @@
 #endif
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -292,21 +291,21 @@ boost::shared_array<float> RDF::getRDF()
     return m_rdf_array;
     }
 
-//! Get a reference to the PCF array
-boost::python::numeric::array RDF::getRDFPy()
-    {
-    reduceRDF();
-    float *arr = m_rdf_array.get();
-    return num_util::makeNum(arr, m_nbins);
-    }
+// //! Get a reference to the PCF array
+// boost::python::numeric::array RDF::getRDFPy()
+//     {
+//     reduceRDF();
+//     float *arr = m_rdf_array.get();
+//     return num_util::makeNum(arr, m_nbins);
+//     }
 
-//! Python wrapper for getNr() (returns a copy)
-boost::python::numeric::array RDF::getNrPy()
-    {
-    reduceRDF();
-    float *arr = m_N_r_array.get();
-    return num_util::makeNum(arr, m_nbins);
-    }
+// //! Python wrapper for getNr() (returns a copy)
+// boost::python::numeric::array RDF::getNrPy()
+//     {
+//     reduceRDF();
+//     float *arr = m_N_r_array.get();
+//     return num_util::makeNum(arr, m_nbins);
+//     }
 
 //! \internal
 /*! \brief Function to reset the rdf array if needed e.g. calculating between new particle types
@@ -342,55 +341,55 @@ void RDF::accumulate(const vec3<float> *ref_points,
     m_frame_counter += 1;
     }
 
-void RDF::accumulatePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array points)
-    {
-    // validate input type and rank
-    m_box = box;
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_rank(ref_points, 2);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void RDF::accumulatePy(trajectory::Box& box,
+//                        boost::python::numeric::array ref_points,
+//                        boost::python::numeric::array points)
+//     {
+//     // validate input type and rank
+//     m_box = box;
+//     num_util::check_type(ref_points, NPY_FLOAT);
+//     num_util::check_rank(ref_points, 2);
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
+//     num_util::check_dim(ref_points, 1, 3);
+//     unsigned int Nref = num_util::shape(ref_points)[0];
 
-    // get the raw data pointers and compute the cell list
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     // get the raw data pointers and compute the cell list
+//     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        accumulate(ref_points_raw, Nref, points_raw, Np);
-        }
-    }
+//         // compute with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         accumulate(ref_points_raw, Nref, points_raw, Np);
+//         }
+//     }
 
-//! provides interface for deprecated interface
-void RDF::computePy(trajectory::Box& box,
-                    boost::python::numeric::array ref_points,
-                    boost::python::numeric::array points)
-    {
-    resetRDF();
-    accumulatePy(box, ref_points, points);
-    }
+// //! provides interface for deprecated interface
+// void RDF::computePy(trajectory::Box& box,
+//                     boost::python::numeric::array ref_points,
+//                     boost::python::numeric::array points)
+//     {
+//     resetRDF();
+//     accumulatePy(box, ref_points, points);
+//     }
 
-void export_RDF()
-    {
-    class_<RDF>("RDF", init<float, float>())
-        .def("getBox", &RDF::getBox, return_internal_reference<>())
-        .def("accumulate", &RDF::accumulatePy)
-        .def("compute", &RDF::computePy)
-        .def("getRDF", &RDF::getRDFPy)
-        .def("getR", &RDF::getRPy)
-        .def("getNr", &RDF::getNrPy)
-        .def("resetRDF", &RDF::resetRDFPy)
-        ;
-    }
+// void export_RDF()
+//     {
+//     class_<RDF>("RDF", init<float, float>())
+//         .def("getBox", &RDF::getBox, return_internal_reference<>())
+//         .def("accumulate", &RDF::accumulatePy)
+//         .def("compute", &RDF::computePy)
+//         .def("getRDF", &RDF::getRDFPy)
+//         .def("getR", &RDF::getRPy)
+//         .def("getNr", &RDF::getNrPy)
+//         .def("resetRDF", &RDF::resetRDFPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::density

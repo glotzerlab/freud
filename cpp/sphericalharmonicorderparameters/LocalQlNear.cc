@@ -5,7 +5,6 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file LocalQl.cc
     \brief Compute a Ql per particle using N nearest neighbors instead of r_cut
@@ -256,88 +255,88 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
     }
 
 
-void LocalQlNear::computePy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LocalQlNear::computePy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     }
 
-void LocalQlNear::computeAvePy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LocalQlNear::computeAvePy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    computeAve(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     computeAve(points_raw, Np);
+//     }
 
-void LocalQlNear::computeNormPy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LocalQlNear::computeNormPy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    computeNorm(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     computeNorm(points_raw, Np);
+//     }
 
-void LocalQlNear::computeAveNormPy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LocalQlNear::computeAveNormPy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    computeAve(points_raw, Np);
-    computeAveNorm(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     computeAve(points_raw, Np);
+//     computeAveNorm(points_raw, Np);
+//     }
 
-void export_LocalQlNear()
-    {
-    class_<LocalQlNear>("LocalQlNear", init<trajectory::Box&, float, unsigned int, optional<unsigned int> >())
-        .def("getBox", &LocalQlNear::getBox, return_internal_reference<>())
-        .def("setBox", &LocalQlNear::setBox)
-        .def("compute", &LocalQlNear::computePy)
-        .def("computeAve", &LocalQlNear::computeAvePy)
-        .def("computeNorm", &LocalQlNear::computeNormPy)
-        .def("computeAveNorm", &LocalQlNear::computeAveNormPy)
-        .def("getQl", &LocalQlNear::getQlPy)
-        .def("getAveQl", &LocalQlNear::getAveQlPy)
-        .def("getQlNorm", &LocalQlNear::getQlNormPy)
-        .def("getQlAveNorm", &LocalQlNear::getQlAveNormPy)
-        ;
-    }
+// void export_LocalQlNear()
+//     {
+//     class_<LocalQlNear>("LocalQlNear", init<trajectory::Box&, float, unsigned int, optional<unsigned int> >())
+//         .def("getBox", &LocalQlNear::getBox, return_internal_reference<>())
+//         .def("setBox", &LocalQlNear::setBox)
+//         .def("compute", &LocalQlNear::computePy)
+//         .def("computeAve", &LocalQlNear::computeAvePy)
+//         .def("computeNorm", &LocalQlNear::computeNormPy)
+//         .def("computeAveNorm", &LocalQlNear::computeAveNormPy)
+//         .def("getQl", &LocalQlNear::getQlPy)
+//         .def("getAveQl", &LocalQlNear::getAveQlPy)
+//         .def("getQlNorm", &LocalQlNear::getQlNormPy)
+//         .def("getQlAveNorm", &LocalQlNear::getQlAveNormPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::localqinear

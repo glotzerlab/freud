@@ -1,10 +1,8 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "LinkCell.h"
 // hack to keep VectorMath's swap from polluting the global namespace
 #include "VectorMath.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #include "tbb/atomic.h"
@@ -61,9 +59,9 @@ public:
     //! positions, orientations, and the number of particles
     void compute(const vec3<float> *r, const quat<float> *q, unsigned int Np);
 
-    //! Python wrapper for compute
-    void computePy(boost::python::numeric::array r,
-        boost::python::numeric::array q);
+    // //! Python wrapper for compute
+    // void computePy(boost::python::numeric::array r,
+    //     boost::python::numeric::array q);
 
     //! Get a reference to the last computed radius magnitude array
     boost::shared_array<float> getMagR()
@@ -83,35 +81,35 @@ public:
         return m_sphArray;
         }
 
-    //! Python wrapper for getMagR() (returns a copy)
-    boost::python::numeric::array getMagRPy()
-        {
-        const intp cshape[] = {m_Np, m_nNeigh};
-        const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
-        float *arr = m_magrArray.get();
-        return num_util::makeNum(arr, shape);
-        }
+    // //! Python wrapper for getMagR() (returns a copy)
+    // boost::python::numeric::array getMagRPy()
+    //     {
+    //     const intp cshape[] = {m_Np, m_nNeigh};
+    //     const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
+    //     float *arr = m_magrArray.get();
+    //     return num_util::makeNum(arr, shape);
+    //     }
 
-    //! Python wrapper for getQij() (returns a copy)
-    boost::python::numeric::array getQijPy()
-        {
-        const intp cshape[] = {m_Np, m_nNeigh, 4};
-        const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
-        float *arr = (float*) m_qijArray.get();
-        return num_util::makeNum(arr, shape);
-        }
+    // //! Python wrapper for getQij() (returns a copy)
+    // boost::python::numeric::array getQijPy()
+    //     {
+    //     const intp cshape[] = {m_Np, m_nNeigh, 4};
+    //     const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
+    //     float *arr = (float*) m_qijArray.get();
+    //     return num_util::makeNum(arr, shape);
+    //     }
 
-    //! Python wrapper for getSph() (returns a copy)
-    boost::python::numeric::array getSphPy()
-        {
-        // we have lmax**2 + 2*lmax + 1 spherical harmonics per
-        // neighbor, but we don't keep Y00, so we have lmax**2 +
-        // 2*lmax in total.
-        const intp cshape[] = {m_Np, m_nNeigh, m_lmax*m_lmax + 2*m_lmax};
-        const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
-        std::complex<float> *arr = m_sphArray.get();
-        return num_util::makeNum(arr, shape);
-        }
+    // //! Python wrapper for getSph() (returns a copy)
+    // boost::python::numeric::array getSphPy()
+    //     {
+    //     // we have lmax**2 + 2*lmax + 1 spherical harmonics per
+    //     // neighbor, but we don't keep Y00, so we have lmax**2 +
+    //     // 2*lmax in total.
+    //     const intp cshape[] = {m_Np, m_nNeigh, m_lmax*m_lmax + 2*m_lmax};
+    //     const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
+    //     std::complex<float> *arr = m_sphArray.get();
+    //     return num_util::makeNum(arr, shape);
+    //     }
 
 private:
     trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -129,9 +127,6 @@ private:
     //! Spherical harmonics for each neighbor
     boost::shared_array<std::complex<float> > m_sphArray;
     };
-
-//! Exports all classes in this file to python
-void export_LocalDescriptors();
 
 }; }; // end namespace freud::order
 

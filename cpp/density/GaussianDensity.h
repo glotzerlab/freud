@@ -5,13 +5,11 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -71,19 +69,19 @@ class GaussianDensity
         void accumulate(const vec3<float> *points,
                         unsigned int Np);
 
-        //!Python wrapper for accumulate
-        void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array points);
+        // //!Python wrapper for accumulate
+        // void accumulatePy(trajectory::Box& box,
+        //                   boost::python::numeric::array points);
 
-        //!Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array points);
+        // //!Python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array points);
 
         //!Get a reference to the last computed Density
         boost::shared_array<float> getDensity();
 
-        //!Python wrapper for getDensity() (returns a copy)
-        boost::python::numeric::array getDensityPy();
+        // //!Python wrapper for getDensity() (returns a copy)
+        // boost::python::numeric::array getDensityPy();
 
     private:
         trajectory::Box m_box;    //!< Simulation box the particles belong in
@@ -96,12 +94,6 @@ class GaussianDensity
         boost::shared_array<float> m_Density_array;            //! computed density array
         tbb::enumerable_thread_specific<float *> m_local_bin_counts;
     };
-
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_GaussianDensity();
 
 }; }; // end namespace freud::density
 

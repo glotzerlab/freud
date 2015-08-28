@@ -1,7 +1,6 @@
 #ifndef _SOL_LIQ_NEAR_H__
 #define _SOL_LIQ_NEAR_H__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 //#include <boost/math/special_functions/spherical_harmonic.hpp>
 
@@ -15,7 +14,6 @@
 
 #include "Cluster.h"
 #include "NearestNeighbors.h"
-#include "num_util.h"
 
 #include "trajectory.h"
 #include <stdexcept>
@@ -35,7 +33,7 @@ class SolLiqNear
     {
     public:
         //! Constructor
-        /**Constructor for Solid-Liquid analysis class.  After creation, call compute to calculate solid-like clusters.  Use accessor functions to retrieve data.       
+        /**Constructor for Solid-Liquid analysis class.  After creation, call compute to calculate solid-like clusters.  Use accessor functions to retrieve data.
         @param box A freud box for the trajectory.
         @param rmax Cutoff radius for cell list and clustering algorithm.  Values near first minima of the rdf are recommended.
         @param Qthreshold Value of dot product threshold when evaluating \f$Q_{lm}^*(i) Q_{lm}(j)\f$ to determine if a neighbor pair is a solid-like bond. (For l=6, 0.7 generally good for FCC or BCC structures)
@@ -112,131 +110,131 @@ class SolLiqNear
         //! Returns a vector containing the size of all clusters.
         std::vector<unsigned int> getClusterSizes();
 
-        //!Python wrapper to obtain list of all clusters sizes.
-        boost::python::numeric::array getClusterSizesPy()
-            {
-            std::vector<unsigned int> clustersizes = getClusterSizes();
-            //if(clustersizes.empty())
-            //    {
-            //    throw length_error("There are no clusters!");
-            //    }
-            unsigned int *arr = &clustersizes[0];
-            return num_util::makeNum(arr, clustersizes.size());
-            }
+        // //!Python wrapper to obtain list of all clusters sizes.
+        // boost::python::numeric::array getClusterSizesPy()
+        //     {
+        //     std::vector<unsigned int> clustersizes = getClusterSizes();
+        //     //if(clustersizes.empty())
+        //     //    {
+        //     //    throw length_error("There are no clusters!");
+        //     //    }
+        //     unsigned int *arr = &clustersizes[0];
+        //     return num_util::makeNum(arr, clustersizes.size());
+        //     }
 
         //! Get a reference to the last computed Qlmi
         boost::shared_array< std::complex<float> > getQlmi()
             {
             return m_Qlmi_array;
             }
-        //! Python wrapper for Qlmi() (returns a copy)
-        boost::python::numeric::array getQlmiPy()
-            {
-            std::complex<float> *arr = m_Qlmi_array.get();
-            return num_util::makeNum(arr, (2*m_l+1)*m_Np);
-            }
+        // //! Python wrapper for Qlmi() (returns a copy)
+        // boost::python::numeric::array getQlmiPy()
+        //     {
+        //     std::complex<float> *arr = m_Qlmi_array.get();
+        //     return num_util::makeNum(arr, (2*m_l+1)*m_Np);
+        //     }
 
-        //! Python wrapper for compute
-        void computePy(boost::python::numeric::array points);
+        // //! Python wrapper for compute
+        // void computePy(boost::python::numeric::array points);
 
-        //! Python wrapper for variant solliq
-        void computeSolLiqVariantPy(boost::python::numeric::array points);
-        //! Python wrapper for variant
-        void computeSolLiqNoNormPy(boost::python::numeric::array points);
+        // //! Python wrapper for variant solliq
+        // void computeSolLiqVariantPy(boost::python::numeric::array points);
+        // //! Python wrapper for variant
+        // void computeSolLiqNoNormPy(boost::python::numeric::array points);
 
-        //! Expose to python a copy of the nonorm with scalar3 input.
-        void computeNoNormVectorInputPy(boost::python::api::object &pyobj);
+        // //! Expose to python a copy of the nonorm with scalar3 input.
+        // void computeNoNormVectorInputPy(boost::python::api::object &pyobj);
 
         //! Get a reference to the last computed set of solid-like cluster indices for each particle
         boost::shared_array<unsigned int > getClusters()
             {
             return m_cluster_idx;
             }
-        //! Python wrapper for retrieving the last computed solid-like cluster indices for each particle (returns a copy)
-        boost::python::numeric::array getClustersPy()
-            {
-            unsigned int *arr = m_cluster_idx.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for retrieving the last computed solid-like cluster indices for each particle (returns a copy)
+        // boost::python::numeric::array getClustersPy()
+        //     {
+        //     unsigned int *arr = m_cluster_idx.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
         //! Get a reference to the number of connections per particle
         boost::shared_array<unsigned int> getNumberOfConnections()
             {
             return m_number_of_connections;
             }
-        //! Python wrapper for retrieving number of connections per particle
-        boost::python::numeric::array getNumberOfConnectionsPy()
-            {
-            unsigned int *arr = m_number_of_connections.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for retrieving number of connections per particle
+        // boost::python::numeric::array getNumberOfConnectionsPy()
+        //     {
+        //     unsigned int *arr = m_number_of_connections.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
         //! Get a reference to the qldot_ij values
         std::vector<std::complex<float> > getQldot_ij()
             {
             return m_qldot_ij;
             }
-        //! Python wrapper for retrieving number of connections per particle
-        boost::python::numeric::array getQldot_ijPy()
-            {
-            std::complex<float> *arr = &m_qldot_ij.at(0);
-            return num_util::makeNum(arr, m_qldot_ij.size());
-            }
+        // //! Python wrapper for retrieving number of connections per particle
+        // boost::python::numeric::array getQldot_ijPy()
+        //     {
+        //     std::complex<float> *arr = &m_qldot_ij.at(0);
+        //     return num_util::makeNum(arr, m_qldot_ij.size());
+        //     }
 
-        //! Get a reference to the num shared solid-like neighbors from alternate compute method
-        boost::python::numeric::array getNumberOfSharedConnectionsPy()
-            {
-            unsigned int *arr = &m_number_of_shared_connections.at(0);
-            return num_util::makeNum(arr, m_number_of_shared_connections.size());
-            }
+        // //! Get a reference to the num shared solid-like neighbors from alternate compute method
+        // boost::python::numeric::array getNumberOfSharedConnectionsPy()
+        //     {
+        //     unsigned int *arr = &m_number_of_shared_connections.at(0);
+        //     return num_util::makeNum(arr, m_number_of_shared_connections.size());
+        //     }
 
-        //! Python wrapper for using the Y4m calculation.  Returns array containing Yl for m=-l to l.
-        boost::python::numeric::array calcYlmPy(float theta, float phi)
-            {
-            std::vector<std::complex<float> > Y;
-            unsigned int length = 2*m_l+1; // 2*l+1
-            Ylm(theta, phi,Y);
-            boost::shared_array<std::complex<float> > arrY;
-            arrY = boost::shared_array<std::complex<float> >(new std::complex<float> [Y.size()]);
-            //Copy Y6m into a new vector!
-            for(unsigned int i = 0; i < length; i++)
-                {
-                    arrY[i]=Y[i];
-                }
-            return num_util::makeNum(arrY.get(), length);
-            }
+        // //! Python wrapper for using the Y4m calculation.  Returns array containing Yl for m=-l to l.
+        // boost::python::numeric::array calcYlmPy(float theta, float phi)
+        //     {
+        //     std::vector<std::complex<float> > Y;
+        //     unsigned int length = 2*m_l+1; // 2*l+1
+        //     Ylm(theta, phi,Y);
+        //     boost::shared_array<std::complex<float> > arrY;
+        //     arrY = boost::shared_array<std::complex<float> >(new std::complex<float> [Y.size()]);
+        //     //Copy Y6m into a new vector!
+        //     for(unsigned int i = 0; i < length; i++)
+        //         {
+        //             arrY[i]=Y[i];
+        //         }
+        //     return num_util::makeNum(arrY.get(), length);
+        //     }
 
-        //! Python wrapper for using the Y6m calculation.  Returns array containing Y6 for m=-6 to 6.
-        boost::python::numeric::array calcY6mPy(float theta, float phi)
-            {
-            std::vector<std::complex<float> > Y;
-            unsigned int length = 2*6+1; // 2*l+1
-            Y6m(theta, phi,Y);
-            boost::shared_array<std::complex<float> > arrY;
-            arrY = boost::shared_array<std::complex<float> >(new std::complex<float> [Y.size()]);
-            //Copy Y6m into a new vector!
-            for(unsigned int i = 0; i < length; i++)
-                {
-                    arrY[i]=Y[i];
-                }
-            return num_util::makeNum(arrY.get(), length);
-            }
+        // //! Python wrapper for using the Y6m calculation.  Returns array containing Y6 for m=-6 to 6.
+        // boost::python::numeric::array calcY6mPy(float theta, float phi)
+        //     {
+        //     std::vector<std::complex<float> > Y;
+        //     unsigned int length = 2*6+1; // 2*l+1
+        //     Y6m(theta, phi,Y);
+        //     boost::shared_array<std::complex<float> > arrY;
+        //     arrY = boost::shared_array<std::complex<float> >(new std::complex<float> [Y.size()]);
+        //     //Copy Y6m into a new vector!
+        //     for(unsigned int i = 0; i < length; i++)
+        //         {
+        //             arrY[i]=Y[i];
+        //         }
+        //     return num_util::makeNum(arrY.get(), length);
+        //     }
 
-        //! Python wrapper for using the Y4m calculation.  Returns array containing Y4 for m=-4 to 4.
-        boost::python::numeric::array calcY4mPy(float theta, float phi)
-            {
-            std::vector<std::complex<float> > Y;
-            unsigned int length = 2*4+1; // 2*l+1
-            Y4m(theta, phi,Y);
-            boost::shared_array<std::complex<float> > arrY;
-            arrY = boost::shared_array<std::complex<float> >(new std::complex<float> [Y.size()]);
-            //Copy Y6m into a new vector!
-            for(unsigned int i = 0; i < length; i++)
-                {
-                    arrY[i]=Y[i];
-                }
-            return num_util::makeNum(arrY.get(), length);
-            }
+        // //! Python wrapper for using the Y4m calculation.  Returns array containing Y4 for m=-4 to 4.
+        // boost::python::numeric::array calcY4mPy(float theta, float phi)
+        //     {
+        //     std::vector<std::complex<float> > Y;
+        //     unsigned int length = 2*4+1; // 2*l+1
+        //     Y4m(theta, phi,Y);
+        //     boost::shared_array<std::complex<float> > arrY;
+        //     arrY = boost::shared_array<std::complex<float> >(new std::complex<float> [Y.size()]);
+        //     //Copy Y6m into a new vector!
+        //     for(unsigned int i = 0; i < length; i++)
+        //         {
+        //             arrY[i]=Y[i];
+        //         }
+        //     return num_util::makeNum(arrY.get(), length);
+        //     }
 
 
 
@@ -299,9 +297,6 @@ class SolLiqNear
         boost::shared_array<unsigned int> m_number_of_neighbors;    //!< Number of neighbors for each particle (used for normalizing spherical harmonics);
         std::vector<unsigned int> m_number_of_shared_connections;  //!Stores number of shared neighbors for all ij pairs considered
     };
-
-//! Exports all classes in this file to python
-void export_SolLiqNear();
 
 }; }; // end namespace freud::sol_liq_near
 

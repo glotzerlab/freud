@@ -5,7 +5,6 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace std;
-using namespace boost::python;
 
 namespace freud { namespace sphericalharmonicorderparameters {
 
@@ -689,86 +688,83 @@ void SolLiq::computeClustersSharedNeighbors(const vec3<float> *points,
     m_num_clusters = cur_set;
     }
 
-void SolLiq::computePy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void SolLiq::computePy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    compute(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     }
 
-void SolLiq::computeSolLiqVariantPy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void SolLiq::computeSolLiqVariantPy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    computeSolLiqVariant(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     computeSolLiqVariant(points_raw, Np);
+//     }
 
-void SolLiq::computeSolLiqNoNormPy(boost::python::numeric::array points)
-    {
-    //validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void SolLiq::computeSolLiqNoNormPy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    computeSolLiqNoNorm(points_raw, Np);
-    }
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     computeSolLiqNoNorm(points_raw, Np);
+//     }
 
-void SolLiq::computeNoNormVectorInputPy(boost::python::api::object &pyobj) {
-    std::vector<Scalar3> vec = boost::python::extract<std::vector<Scalar3> >(pyobj);
-    // computeSolLiqNoNorm( (float3*) &vec.front(),vec.size());
-    computeSolLiqNoNorm( (vec3<float>*) &vec.front(),vec.size());
-}
+// void SolLiq::computeNoNormVectorInputPy(boost::python::api::object &pyobj) {
+//     std::vector<Scalar3> vec = boost::python::extract<std::vector<Scalar3> >(pyobj);
+//     // computeSolLiqNoNorm( (float3*) &vec.front(),vec.size());
+//     computeSolLiqNoNorm( (vec3<float>*) &vec.front(),vec.size());
+// }
 
-void export_SolLiq()
-    {
-    class_<SolLiq>("SolLiq", init<trajectory::Box&, float,float,unsigned int, unsigned int>())
-        //.def("getBox", &SolLiq::getBox, return_internal_reference<>())
-        .def("compute", &SolLiq::computePy)
-        .def("computeSolLiqVariant", &SolLiq::computeSolLiqVariantPy)
-        .def("computeSolLiqNoNorm", &SolLiq::computeSolLiqNoNormPy)
-        .def("computeNoNormVectorInput", &SolLiq::computeNoNormVectorInputPy)
-        .def("setClusteringRadius", &SolLiq::setClusteringRadius)
-        .def("setBox", &SolLiq::setBox)
-        .def("getQlmi", &SolLiq::getQlmiPy)
-        .def("getClusters", &SolLiq::getClustersPy)
-        .def("getNumberOfConnections",&SolLiq::getNumberOfConnectionsPy)
-        .def("getNumberOfNeighbors",&SolLiq::getNumberOfNeighborsPy)
-        .def("getNumberOfSharedConnections",&SolLiq::getNumberOfSharedConnectionsPy)
-        .def("getQldot_ij",&SolLiq::getQldot_ijPy)
-        .def("calcY4m", &SolLiq::calcY4mPy)
-        .def("calcY6m", &SolLiq::calcY6mPy)
-        .def("calcYlm", &SolLiq::calcYlmPy)
-        .def("getLargestClusterSize",&SolLiq::getLargestClusterSize)
-        .def("getClusterSizes",&SolLiq::getClusterSizesPy);
-    }
+// void export_SolLiq()
+//     {
+//     class_<SolLiq>("SolLiq", init<trajectory::Box&, float,float,unsigned int, unsigned int>())
+//         //.def("getBox", &SolLiq::getBox, return_internal_reference<>())
+//         .def("compute", &SolLiq::computePy)
+//         .def("computeSolLiqVariant", &SolLiq::computeSolLiqVariantPy)
+//         .def("computeSolLiqNoNorm", &SolLiq::computeSolLiqNoNormPy)
+//         .def("computeNoNormVectorInput", &SolLiq::computeNoNormVectorInputPy)
+//         .def("setClusteringRadius", &SolLiq::setClusteringRadius)
+//         .def("setBox", &SolLiq::setBox)
+//         .def("getQlmi", &SolLiq::getQlmiPy)
+//         .def("getClusters", &SolLiq::getClustersPy)
+//         .def("getNumberOfConnections",&SolLiq::getNumberOfConnectionsPy)
+//         .def("getNumberOfNeighbors",&SolLiq::getNumberOfNeighborsPy)
+//         .def("getNumberOfSharedConnections",&SolLiq::getNumberOfSharedConnectionsPy)
+//         .def("getQldot_ij",&SolLiq::getQldot_ijPy)
+//         .def("calcY4m", &SolLiq::calcY4mPy)
+//         .def("calcY6m", &SolLiq::calcY6mPy)
+//         .def("calcYlm", &SolLiq::calcYlmPy)
+//         .def("getLargestClusterSize",&SolLiq::getLargestClusterSize)
+//         .def("getClusterSizes",&SolLiq::getClusterSizesPy);
+//     }
 
 
 
 }; };// end namespace freud::sol_liq;
-
-
-

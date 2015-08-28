@@ -1,11 +1,9 @@
 #ifndef __DCDLOADER__H__
 #define __DCDLOADER__H__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "molfile/molfile_plugins.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #include <cassert>
@@ -59,17 +57,17 @@ class DCDLoader
             readNextFrame();
             }
 
-        //! Access the points read by the last step
-        boost::python::numeric::array getPoints() const
-            {
-            // allocate the memory for the points
-            std::vector<intp> dims(2);
-            dims[0] = getNumParticles();
-            dims[1] = 3;
+        // //! Access the points read by the last step
+        // boost::python::numeric::array getPoints() const
+        //     {
+        //     // allocate the memory for the points
+        //     std::vector<intp> dims(2);
+        //     dims[0] = getNumParticles();
+        //     dims[1] = 3;
 
-            float *arr = m_points.get();
-            return num_util::makeNum(arr, dims);
-            }
+        //     float *arr = m_points.get();
+        //     return num_util::makeNum(arr, dims);
+        //     }
 
         //! Get the box
         const Box& getBox() const
@@ -127,8 +125,6 @@ class DCDLoader
         //! Helper function to start loading the dcd file
         void loadDCD();
     };
-
-void export_dcdloader();
 
 }; }; // end namespace freud::trajectory
 

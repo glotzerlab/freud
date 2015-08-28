@@ -1,8 +1,7 @@
-    #include "DCDLoader.h"
+#include "DCDLoader.h"
 
 #include <stdexcept>
 
-using namespace boost::python;
 using namespace std;
 
 /*! \file DCDLoader.h
@@ -94,10 +93,10 @@ void DCDLoader::readNextFrame()
     if (err != MOLFILE_SUCCESS)
         {
         throw runtime_error("Unknown error while reading DCD file");
-        } 
+        }
 
     //Note: ts.(alpha, beta, gamma) in the dcd files are in units of degree, not radians, so need conversion
-    
+
     if ( (ts.gamma == 90) and (ts.beta == 90) and (ts.alpha == 90))
         {
         float lx = ts.A;
@@ -106,7 +105,7 @@ void DCDLoader::readNextFrame()
         float xy = 0;
         float yz = 0;
         float xz = 0;
-        
+
         m_box = Box(lx,ly,lz,xy,xz,yz);
         }
     else
@@ -120,7 +119,7 @@ void DCDLoader::readNextFrame()
             {
             cgamma = 0;
             }
-        else 
+        else
             {
             cgamma = cos(ts.gamma/180*PI);
             }
@@ -128,7 +127,7 @@ void DCDLoader::readNextFrame()
             {
             calpha = 0;
             }
-        else 
+        else
             {
             calpha = cos(ts.alpha/180*PI);
             }
@@ -136,18 +135,18 @@ void DCDLoader::readNextFrame()
             {
             cbeta = 0;
             }
-        else 
+        else
             {
             cbeta = cos(ts.beta/180*PI);
             }
-            
+
         float lx = ts.A;
         float xy = ts.B * cgamma;
         float xz = ts.C * cbeta;
         float ly = sqrt(ts.B*ts.B - xy*xy);
         float yz = (ts.B*ts.C*calpha-xy*xz)/lx;
         float lz = sqrt(ts.C*ts.C-xz*xz-yz*yz);
-   
+
         // rescale tilt factors for HOOMD format
         xy/=ly;
         xz/=lz;
@@ -156,7 +155,7 @@ void DCDLoader::readNextFrame()
         m_box = Box(lx,ly,lz,xy,xz,yz);
         }
 
-    
+
     // record the step
     m_time_step = m_dcd->istart + (m_dcd->setsread-1) * m_dcd->nsavc;
     }
@@ -173,20 +172,20 @@ void DCDLoader::loadDCD()
     m_points = boost::shared_array<float>(new float[natoms*3]);
     }
 
-void export_dcdloader()
-    {
-    class_<DCDLoader>("DCDLoader", init<const string &>())
-        .def("jumpToFrame", &DCDLoader::jumpToFramePy)
-        .def("readNextFrame", &DCDLoader::readNextFramePy)
-        .def("getPoints", &DCDLoader::getPoints)
-        .def("getBox", &DCDLoader::getBox, return_internal_reference<>())
-        .def("getNumParticles", &DCDLoader::getNumParticles)
-        .def("getLastFrameNum", &DCDLoader::getLastFrameNum)
-        .def("getFrameCount", &DCDLoader::getFrameCount)
-        .def("getFileName", &DCDLoader::getFileName)
-        .def("getTimeStep", &DCDLoader::getTimeStep)
-        .enable_pickling()
-        ;
-    }
+// void export_dcdloader()
+//     {
+//     class_<DCDLoader>("DCDLoader", init<const string &>())
+//         .def("jumpToFrame", &DCDLoader::jumpToFramePy)
+//         .def("readNextFrame", &DCDLoader::readNextFramePy)
+//         .def("getPoints", &DCDLoader::getPoints)
+//         .def("getBox", &DCDLoader::getBox, return_internal_reference<>())
+//         .def("getNumParticles", &DCDLoader::getNumParticles)
+//         .def("getLastFrameNum", &DCDLoader::getLastFrameNum)
+//         .def("getFrameCount", &DCDLoader::getFrameCount)
+//         .def("getFileName", &DCDLoader::getFileName)
+//         .def("getTimeStep", &DCDLoader::getTimeStep)
+//         .enable_pickling()
+//         ;
+//     }
 
 }; }; // end namespace freud::trajectory

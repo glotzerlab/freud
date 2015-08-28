@@ -1,7 +1,5 @@
-#include <boost/python.hpp>
 #include <stdexcept>
 
-#include "num_util.h"
 #include "split.h"
 #include "ScopedGILRelease.h"
 
@@ -9,7 +7,6 @@
 #include <math.h>
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file split.cc
     \brief Helper routines for splitting particles
@@ -57,54 +54,54 @@ vec2<float> rotate(vec2<float> point, float angle)
 
 */
 
-void splitPy(boost::python::numeric::array split_array,
-                boost::python::numeric::array sangle_array,
-                boost::python::numeric::array position_array,
-                boost::python::numeric::array angle_array,
-                boost::python::numeric::array centers_array
-                )
-    {
-    //ugh I can't remember which is input and which is output...
-    //validate input type and rank
-    //
+// void splitPy(boost::python::numeric::array split_array,
+//                 boost::python::numeric::array sangle_array,
+//                 boost::python::numeric::array position_array,
+//                 boost::python::numeric::array angle_array,
+//                 boost::python::numeric::array centers_array
+//                 )
+//     {
+//     //ugh I can't remember which is input and which is output...
+//     //validate input type and rank
+//     //
 
-    num_util::check_type(split_array, NPY_FLOAT);
-    num_util::check_rank(split_array, 2);
+//     num_util::check_type(split_array, NPY_FLOAT);
+//     num_util::check_rank(split_array, 2);
 
-    num_util::check_type(sangle_array, NPY_FLOAT);
-    num_util::check_rank(sangle_array, 1);
+//     num_util::check_type(sangle_array, NPY_FLOAT);
+//     num_util::check_rank(sangle_array, 1);
 
-    // validate that the 2nd dimension is 2
-    num_util::check_dim(split_array, 1, 3);
+//     // validate that the 2nd dimension is 2
+//     num_util::check_dim(split_array, 1, 3);
 
-    num_util::check_type(position_array, NPY_FLOAT);
-    num_util::check_rank(position_array, 2);
-    unsigned int N = num_util::shape(position_array)[0];
+//     num_util::check_type(position_array, NPY_FLOAT);
+//     num_util::check_rank(position_array, 2);
+//     unsigned int N = num_util::shape(position_array)[0];
 
-    num_util::check_type(angle_array, NPY_FLOAT);
-    num_util::check_rank(angle_array, 1);
-    if (num_util::shape(angle_array)[0] != N)
-        throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
+//     num_util::check_type(angle_array, NPY_FLOAT);
+//     num_util::check_rank(angle_array, 1);
+//     if (num_util::shape(angle_array)[0] != N)
+//         throw std::invalid_argument("Input lengths for vert_array and angle_array must match");
 
-    num_util::check_type(centers_array, NPY_FLOAT);
-    num_util::check_rank(centers_array, 2);
-    unsigned int NS = num_util::shape(centers_array)[0];
+//     num_util::check_type(centers_array, NPY_FLOAT);
+//     num_util::check_rank(centers_array, 2);
+//     unsigned int NS = num_util::shape(centers_array)[0];
 
-    // get the raw data pointers and compute conversion
-    // float3* split_array_raw = (float3*) num_util::data(split_array);
-    vec3<float>* split_array_raw = (vec3<float>*) num_util::data(split_array);
-    float* sangle_array_raw = (float*) num_util::data(sangle_array);
-    // float3* position_array_raw = (float3*) num_util::data(position_array);
-    vec3<float>* position_array_raw = (vec3<float>*) num_util::data(position_array);
-    float* angle_array_raw = (float*) num_util::data(angle_array);
-    // float2* centers_array_raw = (float2*) num_util::data(centers_array);
-    vec2<float>* centers_array_raw = (vec2<float>*) num_util::data(centers_array);
+//     // get the raw data pointers and compute conversion
+//     // float3* split_array_raw = (float3*) num_util::data(split_array);
+//     vec3<float>* split_array_raw = (vec3<float>*) num_util::data(split_array);
+//     float* sangle_array_raw = (float*) num_util::data(sangle_array);
+//     // float3* position_array_raw = (float3*) num_util::data(position_array);
+//     vec3<float>* position_array_raw = (vec3<float>*) num_util::data(position_array);
+//     float* angle_array_raw = (float*) num_util::data(angle_array);
+//     // float2* centers_array_raw = (float2*) num_util::data(centers_array);
+//     vec2<float>* centers_array_raw = (vec2<float>*) num_util::data(centers_array);
 
-        {
-        util::ScopedGILRelease gil;
-        split(split_array_raw, sangle_array_raw, position_array_raw, angle_array_raw, centers_array_raw, N, NS);
-        }
-    }
+//         {
+//         util::ScopedGILRelease gil;
+//         split(split_array_raw, sangle_array_raw, position_array_raw, angle_array_raw, centers_array_raw, N, NS);
+//         }
+//     }
 
 /*! \internal
     \brief Python wrapper for triangle_rotate
@@ -178,11 +175,6 @@ void split(vec3<float> *split_array,
             }
 
         }
-    }
-
-void export_split()
-    {
-    def("split", &splitPy);
     }
 
 }; }; // end namespace freud::viz

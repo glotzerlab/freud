@@ -1,15 +1,12 @@
 #include "colormap.h"
 
-#include <boost/python.hpp>
 #include <stdexcept>
 
-#include "num_util.h"
 #include "ScopedGILRelease.h"
 
 #include <iostream>
 
 using namespace std;
-using namespace boost::python;
 using namespace tbb;
 
 /*! \file colormap.cc
@@ -27,50 +24,50 @@ namespace freud { namespace viz {
     \param v Input values: intensity (N element float32 array)
     \param a Alpha value
 */
-void hsv2RGBAPy(boost::python::numeric::array cmap,
-                boost::python::numeric::array theta,
-                boost::python::numeric::array s,
-                boost::python::numeric::array v,
-                float a)
-    {
-    //validate input type and rank
-    num_util::check_type(cmap, NPY_FLOAT);
-    num_util::check_rank(cmap, 2);
+// void hsv2RGBAPy(boost::python::numeric::array cmap,
+//                 boost::python::numeric::array theta,
+//                 boost::python::numeric::array s,
+//                 boost::python::numeric::array v,
+//                 float a)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(cmap, NPY_FLOAT);
+//     num_util::check_rank(cmap, 2);
 
-    // validate that the 2nd dimension is 4
-    num_util::check_dim(cmap, 1, 4);
-    unsigned int N = num_util::shape(cmap)[0];
+//     // validate that the 2nd dimension is 4
+//     num_util::check_dim(cmap, 1, 4);
+//     unsigned int N = num_util::shape(cmap)[0];
 
-    // check that u is consistent
-    num_util::check_type(theta, NPY_FLOAT);
-    num_util::check_rank(theta, 1);
-    if (num_util::shape(theta)[0] != N)
-        throw std::invalid_argument("Input lengths for cmap and theta must match");
+//     // check that u is consistent
+//     num_util::check_type(theta, NPY_FLOAT);
+//     num_util::check_rank(theta, 1);
+//     if (num_util::shape(theta)[0] != N)
+//         throw std::invalid_argument("Input lengths for cmap and theta must match");
 
-    // check that s is consistent
-    num_util::check_type(s, NPY_FLOAT);
-    num_util::check_rank(s, 1);
-    if (num_util::shape(s)[0] != N)
-        throw std::invalid_argument("Input lengths for cmap and s must match");
+//     // check that s is consistent
+//     num_util::check_type(s, NPY_FLOAT);
+//     num_util::check_rank(s, 1);
+//     if (num_util::shape(s)[0] != N)
+//         throw std::invalid_argument("Input lengths for cmap and s must match");
 
-    // check that v is consistent
-    num_util::check_type(v, NPY_FLOAT);
-    num_util::check_rank(v, 1);
-    if (num_util::shape(v)[0] != N)
-        throw std::invalid_argument("Input lengths for cmap and v must match");
+//     // check that v is consistent
+//     num_util::check_type(v, NPY_FLOAT);
+//     num_util::check_rank(v, 1);
+//     if (num_util::shape(v)[0] != N)
+//         throw std::invalid_argument("Input lengths for cmap and v must match");
 
-    // get the raw data pointers and compute conversion
-    float4* cmap_raw = (float4*) num_util::data(cmap);
-    float* theta_raw = (float*)num_util::data(theta);
-    float* s_raw = (float*)num_util::data(s);
-    float* v_raw = (float*)num_util::data(v);
+//     // get the raw data pointers and compute conversion
+//     float4* cmap_raw = (float4*) num_util::data(cmap);
+//     float* theta_raw = (float*)num_util::data(theta);
+//     float* s_raw = (float*)num_util::data(s);
+//     float* v_raw = (float*)num_util::data(v);
 
-        // compute the colormap with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        hsv2RGBA(cmap_raw, theta_raw, s_raw, v_raw, a, N);
-        }
-    }
+//         // compute the colormap with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         hsv2RGBA(cmap_raw, theta_raw, s_raw, v_raw, a, N);
+//         }
+//     }
 
 //! \internal
 /*! \brief Helper class for parallel computation in linearToSRGBA
@@ -189,41 +186,41 @@ void hsv2RGBA(float4 *cmap,
     }
 
 
-/*! \internal
-    \brief Python wrapper for jet
+// /*! \internal
+//     \brief Python wrapper for jet
 
-    \param cmap Output colormap (Nx4 float32 array)
-    \param u Input values: linear in range 0-1 (N element float32 array)
-    \param a Alpha value
-*/
-void jetPy(boost::python::numeric::array cmap,
-           boost::python::numeric::array u,
-           float a)
-    {
-    //validate input type and rank
-    num_util::check_type(cmap, NPY_FLOAT);
-    num_util::check_rank(cmap, 2);
+//     \param cmap Output colormap (Nx4 float32 array)
+//     \param u Input values: linear in range 0-1 (N element float32 array)
+//     \param a Alpha value
+// */
+// void jetPy(boost::python::numeric::array cmap,
+//            boost::python::numeric::array u,
+//            float a)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(cmap, NPY_FLOAT);
+//     num_util::check_rank(cmap, 2);
 
-    // validate that the 2nd dimension is 4
-    num_util::check_dim(cmap, 1, 4);
-    unsigned int N = num_util::shape(cmap)[0];
+//     // validate that the 2nd dimension is 4
+//     num_util::check_dim(cmap, 1, 4);
+//     unsigned int N = num_util::shape(cmap)[0];
 
-    // check that u is consistent
-    num_util::check_type(u, NPY_FLOAT);
-    num_util::check_rank(u, 1);
-    if (num_util::shape(u)[0] != N)
-        throw std::invalid_argument("Input lengths for cmap and u must match");
+//     // check that u is consistent
+//     num_util::check_type(u, NPY_FLOAT);
+//     num_util::check_rank(u, 1);
+//     if (num_util::shape(u)[0] != N)
+//         throw std::invalid_argument("Input lengths for cmap and u must match");
 
-    // get the raw data pointers and compute conversion
-    float4* cmap_raw = (float4*) num_util::data(cmap);
-    float* u_raw = (float*)num_util::data(u);
+//     // get the raw data pointers and compute conversion
+//     float4* cmap_raw = (float4*) num_util::data(cmap);
+//     float* u_raw = (float*)num_util::data(u);
 
-        // compute the colormap with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        jet(cmap_raw, u_raw, a, N);
-        }
-    }
+//         // compute the colormap with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         jet(cmap_raw, u_raw, a, N);
+//         }
+//     }
 
 //! \internal
 /*! \brief Helper class for parallel computation in jet()
@@ -294,51 +291,51 @@ void jet(float4 *cmap,
     parallel_for(blocked_range<size_t>(0,N,100), ComputeJet(cmap, u_array, a));
     }
 
-/*! \internal
-    \brief Python wrapper for cubehelix
+// /*! \internal
+//     \brief Python wrapper for cubehelix
 
-    \param cmap Output colormap (Nx4 float32 array)
-    \param lambda Input values: linear in range 0-1 (N element float32 array)
-    \param a Alpha value
-    \param s Hue of the starting color
-    \param r Number of rotations through R->G->B to make
-    \param h Hue parameter controlling saturation
-    \param gamma Reweighting power to emphasize low intensity values or high intensity values
-    \param reverse Reverse the colormap (lambda -> 1 - lambda)
-*/
-void cubehelixPy(boost::python::numeric::array cmap,
-           boost::python::numeric::array lambda,
-           float a,
-           float s,
-           float r,
-           float h,
-           float gamma,
-           bool reverse)
-    {
-    //validate input type and rank
-    num_util::check_type(cmap, NPY_FLOAT);
-    num_util::check_rank(cmap, 2);
+//     \param cmap Output colormap (Nx4 float32 array)
+//     \param lambda Input values: linear in range 0-1 (N element float32 array)
+//     \param a Alpha value
+//     \param s Hue of the starting color
+//     \param r Number of rotations through R->G->B to make
+//     \param h Hue parameter controlling saturation
+//     \param gamma Reweighting power to emphasize low intensity values or high intensity values
+//     \param reverse Reverse the colormap (lambda -> 1 - lambda)
+// */
+// void cubehelixPy(boost::python::numeric::array cmap,
+//            boost::python::numeric::array lambda,
+//            float a,
+//            float s,
+//            float r,
+//            float h,
+//            float gamma,
+//            bool reverse)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(cmap, NPY_FLOAT);
+//     num_util::check_rank(cmap, 2);
 
-    // validate that the 2nd dimension is 4
-    num_util::check_dim(cmap, 1, 4);
-    unsigned int N = num_util::shape(cmap)[0];
+//     // validate that the 2nd dimension is 4
+//     num_util::check_dim(cmap, 1, 4);
+//     unsigned int N = num_util::shape(cmap)[0];
 
-    // check that lambda is consistent
-    num_util::check_type(lambda, NPY_FLOAT);
-    num_util::check_rank(lambda, 1);
-    if (num_util::shape(lambda)[0] != N)
-        throw std::invalid_argument("Input lengths for cmap and lambda must match");
+//     // check that lambda is consistent
+//     num_util::check_type(lambda, NPY_FLOAT);
+//     num_util::check_rank(lambda, 1);
+//     if (num_util::shape(lambda)[0] != N)
+//         throw std::invalid_argument("Input lengths for cmap and lambda must match");
 
-    // get the raw data pointers and compute conversion
-    float4* cmap_raw = (float4*) num_util::data(cmap);
-    float* lambda_raw = (float*)num_util::data(lambda);
+//     // get the raw data pointers and compute conversion
+//     float4* cmap_raw = (float4*) num_util::data(cmap);
+//     float* lambda_raw = (float*)num_util::data(lambda);
 
-        // compute the colormap with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        cubehelix(cmap_raw, lambda_raw, N, a, s, r, h, gamma, reverse);
-        }
-    }
+//         // compute the colormap with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         cubehelix(cmap_raw, lambda_raw, N, a, s, r, h, gamma, reverse);
+//         }
+//     }
 
 //! \internal
 /*! \brief Helper class for parallel computation in cubehelix()
@@ -439,14 +436,6 @@ void cubehelix(float4 *cmap,
                bool reverse)
     {
     parallel_for(blocked_range<size_t>(0,N,100), ComputeCubehelix(cmap, lambda_array, a, s, r, h, gamma, reverse));
-    }
-
-
-void export_colormap()
-    {
-    def("hsv2RGBA", &hsv2RGBAPy);
-    def("jet", &jetPy);
-    def("cubehelix", &cubehelixPy);
     }
 
 }; }; // end namespace freud::viz
