@@ -31,44 +31,31 @@ endif()
 #     mark_as_advanced(ISPC_EXECUTABLE)
 # endif()
 
-# include(FREUDCFlagsSetup)
+include(FREUDCFlagsSetup)
 
 # setup python
 include(FREUDPythonSetup)
-# include_directories(${PYTHON_INCLUDE_DIR})
+include_directories(${PYTHON_INCLUDE_DIR})
+
+# setup cython
+include(FREUDCythonSetup)
+include(UseCython)
 
 # Find the boost libraries and set them up
 include (FREUDBoostSetup)
-# include_directories(SYSTEM ${Boost_INCLUDE_DIR})
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 # setup numpy
-# include (FREUDNumpySetup)
-# include_directories(${NUMPY_INCLUDE_DIR})
-# add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
-# add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
+include (FREUDNumpySetup)
+include_directories(${NUMPY_INCLUDE_DIR})
+add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
+add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
 # set the default install prefix
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    SET(SETUP_PY_ARGS "--user" CACHE STRING "Extra args to pass to setup.py")
-ELSE(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    SET(SETUP_PY_ARGS "--prefix=\"${CMAKE_INSTALL_PREFIX}\"" CACHE STRING "Extra args to pass to setup.py")
+    SET(CMAKE_INSTALL_PREFIX ${PYTHON_USER_SITE} CACHE PATH "Python site installation diretory (defaults to USER_SITE)" FORCE)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
-set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
-set(SETUP_PY    "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
-set(DEPS        "${CMAKE_CURRENT_SOURCE_DIR}/freud/__init__.py")
-set(OUTPUT      "${CMAKE_CURRENT_BINARY_DIR}/build/timestamp")
-
-configure_file(${SETUP_PY_IN} ${SETUP_PY})
-
-add_custom_command(OUTPUT ${OUTPUT}
-                   COMMAND "${PYTHON_EXECUTABLE}" setup.py build_ext
-                   COMMAND "${CMAKE_COMMAND}" -E touch ${OUTPUT}
-                   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-                   DEPENDS ${DEPS})
-
-add_custom_target(target ALL DEPENDS ${OUTPUT})
-install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" setup.py install ${SETUP_PY_ARGS}
-                              WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")")
-
-# add_subdirectory(doc)
+add_subdirectory(cpp)
+add_subdirectory(freud)
+add_subdirectory(doc)
