@@ -2,9 +2,11 @@
 # cython: embedsignature=True
 
 from freud.util._VectorMath cimport vec3
-from freud.trajectory cimport _trajectory
+from freud cimport _trajectory
 
 cdef class Box:
+    """
+    Freud box object. Wrapper for the c++ trajectory.Box() class"""
     cdef _trajectory.Box *thisptr
 
     def __cinit__(self, *args, is2D=None):
@@ -53,11 +55,11 @@ cdef class Box:
         return self.thisptr.getLz()
 
     def getL(self):
-        vec3[float] result = self.thisptr.getL()
+        cdef vec3[float] result = self.thisptr.getL()
         return (result.x, result.y, result.z)
 
     def getLinv(self):
-        vec3[float] result = self.thisptr.getLinv()
+        cdef vec3[float] result = self.thisptr.getLinv()
         return (result.x, result.y, result.z)
 
     def getTiltFactorXY(self):
@@ -75,7 +77,7 @@ cdef class Box:
     def getCoordinates(self, f):
         """Convert a vector of relative box coordinates (each in [0..1]) into
         absolute coordinates"""
-        vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
-        vec3[float] resultVec = self.thisptr.makeCoordinates(fRaw)
+        cdef vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
+        cdef vec3[float] resultVec = self.thisptr.makeCoordinates(fRaw)
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
