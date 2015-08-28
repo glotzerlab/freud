@@ -291,6 +291,18 @@ boost::shared_array<float> RDF::getRDF()
     return m_rdf_array;
     }
 
+boost::shared_array<float> RDF::getNr()
+    {
+    reduceRDF();
+    return m_N_r_array;
+    }
+
+//! Get number of bins
+unsigned int RDF::getNBins()
+    {
+    return m_nbins;
+    }
+
 // //! Get a reference to the PCF array
 // boost::python::numeric::array RDF::getRDFPy()
 //     {
@@ -320,11 +332,13 @@ void RDF::resetRDF()
     m_frame_counter = 0;
     }
 
-void RDF::accumulate(const vec3<float> *ref_points,
+void RDF::accumulate(trajectory::Box& box,
+                     const vec3<float> *ref_points,
                      unsigned int Nref,
                      const vec3<float> *points,
                      unsigned int Np)
     {
+    m_box = box;
     m_Np = Np;
     m_Nref = Nref;
     m_lc->computeCellList(m_box, points, Np);

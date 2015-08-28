@@ -2,26 +2,26 @@
 # cython: embedsignature=True
 
 from freud.util._VectorMath cimport vec3
-from freud cimport _trajectory
+cimport freud.trajectory._trajectory as trajectory
 
 cdef class Box:
     """
     Freud box object. Wrapper for the c++ trajectory.Box() class"""
-    cdef _trajectory.Box *thisptr
+    cdef trajectory.Box *thisptr
 
     def __cinit__(self, *args, is2D=None):
         if len(args) == 0:
-            self.thisptr = new _trajectory.Box()
+            self.thisptr = new trajectory.Box()
         elif len(args) == 1:
-            self.thisptr = new _trajectory.Box(args[0], bool(is2D))
+            self.thisptr = new trajectory.Box(args[0], bool(is2D))
         elif len(args) == 3:
-            self.thisptr = new _trajectory.Box(args[0], args[1], args[2], is2D)
+            self.thisptr = new trajectory.Box(args[0], args[1], args[2], is2D)
         elif len(args) == 4 and is2D is None:
-            self.thisptr = new _trajectory.Box(args[0], args[1], args[2], args[3])
+            self.thisptr = new trajectory.Box(args[0], args[1], args[2], args[3])
         elif len(args) == 6:
-            self.thisptr = new _trajectory.Box(args[0], args[1], args[2], args[3], args[4], args[5], is2D)
+            self.thisptr = new trajectory.Box(args[0], args[1], args[2], args[3], args[4], args[5], is2D)
         elif len(args) == 7 and is2D is None:
-            self.thisptr = new _trajectory.Box(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
+            self.thisptr = new trajectory.Box(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
         else:
             raise TypeError('Could not create a Box with the given arguments: {}'.format(args))
 
@@ -81,3 +81,8 @@ cdef class Box:
         cdef vec3[float] resultVec = self.thisptr.makeCoordinates(fRaw)
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
+
+cdef BoxFromCPP(const trajectory.Box& cppbox):
+    """
+    """
+    return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(), cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(), cppbox.getTiltFactorYZ(), cppbox.is2D())

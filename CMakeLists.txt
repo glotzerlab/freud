@@ -71,4 +71,4 @@ add_custom_target(target ALL DEPENDS ${OUTPUT})
 install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" setup.py install ${SETUP_PY_ARGS}
                               WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")")
 
-add_subdirectory(doc)
+# add_subdirectory(doc)

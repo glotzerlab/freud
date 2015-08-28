@@ -53,13 +53,14 @@ class RDF
         void resetRDF();
 
         //! Python wrapper for reset method
-        void resetRDFPy()
-            {
-            resetRDF();
-            }
+        // void resetRDFPy()
+        //     {
+        //     resetRDF();
+        //     }
 
         //! Compute the RDF
-        void accumulate(const vec3<float> *ref_points,
+        void accumulate(trajectory::Box& box,
+                        const vec3<float> *ref_points,
                         unsigned int Nref,
                         const vec3<float> *points,
                         unsigned int Np);
@@ -88,10 +89,9 @@ class RDF
             }
 
         //! Get a reference to the N_r array
-        boost::shared_array<float> getNr()
-            {
-            return m_N_r_array;
-            }
+        boost::shared_array<float> getNr();
+
+        unsigned int getNBins();
 
         // //! Python wrapper for getRDF() (returns a copy)
         // boost::python::numeric::array getRDFPy();
