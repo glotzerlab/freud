@@ -33,14 +33,14 @@ if '--cython' in sys.argv:
         return result
 
     pyxes = []
-    sys.path.append('${CMAKE_CURRENT_SOURCE_DIR}/freud')
-    for (dirpath, _, filenames) in os.walk('${CMAKE_CURRENT_SOURCE_DIR}/freud'):
+    sys.path.append('${CMAKE_CURRENT_SOURCE_DIR}')
+    for (dirpath, _, filenames) in os.walk('${CMAKE_CURRENT_SOURCE_DIR}'):
         pyxes.extend([os.path.join(dirpath, name) for name in filenames
                         if name.endswith('.pyx')])
 
     modules = myCythonize(pyxes)
 else:
-    for (dirpath, _, filenames) in os.walk('${CMAKE_CURRENT_SOURCE_DIR}/freud'):
+    for (dirpath, _, filenames) in os.walk('${CMAKE_CURRENT_SOURCE_DIR}'):
         sources.extend([os.path.join(dirpath, name) for name in filenames
                         if name.endswith('.cpp') or name.endswith('.c')])
 
