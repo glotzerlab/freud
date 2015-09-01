@@ -1,0 +1,17 @@
+.. contents:: Freud modules
+
+=============
+Freud modules
+=============
+
+Freud modules may be imported individually or as a whole as part of a python script.
+
+Available modules
+=================
+
+Several modules are available currently. Feel free to contribute your own modules to the source.
+
+.. automodule:: freud.trajectory
+    :members:
+
+.. automodule:: freud.pmft

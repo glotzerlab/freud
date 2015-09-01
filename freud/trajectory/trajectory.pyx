@@ -6,7 +6,16 @@ cimport freud.trajectory._trajectory as trajectory
 
 cdef class Box:
     """
-    Freud box object. Wrapper for the c++ trajectory.Box() class"""
+    Freud box object. Wrapper for the c++ trajectory.Box() class
+
+    Constructs Box object from a variety of possible parameters:
+
+    * L: If only L provided, constructs a cubic box with side length L
+    * Lx, Ly, Lz: constructs an orthorhombic box with said side lengths
+    * Lx, Ly, Lz, xy, xz, yz: constructs a triclinic box with side lengths and tilt factors
+    * is2D: boolean to specify if 2D or 3D box
+
+    """
     cdef trajectory.Box *thisptr
 
     def __cinit__(self, *args, is2D=None):
@@ -29,6 +38,11 @@ cdef class Box:
         del self.thisptr
 
     def setL(self, L):
+        """
+        Sets the side length
+
+        * L: side length
+        """
         try:
             len(L)
         except TypeError:
@@ -84,5 +98,6 @@ cdef class Box:
 
 cdef BoxFromCPP(const trajectory.Box& cppbox):
     """
+    Function that returns a Python Box given a c++ Box
     """
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(), cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(), cppbox.getTiltFactorYZ(), cppbox.is2D())
