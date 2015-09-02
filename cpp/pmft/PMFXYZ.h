@@ -53,16 +53,11 @@ class PMFXYZ
         //! Reset the PCF array to all zeros
         void resetPCF();
 
-        //! Python wrapper for reset method
-        void resetPCFPy()
-            {
-            resetPCF();
-            }
-
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void accumulate(vec3<float> *ref_points,
+        void accumulate(trajectory::Box& box,
+                        vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int Nref,
                         vec3<float> *points,
@@ -110,6 +105,21 @@ class PMFXYZ
         boost::shared_array<float> getZ()
             {
             return m_z_array;
+            }
+
+        unsigned int getNBinsX()
+            {
+            return m_nbins_x;
+            }
+
+        unsigned int getNBinsY()
+            {
+            return m_nbins_y;
+            }
+
+        unsigned int getNBinsZ()
+            {
+            return m_nbins_z;
             }
 
         // //! Python wrapper for getPCF() (returns a copy)

@@ -333,7 +333,8 @@ void PMFXYZ::resetPCF()
 //! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
 */
-void PMFXYZ::accumulate(vec3<float> *ref_points,
+void PMFXYZ::accumulate(trajectory::Box& box,
+                        vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int Nref,
                         vec3<float> *points,
@@ -342,6 +343,7 @@ void PMFXYZ::accumulate(vec3<float> *ref_points,
                         quat<float> *face_orientations,
                         unsigned int Nfaces)
     {
+    m_box = box;
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFT(m_local_pcf_array,
