@@ -6,6 +6,7 @@ target_link_libraries(${target} ${PYTHON_LIBRARIES} ${TBB_LIBRARY})
 endmacro(setup_pymodule)
 #####################
 
+file(GLOB_RECURSE PXIS ${CMAKE_CURRENT_SOURCE_DIR}/../freud/*.pxi)
 file(GLOB_RECURSE PYXS ${CMAKE_CURRENT_SOURCE_DIR}/../freud/*.pyx)
 
 file(GLOB_RECURSE PYX_CPPS ${CMAKE_CURRENT_SOURCE_DIR}/../freud/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../freud/*.c)
@@ -18,7 +19,7 @@ if(ENABLE_CYTHON)
     set(cpp_out "${CMAKE_CURRENT_SOURCE_DIR}/${cpp_rel}")
     add_custom_command(OUTPUT ${cpp_out}
                        COMMAND ${CYTHON_EXECUTABLE} -o ${cpp_out} -w ${CMAKE_CURRENT_SOURCE_DIR}/../freud --cplus ${pyx}
-                       DEPENDS ${pyx})
+                       DEPENDS ${pyx} ${PXIS})
     set_source_files_properties(${cpp_out} PROPERTIES GENERATED TRUE)
     list(APPEND CYTHON_SOURCES ${cpp_out})
   endforeach(pyx in LISTS PYXS)
@@ -143,9 +144,9 @@ foreach(src IN LISTS FREUD_SOURCES)
 endforeach(src IN LISTS FREUD_SOURCES)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
-add_library(freud MODULE ${SOURCES} ${CYTHON_SOURCES})
-setup_pymodule(freud)
+add_library(_freud MODULE ${SOURCES} ${CYTHON_SOURCES})
+setup_pymodule(_freud)
 
-INSTALL(TARGETS freud
-  LIBRARY DESTINATION .
+INSTALL(TARGETS _freud
+  LIBRARY DESTINATION freud
   )

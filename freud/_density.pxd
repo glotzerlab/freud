@@ -1,7 +1,7 @@
 # from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from freud.util._Boost cimport shared_array
-cimport freud.trajectory._trajectory as trajectory
+cimport freud._trajectory as trajectory
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:

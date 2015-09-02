@@ -1,14 +1,11 @@
-# distutils: language = c++
-# cython: embedsignature=True
 
 from freud.util._VectorMath cimport vec3
 from freud.util._Boost cimport shared_array
-cimport freud.trajectory._trajectory as _trajectory
-from freud import trajectory
-cimport freud.trajectory.trajectory as trajectory
-cimport freud.density._density as density
+cimport freud._trajectory as _trajectory
+cimport freud._density as density
 from libc.string cimport memcpy
 from cython.operator cimport dereference as deref
+import numpy as np
 cimport numpy as np
 DTYPE = np.float32
 ctypedef np.float32_t DTYPE_t
@@ -25,7 +22,7 @@ cdef class RDF:
         del self.thisptr
 
     def getBox(self):
-        return trajectory.BoxFromCPP(self.thisptr.getBox())
+        return BoxFromCPP(self.thisptr.getBox())
 
     def resetRDF(self):
         self.thisptr.resetRDF()
