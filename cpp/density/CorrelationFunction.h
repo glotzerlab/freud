@@ -67,7 +67,8 @@ class CorrelationFunction
             }
 
         //! accumulate the correlation function
-        void accumulate(const vec3<float> *ref_points,
+        void accumulate(const trajectory::Box &box,
+                        const vec3<float> *ref_points,
                         const T *ref_values,
                         unsigned int Nref,
                         const vec3<float> *points,
@@ -105,6 +106,11 @@ class CorrelationFunction
         boost::shared_array<float> getR()
             {
             return m_r_array;
+            }
+
+        unsigned int getNBins() const
+            {
+            return m_nbins;
             }
 
         // //! Python wrapper for getRDF() (returns a copy)
@@ -145,12 +151,12 @@ class CorrelationFunction
         tbb::enumerable_thread_specific<T *> m_local_rdf_array;
     };
 
-/*! \internal
-    \brief Template function to check the type of a given correlation
-        function value array. Should be specialized for its argument.
-*/
-template<typename T>
-void checkCFType(boost::python::numeric::array values);
+// /*! \internal
+//     \brief Template function to check the type of a given correlation
+//         function value array. Should be specialized for its argument.
+// */
+// template<typename T>
+// void checkCFType(boost::python::numeric::array values);
 
 #include "CorrelationFunction.cc"
 

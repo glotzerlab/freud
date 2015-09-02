@@ -1,5 +1,3 @@
-#include <complex>
-
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
@@ -285,13 +283,15 @@ void CorrelationFunction<T>::resetCorrelationFunction()
     }
 
 template<typename T>
-void CorrelationFunction<T>::accumulate(const vec3<float> *ref_points,
+void CorrelationFunction<T>::accumulate(const trajectory::Box &box,
+                             const vec3<float> *ref_points,
                              const T *ref_values,
                              unsigned int Nref,
                              const vec3<float> *points,
                              const T *point_values,
                              unsigned int Np)
     {
+    m_box = box;
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(tbb::blocked_range<size_t>(0, Nref), ComputeOCF<T>(m_nbins,
                                                                     m_local_bin_counts,

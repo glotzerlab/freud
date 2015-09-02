@@ -25,3 +25,18 @@ cdef extern from "RDF.h" namespace "freud::density":
         shared_array[float] getR()
         shared_array[float] getNr()
         unsigned int getNBins()
+
+cdef extern from "CorrelationFunction.h" namespace "freud::density":
+    cdef cppclass CorrelationFunction[T]:
+        CorrelationFunction(float, float)
+        const trajectory.Box &getBox() const
+        void resetCorrelationFunction()
+
+        void accumulate(const trajectory.Box &, const vec3[float]*, const T*,
+            unsigned int, const vec3[float]*, const T*, unsigned int) nogil
+
+        void reduceCorrelationFunction()
+        shared_array[T] getRDF()
+        shared_array[unsigned int] getCounts()
+        shared_array[float] getR()
+        unsigned int getNBins() const
