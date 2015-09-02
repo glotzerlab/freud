@@ -80,6 +80,11 @@ cdef class Box:
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
 
+    ## Enable pickling of internal classes
+    # Box
+    def __getinitargs__(self):
+        return (self.getLx(), self.getLy(), self.getLz(), self.is2D())
+
 cdef BoxFromCPP(const trajectory.Box& cppbox):
     """
     """

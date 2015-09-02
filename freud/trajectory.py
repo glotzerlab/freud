@@ -12,8 +12,8 @@ try:
 except ImportError:
     h5py = None;
 
-from _freud import Box;
-import _freud;
+from ._freud import Box;
+from . import _freud;
 #from freud.utils import pos_reader
 from freud.util import pos
 
@@ -32,12 +32,6 @@ def _assign_typeid(typename):
     l = list(set(typename));
     l.sort();
     return [l.index(t) for t in typename];
-
-## Enable pickling of internal classes
-# Box
-def Box_getinitargs(self):
-    return (self.getLx(), self.getLy(), self.getLz(), self.is2D())
-Box.__getinitargs__ = Box_getinitargs
 
 ## Base class Trajectory that defines a common interface for working with any trajectory
 #
