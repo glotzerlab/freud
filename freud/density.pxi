@@ -12,7 +12,14 @@ ctypedef np.float32_t DTYPE_t
 
 cdef class RDF:
     """
-    Freud RDF object. Wrapper for c++ density.RDF()"""
+    Freud RDF object. Wrapper for c++ density.RDF().
+
+    :param rmax: maximum distance to calculate
+    :type rmax: float
+
+    :param dr: distance between histogram bins
+    :type dr: float
+    """
     cdef density.RDF *thisptr
 
     def __cinit__(self, rmax, dr):
