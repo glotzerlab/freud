@@ -13,4 +13,4 @@ from . import trajectory
 # from . import voronoi
 # from . import sphericalharmonicorderparameters
 # from . import lindemann
-# from . import pmft
+from . import pmft

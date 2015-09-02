@@ -3,3 +3,4 @@
 
 include "trajectory.pxi"
 include "density.pxi"
+include "pmft.pxi"
