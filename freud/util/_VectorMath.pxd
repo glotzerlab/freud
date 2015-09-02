@@ -6,3 +6,10 @@ cdef extern from "VectorMath.h":
         Real x
         Real y
         Real z
+
+    cdef cppclass quat[Real]:
+        quat(Real, vec3[Real])
+        quat()
+
+        Real s
+        vec3[Real] v
