@@ -54,7 +54,7 @@ include_directories(${NUMPY_INCLUDE_DIR})
 
 # set the default install prefix
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    SET(CMAKE_INSTALL_PREFIX ${PYTHON_USER_SITE} CACHE PATH "Python site installation diretory (defaults to USER_SITE)" FORCE)
+    SET(CMAKE_INSTALL_PREFIX ${PYTHON_USER_SITE} CACHE PATH "Python site installation directory (defaults to USER_SITE)" FORCE)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 #add_subdirectory(freud)
