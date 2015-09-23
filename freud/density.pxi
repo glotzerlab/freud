@@ -10,6 +10,48 @@ cimport numpy as np
 DTYPE = np.float32
 ctypedef np.float32_t DTYPE_t
 
+cdef class GaussianDensity:
+    cdef density.GaussianDensity *thisptr
+
+    def __cinit__(self, *args):
+        if len(args) == 3:
+            self.thisptr = new density.GaussianDensity(args[0], args[1], args[2])
+        elif len(args) == 5:
+            self.thisptr = new density.GaussianDensity(args[0], args[1], args[2],
+                                                       args[3], args[4], args[5])
+        else:
+            raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
+
+    def getBox(self):
+        return BoxFromCPP(self.thisptr.getBox())
+
+    def accumulate(self, box, points):
+        points = np.ascontiguousarray(points, dtype=np.float32)
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
+        # cdef _trajectory.Box* l_box
+        # l_box = new _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        with nogil:
+            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], nRef, <vec3[float]*>&l_points[0], nP)
+
+    def compute(self, box, points):
+        self.thisptr.resetDensity()
+        self.accumulate(box, points)
+
+    def getGaussianDensity(self):
+        cdef float* density = self.thisptr.getDensity().get()
+        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=DTYPE)
+        memcpy(&result[0], rdf, result.nbytes)
+        return result
+
+    def resetDensity(self):
+        self.thisptr.resetDensity()
+
 cdef class RDF:
     """
     Freud RDF object. Wrapper for c++ density.RDF().

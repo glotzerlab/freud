@@ -226,8 +226,20 @@ void GaussianDensity::resetDensity()
     m_frame_counter = 0;
     }
 
-void GaussianDensity::accumulate(const vec3<float> *points, unsigned int Np)
+void GaussianDensity::accumulate(const trajectory::Box &box, const vec3<float> *points, unsigned int Np)
     {
+    m_box = box;
+    if (m_box.is2D())
+        {
+        m_bi = Index3D(m_width_x, m_width_y, 1);
+        }
+    else
+        {
+        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
+        }
+    // this does not agree with rest of freud
+    m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
+
     parallel_for(blocked_range<size_t>(0,Np), ComputeGaussianDensity(m_bi,
                                                                      m_local_bin_counts,
                                                                      m_box,

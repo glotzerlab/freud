@@ -55,18 +55,18 @@ class GaussianDensity
         //! Reset the PCF array to all zeros
         void resetDensity();
 
-        //! Python wrapper for reset method
-        void resetDensityPy()
-            {
-            resetDensity();
-            }
+        // //! Python wrapper for reset method
+        // void resetDensityPy()
+        //     {
+        //     resetDensity();
+        //     }
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
         void reduceDensity();
 
         //! Compute the Density
-        void accumulate(const vec3<float> *points,
+        void accumulate(const trajectory::Box& box, const vec3<float> *points,
                         unsigned int Np);
 
         // //!Python wrapper for accumulate
