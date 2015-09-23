@@ -18,7 +18,7 @@ if(ENABLE_CYTHON)
     string(REPLACE ".pyx" ".cpp" cpp_rel "${pyx_rel}")
     set(cpp_out "${CMAKE_CURRENT_SOURCE_DIR}/${cpp_rel}")
     add_custom_command(OUTPUT ${cpp_out}
-                       COMMAND ${CYTHON_EXECUTABLE} -o ${cpp_out} -w ${CMAKE_CURRENT_SOURCE_DIR}/../freud --cplus ${pyx}
+                       COMMAND ${CYTHON_EXECUTABLE} -X boundscheck=False -o ${cpp_out} -w ${CMAKE_CURRENT_SOURCE_DIR}/../freud --cplus ${pyx}
                        DEPENDS ${pyx} ${PXIS})
     set_source_files_properties(${cpp_out} PROPERTIES GENERATED TRUE)
     list(APPEND CYTHON_SOURCES ${cpp_out})
