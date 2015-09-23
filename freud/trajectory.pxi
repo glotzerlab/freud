@@ -124,6 +124,9 @@ cdef class Box:
         del self.thisptr
 
     def setL(self, L):
+        """
+        Set all side lengths of box to L
+        """
         try:
             len(L)
         except TypeError:
@@ -135,43 +138,78 @@ cdef class Box:
         self.thisptr.setL(L[0], L[1], L[2])
 
     def set2D(self, val):
+        """
+        Set the dimensionality to 2D (True) or 3D (False)
+        """
         self.thisptr.set2D(bool(val))
 
     def is2D(self):
+        """
+        return if box is 2D (True) or 3D (False)
+        """
         return self.thisptr.is2D()
 
     def getLx(self):
+        """
+        return the length of the x-dimension of the box
+        """
         return self.thisptr.getLx()
 
     def getLy(self):
+        """
+        return the length of the y-dimension of the box
+        """
         return self.thisptr.getLy()
 
     def getLz(self):
+        """
+        return the length of the z-dimension of the box
+        """
         return self.thisptr.getLz()
 
     def getL(self):
+        """
+        return the lengths of the box as a tuple (x, y, z)
+        """
         cdef vec3[float] result = self.thisptr.getL()
         return (result.x, result.y, result.z)
 
     def getLinv(self):
+        """
+        return the inverse lengths of the box (1/x, 1/y, 1/z)
+        """
         cdef vec3[float] result = self.thisptr.getLinv()
         return (result.x, result.y, result.z)
 
     def getTiltFactorXY(self):
+        """
+        return the tilt factor xy
+        """
         return self.thisptr.getTiltFactorXY()
 
     def getTiltFactorXZ(self):
+        """
+        return the tilt factor xz
+        """
         return self.thisptr.getTiltFactorXZ()
 
     def getTiltFactorYZ(self):
+        """
+        return the tilt factor yz
+        """
         return self.thisptr.getTiltFactorYZ()
 
     def getVolume(self):
+        """
+        return the box volume
+        """
         return self.thisptr.getVolume()
 
     def getCoordinates(self, f):
-        """Convert a vector of relative box coordinates (each in [0..1]) into
-        absolute coordinates"""
+        """
+        Convert a vector of relative box coordinates (each in [0..1]) into
+        absolute coordinates
+        """
         cdef vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
         cdef vec3[float] resultVec = self.thisptr.makeCoordinates(fRaw)
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]

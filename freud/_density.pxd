@@ -35,9 +35,12 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
         void resetDensity()
         void reduceDensity()
 
-        void accumulate(const trajectory.Box &, const vec3[float]*) nogil
+        void accumulate(const trajectory.Box &, const vec3[float]*, unsigned int) nogil
 
         shared_array[float] getDensity()
+        unsigned int getWidthX()
+        unsigned int getWidthY()
+        unsigned int getWidthZ()
 
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
