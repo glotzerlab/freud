@@ -80,6 +80,12 @@ class GaussianDensity
         //!Get a reference to the last computed Density
         boost::shared_array<float> getDensity();
 
+        unsigned int getWidthX();
+
+        unsigned int getWidthY();
+
+        unsigned int getWidthZ();
+
         // //!Python wrapper for getDensity() (returns a copy)
         // boost::python::numeric::array getDensityPy();
 

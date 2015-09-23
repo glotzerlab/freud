@@ -199,6 +199,31 @@ boost::shared_array<float> GaussianDensity::getDensity()
     return m_Density_array;
     }
 
+//! Get x width
+unsigned int GaussianDensity::getWidthX()
+    {
+    return m_width_x;
+    }
+
+//! Get y width
+unsigned int GaussianDensity::getWidthY()
+    {
+    return m_width_y;
+    }
+
+//! Get z width
+unsigned int GaussianDensity::getWidthZ()
+    {
+    if (!m_box.is2D())
+        {
+        return m_width_z;
+        }
+    else
+        {
+        return 0;
+        }
+    }
+
 // //!Python wrapper for getDensity() (returns a copy)
 // boost::python::numeric::array GaussianDensity::getDensityPy()
 //     {
