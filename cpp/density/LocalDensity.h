@@ -32,48 +32,30 @@ class LocalDensity
         //! Constructor
         LocalDensity(float r_cut, float volume, float diameter);
 
+       //! Destructor
        ~LocalDensity();
 
+        //! Get the simulation box
+        const trajectory::Box& getBox() const
+            {
+            return m_box;
+            }
+
         //! Compute the local density
-        void compute(const vec3<float> *ref_points,
+        void compute(const trajectory::Box &box,
+                     const vec3<float> *ref_points,
                      unsigned int Nref,
                      const vec3<float> *points,
                      unsigned int Np);
 
-        // //! Python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array ref_points,
-        //                boost::python::numeric::array points);
-
-        // //! Backwards compatible python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array points);
+        //! Get the number of reference particles
+        unsigned int getNRef();
 
         //! Get a reference to the last computed density
-        boost::shared_array< float > getDensity()
-            {
-            return m_density_array;
-            }
-
-        // //! Python wrapper for getDensity() (returns a copy)
-        // boost::python::numeric::array getDensityPy()
-        //     {
-        //     float *arr = m_density_array.get();
-        //     return num_util::makeNum(arr, m_Nref);
-        //     }
+        boost::shared_array< float > getDensity();
 
         //! Get a reference to the last computed number of neighbors
-        boost::shared_array< float > getNumNeighbors()
-            {
-            return m_num_neighbors_array;
-            }
-
-        // //! Python wrapper for getNumNeighbors() (returns a copy)
-        // boost::python::numeric::array getNumNeighborsPy()
-        //     {
-        //     float *arr = m_num_neighbors_array.get();
-        //     return num_util::makeNum(arr, m_Nref);
-        //     }
+        boost::shared_array< float > getNumNeighbors();
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
