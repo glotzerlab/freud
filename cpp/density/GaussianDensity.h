@@ -31,9 +31,6 @@ class GaussianDensity
     {
     public:
         //! Constructor
-        // GaussianDensity(const trajectory::Box& box, unsigned int width, float r_cut, float sigma);
-        // GaussianDensity(const trajectory::Box& box, unsigned int width_x, unsigned int width_y, unsigned int width_z,
-        //                 float r_cut, float sigma);
         GaussianDensity(unsigned int width,
                         float r_cut,
                         float sigma);
@@ -52,30 +49,15 @@ class GaussianDensity
                 return m_box;
                 }
 
-        //! Reset the PCF array to all zeros
+        //! Reset the gaussian array to all zeros
         void resetDensity();
-
-        // //! Python wrapper for reset method
-        // void resetDensityPy()
-        //     {
-        //     resetDensity();
-        //     }
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
         void reduceDensity();
 
         //! Compute the Density
-        void accumulate(const trajectory::Box& box, const vec3<float> *points,
-                        unsigned int Np);
-
-        // //!Python wrapper for accumulate
-        // void accumulatePy(trajectory::Box& box,
-        //                   boost::python::numeric::array points);
-
-        // //!Python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array points);
+        void compute(const trajectory::Box& box, const vec3<float> *points, unsigned int Np);
 
         //!Get a reference to the last computed Density
         boost::shared_array<float> getDensity();
@@ -85,9 +67,6 @@ class GaussianDensity
         unsigned int getWidthY();
 
         unsigned int getWidthZ();
-
-        // //!Python wrapper for getDensity() (returns a copy)
-        // boost::python::numeric::array getDensityPy();
 
     private:
         trajectory::Box m_box;    //!< Simulation box the particles belong in

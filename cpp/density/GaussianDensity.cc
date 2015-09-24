@@ -15,8 +15,7 @@ namespace freud { namespace density {
 
 
 GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
-    : m_box(trajectory::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma),
-      m_frame_counter(0)
+    : m_box(trajectory::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma)
     {
     if (width <= 0)
             throw invalid_argument("width must be a positive integer");
@@ -224,20 +223,6 @@ unsigned int GaussianDensity::getWidthZ()
         }
     }
 
-// //!Python wrapper for getDensity() (returns a copy)
-// boost::python::numeric::array GaussianDensity::getDensityPy()
-//     {
-//     reduceDensity();
-//     float *arr = m_Density_array.get();
-//     std::vector<intp> dims;
-//     if (!m_box.is2D())
-//         dims.push_back(m_width_z);
-//     dims.push_back(m_width_y);
-//     dims.push_back(m_width_x);
-
-//     return num_util::makeNum(arr, dims);
-//     }
-
 //! \internal
 /*! \brief Function to reset the density array if needed e.g. calculating between new particle types
 */
@@ -247,12 +232,14 @@ void GaussianDensity::resetDensity()
         {
         memset((void*)(*i), 0, sizeof(float)*m_bi.getNumElements());
         }
-    // reset the frame counter
-    m_frame_counter = 0;
     }
 
-void GaussianDensity::accumulate(const trajectory::Box &box, const vec3<float> *points, unsigned int Np)
+//! internal
+/*! \brief Function to compute the density array
+*/
+void GaussianDensity::compute(const trajectory::Box &box, const vec3<float> *points, unsigned int Np)
     {
+    resetDensity();
     m_box = box;
     if (m_box.is2D())
         {
@@ -264,7 +251,6 @@ void GaussianDensity::accumulate(const trajectory::Box &box, const vec3<float> *
         }
     // this does not agree with rest of freud
     m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
-
     parallel_for(blocked_range<size_t>(0,Np), ComputeGaussianDensity(m_bi,
                                                                      m_local_bin_counts,
                                                                      m_box,
@@ -276,56 +262,5 @@ void GaussianDensity::accumulate(const trajectory::Box &box, const vec3<float> *
                                                                      points,
                                                                      Np));
     }
-
-// void GaussianDensity::accumulatePy(trajectory::Box& box,
-//                                    boost::python::numeric::array points)
-//     {
-//     // validate input type and rank
-//     m_box = box;
-//     if (m_box.is2D())
-//         {
-//         m_bi = Index3D(m_width_x, m_width_y, 1);
-//         }
-//     else
-//         {
-//         m_bi = Index3D(m_width_x, m_width_y, m_width_z);
-//         }
-//     // this does not agree with rest of freud
-//     m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     // get the raw data pointers
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-
-//         // compute with the GIL released
-//         {
-//         util::ScopedGILRelease gil;
-//         accumulate(points_raw, Np);
-//         }
-//     }
-
-// void GaussianDensity::computePy(trajectory::Box& box,
-//                                 boost::python::numeric::array points)
-//     {
-//     resetDensity();
-//     accumulatePy(box, points);
-//     }
-
-// void export_GaussianDensity()
-//     {
-//     class_<GaussianDensity>("GaussianDensity", init<unsigned int, float, float>())
-//             .def(init<unsigned int, unsigned int, unsigned int, float, float>())
-//             .def("getBox", &GaussianDensity::getBox, return_internal_reference<>())
-//             .def("accumulate", &GaussianDensity::accumulatePy)
-//             .def("compute", &GaussianDensity::computePy)
-//             .def("getGaussianDensity", &GaussianDensity::getDensityPy)
-//             .def("resetDensity", &GaussianDensity::resetDensityPy)
-//             ;
-//     }
 
 }; }; // end namespace freud::density
