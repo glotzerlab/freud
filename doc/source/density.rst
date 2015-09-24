@@ -1,38 +1,51 @@
-.. contents:: Freud modules
+.. contents:: Freud density
 
 ==============
 Density Module
 ==============
 
-Lorem Ipsum
+The density module contains functions which deal with the density of the system
 
-Available functions
-===================
 
-.. automodule:: freud.density
+Correlation Functions
+=====================
 
-    .. autoclass:: GaussianDensity
-        :members:
+.. autoclass:: freud.density.FloatCF
+    :members:
 
-        .. method:: __init__(self, width, r_cut, dr)
+    .. method:: __init__(self, rmax, dr)
 
-        Initialize with all dimensions identical
+.. autoclass:: freud.density.ComplexCF
+    :members:
 
-        .. method:: __init__(self, width_x, width_y, width_z, r_cut, dr)
+    .. method:: __init__(self, rmax, dr)
 
-        Initialize with specific dimensions
+Gaussian Density
+================
 
-    .. autoclass:: RDF
-        :members:
+.. autoclass:: freud.density.GaussianDensity
+    :members:
 
-        .. method:: __init__(self, rmax, dr)
+    .. method:: __init__(self, width, r_cut, dr)
 
-    .. autoclass:: FloatCF
-        :members:
+    Initialize with all dimensions identical
 
-        .. method:: __init__(self, rmax, dr)
+    .. method:: __init__(self, width_x, width_y, width_z, r_cut, dr)
 
-    .. autoclass:: ComplexCF
-        :members:
+    Initialize with specific dimensions
 
-        .. method:: __init__(self, rmax, dr)
+Local Density
+=============
+
+.. autoclass:: freud.density.LocalDensity
+    :members:
+
+    .. method:: __init__(self, r_cut, volume, diameter)
+
+Radial Distribution Function
+============================
+
+.. autoclass:: freud.density.RDF
+    :members:
+
+    .. method:: __init__(self, rmax, dr)
