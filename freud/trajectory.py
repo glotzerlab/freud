@@ -10,17 +10,11 @@ import xml.dom.minidom
 try:
     import h5py
 except ImportError:
-    h5py = None;
+    h5py = None
 
-from ._freud import Box;
-from . import _freud;
-#from freud.utils import pos_reader
+from ._freud import Box
+from . import _freud
 from freud.util import pos
-
-## \package freud.trajectory
-#
-# Reads MD trajectories into numpy arrays for use in other freud modules
-#
 
 ## \internal
 # \brief Takes in a list of particle types and uniquely determines type ids for each one
@@ -29,73 +23,128 @@ from freud.util import pos
 # or another types are missing, then the typid assigments will differ. Thus, this is not to be used for trajectories
 # where types vary from frame to frame and may dissapear
 def _assign_typeid(typename):
-    l = list(set(typename));
-    l.sort();
-    return [l.index(t) for t in typename];
+    l = list(set(typename))
+    l.sort()
+    return [l.index(t) for t in typename]
 
-## Base class Trajectory that defines a common interface for working with any trajectory
-#
-# A Trajectory represents a series of frames. Each frame consists of a set of properties on the particles, composite
-# bodies, bonds, and walls in the system. Some trajectory formats may provide quantities that others do not.
-# Some formats may provide certain properties only in the first frame, and others may store those properties at
-# each frame. In addition, some formats may not even be capable of storing certain properties.
-#
-# Trajectory exposes properties as numpy arrays. Properties loaded for the first frame only are called \b static
-# properties. The method isStatic() returns true if a given property is static.
-#
-# The Frame class provides access to the properties at any given frame. You can access a Frame by indexing a
-# Trajectory directly:
-# \code
-# f = traj[frame_idx];
-# \endcode
-# Or by iterating over all frames:
-# \code
-# for f in traj:
-#     ...
-# \endcode
-# The number of frames in a trajectory is len(traj).
-#
-# *Thread safety:*
-# All trajectories provide thread-safe read only access to all parameters. Indexing f = traj[n] is serialized so that it
-# can be performed in parallel by many threads.
-#
+class Frame:
+    """ Frame information representing the system state at a specific frame in a Trajectory.
+
+    .. note:: High level classes should not construct Frame classes directly.
+        Instead create a Trajectory and query it to get frames.
+
+    Call get() to get the properties of the system at this frame. get() takes a string name of the property to be
+    queried. If the property is static, the value of the property at the first frame will be returned from their
+    Trajectory. If the property is dynamic, the value of the property at the current frame will be returned.
+
+    Most properties are returned as numpy arrays. For example, position is returned as an Nx3 numpy array.
+    """
+    def __init__(self, traj, idx, dynamic_props, box, time_step=0):
+        self.static_props = traj.static_props;
+        self.frame = idx;
+        self.dynamic_props = dynamic_props;
+        self.box = box;
+        self.time_step = time_step
+
+    def get(self, prop):
+        """ Access particle properties at this frame.
+
+        Properties are queried by name. See the documentation of the specific Trajectory you load to see which
+        properties it loads.
+
+        """
+        if prop in self.dynamic_props:
+            return self.dynamic_props[prop];
+        elif prop in self.static_props:
+            return self.static_props[prop];
+        else:
+            raise KeyError('Particle property ' + prop + ' not found');
+
 class Trajectory:
-    ## Initialize an empty trajectory
+    """ Base class Trajectory that defines a common interface for working with any trajectory.
+
+    A Trajectory represents a series of frames. Each frame consists of a set of properties on the particles, composite
+    bodies, bonds, and walls in the system. Some trajectory formats may provide quantities that others do not.
+    Some formats may provide certain properties only in the first frame, and others may store those properties at
+    each frame. In addition, some formats may not even be capable of storing certain properties.
+
+    Trajectory exposes properties as numpy arrays. Properties loaded for the first frame only are called static
+    properties. The method isStatic() returns true if a given property is static.
+
+    The Frame class provides access to the properties at any given frame. You can access a Frame by indexing a
+    Trajectory directly::
+
+        f = traj[frame_idx]
+
+    Or by iterating over all frames::
+
+        for f in traj:
+            ...
+
+    The number of frames in a trajectory is len(traj).
+
+    .. note:: *Thread safety:*
+        All trajectories provide thread-safe read only access to all parameters. Indexing f = traj[n] is serialized so that it
+        can be performed in parallel by many threads.
+
+    """
     def __init__(self):
-        self.static_props = {};
-        self.modifiable_props = {};
-        self._lock = threading.Lock();
+        self.static_props = {}
+        self.modifiable_props = {}
+        self._lock = threading.Lock()
 
-    ## Test if a given particle property is modifiable
-    # \param prop Property to check
-    # \returns True if \a prop is modifiable
     def isModifiable(self, prop):
-        return prop in self.modifiable_props;
+        """
+        Test if a given particle property is modifiable.
 
-    ## Test if a given particle property is static over the length of the trajectory
-    # \param prop Property to check
-    # \returns True if \a prop is static
+        :param: prop: Property to check
+        :return: True if prop is modifiable
+        :rtype: bool
+        """
+        return prop in self.modifiable_props
+
     def isStatic(self, prop):
-        return prop in self.static_props;
+        """
+        Test if a given particle property is static over the length of the trajectory.
 
-    ## Get a static property of the particles
-    # \param prop Property name to get
+        :param: prop: Property to check
+        :return: True if prop is static
+        :rtype: bool
+        """
+        return prop in self.static_props
+
     def getStatic(self, prop):
-        return self.static_props[prop];
+        """
+        Get a static property of the particles.
 
-    ## Get the number of particles in the trajectory
-    # \returns Number of particles
-    # \note The base class Trajectory doesn't load any particles, so this always returns 0. Derived classes
-    #       should override.
+        :param: prop: Property name to get
+        :return: property
+        """
+        return self.static_props[prop]
+
     def numParticles(self):
-        return 0;
+        """
+        Get the number of particles in the trajectory.
 
-    ## Get the number of frames in the trajectory
-    # \returns Number of frames
-    # \note The base class Trajectory doesn't load any particles, so this always returns 0. Derived classes
-    #       should override.
+        :return: Number of particles
+        :rtype: int
+
+        .. note:: The base class Trajectory doesn't load any particles, so this always returns 0.
+            Derived classes should override.
+        """
+        return 0
+
     def __len__(self):
-        return 0;
+        """
+        Get the number of frames in the trajectory.
+
+        :return: Number of frames
+        :rtype: int
+
+        .. note::  The base class Trajectory doesn't load any frames, so this
+        always returns 0. Derived classes should override.
+        """
+        return 0
 
     ## \internal
     # \brief Sets the current frame
@@ -113,10 +162,14 @@ class Trajectory:
     def _get_current_frame(self):
         raise RuntimeError("Trajectory._get_current_frame not implemented");
 
-    ## Get the selected frame
-    # \param idx Index of the frame to access
-    # \returns A Frame containing the current frame data
     def __getitem__(self, idx):
+        """
+        Get the selected frame.
+
+        :param: idx: Index of the frame to access
+        :return: A Frame containing the current frame data
+        :rtype: :py:meth:`freud.trajectory.Frame()`
+        """
         if idx < 0 or idx >= len(self):
             raise IndexError('Frame index out of range');
 
@@ -127,41 +180,42 @@ class Trajectory:
         finally:
             self._lock.release();
 
-    ## Iterate through frames
     def __iter__(self):
+        """
+        Iterate through the frames.
+        """
         for idx in range(len(self)):
             yield self[idx];
 
-    ## Modify properties of the currently set frame
-    # \param prop Name of property to modify
-    # \param value New values to set for that property
-    # \note The base class Trajectory doesn't load any particles, so calling this method won't do anything.
-    #       Derived classes can call it as a handy way to check for error conditions.
     def setProperty(self, prop, value):
+        """
+        Modify properties of the currently set frame.
+
+        :param: prop: Name of property to modify
+        :param: value: New values to set for that property
+
+        .. note:: The base class Trajectory doesn't load any particles, so calling this method won't do anything.
+            Derived classes can call it as a handy way to check for error conditions.
+        """
         # error check
         if not prop in self.modifiable_props:
             raise ValueError('prop is not modifiable');
         if len(value) != self.numParticles():
             raise ValueError('value is not of the correct length');
 
-
-## Trajectory information read directly from a running VMD instance
-#
-# TrajectoryVMD acts as a proxy to the VMD python data access APIs. It takes in a given molecule id and then presents
-# a Trajectory interface on top of it, allowing looping through frames, accessing particle data an so forth.
-#
-# TrajectoryVMD only works when created inside of a running VMD instance. It will raise a RuntimeError if VMD is not
-# found
-#
-# VMD has no way of specifiying 2D simulations explicitly. This code attempts to detect 2D simulations by checking
-# the maximum z coord in the simulation. If the maximum z coord (in absolute value) is less than 1e-3, then the frame's
-# box is set to 2D. If this is not what you intend, override the setting by calling box.set2D(True/False).
-#
 class TrajectoryVMD(Trajectory):
-    ## Initialize a VMD trajectory for access
-    # \param mol_id Id number of the VMD molecule to access
-    #
-    # When \a mol_id is set to None, the 'top' molecule is accessed
+    """ Trajectory information read directly from a running VMD instance.
+
+    TrajectoryVMD acts as a proxy to the VMD python data access APIs. It takes in a given molecule id and then presents
+    a Trajectory interface on top of it, allowing looping through frames, accessing particle data an so forth.
+
+    TrajectoryVMD only works when created inside of a running VMD instance. It will raise a RuntimeError if VMD is not
+    found
+
+    VMD has no way of specifiying 2D simulations explicitly. This code attempts to detect 2D simulations by checking
+    the maximum z coord in the simulation. If the maximum z coord (in absolute value) is less than 1e-3, then the frame's
+    box is set to 2D. If this is not what you intend, override the setting by calling box.set2D(True/False).
+    """
     def __init__(self, mol_id=None):
         Trajectory.__init__(self);
 
@@ -186,15 +240,22 @@ class TrajectoryVMD(Trajectory):
 
         self.modifiable_props = ['user', 'user2', 'user3', 'user4'];
 
-
-    ## Get the number of particles in the trajectory
-    # \returns Number of particles
     def numParticles(self):
+        """
+        Get the number of particles in the trajectory.
+
+        :return: Number of particles
+        :rtype: int
+        """
         return len(self.all);
 
-    ## Get the number of frames in the trajectory
-    # \returns Number of frames
     def __len__(self):
+        """
+        Get the number of frames in the trajectory.
+
+        :return: Number of frames
+        :rtype: int
+        """
         return self.mol.numFrames();
 
     def _set_frame(self, idx):
@@ -223,63 +284,24 @@ class TrajectoryVMD(Trajectory):
 
         return Frame(self, self.mol.curFrame(), dynamic_props, box);
 
-    ## Modify properties of the currently set frame
-    # \param prop Name of property to modify
-    # \param value New values to set for that property
     def setProperty(self, prop, value):
+        """
+        Modify properties of the currently set frame.
+
+        :param: prop: Name of property to modify
+        :param: value: New values to set for that property
+        """
         # error check
         Trajectory.setProperty(self, prop, value);
 
         self.all.set(prop, list(value));
 
-## Frame information representing the system state at a specific frame in a Trajectory
-#
-# High level classes should not construct Frame classes directly. Instead create a Trajectory and query it to get
-# frames.
-#
-# Call get() to get the properties of the system at this frame. get() takes a string name of the property to be
-# queried. If the property is static, the value of the property at the first frame will be returned from their
-# Trajectory. If the property is dynamic, the value of the property at the current frame will be returned.
-#
-# Most properties are returned as numpy arrays. For example, position is returned as an Nx3 numpy array.
-#
-class Frame:
-    ## Initialize a frame for access
-    # \param traj Parent Trajectory
-    # \param idx Index of the frame
-    # \param dynamic_props Dictionary of dynamic properties accessible in this frame
-    # \param box the simulation Box for this frame
-    #
-    # \note  High level classes should not construct Frame classes directly. Instead create a Trajectory and query it
-    # to get frames
-    def __init__(self, traj, idx, dynamic_props, box, time_step=0):
-        self.static_props = traj.static_props;
-        self.frame = idx;
-        self.dynamic_props = dynamic_props;
-        self.box = box;
-        self.time_step = time_step
-
-    ## Access particle properties at this frame
-    #
-    # Properties are queried by name. See the documentation of the specific Trajectory you load to see which
-    # properties it loads.
-    #
-    def get(self, prop):
-        if prop in self.dynamic_props:
-            return self.dynamic_props[prop];
-        elif prop in self.static_props:
-            return self.static_props[prop];
-        else:
-            raise KeyError('Particle property ' + prop + ' not found');
-
-## Trajectory information read from a list of XML files
-#
-# TrajectoryXML reads structure information in from the provided XML files (typenames, bonds, rigid bodies, etc...)
-# storing each file as a consecutive frame
 class TrajectoryXML(Trajectory):
-    ## Initialize a list of XMLs trajectory for access
-    # /param xml_fname_list File names of the XML files to be read
-    # /param dynamic List of dynamic properties in the trajectory
+    """ Trajectory information read from a list of XML files.
+
+    TrajectoryXML reads structure information in from the provided XML files (typenames, bonds, rigid bodies, etc...)
+    storing each file as a consecutive frame
+    """
     def __init__(self, xml_fname_list, dynamic=['position']):
         Trajectory.__init__(self)
 
@@ -350,15 +372,22 @@ class TrajectoryXML(Trajectory):
 
         self._set_frame(0)
 
-    ## Get the number of particles in the trajectory
-    # \returns Number of particles
     def numParticles(self):
+        """
+        Get the number of particles in the trajectory
+
+        :return: Number of particles
+        :rtype: int
+        """
         return self.num_particles
 
-
-    ## Get the number of frames in the trajectory
-    # \returns Number of frames
     def __len__(self):
+        """
+        Get the number of frames in the trajectory
+
+        :return: Number of frames
+        :rtype: int
+        """
         return len(self.xml_list)
 
     def _set_frame(self, idx):
@@ -526,23 +555,19 @@ class TrajectoryXML(Trajectory):
                 raise RuntimeError("type tag not found in xml file")
             return type_names
 
-
-## Trajectory information read from an XML/DCD file combination
-#
-# TrajectoryXMLDCD reads structure information in from the provided XML file (typenames, bonds, rigid bodies, etc...)
-# Then, it opens the provided DCD file and reads in the position data for each frame from it.
-#
-# \note Always read DCD frames in increasing order for the best possible performance.
-# While the Trajectory interface does allow for random access of specific frames, actually doing so
-# is extremely inefficient for the DCD file format. To rewind to a previous frame, the file must be closed
-# and every frame read from the beginning until the desired frame is reached!
-#
-# 2D input will set the frame box appropriately.
 class TrajectoryXMLDCD(Trajectory):
-    ## Initialize an XML/DCD trajectory for access
-    # \param xml_fname File name of the XML file to read the structure from
-    # \param dcd_fname File name of the DCD trajectory to read (or None to skip reading trajectory data)
-    #
+    """ Trajectory information read from an XML/DCD file combination.
+
+    TrajectoryXMLDCD reads structure information in from the provided XML file (typenames, bonds, rigid bodies, etc...)
+    Then, it opens the provided DCD file and reads in the position data for each frame from it.
+
+    .. note:: Always read DCD frames in increasing order for the best possible performance.
+        While the Trajectory interface does allow for random access of specific frames, actually doing so
+        is extremely inefficient for the DCD file format. To rewind to a previous frame, the file must be closed
+        and every frame read from the beginning until the desired frame is reached!
+
+    2D input will set the frame box appropriately.
+    """
     def __init__(self, xml_fname, dcd_fname):
         Trajectory.__init__(self);
 
@@ -674,14 +699,22 @@ class TrajectoryXMLDCD(Trajectory):
         else:
             self.dcd_loader = None;
 
-    ## Get the number of particles in the trajectory
-    # \returns Number of particles
     def numParticles(self):
+        """
+        Get the number of particles in the trajectory.
+
+        :return: Number of particles
+        :rtype: int
+        """
         return self.num_particles;
 
-    ## Get the number of frames in the trajectory
-    # \returns Number of frames
     def __len__(self):
+        """
+        Get the number of frames in the trajectory.
+
+        :return: Number of frames
+        :rtype: int
+        """
         if self.dcd_loader is not None:
             return self.dcd_loader.getFrameCount();
         else:
@@ -720,13 +753,11 @@ class TrajectoryXMLDCD(Trajectory):
             box = self.box;
             return Frame(self, 1, dynamic_props, box);
 
-## Trajectory information read from an POS file
-#
-# TrajectoryPOS reads structure information in from the provided POS file
 class TrajectoryPOS(Trajectory):
-    ## Initialize an POS trajectory for access
-    # \param pos_fname File name of the POS file to read the structure from
-    #
+    """ Trajectory information read from an POS file.
+
+    TrajectoryPOS reads structure information in from the provided POS file.
+    """
     def __init__(self, pos_fname, dynamic=['boxMatrix', 'position', 'orientation']):
         Trajectory.__init__(self);
 
@@ -735,25 +766,17 @@ class TrajectoryPOS(Trajectory):
             self.dynamic_props[prop] = {}
 
         # parse the POS file
-        # self.pos_file = pos_reader.file(pos_fname);
-        # self.pos_file.load();
         self.pos_file = pos.file(pos_fname);
         self.pos_file.grabBox();
-        #print("Box orientation")
-        #print(self.pos_file.box_orientations)
 
         # Is there a place in the pos that specs the dims?
-        # dim_test = len(self.pos_file.position_list[0][0])
         dim_test = len(self.pos_file.box_positions[0][0])
         if dim_test == 2:
             self.ndim = 2;
         else:
             self.ndim = 3
 
-        # Triclinic support will be needed here...
         box_dims = numpy.asarray(self.pos_file.box_dims[0], dtype=numpy.float32)
-        # Changed to support box and boxmatrix...
-        # Could be handled in another way
         if len(box_dims) == 3:
             lx = box_dims[0];
             ly = box_dims[1];
@@ -762,7 +785,6 @@ class TrajectoryPOS(Trajectory):
             xz = 0;
             yz = 0;
         else:
-            # This whole bit is kludgey and in need of some standardization.
             # Store original box matrix as a static property.
             e1 = box_dims[[0,3,6]]
             e2 = box_dims[[1,4,7]]
@@ -791,7 +813,6 @@ class TrajectoryPOS(Trajectory):
         self.box = Box(float(lx), float(ly), float(lz), float(xy), float(xz), float(yz), self.ndim == 2);
 
         #Reader can handle changing num particles, but this doesn't
-        # self.num_particles = len(self.pos_file.n_box_points[0])
         self.num_particles = int(self.pos_file.n_box_points[0])
 
         # Update the static properties
@@ -816,15 +837,23 @@ class TrajectoryPOS(Trajectory):
         #    self.static_props['charge'] = self._update('charge', configuration)
         self.setFrame(0)
 
-    ## Get the number of particles in the trajectory
-    # \returns Number of particles
     def numParticles(self):
+        """
+        Get the number of particles in the trajectory
+
+        :return: Number of particles
+        :rtype: int
+        """
         return self.num_particles;
 
-    ## Get the number of frames in the trajectory
-    # \returns Number of frames
     def __len__(self):
-        return len(self.pos_file.box_positions);
+        """
+        Get the number of frames in the trajectory
+
+        :return: Number of frames
+        :rtype: int
+        """
+        return len(self.pos_file.box_positions)
 
     ## Sets the current frame
     # \param idx Index of the frame to seek to
@@ -1002,24 +1031,22 @@ class TrajectoryPOS(Trajectory):
         #        velocity_array = numpy.zeros(shape=(self.numParticles(),3), dtype=numpy.float32)
         #    return velocity_array
 
-
-## Trajectory information obtained from within a running hoomd instance
-#
-# TrajectoryHOOMD reads structure information and dynamic data in from a live, currently running hoomd simulation.
-# In principle, much of the structure (i.e. particle types, bonds, etc...) could be changing as well. However,
-# this first implementation will assume the most common case (that which TrajectoryXMLDCD and TrajectoryVMD follow)
-# which is that mass, types, bonds, charges, and diameters remain constant and only position/velocity change from
-# step to step. These assumptions may be relaxed in a later version.
-#
-# TrajectoryHOOMD works a little different from the others in one respect. Because it is accessing the current
-# state data directly from hoomd, there are no frames over which to loop. Accessing frame 0 will always return
-# the current state of the system. Advancing forward of course must be done with hoomd run() commands.
-#
-# 2D simulations will set the frame box appropriately.
 class TrajectoryHOOMD(Trajectory):
-    ## Initialize a HOOMD trajectory
-    # \param sysdef System definition (returned from an init. call)
-    #
+    """
+    Trajectory information obtained from within a running hoomd instance
+
+    TrajectoryHOOMD reads structure information and dynamic data in from a live, currently running hoomd simulation.
+    In principle, much of the structure (i.e. particle types, bonds, etc...) could be changing as well. However,
+    this first implementation will assume the most common case (that which TrajectoryXMLDCD and TrajectoryVMD follow)
+    which is that mass, types, bonds, charges, and diameters remain constant and only position/velocity change from
+    step to step. These assumptions may be relaxed in a later version.
+
+    TrajectoryHOOMD works a little different from the others in one respect. Because it is accessing the current
+    state data directly from hoomd, there are no frames over which to loop. Accessing frame 0 will always return
+    the current state of the system. Advancing forward of course must be done with hoomd run() commands.
+
+    2D simulations will set the frame box appropriately.
+    """
     def __init__(self, sysdef):
         Trajectory.__init__(self);
         self.sysdef = sysdef;
@@ -1040,15 +1067,23 @@ class TrajectoryHOOMD(Trajectory):
         # self.static_props['body'] = body_array;  # unsupported in hoomd currently
         self.static_props['charge'] = charge_array;
 
-    ## Get the number of particles in the trajectory
-    # \returns Number of particles
     def numParticles(self):
+        """
+        Get the number of particles in the trajectory.
+
+        :return: Number of particles
+        :rtype: int
+        """
         return len(self.sysdef.particles);
 
-    ## Get the number of frames in the trajectory
-    # \returns Number of frames
     def __len__(self):
-        return 1;
+        """
+        Get the number of frames in the trajectory, which will always be 1.
+
+        :return: Number of frames (= 1)
+        :rtype: int
+        """
+        return 1
 
     def _set_frame(self, idx):
         pass;
@@ -1070,13 +1105,11 @@ class TrajectoryHOOMD(Trajectory):
 
         return Frame(self, 0, dynamic_props, box);
 
-
-## Trajectory information loaded from a discmc ouptut file
-#
 class TrajectoryDISCMC(Trajectory):
-    ## Initialize a DISCMC trajectory
-    # \param fname File name to load
-    #
+    """
+    Trajectory information loaded from a discmc ouptut file
+    """
+
     def __init__(self, fname):
         Trajectory.__init__(self);
 
@@ -1084,14 +1117,22 @@ class TrajectoryDISCMC(Trajectory):
             raise RuntimeError('h5py not found')
         self.df = h5py.File(fname, 'r')
 
-    ## Get the number of particles in the trajectory
-    # \returns Number of particles
     def numParticles(self):
+        """
+        Get the number of particles in the trajectory.
+
+        :return: Number of particles
+        :rtype: int
+        """
         return self.df["/param/N"][0];
 
-    ## Get the number of frames in the trajectory
-    # \returns Number of frames
     def __len__(self):
+        """
+        Get the number of frames in the trajectory.
+
+        :return: Number of frames
+        :rtype: int
+        """
         return self.df["/traj/step"].shape[0];
 
     def _set_frame(self, idx):
