@@ -1,6 +1,9 @@
 import numpy as np
 import numpy.testing as npt
 from scipy.fftpack import fft, fftshift
+# need this if run from root. If run in tests you're fine. Not sure how this will impact jenkins
+# import sys
+# sys.path = sys.path[::-1]
 from freud import trajectory, density
 import unittest
 

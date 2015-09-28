@@ -55,18 +55,18 @@ cdef class FloatCF:
             raise ValueError("points must be a numpy float32 array")
         if refPoints.ndim != 2 or points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
-        if len(refPoints.shape[1]) != 3 or len(points.shape[1]) != 3:
+        if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
             raise ValueError("values must be a numpy float32 array")
         if refValues.ndim != 1 or values.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints)
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points)
-        cdef np.ndarray[float, ndim=1] l_refValues = np.ascontiguousarray(refValues)
-        cdef np.ndarray[float, ndim=1] l_values = np.ascontiguousarray(values)
-        cdef unsigned int nRef = <unsigned int> l_refPoints.shape[0]
-        cdef unsigned int nP = <unsigned int> l_points.shape[0]
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+        cdef np.ndarray[float, ndim=1] l_values = np.ascontiguousarray(values.flatten())
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)
@@ -169,21 +169,21 @@ cdef class ComplexCF:
         Calculates the correlation function and adds to the current histogram.
         """
         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
+            raise TypeError("points must be a numpy float32 array")
         if refPoints.ndim != 2 or points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
-        if len(refPoints.shape[1]) != 3 or len(points.shape[1]) != 3:
+        if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
-            raise ValueError("values must be a numpy float32 array")
+            raise TypeError("values must be a numpy complex64 array")
         if refValues.ndim != 1 or values.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints)
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points)
-        cdef np.ndarray[np.complex64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues)
-        cdef np.ndarray[np.complex64_t, ndim=1] l_values = np.ascontiguousarray(values)
-        cdef unsigned int nRef = <unsigned int> l_refPoints.shape[0]
-        cdef unsigned int nP = <unsigned int> l_points.shape[0]
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[np.complex64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+        cdef np.ndarray[np.complex64_t, ndim=1] l_values = np.ascontiguousarray(values.flatten())
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)
@@ -194,7 +194,7 @@ cdef class ComplexCF:
         :rtype: np.complex64
         """
         cdef np.complex64_t* rdf = self.thisptr.getRDF().get()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=DTYPE)
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.complex64)
         memcpy(&result[0], rdf, result.nbytes)
         return result
 
@@ -296,8 +296,8 @@ cdef class GaussianDensity:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
@@ -314,9 +314,10 @@ cdef class GaussianDensity:
             arrayShape = (self.thisptr.getWidthY(), self.thisptr.getWidthX())
         else:
             arrayShape = (self.thispth.getWidthZ(), self.thisptr.getWidthY(), self.thisptr.getWidthX())
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=arrayShape, dtype=DTYPE)
+        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=arrayShape, dtype=DTYPE).flatten()
         memcpy(&result[0], density, result.nbytes)
-        return result
+        pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
+        return pyResult
 
     def resetDensity(self):
         """
@@ -369,12 +370,12 @@ cdef class LocalDensity:
             raise ValueError("points must be a numpy float32 array")
         if len(refPoints.shape) != 2 or len(points.shape) != 2:
             raise ValueError("points must be a 2 dimensional array")
-        if len(refPoints.shape[1]) != 3 or len(points.shape[1]) != 3:
+        if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints)
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points)
-        cdef unsigned int nRef = <unsigned int> l_refPoints.shape[0]
-        cdef unsigned int nP = <unsigned int> l_points.shape[0]
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>&l_refPoints[0], nRef, <vec3[float]*>&l_points[0], nP)
@@ -448,12 +449,12 @@ cdef class RDF:
             raise ValueError("points must be a numpy float32 array")
         if len(refPoints.shape) != 2 or len(points.shape) != 2:
             raise ValueError("points must be a 2 dimensional array")
-        if len(refPoints.shape[1]) != 3 or len(points.shape[1]) != 3:
+        if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints)
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points)
-        cdef unsigned int nRef = <unsigned int> l_refPoints.shape[0]
-        cdef unsigned int nP = <unsigned int> l_points.shape[0]
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], nRef, <vec3[float]*>&l_points[0], nP)

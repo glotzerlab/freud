@@ -33,7 +33,7 @@ class TestOCF(unittest.TestCase):
         ocf = density.ComplexCF(rmax, dr)
         ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
 
-        correct = np.zeros(int(rmax/dr), dtype=np.float32)
+        correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
 
@@ -49,7 +49,7 @@ class TestOCF(unittest.TestCase):
         ocf = density.ComplexCF(rmax, dr)
         ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
 
-        correct = np.zeros(int(rmax/dr), dtype=np.float32)
+        correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
 
