@@ -514,10 +514,10 @@ class TrajectoryXML(Trajectory):
             data_text = raw_data.childNodes[0].data
             quat = data_text.split()
 
-            data = numpy.zeros(shape=(self.numParticles(),6), dtype=numpy.int)
+            data = numpy.zeros(shape=(self.numParticles(),6), dtype=numpy.float32)
             for i in range(0,self.num_particles):
                 for j in range(6):
-                    data[i,j] = int(quat[6*i+j])
+                    data[i,j] = float(quat[6*i+j])
             return data
 
 
