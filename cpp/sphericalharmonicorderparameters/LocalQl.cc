@@ -48,7 +48,7 @@ void LocalQl::Ylm(const double theta, const double phi, std::vector<std::complex
     // Actually, Y(l,m) = (-1)^m * complex.conjugate[Y(l,-m)]
     // This doesn't matter when you take the norm, however.
     for(unsigned int i = 1; i <= m_l; i++)
-        Y[i+m_l] = prefactor * conj(Y[-i+m_l]);
+        Y[i+m_l] = Y[-i+m_l];
     }
 
 // void LocalQl::compute(const float3 *points, unsigned int Np)
