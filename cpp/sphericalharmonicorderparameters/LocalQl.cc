@@ -22,12 +22,14 @@ LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float r
     if (m_rmin >= m_rmax)
         throw invalid_argument("rmin should be smaller than rmax!");
     if (m_l < 2)
-        throw invalid_argument("l must be two or greater (and even)!");
-    if (m_l%2 == 1)
-        {
-        fprintf(stderr,"Current value of m_l is %d\n",m_l);
-        throw invalid_argument("This method requires even values of l!");
-        }
+        throw invalid_argument("l must be two or greater!");
+    // l doesn't have to be even!
+
+    // if (m_l%2 == 1)
+    //     {
+    //     fprintf(stderr,"Current value of m_l is %d\n",m_l);
+    //     throw invalid_argument("This method requires even values of l!");
+    //     }
     }
 
 void LocalQl::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
@@ -42,8 +44,11 @@ void LocalQl::Ylm(const double theta, const double phi, std::vector<std::complex
         // Phi = azimuthal (longitudinal) 0..2pi).
         Y[m+m_l]= boost::math::spherical_harmonic(m_l, m, theta, phi);
 
+    // This states that Y(l,+m) = Y(l,-m).
+    // Actually, Y(l,m) = (-1)^m * complex.conjugate[Y(l,-m)]
+    // This doesn't matter when you take the norm, however.
     for(unsigned int i = 1; i <= m_l; i++)
-        Y[i+m_l] = Y[-i+m_l];
+        Y[i+m_l] = prefactor * conj(Y[-i+m_l]);
     }
 
 // void LocalQl::compute(const float3 *points, unsigned int Np)
@@ -104,8 +109,18 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
 
                 if (rsq < rmaxsq and rsq > rminsq)
                     {
-                    double phi = atan2(delta.y,delta.x);      //0..2Pi
+                    // phi is usually in range 0..2Pi, but
+                    // it only appears in Ylm as exp(im\phi),
+                    // so range -Pi..Pi will give same results.
+                    double phi = atan2(delta.y,delta.x);      //-Pi..Pi
                     double theta = acos(delta.z / sqrt(rsq)); //0..Pi
+                    // if the points are directly on top of each other for whatever reason,
+                    // theta should be zero instead of nan.
+
+                    if (rsq == float(0))
+                    {
+                        theta = 0;
+                    }
 
                     std::vector<std::complex<double> > Y;
                     LocalQl::Ylm(theta, phi,Y);  //Fill up Ylm vector
