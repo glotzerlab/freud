@@ -18,6 +18,7 @@
 #include "kspace.h"
 #include "RDF.h"
 #include "ClusterProperties.h"
+#include "PhaseCluster.h"
 #include "HexOrderParameter.h"
 #include "TransOrderParameter.h"
 #include "BondOrder.h"
@@ -99,6 +100,7 @@ BOOST_PYTHON_MODULE(_freud)
     lindemann::export_lindemann();
     cluster::export_Cluster();
     cluster::export_ClusterProperties();
+    cluster::export_PhaseCluster();
     order::export_HexOrderParameter();
     order::export_BondOrder();
     order::export_TransOrderParameter();

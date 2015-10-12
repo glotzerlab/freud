@@ -92,6 +92,8 @@ set(SOURCES trajectory/trajectory.cc
             cluster/Cluster.cc
             cluster/ClusterProperties.h
             cluster/ClusterProperties.cc
+            cluster/PhaseCluster.h
+            cluster/PhaseCluster.cc
             order/HexOrderParameter.h
             order/HexOrderParameter.cc
             order/TransOrderParameter.h
