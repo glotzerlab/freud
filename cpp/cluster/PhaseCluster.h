@@ -69,9 +69,6 @@ public:
                   boost::python::numeric::array rdf);
 
 
-    //! Normalize input pointSet
-    float** normalizeData(float **pointSet);
-
     //! Get neighbor points indices, called in ExpandCluster(...)
     std::vector< int > regionQuery(float **pointSet, int pointInd, float epsilon);
 

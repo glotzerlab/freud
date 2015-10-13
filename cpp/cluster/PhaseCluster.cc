@@ -266,39 +266,7 @@ float PhaseCluster::getRcutPy(unsigned int numShell, boost::python::numeric::arr
     
 }
     
-/* //normallize by devide norm of a column
-float** PhaseCluster::normalizeData(float **pointSet)
-{
-    int i, j;
-    float norm;
-    
-    for(i = 0; i < pointSetWidth; i++)
-    {
-        norm = 0.0;
-        for(j = 0; j < pointSetHeight; j++)
-        {
-            norm += pow(pointSet[j][i],2);
-        }
-        norm = pow(norm, 0.5);
-        if (fabs(norm) > 1e-8)
-        {
-            for(j = 0; j < pointSetHeight; j++)
-            {
-                pointSet[j][i] /= norm;
-            }
-        }
-    }
-    return pointSet;
 
-}
-*/
-
-//no normallize
-float** PhaseCluster::normalizeData(float **pointSet)
-{
-    return pointSet;
-
-}
 
 std::vector< int > PhaseCluster::regionQuery(float **pointSet, int pointInd, float epsilon)
 {
@@ -377,12 +345,6 @@ void PhaseCluster::DBSCAN(float **pointSet, float epsilon, int minPts)
     int pointInd;     //one point vector
     std::vector< int > clusterID; //a list of cluster ID
    
-    //Normalize pointSet
-    std::cerr << "prepare to normalize data in DBSCAN" << std::endl;
-    pointSet = normalizeData(pointSet);
-
-
-    std::cerr << "normalize data succeed in DBSCAN" << std::endl;
     
     //set all points to be unclassified = -2
     for(i = 0; i < pointSetHeight; i++)
@@ -404,7 +366,6 @@ void PhaseCluster::DBSCAN(float **pointSet, float epsilon, int minPts)
         }
         
     }
-    std::cerr << "DBSCAN succeeds" << std::endl;
 }
     
     
@@ -431,8 +392,6 @@ void PhaseCluster::DBSCANPy(boost::python::numeric::array pointSet, float epsilo
 
     pointClusterID.resize(pointSetHeight);
     
-    std::cerr << pointSetPtr[0][0] << " " << pointSetPtr[0][1] << std::endl;
-    std::cerr << "prepared to call DBSCAN!" << std::endl;
     DBSCAN(pointSetPtr, epsilon, minPts);
     
     delete[] pointSetPtr;
@@ -563,8 +522,6 @@ void PhaseCluster::OPTICS(float **pointSet, float epsilon, int minPts)
     int pointInd;
     std::vector< int > processVec;
     
-    //normalize pointSet
-    pointSet = normalizeData(pointSet);
     
     //set all points to be unprocess and reachDistance undefined
     for(i = 0; i < pointSetHeight; i++) //setOfPoints.size()
@@ -573,7 +530,6 @@ void PhaseCluster::OPTICS(float **pointSet, float epsilon, int minPts)
         reachabilityDistance[i] = UNDEFINED;
     }
     
-    std::cerr << "0.5 is ok" << std::endl;
     
     for(i = 0; i < pointSetHeight; i++)
     {
@@ -609,7 +565,6 @@ void PhaseCluster::OPTICSPy(boost::python::numeric::array pointSet, float epsilo
 
     reachabilityDistance.resize(pointSetHeight, 0.0);
     
-    std::cerr << "prepare to do OPTICS" << std::endl;
     OPTICS(pointSetPtr, epsilon, minPts);
 
     delete[] pointSetPtr;
