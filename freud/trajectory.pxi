@@ -6,29 +6,58 @@ cdef class Box:
     """
     Freud box object. Wrapper for the c++ trajectory.Box() class
 
-    :param L: Side length of Box
-    :type L: float
+    Args:
 
-    :param Lx: Length of side x
-    :type Lx: float
+        :param: L: Side length of Box
+        :type: float
 
-    :param Ly: Length of side y
-    :type Ly: float
+        :param: is2D: specify if box is 2D
+        :type: bool
 
-    :param Lz: Length of side z
-    :type Lz: float
+    Kwargs:
 
-    :param xy: tilt of xy plane
-    :type xy: float
+        :param: Lx: Length of side x
+        :type: float
 
-    :param xz: tilt of xz plane
-    :type xz: float
+        :param: Ly: Length of side y
+        :type: float
 
-    :param yz: tilt of yz plane
-    :type yz: float
+        :param: Lz: Length of side z
+        :type: float
 
-    :param is2D: specify if box is 2D
-    :type is2D: bool
+        :param: xy: tilt of xy plane
+        :type: float
+
+        :param: xz: tilt of xz plane
+        :type: float
+
+        :param: yz: tilt of yz plane
+        :type: float
+
+        :param: is2D: specify if box is 2D
+        :type: bool
+
+    Example constructor calls:
+
+        >>>>freud.trajectory.Box(L)
+
+        initializes cubic box of side length L
+
+        >>>>freud.trajectory.Box(L, is2D)
+
+        initializes cubic box of side length L (will create a 2D/3D box based on is2D)
+
+        >>>>freud.trajectory.Box(Lx, Ly, Lz)
+
+        initializes orthorhombic box of side lengths Lx, Ly, Lz
+
+        >>>>freud.trajectory.Box(Lx, Ly, is2D=False)
+
+        initializes box with side lengths Lx, Ly (, Lz if is2D=False)
+
+        >>>>freud.trajectory.Box(Lx=0.0, Ly=0.0, Lz=0.0, xy=0.0, xz=0.0, yz=0.0, is2D=False)
+
+        Preferred method to initialize. Pass in as kwargs. Any not set will be set to the above defaults.
     """
     cdef trajectory.Box *thisptr
 

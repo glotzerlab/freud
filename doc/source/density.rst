@@ -10,15 +10,11 @@ The density module contains functions which deal with the density of the system
 Correlation Functions
 =====================
 
-.. autoclass:: freud.density.FloatCF
+.. autoclass:: freud.density.FloatCF(rmax, dr)
     :members:
 
-    .. method:: __init__(self, rmax, dr)
-
-.. autoclass:: freud.density.ComplexCF
+.. autoclass:: freud.density.ComplexCF(rmax, dr)
     :members:
-
-    .. method:: __init__(self, rmax, dr)
 
 Gaussian Density
 ================
@@ -37,15 +33,11 @@ Gaussian Density
 Local Density
 =============
 
-.. autoclass:: freud.density.LocalDensity
+.. autoclass:: freud.density.LocalDensity(r_cut, volume, diameter)
     :members:
-
-    .. method:: __init__(self, r_cut, volume, diameter)
 
 Radial Distribution Function
 ============================
 
-.. autoclass:: freud.density.RDF
+.. autoclass:: freud.density.RDF(rmax, dr)
     :members:
-
-    .. method:: __init__(self, rmax, dr)

@@ -30,6 +30,13 @@ def _assign_typeid(typename):
 class Frame:
     """ Frame information representing the system state at a specific frame in a Trajectory.
 
+    Initialize a frame for access. High level classes should not construct Frame classes directly. Instead create a Trajectory and query it to get frames.
+
+    :param: traj: Parent Trajectory
+    :param: idx: Index of the frame
+    :param: dynamic_props: Dictionary of dynamic properties accessible in this frame
+    :param: box: the simulation Box for this frame
+
     .. note:: High level classes should not construct Frame classes directly.
         Instead create a Trajectory and query it to get frames.
 
@@ -215,6 +222,8 @@ class TrajectoryVMD(Trajectory):
     VMD has no way of specifiying 2D simulations explicitly. This code attempts to detect 2D simulations by checking
     the maximum z coord in the simulation. If the maximum z coord (in absolute value) is less than 1e-3, then the frame's
     box is set to 2D. If this is not what you intend, override the setting by calling box.set2D(True/False).
+
+    :param: mol_id: ID number of the vmd molecule to access. When a mol_id is set to None, the 'top' molecule is accessed.
     """
     def __init__(self, mol_id=None):
         Trajectory.__init__(self);
@@ -300,7 +309,10 @@ class TrajectoryXML(Trajectory):
     """ Trajectory information read from a list of XML files.
 
     TrajectoryXML reads structure information in from the provided XML files (typenames, bonds, rigid bodies, etc...)
-    storing each file as a consecutive frame
+    storing each file as a consecutive frame.
+
+    :param: xml_fname_list: File names of the XML files to be read
+    :param: dynamic: List of dynamic properties in the trajectory
     """
     def __init__(self, xml_fname_list, dynamic=['position']):
         Trajectory.__init__(self)
@@ -567,6 +579,9 @@ class TrajectoryXMLDCD(Trajectory):
         and every frame read from the beginning until the desired frame is reached!
 
     2D input will set the frame box appropriately.
+
+    :param: xml_fname: File name of the XML file to read the structure from
+    :param: dcd_fname: File name of the DCD trajectory to read (or None to skip reading the trajectory data)
     """
     def __init__(self, xml_fname, dcd_fname):
         Trajectory.__init__(self);
@@ -757,6 +772,9 @@ class TrajectoryPOS(Trajectory):
     """ Trajectory information read from an POS file.
 
     TrajectoryPOS reads structure information in from the provided POS file.
+
+    :param: pos_fname: File name of the POS file to read the structure from
+    :param: dynamic: List of dynamic properties in the trajectory
     """
     def __init__(self, pos_fname, dynamic=['boxMatrix', 'position', 'orientation']):
         Trajectory.__init__(self);
@@ -1046,6 +1064,8 @@ class TrajectoryHOOMD(Trajectory):
     the current state of the system. Advancing forward of course must be done with hoomd run() commands.
 
     2D simulations will set the frame box appropriately.
+
+    :param: sysdef: System definition (returned from an init. call)
     """
     def __init__(self, sysdef):
         Trajectory.__init__(self);
@@ -1108,6 +1128,8 @@ class TrajectoryHOOMD(Trajectory):
 class TrajectoryDISCMC(Trajectory):
     """
     Trajectory information loaded from a discmc ouptut file
+
+    :param: fname: file name to load
     """
 
     def __init__(self, fname):
