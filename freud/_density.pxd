@@ -48,6 +48,7 @@ cdef extern from "RDF.h" namespace "freud::density":
                         unsigned int,
                         const vec3[float]*,
                         unsigned int) nogil
+        # add nogil
         void compute(trajectory.Box&,
                      const vec3[float]*,
                      unsigned int,
