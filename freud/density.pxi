@@ -362,10 +362,27 @@ cdef class LocalDensity:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def compute(self, box, refPoints, points):
+    def compute(self, *args):
         """
-        Calculates the local density for the specified points. Does not accumulate (will overwrite current datat).
+        Calculates the local density for the specified points. Does not accumulate (will overwrite current data).
+
+        :param: box
+        :type: :py:meth:`freud.trajectory.Box()`
+
+        :param: refPoints
+        :type: np.float32
+
+        :param: (optional) points
+        :type: np.float32
         """
+        box = args[0]
+        refPoints = args[1]
+        # new api
+        if len(args) == 3:
+            points = args[2]
+        # old api
+        else:
+            points = args[1]
         if (refPoints.dtype != DTYPE) or (points.dtype != DTYPE):
             raise ValueError("points must be a numpy float32 array")
         if len(refPoints.shape) != 2 or len(points.shape) != 2:

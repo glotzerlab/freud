@@ -1,4 +1,4 @@
-from freud import locality, trajectory
+from freud import trajectory
 import numpy as np
 import numpy.testing as npt
 import unittest
