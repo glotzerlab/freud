@@ -26,7 +26,7 @@ Trajectory Frame
 Trajectory Loaders
 ==================
 
-.. autoclass:: freud.trajectory.Trajectory
+.. autoclass:: freud.trajectory.Trajectory()
     :members:
 
 .. autoclass:: freud.trajectory.TrajectoryVMD(mol_id=None)

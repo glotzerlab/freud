@@ -12,8 +12,30 @@ cimport numpy as np
 # ctypedef np.float32_t DTYPE_t
 
 cdef class PMFTR12:
+    """Computes the PMFT for a given set of points.
+
+    A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
+    Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`r`, :math:`\\theta_1`,
+    :math:`\\theta_2` listed in the r, T1, and T2 arrays.
+
+    The values of r, T1, T2 to compute the pcf at are controlled by rmax and nbins_r, nbins_T1, nbins_T2 parameters
+    to the constructor. rmax determines the minimum/maximum r (:math:`\\min \\left( \\theta_1 \\right) =
+    \\min \\left( \\theta_2 \\right) = 0`, (:math:`\\max \\left( \\theta_1 \\right) = \\max \\left( \\theta_2 \\right) = 2\\pi`)
+    at which to compute the pcf and nbins_r, nbins_T1, nbins_T2 is the number of bins in r, T1, T2.
+
+    .. note:: 2D: This calculation is defined for 2D systems only. However particle positions are still required to be \
+    (x, y, 0)
+
+    :param rMax: maximum distance at which to compute the pmft
+    :param nr: number of bins in r
+    :param nT1: number of bins in T1
+    :param nT2: number of bins in T2
+    :type rMax: float
+    :type nr: unsigned int
+    :type nT1: unsigned int
+    :type nT2: unsigned int
+
     """
-    Freud PMFTR12 object. Wrapper for c++ pmft.PMFTR12()"""
     cdef pmft.PMFTR12 *thisptr
 
     def __cinit__(self, rMax, nr, nT1, nT2):

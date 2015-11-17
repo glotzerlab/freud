@@ -19,16 +19,8 @@ Correlation Functions
 Gaussian Density
 ================
 
-.. autoclass:: freud.density.GaussianDensity
+.. autoclass:: freud.density.GaussianDensity(*args)
     :members:
-
-    .. method:: __init__(self, width, r_cut, dr)
-
-    Initialize with all dimensions identical
-
-    .. method:: __init__(self, width_x, width_y, width_z, r_cut, dr)
-
-    Initialize with specific dimensions
 
 Local Density
 =============

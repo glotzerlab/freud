@@ -247,27 +247,39 @@ cdef class ComplexCF:
 cdef class GaussianDensity:
     """Computes the density of a system on a grid.
 
-    Replaces particle positions with a gaussian blur and calculates the
-    contribution from the grid based upon the distance of the grid cell from the center of the Gaussian. The dimensions
-    of the image (grid) are set in the constructor.
+    Replaces particle positions with a gaussian blur and calculates the contribution from the grid based upon the
+    distance of the grid cell from the center of the Gaussian. The dimensions of the image (grid) are set in the
+    constructor.
 
-    :param width: number of pixels to make the image
-    :type width: unsigned int
+    - Args:
 
-    :param width_x: number of pixels to make the image in x
-    :type width_x: unsigned int
+        :param: width: number of pixels to make the image
+        :type: unsigned int
 
-    :param width_y: number of pixels to make the image in y
-    :type width_y: unsigned int
+        :param width_x: number of pixels to make the image in x
+        :type width_x: unsigned int
 
-    :param width_z: number of pixels to make the image in z
-    :type width_z: unsigned int
+        :param width_y: number of pixels to make the image in y
+        :type width_y: unsigned int
 
-    :param r_cut: distance over which to blur
-    :type r_cut: float
+        :param width_z: number of pixels to make the image in z
+        :type width_z: unsigned int
 
-    :param sigma: sigma parameter for gaussian
-    :type sigma: float
+        :param r_cut: distance over which to blur
+        :type r_cut: float
+
+        :param sigma: sigma parameter for gaussian
+        :type sigma: float
+
+    - Constructor Calls:
+
+        Initialize with all dimensions identical::
+
+            freud.density.GaussianDensity(width, r_cut, dr)
+
+        Initialize with each dimension specified::
+
+            freud.density.GaussianDensity(width_x, width_y, width_z, r_cut, dr)
     """
     cdef density.GaussianDensity *thisptr
 
