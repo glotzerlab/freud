@@ -51,35 +51,16 @@ class PMFTR12
         //! Reset the PCF array to all zeros
         void resetPCF();
 
-        //! Python wrapper for reset method
-        void resetPCFPy()
-            {
-            resetPCF();
-            }
-
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void accumulate(vec3<float> *ref_points,
+        void accumulate(trajectory::Box& box,
+                        vec3<float> *ref_points,
                         float *ref_orientations,
                         unsigned int Nref,
                         vec3<float> *points,
                         float *orientations,
                         unsigned int Np);
-
-        // //! Python wrapper for accumulate
-        // void accumulatePy(trajectory::Box& box,
-        //                   boost::python::numeric::array ref_points,
-        //                   boost::python::numeric::array ref_orientations,
-        //                   boost::python::numeric::array points,
-        //                   boost::python::numeric::array orientations);
-
-        // //! Python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array ref_points,
-        //                boost::python::numeric::array ref_orientations,
-        //                boost::python::numeric::array points,
-        //                boost::python::numeric::array orientations);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -106,29 +87,20 @@ class PMFTR12
             return m_T2_array;
             }
 
-        // //! Python wrapper for getPCF() (returns a copy)
-        // boost::python::numeric::array getPCFPy();
+        unsigned int getNBinsR()
+            {
+            return m_nbins_r;
+            }
 
-        // //! Python wrapper for getX() (returns a copy)
-        // boost::python::numeric::array getRPy()
-        //     {
-        //     float *arr = m_r_array.get();
-        //     return num_util::makeNum(arr, m_nbins_r);
-        //     }
+        unsigned int getNBinsT1()
+            {
+            return m_nbins_T1;
+            }
 
-        // //! Python wrapper for getY() (returns a copy)
-        // boost::python::numeric::array getT1Py()
-        //     {
-        //     float *arr = m_T1_array.get();
-        //     return num_util::makeNum(arr, m_nbins_T1);
-        //     }
-
-        // //! Python wrapper for getT() (returns a copy)
-        // boost::python::numeric::array getT2Py()
-        //     {
-        //     float *arr = m_T2_array.get();
-        //     return num_util::makeNum(arr, m_nbins_T2);
-        //     }
+        unsigned int getNBinsT2()
+            {
+            return m_nbins_T2;
+            }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in

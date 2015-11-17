@@ -14,5 +14,5 @@
 # from _freud import PMFTRPM
 # from _freud import PMFTR12
 
+from ._freud import PMFTR12
 from ._freud import PMFXYZ
-from . import _freud

@@ -66,22 +66,6 @@ class PMFXYZ
                         quat<float> *face_orientations,
                         unsigned int Nfaces);
 
-        // //! Python wrapper for compute
-        // void accumulatePy(trajectory::Box& box,
-        //                   boost::python::numeric::array ref_points,
-        //                   boost::python::numeric::array ref_orientations,
-        //                   boost::python::numeric::array points,
-        //                   boost::python::numeric::array orientations,
-        //                   boost::python::numeric::array face_orientations);
-
-        // //! Python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array ref_points,
-        //                boost::python::numeric::array ref_orientations,
-        //                boost::python::numeric::array points,
-        //                boost::python::numeric::array orientations,
-        //                boost::python::numeric::array face_orientations);
-
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
         void reducePCF();
@@ -122,29 +106,6 @@ class PMFXYZ
             return m_nbins_z;
             }
 
-        // //! Python wrapper for getPCF() (returns a copy)
-        // boost::python::numeric::array getPCFPy();
-
-        // //! Python wrapper for getX() (returns a copy)
-        // boost::python::numeric::array getXPy()
-        //     {
-        //     float *arr = m_x_array.get();
-        //     return num_util::makeNum(arr, m_nbins_x);
-        //     }
-
-        // //! Python wrapper for getY() (returns a copy)
-        // boost::python::numeric::array getYPy()
-        //     {
-        //     float *arr = m_y_array.get();
-        //     return num_util::makeNum(arr, m_nbins_y);
-        //     }
-
-        // //! Python wrapper for getZ() (returns a copy)
-        // boost::python::numeric::array getZPy()
-        //     {
-        //     float *arr = m_z_array.get();
-        //     return num_util::makeNum(arr, m_nbins_z);
-        //     }
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_max_x;                     //!< Maximum x at which to compute pcf
