@@ -44,10 +44,41 @@ box. I propose the following possibilities:
 This is not nearly as good as it's not clear the best way (at least right now) to handle the tilt-factor tuple.
 
         freud.box.Box(L, None, is2D)
+        freud.box.Box(L, 0, is2D)
         freud.box.Box(L, (xy, xz, yz), is2D)
         freud.box.Box((Lx, Ly, Lz), (xy, xz, yz), is2D)
 
 # Numpy Array Copy
 
 Should the numpy arrays returned by calculations be copies of data, or pointers to the data itself? Both are easy to
-implement. We could even add a copy "True/False" option
+implement. We could even add a copy "True/False" option. I have moved forward with including the copy option
+
+# Indexing (specifically PMFT)
+
+Address and impose common way of indexing arrays (PMFTR12 at least is in an odd order)
+
+# Gaussian Density
+
+Change the constructor to take freud.density.GaussianDensity(width, r_cut, dr) always, and width is either a single
+value OR a tuple. detect type, and move on with your life. This isn't nearly as bad as other API changes
+
+# Function Verbosity
+
+Set a standard for how verbose a function call should be:
+
+    freud.locality.BondOrderDiagram()
+    freud.locality.BOD()
+
+# Allow for single position, orientation args
+
+While all the code handles refPoints and points differently (which we probably need a new terminology for this too),
+most users will probably want to check the positions against themselves, so we should allow:
+
+    freud.module.submodule.compute(box, pos)
+    freud.module.submodule.compute(box, refPos, pos)
+
+# Change getRDF() to get?? in CorrelationFunction
+
+# Change getFunction() Behavior
+
+Currently reduce is called for each get, we should consider a switch that only reduces, etc. if necessary
