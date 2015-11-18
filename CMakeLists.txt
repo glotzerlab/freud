@@ -49,6 +49,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 # setup numpy
 include (FREUDNumpySetup)
 include_directories(${NUMPY_INCLUDE_DIR})
+# cython uses the deprecated api, so these remain commented til further notice
 # add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
 # add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
