@@ -508,11 +508,23 @@ cdef class RDF:
         """
         self.thisptr.reduceRDF()
 
-    def getRDF(self):
+    def getRDF(self, copy=False):
         """
         :return: histogram of rdf values
         :rtype: np.float32
         """
+        if copy:
+            return self._getRDFCopy()
+        else:
+            return self._getRDFNoCopy()
+
+    def _getRDFCopy(self):
+        cdef float *rdf = self.thisptr.getRDF().get()
+        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=DTYPE)
+        memcpy(&result[0], rdf, result.nbytes)
+        return result
+
+    def _getRDFNoCopy(self):
         cdef float *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
@@ -520,14 +532,29 @@ cdef class RDF:
         PyArray_ENABLEFLAGS(result, np.NPY_OWNDATA)
         return result
 
-    def getR(self):
+    def getR(self, copy=False):
         """
         :return: values of the histogram bin centers
         :rtype: np.float32
         """
-        cdef float* r = self.thisptr.getR().get()
+        if copy:
+            return self._getRCopy()
+        else:
+            return self._getRNoCopy()
+        return result
+
+    def _getRCopy(self):
+        cdef float *r = self.thisptr.getR().get()
         cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=DTYPE)
         memcpy(&result[0], r, result.nbytes)
+        return result
+
+    def _getRNoCopy(self):
+        cdef float *r = self.thisptr.getR().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
+        PyArray_ENABLEFLAGS(result, np.NPY_OWNDATA)
         return result
 
     def getNr(self):
@@ -535,7 +562,22 @@ cdef class RDF:
         :return: histogram of cumulative rdf values
         :rtype: np.float32
         """
-        cdef float* Nr = self.thisptr.getNr().get()
+        if copy:
+            return self._getNrCopy()
+        else:
+            return self._getNrNoCopy()
+        return result
+
+    def _getNrCopy(self):
+        cdef float *Nr = self.thisptr.getNr().get()
         cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=DTYPE)
         memcpy(&result[0], Nr, result.nbytes)
+        return result
+
+    def _getNrNoCopy(self):
+        cdef float *Nr = self.thisptr.getNr().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>Nr)
+        PyArray_ENABLEFLAGS(result, np.NPY_OWNDATA)
         return result

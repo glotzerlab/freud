@@ -46,3 +46,8 @@ This is not nearly as good as it's not clear the best way (at least right now) t
         freud.box.Box(L, None, is2D)
         freud.box.Box(L, (xy, xz, yz), is2D)
         freud.box.Box((Lx, Ly, Lz), (xy, xz, yz), is2D)
+
+# Numpy Array Copy
+
+Should the numpy arrays returned by calculations be copies of data, or pointers to the data itself? Both are easy to
+implement. We could even add a copy "True/False" option
