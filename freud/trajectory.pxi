@@ -245,6 +245,31 @@ cdef class Box:
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
 
+    # def wrap(self, vecs):
+    #     """
+    #     Wrap a given array of vectors back into the box from python
+
+    #     :param vecs: numpy array of vectors (Nx3) (or just 3 elements) to wrap
+    #     :note: Vectors are wrapped in place to avoid costly memory copies
+    #     """
+    #     if vecs.dtype != np.float32:
+    #         raise ValueError("vecs must be a numpy float32 array")
+    #     # determine if single vector or array of vectors
+    #     if len(vec.shape) == 1:
+    #         # wrap single vector
+    #         if vecs.shape[0] != 3:
+    #             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+    #         # cdef can't be inside of if...ugh
+    #         cdef np.ndarray[float, ndim=1] l_vecs = np.ascontiguousarray(vecs)
+    #         self.thisptr.wrap(<vec3[float]*>&l_vecs)
+    #         vecs = l_vecs
+
+    #     elif len(vec.shape) == 2:
+    #         # check that the second dim is only 3
+    #         if vecs.shape[1] != 3:
+    #             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+
+
     ## Enable pickling of internal classes
     # Box
     def __getinitargs__(self):
