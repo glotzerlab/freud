@@ -10,6 +10,13 @@ cimport numpy as np
 DTYPE = np.float32
 ctypedef np.float32_t DTYPE_t
 
+cdef extern from "numpy/arrayobject.h":
+    void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
+
+# Numpy must be initialized. When using numpy from C or Cython you must
+# _always_ do that, or you will have segfaults
+np.import_array()
+
 cdef class FloatCF:
     """Computes the pairwise correlation function <p*q>(r) between two sets of points with associated values p and q.
 
@@ -506,9 +513,11 @@ cdef class RDF:
         :return: histogram of rdf values
         :rtype: np.float32
         """
-        cdef float* rdf = self.thisptr.getRDF().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=DTYPE)
-        memcpy(&result[0], rdf, result.nbytes)
+        cdef float *rdf = self.thisptr.getRDF().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rdf)
+        PyArray_ENABLEFLAGS(result, np.NPY_OWNDATA)
         return result
 
     def getR(self):
