@@ -3,6 +3,7 @@ from freud.util._VectorMath cimport vec3
 cimport freud._trajectory as trajectory
 import numpy as np
 cimport numpy as np
+from libcpp.string cimport string
 
 cdef class Box:
     """
@@ -244,6 +245,7 @@ cdef class Box:
         """
         cdef vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
         cdef vec3[float] resultVec = self.thisptr.makeCoordinates(fRaw)
+        # check on this
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
 
@@ -252,12 +254,13 @@ cdef class Box:
         Wrap a given array of vectors back into the box from python
 
         :param vecs: numpy array of vectors (Nx3) (or just 3 elements) to wrap
+        :note: vecs returned in place (nothing returned)
         """
         if vecs.dtype != np.float32:
             raise ValueError("vecs must be a numpy float32 array")
         if len(vecs.shape) == 1:
             # only one vector to wrap
-            vecs = self._wrap(vecs)
+            vecs = np.ascontiguousarray(self._wrap(vecs), dtype=np.float32)
         elif len(vecs.shape) == 2:
             # check to make sure the second dim is x, y, z
             if vecs.shape[1] != 3:
@@ -270,6 +273,18 @@ cdef class Box:
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
+    def makeCoordinates(self, vec):
+        """
+        Convert fractional coordinates into real coordinates
+
+        :param f: Fractional coordinates between 0 and 1 within parallelpipedal box
+        :type f: numpy.ndarray([x, y, z], dtype=numpy.float32)
+        :return: A vector inside the box corresponding to f
+        """
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef vec3[float] result = self.thisptr.makeCoordinates(<const vec3[float]&>l_vec[0])
+        return [result.x, result.y, result.z]
+
     ## Enable pickling of internal classes
     # Box
     def __getinitargs__(self):
@@ -279,3 +294,120 @@ cdef BoxFromCPP(const trajectory.Box& cppbox):
     """
     """
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(), cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(), cppbox.getTiltFactorYZ(), cppbox.is2D())
+
+cdef class DCDLoader:
+    """
+    Freud DCDLoader. Wrapper for the c++ trajectory.DCDLoader() class
+
+    :param dcd_fname: name of dcd file
+    :type dcd_fname: string
+
+    :note: It is note expected that users should need to load dcd files outside of the trajectory readers
+
+    """
+    cdef trajectory.DCDLoader *thisptr
+
+    def __cinit__(self, dcd_fname):
+
+        cdef string l_dcd_fname = dcd_fname.encode('UTF-8')
+        self.thisptr = new trajectory.DCDLoader(<const string&>l_dcd_fname)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def jumpToFrame(self, frame_idx):
+        """
+        :param frame: Frame number to jump to
+        :note: The molfile plugins only support skipping forward in the file. As such, \
+        :py:meth:`freud.trajectory.jumpToFrame(frame)` must reload the file from scratch if given a previous frame \
+        number than the current
+        """
+        if not type(frame_idx) == int:
+            raise TypeError("frame_idx must be an integer")
+        self.thisptr.jumpToFrame(frame_idx)
+
+    def readNextFrame(self):
+        """
+        Reads the next frame from the DCD file
+        """
+        self.thisptr.readNextFrame()
+
+    def getBox(self):
+        """
+        :return: Freud Box
+        :rtype: :py:meth:`freud.trajectory.Box()`
+        """
+        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+
+    def getNumParticles(self):
+        """
+        Get the number of particles in the dcd file.
+
+        :return: number of particles
+        :rtype: int
+        """
+        return self.thisptr.getNumParticles()
+
+    def getLastFrameNum(self):
+        """
+        Get the last frame read.
+
+        :return: index of the last read frame
+        :rtype: int
+        """
+        return self.thisptr.getLastFrameNum()
+
+    def getFrameCount(self):
+        """
+        Get the number of frames.
+
+        :return: number of frames in dcd file
+        :rtype: int
+        """
+        return self.thisptr.getFrameCount()
+
+    def getFileName(self):
+        """
+        Get the name of the dcd file.
+
+        :return: name of the dcd file
+        :rtype: str
+        """
+        cdef string fname = self.thisptr.getFileName()
+        return fname.decode('UTF-8')
+
+    def getTimeStep(self):
+        """
+        Get the timestep.
+
+        :return: timestep
+        :rtype: int
+        :todo: which timestep is returned?
+        """
+        return self.thisptr.getTimeStep()
+
+    def getPoints(self, copy=False):
+        """
+        Access the points read by the last step.
+
+        :return: points from the previous timestep
+        :rtype: np.ndarray(shape=[N, 3], dtype=np.float32)
+        """
+        if copy:
+            return self._getPointsCopy()
+        else:
+            return self._getPointsNoCopy()
+
+    def _getPointsCopy(self):
+        cdef float *points = self.thisptr.getPoints().get()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.zeros(shape=(self.thisptr.getNumParticles()), dtype=np.float32)
+        memcpy(&result[0], points, result.nbytes)
+        return result
+
+    def _getPointsNoCopy(self):
+        cdef float *points = self.thisptr.getPoints().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>points)
+        return result
+

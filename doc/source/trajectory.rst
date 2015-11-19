@@ -46,3 +46,9 @@ Trajectory Loaders
 
 .. autoclass:: freud.trajectory.TrajectoryDISCMC(fname)
     :members:
+
+DCD Loader
+==========
+
+.. autoclass:: freud.trajectory.DCDLoader(dcd_fname)
+    :members:

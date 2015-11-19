@@ -44,30 +44,31 @@ class DCDLoader
         void readNextFrame();
 
         //! Jump to a particular frame number in the file (call only from python)
-        void jumpToFramePy(int frame)
-            {
-            util::ScopedGILRelease gil;
-            jumpToFrame(frame);
-            }
+        // void jumpToFramePy(int frame)
+        //     {
+        //     util::ScopedGILRelease gil;
+        //     jumpToFrame(frame);
+        //     }
 
-        //! Read the next step in the file (call only from python)
-        void readNextFramePy()
-            {
-            util::ScopedGILRelease gil;
-            readNextFrame();
-            }
+        // //! Read the next step in the file (call only from python)
+        // void readNextFramePy()
+        //     {
+        //     util::ScopedGILRelease gil;
+        //     readNextFrame();
+        //     }
 
         // //! Access the points read by the last step
-        // boost::python::numeric::array getPoints() const
-        //     {
-        //     // allocate the memory for the points
-        //     std::vector<intp> dims(2);
-        //     dims[0] = getNumParticles();
-        //     dims[1] = 3;
+        boost::shared_array<float> getPoints() const
+            {
+            // allocate the memory for the points
+            // std::vector<intp> dims(2);
+            // dims[0] = getNumParticles();
+            // dims[1] = 3;
 
-        //     float *arr = m_points.get();
-        //     return num_util::makeNum(arr, dims);
-        //     }
+            // float *arr = m_points.get();
+            // return num_util::makeNum(arr, dims);
+            return m_points;
+            }
 
         //! Get the box
         const Box& getBox() const

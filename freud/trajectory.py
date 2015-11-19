@@ -13,6 +13,7 @@ except ImportError:
     h5py = None
 
 from ._freud import Box
+from ._freud import DCDLoader
 from . import _freud
 from freud.util import pos
 
