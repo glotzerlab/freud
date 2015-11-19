@@ -267,9 +267,7 @@ cdef class Box:
 
     def _wrap(self, vec):
         cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
-        print(l_vec)
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec[0])
-        print(result.x, result.y, result.z)
         return [result.x, result.y, result.z]
 
     ## Enable pickling of internal classes
