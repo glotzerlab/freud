@@ -35,7 +35,7 @@ class TestBox(unittest.TestCase):
 
     def test_Wrap(self):
         box = trajectory.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([[0, -1, -1], 
+        testpoints = np.array([[0, -1, -1],
                                [0, 0.5, 0]], dtype=np.float32)
         box.wrap(testpoints)
 
