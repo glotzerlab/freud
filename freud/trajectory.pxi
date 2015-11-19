@@ -1,6 +1,8 @@
 
 from freud.util._VectorMath cimport vec3
 cimport freud._trajectory as trajectory
+import numpy as np
+cimport numpy as np
 
 cdef class Box:
     """
@@ -245,30 +247,30 @@ cdef class Box:
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
 
-    # def wrap(self, vecs):
-    #     """
-    #     Wrap a given array of vectors back into the box from python
+    def wrap(self, vecs):
+        """
+        Wrap a given array of vectors back into the box from python
 
-    #     :param vecs: numpy array of vectors (Nx3) (or just 3 elements) to wrap
-    #     :note: Vectors are wrapped in place to avoid costly memory copies
-    #     """
-    #     if vecs.dtype != np.float32:
-    #         raise ValueError("vecs must be a numpy float32 array")
-    #     # determine if single vector or array of vectors
-    #     if len(vec.shape) == 1:
-    #         # wrap single vector
-    #         if vecs.shape[0] != 3:
-    #             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-    #         # cdef can't be inside of if...ugh
-    #         cdef np.ndarray[float, ndim=1] l_vecs = np.ascontiguousarray(vecs)
-    #         self.thisptr.wrap(<vec3[float]*>&l_vecs)
-    #         vecs = l_vecs
+        :param vecs: numpy array of vectors (Nx3) (or just 3 elements) to wrap
+        """
+        if vecs.dtype != np.float32:
+            raise ValueError("vecs must be a numpy float32 array")
+        if len(vecs.shape) == 1:
+            # only one vector to wrap
+            vecs = self._wrap(vecs)
+        elif len(vecs.shape) == 2:
+            # check to make sure the second dim is x, y, z
+            if vecs.shape[1] != 3:
+                raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            for i, vec in enumerate(vecs):
+                vecs[i] = self._wrap(vec)
 
-    #     elif len(vec.shape) == 2:
-    #         # check that the second dim is only 3
-    #         if vecs.shape[1] != 3:
-    #             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-
+    def _wrap(self, vec):
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
+        print(l_vec)
+        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec[0])
+        print(result.x, result.y, result.z)
+        return [result.x, result.y, result.z]
 
     ## Enable pickling of internal classes
     # Box

@@ -27,4 +27,4 @@ cdef extern from "trajectory.h" namespace "freud::trajectory":
 
         float getVolume() const
         vec3[float] makeCoordinates(const vec3[float]&)
-        vec3[float] wrap(const vec3[float]&)
+        vec3[float] wrap(vec3[float]&)
