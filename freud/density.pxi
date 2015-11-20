@@ -107,6 +107,8 @@ cdef class FloatCF:
 
     def getBox(self):
         """
+        Get the box used in the calculation
+
         :return: Freud Box
         :rtype: :py:meth:`freud.trajectory.Box()`
         """
@@ -384,25 +386,18 @@ cdef class GaussianDensity:
     distance of the grid cell from the center of the Gaussian. The dimensions of the image (grid) are set in the
     constructor.
 
-    - Args:
-
-        :param: width: number of pixels to make the image
-        :type: unsigned int
-
-        :param width_x: number of pixels to make the image in x
-        :type width_x: unsigned int
-
-        :param width_y: number of pixels to make the image in y
-        :type width_y: unsigned int
-
-        :param width_z: number of pixels to make the image in z
-        :type width_z: unsigned int
-
-        :param r_cut: distance over which to blur
-        :type r_cut: float
-
-        :param sigma: sigma parameter for gaussian
-        :type sigma: float
+    :param width: number of pixels to make the image
+    :param width_x: number of pixels to make the image in x
+    :param width_y: number of pixels to make the image in y
+    :param width_z: number of pixels to make the image in z
+    :param r_cut: distance over which to blur
+    :param sigma: sigma parameter for gaussian
+    :type width: unsigned int
+    :type width_x: unsigned int
+    :type width_y: unsigned int
+    :type width_z: unsigned int
+    :type r_cut: float
+    :type sigma: float
 
     - Constructor Calls:
 

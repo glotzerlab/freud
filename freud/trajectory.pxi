@@ -9,36 +9,24 @@ cdef class Box:
     """
     Freud box object. Wrapper for the c++ trajectory.Box() class
 
-    - Args:
-
-        :param: L: Side length of Box
-        :type: float
-
-        :param: is2D: specify if box is 2D
-        :type: bool
-
-    - Kwargs:
-
-        :param: Lx: Length of side x
-        :type: float
-
-        :param: Ly: Length of side y
-        :type: float
-
-        :param: Lz: Length of side z
-        :type: float
-
-        :param: xy: tilt of xy plane
-        :type: float
-
-        :param: xz: tilt of xz plane
-        :type: float
-
-        :param: yz: tilt of yz plane
-        :type: float
-
-        :param: is2D: specify if box is 2D
-        :type: bool
+    :param L: Side length of Box
+    :param is2D: specify if box is 2D
+    :param Lx: Length of side x
+    :param Ly: Length of side y
+    :param Lz: Length of side z
+    :param xy: tilt of xy plane
+    :param xz: tilt of xz plane
+    :param yz: tilt of yz plane
+    :param is2D: specify if box is 2D
+    :type L: float
+    :type is2D: bool
+    :type Lx: float
+    :type Ly: float
+    :type Lz: float
+    :type xy: float
+    :type xz: float
+    :type yz: float
+    :type is2D: bool
 
     - Constructor calls:
 
@@ -159,6 +147,9 @@ cdef class Box:
     def setL(self, L):
         """
         Set all side lengths of box to L
+
+        :param L: Side length of box
+        :type L: float
         """
         try:
             len(L)
@@ -173,36 +164,54 @@ cdef class Box:
     def set2D(self, val):
         """
         Set the dimensionality to 2D (True) or 3D (False)
+
+        :param val: 2D=True, 3D=False
+        :type val: bool
         """
         self.thisptr.set2D(bool(val))
 
     def is2D(self):
         """
         return if box is 2D (True) or 3D (False)
+
+        :return: True if 2D, False if 3D
+        :rtype: bool
         """
         return self.thisptr.is2D()
 
     def getLx(self):
         """
         return the length of the x-dimension of the box
+
+        :return: x-dimension of the box
+        :rtype: float
         """
         return self.thisptr.getLx()
 
     def getLy(self):
         """
         return the length of the y-dimension of the box
+
+        :return: y-dimension of the box
+        :rtype: float
         """
         return self.thisptr.getLy()
 
     def getLz(self):
         """
         return the length of the z-dimension of the box
+
+        :return: z-dimension of the box
+        :rtype: float
         """
         return self.thisptr.getLz()
 
     def getL(self):
         """
         return the lengths of the box as a tuple (x, y, z)
+
+        :return: dimensions of the box as (x, y, z)
+        :rtype: (float, float, float)
         """
         cdef vec3[float] result = self.thisptr.getL()
         return (result.x, result.y, result.z)
@@ -210,6 +219,9 @@ cdef class Box:
     def getLinv(self):
         """
         return the inverse lengths of the box (1/x, 1/y, 1/z)
+
+        :return: dimensions of the box as (1/x, 1/y, 1/z)
+        :rtype: (float, float, float)
         """
         cdef vec3[float] result = self.thisptr.getLinv()
         return (result.x, result.y, result.z)
@@ -217,24 +229,36 @@ cdef class Box:
     def getTiltFactorXY(self):
         """
         return the tilt factor xy
+
+        :return: xy tilt factor
+        :rtype: float
         """
         return self.thisptr.getTiltFactorXY()
 
     def getTiltFactorXZ(self):
         """
         return the tilt factor xz
+
+        :return: xz tilt factor
+        :rtype: float
         """
         return self.thisptr.getTiltFactorXZ()
 
     def getTiltFactorYZ(self):
         """
         return the tilt factor yz
+
+        :return: yz tilt factor
+        :rtype: float
         """
         return self.thisptr.getTiltFactorYZ()
 
     def getVolume(self):
         """
         return the box volume
+
+        :return: box volume
+        :rtype: float
         """
         return self.thisptr.getVolume()
 
@@ -242,6 +266,11 @@ cdef class Box:
         """
         Convert a vector of relative box coordinates (each in [0..1]) into
         absolute coordinates
+
+        :param f: list[fx, fy, fz]
+        :type f: list[float, float, float]
+        :return: list[x, y, z]
+        :rtype: list[float, float, float]
         """
         cdef vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
         cdef vec3[float] resultVec = self.thisptr.makeCoordinates(fRaw)

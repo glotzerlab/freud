@@ -33,10 +33,14 @@ class Frame:
 
     Initialize a frame for access. High level classes should not construct Frame classes directly. Instead create a Trajectory and query it to get frames.
 
-    :param: traj: Parent Trajectory
-    :param: idx: Index of the frame
-    :param: dynamic_props: Dictionary of dynamic properties accessible in this frame
-    :param: box: the simulation Box for this frame
+    :param traj: Parent Trajectory
+    :param idx: Index of the frame
+    :param dynamic_props: Dictionary of dynamic properties accessible in this frame
+    :param box: the simulation Box for this frame
+    :type traj: :py:meth:`freud.trajectory.Trajectory`
+    :type idx: int
+    :type dynamic_props: list
+    :type box: :py:meth:`freud.trajectory.Box`
 
     .. note:: High level classes should not construct Frame classes directly.
         Instead create a Trajectory and query it to get frames.
@@ -105,7 +109,8 @@ class Trajectory:
         """
         Test if a given particle property is modifiable.
 
-        :param: prop: Property to check
+        :param prop: Property to check
+        :type prop: string
         :return: True if prop is modifiable
         :rtype: bool
         """
@@ -115,7 +120,8 @@ class Trajectory:
         """
         Test if a given particle property is static over the length of the trajectory.
 
-        :param: prop: Property to check
+        :param prop: Property to check
+        :type prop: string
         :return: True if prop is static
         :rtype: bool
         """
@@ -125,7 +131,8 @@ class Trajectory:
         """
         Get a static property of the particles.
 
-        :param: prop: Property name to get
+        :param prop: Property name to get
+        :type prop: string
         :return: property
         """
         return self.static_props[prop]
@@ -174,9 +181,10 @@ class Trajectory:
         """
         Get the selected frame.
 
-        :param: idx: Index of the frame to access
+        :param idx: Index of the frame to access
+        :type idx: int
         :return: A Frame containing the current frame data
-        :rtype: :py:meth:`freud.trajectory.Frame()`
+        :rtype: :py:meth:`freud.trajectory.Frame`
         """
         if idx < 0 or idx >= len(self):
             raise IndexError('Frame index out of range');
@@ -199,8 +207,10 @@ class Trajectory:
         """
         Modify properties of the currently set frame.
 
-        :param: prop: Name of property to modify
-        :param: value: New values to set for that property
+        :param prop: Name of property to modify
+        :param value: New values to set for that property
+        :type prop: string
+        :type value: int, float, ...
 
         .. note:: The base class Trajectory doesn't load any particles, so calling this method won't do anything.
             Derived classes can call it as a handy way to check for error conditions.
@@ -224,7 +234,8 @@ class TrajectoryVMD(Trajectory):
     the maximum z coord in the simulation. If the maximum z coord (in absolute value) is less than 1e-3, then the frame's
     box is set to 2D. If this is not what you intend, override the setting by calling box.set2D(True/False).
 
-    :param: mol_id: ID number of the vmd molecule to access. When a mol_id is set to None, the 'top' molecule is accessed.
+    :param mol_id: ID number of the vmd molecule to access. When a mol_id is set to None, the 'top' molecule is accessed.
+    :type mol_id: int
     """
     def __init__(self, mol_id=None):
         Trajectory.__init__(self);
@@ -298,8 +309,10 @@ class TrajectoryVMD(Trajectory):
         """
         Modify properties of the currently set frame.
 
-        :param: prop: Name of property to modify
-        :param: value: New values to set for that property
+        :param prop: Name of property to modify
+        :param value: New values to set for that property
+        :type prop: string
+        :type value: int, float, ...
         """
         # error check
         Trajectory.setProperty(self, prop, value);
@@ -312,8 +325,10 @@ class TrajectoryXML(Trajectory):
     TrajectoryXML reads structure information in from the provided XML files (typenames, bonds, rigid bodies, etc...)
     storing each file as a consecutive frame.
 
-    :param: xml_fname_list: File names of the XML files to be read
-    :param: dynamic: List of dynamic properties in the trajectory
+    :param xml_fname_list: File names of the XML files to be read
+    :param dynamic: List of dynamic properties in the trajectory
+    :type xml_fname_list: list
+    :type dynamic: list
     """
     def __init__(self, xml_fname_list, dynamic=['position']):
         Trajectory.__init__(self)
@@ -581,8 +596,10 @@ class TrajectoryXMLDCD(Trajectory):
 
     2D input will set the frame box appropriately.
 
-    :param: xml_fname: File name of the XML file to read the structure from
-    :param: dcd_fname: File name of the DCD trajectory to read (or None to skip reading the trajectory data)
+    :param xml_fname: File name of the XML file to read the structure from
+    :param dcd_fname: File name of the DCD trajectory to read (or None to skip reading the trajectory data)
+    :type xml_fname: string
+    :type dcd_fname: string
     """
     def __init__(self, xml_fname, dcd_fname):
         Trajectory.__init__(self);
@@ -774,8 +791,10 @@ class TrajectoryPOS(Trajectory):
 
     TrajectoryPOS reads structure information in from the provided POS file.
 
-    :param: pos_fname: File name of the POS file to read the structure from
-    :param: dynamic: List of dynamic properties in the trajectory
+    :param pos_fname: File name of the POS file to read the structure from
+    :param dynamic: List of dynamic properties in the trajectory
+    :type pos_fname: string
+    :param dynamic: list
     """
     def __init__(self, pos_fname, dynamic=['boxMatrix', 'position', 'orientation']):
         Trajectory.__init__(self);
@@ -1066,7 +1085,8 @@ class TrajectoryHOOMD(Trajectory):
 
     2D simulations will set the frame box appropriately.
 
-    :param: sysdef: System definition (returned from an init. call)
+    :param sysdef: System definition (returned from an init. call)
+    :type: :py:meth:`hoomd.init`
     """
     def __init__(self, sysdef):
         Trajectory.__init__(self);
@@ -1130,7 +1150,8 @@ class TrajectoryDISCMC(Trajectory):
     """
     Trajectory information loaded from a discmc ouptut file
 
-    :param: fname: file name to load
+    :param fname: file name to load
+    :type fname: string
     """
 
     def __init__(self, fname):

@@ -82,3 +82,7 @@ most users will probably want to check the positions against themselves, so we s
 # Change getFunction() Behavior
 
 Currently reduce is called for each get, we should consider a switch that only reduces, etc. if necessary
+
+# Determine best way to return arrays
+
+For any > 1D arrays determine if flat or reshaped arrays are the correct way to return to user
