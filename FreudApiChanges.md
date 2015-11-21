@@ -86,3 +86,7 @@ Currently reduce is called for each get, we should consider a switch that only r
 # Determine best way to return arrays
 
 For any > 1D arrays determine if flat or reshaped arrays are the correct way to return to user
+
+# Allow users to pass in angles or quaternions to 2D calculations
+
+Have the wrapper handle conversion. Might want to write as C lib
