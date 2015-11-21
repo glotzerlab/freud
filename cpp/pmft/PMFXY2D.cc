@@ -252,17 +252,6 @@ boost::shared_array<unsigned int> PMFXY2D::getPCF()
     return m_pcf_array;
     }
 
-// //! Get a reference to the PCF array
-// boost::python::numeric::array PMFXY2D::getPCFPy()
-//     {
-//     reducePCF();
-//     unsigned int *arr = m_pcf_array.get();
-//     std::vector<intp> dims(2);
-//     dims[0] = m_nbins_y;
-//     dims[1] = m_nbins_x;
-//     return num_util::makeNum(arr, dims);
-//     }
-
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
@@ -280,13 +269,15 @@ void PMFXY2D::resetPCF()
 /*! \brief Helper functionto direct the calculation to the correct helper class
 */
 
-void PMFXY2D::accumulate(vec3<float> *ref_points,
+void PMFXY2D::accumulate(trajectory::Box& box,
+                         vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int Nref,
                          vec3<float> *points,
                          float *orientations,
                          unsigned int Np)
     {
+    m_box = box;
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFXY2D(m_local_pcf_array,

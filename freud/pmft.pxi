@@ -252,9 +252,225 @@ cdef class PMFTR12:
         cdef unsigned int T2 = self.thisptr.getNBinsT2()
         return T2
 
+cdef class PMFXY2D:
+    """
+    Freud PMFXY2D object. Wrapper for c++ pmft.PMFXY2D()
+
+    A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
+    Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`x`, :math:`y`
+    listed in the x and y arrays.
+
+    The values of x and y to compute the pcf at are controlled by xMax, yMax, nx, and ny parameters
+    to the constructor. xMax and yMax determine the minimum/maximum distance at which to compute the pcf and
+    nx and ny are the number of bins in x and y.
+
+    .. note:: 2D: This calculation is defined for 2D systems only.
+
+    :param xMax: maximum x distance at which to compute the pmft
+    :param yMax: maximum y distance at which to compute the pmft
+    :param nx: number of bins in x
+    :param ny: number of bins in y
+    :type xMax: float
+    :type yMax: float
+    :type nx: unsigned int
+    :type ny: unsigned int
+    """
+    cdef pmft.PMFXY2D *thisptr
+
+    def __cinit__(self, xMax, yMax, nx, ny):
+        self.thisptr = new pmft.PMFXY2D(xMax, yMax, nx, ny)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def getBox(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.trajectory.Box()`
+        """
+        return BoxFromCPP(self.thisptr.getBox())
+
+    def resetPCF(self):
+        """
+        Resets the values of the pcf histograms in memory
+        """
+        self.thisptr.resetPCF()
+
+    def accumulate(self, box, refPoints, refOrientations, points, orientations):
+        """
+        Calculates the positional correlation function and adds to the current histogram.
+
+        :param box: simulation box
+        :param refPoints: reference points to calculate the local density
+        :param refOrientations: orientations of reference points to use in calculation
+        :param points: points to calculate the local density
+        :param orientations: orientations of particles to use in calculation
+        :type box: :py:meth:`freud.trajectory.Box`
+        :type refPoints: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type refOrientations: np.ndarray(shape=(N), dtype=np.float32)
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type orientations: np.ndarray(shape=(N), dtype=np.float32)
+        """
+        if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
+            raise ValueError("points must be a numpy float32 array")
+        if (refOrientations.dtype != np.float32) or (orientations.dtype != np.float32):
+            raise ValueError("orientations must be a numpy float32 array")
+        if len(refPoints.shape) != 2 or len(points.shape) != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if len(refOrientations.shape) != 1 or len(orientations.shape) != 1:
+            raise ValueError("orientations must be a 1 dimensional array")
+        if refPoints.shape[1] != 3 or points.shape[1] != 3:
+            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refOrientations = np.ascontiguousarray(refOrientations.flatten())
+        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
+        cdef unsigned int nRef = <unsigned int> l_refPoints.shape[0]
+        cdef unsigned int nP = <unsigned int> l_points.shape[0]
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        with nogil:
+            self.thisptr.accumulate(l_box,
+                                    <vec3[float]*>&l_refPoints[0],
+                                    <float*>&l_refOrientations[0],
+                                    nRef,
+                                    <vec3[float]*>&l_points[0],
+                                    <float*>&l_orientations[0],
+                                    nP)
+
+    def compute(self, box, refPoints, refOrientations, points, orientations):
+        """
+        Calculates the positional correlation function for the given points. Will overwrite the current histogram.
+
+        :param box: simulation box
+        :param refPoints: reference points to calculate the local density
+        :param refOrientations: orientations of reference points to use in calculation
+        :param points: points to calculate the local density
+        :param orientations: orientations of particles to use in calculation
+        :type box: :py:meth:`freud.trajectory.Box`
+        :type refPoints: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type refOrientations: np.ndarray(shape=(N, 4), dtype=np.float32)
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
+        """
+        self.thisptr.resetPCF()
+        self.accumulate(box, refPoints, refOrientations, points, orientations)
+
+    def reducePCF(self):
+        """
+        Reduces the histogram in the values over N processors to a single histogram. This is called automatically by
+        :py:meth:`freud.pmft.PMFXY2D.getPCF()`.
+        """
+        self.thisptr.reducePCF()
+
+    def getPCF(self, copy=False):
+        """
+        Get the positional correlation function.
+
+        :param copy: Specify whether returned array will be a copy of the calculated data or not
+        :type copy: bool
+        :return: PCF
+        :rtype: np.ndarray(shape=(Ny, Nx), dtype=np.float32)
+        """
+        if copy:
+            return self._getPCFCopy()
+        else:
+            return self._getPCFNoCopy()
+
+    def _getPCFCopy(self):
+        cdef unsigned int* pcf = self.thisptr.getPCF().get()
+        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsY(), self.thisptr.getNBinsX()), dtype=np.int32)
+        memcpy(&result[0], pcf, result.nbytes)
+        arrayShape = (self.thisptr.getNBinsY(), self.thisptr.getNBinsX())
+        pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
+        return result
+
+    def _getPCFNoCopy(self):
+        cdef unsigned int* pcf = self.thisptr.getPCF().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>pcf)
+        return result
+
+    def getX(self, copy=False):
+        """
+        Get the array of x-values for the PCF histogram
+
+        :param copy: Specify whether returned array will be a copy of the calculated data or not
+        :type copy: bool
+        :return: bin centers of x-dimension of histogram
+        :rtype: np.ndarray(shape=nx, dtype=np.float32)
+        """
+        if copy:
+            return self._getXCopy()
+        else:
+            return self._getXNoCopy()
+
+    def _getXCopy(self):
+        cdef float* x = self.thisptr.getX().get()
+        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsX()), dtype=np.float32)
+        memcpy(&result[0], x, result.nbytes)
+        return result
+
+    def _getXNoCopy(self):
+        cdef float* x = self.thisptr.getX().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
+        return result
+
+    def getY(self, copy=False):
+        """
+        Get the array of y-values for the PCF histogram
+
+        :param copy: Specify whether returned array will be a copy of the calculated data or not
+        :type copy: bool
+        :return: bin centers of y-dimension of histogram
+        :rtype: np.ndarray(shape=ny, dtype=np.float32)
+        """
+        if copy:
+            return self._getYCopy()
+        else:
+            return self._getYNoCopy()
+
+    def _getYCopy(self):
+        cdef float* y = self.thisptr.getY().get()
+        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsY()), dtype=np.float32)
+        memcpy(&result[0], y, result.nbytes)
+        return result
+
+    def _getYNoCopy(self):
+        cdef float* y = self.thisptr.getY().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
+        return result
+
+    def getNBinsX(self):
+        """
+        Get the number of bins in the x-dimension of histogram
+
+        :return: nx
+        :rtype: unsigned int
+        """
+        cdef unsigned int x = self.thisptr.getNBinsX()
+        return x
+
+    def getNBinsY(self):
+        """
+        Get the number of bins in the y-dimension of histogram
+
+        :return: ny
+        :rtype: unsigned int
+        """
+        cdef unsigned int y = self.thisptr.getNBinsY()
+        return y
+
 cdef class PMFXYZ:
     """
-    Freud PMFTXYZ object. Wrapper for c++ pmft.PMFTXYZ()
+    Freud PMFXYZ object. Wrapper for c++ pmft.PMFXYZ()
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`x`, :math:`y`, :math:`z`,
@@ -317,7 +533,7 @@ cdef class PMFXYZ:
         :type refOrientations: np.ndarray(shape=(N, 4), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
-        :type refOrientations: np.ndarray(shape=(N, Nf, 4), dtype=np.float32)
+        :type faceOrientations: np.ndarray(shape=(N, Nf, 4), dtype=np.float32)
         """
         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
@@ -372,7 +588,7 @@ cdef class PMFXYZ:
         :type refOrientations: np.ndarray(shape=(N, 4), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
-        :type refOrientations: np.ndarray(shape=(N, Nf, 4), dtype=np.float32)
+        :type faceOrientations: np.ndarray(shape=(N, Nf, 4), dtype=np.float32)
         """
         self.thisptr.resetPCF()
         self.accumulate(box, refPoints, refOrientations, points, orientations, faceOrientations)

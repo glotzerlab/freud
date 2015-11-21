@@ -64,26 +64,13 @@ class PMFXY2D
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void accumulate(vec3<float> *ref_points,
+        void accumulate(trajectory::Box& box,
+                        vec3<float> *ref_points,
                         float *ref_orientations,
                         unsigned int Nref,
                         vec3<float> *points,
                         float *orientations,
                         unsigned int Np);
-
-        // //! Python wrapper for accumulate
-        // void accumulatePy(trajectory::Box& box,
-        //                   boost::python::numeric::array ref_points,
-        //                   boost::python::numeric::array ref_orientations,
-        //                   boost::python::numeric::array points,
-        //                   boost::python::numeric::array orientations);
-
-        // //! Python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array ref_points,
-        //                boost::python::numeric::array ref_orientations,
-        //                boost::python::numeric::array points,
-        //                boost::python::numeric::array orientations);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -107,19 +94,15 @@ class PMFXY2D
         // //! Python wrapper for getPCF() (returns a copy)
         // boost::python::numeric::array getPCFPy();
 
-        // //! Python wrapper for getX() (returns a copy)
-        // boost::python::numeric::array getXPy()
-        //     {
-        //     float *arr = m_x_array.get();
-        //     return num_util::makeNum(arr, m_nbins_x);
-        //     }
+        unsigned int getNBinsX()
+            {
+            return m_nbins_x;
+            }
 
-        // //! Python wrapper for getY() (returns a copy)
-        // boost::python::numeric::array getYPy()
-        //     {
-        //     float *arr = m_y_array.get();
-        //     return num_util::makeNum(arr, m_nbins_y);
-        //     }
+        unsigned int getNBinsY()
+            {
+            return m_nbins_y;
+            }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in

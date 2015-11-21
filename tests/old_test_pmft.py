@@ -1,12 +1,11 @@
 import numpy
 import numpy.testing as npt
-from freud import parallel, trajectory, pmft
+from freud import trajectory, pmft
 import unittest
 
 class TestBins(unittest.TestCase):
     # this just tests from pmftXYZ but might want to add in others...
     def test_generateBins(self):
-        # parallel.setNumThreads(1)
         maxX = 5.23
         nbinsX = 100
         maxY = 5.23

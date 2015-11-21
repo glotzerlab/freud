@@ -26,6 +26,26 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
         unsigned int getNBinsT1()
         unsigned int getNBinsT2()
 
+cdef extern from "PMFXY2D.h" namespace "freud::pmft":
+    cdef cppclass PMFXY2D:
+        PMFXY2D(float, unsigned int, unsigned int, unsigned int)
+
+        const trajectory.Box& getBox() const
+        void resetPCF()
+        void accumulate(trajectory.Box&,
+                        vec3[float]*,
+                        float*,
+                        unsigned int,
+                        vec3[float]*,
+                        float*,
+                        unsigned int) nogil
+        void reducePCF()
+        shared_array[unsigned int] getPCF()
+        shared_array[float] getX()
+        shared_array[float] getY()
+        unsigned int getNBinsX()
+        unsigned int getNBinsY()
+
 cdef extern from "PMFXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFXYZ:
         PMFXYZ(float, float, float, unsigned int, unsigned int, unsigned int)
