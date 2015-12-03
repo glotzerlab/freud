@@ -191,6 +191,34 @@ class Box
             return (delta + ghost_width)/(m_L + float(2.0)*ghost_width);
             }
 
+        //! Python wrapper for makeFraction()
+        //! ONLY for ghost_width = (0,0,0)
+        boost::python::numeric::array makeFractionPy(boost::python::numeric::array v)
+            {
+            num_util::check_type(v, NPY_FLOAT);
+            num_util::check_rank(v, 1);
+
+            // validate that the 2nd dimension is only 3
+            num_util::check_dim(v, 0, 3);
+
+            // get the raw data pointers and call makeFraction()
+            vec3<float>* v_raw = (vec3<float>*) num_util::data(v);
+            vec3<float> frac = makeFraction(*v_raw);
+
+            // put this in a python-friendly format
+            boost::shared_array<float> frac_array = boost::shared_array<float>(new float[3]);
+            memset((void*)frac_array.get(), 0, sizeof(float)*3);
+            frac_array[0] = frac.x;
+            frac_array[1] = frac.y;
+            frac_array[2] = frac.z;
+            if (m_2d)
+                {
+                frac_array[2] = 0.0;
+                }
+            float *arr = frac_array.get();
+            return num_util::makeNum(arr, 3);
+            }
+
         //! Convert fractional coordinates into real coordinates
         /*! \param f Fractional coordinates between 0 and 1 within parallelpipedal box
             \return A vector inside the box corresponding to f
@@ -452,6 +480,26 @@ class Box
             return vec3<float>(0.0,0.0,0.0);
             }
 
+        //! Python wrapper for getLatticeVector()
+        boost::python::numeric::array getLatticeVectorPy(unsigned int i)
+            {
+            vec3<float> v =  getLatticeVector(i);
+
+            // put this in a python-friendly format
+            boost::shared_array<float> v_array = boost::shared_array<float>(new float[3]);
+            memset((void*)v_array.get(), 0, sizeof(float)*3);
+            v_array[0] = v.x;
+            v_array[1] = v.y;
+            v_array[2] = v.z;
+            if (m_2d)
+                {
+                v_array[2] = 0.0;
+                }
+            float *arr = v_array.get();
+            return num_util::makeNum(arr, 3);
+            }
+
+
         uchar3 getPeriodic() const
             {
             return m_periodic;
@@ -487,5 +535,3 @@ void export_trajectory();
 }; };
 
 #endif // _TRAJECTORY_H__
-
-
