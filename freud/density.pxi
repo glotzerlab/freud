@@ -73,9 +73,17 @@ cdef class FloatCF:
         if refValues.ndim != 1 or values.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_points;
+        if refPoints is points:
+            l_points = l_refPoints;
+        else:
+            l_points = np.ascontiguousarray(points.flatten())
         cdef np.ndarray[float, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
-        cdef np.ndarray[float, ndim=1] l_values = np.ascontiguousarray(values.flatten())
+        cdef np.ndarray[float, ndim=1] l_values
+        if values is refValues:
+            l_values = l_refValues
+        else:
+            l_values = np.ascontiguousarray(values.flatten())
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -217,9 +225,17 @@ cdef class ComplexCF:
         if refValues.ndim != 1 or values.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_points;
+        if refPoints is points:
+            l_points = l_refPoints;
+        else:
+            l_points = np.ascontiguousarray(points.flatten())
         cdef np.ndarray[np.complex64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
-        cdef np.ndarray[np.complex64_t, ndim=1] l_values = np.ascontiguousarray(values.flatten())
+        cdef np.ndarray[np.complex64_t, ndim=1] l_values
+        if values is refValues:
+            l_values = l_refValues
+        else:
+            l_values = np.ascontiguousarray(values.flatten())
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
