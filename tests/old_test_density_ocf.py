@@ -35,6 +35,7 @@ class TestOCF(unittest.TestCase):
 
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
+        # first bin is bad
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
 
     def test_random_point_without_cell_list(self):
@@ -51,6 +52,7 @@ class TestOCF(unittest.TestCase):
 
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
+        # first bin is bad
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
 
     def test_value_point_with_cell_list(self):

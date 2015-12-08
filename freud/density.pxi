@@ -82,23 +82,11 @@ cdef class FloatCF:
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)
 
-    def getRDF(self, copy=False):
+    def getRDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
         :rtype: np.float32
         """
-        if copy:
-            return self._getRDFCopy()
-        else:
-            return self._getRDFNoCopy()
-
-    def _getRDFCopy(self):
-        cdef float *rdf = self.thisptr.getRDF().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.float32)
-        memcpy(&result[0], rdf, result.nbytes)
-        return result
-
-    def _getRDFNoCopy(self):
         cdef float *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
