@@ -141,81 +141,39 @@ cdef class PMFTR12:
         memcpy(&result[0], pcf, result.nbytes)
         return result
 
-    def getR(self, copy=False):
+    def getR(self):
         """
         Get the array of r-values for the PCF histogram
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: bin centers of r-dimension of histogram
         :rtype: np.ndarray(shape=nr, dtype=np.float32)
         """
-        if copy:
-            return self._getRCopy()
-        else:
-            return self._getRNoCopy()
-
-    def _getRCopy(self):
-        cdef float* r = self.thisptr.getR().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsR()), dtype=np.float32)
-        memcpy(&result[0], r, result.nbytes)
-        return result
-
-    def _getRNoCopy(self):
         cdef float* r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
         return result
 
-    def getT1(self, copy=False):
+    def getT1(self):
         """
         Get the array of T1-values for the PCF histogram
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: bin centers of T1-dimension of histogram
         :rtype: np.ndarray(shape=nT1, dtype=np.float32)
         """
-        if copy:
-            return self._getT1Copy()
-        else:
-            return self._getT1NoCopy()
-
-    def _getT1Copy(self):
-        cdef float* T1 = self.thisptr.getT1().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsT1()), dtype=np.float32)
-        memcpy(&result[0], T1, result.nbytes)
-        return result
-
-    def _getT1NoCopy(self):
         cdef float* T1 = self.thisptr.getT1().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsT1()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>T1)
         return result
 
-    def getT2(self, copy=False):
+    def getT2(self):
         """
         Get the array of T2-values for the PCF histogram
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: bin centers of T2-dimension of histogram
         :rtype: np.ndarray(shape=nT2, dtype=np.float32)
         """
-        if copy:
-            return self._getT2Copy()
-        else:
-            return self._getT2NoCopy()
-
-    def _getT2Copy(self):
-        cdef float* T2 = self.thisptr.getT2().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsT2()), dtype=np.float32)
-        memcpy(&result[0], T2, result.nbytes)
-        return result
-
-    def _getT2NoCopy(self):
         cdef float* T2 = self.thisptr.getT2().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsT2()
@@ -364,29 +322,13 @@ cdef class PMFXY2D:
         """
         self.thisptr.reducePCF()
 
-    def getPCF(self, copy=False):
+    def getPCF(self):
         """
         Get the positional correlation function.
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: PCF
         :rtype: np.ndarray(shape=(Ny, Nx), dtype=np.float32)
         """
-        if copy:
-            return self._getPCFCopy()
-        else:
-            return self._getPCFNoCopy()
-
-    def _getPCFCopy(self):
-        cdef unsigned int* pcf = self.thisptr.getPCF().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsY(), self.thisptr.getNBinsX()), dtype=np.int32)
-        memcpy(&result[0], pcf, result.nbytes)
-        arrayShape = (self.thisptr.getNBinsY(), self.thisptr.getNBinsX())
-        pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
-        return result
-
-    def _getPCFNoCopy(self):
         cdef unsigned int* pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
@@ -394,54 +336,27 @@ cdef class PMFXY2D:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>pcf)
         return result
 
-    def getX(self, copy=False):
+    def getX(self):
         """
         Get the array of x-values for the PCF histogram
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: bin centers of x-dimension of histogram
         :rtype: np.ndarray(shape=nx, dtype=np.float32)
         """
-        if copy:
-            return self._getXCopy()
-        else:
-            return self._getXNoCopy()
-
-    def _getXCopy(self):
-        cdef float* x = self.thisptr.getX().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsX()), dtype=np.float32)
-        memcpy(&result[0], x, result.nbytes)
-        return result
-
-    def _getXNoCopy(self):
         cdef float* x = self.thisptr.getX().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
         return result
 
-    def getY(self, copy=False):
+    def getY(self):
         """
         Get the array of y-values for the PCF histogram
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
+
         :return: bin centers of y-dimension of histogram
         :rtype: np.ndarray(shape=ny, dtype=np.float32)
         """
-        if copy:
-            return self._getYCopy()
-        else:
-            return self._getYNoCopy()
-
-    def _getYCopy(self):
-        cdef float* y = self.thisptr.getY().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsY()), dtype=np.float32)
-        memcpy(&result[0], y, result.nbytes)
-        return result
-
-    def _getYNoCopy(self):
         cdef float* y = self.thisptr.getY().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
@@ -600,29 +515,13 @@ cdef class PMFXYZ:
         """
         self.thisptr.reducePCF()
 
-    def getPCF(self, copy=False):
+    def getPCF(self):
         """
         Get the positional correlation function.
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: PCF
         :rtype: np.ndarray(shape=(Nz, Ny, Nx), dtype=np.float32)
         """
-        if copy:
-            return self._getPCFCopy()
-        else:
-            return self._getPCFNoCopy()
-
-    def _getPCFCopy(self):
-        cdef unsigned int* pcf = self.thisptr.getPCF().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsZ(), self.thisptr.getNBinsY(), self.thisptr.getNBinsX()), dtype=np.int32)
-        memcpy(&result[0], pcf, result.nbytes)
-        arrayShape = (self.thispth.getNBinsZ(), self.thisptr.getNBinsY(), self.thisptr.getNBinsX())
-        pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
-        return result
-
-    def _getPCFNoCopy(self):
         cdef unsigned int* pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsZ()
@@ -631,81 +530,39 @@ cdef class PMFXYZ:
         cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>pcf)
         return result
 
-    def getX(self, copy=False):
+    def getX(self):
         """
         Get the array of x-values for the PCF histogram
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: bin centers of x-dimension of histogram
         :rtype: np.ndarray(shape=nx, dtype=np.float32)
         """
-        if copy:
-            return self._getXCopy()
-        else:
-            return self._getXNoCopy()
-
-    def _getXCopy(self):
-        cdef float* x = self.thisptr.getX().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsX()), dtype=np.float32)
-        memcpy(&result[0], x, result.nbytes)
-        return result
-
-    def _getXNoCopy(self):
         cdef float* x = self.thisptr.getX().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
         return result
 
-    def getY(self, copy=False):
+    def getY(self):
         """
         Get the array of y-values for the PCF histogram
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: bin centers of y-dimension of histogram
         :rtype: np.ndarray(shape=ny, dtype=np.float32)
         """
-        if copy:
-            return self._getYCopy()
-        else:
-            return self._getYNoCopy()
-
-    def _getYCopy(self):
-        cdef float* y = self.thisptr.getY().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsY()), dtype=np.float32)
-        memcpy(&result[0], y, result.nbytes)
-        return result
-
-    def _getYNoCopy(self):
         cdef float* y = self.thisptr.getY().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
         return result
 
-    def getZ(self, copy=False):
+    def getZ(self):
         """
         Get the array of z-values for the PCF histogram
 
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: bin centers of z-dimension of histogram
         :rtype: np.ndarray(shape=nz, dtype=np.float32)
         """
-        if copy:
-            return self._getZCopy()
-        else:
-            return self._getZNoCopy()
-
-    def _getZCopy(self):
-        cdef float* z = self.thisptr.getZ().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsZ()), dtype=np.float32)
-        memcpy(&result[0], z, result.nbytes)
-        return result
-
-    def _getZNoCopy(self):
         cdef float* z = self.thisptr.getZ().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsZ()

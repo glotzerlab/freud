@@ -441,25 +441,13 @@ cdef class DCDLoader:
         """
         return self.thisptr.getTimeStep()
 
-    def getPoints(self, copy=False):
+    def getPoints(self):
         """
         Access the points read by the last step.
 
         :return: points from the previous timestep
         :rtype: np.ndarray(shape=[N, 3], dtype=np.float32)
         """
-        if copy:
-            return self._getPointsCopy()
-        else:
-            return self._getPointsNoCopy()
-
-    def _getPointsCopy(self):
-        cdef float *points = self.thisptr.getPoints().get()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.zeros(shape=(self.thisptr.getNumParticles()), dtype=np.float32)
-        memcpy(&result[0], points, result.nbytes)
-        return result
-
-    def _getPointsNoCopy(self):
         cdef float *points = self.thisptr.getPoints().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()

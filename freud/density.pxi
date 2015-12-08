@@ -133,50 +133,22 @@ cdef class FloatCF:
         """
         self.thisptr.reduceCorrelationFunction()
 
-    def getCounts(self, copy=False):
+    def getCounts(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: counts of each histogram bin
         :rtype: np.uint32
         """
-        if copy:
-            return self._getCountsCopy()
-        else:
-            return self._getCountsNoCopy()
-
-    def _getCountsCopy(self):
-        cdef unsigned int *counts = self.thisptr.getCounts().get()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.uint32)
-        memcpy(&result[0], counts, result.nbytes)
-        return result
-
-    def _getCountsNoCopy(self):
         cdef unsigned int *counts = self.thisptr.getCounts().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>counts)
         return result
 
-    def getR(self, copy=False):
+    def getR(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: values of bin centers
         :rtype: np.float32
         """
-        if copy:
-            return self._getRCopy()
-        else:
-            return self._getRNoCopy()
-
-    def _getRCopy(self):
-        cdef float *r = self.thisptr.getR().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.float32)
-        memcpy(&result[0], r, result.nbytes)
-        return result
-
-    def _getRNoCopy(self):
         cdef float *r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
@@ -254,25 +226,11 @@ cdef class ComplexCF:
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)
 
-    def getRDF(self, copy=False):
+    def getRDF(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: expected (average) product of all values at a given radial distance
         :rtype: np.complex64
         """
-        if copy:
-            return self._getRDFCopy()
-        else:
-            return self._getRDFNoCopy()
-
-    def _getRDFCopy(self):
-        cdef np.complex64_t *rdf = self.thisptr.getRDF().get()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.complex64)
-        memcpy(&result[0], rdf, result.nbytes)
-        return result
-
-    def _getRDFNoCopy(self):
         cdef np.complex64_t *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
@@ -317,50 +275,22 @@ cdef class ComplexCF:
         """
         self.thisptr.reduceCorrelationFunction()
 
-    def getCounts(self, copy=False):
+    def getCounts(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: counts of each histogram bin
         :rtype: np.uint32
         """
-        if copy:
-            return self._getCountsCopy()
-        else:
-            return self._getCountsNoCopy()
-
-    def _getCountsCopy(self):
-        cdef unsigned int *counts = self.thisptr.getCounts().get()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.uint32)
-        memcpy(&result[0], counts, result.nbytes)
-        return result
-
-    def _getCountsNoCopy(self):
         cdef unsigned int *counts = self.thisptr.getCounts().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>counts)
         return result
 
-    def getR(self, copy=False):
+    def getR(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: values of bin centers
         :rtype: np.float32
         """
-        if copy:
-            return self._getRCopy()
-        else:
-            return self._getRNoCopy()
-
-    def _getRCopy(self):
-        cdef float *r = self.thisptr.getR().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.float32)
-        memcpy(&result[0], r, result.nbytes)
-        return result
-
-    def _getRNoCopy(self):
         cdef float *r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
@@ -435,36 +365,11 @@ cdef class GaussianDensity:
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
 
-    def getGaussianDensity(self, copy=False):
+    def getGaussianDensity(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: Image (grid) with values of gaussian
         :rtype: np.float32
         """
-        if copy:
-            result = self._getGaussianDensityCopy()
-        else:
-            result = self._getGaussianDensityNoCopy()
-        cdef _trajectory.Box l_box = self.thisptr.getBox()
-        if l_box.is2D():
-            arrayShape = (self.thisptr.getWidthY(), self.thisptr.getWidthX())
-        else:
-            arrayShape = (self.thispth.getWidthZ(), self.thisptr.getWidthY(), self.thisptr.getWidthX())
-        pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
-        return pyResult
-
-    def _getGaussianDensityCopy(self):
-        cdef float* density = self.thisptr.getDensity().get()
-        cdef _trajectory.Box l_box = self.thisptr.getBox()
-        arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
-        if not l_box.is2D():
-            arraySize *= self.thispth.getWidthZ()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=arraySize, dtype=np.float32)
-        memcpy(&result[0], density, result.nbytes)
-        return result
-
-    def _getGaussianDensityNoCopy(self):
         cdef float *density = self.thisptr.getDensity().get()
         cdef np.npy_intp nbins[1]
         arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
@@ -473,7 +378,12 @@ cdef class GaussianDensity:
             arraySize *= self.thispth.getWidthZ()
         nbins[0] = <np.npy_intp>arraySize
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>density)
-        return result
+        if l_box.is2D():
+            arrayShape = (self.thisptr.getWidthY(), self.thisptr.getWidthX())
+        else:
+            arrayShape = (self.thispth.getWidthZ(), self.thisptr.getWidthY(), self.thisptr.getWidthX())
+        pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
+        return pyResult
 
     def resetDensity(self):
         """
@@ -549,50 +459,22 @@ cdef class LocalDensity:
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>&l_refPoints[0], nRef, <vec3[float]*>&l_points[0], nP)
 
-    def getDensity(self, copy=False):
+    def getDensity(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: Density array for each particle
         :rtype: np.float32
         """
-        if copy:
-            return self._getDensityCopy()
-        else:
-            return self._getDensityNoCopy()
-
-    def _getDensityCopy(self):
-        cdef float *density = self.thisptr.getDensity().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNRef()), dtype=np.float32)
-        memcpy(&result[0], density, result.nbytes)
-        return result
-
-    def _getDensityNoCopy(self):
         cdef float *density = self.thisptr.getDensity().get()
         cdef np.npy_intp nref[1]
         nref[0] = <np.npy_intp>self.thisptr.getNRef()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nref, np.NPY_FLOAT32, <void*>density)
         return result
 
-    def getNumNeighbors(self, copy=False):
+    def getNumNeighbors(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: Density array for each particle
         :rtype: np.float32
         """
-        if copy:
-            return self._getNumNeighborsCopy()
-        else:
-            return self._getNumNeighborsNoCopy()
-
-    def _getNumNeighborsCopy(self):
-        cdef float *neighbors = self.thisptr.getNumNeighbors().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNRef()), dtype=np.float32)
-        memcpy(&result[0], neighbors, result.nbytes)
-        return result
-
-    def _getNumNeighborsNoCopy(self):
         cdef float *neighbors = self.thisptr.getNumNeighbors().get()
         cdef np.npy_intp nref[1]
         nref[0] = <np.npy_intp>self.thisptr.getNRef()
@@ -685,75 +567,33 @@ cdef class RDF:
         """
         self.thisptr.reduceRDF()
 
-    def getRDF(self, copy=False):
+    def getRDF(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: histogram of rdf values
         :rtype: np.float32
         """
-        if copy:
-            return self._getRDFCopy()
-        else:
-            return self._getRDFNoCopy()
-
-    def _getRDFCopy(self):
-        cdef float *rdf = self.thisptr.getRDF().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.float32)
-        memcpy(&result[0], rdf, result.nbytes)
-        return result
-
-    def _getRDFNoCopy(self):
         cdef float *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rdf)
         return result
 
-    def getR(self, copy=False):
+    def getR(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: values of the histogram bin centers
         :rtype: np.float32
         """
-        if copy:
-            return self._getRCopy()
-        else:
-            return self._getRNoCopy()
-
-    def _getRCopy(self):
-        cdef float *r = self.thisptr.getR().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.float32)
-        memcpy(&result[0], r, result.nbytes)
-        return result
-
-    def _getRNoCopy(self):
         cdef float *r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
         return result
 
-    def getNr(self, copy=False):
+    def getNr(self):
         """
-        :param copy: Specify whether returned array will be a copy of the calculated data or not
-        :type copy: bool
         :return: histogram of cumulative rdf values
         :rtype: np.float32
         """
-        if copy:
-            return self._getNrCopy()
-        else:
-            return self._getNrNoCopy()
-
-    def _getNrCopy(self):
-        cdef float *Nr = self.thisptr.getNr().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBins()), dtype=np.float32)
-        memcpy(&result[0], Nr, result.nbytes)
-        return result
-
-    def _getNrNoCopy(self):
         cdef float *Nr = self.thisptr.getNr().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
