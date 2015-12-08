@@ -273,7 +273,7 @@ cdef class Box:
         :rtype: list[float, float, float]
         """
         cdef vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
-        cdef vec3[float] resultVec = self.thisptr.makeCoordinates(fRaw)
+        cdef vec3[float] resultVec = self.thisptr.makeCoordinates(<const vec3[float]&>fRaw)
         # check on this
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
@@ -302,7 +302,7 @@ cdef class Box:
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
-    def makeCoordinates(self, vec):
+    def makeCoordinates(self, f):
         """
         Convert fractional coordinates into real coordinates
 
@@ -310,8 +310,34 @@ cdef class Box:
         :type f: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: A vector inside the box corresponding to f
         """
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(f.flatten())
         cdef vec3[float] result = self.thisptr.makeCoordinates(<const vec3[float]&>l_vec[0])
+        return [result.x, result.y, result.z]
+
+    def makeFraction(self, vec):
+        """
+        Convert fractional coordinates into real coordinates
+
+        :param vec: Coordinates within parallelpipedal box
+        :type vec: numpy.ndarray([x, y, z], dtype=numpy.float32)
+        :return: Fractional vector inside the box corresponding to f
+        """
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef vec3[float] result = self.thisptr.makeFraction(<const vec3[float]&>l_vec[0])
+        return [result.x, result.y, result.z]
+
+    def getLatticeVector(self, i):
+        """
+        Get the lattice vector with index i
+
+        :param i: Index (0<=i<d) of the lattice vector, where d is dimension (2 or 3)
+        :type i: unsigned int
+        :return: lattice vector with index i
+        """
+        cdef unsigned int index = i
+        cdef vec3[float] result = self.thisptr.getLatticeVector(i)
+        if self.thisptr.is2D():
+            result.z = 0.0
         return [result.x, result.y, result.z]
 
     ## Enable pickling of internal classes

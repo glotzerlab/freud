@@ -28,7 +28,9 @@ cdef extern from "trajectory.h" namespace "freud::trajectory":
         float getTiltFactorYZ() const
 
         float getVolume() const
-        vec3[float] makeCoordinates(const vec3[float]&)
+        vec3[float] makeCoordinates(const vec3[float]&) const
+        vec3[float] makeFraction(const vec3[float]&) const
+        vec3[float] getLatticeVector(unsigned int i) const
         vec3[float] wrap(vec3[float]&)
 
 cdef extern from "DCDLoader.h" namespace "freud::trajectory":
