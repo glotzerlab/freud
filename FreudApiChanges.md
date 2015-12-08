@@ -69,6 +69,8 @@ Set a standard for how verbose a function call should be:
     freud.locality.BondOrderDiagram()
     freud.locality.BOD()
 
+SphericalHarmonicOrderParameter is the worst offender
+
 # Allow for single position, orientation args
 
 While all the code handles refPoints and points differently (which we probably need a new terminology for this too),
@@ -81,7 +83,8 @@ most users will probably want to check the positions against themselves, so we s
 
 # Change getFunction() Behavior
 
-Currently reduce is called for each get, we should consider a switch that only reduces, etc. if necessary
+Currently reduce is called for each get, we should consider a switch that only reduces, etc. if necessary. The current
+construction also prevents any python changes being back-populated to C++, for better or worse
 
 # Determine best way to return arrays
 
