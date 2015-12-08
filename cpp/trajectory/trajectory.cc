@@ -34,6 +34,8 @@ void export_trajectory()
         .def("getVolume", &Box::getVolume)
         .def("getCoordinates", &Box::getCoordinatesPy)
         .def("wrap", &Box::wrapPy)
+        .def("getLatticeVector", &Box::getLatticeVectorPy)
+        .def("makeFraction", &Box::makeFractionPy)
         .enable_pickling()
         ;
     export_dcdloader();
