@@ -13,7 +13,6 @@
 #include "VectorMath.h"
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -35,39 +34,39 @@ inline int compareInts(const void * a, const void * b)
         }
     }
 
-Bootstrap::Bootstrap(const unsigned int nBootstrap, boost::python::numeric::array data_array)
-    : m_nBootstrap(nBootstrap)
-    {
+// Bootstrap::Bootstrap(const unsigned int nBootstrap, boost::python::numeric::array data_array)
+//     : m_nBootstrap(nBootstrap)
+//     {
 
-    num_util::check_type(data_array, NPY_UINT);
-    num_util::check_rank(data_array, 1);
-    m_arrSize = num_util::shape(data_array)[0];
-    unsigned int* data_array_raw = (unsigned int*) num_util::data(data_array);
+//     num_util::check_type(data_array, NPY_UINT);
+//     num_util::check_rank(data_array, 1);
+//     m_arrSize = num_util::shape(data_array)[0];
+//     unsigned int* data_array_raw = (unsigned int*) num_util::data(data_array);
 
-    m_bootstrap_array = boost::shared_array<unsigned int>(new unsigned int[m_nBootstrap * m_arrSize]);
-    memset((void*)m_bootstrap_array.get(), 0, sizeof(unsigned int)*m_nBootstrap * m_arrSize);
+//     m_bootstrap_array = boost::shared_array<unsigned int>(new unsigned int[m_nBootstrap * m_arrSize]);
+//     memset((void*)m_bootstrap_array.get(), 0, sizeof(unsigned int)*m_nBootstrap * m_arrSize);
 
-    m_avg_array = boost::shared_array<float>(new float[m_arrSize]);
-    memset((void*)m_avg_array.get(), 0, sizeof(float)*m_arrSize);
+//     m_avg_array = boost::shared_array<float>(new float[m_arrSize]);
+//     memset((void*)m_avg_array.get(), 0, sizeof(float)*m_arrSize);
 
-    m_std_array = boost::shared_array<float>(new float[m_arrSize]);
-    memset((void*)m_std_array.get(), 0, sizeof(float)*m_arrSize);
+//     m_std_array = boost::shared_array<float>(new float[m_arrSize]);
+//     memset((void*)m_std_array.get(), 0, sizeof(float)*m_arrSize);
 
-    m_err_array = boost::shared_array<float>(new float[m_arrSize]);
-    memset((void*)m_err_array.get(), 0, sizeof(float)*m_arrSize);
+//     m_err_array = boost::shared_array<float>(new float[m_arrSize]);
+//     memset((void*)m_err_array.get(), 0, sizeof(float)*m_arrSize);
 
-    m_data_array = new std::vector<unsigned int>(m_arrSize);
-    m_cum_array = new std::vector<unsigned int>(m_arrSize);
-    // populate the arrays; could be done with a memcpy for m_data_array, but m_cum_array needs the for loop
-    (*m_data_array)[0] = (unsigned int) data_array_raw[0];
-    (*m_cum_array)[0] = (unsigned int) data_array_raw[0];
-    for (unsigned int i = 1; i < m_arrSize; i++)
-        {
-        (*m_data_array)[i] = (unsigned int) data_array_raw[i];
-        (*m_cum_array)[i] = (*m_cum_array)[i-1] + (unsigned int) data_array_raw[i];
-        }
-    m_nPoints = (*m_cum_array)[m_arrSize-1];
-    }
+//     m_data_array = new std::vector<unsigned int>(m_arrSize);
+//     m_cum_array = new std::vector<unsigned int>(m_arrSize);
+//     // populate the arrays; could be done with a memcpy for m_data_array, but m_cum_array needs the for loop
+//     (*m_data_array)[0] = (unsigned int) data_array_raw[0];
+//     (*m_cum_array)[0] = (unsigned int) data_array_raw[0];
+//     for (unsigned int i = 1; i < m_arrSize; i++)
+//         {
+//         (*m_data_array)[i] = (unsigned int) data_array_raw[i];
+//         (*m_cum_array)[i] = (*m_cum_array)[i-1] + (unsigned int) data_array_raw[i];
+//         }
+//     m_nPoints = (*m_cum_array)[m_arrSize-1];
+//     }
 
 Bootstrap::~Bootstrap()
     {
@@ -163,26 +162,26 @@ void Bootstrap::compute()
                      m_cum_array);
     }
 
-void Bootstrap::computePy()
-    {
-    // unlike all other freud functions, this one takes no arguments as the size of the arrays can't change between
-    // creation and compute
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        compute();
-        }
-    }
+// void Bootstrap::computePy()
+//     {
+//     // unlike all other freud functions, this one takes no arguments as the size of the arrays can't change between
+//     // creation and compute
+//         // compute with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         compute();
+//         }
+//     }
 
-void export_Bootstrap()
-    {
-    class_<Bootstrap>("Bootstrap", init<unsigned int, boost::python::numeric::array>())
-        .def("compute", &Bootstrap::computePy)
-        .def("getBootstrap", &Bootstrap::getBootstrapPy)
-        .def("getAVG", &Bootstrap::getAVGPy)
-        .def("getSTD", &Bootstrap::getSTDPy)
-        .def("getERR", &Bootstrap::getERRPy)
-        ;
-    }
+// void export_Bootstrap()
+//     {
+//     class_<Bootstrap>("Bootstrap", init<unsigned int, boost::python::numeric::array>())
+//         .def("compute", &Bootstrap::computePy)
+//         .def("getBootstrap", &Bootstrap::getBootstrapPy)
+//         .def("getAVG", &Bootstrap::getAVGPy)
+//         .def("getSTD", &Bootstrap::getSTDPy)
+//         .def("getERR", &Bootstrap::getERRPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::bootstrap

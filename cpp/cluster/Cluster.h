@@ -1,13 +1,12 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 #include <vector>
 #include <set>
+#include <stdint.h>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #ifndef _CLUSTER_H__
@@ -73,14 +72,14 @@ class Cluster
         void computeClusters(const vec3<float> *points,
                              unsigned int Np);
 
-        //! Python wrapper for computePointClusters
-        void computeClustersPy(boost::python::numeric::array points);
+        // //! Python wrapper for computePointClusters
+        // void computeClustersPy(boost::python::numeric::array points);
 
         //! Compute clusters with key membership
         void computeClusterMembership(const unsigned int *keys);
 
-        //! Python wrapper for computeClusterMembership
-        void computeClusterMembershipPy(boost::python::numeric::array keys);
+        // //! Python wrapper for computeClusterMembership
+        // void computeClusterMembershipPy(boost::python::numeric::array keys);
 
         //! Count the number of clusters found in the last call to compute()
         unsigned int getNumClusters()
@@ -94,15 +93,15 @@ class Cluster
             return m_cluster_idx;
             }
 
-        //! Python wrapper for getClusterIdx() (returns a copy)
-        boost::python::numeric::array getClusterIdxPy()
-            {
-            unsigned int *arr = m_cluster_idx.get();
-            return num_util::makeNum(arr, m_num_particles);
-            }
+        // //! Python wrapper for getClusterIdx() (returns a copy)
+        // boost::python::numeric::array getClusterIdxPy()
+        //     {
+        //     unsigned int *arr = m_cluster_idx.get();
+        //     return num_util::makeNum(arr, m_num_particles);
+        //     }
 
-        //!  Returns the cluster keys last determined by computeClusterKeys, in python format
-        boost::python::object getClusterKeysPy();
+        // //!  Returns the cluster keys last determined by computeClusterKeys, in python format
+        // boost::python::object getClusterKeysPy();
 
         //! Returns the cluster keys last determined by computeClusterKeys
         const std::vector< std::set<unsigned int> >& getClusterKeys()
@@ -120,11 +119,6 @@ class Cluster
         std::vector< std::set<unsigned int> > m_cluster_keys;    //!< List of keys in each cluster
 
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_Cluster();
 
 }; }; // end namespace freud::cluster
 

@@ -6,14 +6,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -66,26 +64,13 @@ class PMFXY2D
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void accumulate(vec3<float> *ref_points,
+        void accumulate(trajectory::Box& box,
+                        vec3<float> *ref_points,
                         float *ref_orientations,
                         unsigned int Nref,
                         vec3<float> *points,
                         float *orientations,
                         unsigned int Np);
-
-        //! Python wrapper for accumulate
-        void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations);
-
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -106,21 +91,17 @@ class PMFXY2D
             return m_y_array;
             }
 
-        //! Python wrapper for getPCF() (returns a copy)
-        boost::python::numeric::array getPCFPy();
+        // //! Python wrapper for getPCF() (returns a copy)
+        // boost::python::numeric::array getPCFPy();
 
-        //! Python wrapper for getX() (returns a copy)
-        boost::python::numeric::array getXPy()
+        unsigned int getNBinsX()
             {
-            float *arr = m_x_array.get();
-            return num_util::makeNum(arr, m_nbins_x);
+            return m_nbins_x;
             }
 
-        //! Python wrapper for getY() (returns a copy)
-        boost::python::numeric::array getYPy()
+        unsigned int getNBinsY()
             {
-            float *arr = m_y_array.get();
-            return num_util::makeNum(arr, m_nbins_y);
+            return m_nbins_y;
             }
 
     private:
@@ -138,11 +119,6 @@ class PMFXY2D
         boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
         tbb::enumerable_thread_specific<unsigned int *> m_local_pcf_array;
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_PMFXY2D();
 
 }; }; // end namespace freud::pmft
 

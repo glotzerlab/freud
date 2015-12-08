@@ -3,6 +3,10 @@ install(DIRECTORY freud
     DESTINATION .
     PATTERN "*.pyc" EXCLUDE
     PATTERN "*.pyo" EXCLUDE
+    PATTERN "*.pxd" EXCLUDE
+    PATTERN "*.cpp" EXCLUDE
+    PATTERN "*.pyx" EXCLUDE
+    PATTERN "*.pxi" EXCLUDE
     )
 
 # create a convenience target for editing .py files in IDEs

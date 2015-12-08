@@ -1,7 +1,6 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
+#include <vector>
 
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -15,7 +14,7 @@
 namespace freud { namespace voronoi {
 
 //! Locates the particles near the border of the box and computes their nearest images to pass to qhull
-/*!  
+/*!
 */
 class VoronoiBuffer
     {
@@ -29,40 +28,34 @@ class VoronoiBuffer
                 return m_box;
                 }
 
-        //! Compute the particle images  
+        //! Compute the particle images
         void compute(const float3 *points,
                      const unsigned int Np,
                      const float buff);
 
-        //!Python wrapper for compute
-        void computePy(boost::python::numeric::array points,
-                       const float buff);
+        // //!Python wrapper for compute
+        // void computePy(boost::python::numeric::array points,
+        //                const float buff);
 
-        //!Python wrapper for getDensity() (returns a copy)
-        boost::python::numeric::array getBufferParticles()
-                {
-                std::vector<float3>& buffer_parts = *m_buffer_particles;
-                std::vector<intp> dims;
-                float* b = (float*)&buffer_parts[0];
-                dims.push_back(buffer_parts.size());
-                if (m_box.is2D())
-                    dims.push_back(2);
-                else
-                    dims.push_back(3);
-                return num_util::makeNum(b, dims);
-                }
+        // //!Python wrapper for getDensity() (returns a copy)
+        // boost::python::numeric::array getBufferParticles()
+        //         {
+        //         std::vector<float3>& buffer_parts = *m_buffer_particles;
+        //         std::vector<intp> dims;
+        //         float* b = (float*)&buffer_parts[0];
+        //         dims.push_back(buffer_parts.size());
+        //         if (m_box.is2D())
+        //             dims.push_back(2);
+        //         else
+        //             dims.push_back(3);
+        //         return num_util::makeNum(b, dims);
+        //         }
     private:
         const trajectory::Box m_box;    //!< Simulation box the particles belong in
         float m_buff;                  //!< Distance from box to duplicate particles
         boost::shared_ptr< std::vector<float3> > m_buffer_particles;
     };
 
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_VoronoiBuffer();
-
 }; }; // end namespace freud::density
 
-#endif 
+#endif

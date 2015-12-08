@@ -14,3 +14,4 @@ cpp/CMakeLists.txt.orig
 cpp/module.cc.orig
 py/freud/__init__.py.orig
 py/freud/trajectory.py.orig
+doc/build/*

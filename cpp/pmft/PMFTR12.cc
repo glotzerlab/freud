@@ -13,7 +13,6 @@
 #include "VectorMath.h"
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -280,18 +279,6 @@ boost::shared_array<unsigned int> PMFTR12::getPCF()
     return m_pcf_array;
     }
 
-//! Get a reference to the PCF array
-boost::python::numeric::array PMFTR12::getPCFPy()
-    {
-    reducePCF();
-    unsigned int *arr = m_pcf_array.get();
-    std::vector<intp> dims(3);
-    dims[0] = m_nbins_T2;
-    dims[1] = m_nbins_T1;
-    dims[2] = m_nbins_r;
-    return num_util::makeNum(arr, dims);
-    }
-
 void PMFTR12::resetPCF()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
@@ -300,7 +287,8 @@ void PMFTR12::resetPCF()
         }
     }
 
-void PMFTR12::accumulate(vec3<float> *ref_points,
+void PMFTR12::accumulate(trajectory::Box& box,
+                         vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int Nref,
                          vec3<float> *points,
@@ -327,82 +315,6 @@ void PMFTR12::accumulate(vec3<float> *ref_points,
                                 points,
                                 orientations,
                                 Np));
-    }
-
-//! \internal
-/*! \brief Exposed function to python to calculate the PMF
-*/
-void PMFTR12::accumulatePy(trajectory::Box& box,
-                           boost::python::numeric::array ref_points,
-                           boost::python::numeric::array ref_orientations,
-                           boost::python::numeric::array points,
-                           boost::python::numeric::array orientations)
-    {
-    // validate input type and rank
-    m_box = box;
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_rank(ref_points, 2);
-    num_util::check_type(ref_orientations, NPY_FLOAT);
-    num_util::check_rank(ref_orientations, 1);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(orientations, NPY_FLOAT);
-    num_util::check_rank(orientations, 1);
-
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
-
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
-
-    // check the size of angles to be correct
-    num_util::check_dim(ref_orientations, 0, Nref);
-    num_util::check_dim(orientations, 0, Np);
-
-    // get the raw data pointers and compute the cell list
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    float* orientations_raw = (float*) num_util::data(orientations);
-
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        accumulate(ref_points_raw,
-                ref_orientations_raw,
-                Nref,
-                points_raw,
-                orientations_raw,
-                Np);
-        }
-    }
-
-//! \internal
-/*! \brief Exposed function to python to calculate the PMF
-*/
-void PMFTR12::computePy(trajectory::Box& box,
-                        boost::python::numeric::array ref_points,
-                        boost::python::numeric::array ref_orientations,
-                        boost::python::numeric::array points,
-                        boost::python::numeric::array orientations)
-    {
-    resetPCF();
-    accumulatePy(box, ref_points, ref_orientations, points, orientations);
-    }
-
-void export_PMFTR12()
-    {
-    class_<PMFTR12>("PMFTR12", init<float, unsigned int, unsigned int, unsigned int>())
-        .def("getBox", &PMFTR12::getBox, return_internal_reference<>())
-        .def("accumulate", &PMFTR12::accumulatePy)
-        .def("compute", &PMFTR12::computePy)
-        .def("getPCF", &PMFTR12::getPCFPy)
-        .def("resetPCF", &PMFTR12::resetPCFPy)
-        .def("getR", &PMFTR12::getRPy)
-        .def("getT1", &PMFTR12::getT1Py)
-        .def("getT2", &PMFTR12::getT2Py)
-        ;
     }
 
 }; }; // end namespace freud::pmft

@@ -6,7 +6,6 @@
 #include <boost/shared_ptr.hpp>
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file GaussianDensity.cc
     \brief Routines for computing Gaussian smeared densities from points
@@ -19,7 +18,7 @@ void VoronoiBuffer::compute(const float3 *points,
                             const float buff)
     {
     assert(points);
-    
+
     m_buffer_particles = boost::shared_ptr<std::vector<float3> >(new std::vector<float3>());
     std::vector<float3>& buffer_parts = *m_buffer_particles;
     //get the box dimensions
@@ -45,7 +44,7 @@ void VoronoiBuffer::compute(const float3 *points,
                   imgx.x = points[particle].x + i*lx + lx_2;
                   imgx.y = points[particle].y + j*ly + ly_2;
                   imgx.z = 0.0;
-                  //check to see if this image in within a 
+                  //check to see if this image in within a
                   if( (i==0 || ((imgx.x<0 && imgx.x>-buff) || (imgx.x-lx<buff && imgx.x>lx))) &&
                       (j==0 || ((imgx.y<0 && imgx.y>-buff) || (imgx.y-ly<buff && imgx.y>ly))) )
                       {
@@ -64,7 +63,7 @@ void VoronoiBuffer::compute(const float3 *points,
                   imgx.x = points[particle].x + i*lx + lx_2;
                   imgx.y = points[particle].y + j*ly + ly_2;
                   imgx.z = points[particle].z + k*lz + lz_2;
-                  //check to see if this image in within a 
+                  //check to see if this image in within a
                   if( (i==0 || ((imgx.x<0 && imgx.x>-buff) || (imgx.x-lx<buff && imgx.x>lx))) &&
                       (j==0 || ((imgx.y<0 && imgx.y>-buff) || (imgx.y-ly<buff && imgx.y>ly))) &&
                       (k==0 || ((imgx.z<0 && imgx.z>-buff) || (imgx.z-lz<buff && imgx.z>lz))) )
@@ -79,34 +78,33 @@ void VoronoiBuffer::compute(const float3 *points,
       }
     }
 
-void VoronoiBuffer::computePy(boost::python::numeric::array points, const float buff)
-    {
-    // validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void VoronoiBuffer::computePy(boost::python::numeric::array points, const float buff)
+//     {
+//     // validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers
-    float3* points_raw = (float3*) num_util::data(points);
+//     // get the raw data pointers
+//     float3* points_raw = (float3*) num_util::data(points);
 
-      // compute with the GIL released
-      {
-      util::ScopedGILRelease gil;
-      compute(points_raw, Np, buff);
-      }
-    }
+//       // compute with the GIL released
+//       {
+//       util::ScopedGILRelease gil;
+//       compute(points_raw, Np, buff);
+//       }
+//     }
 
-void export_VoronoiBuffer()
-    {
-    class_<VoronoiBuffer>("VoronoiBuffer", init<trajectory::Box&>())
-            .def("getBox", &VoronoiBuffer::getBox, return_internal_reference<>())
-            .def("compute", &VoronoiBuffer::computePy)
-            .def("getBufferParticles", &VoronoiBuffer::getBufferParticles)
-            ;
-    }
+// void export_VoronoiBuffer()
+//     {
+//     class_<VoronoiBuffer>("VoronoiBuffer", init<trajectory::Box&>())
+//             .def("getBox", &VoronoiBuffer::getBox, return_internal_reference<>())
+//             .def("compute", &VoronoiBuffer::computePy)
+//             .def("getBufferParticles", &VoronoiBuffer::getBufferParticles)
+//             ;
+//     }
 
 }; };
-

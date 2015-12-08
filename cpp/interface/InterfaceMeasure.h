@@ -1,4 +1,3 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
@@ -6,7 +5,6 @@
 
 #include "trajectory.h"
 #include "LinkCell.h"
-#include "num_util.h"
 
 #ifndef _INTERFACEMEASURE_H_
 #define _INTERFACEMEASURE_H_
@@ -48,22 +46,15 @@ class InterfaceMeasure
                              const vec3<float> *points,
                              unsigned int Np);
 
-        //! Python wrapper for compute
-        unsigned int computePy(boost::python::numeric::array ref_points,
-                             boost::python::numeric::array points);
+        // //! Python wrapper for compute
+        // unsigned int computePy(boost::python::numeric::array ref_points,
+        //                      boost::python::numeric::array points);
     private:
         trajectory::Box m_box;          //!< Simulation box the particles belong in
         float m_rcut;                   //!< Maximum distance at which a particle is considered to be in an interface
         locality::LinkCell m_lc;        //!< LinkCell to bin particles for the computation
 };
 
-/*! \internal
- *  \brief Exports all classes in this file to python
- */
-void export_InterfaceMeasure();
-
 }; }; // end namespace freud::interface
 
 #endif // _INTERFACEMEASURE_H__
-
-

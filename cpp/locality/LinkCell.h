@@ -1,11 +1,9 @@
 #include <boost/shared_array.hpp>
-#include <boost/python.hpp>
 #include <vector>
 
 #include "trajectory.h"
 #include "HOOMDMath.h"
 #include "Index1D.h"
-#include "num_util.h"
 
 #ifndef _LINKCELL_H__
 #define _LINKCELL_H__
@@ -79,19 +77,19 @@ class IteratorLinkCell
             return m_cur_idx;
             }
 
-        //! Get the next particle index in the list with python StopIteration
-        unsigned int nextPy()
-            {
-            m_cur_idx = m_cell_list[m_cur_idx];
+//         //! Get the next particle index in the list with python StopIteration
+//         unsigned int nextPy()
+//             {
+//             m_cur_idx = m_cell_list[m_cur_idx];
 
-            if (atEnd())
-                {
-                PyErr_SetNone(PyExc_StopIteration);
-                boost::python::throw_error_already_set();
-                }
+//             if (atEnd())
+//                 {
+//                 PyErr_SetNone(PyExc_StopIteration);
+//                 boost::python::throw_error_already_set();
+//                 }
 
-            return m_cur_idx;
-            }
+//             return m_cur_idx;
+//             }
 
     private:
         const unsigned int *m_cell_list;                  //!< The cell list
@@ -184,20 +182,20 @@ class LinkCell
             }
 
 
-        //! Wrapper for python to getCell (1D index)
-        unsigned int getCellPy(boost::python::numeric::array p)
-            {
-            // validate input type and rank
-            num_util::check_type(p, NPY_FLOAT);
-            num_util::check_rank(p, 1);
+        // //! Wrapper for python to getCell (1D index)
+        // unsigned int getCellPy(boost::python::numeric::array p)
+        //     {
+        //     // validate input type and rank
+        //     num_util::check_type(p, NPY_FLOAT);
+        //     num_util::check_rank(p, 1);
 
-            // validate that the 2nd dimension is only 3
-            num_util::check_size(p, 3);
+        //     // validate that the 2nd dimension is only 3
+        //     num_util::check_size(p, 3);
 
-            // get the raw data pointers and compute the cell index
-            vec3<float>* p_raw = (vec3<float>*) num_util::data(p);
-            return getCell(*p_raw);
-            }
+        //     // get the raw data pointers and compute the cell index
+        //     vec3<float>* p_raw = (vec3<float>*) num_util::data(p);
+        //     return getCell(*p_raw);
+        //     }
 
         //! Compute cell coordinates for a given position
         vec3<unsigned int> getCellCoord(const vec3<float> p) const
@@ -223,7 +221,7 @@ class LinkCell
 
         /*
         // Wrapper for python to getCellCoord (3D index)
-        uint3 getCellCoordPy(boost::python::numeric::array p)  //Untested, unsure if uint3 or vec3<unsigned int> even export gracefully to python.  
+        uint3 getCellCoordPy(boost::python::numeric::array p)  //Untested, unsure if uint3 or vec3<unsigned int> even export gracefully to python.
             {
             // validate input type and rank
             num_util::check_type(p, NPY_FLOAT);
@@ -253,20 +251,20 @@ class LinkCell
             return m_cell_neighbors[cell];
             }
 
-        //! Python wrapper for getCellNeighbors
-        boost::python::numeric::array getCellNeighborsPy(unsigned int cell)
-            {
-            unsigned int *start = &m_cell_neighbors[cell][0];
-            return num_util::makeNum(start, m_cell_neighbors[cell].size());
-            }
+        // //! Python wrapper for getCellNeighbors
+        // boost::python::numeric::array getCellNeighborsPy(unsigned int cell)
+        //     {
+        //     unsigned int *start = &m_cell_neighbors[cell][0];
+        //     return num_util::makeNum(start, m_cell_neighbors[cell].size());
+        //     }
 
         //! Compute the cell list (deprecated float3 interface)
         void computeCellList(trajectory::Box& box, const float3 *points, unsigned int Np);
         //! Compute the cell list
         void computeCellList(trajectory::Box& box, const vec3<float> *points, unsigned int Np);
 
-        //! Python wrapper for computeCellList
-        void computeCellListPy(trajectory::Box& box, boost::python::numeric::array points);
+        // //! Python wrapper for computeCellList
+        // void computeCellListPy(trajectory::Box& box, boost::python::numeric::array points);
     private:
 
         //! Rounding helper function.
@@ -286,11 +284,6 @@ class LinkCell
         //! Helper function to compute cell neighbors
         void computeCellNeighbors();
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_LinkCell();
 
 }; }; // end namespace freud::locality
 

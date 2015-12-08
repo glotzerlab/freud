@@ -11,7 +11,6 @@
 #endif
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -78,6 +77,8 @@ RDF::~RDF()
     delete m_lc;
     }
 
+//! \internal
+//! CumulativeCount class to perform a parallel reduce to get the cumulative count for each histogram bin
 class CumulativeCount
     {
     private:
@@ -120,6 +121,8 @@ class CumulativeCount
             }
     };
 
+//! \internal
+//! CombineArrays class to combine the thread-specific arrays into a single array
 class CombineArrays
     {
     private:
@@ -159,6 +162,8 @@ class CombineArrays
             }
     };
 
+//! \internal
+//! ComputeRDF class used with TBB to perform the RDF calculation
 class ComputeRDF
     {
     private:
@@ -285,27 +290,30 @@ void RDF::reduceRDF()
         }
     }
 
-//! Get a reference to the PCF array
+//! get a reference to the histogram bin centers array
+boost::shared_array<float> RDF::getR()
+    {
+    return m_r_array;
+    }
+
+//! Get a reference to the RDF histogram array
 boost::shared_array<float> RDF::getRDF()
     {
     reduceRDF();
     return m_rdf_array;
     }
 
-//! Get a reference to the PCF array
-boost::python::numeric::array RDF::getRDFPy()
+//! Get a reference to the cumulative RDF histogram array
+boost::shared_array<float> RDF::getNr()
     {
     reduceRDF();
-    float *arr = m_rdf_array.get();
-    return num_util::makeNum(arr, m_nbins);
+    return m_N_r_array;
     }
 
-//! Python wrapper for getNr() (returns a copy)
-boost::python::numeric::array RDF::getNrPy()
+//! Get number of bins
+unsigned int RDF::getNBins()
     {
-    reduceRDF();
-    float *arr = m_N_r_array.get();
-    return num_util::makeNum(arr, m_nbins);
+    return m_nbins;
     }
 
 //! \internal
@@ -321,11 +329,16 @@ void RDF::resetRDF()
     m_frame_counter = 0;
     }
 
-void RDF::accumulate(const vec3<float> *ref_points,
+//! \internal
+/*! \brief Function to accumulate the given points to the histogram in memory
+*/
+void RDF::accumulate(trajectory::Box& box,
+                     const vec3<float> *ref_points,
                      unsigned int Nref,
                      const vec3<float> *points,
                      unsigned int Np)
     {
+    m_box = box;
     m_Np = Np;
     m_Nref = Nref;
     m_lc->computeCellList(m_box, points, Np);
@@ -340,57 +353,6 @@ void RDF::accumulate(const vec3<float> *ref_points,
                                                            points,
                                                            Np));
     m_frame_counter += 1;
-    }
-
-void RDF::accumulatePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array points)
-    {
-    // validate input type and rank
-    m_box = box;
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_rank(ref_points, 2);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
-
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
-
-    // get the raw data pointers and compute the cell list
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        accumulate(ref_points_raw, Nref, points_raw, Np);
-        }
-    }
-
-//! provides interface for deprecated interface
-void RDF::computePy(trajectory::Box& box,
-                    boost::python::numeric::array ref_points,
-                    boost::python::numeric::array points)
-    {
-    resetRDF();
-    accumulatePy(box, ref_points, points);
-    }
-
-void export_RDF()
-    {
-    class_<RDF>("RDF", init<float, float>())
-        .def("getBox", &RDF::getBox, return_internal_reference<>())
-        .def("accumulate", &RDF::accumulatePy)
-        .def("compute", &RDF::computePy)
-        .def("getRDF", &RDF::getRDFPy)
-        .def("getR", &RDF::getRPy)
-        .def("getNr", &RDF::getNrPy)
-        .def("resetRDF", &RDF::resetRDFPy)
-        ;
     }
 
 }; }; // end namespace freud::density

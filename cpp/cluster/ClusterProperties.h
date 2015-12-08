@@ -1,8 +1,6 @@
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #ifndef _CLUSTER_PROPERTIES_H__
@@ -48,9 +46,9 @@ class ClusterProperties
                                const unsigned int *cluster_idx,
                                unsigned int Np);
 
-        //! Python wrapper for computeProperties
-        void computePropertiesPy(boost::python::numeric::array points,
-                                 boost::python::numeric::array cluster_idx);
+        // //! Python wrapper for computeProperties
+        // void computePropertiesPy(boost::python::numeric::array points,
+        //                          boost::python::numeric::array cluster_idx);
 
         //! Count the number of clusters found in the last call to computeProperties()
         unsigned int getNumClusters()
@@ -65,15 +63,15 @@ class ClusterProperties
             return m_cluster_com;
             }
 
-        //! Python wrapper for getClusterCOM() (returns a copy)
-        boost::python::numeric::array getClusterCOMPy()
-            {
-            float *arr = (float*)m_cluster_com.get();
-            std::vector<intp> dims(2);
-            dims[0] = m_num_clusters;
-            dims[1] = 3;
-            return num_util::makeNum(arr, dims);
-            }
+        // //! Python wrapper for getClusterCOM() (returns a copy)
+        // boost::python::numeric::array getClusterCOMPy()
+        //     {
+        //     float *arr = (float*)m_cluster_com.get();
+        //     std::vector<intp> dims(2);
+        //     dims[0] = m_num_clusters;
+        //     dims[1] = 3;
+        //     return num_util::makeNum(arr, dims);
+        //     }
 
         //! Get a reference to the last computec cluster_G
         boost::shared_array<float> getClusterG()
@@ -81,16 +79,16 @@ class ClusterProperties
             return m_cluster_G;
             }
 
-        //!  Returns the cluster G tensors computed by the last call to computeProperties
-        boost::python::object getClusterGPy()
-            {
-            float *arr = m_cluster_G.get();
-            std::vector<intp> dims(3);
-            dims[0] = m_num_clusters;
-            dims[1] = 3;
-            dims[2] = 3;
-            return num_util::makeNum(arr, dims);
-            }
+        // //!  Returns the cluster G tensors computed by the last call to computeProperties
+        // boost::python::object getClusterGPy()
+        //     {
+        //     float *arr = m_cluster_G.get();
+        //     std::vector<intp> dims(3);
+        //     dims[0] = m_num_clusters;
+        //     dims[1] = 3;
+        //     dims[2] = 3;
+        //     return num_util::makeNum(arr, dims);
+        //     }
 
         //! Get a reference to the last computed cluster size
         boost::shared_array<unsigned int> getClusterSize()
@@ -98,14 +96,14 @@ class ClusterProperties
             return m_cluster_size;
             }
 
-        //!  Returns the cluster sizes computed by the last call to computeProperties
-        boost::python::object getClusterSizePy()
-            {
-            unsigned int *arr = m_cluster_size.get();
-            std::vector<intp> dims(1);
-            dims[0] = m_num_clusters;
-            return num_util::makeNum(arr, dims);
-            }
+        // //!  Returns the cluster sizes computed by the last call to computeProperties
+        // boost::python::object getClusterSizePy()
+        //     {
+        //     unsigned int *arr = m_cluster_size.get();
+        //     std::vector<intp> dims(1);
+        //     dims[0] = m_num_clusters;
+        //     return num_util::makeNum(arr, dims);
+        //     }
 
 
     private:
@@ -116,11 +114,6 @@ class ClusterProperties
         boost::shared_array<float> m_cluster_G;      //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
         boost::shared_array<unsigned int> m_cluster_size;    //!< Size per cluster
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_ClusterProperties();
 
 }; }; // end namespace freud::cluster
 

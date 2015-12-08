@@ -6,7 +6,6 @@
 #include <complex>
 
 using namespace std;
-using namespace boost::python;
 
 namespace freud { namespace kspace {
 
@@ -277,70 +276,70 @@ void FTpolyhedron::set_params(const FTpolyhedron::param_type& params)
     m_params = params;
     }
 
-//! Helper function to build FTpolyhedron parameters
-/*  \param vert list of (x,y,z) tuples
-    \param facet list of lists of vertex indices
-    \param norm list of (x,y,z) tuples of facet normal vectors
-    \param d list of distances of facets from particle origin
-    \param area list of facet areas
-    \param volume particle volume
-*/
-poly3d_param_t make_poly3d(boost::python::list vert,
-                           boost::python::list facet,
-                           boost::python::list norm,
-                           boost::python::list d,
-                           boost::python::list area,
-                           float volume)
-    {
-    poly3d_param_t result;
-    result.volume = volume;
-    unsigned int N_vert = len(vert);
-    result.vert.resize(N_vert);
-    for (unsigned int i=0; i < N_vert; i++)
-        {
-        boost::python::tuple v = extract<boost::python::tuple>(vert[i]);
-        result.vert[i] = vec3<float>(extract<float>(v[0]), extract<float>(v[1]), extract<float>(v[2]));
-        }
+// //! Helper function to build FTpolyhedron parameters
+// /*  \param vert list of (x,y,z) tuples
+//     \param facet list of lists of vertex indices
+//     \param norm list of (x,y,z) tuples of facet normal vectors
+//     \param d list of distances of facets from particle origin
+//     \param area list of facet areas
+//     \param volume particle volume
+// */
+// poly3d_param_t make_poly3d(boost::python::list vert,
+//                            boost::python::list facet,
+//                            boost::python::list norm,
+//                            boost::python::list d,
+//                            boost::python::list area,
+//                            float volume)
+//     {
+//     poly3d_param_t result;
+//     result.volume = volume;
+//     unsigned int N_vert = len(vert);
+//     result.vert.resize(N_vert);
+//     for (unsigned int i=0; i < N_vert; i++)
+//         {
+//         boost::python::tuple v = extract<boost::python::tuple>(vert[i]);
+//         result.vert[i] = vec3<float>(extract<float>(v[0]), extract<float>(v[1]), extract<float>(v[2]));
+//         }
 
-    unsigned int N_facet = len(facet);
-    result.facet.resize(N_facet);
-    result.norm.resize(N_facet);
-    result.d.resize(N_facet);
-    result.area.resize(N_facet);
-    for (unsigned int i=0; i < N_facet; i++)
-        {
-        boost::python::list f = extract<boost::python::list>(facet[i]);
-        result.facet[i].resize(len(f));
-        for (unsigned int j=0 ; j < len(f); j++)
-            {
-            result.facet[i][j] = extract<unsigned int>(f[j]);
-            }
-        boost::python::tuple v = extract<boost::python::tuple>(norm[i]);
-        result.norm[i] = vec3<float>(extract<float>(v[0]), extract<float>(v[1]), extract<float>(v[2]));
-        result.d[i] = extract<float>(d[i]);
-        result.area[i] = extract<float>(area[i]);
-        }
+//     unsigned int N_facet = len(facet);
+//     result.facet.resize(N_facet);
+//     result.norm.resize(N_facet);
+//     result.d.resize(N_facet);
+//     result.area.resize(N_facet);
+//     for (unsigned int i=0; i < N_facet; i++)
+//         {
+//         boost::python::list f = extract<boost::python::list>(facet[i]);
+//         result.facet[i].resize(len(f));
+//         for (unsigned int j=0 ; j < len(f); j++)
+//             {
+//             result.facet[i][j] = extract<unsigned int>(f[j]);
+//             }
+//         boost::python::tuple v = extract<boost::python::tuple>(norm[i]);
+//         result.norm[i] = vec3<float>(extract<float>(v[0]), extract<float>(v[1]), extract<float>(v[2]));
+//         result.d[i] = extract<float>(d[i]);
+//         result.area[i] = extract<float>(area[i]);
+//         }
 
-    return result;
-    }
+//     return result;
+//     }
 
-void export_kspace()
-    {
-    class_<FTdelta>("FTdelta")
-        .def("compute", &FTdelta::computePy)
-        .def("getFT", &FTdelta::getFTPy)
-        .def("set_K", &FTdelta::set_K_Py)
-        .def("set_rq", &FTdelta::set_rq_Py)
-        .def("set_density", &FTdelta::set_density)
-        ;
-    class_<FTsphere, bases<FTdelta> >("FTsphere")
-        .def("set_radius", &FTsphere::set_radius)
-        ;
-    class_<FTpolyhedron, bases<FTdelta> >("FTpolyhedron")
-        .def("set_params", &FTpolyhedron::set_params)
-        ;
-    class_<poly3d_param_t>("poly3d_param");
-    def("make_poly3d", &make_poly3d);
-    }
+// void export_kspace()
+//     {
+//     class_<FTdelta>("FTdelta")
+//         .def("compute", &FTdelta::computePy)
+//         .def("getFT", &FTdelta::getFTPy)
+//         .def("set_K", &FTdelta::set_K_Py)
+//         .def("set_rq", &FTdelta::set_rq_Py)
+//         .def("set_density", &FTdelta::set_density)
+//         ;
+//     class_<FTsphere, bases<FTdelta> >("FTsphere")
+//         .def("set_radius", &FTsphere::set_radius)
+//         ;
+//     class_<FTpolyhedron, bases<FTdelta> >("FTpolyhedron")
+//         .def("set_params", &FTpolyhedron::set_params)
+//         ;
+//     class_<poly3d_param_t>("poly3d_param");
+//     def("make_poly3d", &make_poly3d);
+//     }
 
 }; }; // end namespace freud::kspace

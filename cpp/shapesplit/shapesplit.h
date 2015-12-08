@@ -6,11 +6,9 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "VectorMath.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -48,11 +46,11 @@ class ShapeSplit
                      const vec3<float> *split_points,
                      unsigned int Nsplit);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations,
-                       boost::python::numeric::array split_points);
+        // //! Python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array points,
+        //                boost::python::numeric::array orientations,
+        //                boost::python::numeric::array split_points);
 
         //! Get a reference to the last computed split shape
         boost::shared_array<float> getShapeSplit()
@@ -60,16 +58,16 @@ class ShapeSplit
             return m_split_array;
             }
 
-        //! Python wrapper for getShapeSplit() (returns a copy)
-        boost::python::numeric::array getShapeSplitPy()
-            {
-            float *arr = m_split_array.get();
-            std::vector<intp> dims(3);
-            dims[0] = m_Np;
-            dims[1] = m_Nsplit;
-            dims[2] = 3;
-            return num_util::makeNum(arr, dims);
-            }
+        // //! Python wrapper for getShapeSplit() (returns a copy)
+        // boost::python::numeric::array getShapeSplitPy()
+        //     {
+        //     float *arr = m_split_array.get();
+        //     std::vector<intp> dims(3);
+        //     dims[0] = m_Np;
+        //     dims[1] = m_Nsplit;
+        //     dims[2] = 3;
+        //     return num_util::makeNum(arr, dims);
+        //     }
 
         //! Get a reference to the last computed split orientations
         boost::shared_array<float> getShapeOrientations()
@@ -77,16 +75,16 @@ class ShapeSplit
             return m_orientation_array;
             }
 
-        //! Python wrapper for getShapeOrientations() (returns a copy)
-        boost::python::numeric::array getShapeOrientationsPy()
-            {
-            float *arr = m_orientation_array.get();
-            std::vector<intp> dims(3);
-            dims[0] = m_Np;
-            dims[1] = m_Nsplit;
-            dims[2] = 4;
-            return num_util::makeNum(arr, dims);
-            }
+        // //! Python wrapper for getShapeOrientations() (returns a copy)
+        // boost::python::numeric::array getShapeOrientationsPy()
+        //     {
+        //     float *arr = m_orientation_array.get();
+        //     std::vector<intp> dims(3);
+        //     dims[0] = m_Np;
+        //     dims[1] = m_Nsplit;
+        //     dims[2] = 4;
+        //     return num_util::makeNum(arr, dims);
+        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -96,11 +94,6 @@ class ShapeSplit
         boost::shared_array<float> m_split_array;
         boost::shared_array<float> m_orientation_array;
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_ShapeSplit();
 
 }; }; // end namespace freud::shapesplit
 

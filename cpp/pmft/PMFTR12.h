@@ -6,14 +6,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #ifndef _PMFTR12_H__
@@ -53,35 +51,16 @@ class PMFTR12
         //! Reset the PCF array to all zeros
         void resetPCF();
 
-        //! Python wrapper for reset method
-        void resetPCFPy()
-            {
-            resetPCF();
-            }
-
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void accumulate(vec3<float> *ref_points,
+        void accumulate(trajectory::Box& box,
+                        vec3<float> *ref_points,
                         float *ref_orientations,
                         unsigned int Nref,
                         vec3<float> *points,
                         float *orientations,
                         unsigned int Np);
-
-        //! Python wrapper for accumulate
-        void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations);
-
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -108,28 +87,19 @@ class PMFTR12
             return m_T2_array;
             }
 
-        //! Python wrapper for getPCF() (returns a copy)
-        boost::python::numeric::array getPCFPy();
-
-        //! Python wrapper for getX() (returns a copy)
-        boost::python::numeric::array getRPy()
+        unsigned int getNBinsR()
             {
-            float *arr = m_r_array.get();
-            return num_util::makeNum(arr, m_nbins_r);
+            return m_nbins_r;
             }
 
-        //! Python wrapper for getY() (returns a copy)
-        boost::python::numeric::array getT1Py()
+        unsigned int getNBinsT1()
             {
-            float *arr = m_T1_array.get();
-            return num_util::makeNum(arr, m_nbins_T1);
+            return m_nbins_T1;
             }
 
-        //! Python wrapper for getT() (returns a copy)
-        boost::python::numeric::array getT2Py()
+        unsigned int getNBinsT2()
             {
-            float *arr = m_T2_array.get();
-            return num_util::makeNum(arr, m_nbins_T2);
+            return m_nbins_T2;
             }
 
     private:
@@ -151,11 +121,6 @@ class PMFTR12
         boost::shared_array<float> m_T2_array;           //!< array of T values that the pcf is computed at
         tbb::enumerable_thread_specific<unsigned int *> m_local_pcf_array;
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_PMFTR12();
 
 }; }; // end namespace freud::pmft
 

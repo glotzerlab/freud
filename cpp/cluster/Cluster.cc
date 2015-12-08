@@ -5,7 +5,6 @@
 #include <map>
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file Cluster.cc
     \brief Routines for clustering points
@@ -160,22 +159,22 @@ void Cluster::computeClusters(const vec3<float> *points,
     m_num_clusters = cur_set;
     }
 
-void Cluster::computeClustersPy(boost::python::numeric::array points)
-    {
-    // validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void Cluster::computeClustersPy(boost::python::numeric::array points)
+//     {
+//     // validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
-    computeClusters(points_raw, Np);
-    }
+//     computeClusters(points_raw, Np);
+//     }
 
 /*! \param keys Array of keys (1 per particle)
 
@@ -203,56 +202,56 @@ void Cluster::computeClusterMembership(const unsigned int *keys)
         }
     }
 
-/*! \param keys numpy array of uints, one for each particle.
+// /*! \param keys numpy array of uints, one for each particle.
 
-    Each particle is given a key (more than one particle can share the same key). getClusterKeys determines which keys
-    are present in each cluster. It returns a list of lists. List i in the return value is the list of keys that
-    are present in cluster i.
-*/
-void Cluster::computeClusterMembershipPy(boost::python::numeric::array keys)
-    {
-    // validate input type and rank
-    num_util::check_type(keys, NPY_UINT32);
-    num_util::check_rank(keys, 1);
+//     Each particle is given a key (more than one particle can share the same key). getClusterKeys determines which keys
+//     are present in each cluster. It returns a list of lists. List i in the return value is the list of keys that
+//     are present in cluster i.
+// */
+// void Cluster::computeClusterMembershipPy(boost::python::numeric::array keys)
+//     {
+//     // validate input type and rank
+//     num_util::check_type(keys, NPY_UINT32);
+//     num_util::check_rank(keys, 1);
 
-    // Check that there is one key per point
-    unsigned int Np = num_util::shape(keys)[0];
+//     // Check that there is one key per point
+//     unsigned int Np = num_util::shape(keys)[0];
 
-    if (!(Np == m_num_particles))
-        throw invalid_argument("Number of keys must be equal to the number of particles last handled by compute()");
+//     if (!(Np == m_num_particles))
+//         throw invalid_argument("Number of keys must be equal to the number of particles last handled by compute()");
 
-    // get the raw data pointer to the keys
-    unsigned int* keys_raw = (unsigned int *)num_util::data(keys);
-    computeClusterMembership(keys_raw);
-    }
+//     // get the raw data pointer to the keys
+//     unsigned int* keys_raw = (unsigned int *)num_util::data(keys);
+//     computeClusterMembership(keys_raw);
+//     }
 
-/*! Converts m_cluster_keys into a python list of lists
-*/
-boost::python::object Cluster::getClusterKeysPy()
-    {
-    boost::python::list cluster_keys_py;
-    for (unsigned int i = 0; i < m_cluster_keys.size(); i++)
-        {
-        boost::python::list members;
-        set<unsigned int>::iterator k;
-        for (k = m_cluster_keys[i].begin(); k != m_cluster_keys[i].end(); ++k)
-            members.append(*k);
+// /*! Converts m_cluster_keys into a python list of lists
+// */
+// boost::python::object Cluster::getClusterKeysPy()
+//     {
+//     boost::python::list cluster_keys_py;
+//     for (unsigned int i = 0; i < m_cluster_keys.size(); i++)
+//         {
+//         boost::python::list members;
+//         set<unsigned int>::iterator k;
+//         for (k = m_cluster_keys[i].begin(); k != m_cluster_keys[i].end(); ++k)
+//             members.append(*k);
 
-        cluster_keys_py.append(members);
-        }
-    return cluster_keys_py;
-    }
+//         cluster_keys_py.append(members);
+//         }
+//     return cluster_keys_py;
+//     }
 
-void export_Cluster()
-    {
-    class_<Cluster>("Cluster", init<trajectory::Box&, float>())
-        .def("getBox", &Cluster::getBox, return_internal_reference<>())
-        .def("computeClusters", &Cluster::computeClustersPy)
-        .def("getNumClusters", &Cluster::getNumClusters)
-        .def("getClusterIdx", &Cluster::getClusterIdxPy)
-        .def("computeClusterMembership", &Cluster::computeClusterMembershipPy)
-        .def("getClusterKeys", &Cluster::getClusterKeysPy)
-        ;
-    }
+// void export_Cluster()
+//     {
+//     class_<Cluster>("Cluster", init<trajectory::Box&, float>())
+//         .def("getBox", &Cluster::getBox, return_internal_reference<>())
+//         .def("computeClusters", &Cluster::computeClustersPy)
+//         .def("getNumClusters", &Cluster::getNumClusters)
+//         .def("getClusterIdx", &Cluster::getClusterIdxPy)
+//         .def("computeClusterMembership", &Cluster::computeClusterMembershipPy)
+//         .def("getClusterKeys", &Cluster::getClusterKeysPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::cluster

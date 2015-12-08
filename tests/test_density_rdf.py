@@ -21,7 +21,7 @@ class TestR(unittest.TestCase):
         npt.assert_almost_equal(rdf.getR(), r_list, decimal=3)
 
 class TestRDF(unittest.TestCase):
-    def test_random_point_with_cell_list(self):
+    def test_random_point_with_cell_list_copy(self):
         rmax = 10.0
         dr = 1.0
         num_points = 10000
@@ -33,7 +33,21 @@ class TestRDF(unittest.TestCase):
         correct = np.ones(int(rmax/dr), dtype=np.float32)
         correct[0] = 0.0
         absolute_tolerance = 0.1
-        npt.assert_allclose(rdf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(rdf.getRDF(copy=True), correct, atol=absolute_tolerance)
+
+    def test_random_point_with_cell_list_nocopy(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 10000
+        box_size = rmax*3.1
+        points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
+        rdf = density.RDF(rmax, dr)
+        rdf.accumulate(trajectory.Box(box_size), points, points)
+
+        correct = np.ones(int(rmax/dr), dtype=np.float32)
+        correct[0] = 0.0
+        absolute_tolerance = 0.1
+        npt.assert_allclose(rdf.getRDF(copy=False), correct, atol=absolute_tolerance)
 
 if __name__ == '__main__':
     unittest.main()

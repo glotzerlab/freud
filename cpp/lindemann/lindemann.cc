@@ -10,10 +10,11 @@
 #include <omp.h>
 #endif
 
+#include <numeric>
+#include <complex>
 #include <tbb/tbb.h>
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -146,41 +147,41 @@ void Lind::compute(const vec3<float> *points,
                                                             Nf));
     }
 
-void Lind::computePy(boost::python::numeric::array points)
-    {
-    // validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 3);
+// void Lind::computePy(boost::python::numeric::array points)
+//     {
+//     // validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 3);
 
-    // validate that the 3rd dimension is only 3
-    num_util::check_dim(points, 2, 3);
-    // Nf = number of frames
-    // Np = number of particles
-    unsigned int Nf = num_util::shape(points)[0];
-    unsigned int Np = num_util::shape(points)[1];
-    m_Np = Np;
+//     // validate that the 3rd dimension is only 3
+//     num_util::check_dim(points, 2, 3);
+//     // Nf = number of frames
+//     // Np = number of particles
+//     unsigned int Nf = num_util::shape(points)[0];
+//     unsigned int Np = num_util::shape(points)[1];
+//     m_Np = Np;
 
-    // validate that the length of the lindex array is the number of particles x 1
-    m_lindex_array = boost::shared_array<float>(new float[Np]);
+//     // validate that the length of the lindex array is the number of particles x 1
+//     m_lindex_array = boost::shared_array<float>(new float[Np]);
 
-    // get the raw data pointers and compute the cell list
-    // float3* points_raw = (float3*) num_util::data(points);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        compute(points_raw, Np, Nf);
-        }
-    }
+//         // compute with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         compute(points_raw, Np, Nf);
+//         }
+//     }
 
-void export_lindemann()
-    {
-    class_<Lind>("Lind", init<trajectory::Box&, float, float>())
-        .def("getBox", &Lind::getBox, return_internal_reference<>())
-        .def("compute", &Lind::computePy)
-        .def("getLindexArray", &Lind::getLindexArrayPy)
-        ;
-    }
+// void export_lindemann()
+//     {
+//     class_<Lind>("Lind", init<trajectory::Box&, float, float>())
+//         .def("getBox", &Lind::getBox, return_internal_reference<>())
+//         .def("compute", &Lind::computePy)
+//         .def("getLindexArray", &Lind::getLindexArrayPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::lindemann

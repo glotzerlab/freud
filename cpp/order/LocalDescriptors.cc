@@ -11,7 +11,6 @@
 #include "HOOMDMatrix.h"
 
 using namespace std;
-using namespace boost::python;
 using namespace tbb;
 using hoomd::matrix::diagonalize;
 using hoomd::matrix::quaternionFromExyz;
@@ -257,46 +256,46 @@ void LocalDescriptors::compute(const vec3<float> *r, const quat<float> *q, unsig
     m_Np = Np;
     }
 
-void LocalDescriptors::computePy(boost::python::numeric::array r,
-    boost::python::numeric::array q)
-    {
-    //validate input type and rank
-    num_util::check_type(r, NPY_FLOAT);
-    num_util::check_rank(r, 2);
-    num_util::check_type(q, NPY_FLOAT);
-    num_util::check_rank(q, 2);
+// void LocalDescriptors::computePy(boost::python::numeric::array r,
+//     boost::python::numeric::array q)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(r, NPY_FLOAT);
+//     num_util::check_rank(r, 2);
+//     num_util::check_type(q, NPY_FLOAT);
+//     num_util::check_rank(q, 2);
 
-    // validate that the 2nd dimension is only 3 for r and 4 for q
-    num_util::check_dim(r, 1, 3);
-    num_util::check_dim(q, 1, 4);
-    unsigned int Np = num_util::shape(r)[0];
+//     // validate that the 2nd dimension is only 3 for r and 4 for q
+//     num_util::check_dim(r, 1, 3);
+//     num_util::check_dim(q, 1, 4);
+//     unsigned int Np = num_util::shape(r)[0];
 
-    if(num_util::shape(r)[0] != num_util::shape(q)[0])
-        throw runtime_error("Position and quaternion arrays must have the same length!");
+//     if(num_util::shape(r)[0] != num_util::shape(q)[0])
+//         throw runtime_error("Position and quaternion arrays must have the same length!");
 
-    // get the raw data pointers and compute order parameter
-    vec3<float>* r_raw = (vec3<float>*) num_util::data(r);
-    quat<float>* q_raw = (quat<float>*) num_util::data(q);
+//     // get the raw data pointers and compute order parameter
+//     vec3<float>* r_raw = (vec3<float>*) num_util::data(r);
+//     quat<float>* q_raw = (quat<float>*) num_util::data(q);
 
-    // compute the order parameter with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        compute(r_raw, q_raw, Np);
-        }
-    }
+//     // compute the order parameter with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         compute(r_raw, q_raw, Np);
+//         }
+//     }
 
-void export_LocalDescriptors()
-    {
-    class_<LocalDescriptors>("LocalDescriptors", init<trajectory::Box&, unsigned int, unsigned int, float>())
-        .def("getBox", &LocalDescriptors::getBox, return_internal_reference<>())
-        .def("getNNeigh", &LocalDescriptors::getNNeigh)
-        .def("getLMax", &LocalDescriptors::getLMax)
-        .def("getRMax", &LocalDescriptors::getRMax)
-        .def("compute", &LocalDescriptors::computePy)
-        .def("getMagR", &LocalDescriptors::getMagRPy)
-        .def("getQij", &LocalDescriptors::getQijPy)
-        .def("getSph", &LocalDescriptors::getSphPy)
-        ;
-    }
+// void export_LocalDescriptors()
+//     {
+//     class_<LocalDescriptors>("LocalDescriptors", init<trajectory::Box&, unsigned int, unsigned int, float>())
+//         .def("getBox", &LocalDescriptors::getBox, return_internal_reference<>())
+//         .def("getNNeigh", &LocalDescriptors::getNNeigh)
+//         .def("getLMax", &LocalDescriptors::getLMax)
+//         .def("getRMax", &LocalDescriptors::getRMax)
+//         .def("compute", &LocalDescriptors::computePy)
+//         .def("getMagR", &LocalDescriptors::getMagRPy)
+//         .def("getQij", &LocalDescriptors::getQijPy)
+//         .def("getSph", &LocalDescriptors::getSphPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::order

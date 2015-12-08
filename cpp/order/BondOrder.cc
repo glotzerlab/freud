@@ -14,7 +14,6 @@
 #include <complex>
 
 using namespace std;
-using namespace boost::python;
 using namespace tbb;
 
 /*! \file BondOrder.h
@@ -273,15 +272,15 @@ boost::shared_array<float> BondOrder::getBondOrder()
     return m_bo_array;
     }
 
-boost::python::numeric::array BondOrder::getBondOrderPy()
-    {
-    reduceBondOrder();
-    float *arr = m_bo_array.get();
-    std::vector<intp> dims(2);
-    dims[0] = m_nbins_p;
-    dims[1] = m_nbins_t;
-    return num_util::makeNum(arr, dims);
-    }
+// boost::python::numeric::array BondOrder::getBondOrderPy()
+//     {
+//     reduceBondOrder();
+//     float *arr = m_bo_array.get();
+//     std::vector<intp> dims(2);
+//     dims[0] = m_nbins_p;
+//     dims[1] = m_nbins_t;
+//     return num_util::makeNum(arr, dims);
+//     }
 
 void BondOrder::resetBondOrder()
     {
@@ -328,81 +327,79 @@ void BondOrder::accumulate(vec3<float> *ref_points,
     m_frame_counter++;
     }
 
-void BondOrder::accumulatePy(trajectory::Box& box,
-                             boost::python::numeric::array ref_points,
-                             boost::python::numeric::array ref_orientations,
-                             boost::python::numeric::array points,
-                             boost::python::numeric::array orientations)
-    {
-    //validate input type and rank
-    m_box = box;
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_rank(ref_points, 2);
-    num_util::check_type(ref_orientations, NPY_FLOAT);
-    num_util::check_rank(ref_orientations, 2);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(orientations, NPY_FLOAT);
-    num_util::check_rank(orientations, 2);
+// void BondOrder::accumulatePy(trajectory::Box& box,
+//                              boost::python::numeric::array ref_points,
+//                              boost::python::numeric::array ref_orientations,
+//                              boost::python::numeric::array points,
+//                              boost::python::numeric::array orientations)
+//     {
+//     //validate input type and rank
+//     m_box = box;
+//     num_util::check_type(ref_points, NPY_FLOAT);
+//     num_util::check_rank(ref_points, 2);
+//     num_util::check_type(ref_orientations, NPY_FLOAT);
+//     num_util::check_rank(ref_orientations, 2);
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+//     num_util::check_type(orientations, NPY_FLOAT);
+//     num_util::check_rank(orientations, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
+//     num_util::check_dim(ref_points, 1, 3);
+//     unsigned int Nref = num_util::shape(ref_points)[0];
 
-    // check the size of angles to be correct
-    num_util::check_dim(ref_orientations, 0, Nref);
-    num_util::check_dim(ref_orientations, 1, 4);
-    num_util::check_dim(orientations, 0, Np);
-    num_util::check_dim(orientations, 1, 4);
+//     // check the size of angles to be correct
+//     num_util::check_dim(ref_orientations, 0, Nref);
+//     num_util::check_dim(ref_orientations, 1, 4);
+//     num_util::check_dim(orientations, 0, Np);
+//     num_util::check_dim(orientations, 1, 4);
 
-    // get the raw data pointers and compute order parameter
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    quat<float>* ref_orientations_raw = (quat<float>*) num_util::data(ref_orientations);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
+//     // get the raw data pointers and compute order parameter
+//     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+//     quat<float>* ref_orientations_raw = (quat<float>*) num_util::data(ref_orientations);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
 
-        // compute the order parameter with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        accumulate(ref_points_raw,
-                   ref_orientations_raw,
-                   Nref,
-                   points_raw,
-                   orientations_raw,
-                   Np);
-        }
-    }
+//         // compute the order parameter with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         accumulate(ref_points_raw,
+//                    ref_orientations_raw,
+//                    Nref,
+//                    points_raw,
+//                    orientations_raw,
+//                    Np);
+//         }
+//     }
 
-//! \internal
-/*! \brief Exposed function to python to calculate the PMF
-*/
-void BondOrder::computePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations)
-    {
-    // validate input type and rank
-    resetBondOrder();
-    accumulatePy(box, ref_points, ref_orientations, points, orientations);
-    }
+// //! \internal
+// /*! \brief Exposed function to python to calculate the PMF
+// */
+// void BondOrder::computePy(trajectory::Box& box,
+//                           boost::python::numeric::array ref_points,
+//                           boost::python::numeric::array ref_orientations,
+//                           boost::python::numeric::array points,
+//                           boost::python::numeric::array orientations)
+//     {
+//     // validate input type and rank
+//     resetBondOrder();
+//     accumulatePy(box, ref_points, ref_orientations, points, orientations);
+//     }
 
-void export_BondOrder()
-    {
-    class_<BondOrder>("BondOrder", init<float, float, unsigned int, unsigned int, unsigned int>())
-        .def("getBox", &BondOrder::getBox, return_internal_reference<>())
-        .def("accumulate", &BondOrder::accumulatePy)
-        .def("compute", &BondOrder::computePy)
-        .def("getBondOrder", &BondOrder::getBondOrderPy)
-        .def("getTheta", &BondOrder::getThetaPy)
-        .def("getPhi", &BondOrder::getPhiPy)
-        .def("resetBondOrder", &BondOrder::resetBondOrderPy)
-        ;
-    }
+// void export_BondOrder()
+//     {
+//     class_<BondOrder>("BondOrder", init<float, float, unsigned int, unsigned int, unsigned int>())
+//         .def("getBox", &BondOrder::getBox, return_internal_reference<>())
+//         .def("accumulate", &BondOrder::accumulatePy)
+//         .def("compute", &BondOrder::computePy)
+//         .def("getBondOrder", &BondOrder::getBondOrderPy)
+//         .def("getTheta", &BondOrder::getThetaPy)
+//         .def("getPhi", &BondOrder::getPhiPy)
+//         .def("resetBondOrder", &BondOrder::resetBondOrderPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::order
-
-

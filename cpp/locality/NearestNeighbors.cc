@@ -11,7 +11,6 @@
 #include "HOOMDMatrix.h"
 
 using namespace std;
-using namespace boost::python;
 using namespace tbb;
 
 /*! \file NearestNeighbors.h
@@ -198,46 +197,46 @@ void NearestNeighbors::compute(trajectory::Box& box,
     m_Np = Np;
     }
 
-void NearestNeighbors::computePy(trajectory::Box& box,
-                                 boost::python::numeric::array ref_pos,
-                                 boost::python::numeric::array pos)
-    {
-    //validate input type and rank
-    num_util::check_type(ref_pos, NPY_FLOAT);
-    num_util::check_rank(ref_pos, 2);
-    num_util::check_type(pos, NPY_FLOAT);
-    num_util::check_rank(pos, 2);
+// void NearestNeighbors::computePy(trajectory::Box& box,
+//                                  boost::python::numeric::array ref_pos,
+//                                  boost::python::numeric::array pos)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(ref_pos, NPY_FLOAT);
+//     num_util::check_rank(ref_pos, 2);
+//     num_util::check_type(pos, NPY_FLOAT);
+//     num_util::check_rank(pos, 2);
 
-    // validate that the 2nd dimension is only 3 for r and 4 for q
-    num_util::check_dim(ref_pos, 1, 3);
-    unsigned int Nref = num_util::shape(ref_pos)[0];
-    num_util::check_dim(pos, 1, 3);
-    unsigned int Np = num_util::shape(pos)[0];
+//     // validate that the 2nd dimension is only 3 for r and 4 for q
+//     num_util::check_dim(ref_pos, 1, 3);
+//     unsigned int Nref = num_util::shape(ref_pos)[0];
+//     num_util::check_dim(pos, 1, 3);
+//     unsigned int Np = num_util::shape(pos)[0];
 
-    // get the raw data pointers and compute order parameter
-    vec3<float>* ref_pos_raw = (vec3<float>*) num_util::data(ref_pos);
-    vec3<float>* pos_raw = (vec3<float>*) num_util::data(pos);
+//     // get the raw data pointers and compute order parameter
+//     vec3<float>* ref_pos_raw = (vec3<float>*) num_util::data(ref_pos);
+//     vec3<float>* pos_raw = (vec3<float>*) num_util::data(pos);
 
-    // compute the order parameter with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        compute(box, ref_pos_raw, Nref, pos_raw, Np);
-        }
-    }
+//     // compute the order parameter with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         compute(box, ref_pos_raw, Nref, pos_raw, Np);
+//         }
+//     }
 
-void export_NearestNeighbors()
-    {
-    class_<NearestNeighbors>("NearestNeighbors", init<float, unsigned int>())
-        .def("getBox", &NearestNeighbors::getBox, return_internal_reference<>())
-        .def("getNNeigh", &NearestNeighbors::getNNeigh)
-        .def("setRMax", &NearestNeighbors::setRMaxPy)
-        .def("getRMax", &NearestNeighbors::getRMaxPy)
-        .def("getNeighbors", &NearestNeighbors::getNeighborsPy)
-        .def("getNeighborList", &NearestNeighbors::getNeighborListPy)
-        .def("getRsq", &NearestNeighbors::getRsqPy)
-        .def("getRsqList", &NearestNeighbors::getRsqListPy)
-        .def("compute", &NearestNeighbors::computePy)
-        ;
-    }
+// void export_NearestNeighbors()
+//     {
+//     class_<NearestNeighbors>("NearestNeighbors", init<float, unsigned int>())
+//         .def("getBox", &NearestNeighbors::getBox, return_internal_reference<>())
+//         .def("getNNeigh", &NearestNeighbors::getNNeigh)
+//         .def("setRMax", &NearestNeighbors::setRMaxPy)
+//         .def("getRMax", &NearestNeighbors::getRMaxPy)
+//         .def("getNeighbors", &NearestNeighbors::getNeighborsPy)
+//         .def("getNeighborList", &NearestNeighbors::getNeighborListPy)
+//         .def("getRsq", &NearestNeighbors::getRsqPy)
+//         .def("getRsqList", &NearestNeighbors::getRsqListPy)
+//         .def("compute", &NearestNeighbors::computePy)
+//         ;
+//     }
 
 }; }; // end namespace freud::locality

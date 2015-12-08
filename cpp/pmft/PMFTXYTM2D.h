@@ -6,14 +6,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 
 #ifndef _PMFTXYTM2D_H__
@@ -67,19 +65,19 @@ class PMFTXYTM2D
                         float *orientations,
                         unsigned int Np);
 
-        //! Python wrapper for accumulate
-        void accumulatePy(trajectory::Box& box,
-                          boost::python::numeric::array ref_points,
-                          boost::python::numeric::array ref_orientations,
-                          boost::python::numeric::array points,
-                          boost::python::numeric::array orientations);
+        // //! Python wrapper for accumulate
+        // void accumulatePy(trajectory::Box& box,
+        //                   boost::python::numeric::array ref_points,
+        //                   boost::python::numeric::array ref_orientations,
+        //                   boost::python::numeric::array points,
+        //                   boost::python::numeric::array orientations);
 
-        //! Python wrapper for accumulate
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array ref_points,
-                       boost::python::numeric::array ref_orientations,
-                       boost::python::numeric::array points,
-                       boost::python::numeric::array orientations);
+        // //! Python wrapper for accumulate
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array ref_points,
+        //                boost::python::numeric::array ref_orientations,
+        //                boost::python::numeric::array points,
+        //                boost::python::numeric::array orientations);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -106,29 +104,29 @@ class PMFTXYTM2D
             return m_T_array;
             }
 
-        //! Python wrapper for getPCF() (returns a copy)
-        boost::python::numeric::array getPCFPy();
+        // //! Python wrapper for getPCF() (returns a copy)
+        // boost::python::numeric::array getPCFPy();
 
-        //! Python wrapper for getX() (returns a copy)
-        boost::python::numeric::array getXPy()
-            {
-            float *arr = m_x_array.get();
-            return num_util::makeNum(arr, m_nbins_x);
-            }
+        // //! Python wrapper for getX() (returns a copy)
+        // boost::python::numeric::array getXPy()
+        //     {
+        //     float *arr = m_x_array.get();
+        //     return num_util::makeNum(arr, m_nbins_x);
+        //     }
 
-        //! Python wrapper for getY() (returns a copy)
-        boost::python::numeric::array getYPy()
-            {
-            float *arr = m_y_array.get();
-            return num_util::makeNum(arr, m_nbins_y);
-            }
+        // //! Python wrapper for getY() (returns a copy)
+        // boost::python::numeric::array getYPy()
+        //     {
+        //     float *arr = m_y_array.get();
+        //     return num_util::makeNum(arr, m_nbins_y);
+        //     }
 
-        //! Python wrapper for getT() (returns a copy)
-        boost::python::numeric::array getTPy()
-            {
-            float *arr = m_T_array.get();
-            return num_util::makeNum(arr, m_nbins_T);
-            }
+        // //! Python wrapper for getT() (returns a copy)
+        // boost::python::numeric::array getTPy()
+        //     {
+        //     float *arr = m_T_array.get();
+        //     return num_util::makeNum(arr, m_nbins_T);
+        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -149,11 +147,6 @@ class PMFTXYTM2D
         boost::shared_array<float> m_T_array;           //!< array of T values that the pcf is computed at
         tbb::enumerable_thread_specific<unsigned int *> m_local_pcf_array;
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_PMFTXYTM2D();
 
 }; }; // end namespace freud::pmft
 

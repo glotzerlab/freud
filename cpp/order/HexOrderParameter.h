@@ -1,19 +1,18 @@
 #include <tbb/tbb.h>
 #include <ostream>
+#include <complex>
 
 // work around nasty issue where python #defines isalpha, toupper, etc....
 #undef __APPLE__
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "NearestNeighbors.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -48,9 +47,9 @@ class HexOrderParameter
         void compute(const vec3<float> *points,
                      unsigned int Np);
 
-        //! Python wrapper for compute
-        void computePy(trajectory::Box& box,
-                       boost::python::numeric::array points);
+        // //! Python wrapper for compute
+        // void computePy(trajectory::Box& box,
+        //                boost::python::numeric::array points);
 
         //! Get a reference to the last computed psi
         boost::shared_array< std::complex<float> > getPsi()
@@ -58,12 +57,12 @@ class HexOrderParameter
             return m_psi_array;
             }
 
-        //! Python wrapper for getPsi() (returns a copy)
-        boost::python::numeric::array getPsiPy()
-            {
-            std::complex<float> *arr = m_psi_array.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for getPsi() (returns a copy)
+        // boost::python::numeric::array getPsiPy()
+        //     {
+        //     std::complex<float> *arr = m_psi_array.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -74,9 +73,6 @@ class HexOrderParameter
 
         boost::shared_array< std::complex<float> > m_psi_array;         //!< psi array computed
     };
-
-//! Exports all classes in this file to python
-void export_HexOrderParameter();
 
 }; }; // end namespace freud::order
 

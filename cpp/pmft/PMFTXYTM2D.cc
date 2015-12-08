@@ -13,7 +13,6 @@
 #include "VectorMath.h"
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -297,17 +296,17 @@ boost::shared_array<unsigned int> PMFTXYTM2D::getPCF()
     return m_pcf_array;
     }
 
-//! Get a reference to the PCF array
-boost::python::numeric::array PMFTXYTM2D::getPCFPy()
-    {
-    reducePCF();
-    unsigned int *arr = m_pcf_array.get();
-    std::vector<intp> dims(3);
-    dims[0] = m_nbins_T;
-    dims[1] = m_nbins_y;
-    dims[2] = m_nbins_x;
-    return num_util::makeNum(arr, dims);
-    }
+// //! Get a reference to the PCF array
+// boost::python::numeric::array PMFTXYTM2D::getPCFPy()
+//     {
+//     reducePCF();
+//     unsigned int *arr = m_pcf_array.get();
+//     std::vector<intp> dims(3);
+//     dims[0] = m_nbins_T;
+//     dims[1] = m_nbins_y;
+//     dims[2] = m_nbins_x;
+//     return num_util::makeNum(arr, dims);
+//     }
 
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
@@ -353,77 +352,77 @@ void PMFTXYTM2D::accumulate(vec3<float> *ref_points,
                                    Np));
     }
 
-void PMFTXYTM2D::accumulatePy(trajectory::Box& box,
-                              boost::python::numeric::array ref_points,
-                              boost::python::numeric::array ref_orientations,
-                              boost::python::numeric::array points,
-                              boost::python::numeric::array orientations)
-    {
-    // validate input type and rank
-    m_box = box;
-    num_util::check_type(ref_points, NPY_FLOAT);
-    num_util::check_rank(ref_points, 2);
-    num_util::check_type(ref_orientations, NPY_FLOAT);
-    num_util::check_rank(ref_orientations, 1);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(orientations, NPY_FLOAT);
-    num_util::check_rank(orientations, 1);
+// void PMFTXYTM2D::accumulatePy(trajectory::Box& box,
+//                               boost::python::numeric::array ref_points,
+//                               boost::python::numeric::array ref_orientations,
+//                               boost::python::numeric::array points,
+//                               boost::python::numeric::array orientations)
+//     {
+//     // validate input type and rank
+//     m_box = box;
+//     num_util::check_type(ref_points, NPY_FLOAT);
+//     num_util::check_rank(ref_points, 2);
+//     num_util::check_type(ref_orientations, NPY_FLOAT);
+//     num_util::check_rank(ref_orientations, 1);
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+//     num_util::check_type(orientations, NPY_FLOAT);
+//     num_util::check_rank(orientations, 1);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    num_util::check_dim(ref_points, 1, 3);
-    unsigned int Nref = num_util::shape(ref_points)[0];
+//     num_util::check_dim(ref_points, 1, 3);
+//     unsigned int Nref = num_util::shape(ref_points)[0];
 
-    // check the size of angles to be correct
-    num_util::check_dim(ref_orientations, 0, Nref);
-    num_util::check_dim(orientations, 0, Np);
+//     // check the size of angles to be correct
+//     num_util::check_dim(ref_orientations, 0, Nref);
+//     num_util::check_dim(orientations, 0, Np);
 
-    // get the raw data pointers and compute the cell list
-    vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-    float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    float* orientations_raw = (float*) num_util::data(orientations);
+//     // get the raw data pointers and compute the cell list
+//     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
+//     float* ref_orientations_raw = (float*) num_util::data(ref_orientations);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     float* orientations_raw = (float*) num_util::data(orientations);
 
-        // compute with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        accumulate(ref_points_raw,
-                   ref_orientations_raw,
-                   Nref,
-                   points_raw,
-                   orientations_raw,
-                   Np);
-        }
-    }
+//         // compute with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         accumulate(ref_points_raw,
+//                    ref_orientations_raw,
+//                    Nref,
+//                    points_raw,
+//                    orientations_raw,
+//                    Np);
+//         }
+//     }
 
-//! \internal
-/*! \brief Exposed function to python to calculate the PMF
-*/
-void PMFTXYTM2D::computePy(trajectory::Box& box,
-                           boost::python::numeric::array ref_points,
-                           boost::python::numeric::array ref_orientations,
-                           boost::python::numeric::array points,
-                           boost::python::numeric::array orientations)
-    {
-    resetPCF();
-    accumulatePy(box, ref_points, ref_orientations, points, orientations);
-    }
+// //! \internal
+// /*! \brief Exposed function to python to calculate the PMF
+// */
+// void PMFTXYTM2D::computePy(trajectory::Box& box,
+//                            boost::python::numeric::array ref_points,
+//                            boost::python::numeric::array ref_orientations,
+//                            boost::python::numeric::array points,
+//                            boost::python::numeric::array orientations)
+//     {
+//     resetPCF();
+//     accumulatePy(box, ref_points, ref_orientations, points, orientations);
+//     }
 
-void export_PMFTXYTM2D()
-    {
-    class_<PMFTXYTM2D>("PMFTXYTM2D", init<float, float, unsigned int, unsigned int, unsigned int>())
-        .def("getBox", &PMFTXYTM2D::getBox, return_internal_reference<>())
-        .def("accumulate", &PMFTXYTM2D::accumulatePy)
-        .def("compute", &PMFTXYTM2D::computePy)
-        .def("getPCF", &PMFTXYTM2D::getPCFPy)
-        .def("resetPCF", &PMFTXYTM2D::resetPCFPy)
-        .def("getX", &PMFTXYTM2D::getXPy)
-        .def("getY", &PMFTXYTM2D::getYPy)
-        .def("getT", &PMFTXYTM2D::getTPy)
-        ;
-    }
+// void export_PMFTXYTM2D()
+//     {
+//     class_<PMFTXYTM2D>("PMFTXYTM2D", init<float, float, unsigned int, unsigned int, unsigned int>())
+//         .def("getBox", &PMFTXYTM2D::getBox, return_internal_reference<>())
+//         .def("accumulate", &PMFTXYTM2D::accumulatePy)
+//         .def("compute", &PMFTXYTM2D::computePy)
+//         .def("getPCF", &PMFTXYTM2D::getPCFPy)
+//         .def("resetPCF", &PMFTXYTM2D::resetPCFPy)
+//         .def("getX", &PMFTXYTM2D::getXPy)
+//         .def("getY", &PMFTXYTM2D::getYPy)
+//         .def("getT", &PMFTXYTM2D::getTPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::pmft

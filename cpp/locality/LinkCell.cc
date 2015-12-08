@@ -1,14 +1,11 @@
-#include <boost/python.hpp>
 #include <stdexcept>
 #include <algorithm>
 
-#include "num_util.h"
 #include "LinkCell.h"
 #include "../trajectory/trajectory.h"
 #include "ScopedGILRelease.h"
 
 using namespace std;
-using namespace boost::python;
 
 /*! \file LinkCell.cc
     \brief Build a cell list from a set of points
@@ -161,26 +158,26 @@ const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box,
     return dim;
     }
 
-void LinkCell::computeCellListPy(trajectory::Box& box,
-                                 boost::python::numeric::array points)
-    {
-    // validate input type and rank
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
+// void LinkCell::computeCellListPy(trajectory::Box& box,
+//                                  boost::python::numeric::array points)
+//     {
+//     // validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    // get the raw data pointers and compute the cell list
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     // get the raw data pointers and compute the cell list
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
-        // compute the cell list with the GIL released
-        {
-        util::ScopedGILRelease gil;
-        computeCellList(box, points_raw, Np);
-        }
-    }
+//         // compute the cell list with the GIL released
+//         {
+//         util::ScopedGILRelease gil;
+//         computeCellList(box, points_raw, Np);
+//         }
+//     }
 
 //Deprecated.  Users should use the modern vec3<float> interfaces
 void LinkCell::computeCellList(trajectory::Box& box,
@@ -324,24 +321,24 @@ void LinkCell::computeCellNeighbors()
                 }
     }
 
-void export_LinkCell()
-    {
-    class_<LinkCell>("LinkCell", init<trajectory::Box&, float>())
-        .def("getBox", &LinkCell::getBox, return_internal_reference<>())
-        .def("getCellIndexer", &LinkCell::getCellIndexer, return_internal_reference<>())
-        .def("getNumCells", &LinkCell::getNumCells)
-        .def("getCell", &LinkCell::getCellPy)
-        //.def("getCellCoord", &LinkCell::getCellCoordPy)
-        .def("itercell", &LinkCell::itercell)
-        .def("getCellNeighbors", &LinkCell::getCellNeighborsPy)
-        .def("computeCellList", &LinkCell::computeCellListPy)
-        ;
+// void export_LinkCell()
+//     {
+//     class_<LinkCell>("LinkCell", init<trajectory::Box&, float>())
+//         .def("getBox", &LinkCell::getBox, return_internal_reference<>())
+//         .def("getCellIndexer", &LinkCell::getCellIndexer, return_internal_reference<>())
+//         .def("getNumCells", &LinkCell::getNumCells)
+//         .def("getCell", &LinkCell::getCellPy)
+//         //.def("getCellCoord", &LinkCell::getCellCoordPy)
+//         .def("itercell", &LinkCell::itercell)
+//         .def("getCellNeighbors", &LinkCell::getCellNeighborsPy)
+//         .def("computeCellList", &LinkCell::computeCellListPy)
+//         ;
 
-    class_<IteratorLinkCell>("IteratorLinkCell",
-        init<boost::shared_array<unsigned int>, unsigned int, unsigned int, unsigned int>())
-        .def("next", &IteratorLinkCell::nextPy) //PYthon 2 iterator
-        .def("__next__", &IteratorLinkCell::nextPy) //Python3 iterator
-        ;
-    }
+//     class_<IteratorLinkCell>("IteratorLinkCell",
+//         init<boost::shared_array<unsigned int>, unsigned int, unsigned int, unsigned int>())
+//         .def("next", &IteratorLinkCell::nextPy) //PYthon 2 iterator
+//         .def("__next__", &IteratorLinkCell::nextPy) //Python3 iterator
+//         ;
+//     }
 
 }; }; // end namespace freud::locality

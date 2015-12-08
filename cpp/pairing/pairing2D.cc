@@ -13,7 +13,6 @@
 #include <tbb/tbb.h>
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -177,51 +176,51 @@ void pairing::compute(const vec3<float>* points,
     m_No = No;
     }
 
-void pairing::computePy(trajectory::Box& box,
-                        boost::python::numeric::array points,
-                        boost::python::numeric::array orientations,
-                        boost::python::numeric::array comp_orientations)
-    {
-    // points contains all the particle positions; Np x 3
-    // orientations contains the orientations of each particle; Np (x1)
-    // orientations contains the local orientations of possible interfaces; Np x No
-    m_box = box;
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(orientations, NPY_FLOAT);
-    num_util::check_rank(orientations, 1);
-    num_util::check_type(comp_orientations, NPY_FLOAT);
-    num_util::check_rank(comp_orientations, 2);
+// void pairing::computePy(trajectory::Box& box,
+//                         boost::python::numeric::array points,
+//                         boost::python::numeric::array orientations,
+//                         boost::python::numeric::array comp_orientations)
+//     {
+//     // points contains all the particle positions; Np x 3
+//     // orientations contains the orientations of each particle; Np (x1)
+//     // orientations contains the local orientations of possible interfaces; Np x No
+//     m_box = box;
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+//     num_util::check_type(orientations, NPY_FLOAT);
+//     num_util::check_rank(orientations, 1);
+//     num_util::check_type(comp_orientations, NPY_FLOAT);
+//     num_util::check_rank(comp_orientations, 2);
 
-    // get the number of particles
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    const unsigned int Np = num_util::shape(points)[0];
+//     // get the number of particles
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     const unsigned int Np = num_util::shape(points)[0];
 
-    //validate that the types and angles coming in are the correct size
-    num_util::check_dim(orientations, 0, Np);
-    num_util::check_dim(comp_orientations, 0, Np);
-    const unsigned int No = num_util::shape(comp_orientations)[1];
+//     //validate that the types and angles coming in are the correct size
+//     num_util::check_dim(orientations, 0, Np);
+//     num_util::check_dim(comp_orientations, 0, Np);
+//     const unsigned int No = num_util::shape(comp_orientations)[1];
 
-    // const float3* points_raw = (float3*) num_util::data(points);
-    const vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    const float* orientations_raw = (float*) num_util::data(orientations);
-    const float* comp_orientations_raw = (float*) num_util::data(comp_orientations);
-    compute(points_raw,
-            orientations_raw,
-            comp_orientations_raw,
-            Np,
-            No);
-    }
+//     // const float3* points_raw = (float3*) num_util::data(points);
+//     const vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     const float* orientations_raw = (float*) num_util::data(orientations);
+//     const float* comp_orientations_raw = (float*) num_util::data(comp_orientations);
+//     compute(points_raw,
+//             orientations_raw,
+//             comp_orientations_raw,
+//             Np,
+//             No);
+//     }
 
-void export_pairing()
-    {
-    class_<pairing>("pairing", init<float, unsigned int, float>())
-        .def("getBox", &pairing::getBox, return_internal_reference<>())
-        .def("compute", &pairing::computePy)
-        .def("getMatch", &pairing::getMatchPy)
-        .def("getPair", &pairing::getPairPy)
-        ;
-    }
+// void export_pairing()
+//     {
+//     class_<pairing>("pairing", init<float, unsigned int, float>())
+//         .def("getBox", &pairing::getBox, return_internal_reference<>())
+//         .def("compute", &pairing::computePy)
+//         .def("getMatch", &pairing::getMatchPy)
+//         .def("getPair", &pairing::getPairPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::pairing

@@ -6,13 +6,11 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 // probably don't need these...
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -42,8 +40,8 @@ int compareInts(const void * a, const void * b);
 class Bootstrap
     {
     public:
-        //! Constructor
-        Bootstrap(const unsigned int nBootstrap, boost::python::numeric::array data_array);
+        // //! Constructor
+        // Bootstrap(const unsigned int nBootstrap, boost::python::numeric::array data_array);
 
         //! Destructor
         ~Bootstrap();
@@ -54,40 +52,40 @@ class Bootstrap
                               boost::shared_array<float> *err_array,
                               std::vector<unsigned int> *cum_array);
 
-        //! Python wrapper for getBootstrap() (returns a copy)
-        boost::python::numeric::array getBootstrapPy()
-            {
-            unsigned int *arr = m_bootstrap_array.get();
-            return num_util::makeNum(arr, m_nBootstrap * m_arrSize);
-            }
+        // //! Python wrapper for getBootstrap() (returns a copy)
+        // boost::python::numeric::array getBootstrapPy()
+        //     {
+        //     unsigned int *arr = m_bootstrap_array.get();
+        //     return num_util::makeNum(arr, m_nBootstrap * m_arrSize);
+        //     }
 
-        //! Python wrapper for getAVG() (returns a copy)
-        boost::python::numeric::array getAVGPy()
-            {
-            float *arr = m_avg_array.get();
-            return num_util::makeNum(arr, m_arrSize);
-            }
+        // //! Python wrapper for getAVG() (returns a copy)
+        // boost::python::numeric::array getAVGPy()
+        //     {
+        //     float *arr = m_avg_array.get();
+        //     return num_util::makeNum(arr, m_arrSize);
+        //     }
 
-        //! Python wrapper for getSTD() (returns a copy)
-        boost::python::numeric::array getSTDPy()
-            {
-            float *arr = m_std_array.get();
-            return num_util::makeNum(arr, m_arrSize);
-            }
+        // //! Python wrapper for getSTD() (returns a copy)
+        // boost::python::numeric::array getSTDPy()
+        //     {
+        //     float *arr = m_std_array.get();
+        //     return num_util::makeNum(arr, m_arrSize);
+        //     }
 
-        //! Python wrapper for getERR() (returns a copy)
-        boost::python::numeric::array getERRPy()
-            {
-            float *arr = m_err_array.get();
-            return num_util::makeNum(arr, m_arrSize);
-            }
+        // //! Python wrapper for getERR() (returns a copy)
+        // boost::python::numeric::array getERRPy()
+        //     {
+        //     float *arr = m_err_array.get();
+        //     return num_util::makeNum(arr, m_arrSize);
+        //     }
 
         //! Compute the bootstrap analysis
         // will handle both the computation and analysis
         void compute();
 
-        //! Python wrapper for compute
-        void computePy();
+        // //! Python wrapper for compute
+        // void computePy();
 
     private:
         const unsigned int  m_nBootstrap;    //!< number of bootstrap arrays to compute
@@ -100,11 +98,6 @@ class Bootstrap
         unsigned int  m_nPoints;    //!< number of points to populate the bootstrap arrays with
         unsigned int  m_arrSize;    //!< number of points to populate the bootstrap arrays with
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_Bootstrap();
 
 }; }; // end namespace freud::pmft
 

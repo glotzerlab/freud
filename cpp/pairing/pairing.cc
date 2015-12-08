@@ -12,7 +12,6 @@
 #include <tbb/tbb.h>
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -117,9 +116,9 @@ inline bool comp_check_2D(const float rmax,
     //     return false;
     // if ((v_ji < (comp_dot_target - comp_dot_tol)) || (v_ji > (comp_dot_target + comp_dot_tol)))
     //     return false;
-    if (abs(theta_s_ij - shape_dot_target) > shape_dot_tol)
+    if (fabs(theta_s_ij - shape_dot_target) > shape_dot_tol)
         return false;
-    if (abs(theta_c_ij - comp_dot_target) > comp_dot_tol)
+    if (fabs(theta_c_ij - comp_dot_target) > comp_dot_tol)
         return false;
     if (v_ij < 0)
         return false;
@@ -849,89 +848,89 @@ void pairing::compute(unsigned int* match,
         }
     }
 
-void pairing::computePy(boost::python::numeric::array match,
-                        boost::python::numeric::array dist2,
-                        boost::python::numeric::array sdots,
-                        boost::python::numeric::array cdots,
-                        boost::python::numeric::array points,
-                        boost::python::numeric::array shape_orientations,
-                        boost::python::numeric::array comp_orientations)
-    {
-    // points contains all the particle positions; Np x 3
-    // types contains all the types; Np (x 1)
-    // angles contains the angle of each particle; Np (x1)
-    // shapes contains the verticies of each type; Nt x Nv_max
-    //      where any unpop'd vertices are nan
-    // ref_list contains the types of shapes that will be referenced
-    // check_list contains the types of shapes that will be checked
-    // ref_verts contains the vert index that will be checked
-    // check_verts contains the vert index that will be checked
-    // match will contain the particle index of the ref that is matched
-    num_util::check_type(match, NPY_INT);
-    num_util::check_rank(match, 1);
-    num_util::check_type(dist2, NPY_FLOAT);
-    num_util::check_rank(dist2, 1);
-    num_util::check_type(sdots, NPY_FLOAT);
-    num_util::check_rank(sdots, 1);
-    num_util::check_type(cdots, NPY_FLOAT);
-    num_util::check_rank(cdots, 1);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(shape_orientations, NPY_FLOAT);
-    unsigned int orientation_rank = num_util::rank(shape_orientations);
-    num_util::check_type(comp_orientations, NPY_FLOAT);
-    // num_util::check_rank(comp_orientations, 1);
+// void pairing::computePy(boost::python::numeric::array match,
+//                         boost::python::numeric::array dist2,
+//                         boost::python::numeric::array sdots,
+//                         boost::python::numeric::array cdots,
+//                         boost::python::numeric::array points,
+//                         boost::python::numeric::array shape_orientations,
+//                         boost::python::numeric::array comp_orientations)
+//     {
+//     // points contains all the particle positions; Np x 3
+//     // types contains all the types; Np (x 1)
+//     // angles contains the angle of each particle; Np (x1)
+//     // shapes contains the verticies of each type; Nt x Nv_max
+//     //      where any unpop'd vertices are nan
+//     // ref_list contains the types of shapes that will be referenced
+//     // check_list contains the types of shapes that will be checked
+//     // ref_verts contains the vert index that will be checked
+//     // check_verts contains the vert index that will be checked
+//     // match will contain the particle index of the ref that is matched
+//     num_util::check_type(match, NPY_INT);
+//     num_util::check_rank(match, 1);
+//     num_util::check_type(dist2, NPY_FLOAT);
+//     num_util::check_rank(dist2, 1);
+//     num_util::check_type(sdots, NPY_FLOAT);
+//     num_util::check_rank(sdots, 1);
+//     num_util::check_type(cdots, NPY_FLOAT);
+//     num_util::check_rank(cdots, 1);
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+//     num_util::check_type(shape_orientations, NPY_FLOAT);
+//     unsigned int orientation_rank = num_util::rank(shape_orientations);
+//     num_util::check_type(comp_orientations, NPY_FLOAT);
+//     // num_util::check_rank(comp_orientations, 1);
 
-    // get the number of particles
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    const unsigned int Np = num_util::shape(points)[0];
+//     // get the number of particles
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     const unsigned int Np = num_util::shape(points)[0];
 
-    //validate that the types and angles coming in are the correct size
-    num_util::check_dim(shape_orientations, 0, Np);
-    num_util::check_dim(comp_orientations, 0, Np);
+//     //validate that the types and angles coming in are the correct size
+//     num_util::check_dim(shape_orientations, 0, Np);
+//     num_util::check_dim(comp_orientations, 0, Np);
 
-    // get the raw data pointers and compute the cell list
-    unsigned int* match_raw = (unsigned int*) num_util::data(match);
-    float* dist2_raw = (float*) num_util::data(dist2);
-    float* sdots_raw = (float*) num_util::data(sdots);
-    float* cdots_raw = (float*) num_util::data(cdots);
-    const float3* points_raw = (float3*) num_util::data(points);
-    if (orientation_rank == 2)
-        {
-        num_util::check_dim(shape_orientations, 2, 4);
-        const float4* shape_orientations_raw = (float4*) num_util::data(shape_orientations);
-        const float4* comp_orientations_raw = (float4*) num_util::data(comp_orientations);
-        compute(match_raw,
-                dist2_raw,
-                sdots_raw,
-                cdots_raw,
-                points_raw,
-                shape_orientations_raw,
-                comp_orientations_raw,
-                Np);
-        }
-    else
-        {
-        const float* shape_angles_raw = (float*) num_util::data(shape_orientations);
-        const float* comp_angles_raw = (float*) num_util::data(comp_orientations);
-        compute(match_raw,
-                dist2_raw,
-                sdots_raw,
-                cdots_raw,
-                points_raw,
-                shape_angles_raw,
-                comp_angles_raw,
-                Np);
-        }
-    }
+//     // get the raw data pointers and compute the cell list
+//     unsigned int* match_raw = (unsigned int*) num_util::data(match);
+//     float* dist2_raw = (float*) num_util::data(dist2);
+//     float* sdots_raw = (float*) num_util::data(sdots);
+//     float* cdots_raw = (float*) num_util::data(cdots);
+//     const float3* points_raw = (float3*) num_util::data(points);
+//     if (orientation_rank == 2)
+//         {
+//         num_util::check_dim(shape_orientations, 2, 4);
+//         const float4* shape_orientations_raw = (float4*) num_util::data(shape_orientations);
+//         const float4* comp_orientations_raw = (float4*) num_util::data(comp_orientations);
+//         compute(match_raw,
+//                 dist2_raw,
+//                 sdots_raw,
+//                 cdots_raw,
+//                 points_raw,
+//                 shape_orientations_raw,
+//                 comp_orientations_raw,
+//                 Np);
+//         }
+//     else
+//         {
+//         const float* shape_angles_raw = (float*) num_util::data(shape_orientations);
+//         const float* comp_angles_raw = (float*) num_util::data(comp_orientations);
+//         compute(match_raw,
+//                 dist2_raw,
+//                 sdots_raw,
+//                 cdots_raw,
+//                 points_raw,
+//                 shape_angles_raw,
+//                 comp_angles_raw,
+//                 Np);
+//         }
+//     }
 
-void export_pairing()
-    {
-    class_<pairing>("pairing", init<trajectory::Box&, float, float, float, float, float>())
-        .def("getBox", &pairing::getBox, return_internal_reference<>())
-        .def("compute", &pairing::computePy)
-        ;
-    }
+// void export_pairing()
+//     {
+//     class_<pairing>("pairing", init<trajectory::Box&, float, float, float, float, float>())
+//         .def("getBox", &pairing::getBox, return_internal_reference<>())
+//         .def("compute", &pairing::computePy)
+//         ;
+//     }
 
 }; }; // end namespace freud::pairing

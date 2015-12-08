@@ -11,7 +11,6 @@
 #endif
 
 using namespace std;
-using namespace boost::python;
 
 using namespace tbb;
 
@@ -112,65 +111,65 @@ void ShapeSplit::compute(const vec3<float> *points,
     m_Nsplit = Nsplit;
     }
 
-void ShapeSplit::computePy(trajectory::Box& box,
-                           boost::python::numeric::array points,
-                           boost::python::numeric::array orientations,
-                           boost::python::numeric::array split_points)
-    {
-    // validate input type and rank
-    updateBox(box);
-    num_util::check_type(points, NPY_FLOAT);
-    num_util::check_rank(points, 2);
-    num_util::check_type(split_points, NPY_FLOAT);
-    num_util::check_rank(split_points, 2);
+// void ShapeSplit::computePy(trajectory::Box& box,
+//                            boost::python::numeric::array points,
+//                            boost::python::numeric::array orientations,
+//                            boost::python::numeric::array split_points)
+//     {
+//     // validate input type and rank
+//     updateBox(box);
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+//     num_util::check_type(split_points, NPY_FLOAT);
+//     num_util::check_rank(split_points, 2);
 
-    // validate that the 2nd dimension is only 3
-    num_util::check_dim(points, 1, 3);
-    unsigned int Np = num_util::shape(points)[0];
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
 
-    num_util::check_dim(split_points, 1, 3);
-    unsigned int Nsplit = num_util::shape(split_points)[0];
+//     num_util::check_dim(split_points, 1, 3);
+//     unsigned int Nsplit = num_util::shape(split_points)[0];
 
-    // get the raw data pointers and compute the cell list
-    vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-    vec3<float>* split_points_raw = (vec3<float>*) num_util::data(split_points);
+//     // get the raw data pointers and compute the cell list
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     vec3<float>* split_points_raw = (vec3<float>*) num_util::data(split_points);
 
-    // needs to check how many dims there are
-    if (num_util::rank(orientations) == 1)
-        {
-        float *theta_raw = (float*) num_util::data(orientations);
-        quat<float> *orientations_raw = new quat<float>[Np];
-        for (unsigned int i=0; i<Np; i++)
-            {
-            float theta = theta_raw[i];
-            orientations_raw[i] = quat<float>::fromAxisAngle(vec3<float>(0, 0, 1), theta);
-            }
-        // compute with the GIL released
-            {
-            util::ScopedGILRelease gil;
-            compute(points_raw, Np, orientations_raw, split_points_raw, Nsplit);
-            }
-        }
-    else
-        {
-        quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
-        // compute with the GIL released
-            {
-            util::ScopedGILRelease gil;
-            compute(points_raw, Np, orientations_raw, split_points_raw, Nsplit);
-            }
-        }
+//     // needs to check how many dims there are
+//     if (num_util::rank(orientations) == 1)
+//         {
+//         float *theta_raw = (float*) num_util::data(orientations);
+//         quat<float> *orientations_raw = new quat<float>[Np];
+//         for (unsigned int i=0; i<Np; i++)
+//             {
+//             float theta = theta_raw[i];
+//             orientations_raw[i] = quat<float>::fromAxisAngle(vec3<float>(0, 0, 1), theta);
+//             }
+//         // compute with the GIL released
+//             {
+//             util::ScopedGILRelease gil;
+//             compute(points_raw, Np, orientations_raw, split_points_raw, Nsplit);
+//             }
+//         }
+//     else
+//         {
+//         quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
+//         // compute with the GIL released
+//             {
+//             util::ScopedGILRelease gil;
+//             compute(points_raw, Np, orientations_raw, split_points_raw, Nsplit);
+//             }
+//         }
 
-    }
+//     }
 
-void export_ShapeSplit()
-    {
-    class_<ShapeSplit>("ShapeSplit", init<>())
-        .def("getBox", &ShapeSplit::getBox, return_internal_reference<>())
-        .def("compute", &ShapeSplit::computePy)
-        .def("getShapeSplit", &ShapeSplit::getShapeSplitPy)
-        .def("getShapeOrientations", &ShapeSplit::getShapeOrientationsPy)
-        ;
-    }
+// void export_ShapeSplit()
+//     {
+//     class_<ShapeSplit>("ShapeSplit", init<>())
+//         .def("getBox", &ShapeSplit::getBox, return_internal_reference<>())
+//         .def("compute", &ShapeSplit::computePy)
+//         .def("getShapeSplit", &ShapeSplit::getShapeSplitPy)
+//         .def("getShapeOrientations", &ShapeSplit::getShapeOrientationsPy)
+//         ;
+//     }
 
 }; }; // end namespace freud::shapesplit

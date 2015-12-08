@@ -6,14 +6,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/python.hpp>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "num_util.h"
 #include "trajectory.h"
 #include "Index1D.h"
 
@@ -57,8 +55,8 @@ class Lind
                  unsigned int Np,
                  unsigned int Nf);
 
-        //! Python wrapper for compute
-        void computePy(boost::python::numeric::array points);
+        // //! Python wrapper for compute
+        // void computePy(boost::python::numeric::array points);
 
         //! Get a reference to the last computed rdf
         boost::shared_array< float > getLindexArray()
@@ -66,12 +64,12 @@ class Lind
             return m_lindex_array;
             }
 
-        //! Python wrapper for getLindex() (returns a copy)
-        boost::python::numeric::array getLindexArrayPy()
-            {
-            float *arr = m_lindex_array.get();
-            return num_util::makeNum(arr, m_Np);
-            }
+        // //! Python wrapper for getLindex() (returns a copy)
+        // boost::python::numeric::array getLindexArrayPy()
+        //     {
+        //     float *arr = m_lindex_array.get();
+        //     return num_util::makeNum(arr, m_Np);
+        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
@@ -80,11 +78,6 @@ class Lind
         unsigned int m_Np;                //!< used only to return the array
         boost::shared_array< float > m_lindex_array;         //!< lindex array computed
     };
-
-/*! \internal
-    \brief Exports all classes in this file to python
-*/
-void export_lindemann();
 
 }; }; // end namespace freud::lindemann
 
