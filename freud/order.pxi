@@ -13,14 +13,23 @@ cimport numpy as np
 np.import_array()
 
 cdef class BondOrder:
-    """Compute the hexatic order parameter for each particle.
+    """Compute the bond order diagram for the system of particles.
 
-    Lorem Ipsom blah blah
+    Create the 2D histogram containing the number of bonds formed through the surface of a unit sphere based on the
+    equatorial (Theta) and azimuthal (Phi) *check on this* angles.
 
     :param r_max: distance over which to calculate
-    :param dr: bin size
+    :param k: order parameter i. to be removed
+    :param n: number of neighbors to find
+    :param nBinsT: number of theta bins
+    :param nBinsP: number of phi bins
     :type r_max: float
-    :type dr: float
+    :type k: unsigned int
+    :type n: unsigned int
+    :type nBinsT: unsigned int
+    :type nBinsP: unsigned int
+
+    :todo: remove k, it is not used as such
     """
     cdef order.BondOrder *thisptr
 
@@ -160,3 +169,102 @@ cdef class BondOrder:
         """
         cdef unsigned int np = self.thisptr.getNBinsPhi()
         return np
+
+cdef class EntropicBonding:
+    """Compute the entropic bonds each particle in the system.
+
+    For each particle in the system determine which other particles are in which entropic bonding sites.
+
+    :param xmax: +/- x distance to search for bonds
+    :param ymax: +/- y distance to search for bonds
+    :param nx: number of bins in x
+    :param ny: number of bins in x
+    :param nNeighbors: number of neighbors to find
+    :param nBonds: number of bonds to populate per particle
+    :param bondMap: 2D array containing the bond index for each x, y coordinate
+    :type xmax: float
+    :type ymax: float
+    :type nx: unsigned int
+    :type ny: unsigned int
+    :type nNeighbors: unsigned int
+    :type nBonds: unsigned int
+    """
+    cdef order.EntropicBonding *thisptr
+
+    def __cinit__(self, xmax, ymax, nx, ny, nNeighbors, nBonds, bondMap):
+        # should I extract from the bond map (nx, ny)
+        # cdef np.ndarray[unsigned int, ndim=1] l_bondMap = np.ascontiguousarray(bondMap.flatten())
+        # self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, nBonds)
+        self.thisptr = new order.EntropicBonding()
+
+    # def __dealloc__(self):
+    #     del self.thisptr
+
+    # def compute(self, box, points, orientations):
+    #     """
+    #     Calculates the correlation function and adds to the current histogram.
+
+    #     :param box: simulation box
+    #     :param points: points to calculate the bonding
+    #     :param orientations: orientations as angles to use in computation
+    #     :type box: :py:meth:`freud.trajectory.Box`
+    #     :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+    #     :type orientations: np.ndarray(shape=(N), dtype=np.float32)
+    #     """
+    #     if points.dtype != np.float32:
+    #         raise ValueError("points must be a numpy float32 array")
+    #     if points.ndim != 2:
+    #         raise ValueError("points must be a 2 dimensional array")
+    #     if points.shape[1] != 3:
+    #         raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+    #     if orientations.dtype != np.float32:
+    #         raise ValueError("values must be a numpy float32 array")
+    #     if orientations.ndim != 1:
+    #         raise ValueError("values must be a 1 dimensional array")
+    #     cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+    #     cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
+    #     cdef unsigned int nP = <unsigned int> points.shape[0]
+    #     cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+    #     with nogil:
+    #         self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], nP)
+
+    # def getBonds(self):
+    #     """
+    #     :return: particle bonds
+    #     :rtype: np.float32
+    #     """
+    #     cdef unsigned int *bonds = self.thisptr.getBonds().get()
+    #     cdef np.npy_intp nbins[2]
+    #     nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
+    #     nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
+    #     cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bonds)
+    #     return result
+
+    # def getBox(self):
+    #     """
+    #     Get the box used in the calculation
+
+    #     :return: Freud Box
+    #     :rtype: :py:meth:`freud.trajectory.Box()`
+    #     """
+    #     return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+
+    # def getNBinsX(self):
+    #     """
+    #     Get the number of bins in the x-dimension of histogram
+
+    #     :return: nx
+    #     :rtype: unsigned int
+    #     """
+    #     cdef unsigned int nx = self.thisptr.getNBinsX()
+    #     return nx
+
+    # def getNBinsY(self):
+    #     """
+    #     Get the number of bins in the y-dimension of histogram
+
+    #     :return: ny
+    #     :rtype: unsigned int
+    #     """
+    #     cdef unsigned int ny = self.thisptr.getNBinsY()
+    #     return ny

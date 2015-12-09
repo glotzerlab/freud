@@ -31,7 +31,13 @@ class EntropicBonding
     {
     public:
         //! Constructor
-        EntropicBonding(float xmax, float ymax, float nNeighbors, unsigned int nBonds);
+        // EntropicBonding(float xmax,
+        //                 float ymax,
+        //                 unsigned int nx,
+        //                 unsigned int ny,
+        //                 unsigned int nNeighbors,
+        //                 unsigned int nBonds);
+        EntropicBonding();
 
         //! Destructor
         ~EntropicBonding();
@@ -42,54 +48,49 @@ class EntropicBonding
             return m_box;
             }
 
-        // //! Reset the bond order array to all zeros
-        // void resetBondOrder();
-
-        // //! Python wrapper for reset method
-        // void resetBondOrderPy()
-        //     {
-        //     resetBondOrder();
-        //     }
-
         //! Compute the bond order
-        void compute(vec3<float> *points,
+        void compute(trajectory::Box& box,
+                     vec3<float> *points,
                      float *orientations,
-                     unsigned int nP,
-                     unsigned int *bond_map,
-                     unsigned int nX,
-                     unsigned int nY);
-
-        //! Python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array points,
-        //                boost::python::numeric::array orientations,
-        //                boost::python::numeric::array bond_map);
-
-        void reduceBonds();
+                     unsigned int nP);
 
         //! Get a reference to the last computed rdf
-        boost::shared_array<int> getBonds();
+        boost::shared_array<unsigned int> getBonds();
 
-        //! Python wrapper for getRDF() (returns a copy)
-        // boost::python::numeric::array getBondsPy();
+        unsigned int getNP()
+            {
+            return m_nP;
+            }
+
+        unsigned int getNBinsX()
+            {
+            return m_nbins_x;
+            }
+
+        unsigned int getNBinsY()
+            {
+            return m_nbins_y;
+            }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_xmax;                     //!< Maximum r at which to determine neighbors
         float m_ymax;                     //!< Maximum r at which to determine neighbors
-        float m_nNeighbors;                        //!< number of neighbors to get
+        float m_dx;
+        float m_dy;
+        unsigned int m_nbins_x;             //!< Number of x bins to compute bonds
+        unsigned int m_nbins_y;             //!< Number of y bins to compute bonds
+        unsigned int m_nNeighbors;                        //!< number of neighbors to get
         unsigned int m_nBonds;                        //!< number of neighbors to get
+        unsigned int m_bond_map;                   //!< pointer to bonding map
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_nP;                //!< Last number of points computed
 
-        boost::shared_array<int> m_bonds;         //!< bin counts computed
+        boost::shared_array<unsigned int> m_bonds;         //!< bin counts computed
         // do I need this? I don't think so...
-        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
+        // tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
-
-//! Exports all classes in this file to python
-// void export_EntropicBonding();
 
 }; }; // end namespace freud::order
 

@@ -22,24 +22,41 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-EntropicBonding::EntropicBonding(float xmax, float ymax, float nNeighbors, unsigned int nBonds)
-    : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nNeighbors(nNeighbors), m_nBonds(nBonds), m_nP(0)
+// EntropicBonding::EntropicBonding(float xmax,
+//                                  float ymax,
+//                                  unsigned int nx,
+//                                  unsigned int ny,
+//                                  unsigned int nNeighbors,
+//                                  unsigned int nBonds)
+EntropicBonding::EntropicBonding()
+    // : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
+    //   m_nBonds(nBonds), m_nP(0)
     {
-    // sanity checks, but this is actually kinda dumb if these values are 1
-    // if (nbins_t < 1)
-    //     throw invalid_argument("must be at least 1 bin in theta");
-    // if (nbins_p < 1)
-    //     throw invalid_argument("must be at least 1 bin in p");
-    // calculate dt, dp
-    /*
-    0 < \theta < 2PI; 0 < \phi < PI
-    */
+    // if (m_nbins_x < 1)
+    //     throw invalid_argument("must be at least 1 bin in x");
+    // if (m_nbins_y < 1)
+    //     throw invalid_argument("must be at least 1 bin in y");
+    // if (m_xmax < 0.0f)
+    //     throw invalid_argument("xmax must be positive");
+    // if (m_ymax < 0.0f)
+    //     throw invalid_argument("ymax must be positive");
+    // if (m_nNeighbors < 1)
+    //     throw invalid_argument("must be at least 1 neighbor");
+    // if (m_nBonds < 1)
+    //     throw invalid_argument("must be at least 1 bond");
+    // // calculate dx, dy
+    // m_dx = 2.0 * m_xmax / float(m_nbins_x);
+    // m_dy = 2.0 * m_ymax / float(m_nbins_y);
+    // if (m_dx > m_xmax)
+    //     throw invalid_argument("xmax must be greater than dx");
+    // if (m_dy > m_ymax)
+    //     throw invalid_argument("ymax must be greater than dy");
 
-    // create NearestNeighbors object
-    // if n is zero, set the number of neighbors to k
-    // otherwise set to n
-    m_rmax = sqrtf(m_xmax*m_xmax + m_ymax*m_ymax);
-    m_nn = new locality::NearestNeighbors(m_rmax, nNeighbors);
+    // // create NearestNeighbors object
+    // // if n is zero, set the number of neighbors to k
+    // // otherwise set to n
+    // m_rmax = sqrtf(m_xmax*m_xmax + m_ymax*m_ymax);
+    // m_nn = new locality::NearestNeighbors(m_rmax, nNeighbors);
     }
 
 EntropicBonding::~EntropicBonding()
@@ -50,7 +67,7 @@ EntropicBonding::~EntropicBonding()
 class ComputeBonds
     {
     private:
-        int* m_bonds;
+        unsigned int* m_bonds;
         const trajectory::Box& m_box;
         const float m_xmax;
         const float m_ymax;
@@ -64,7 +81,7 @@ class ComputeBonds
         const unsigned int m_nY;
         const unsigned int m_nBonds;
     public:
-        ComputeBonds(int* bonds,
+        ComputeBonds(unsigned int* bonds,
                      const trajectory::Box& box,
                      const float xmax,
                      const float ymax,
@@ -144,7 +161,7 @@ class ComputeBonds
             }
     };
 
-boost::shared_array<int> EntropicBonding::getBonds()
+boost::shared_array<unsigned int> EntropicBonding::getBonds()
     {
     return m_bonds;
     }
@@ -158,24 +175,23 @@ boost::shared_array<int> EntropicBonding::getBonds()
 //     return num_util::makeNum(arr, dims);
 //     }
 
-void EntropicBonding::compute(vec3<float> *points,
+void EntropicBonding::compute(trajectory::Box& box,
+                              vec3<float> *points,
                               float *orientations,
-                              unsigned int nP,
-                              unsigned int *bond_map,
-                              unsigned int nX,
-                              unsigned int nY)
+                              unsigned int nP)
     {
+    m_box = box;
     // compute the cell list
     m_nn->compute(m_box,points,nP,points,nP);
     m_nn->setRMax(m_rmax);
     if (nP != m_nP)
         {
-        m_bonds = boost::shared_array<int>(new int[nP * m_nBonds]);
+        m_bonds = boost::shared_array<unsigned int>(new unsigned int[nP * m_nBonds]);
         }
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,nP),
-                 ComputeBonds((int*)m_bonds.get(),
+                 ComputeBonds((unsigned int*)m_bonds.get(),
                               m_box,
                               m_xmax,
                               m_ymax,
@@ -184,61 +200,14 @@ void EntropicBonding::compute(vec3<float> *points,
                               points,
                               orientations,
                               nP,
-                              bond_map,
-                              nX,
-                              nY,
+                              m_bond_map,
+                              m_nbins_x,
+                              m_nbins_y,
                               m_nBonds));
 
     // save the last computed number of particles
     m_nP = nP;
     }
-
-//! \internal
-/*! \brief Exposed function to python to calculate the PMF
-*/
-// void EntropicBonding::computePy(trajectory::Box& box,
-//                                 boost::python::numeric::array points,
-//                                 boost::python::numeric::array orientations,
-//                                 boost::python::numeric::array bond_map)
-//     {
-//     //validate input type and rank
-//     m_box = box;
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-//     num_util::check_type(orientations, NPY_FLOAT);
-//     num_util::check_rank(orientations, 2);
-//     // this is 2D for now to work out issues...we'll move to 3D once I get the other stuff figured out
-//     num_util::check_type(bond_map, NPY_FLOAT);
-//     num_util::check_rank(bond_map, 2);
-
-//     // get the dimensions
-//     unsigned int nY = num_util::shape(bond_map)[0];
-//     unsigned int nX = num_util::shape(bond_map)[0];
-
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int nP = num_util::shape(points)[0];
-
-//     // check the size of angles to be correct
-//     num_util::check_dim(orientations, 0, nP);
-//     num_util::check_dim(orientations, 1, 1);
-
-//     // get the raw data pointers and compute order parameter
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-//     float* orientations_raw = (float*) num_util::data(orientations);
-//     // need to get pointers to the float array...ugh
-//     unsigned int* bond_map_raw = (unsigned int*) num_util::data(bond_map);
-
-//         // compute the order parameter with the GIL released
-//         {
-//         util::ScopedGILRelease gil;
-//         compute(points_raw,
-//                 orientations_raw,
-//                 nP,
-//                 bond_map_raw,
-//                 nX,
-//                 nY);
-//         }
-//     }
 
 }; }; // end namespace freud::order
 
