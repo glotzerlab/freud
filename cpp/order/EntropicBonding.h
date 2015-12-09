@@ -18,7 +18,7 @@
 #ifndef _ENTROPIC_BONDING_H__
 #define _ENTROPIC_BONDING_H__
 
-/*! \file BondOrder.h
+/*! \file EntropicBonding.h
     \brief Compute the hexatic order parameter for each particle
 */
 

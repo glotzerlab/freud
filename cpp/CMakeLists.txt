@@ -78,6 +78,8 @@ set(FREUD_SOURCES
             order/TransOrderParameter.cc
             order/BondOrder.h
             order/BondOrder.cc
+            order/EntropicBonding.h
+            order/EntropicBonding.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
             util/Index1D.h
