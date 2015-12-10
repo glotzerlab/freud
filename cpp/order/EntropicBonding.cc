@@ -22,41 +22,41 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-// EntropicBonding::EntropicBonding(float xmax,
-//                                  float ymax,
-//                                  unsigned int nx,
-//                                  unsigned int ny,
-//                                  unsigned int nNeighbors,
-//                                  unsigned int nBonds)
-EntropicBonding::EntropicBonding()
-    // : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
-    //   m_nBonds(nBonds), m_nP(0)
+EntropicBonding::EntropicBonding(float xmax,
+                                 float ymax,
+                                 unsigned int nx,
+                                 unsigned int ny,
+                                 unsigned int nNeighbors,
+                                 unsigned int nBonds,
+                                 unsigned int *bond_map)
+    : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
+      m_nBonds(nBonds), m_bond_map(bond_map), m_nP(0)
     {
-    // if (m_nbins_x < 1)
-    //     throw invalid_argument("must be at least 1 bin in x");
-    // if (m_nbins_y < 1)
-    //     throw invalid_argument("must be at least 1 bin in y");
-    // if (m_xmax < 0.0f)
-    //     throw invalid_argument("xmax must be positive");
-    // if (m_ymax < 0.0f)
-    //     throw invalid_argument("ymax must be positive");
-    // if (m_nNeighbors < 1)
-    //     throw invalid_argument("must be at least 1 neighbor");
-    // if (m_nBonds < 1)
-    //     throw invalid_argument("must be at least 1 bond");
-    // // calculate dx, dy
-    // m_dx = 2.0 * m_xmax / float(m_nbins_x);
-    // m_dy = 2.0 * m_ymax / float(m_nbins_y);
-    // if (m_dx > m_xmax)
-    //     throw invalid_argument("xmax must be greater than dx");
-    // if (m_dy > m_ymax)
-    //     throw invalid_argument("ymax must be greater than dy");
+    if (m_nbins_x < 1)
+        throw invalid_argument("must be at least 1 bin in x");
+    if (m_nbins_y < 1)
+        throw invalid_argument("must be at least 1 bin in y");
+    if (m_xmax < 0.0f)
+        throw invalid_argument("xmax must be positive");
+    if (m_ymax < 0.0f)
+        throw invalid_argument("ymax must be positive");
+    if (m_nNeighbors < 1)
+        throw invalid_argument("must be at least 1 neighbor");
+    if (m_nBonds < 1)
+        throw invalid_argument("must be at least 1 bond");
+    // calculate dx, dy
+    m_dx = 2.0 * m_xmax / float(m_nbins_x);
+    m_dy = 2.0 * m_ymax / float(m_nbins_y);
+    if (m_dx > m_xmax)
+        throw invalid_argument("xmax must be greater than dx");
+    if (m_dy > m_ymax)
+        throw invalid_argument("ymax must be greater than dy");
 
-    // // create NearestNeighbors object
-    // // if n is zero, set the number of neighbors to k
-    // // otherwise set to n
-    // m_rmax = sqrtf(m_xmax*m_xmax + m_ymax*m_ymax);
-    // m_nn = new locality::NearestNeighbors(m_rmax, nNeighbors);
+    // create NearestNeighbors object
+    // if n is zero, set the number of neighbors to k
+    // otherwise set to n
+    m_rmax = sqrtf(m_xmax*m_xmax + m_ymax*m_ymax);
+    m_nn = new locality::NearestNeighbors(m_rmax, nNeighbors);
     }
 
 EntropicBonding::~EntropicBonding()

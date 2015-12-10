@@ -25,17 +25,16 @@ cdef extern from "BondOrder.h" namespace "freud::order":
 
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:
-        # EntropicBonding(float, float, unsigned int, unsigned int, unsigned int, unsigned int)
-        EntropicBonding()
-        # const trajectory.Box &getBox() const
-        # void compute(trajectory.Box &,
-        #              vec3[float]*,
-        #              float*,
-        #              unsigned int) nogil
-        # shared_array[unsigned int] getBonds()
-        # unsigned int getNP()
-        # unsigned int getNBinsX()
-        # unsigned int getNBinsY()
+        EntropicBonding(float, float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *)
+        const trajectory.Box &getBox() const
+        void compute(trajectory.Box &,
+                     vec3[float]*,
+                     float*,
+                     unsigned int) nogil
+        shared_array[unsigned int] getBonds()
+        unsigned int getNP()
+        unsigned int getNBinsX()
+        unsigned int getNBinsY()
 
 # cdef extern from "HexOrderParameter.h" namespace "freud::order":
 
