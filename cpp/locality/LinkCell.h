@@ -43,6 +43,9 @@ const unsigned int LINK_CELL_TERMINATOR = 0xffffffff;
 class IteratorLinkCell
     {
     public:
+        IteratorLinkCell():
+            m_cell_list(NULL), m_Np(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
+
         IteratorLinkCell(const boost::shared_array<unsigned int>& cell_list,
                          unsigned int Np,
                          unsigned int Nc,
@@ -55,6 +58,16 @@ class IteratorLinkCell
             m_cell = cell;
             m_cur_idx = m_Np + cell;
             }
+
+        //! Copy the position of rhs into this object
+        void copy(const IteratorLinkCell &rhs)
+        {
+            m_cell_list = rhs.m_cell_list;
+            m_Np = rhs.m_Np;
+            m_Nc = rhs.m_Nc;
+            m_cur_idx = rhs.m_cur_idx;
+            m_cell = rhs.m_cell;
+        }
 
         //! Test if the iteration over the cell is complete
         bool atEnd()
