@@ -41,9 +41,26 @@ class TestLinkCell(unittest.TestCase):
         test1 = np.where(neighbors0 == cell_index1)[0];
         self.assertEqual(len(test0), len(test1))
 
+    def test_symmetric(self):
+        L = 10; #Box Dimensions
+        rcut = 2; #Cutoff radius
+        N = 40; # number of particles
+
+        #Initialize test points randomly
+        points = np.random.uniform(-L/2, L/2, (N, 3))
+        box = trajectory.Box(L);#Initialize Box
+        cl = locality.LinkCell(box,rcut);#Initialize cell list
+        cl.computeCellList(box, points);#Compute cell list
+
+        neighbors_ij = set()
+        for i in range(N):
+            cells = cl.getCellNeighbors(cl.getCell(points[i]))
+            for cell in cells:
+                neighbors_ij.update([(i, j) for j in cl.itercell(cell)])
+
+        neighbors_ji = set((j, i) for (i, j) in neighbors_ij)
+        # if i is a neighbor of j, then j should be a neighbor of i
+        self.assertEqual(neighbors_ij, neighbors_ji)
 
 if __name__ == '__main__':
     unittest.main()
-
-
-

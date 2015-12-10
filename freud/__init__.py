@@ -4,7 +4,7 @@
 # from . import cluster
 from . import density
 # from . import kspace
-# from . import locality
+from . import locality
 from . import trajectory
 # from . import order
 # from . import interface
