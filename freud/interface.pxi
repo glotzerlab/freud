@@ -6,8 +6,14 @@ import numpy as np
 cimport numpy as np
 
 cdef class InterfaceMeasure:
+    """Measures the interface between two sets of points.
+
+    :param box: :py:class:`freud.trajectory.Box` object
+    :param r_cut: Distance to search for particle neighbors
+    """
     cdef interface.InterfaceMeasure *thisptr
-    def __init__(self, box, float r_cut):
+
+    def __cinit__(self, box, float r_cut):
         cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new interface.InterfaceMeasure(cBox, r_cut)
 
@@ -15,6 +21,13 @@ cdef class InterfaceMeasure:
         del self.thisptr
 
     def compute(self, ref_points, points):
+        """Compute and return the number of particles at the interface between
+        the two given sets of points.
+
+        :param ref_points: Nx3 array-like object of one set of points
+        :param points: Nx3 array-like object of the other set of points
+        """
+
         ref_points = np.ascontiguousarray(ref_points, dtype=np.float32)
         if ref_points.ndim != 2 or ref_points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D reference points for computeCellList()')
