@@ -19,6 +19,9 @@ cdef class IteratorLinkCell:
     def __cinit__(self):
         self.thisptr = new locality.IteratorLinkCell()
 
+    def __dealloc__(self):
+        del self.thisptr
+
     cdef void copy(self, const locality.IteratorLinkCell &rhs):
         self.thisptr.copy(rhs)
 
@@ -66,6 +69,9 @@ cdef class LinkCell:
     def __cinit__(self, box, cell_width):
         cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new locality.LinkCell(cBox, float(cell_width))
+
+    def __dealloc__(self):
+        del self.thisptr
 
     def getBox(self):
         """Return the stored :py:class:`freud.trajectory.Box` object"""
@@ -133,6 +139,9 @@ cdef class NearestNeighbors:
 
     def __cinit__(self, rmax, n_neigh):
         self.thisptr = new locality.NearestNeighbors(float(rmax), int(n_neigh))
+
+    def __dealloc__(self):
+        del self.thisptr
 
     def getBox(self):
         """Return the stored :py:class:`freud.trajectory.Box` object"""
