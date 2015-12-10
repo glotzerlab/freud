@@ -36,7 +36,15 @@ cdef extern from "EntropicBonding.h" namespace "freud::order":
         unsigned int getNBinsX()
         unsigned int getNBinsY()
 
-# cdef extern from "HexOrderParameter.h" namespace "freud::order":
+cdef extern from "HexOrderParameter.h" namespace "freud::order":
+    cdef cppclass HexOrderParameter:
+        HexOrderParameter(float, float, unsigned int)
+        const trajectory.Box &getBox() const
+        void compute(trajectory.Box &,
+                     const vec3[float]*,
+                     unsigned int) nogil
+        # unsure how to pass back the std::complex, but this seems to compile...
+        shared_array[complex] getPsi()
 
 # cdef extern from "LocalDescriptors.h" namespace "freud::order":
 

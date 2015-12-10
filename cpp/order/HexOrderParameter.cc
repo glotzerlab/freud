@@ -74,9 +74,10 @@ class ComputeHexOrderParameter
             }
     };
 
-void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
+void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
+    m_box = box;
     m_nn->compute(m_box,points,Np,points,Np);
     m_nn->setRMax(m_rmax);
 
@@ -92,38 +93,5 @@ void HexOrderParameter::compute(const vec3<float> *points, unsigned int Np)
     // save the last computed number of particles
     m_Np = Np;
     }
-
-// void HexOrderParameter::computePy(trajectory::Box& box,
-//                                   boost::python::numeric::array points)
-//     {
-//     //validate input type and rank
-//     m_box = box;
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     // get the raw data pointers and compute order parameter
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-
-//         // compute the order parameter with the GIL released
-//         {
-//         util::ScopedGILRelease gil;
-//         compute(points_raw, Np);
-//         }
-//     }
-
-// void export_HexOrderParameter()
-//     {
-//     class_<HexOrderParameter>("HexOrderParameter", init<float>())
-//         .def(init<float, float>())
-//         .def(init<float, float, unsigned int>())
-//         .def("getBox", &HexOrderParameter::getBox, return_internal_reference<>())
-//         .def("compute", &HexOrderParameter::computePy)
-//         .def("getPsi", &HexOrderParameter::getPsiPy)
-//         ;
-//     }
 
 }; }; // end namespace freud::order

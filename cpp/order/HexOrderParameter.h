@@ -44,25 +44,15 @@ class HexOrderParameter
             }
 
         //! Compute the hex order parameter
-        void compute(const vec3<float> *points,
+        void compute(trajectory::Box& box,
+                     const vec3<float> *points,
                      unsigned int Np);
-
-        // //! Python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array points);
 
         //! Get a reference to the last computed psi
         boost::shared_array< std::complex<float> > getPsi()
             {
             return m_psi_array;
             }
-
-        // //! Python wrapper for getPsi() (returns a copy)
-        // boost::python::numeric::array getPsiPy()
-        //     {
-        //     std::complex<float> *arr = m_psi_array.get();
-        //     return num_util::makeNum(arr, m_Np);
-        //     }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
