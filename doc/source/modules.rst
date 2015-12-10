@@ -15,5 +15,6 @@ Several modules are available currently. Feel free to contribute your own module
    :maxdepth: 3
 
    density
+   locality
    trajectory
    pmft
