@@ -18,3 +18,11 @@ Entropic Bonding
 
 .. autoclass:: freud.order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, nBonds, bondMap)
     :members:
+
+Order Parameters
+================
+
+Lorem Ipsum
+
+.. autoclass:: freud.order.HexOrderParameter(rmax, k, n)
+    :members:

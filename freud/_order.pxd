@@ -2,6 +2,7 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
+from libcpp.complex cimport complex
 cimport freud._trajectory as trajectory
 
 cdef extern from "BondOrder.h" namespace "freud::order":
@@ -44,7 +45,8 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
                      const vec3[float]*,
                      unsigned int) nogil
         # unsure how to pass back the std::complex, but this seems to compile...
-        shared_array[complex] getPsi()
+        shared_array[ float complex ] getPsi()
+        unsigned int getNP()
 
 # cdef extern from "LocalDescriptors.h" namespace "freud::order":
 

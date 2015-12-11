@@ -5,6 +5,7 @@ from freud.util._Boost cimport shared_array
 cimport freud._trajectory as _trajectory
 cimport freud._order as order
 from libc.string cimport memcpy
+from libcpp.complex cimport complex
 import numpy as np
 cimport numpy as np
 
@@ -18,7 +19,7 @@ cdef class BondOrder:
     Create the 2D histogram containing the number of bonds formed through the surface of a unit sphere based on the
     equatorial (Theta) and azimuthal (Phi) *check on this* angles.
 
-    :note: currently being debugged. not guaranteed to work.
+    .. note:: currently being debugged. not guaranteed to work.
 
     :param r_max: distance over which to calculate
     :param k: order parameter i. to be removed
@@ -31,7 +32,7 @@ cdef class BondOrder:
     :type nBinsT: unsigned int
     :type nBinsP: unsigned int
 
-    :todo: remove k, it is not used as such
+    .. todo:: remove k, it is not used as such
     """
     cdef order.BondOrder *thisptr
 
@@ -177,7 +178,7 @@ cdef class EntropicBonding:
 
     For each particle in the system determine which other particles are in which entropic bonding sites.
 
-    :note: currently being debugged. not guaranteed to work.
+    .. note:: currently being debugged. not guaranteed to work.
 
     :param xmax: +/- x distance to search for bonds
     :param ymax: +/- y distance to search for bonds
@@ -272,102 +273,85 @@ cdef class EntropicBonding:
         cdef unsigned int ny = self.thisptr.getNBinsY()
         return ny
 
-# cdef class HexOrderParameter:
-#     """Compute the entropic bonds each particle in the system.
+cdef class HexOrderParameter:
+    """Calculates the x-atic order parameter for each particle in the system.
 
-#     For each particle in the system determine which other particles are in which entropic bonding sites.
+    The x-atic order parameter for a particle :math:`i` and its :math:`n` neighbors :math:`j` is given by:
 
-#     :note: currently being debugged. not guaranteed to work.
+    :math:`\\psi_k \\left( i \\right) = \\frac{1}{n} \\sum_j^n e^{k i \\phi_{ij}}`
 
-#     :param xmax: +/- x distance to search for bonds
-#     :param ymax: +/- y distance to search for bonds
-#     :param nx: number of bins in x
-#     :param ny: number of bins in x
-#     :param nNeighbors: number of neighbors to find
-#     :param nBonds: number of bonds to populate per particle
-#     :param bondMap: 2D array containing the bond index for each x, y coordinate
-#     :type xmax: float
-#     :type ymax: float
-#     :type nx: unsigned int
-#     :type ny: unsigned int
-#     :type nNeighbors: unsigned int
-#     :type nBonds: unsigned int
-#     """
-#     cdef order.EntropicBonding *thisptr
+    The parameter :math:`k` governs the symmetry of the order parameter while the parameter :math:`n` governs the number \
+    of neighbors of particle :math:`i` to average over. :math:`\\phi_{ij}` is the angle between the vector \
+     :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`
 
-#     def __cinit__(self, xmax, ymax, nx, ny, nNeighbors, nBonds, bondMap):
-#         # should I extract from the bond map (nx, ny)
-#         cdef np.ndarray[unsigned int, ndim=1] l_bondMap = np.ascontiguousarray(bondMap.flatten())
-#         self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, nBonds, <unsigned int*>&l_bondMap[0])
+    .. note:: 2D: This calculation is defined for 2D systems only. However particle positions are still required to be \
+    (x, y, 0)
 
-#     def __dealloc__(self):
-#         del self.thisptr
+    :param rmax: +/- r distance to search for neighbors
+    :param k: symmetry of order parameter (:math:`k=6` is hexatic)
+    :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
+    :type rmax: float
+    :type k: float
+    :type n: unsigned int
 
-#     def compute(self, box, points, orientations):
-#         """
-#         Calculates the correlation function and adds to the current histogram.
+    .. note:: While :math:`k` is a float, this is due to its use in calculations requiring floats. Passing in \
+    non-integer values will result in undefined behavior
+    """
+    cdef order.HexOrderParameter *thisptr
 
-#         :param box: simulation box
-#         :param points: points to calculate the bonding
-#         :param orientations: orientations as angles to use in computation
-#         :type box: :py:meth:`freud.trajectory.Box`
-#         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-#         :type orientations: np.ndarray(shape=(N), dtype=np.float32)
-#         """
-#         if points.dtype != np.float32:
-#             raise ValueError("points must be a numpy float32 array")
-#         if points.ndim != 2:
-#             raise ValueError("points must be a 2 dimensional array")
-#         if points.shape[1] != 3:
-#             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-#         if orientations.dtype != np.float32:
-#             raise ValueError("values must be a numpy float32 array")
-#         if orientations.ndim != 1:
-#             raise ValueError("values must be a 1 dimensional array")
-#         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-#         cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
-#         cdef unsigned int nP = <unsigned int> points.shape[0]
-#         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-#         with nogil:
-#             self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], nP)
+    def __cinit__(self, rmax, k=float(6.0), n=int(0)):
+        self.thisptr = new order.HexOrderParameter(rmax, k, n)
 
-#     def getBonds(self):
-#         """
-#         :return: particle bonds
-#         :rtype: np.float32
-#         """
-#         cdef unsigned int *bonds = self.thisptr.getBonds().get()
-#         cdef np.npy_intp nbins[2]
-#         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
-#         nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
-#         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bonds)
-#         return result
+    def __dealloc__(self):
+        del self.thisptr
 
-#     def getBox(self):
-#         """
-#         Get the box used in the calculation
+    def compute(self, box, points):
+        """
+        Calculates the correlation function and adds to the current histogram.
 
-#         :return: Freud Box
-#         :rtype: :py:meth:`freud.trajectory.Box()`
-#         """
-#         return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        :param box: simulation box
+        :param points: points to calculate the order parameter
+        :type box: :py:meth:`freud.trajectory.Box`
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        with nogil:
+            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
 
-#     def getNBinsX(self):
-#         """
-#         Get the number of bins in the x-dimension of histogram
+    def getPsi(self):
+        """
+        :return: order parameter
+        :rtype: np.complex64
+        """
+        cdef float complex *psi = self.thisptr.getPsi().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>psi)
+        return result
 
-#         :return: nx
-#         :rtype: unsigned int
-#         """
-#         cdef unsigned int nx = self.thisptr.getNBinsX()
-#         return nx
+    def getBox(self):
+        """
+        Get the box used in the calculation
 
-#     def getNBinsY(self):
-#         """
-#         Get the number of bins in the y-dimension of histogram
+        :return: Freud Box
+        :rtype: :py:meth:`freud.trajectory.Box()`
+        """
+        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
 
-#         :return: ny
-#         :rtype: unsigned int
-#         """
-#         cdef unsigned int ny = self.thisptr.getNBinsY()
-#         return ny
+    def getNP(self):
+        """
+        Get the number of particles
+
+        :return: np
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
