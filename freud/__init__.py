@@ -10,7 +10,7 @@ from . import trajectory
 from . import interface
 # from . import pairing
 # from . import shape
-# from . import voronoi
+from . import voronoi
 # from . import sphericalharmonicorderparameters
 # from . import lindemann
 from . import pmft
