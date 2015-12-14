@@ -19,3 +19,4 @@ Several modules are available currently. Feel free to contribute your own module
    locality
    trajectory
    pmft
+   order

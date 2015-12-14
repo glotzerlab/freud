@@ -6,7 +6,7 @@ from . import density
 # from . import kspace
 from . import locality
 from . import trajectory
-# from . import order
+from . import order
 from . import interface
 # from . import pairing
 # from . import shape
