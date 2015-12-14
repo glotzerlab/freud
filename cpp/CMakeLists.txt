@@ -38,7 +38,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/lindemann
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
-                    ${CMAKE_CURRENT_SOURCE_DIR}/sphericalharmonicorderparameters
                     ${CMAKE_CURRENT_SOURCE_DIR}/pairing
                     ${CMAKE_CURRENT_SOURCE_DIR}/pmft
                     ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap
@@ -115,20 +114,20 @@ set(FREUD_SOURCES
             shapesplit/shapesplit.cc
             shapesplit/shapesplit.h
             interface/InterfaceMeasure.h
-            sphericalharmonicorderparameters/LocalQl.h
-            sphericalharmonicorderparameters/LocalQl.cc
-            sphericalharmonicorderparameters/LocalQlNear.h
-            sphericalharmonicorderparameters/LocalQlNear.cc
-            sphericalharmonicorderparameters/LocalWl.h
-            sphericalharmonicorderparameters/LocalWl.cc
-            sphericalharmonicorderparameters/LocalWlNear.h
-            sphericalharmonicorderparameters/LocalWlNear.cc
-            sphericalharmonicorderparameters/SolLiq.h
-            sphericalharmonicorderparameters/SolLiq.cc
-            sphericalharmonicorderparameters/SolLiqNear.h
-            sphericalharmonicorderparameters/SolLiqNear.cc
-            sphericalharmonicorderparameters/wigner3j.cc
-            sphericalharmonicorderparameters/wigner3j.h
+            order/LocalQl.h
+            order/LocalQl.cc
+            order/LocalQlNear.h
+            order/LocalQlNear.cc
+            order/LocalWl.h
+            order/LocalWl.cc
+            order/LocalWlNear.h
+            order/LocalWlNear.cc
+            order/SolLiq.h
+            order/SolLiq.cc
+            order/SolLiqNear.h
+            order/SolLiqNear.cc
+            order/wigner3j.cc
+            order/wigner3j.h
             viz/colormap.h
             viz/colormap.cc
             viz/colorutil.h

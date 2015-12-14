@@ -16,7 +16,7 @@
     \brief Compute a Ql per particle using N nearest neighbors instead of r_cut
 */
 
-namespace freud { namespace sphericalharmonicorderparameters {
+namespace freud { namespace order {
 
 //! Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points
 /*!
@@ -177,6 +177,6 @@ class LocalQlNear
         boost::shared_array< double > m_QliAveNorm;     //! < QlAveNorm order paramter for each particle i
     };
 
-}; }; // end namespace freud::localqlnear
+}; }; // end namespace freud::order
 
 #endif // #define _LOCAL_QL_NEAR_H__

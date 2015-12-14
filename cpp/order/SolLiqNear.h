@@ -1,17 +1,19 @@
-#ifndef _SOL_LIQ_H__
-#define _SOL_LIQ_H__
+#ifndef _SOL_LIQ_NEAR_H__
+#define _SOL_LIQ_NEAR_H__
 
 #include <boost/shared_array.hpp>
 //#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "HOOMDMath.h"
+#define swap freud_swap
 #include "VectorMath.h"
+#undef swap
 
 #include <vector>
 #include <set>
 
 #include "Cluster.h"
-#include "LinkCell.h"
+#include "NearestNeighbors.h"
 
 #include "trajectory.h"
 #include <stdexcept>
@@ -21,13 +23,13 @@
 
 
 
-namespace freud { namespace sphericalharmonicorderparameters {
+namespace freud { namespace order {
 
 //! Computes dot products of qlm between particles and uses these for clustering
 /*!
 */
 
-class SolLiq
+class SolLiqNear
     {
     public:
         //! Constructor
@@ -38,7 +40,10 @@ class SolLiq
         @param Sthreshold Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like for clustering. (For l=6, 6-8 generally good for FCC or BCC structures)
         @param l Choose spherical harmonic Ql.  Must be positive and even.
         **/
-        SolLiq(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l);
+        SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn);
+
+        //! Destructor
+        ~SolLiqNear();
 
         //! Get the simulation box
         const trajectory::Box& getBox()
@@ -50,8 +55,8 @@ class SolLiq
         void setBox(const trajectory::Box newbox)
             {
             m_box = newbox;  //Set
-            locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );  //Rebuild cell list
-            m_lc = newLinkCell;
+            delete m_nn;
+            m_nn = new locality::NearestNeighbors(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list
             }
 
 
@@ -63,8 +68,7 @@ class SolLiq
                 //May not be necessary if std::max(m_rmax, m_rmax_cluster) is used to rebuild cell list here, and in setBox.
 
             m_rmax_cluster = rcut_cluster;  //Set
-            locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );  //Rebuild cell list.
-            m_lc = newLinkCell;
+            m_nn = new locality::NearestNeighbors(std::max(m_rmax, m_rmax_cluster), m_k );  //Rebuild cell list
             }
 
         //! Compute the Solid-Liquid Order Parameter
@@ -158,14 +162,6 @@ class SolLiq
             {
             return m_number_of_connections;
             }
-
-        // //! Number of neighbors in the local coordinate shell of each particle.
-        // boost::python::numeric::array getNumberOfNeighborsPy()
-        //     {
-        //     unsigned int *arr = m_number_of_neighbors.get();
-        //     return num_util::makeNum(arr,m_Np);
-        //     }
-
         // //! Python wrapper for retrieving number of connections per particle
         // boost::python::numeric::array getNumberOfConnectionsPy()
         //     {
@@ -281,7 +277,8 @@ class SolLiq
         trajectory::Box m_box;      //!< Simulation box the particles belong in
         float m_rmax;               //!< Maximum cutoff radius at which to determine local environment
         float m_rmax_cluster;       //!< Maximum radius at which to cluster solid-like particles;
-        locality::LinkCell m_lc;    //!< LinkCell to bin particles for the computation of local environments
+        float m_k;                  //!< Number of neighbors
+        locality::NearestNeighbors *m_nn;    //!< NearestNeighbors to bin particles for the computation of local environments
 
         unsigned int m_Np;          //!< Last number of points computed
         boost::shared_array< std::complex<float> > m_Qlmi_array; //!< Stores Qlm for each particle i
@@ -301,6 +298,6 @@ class SolLiq
         std::vector<unsigned int> m_number_of_shared_connections;  //!Stores number of shared neighbors for all ij pairs considered
     };
 
-}; }; // end namespace freud::sol_liq
+}; }; // end namespace freud::sol_liq_near
 
-#endif // _SOL_LIQ_H__
+#endif // _SOL_LIQ_NEAR_H__

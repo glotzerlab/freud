@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace freud { namespace sphericalharmonicorderparameters {
+namespace freud { namespace order {
 
 SolLiq::SolLiq(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l)
     :m_box(box), m_rmax(rmax), m_rmax_cluster(rmax), m_lc(box, rmax), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold), m_l(l)

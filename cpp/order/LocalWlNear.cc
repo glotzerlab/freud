@@ -1,18 +1,19 @@
-#include "LocalQlNear.h"
-
+#include "LocalWlNear.h"
+#include "wigner3j.h"
 #include <stdexcept>
 #include <complex>
+#include <algorithm>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace std;
 
-/*! \file LocalQl.cc
-    \brief Compute a Ql per particle using N nearest neighbors instead of r_cut
+/*! \file LocalWlNear.cc
+    \brief Compute a Wl per particle using the number of nearest neighbors.  Returns NaN if no neighbors.
 */
 
-namespace freud { namespace sphericalharmonicorderparameters {
+namespace freud { namespace order {
 
-LocalQlNear::LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn = 12)
+LocalWlNear::LocalWlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn = 12)
     :m_box(box), m_rmax(rmax), m_l(l), m_k(kn)
     {
     if (m_rmax < 0.0f)
@@ -24,15 +25,16 @@ LocalQlNear::LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l,
         fprintf(stderr,"Current value of m_l is %d\n",m_l);
         throw invalid_argument("This method requires even values of l!");
         }
+    m_normalizeWl = false;
     m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
 
-LocalQlNear::~LocalQlNear()
+LocalWlNear::~LocalWlNear()
     {
     delete m_nn;
     }
 
-void LocalQlNear::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
+void LocalWlNear::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
     {
     if(Y.size() != 2*m_l+1)
         Y.resize(2*m_l+1);
@@ -41,40 +43,42 @@ void LocalQlNear::Ylm(const double theta, const double phi, std::vector<std::com
         //Doc for boost spherical harmonic
         //http://www.boost.org/doc/libs/1_53_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/sph_harm.html
         // theta = colatitude = 0..Pi
-        // Phi = azimuthal (longitudinal) 0..2pi).
+        // phi = azimuthal (longitudinal) 0..2pi).
         Y[m+m_l]= boost::math::spherical_harmonic(m_l, m, theta, phi);
 
     for(unsigned int i = 1; i <= m_l; i++)
         Y[i+m_l] = Y[-i+m_l];
     }
 
-// void LocalQl::compute(const float3 *points, unsigned int Np)
-void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
+void LocalWlNear::compute(const vec3<float> *points, unsigned int Np)
     {
+    //Get wigner3j coefficients from wigner3j.cc
+    int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
+    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    m_wigner3jvalues = getWigner3j(m_l);
 
     //Set local data size
     m_Np = Np;
 
     //Initialize neighbor list
-    m_nn->compute(m_box,points,Np,points,Np);
+    m_nn->compute(m_box,points,m_Np,points,m_Np);
 
     double rmaxsq = m_rmax * m_rmax;
-    double normalizationfactor = 4*M_PI/(2*m_l+1);
-
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
     m_Qlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
     m_Qli = boost::shared_array<double>(new double[m_Np]);
+    m_Wli = boost::shared_array<complex<double> >(new complex<double>[m_Np]);
     m_Qlm = boost::shared_array<complex<double> >(new complex<double>[2*m_l+1]);
     memset((void*)m_Qlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
-    memset((void*)m_Qli.get(), 0, sizeof(double)*m_Np);
+    memset((void*)m_Wli.get(), 0, sizeof(complex<double>)*m_Np);
     memset((void*)m_Qlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
+    memset((void*)m_Qli.get(), 0, sizeof(double)*m_Np);
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
-        // float3 ref = points[i];
         vec3<float> ref = points[i];
         boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
 
@@ -83,7 +87,7 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
             {
             unsigned int j = neighbors[neigh_idx];
 
-            //compute r between the two particles.
+            // compute r between the two particles
             vec3<float> delta = m_box.wrap(points[j] - ref);
             float rsq = dot(delta, delta);
 
@@ -93,33 +97,56 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
                 double theta = acos(delta.z / sqrt(rsq)); //0..Pi
 
                 std::vector<std::complex<double> > Y;
-                LocalQlNear::Ylm(theta, phi,Y);  //Fill up Ylm vector
+                LocalWlNear::Ylm(theta, phi,Y);  //Fill up Ylm vector
                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                     {
+                    // change to Index later
                     m_Qlmi[(2*m_l+1)*i+k]+=Y[k];
                     }
                 }
+
             } //End loop going over neighbor cells (and thus all neighboring particles);
-            //Normalize!
+        //Normalize!
         for(unsigned int k = 0; k < (2*m_l+1); ++k)
             {
             m_Qlmi[(2*m_l+1)*i+k]/= m_k;
-            m_Qli[i]+= abs( m_Qlmi[(2*m_l+1)*i+k]*conj(m_Qlmi[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
+            m_Qli[i]+=abs( m_Qlmi[(2*m_l+1)*i+k]*conj(m_Qlmi[(2*m_l+1)*i+k]) );
             m_Qlm[k]+= m_Qlmi[(2*m_l+1)*i+k];
+            } //Ends loop over particles i for Qlmi calcs
+        m_Qli[i]=sqrt(m_Qli[i]);//*sqrt(m_Qli[i])*sqrt(m_Qli[i]);//Normalize factor for Wli
+
+        //Wli calculation
+        unsigned int counter = 0;
+        for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
+            {
+            for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
+                {
+                unsigned int u3 = 3*m_l-u1-u2;
+                m_Wli[i] += m_wigner3jvalues[counter]*m_Qlmi[(2*m_l+1)*i+u1]*m_Qlmi[(2*m_l+1)*i+u2]*m_Qlmi[(2*m_l+1)*i+u3];
+                counter+=1;
+                }
+            }//Ends loop for Wli calcs
+        if(m_normalizeWl)
+            {
+            m_Wli[i]/=(m_Qli[i]*m_Qli[i]*m_Qli[i]);//Normalize
             }
-        m_Qli[i]*=normalizationfactor;
-        m_Qli[i]=sqrt(m_Qli[i]);
-        } //Ends loop over particles i for Qlmi calcs
+        m_counter = counter;
+        }
     }
 
-// void LocalQl::computeAve(const float3 *points, unsigned int Np)
-void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
+void LocalWlNear::computeAve(const vec3<float> *points, unsigned int Np)
     {
+
+    //Get wigner3j coefficients from wigner3j.cc
+    int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
+    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    m_wigner3jvalues = getWigner3j(m_l);
+
     //Set local data size
     m_Np = Np;
 
-    // compute the neighbor list
-    m_nn->compute(m_box,points,Np,points,Np);
+    //Initialize neighbor list
+    m_nn->compute(m_box,points,m_Np,points,m_Np);
 
     double rmaxsq = m_rmax * m_rmax;
     double normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -128,24 +155,27 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
     m_AveQlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
-    m_AveQli = boost::shared_array<double>(new double[m_Np]);
     m_AveQlm = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)]);
+    m_AveWli = boost::shared_array<complex<double> >(new complex<double> [m_Np]);
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
-    memset((void*)m_AveQli.get(), 0, sizeof(double)*m_Np);
     memset((void*)m_AveQlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
+    memset((void*)m_AveWli.get(), 0, sizeof(double)*m_Np);
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
+        // float3 ref = points[i];
         vec3<float> ref = points[i];
-        unsigned int neighborcount = 1;
+        unsigned int neighborcount=1;
         boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
-        //loop over neighbors
+
+        //loop over neighboring cells
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             //get cell points of 1st neighbor
             unsigned int j = neighbors[neigh_idx];
 
+            //iterate over particles in neighboring cells
             if (j == i)
                 {
                 continue;
@@ -159,10 +189,12 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
                 {
                 boost::shared_array<unsigned int> neighbors_2 = m_nn->getNeighbors(j);
 
+                //loop over 2nd neighboring cells
                 for (unsigned int neigh1_idx = 0; neigh1_idx < m_k; neigh1_idx++)
                     {
                     //get cell points of 2nd neighbor
                     unsigned int n1 = neighbors_2[neigh1_idx];
+
                     if (n1 == j)
                         {
                         continue;
@@ -175,39 +207,50 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
                         {
                         for(unsigned int k = 0; k < (2*m_l+1); ++k)
                             {
-                            //adding all the Qlm of the neighbors
-                            // change to Index?
                             m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*n1+k];
                             }
-                        neighborcount++;
-                        }
-                    }
-                } //End loop going over neighbor cells (and thus all neighboring particles);
+                         neighborcount++;
+                         }
+                     }
+                }
             }
-        //Normalize!
+         //Normalize!
         for (unsigned int k = 0; k < (2*m_l+1); ++k)
             {
-                //adding the Qlm of the particle i itself
                 m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*i+k];
                 m_AveQlmi[(2*m_l+1)*i+k]/= neighborcount;
-                m_AveQlm[k]+= m_AveQlmi[(2*m_l+1)*i+k];
-                m_AveQli[i]+= abs( m_AveQlmi[(2*m_l+1)*i+k]*conj(m_AveQlmi[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
+                m_AveQlm[k] += m_AveQlmi[(2*m_l+1)*i+k];
             }
-        m_AveQli[i]*=normalizationfactor;
-        m_AveQli[i]=sqrt(m_AveQli[i]);
+        //Ave Wli calculation
+        unsigned int counter = 0;
+        for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
+            {
+            for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
+                {
+                unsigned int u3 = 3*m_l-u1-u2;
+                m_AveWli[i]+= m_wigner3jvalues[counter]*m_AveQlmi[(2*m_l+1)*i+u1]*m_AveQlmi[(2*m_l+1)*i+u2]*m_AveQlmi[(2*m_l+1)*i+u3];
+                counter+=1;
+                }
+            }//Ends loop for Norm Wli calcs
+        m_counter = counter;
+
         } //Ends loop over particles i for Qlmi calcs
     }
 
-// void LocalQl::computeNorm(const float3 *points, unsigned int Np)
-void LocalQlNear::computeNorm(const vec3<float> *points, unsigned int Np)
+// void LocalWl::computeNorm(const float3 *points, unsigned int Np)
+void LocalWlNear::computeNorm(const vec3<float> *points, unsigned int Np)
     {
+
+    //Get wigner3j coefficients from wigner3j.cc
+    int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
+    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    m_wigner3jvalues = getWigner3j(m_l);
 
     //Set local data size
     m_Np = Np;
-    double normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    m_QliNorm = boost::shared_array<double>(new double[m_Np]);
-    memset((void*)m_QliNorm.get(), 0, sizeof(double)*m_Np);
+    m_WliNorm = boost::shared_array<complex<double> >(new complex<double>[m_Np]);
+    memset((void*)m_WliNorm.get(), 0, sizeof(complex<double>)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
@@ -217,25 +260,34 @@ void LocalQlNear::computeNorm(const vec3<float> *points, unsigned int Np)
 
     for(unsigned int i = 0; i < m_Np; ++i)
         {
-        for(unsigned int k = 0; k < (2*m_l+1); ++k)
+        //Norm Wli calculation
+        unsigned int counter = 0;
+        for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
             {
-            m_QliNorm[i]+= abs( m_Qlm[k]*conj(m_Qlm[k]) ); //Square by multiplying self w/ complex conj, then take real comp
-            }
-            m_QliNorm[i]*=normalizationfactor;
-            m_QliNorm[i]=sqrt(m_QliNorm[i]);
+            for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
+                {
+                unsigned int u3 = 3*m_l-u1-u2;
+                m_WliNorm[i]+= m_wigner3jvalues[counter]*m_Qlm[u1]*m_Qlm[u2]*m_Qlm[u3];
+                counter+=1;
+                }
+            }//Ends loop for Norm Wli calcs
+        m_counter = counter;
         }
     }
 
-// void LocalQl::computeAveNorm(const float3 *points, unsigned int Np)
-void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
+void LocalWlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
     {
+
+    //Get wigner3j coefficients from wigner3j.cc
+    int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
+    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    m_wigner3jvalues = getWigner3j(m_l);
 
     //Set local data size
     m_Np = Np;
-    double normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    m_QliAveNorm = boost::shared_array<double>(new double[m_Np]);
-    memset((void*)m_QliAveNorm.get(), 0, sizeof(double)*m_Np);
+    m_WliAveNorm = boost::shared_array<complex<double> >(new complex<double>[m_Np]);
+    memset((void*)m_WliAveNorm.get(), 0, sizeof(complex<double>)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
@@ -245,17 +297,24 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
 
     for(unsigned int i = 0; i < m_Np; ++i)
         {
-        for(unsigned int k = 0; k < (2*m_l+1); ++k)
+        //Norm Wli calculation
+        unsigned int counter = 0;
+        for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
             {
-            m_QliAveNorm[i]+= abs( m_AveQlm[k]*conj(m_AveQlm[k]) ); //Square by multiplying self w/ complex conj, then take real comp
-             }
-            m_QliAveNorm[i]*=normalizationfactor;
-            m_QliAveNorm[i]=sqrt(m_QliAveNorm[i]);
+            for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
+                {
+                unsigned int u3 = 3*m_l-u1-u2;
+                m_WliAveNorm[i]+= m_wigner3jvalues[counter]*m_AveQlm[u1]*m_AveQlm[u2]*m_AveQlm[u3];
+                counter+=1;
+                }
+            }//Ends loop for Norm Wli calcs
+        m_counter = counter;
         }
     }
 
 
-// void LocalQlNear::computePy(boost::python::numeric::array points)
+// //python wrapper for compute
+// void LocalWlNear::computePy(boost::python::numeric::array points)
 //     {
 //     //validate input type and rank
 //     num_util::check_type(points, NPY_FLOAT);
@@ -271,24 +330,7 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
 //     compute(points_raw, Np);
 //     }
 
-// void LocalQlNear::computeAvePy(boost::python::numeric::array points)
-//     {
-//     //validate input type and rank
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     // get the raw data pointers and compute the cell list
-//     // float3* points_raw = (float3*) num_util::data(points);
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-//     compute(points_raw, Np);
-//     computeAve(points_raw, Np);
-//     }
-
-// void LocalQlNear::computeNormPy(boost::python::numeric::array points)
+// void LocalWlNear::computeNormPy(boost::python::numeric::array points)
 //     {
 //     //validate input type and rank
 //     num_util::check_type(points, NPY_FLOAT);
@@ -305,7 +347,24 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
 //     computeNorm(points_raw, Np);
 //     }
 
-// void LocalQlNear::computeAveNormPy(boost::python::numeric::array points)
+// void LocalWlNear::computeAvePy(boost::python::numeric::array points)
+//     {
+//     //validate input type and rank
+//     num_util::check_type(points, NPY_FLOAT);
+//     num_util::check_rank(points, 2);
+
+//     // validate that the 2nd dimension is only 3
+//     num_util::check_dim(points, 1, 3);
+//     unsigned int Np = num_util::shape(points)[0];
+
+//     // get the raw data pointers and compute the cell list
+//     // float3* points_raw = (float3*) num_util::data(points);
+//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
+//     compute(points_raw, Np);
+//     computeAve(points_raw, Np);
+//     }
+
+// void LocalWlNear::computeAveNormPy(boost::python::numeric::array points)
 //     {
 //     //validate input type and rank
 //     num_util::check_type(points, NPY_FLOAT);
@@ -323,20 +382,45 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
 //     computeAveNorm(points_raw, Np);
 //     }
 
-// void export_LocalQlNear()
+/*! get wigner3j coefficients from python wrapper
+ old version of getting wigner3j from python wrapper
+void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
+	{
+	//validate input type and rank
+    num_util::check_type(wigner3jvalues, PyArray_DOUBLE);
+    num_util::check_rank(wigner3jvalues, 1);
+
+    // get dimension
+    unsigned int num_wigner3jcoefs = num_util::shape(wigner3jvalues)[0];
+    m_wigner3jvalues = boost::shared_array<double>(new double[num_wigner3jcoefs]);
+
+    // get the raw data pointers and compute the cell list
+    double* wig3j = (double*) num_util::data(wigner3jvalues);
+    for(unsigned int i = 0; i < num_wigner3jcoefs; i++)
+    	{
+    	m_wigner3jvalues[i] = wig3j[i];
+    	}
+    }
+ */
+
+// void export_LocalWlNear()
 //     {
-//     class_<LocalQlNear>("LocalQlNear", init<trajectory::Box&, float, unsigned int, optional<unsigned int> >())
-//         .def("getBox", &LocalQlNear::getBox, return_internal_reference<>())
-//         .def("setBox", &LocalQlNear::setBox)
-//         .def("compute", &LocalQlNear::computePy)
-//         .def("computeAve", &LocalQlNear::computeAvePy)
-//         .def("computeNorm", &LocalQlNear::computeNormPy)
-//         .def("computeAveNorm", &LocalQlNear::computeAveNormPy)
-//         .def("getQl", &LocalQlNear::getQlPy)
-//         .def("getAveQl", &LocalQlNear::getAveQlPy)
-//         .def("getQlNorm", &LocalQlNear::getQlNormPy)
-//         .def("getQlAveNorm", &LocalQlNear::getQlAveNormPy)
+//     class_<LocalWlNear>("LocalWlNear", init<trajectory::Box&, float, unsigned int, optional<unsigned int> >())
+//         .def("getBox", &LocalWlNear::getBox, return_internal_reference<>())
+//         .def("compute", &LocalWlNear::computePy)
+//         .def("computeNorm", &LocalWlNear::computeNormPy)
+//         .def("computeAve", &LocalWlNear::computeAvePy)
+//         .def("computeAveNorm", &LocalWlNear::computeAveNormPy)
+//         .def("getWl", &LocalWlNear::getWlPy)
+//         .def("getWlNorm", &LocalWlNear::getWlNormPy)
+//         .def("getAveWl", &LocalWlNear::getAveWlPy)
+//         .def("getWlAveNorm", &LocalWlNear::getAveNormWlPy)
+//         .def("getQl", &LocalWlNear::getQlPy)
+//         .def("setBox",&LocalWlNear::setBox)
+//         //.def("setWigner3j", &LocalWl::setWigner3jPy)
+//         .def("enableNormalization", &LocalWlNear::enableNormalization)
+//         .def("disableNormalization", &LocalWlNear::disableNormalization)
 //         ;
 //     }
 
-}; }; // end namespace freud::localqinear
+}; }; // end namespace freud::localwlnear

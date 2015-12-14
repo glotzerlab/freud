@@ -76,3 +76,22 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
                      unsigned int) nogil
         shared_array[float complex] getDr()
         unsigned int getNP()
+
+cdef extern from "LocalQl.h" namespace "freud::order":
+    cdef cppclass LocalQl:
+        LocalQl(const trajectory.Box&, float, unsigned int, float)
+        const trajectory.Box& getBox() const
+        void setBox(const trajectory.Box)
+        void compute(const vec3[float]*,
+                     unsigned int)
+        void computeAve(const vec3[float]*,
+                        unsigned int)
+        void computeNorm(const vec3[float]*,
+                         unsigned int)
+        void computeAveNorm(const vec3[float],
+                            unsigned int)
+        shared_array[float] getQl()
+        shared_array[float] getAveQl()
+        shared_array[float] getQlNorm()
+        shared_array[float] getQlAveNorm()
+        unsigned int getNP()
