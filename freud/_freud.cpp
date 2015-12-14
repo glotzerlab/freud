@@ -1803,6 +1803,7 @@ static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_4compute(struct __p
 static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_6getPsi(struct __pyx_obj_5freud_6_freud_HexOrderParameter *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_8getBox(struct __pyx_obj_5freud_6_freud_HexOrderParameter *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_10getNP(struct __pyx_obj_5freud_6_freud_HexOrderParameter *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_12getK(struct __pyx_obj_5freud_6_freud_HexOrderParameter *__pyx_v_self); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tp_new_5freud_6_freud_Box(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -25577,6 +25578,7 @@ static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_10getNP(struct __py
  *         """
  *         cdef unsigned int np = self.thisptr.getNP()             # <<<<<<<<<<<<<<
  *         return np
+ * 
  */
   __pyx_v_np = __pyx_v_self->thisptr->getNP();
 
@@ -25584,6 +25586,8 @@ static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_10getNP(struct __py
  *         """
  *         cdef unsigned int np = self.thisptr.getNP()
  *         return np             # <<<<<<<<<<<<<<
+ * 
+ *     def getK(self):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -25604,6 +25608,77 @@ static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_10getNP(struct __py
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_AddTraceback("freud._freud.HexOrderParameter.getNP", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "order.pxi":359
+ *         return np
+ * 
+ *     def getK(self):             # <<<<<<<<<<<<<<
+ *         """
+ *         Get the symmetry of the order parameter
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_6_freud_17HexOrderParameter_13getK(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_6_freud_17HexOrderParameter_12getK[] = "HexOrderParameter.getK(self)\n\n        Get the symmetry of the order parameter\n\n        :return: k\n        :rtype: float\n\n        .. note:: While :math:`k` is a float, this is due to its use in calculations requiring floats. Passing in         non-integer values will result in undefined behavior\n        ";
+static PyObject *__pyx_pw_5freud_6_freud_17HexOrderParameter_13getK(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("getK (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_6_freud_17HexOrderParameter_12getK(((struct __pyx_obj_5freud_6_freud_HexOrderParameter *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_6_freud_17HexOrderParameter_12getK(struct __pyx_obj_5freud_6_freud_HexOrderParameter *__pyx_v_self) {
+  float __pyx_v_k;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("getK", 0);
+
+  /* "order.pxi":369
+ *         non-integer values will result in undefined behavior
+ *         """
+ *         cdef float k = self.thisptr.getK()             # <<<<<<<<<<<<<<
+ *         return k
+ */
+  __pyx_v_k = __pyx_v_self->thisptr->getK();
+
+  /* "order.pxi":370
+ *         """
+ *         cdef float k = self.thisptr.getK()
+ *         return k             # <<<<<<<<<<<<<<
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_k); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "order.pxi":359
+ *         return np
+ * 
+ *     def getK(self):             # <<<<<<<<<<<<<<
+ *         """
+ *         Get the symmetry of the order parameter
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("freud._freud.HexOrderParameter.getK", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -29518,6 +29593,7 @@ static PyMethodDef __pyx_methods_5freud_6_freud_HexOrderParameter[] = {
   {"getPsi", (PyCFunction)__pyx_pw_5freud_6_freud_17HexOrderParameter_7getPsi, METH_NOARGS, __pyx_doc_5freud_6_freud_17HexOrderParameter_6getPsi},
   {"getBox", (PyCFunction)__pyx_pw_5freud_6_freud_17HexOrderParameter_9getBox, METH_NOARGS, __pyx_doc_5freud_6_freud_17HexOrderParameter_8getBox},
   {"getNP", (PyCFunction)__pyx_pw_5freud_6_freud_17HexOrderParameter_11getNP, METH_NOARGS, __pyx_doc_5freud_6_freud_17HexOrderParameter_10getNP},
+  {"getK", (PyCFunction)__pyx_pw_5freud_6_freud_17HexOrderParameter_13getK, METH_NOARGS, __pyx_doc_5freud_6_freud_17HexOrderParameter_12getK},
   {0, 0, 0, 0}
 };
 

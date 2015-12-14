@@ -47,6 +47,7 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
         # unsure how to pass back the std::complex, but this seems to compile...
         shared_array[ float complex ] getPsi()
         unsigned int getNP()
+        float getK()
 
 # cdef extern from "LocalDescriptors.h" namespace "freud::order":
 

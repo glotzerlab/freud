@@ -59,6 +59,11 @@ class HexOrderParameter
             return m_Np;
             }
 
+        float getK()
+            {
+            return m_k;
+            }
+
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors

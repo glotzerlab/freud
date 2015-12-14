@@ -355,3 +355,16 @@ cdef class HexOrderParameter:
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    def getK(self):
+        """
+        Get the symmetry of the order parameter
+
+        :return: k
+        :rtype: float
+
+        .. note:: While :math:`k` is a float, this is due to its use in calculations requiring floats. Passing in \
+        non-integer values will result in undefined behavior
+        """
+        cdef float k = self.thisptr.getK()
+        return k
