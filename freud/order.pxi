@@ -508,3 +508,75 @@ cdef class LocalDescriptors:
         """
         cdef float r = self.thisptr.getRMax()
         return r
+
+cdef class TransOrderParameter:
+    """Compute the translational order parameter for each particle
+
+    :param rmax: +/- r distance to search for neighbors
+    :param k: symmetry of order parameter (:math:`k=6` is hexatic)
+    :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
+    :type rmax: float
+    :type k: float
+    :type n: unsigned int
+
+    """
+    cdef order.TransOrderParameter *thisptr
+
+    def __cinit__(self, rmax, k=6.0, n=0):
+        self.thisptr = new order.TransOrderParameter(rmax, k, n)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, box, points, orientations):
+        """
+        Calculates the local descriptors.
+
+        :param box: simulation box
+        :param points: points to calculate the order parameter
+        :type box: :py:meth:`freud.trajectory.Box`
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        with nogil:
+            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
+
+    def getDr(self):
+        """
+        Get a reference to the last computed spherical harmonic array
+
+        :return: order parameter
+        :rtype: np.complex64
+        """
+        cdef float complex *dr = self.thisptr.getDr().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>dr)
+        return result
+
+    def getBox(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.trajectory.Box()`
+        """
+        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+
+    def getNP(self):
+        """
+        Get the number of particles
+
+        :return: np
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np

@@ -67,4 +67,12 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         shared_array[quat[float]] getQij()
         shared_array[float complex] getSph()
 
-# cdef extern from "TransOrderParameter.h" namespace "freud::order":
+cdef extern from "TransOrderParameter.h" namespace "freud::order":
+    cdef cppclass TransOrderParameter:
+        TransOrderParameter(float, float, unsigned int)
+        const trajectory.Box &getBox() const,
+        void compute(trajectory.Box &,
+                     const vec3[float]*,
+                     unsigned int) nogil
+        shared_array[float complex] getDr()
+        unsigned int getNP()

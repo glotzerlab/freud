@@ -44,12 +44,9 @@ class TransOrderParameter
             }
 
         //! Compute the translational order parameter
-        void compute(const vec3<float> *points,
+        void compute(trajectory::Box& box,
+                     const vec3<float> *points,
                      unsigned int Np);
-
-        // //! Python wrapper for compute
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array points);
 
         //! Get a reference to the last computed dr
         boost::shared_array< std::complex<float> > getDr()
@@ -57,12 +54,10 @@ class TransOrderParameter
             return m_dr_array;
             }
 
-        // //! Python wrapper for getDr() (returns a copy)
-        // boost::python::numeric::array getDrPy()
-        //     {
-        //     std::complex<float> *arr = m_dr_array.get();
-        //     return num_util::makeNum(arr, m_Np);
-        //     }
+        unsigned int getNP()
+            {
+            return m_Np;
+            }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
