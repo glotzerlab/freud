@@ -55,6 +55,12 @@ public:
         return m_rmax;
         }
 
+    //! Get the number of particles
+    unsigned int getNP() const
+        {
+        return m_Np;
+        }
+
     //! Compute the local neighborhood descriptors given some
     //! positions, orientations, and the number of particles
     void compute(const vec3<float> *r, const quat<float> *q, unsigned int Np);

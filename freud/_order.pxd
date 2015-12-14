@@ -45,10 +45,26 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
                      const vec3[float]*,
                      unsigned int) nogil
         # unsure how to pass back the std::complex, but this seems to compile...
-        shared_array[ float complex ] getPsi()
+        shared_array[float complex] getPsi()
         unsigned int getNP()
         float getK()
 
-# cdef extern from "LocalDescriptors.h" namespace "freud::order":
+cdef extern from "LocalDescriptors.h" namespace "freud::order":
+    cdef cppclass LocalDescriptors:
+        LocalDescriptors(const trajectory.Box &,
+                         unsigned int,
+                         unsigned int,
+                         float)
+        const trajectory.Box &getBox() const
+        unsigned int getNNeigh() const
+        unsigned int getLMax() const
+        float getRMax() const
+        unsigned int getNP()
+        void compute(const vec3[float]*,
+                     const quat[float]*,
+                     unsigned int) nogil
+        shared_array[float] getMagR()
+        shared_array[quat[float]] getQij()
+        shared_array[float complex] getSph()
 
 # cdef extern from "TransOrderParameter.h" namespace "freud::order":

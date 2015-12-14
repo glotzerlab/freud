@@ -368,3 +368,143 @@ cdef class HexOrderParameter:
         """
         cdef float k = self.thisptr.getK()
         return k
+
+cdef class LocalDescriptors:
+    """Compute a set of descriptors (a numerical "fingerprint") of a particle's local environment.
+
+    :param box: This Frame's box
+    :param nNeigh: Number of neighbors to compute descriptors for
+    :param lmax: Maximum spherical harmonic l to consider
+    :param rmax: Initial guess of the maximum radius to looks for neighbors
+    :type box: :py:meth:`freud.trajectory.Box()`
+    :type nNeigh: unsigned int
+    :type l: unsigned int
+    :type rmax: float
+
+    .. todo:: update constructor/compute to take box in compute
+
+    """
+    cdef order.LocalDescriptors *thisptr
+
+    def __cinit__(self, box, nNeigh, lmax, rmax):
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr = new order.LocalDescriptors(l_box, nNeigh, lmax, rmax)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, points, orientations):
+        """
+        Calculates the local descriptors.
+
+        :param points: points to calculate the order parameter
+        :param orientations: orientations to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
+        """
+        if points.dtype != np.float32 or orientations.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2 or orientations.ndim !=2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        if orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        with nogil:
+            self.thisptr.compute(<vec3[float]*>&l_points[0], <quat[float]*>&l_orientations[0], nP)
+
+    def getMagR(self):
+        """
+        Get a reference to the last computed radius magnitude array
+
+        :return: MagR
+        :rtype: np.float32
+        """
+        cdef float *magr = self.thisptr.getMagR().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>magr)
+        return result
+
+    def getQij(self):
+        """
+        Get a reference to the last computed relative orientation array
+
+        :return: Qij
+        :rtype: np.float32
+
+        """
+        cdef quat[float] *qij = self.thisptr.getQij().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        nbins[1] = 4
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>qij)
+        return result
+
+    def getSph(self):
+        """
+        Get a reference to the last computed spherical harmonic array
+
+        :return: order parameter
+        :rtype: np.complex64
+        """
+        cdef float complex *sph = self.thisptr.getSph().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>sph)
+        return result
+
+    def getBox(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.trajectory.Box()`
+        """
+        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+
+    def getNP(self):
+        """
+        Get the number of particles
+
+        :return: np
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
+    def getNNeigh(self):
+        """
+        Get the number of neighbors
+
+        :return: n
+        :rtype: unsigned int
+
+        """
+        cdef unsigned int n = self.thisptr.getNNeigh()
+        return n
+
+    def getLMax(self):
+        """
+        Get the maximum spherical harmonic l to calculate for
+
+        :return: l
+        :rtype: unsigned int
+
+        """
+        cdef unsigned int l = self.thisptr.getLMax()
+        return l
+
+    def getRMax(self):
+        """
+        Get the cutoff radius
+
+        :return: r
+        :rtype: float
+
+        """
+        cdef float r = self.thisptr.getRMax()
+        return r
