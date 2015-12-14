@@ -78,10 +78,10 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         y = deltaY + maxY
         binX = numpy.floor(x / dx)
         binY = numpy.floor(y / dy)
-        correct[binY][binX] = 1
+        correct[binY,binX] = 1
         absoluteTolerance = 0.1
         pcfArray = myPMFT.getPCF()
-        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+        npt.assert_allclose(pcfArray[binY,binX], correct[binY,binX], atol=absoluteTolerance)
 
     def test_twoParticlesWithoutCellList(self):
         boxSize = 16.0
@@ -105,7 +105,7 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         y = deltaY + maxY
         binX = numpy.floor(x / dx)
         binY = numpy.floor(y / dy)
-        correct[binY][binX] = 1
+        correct[binY,binX] = 1
         deltaX = points[1][0] - points[0][0]
         deltaY = points[1][1] - points[0][1]
         x = deltaX + maxX
@@ -115,7 +115,7 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         correct[binY][binX] = 1
         absoluteTolerance = 0.1
         pcfArray = myPMFT.getPCF()
-        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+        npt.assert_allclose(pcfArray[binY,binX], correct[binY,binX], atol=absoluteTolerance)
 
 class TestPMFXY2DCompute(unittest.TestCase):
     def test_twoParticlesWithCellList(self):
@@ -147,10 +147,10 @@ class TestPMFXY2DCompute(unittest.TestCase):
         y = deltaY + maxY
         binX = numpy.floor(x / dx)
         binY = numpy.floor(y / dy)
-        correct[binY][binX] = 1
+        correct[binY,binX] = 1
         absoluteTolerance = 0.1
         pcfArray = myPMFT.getPCF()
-        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+        npt.assert_allclose(pcfArray[binY,binX], correct[binY,binX], atol=absoluteTolerance)
 
     def test_twoParticlesWithoutCellList(self):
         boxSize = 16.0
@@ -181,10 +181,10 @@ class TestPMFXY2DCompute(unittest.TestCase):
         y = deltaY + maxY
         binX = numpy.floor(x / dx)
         binY = numpy.floor(y / dy)
-        correct[binY][binX] = 1
+        correct[binY,binX] = 1
         absoluteTolerance = 0.1
         pcfArray = myPMFT.getPCF()
-        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+        npt.assert_allclose(pcfArray[binY,binX], correct[binY,binX], atol=absoluteTolerance)
 
 if __name__ == '__main__':
     print("testing pmft")
