@@ -46,13 +46,14 @@ class BondOrder
         void resetBondOrder();
 
         //! Python wrapper for reset method
-        void resetBondOrderPy()
-            {
-            resetBondOrder();
-            }
+        // void resetBondOrderPy()
+        //     {
+        //     resetBondOrder();
+        //     }
 
         //! accumulate the bond order
-        void accumulate(vec3<float> *ref_points,
+        void accumulate(trajectory::Box& box,
+                        vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int Nref,
                         vec3<float> *points,
@@ -67,12 +68,12 @@ class BondOrder
         //                   boost::python::numeric::array orientations);
 
         //! Compute the bond order
-        void compute(vec3<float> *ref_points,
-                     quat<float> *ref_orientations,
-                     unsigned int Nref,
-                     vec3<float> *points,
-                     quat<float> *orientations,
-                     unsigned int Np);
+        // void compute(vec3<float> *ref_points,
+        //              quat<float> *ref_orientations,
+        //              unsigned int Nref,
+        //              vec3<float> *points,
+        //              quat<float> *orientations,
+        //              unsigned int Np);
 
         // //! Python wrapper for compute
         // void computePy(trajectory::Box& box,
@@ -96,6 +97,16 @@ class BondOrder
         boost::shared_array<float> getPhi()
             {
             return m_phi_array;
+            }
+
+        unsigned int getNBinsTheta()
+            {
+            return m_nbins_t;
+            }
+
+        unsigned int getNBinsPhi()
+            {
+            return m_nbins_p;
             }
 
         // //! Python wrapper for getRDF() (returns a copy)

@@ -292,7 +292,8 @@ void BondOrder::resetBondOrder()
     m_frame_counter = 0;
     }
 
-void BondOrder::accumulate(vec3<float> *ref_points,
+void BondOrder::accumulate(trajectory::Box& box,
+                           vec3<float> *ref_points,
                            quat<float> *ref_orientations,
                            unsigned int Nref,
                            vec3<float> *points,

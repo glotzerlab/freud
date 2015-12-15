@@ -33,6 +33,11 @@ class VoronoiBuffer
                      const unsigned int Np,
                      const float buff);
 
+        boost::shared_ptr< std::vector<float3> > getBufferParticles()
+            {
+            return m_buffer_particles;
+            }
+
         // //!Python wrapper for compute
         // void computePy(boost::python::numeric::array points,
         //                const float buff);

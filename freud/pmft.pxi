@@ -88,8 +88,8 @@ cdef class PMFTR12:
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points)
         cdef np.ndarray[float, ndim=1] l_refOrientations = np.ascontiguousarray(refOrientations)
         cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations)
-        cdef unsigned int nRef = <unsigned int> l_refPoints.shape[0]
-        cdef unsigned int nP = <unsigned int> l_points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
@@ -285,8 +285,8 @@ cdef class PMFXY2D:
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef np.ndarray[float, ndim=1] l_refOrientations = np.ascontiguousarray(refOrientations.flatten())
         cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
-        cdef unsigned int nRef = <unsigned int> l_refPoints.shape[0]
-        cdef unsigned int nP = <unsigned int> l_points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
@@ -473,9 +473,9 @@ cdef class PMFXYZ:
         cdef np.ndarray[float, ndim=1] l_refOrientations = np.ascontiguousarray(refOrientations.flatten())
         cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
         cdef np.ndarray[float, ndim=1] l_faceOrientations = np.ascontiguousarray(faceOrientations.flatten())
-        cdef unsigned int nRef = <unsigned int> l_refPoints.shape[0]
-        cdef unsigned int nP = <unsigned int> l_points.shape[0]
-        cdef unsigned int nFaces = <unsigned int> l_faceOrientations.shape[1]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nFaces = <unsigned int> faceOrientations.shape[1]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,

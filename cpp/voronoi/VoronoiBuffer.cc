@@ -28,8 +28,11 @@ void VoronoiBuffer::compute(const float3 *points,
     float lx_2 = 0.5*lx;
     float ly_2 = 0.5*ly;
     float lz_2 = 0.5*lz;
+    float lx_2_buff = 0.5*lx + buff;
+    float ly_2_buff = 0.5*ly + buff;
+    float lz_2_buff = 0.5*lz + buff;
 
-    float3 imgx;
+    float3 img;
     buffer_parts.clear();
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
@@ -39,16 +42,15 @@ void VoronoiBuffer::compute(const float3 *points,
         {
         for (int i=-1; i<=1; i++)
           for (int j=-1; j<=1; j++)
-                if(i!=j)
+                if(i != 0 || j != 0)
                   {
-                  imgx.x = points[particle].x + i*lx + lx_2;
-                  imgx.y = points[particle].y + j*ly + ly_2;
-                  imgx.z = 0.0;
+                  img.x = points[particle].x + i*lx;
+                  img.y = points[particle].y + j*ly;
+                  img.z = 0.0;
                   //check to see if this image in within a
-                  if( (i==0 || ((imgx.x<0 && imgx.x>-buff) || (imgx.x-lx<buff && imgx.x>lx))) &&
-                      (j==0 || ((imgx.y<0 && imgx.y>-buff) || (imgx.y-ly<buff && imgx.y>ly))) )
+                  if(img.x < lx_2_buff && img.x > -lx_2_buff && img.y < ly_2_buff && img.y > -ly_2_buff)
                       {
-                      buffer_parts.push_back(imgx);
+                      buffer_parts.push_back(img);
                       }
                   }
         }
@@ -60,18 +62,18 @@ void VoronoiBuffer::compute(const float3 *points,
               for (int k=-1; k<=1; k++)
                 if(!(i==0 && j==0 && k==0))
                   {
-                  imgx.x = points[particle].x + i*lx + lx_2;
-                  imgx.y = points[particle].y + j*ly + ly_2;
-                  imgx.z = points[particle].z + k*lz + lz_2;
+                  img.x = points[particle].x + i*lx;
+                  img.y = points[particle].y + j*ly;
+                  img.z = points[particle].z + k*lz;
                   //check to see if this image in within a
-                  if( (i==0 || ((imgx.x<0 && imgx.x>-buff) || (imgx.x-lx<buff && imgx.x>lx))) &&
-                      (j==0 || ((imgx.y<0 && imgx.y>-buff) || (imgx.y-ly<buff && imgx.y>ly))) &&
-                      (k==0 || ((imgx.z<0 && imgx.z>-buff) || (imgx.z-lz<buff && imgx.z>lz))) )
+                  if(img.x < lx_2_buff && img.x > -lx_2_buff &&
+                     img.y < ly_2_buff && img.y > -ly_2_buff &&
+                     img.z < lz_2_buff && img.z > -lz_2_buff)
                       {
-                      imgx.x -= lx_2;
-                      imgx.y -= ly_2;
-                      imgx.z -= lz_2;
-                      buffer_parts.push_back(imgx);
+                      img.x -= lx_2;
+                      img.y -= ly_2;
+                      img.z -= lz_2;
+                      buffer_parts.push_back(img);
                       }
                   }
         }
