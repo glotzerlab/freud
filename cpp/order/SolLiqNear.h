@@ -40,7 +40,7 @@ class SolLiqNear
         @param Sthreshold Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like for clustering. (For l=6, 6-8 generally good for FCC or BCC structures)
         @param l Choose spherical harmonic Ql.  Must be positive and even.
         **/
-        SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn);
+        SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn=12);
 
         //! Destructor
         ~SolLiqNear();
@@ -173,6 +173,16 @@ class SolLiqNear
         std::vector<std::complex<float> > getQldot_ij()
             {
             return m_qldot_ij;
+            }
+
+        unsigned int getNumClusters()
+            {
+            return m_num_clusters;
+            }
+
+        unsigned int getNP()
+            {
+            return m_Np;
             }
         // //! Python wrapper for retrieving number of connections per particle
         // boost::python::numeric::array getQldot_ijPy()

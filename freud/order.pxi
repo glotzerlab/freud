@@ -6,6 +6,7 @@ cimport freud._trajectory as _trajectory
 cimport freud._order as order
 from libc.string cimport memcpy
 from libcpp.complex cimport complex
+from libcpp.vector cimport vector
 import numpy as np
 cimport numpy as np
 
@@ -1315,6 +1316,211 @@ cdef class LocalWlNear:
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Wl)
+        return result
+
+    def getAveWl(self):
+        """
+        Get a reference to the last computed Wl for each particle.  Returns NaN instead of Wl for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: np.float32
+        """
+        cdef float complex *Wl = self.thisptr.getAveWl().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Wl)
+        return result
+
+    def getWlAveNorm(self):
+        """
+        Get a reference to the last computed Wl for each particle.  Returns NaN instead of Wl for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: np.float32
+        """
+        cdef float complex *Wl = self.thisptr.getWlAveNorm().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Wl)
+        return result
+
+    def getNP(self):
+        """
+        Get the number of particles
+
+        :return: np
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
+cdef class SolLiqNear:
+    """Computes dot products of qlm between particles and uses these for clustering.
+
+    :param box: simulation box
+    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
+    :param Qthreshold: Value of dot product threshold when evaluating :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine \
+    if a neighbor pair is a solid-like bond. (For :math:`l=6`, 0.7 generally good for FCC or BCC structures)
+    :param Sthreshold: Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like \
+    for clustering. (For :math:`l=6`, 6-8 generally good for FCC or BCC structures)
+    :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and even.
+    :param kn: Number of nearest neighbors. Must be a positive number
+    :type box: :py:meth:`freud.trajectory.Box`
+    :type rmax: float
+    :type Qthreshold: float
+    :type Sthreshold: unsigned int
+    :type l: unsigned int
+    :type kn: unsigned int
+
+    .. todo:: move box to compute, this is old API
+    """
+    cdef order.LocalWlNear *thisptr
+
+    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr = new order.LocalWlNear(l_box, rmax, Qthreshold, Sthreshold l, kn)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, points):
+        """Compute the local rotationally invariant Ql order parameter.
+
+        :param points: points to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+
+    def computeSolLiqVariant(self, points):
+        """Compute the local rotationally invariant Ql order parameter.
+
+        :param points: points to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        self.thisptr.computeSolLiqVariant(<vec3[float]*>&l_points[0], nP)
+
+    def computeSolLiqNoNorm(self, points):
+        """Compute the local rotationally invariant Ql order parameter.
+
+        :param points: points to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>&l_points[0], nP)
+
+    def getBox(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.trajectory.Box()`
+        """
+        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+
+    def setClusteringRadius(self, rcutCluster):
+        """
+        Reset the clustering radius
+
+        :param rcutCluster: radius for the cluster finding
+        :type rcutCluster: float
+        """
+        self.thisptr.setClusteringRadius(rcutCluster)
+
+    def setBox(self, box):
+        """
+        Reset the simulation box
+
+        :param box: simulation box
+        :type box: :py:meth:`freud.trajectory.Box`
+        """
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr.setBox(l_box)
+
+    def getLargestClusterSize(self):
+        """
+        Returns the largest cluster size. Must compute sol-liq first
+
+        :return: largest cluster size
+        :rtype: unsigned int
+        """
+        cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
+        return clusterSize
+
+    def getClusterSizes(self):
+        """
+        Returns the largest cluster size. Must compute sol-liq first
+
+        :return: largest cluster size
+        :rtype: np.uint32
+        """
+        cdef vector[unsigned int] *clusterSizes = self.thisptr.getClusterSizes().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusterSizes)
+        return result
+
+    def getQlmi(self):
+        """
+        Get a reference to the last computed Qlmi for each particle.
+
+        :return: order parameter
+        :rtype: np.complex64
+        """
+        cdef float *Qlmi = self.thisptr.getQlmi().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Qlmi)
+        return result
+
+    def getClusters(self):
+        """
+        Get a reference to the last computed set of solid-like cluster indices for each particle
+
+        :return: clusters
+        :rtype: np.uint32
+        """
+        cdef unsigned int *clusters = self.thisptr.getClusters().get()
+        cdef np.npy_intp nbins[1]
+        # this is the correct number
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
+        return result
+
+    def getClusters(self):
+        """
+        Get a reference to the last computed set of solid-like cluster indices for each particle
+
+        :return: clusters
+        :rtype: np.uint32
+        """
+        cdef unsigned int *clusters = self.thisptr.getClusters().get()
+        cdef np.npy_intp nbins[1]
+        # this is the correct number
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
         return result
 
     def getAveWl(self):

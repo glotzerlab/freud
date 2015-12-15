@@ -8,7 +8,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-SolLiqNear::SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn = 12)
+SolLiqNear::SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn)
     :m_box(box), m_rmax(rmax), m_rmax_cluster(rmax), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold), m_l(l), m_k(kn)
     {
     m_Np = 0;
