@@ -147,7 +147,10 @@ cdef class ClusterProperties:
 
 
     def getBox(self):
-        """Return the stored :py:class:`freud.trajectory.Box` object"""
+        """Return the stored :py:class:`freud.trajectory.Box` object
+        :return: Freud Box
+        :rtype: :py:meth:`freud.trajectory.Box()`
+        """
         return BoxFromCPP(self.thisptr.getBox())
 
     def computeProperties(self, points, cluster_idx):

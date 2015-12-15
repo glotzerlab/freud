@@ -6,11 +6,6 @@ from libcpp.vector cimport vector
 from libc.stdint cimport uint32_t
 
 cdef extern from "Cluster.h" namespace "freud::cluster":
-    # cdef cppclass DisjointSet:
-    #     DisjointSet(uint32_t)
-    #     void merge(const uint32_t, const uint32_t)
-    #     uint32_t find(const uint32_t)
-
     cdef cppclass Cluster:
         Cluster(const trajectory.Box&, float)
         const trajectory.Box &getBox() const
