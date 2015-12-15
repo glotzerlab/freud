@@ -9,6 +9,6 @@
 
 using namespace std;
 
-vector<double> getWigner3j(unsigned int l);
+vector<float> getWigner3j(unsigned int l);
 
 #endif

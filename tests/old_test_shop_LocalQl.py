@@ -304,26 +304,21 @@ class TestLocalAveQl(unittest.TestCase):
         box = trajectory.Box(17.661,17.661,17.661);
 
         localq4 = shop.LocalQl(box, rcut, 4);
-        # compute must be called first?
-        localq4.compute(testpoints);
         localq4.computeAve(testpoints);
         q4vals = localq4.getAveQl();
         meanq4 = np.mean(q4vals);
 
         localq6 = shop.LocalQl(box, rcut, 6);
-        localq6.compute(testpoints);
         localq6.computeAve(testpoints);
         q6vals = localq6.getAveQl();
         meanq6 = np.mean(q6vals);
 
         localq8 = shop.LocalQl(box, rcut, 8);
-        localq8.compute(testpoints);
         localq8.computeAve(testpoints);
         q8vals = localq8.getAveQl();
         meanq8 = np.mean(q8vals);
 
         localq10 = shop.LocalQl(box, rcut, 10);
-        localq10.compute(testpoints);
         localq10.computeAve(testpoints);
         q10vals = localq10.getAveQl();
         meanq10 = np.mean(q10vals);
@@ -343,25 +338,21 @@ class TestLocalQlNorm(unittest.TestCase):
         box = trajectory.Box(17.661,17.661,17.661);
 
         localq4 = shop.LocalQl(box, rcut, 4);
-        localq4.compute(testpoints);
         localq4.computeNorm(testpoints);
         q4vals = localq4.getQlNorm();
         meanq4 = np.mean(q4vals);
 
         localq6 = shop.LocalQl(box, rcut, 6);
-        localq6.compute(testpoints);
         localq6.computeNorm(testpoints);
         q6vals = localq6.getQlNorm();
         meanq6 = np.mean(q6vals);
 
         localq8 = shop.LocalQl(box, rcut, 8);
-        localq8.compute(testpoints);
         localq8.computeNorm(testpoints);
         q8vals = localq8.getQlNorm();
         meanq8 = np.mean(q8vals);
 
         localq10 = shop.LocalQl(box, rcut, 10);
-        localq10.compute(testpoints);
         localq10.computeNorm(testpoints);
         q10vals = localq10.getQlNorm();
         meanq10 = np.mean(q10vals);
@@ -381,33 +372,21 @@ class TestLocalAveNormQl(unittest.TestCase):
         box = trajectory.Box(17.661,17.661,17.661);
 
         localq4 = shop.LocalQl(box, rcut, 4);
-        localq4.compute(testpoints);
-        localq4.computeAve(testpoints);
-        localq4.computeNorm(testpoints);
         localq4.computeAveNorm(testpoints);
         q4vals = localq4.getQlAveNorm();
         meanq4 = np.mean(q4vals);
 
         localq6 = shop.LocalQl(box, rcut, 6);
-        localq6.compute(testpoints);
-        localq6.computeAve(testpoints);
-        localq6.computeNorm(testpoints);
         localq6.computeAveNorm(testpoints);
         q6vals = localq6.getQlAveNorm();
         meanq6 = np.mean(q6vals);
 
         localq8 = shop.LocalQl(box, rcut, 8);
-        localq8.compute(testpoints);
-        localq8.computeAve(testpoints);
-        localq8.computeNorm(testpoints);
         localq8.computeAveNorm(testpoints);
         q8vals = localq8.getQlAveNorm();
         meanq8 = np.mean(q8vals);
 
         localq10 = shop.LocalQl(box, rcut, 10);
-        localq10.compute(testpoints);
-        localq10.computeAve(testpoints);
-        localq10.computeNorm(testpoints);
         localq10.computeAveNorm(testpoints);
         q10vals = localq10.getQlAveNorm();
         meanq10 = np.mean(q10vals);
@@ -461,25 +440,21 @@ class TestLocalAveQlNear(unittest.TestCase):
         box = trajectory.Box(17.661,17.661,17.661);
 
         localq4 = shop.LocalQlNear(box, rcut, 4, 12);
-        localq4.compute(testpoints);
         localq4.computeAve(testpoints);
         q4vals = localq4.getAveQl();
         meanq4 = np.mean(q4vals);
 
         localq6 = shop.LocalQlNear(box, rcut, 6, 12);
-        localq6.compute(testpoints);
         localq6.computeAve(testpoints);
         q6vals = localq6.getAveQl();
         meanq6 = np.mean(q6vals);
 
         localq8 = shop.LocalQlNear(box, rcut, 8, 12);
-        localq8.compute(testpoints);
         localq8.computeAve(testpoints);
         q8vals = localq8.getAveQl();
         meanq8 = np.mean(q8vals);
 
         localq10 = shop.LocalQlNear(box, rcut, 10, 12);
-        localq10.compute(testpoints);
         localq10.computeAve(testpoints);
         q10vals = localq10.getAveQl();
         meanq10 = np.mean(q10vals);
@@ -499,25 +474,21 @@ class TestLocalQlNormNear(unittest.TestCase):
         box = trajectory.Box(17.661,17.661,17.661);
 
         localq4 = shop.LocalQlNear(box, rcut, 4, 12);
-        localq4.compute(testpoints);
         localq4.computeNorm(testpoints);
         q4vals = localq4.getQlNorm();
         meanq4 = np.mean(q4vals);
 
         localq6 = shop.LocalQlNear(box, rcut, 6, 12);
-        localq6.compute(testpoints);
         localq6.computeNorm(testpoints);
         q6vals = localq6.getQlNorm();
         meanq6 = np.mean(q6vals);
 
         localq8 = shop.LocalQlNear(box, rcut, 8, 12);
-        localq8.compute(testpoints);
         localq8.computeNorm(testpoints);
         q8vals = localq8.getQlNorm();
         meanq8 = np.mean(q8vals);
 
         localq10 = shop.LocalQlNear(box, rcut, 10, 12);
-        localq10.compute(testpoints);
         localq10.computeNorm(testpoints);
         q10vals = localq10.getQlNorm();
         meanq10 = np.mean(q10vals);
@@ -537,33 +508,21 @@ class TestLocalAveNormQlNear(unittest.TestCase):
         box = trajectory.Box(17.661,17.661,17.661);
 
         localq4 = shop.LocalQlNear(box, rcut, 4, 12);
-        localq4.compute(testpoints);
-        localq4.computeAve(testpoints);
-        localq4.computeNorm(testpoints);
         localq4.computeAveNorm(testpoints);
         q4vals = localq4.getQlAveNorm();
         meanq4 = np.mean(q4vals);
 
         localq6 = shop.LocalQlNear(box, rcut, 6, 12);
-        localq6.compute(testpoints);
-        localq6.computeAve(testpoints);
-        localq6.computeNorm(testpoints);
         localq6.computeAveNorm(testpoints);
         q6vals = localq6.getQlAveNorm();
         meanq6 = np.mean(q6vals);
 
         localq8 = shop.LocalQlNear(box, rcut, 8, 12);
-        localq8.compute(testpoints);
-        localq8.computeAve(testpoints);
-        localq8.computeNorm(testpoints);
         localq8.computeAveNorm(testpoints);
         q8vals = localq8.getQlAveNorm();
         meanq8 = np.mean(q8vals);
 
         localq10 = shop.LocalQlNear(box, rcut, 10, 12);
-        localq10.compute(testpoints);
-        localq10.computeAve(testpoints);
-        localq10.computeNorm(testpoints);
         localq10.computeAveNorm(testpoints);
         q10vals = localq10.getQlAveNorm();
         meanq10 = np.mean(q10vals);

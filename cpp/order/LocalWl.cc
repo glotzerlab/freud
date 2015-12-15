@@ -29,7 +29,7 @@ LocalWl::LocalWl(const trajectory::Box& box, float rmax, unsigned int l)
     m_normalizeWl = false;
     }
 
-void LocalWl::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
+void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     if(Y.size() != 2*m_l+1)
         Y.resize(2*m_l+1);
@@ -50,7 +50,7 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
     {
     //Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
-    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
     //Set local data size
@@ -59,18 +59,18 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
     //Initialize cell list
     m_lc.computeCellList(m_box,points,m_Np);
 
-    double rmaxsq = m_rmax * m_rmax;
+    float rmaxsq = m_rmax * m_rmax;
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_Qlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
-    m_Qli = boost::shared_array<double>(new double[m_Np]);
-    m_Wli = boost::shared_array<complex<double> >(new complex<double>[m_Np]);
-    m_Qlm = boost::shared_array<complex<double> >(new complex<double>[2*m_l+1]);
-    memset((void*)m_Qlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
-    memset((void*)m_Wli.get(), 0, sizeof(complex<double>)*m_Np);
-    memset((void*)m_Qlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
-    memset((void*)m_Qli.get(), 0, sizeof(double)*m_Np);
+    m_Qlmi = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
+    m_Qli = boost::shared_array<float>(new float[m_Np]);
+    m_Wli = boost::shared_array<complex<float> >(new complex<float>[m_Np]);
+    m_Qlm = boost::shared_array<complex<float> >(new complex<float>[2*m_l+1]);
+    memset((void*)m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
+    memset((void*)m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
+    memset((void*)m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
+    memset((void*)m_Qli.get(), 0, sizeof(float)*m_Np);
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
@@ -106,10 +106,10 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
 
                 if (rsq < rmaxsq)
                     {
-                    double phi = atan2(delta.y,delta.x);      //0..2Pi
-                    double theta = acos(delta.z / sqrt(rsq)); //0..Pi
+                    float phi = atan2(delta.y,delta.x);      //0..2Pi
+                    float theta = acos(delta.z / sqrt(rsq)); //0..Pi
 
-                    std::vector<std::complex<double> > Y;
+                    std::vector<std::complex<float> > Y;
                     LocalWl::Ylm(theta, phi,Y);  //Fill up Ylm vector
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
@@ -154,7 +154,7 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
 
     //Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
-    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
     //Set local data size
@@ -163,18 +163,18 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
     //Initialize cell list
     m_lc.computeCellList(m_box,points,m_Np);
 
-    double rmaxsq = m_rmax * m_rmax;
-    double normalizationfactor = 4*M_PI/(2*m_l+1);
+    float rmaxsq = m_rmax * m_rmax;
+    float normalizationfactor = 4*M_PI/(2*m_l+1);
 
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_AveQlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
-    m_AveQlm = boost::shared_array<complex<double> > (new complex<double> [(2*m_l+1)]);
-    m_AveWli = boost::shared_array<complex<double> >(new complex<double> [m_Np]);
-    memset((void*)m_AveQlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
-    memset((void*)m_AveQlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
-    memset((void*)m_AveWli.get(), 0, sizeof(double)*m_Np);
+    m_AveQlmi = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
+    m_AveQlm = boost::shared_array<complex<float> > (new complex<float> [(2*m_l+1)]);
+    m_AveWli = boost::shared_array<complex<float> >(new complex<float> [m_Np]);
+    memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
+    memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
+    memset((void*)m_AveWli.get(), 0, sizeof(float)*m_Np);
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
@@ -281,14 +281,14 @@ void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
 
     //Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
-    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
     //Set local data size
     m_Np = Np;
 
-    m_WliNorm = boost::shared_array<complex<double> >(new complex<double>[m_Np]);
-    memset((void*)m_WliNorm.get(), 0, sizeof(complex<double>)*m_Np);
+    m_WliNorm = boost::shared_array<complex<float> >(new complex<float>[m_Np]);
+    memset((void*)m_WliNorm.get(), 0, sizeof(complex<float>)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
@@ -318,14 +318,14 @@ void LocalWl::computeAveNorm(const vec3<float> *points, unsigned int Np)
 
     //Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
-    std::vector<double> m_wigner3jvalues (m_wignersize[m_l/2-1]);
+    std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
     //Set local data size
     m_Np = Np;
 
-    m_WliAveNorm = boost::shared_array<complex<double> >(new complex<double>[m_Np]);
-    memset((void*)m_WliAveNorm.get(), 0, sizeof(complex<double>)*m_Np);
+    m_WliAveNorm = boost::shared_array<complex<float> >(new complex<float>[m_Np]);
+    memset((void*)m_WliAveNorm.get(), 0, sizeof(complex<float>)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
@@ -429,10 +429,10 @@ void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
 
     // get dimension
     unsigned int num_wigner3jcoefs = num_util::shape(wigner3jvalues)[0];
-    m_wigner3jvalues = boost::shared_array<double>(new double[num_wigner3jcoefs]);
+    m_wigner3jvalues = boost::shared_array<float>(new float[num_wigner3jcoefs]);
 
     // get the raw data pointers and compute the cell list
-    double* wig3j = (double*) num_util::data(wigner3jvalues);
+    float* wig3j = (float*) num_util::data(wigner3jvalues);
     for(unsigned int i = 0; i < num_wigner3jcoefs; i++)
     	{
     	m_wigner3jvalues[i] = wig3j[i];

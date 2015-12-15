@@ -115,3 +115,47 @@ cdef extern from "LocalQlNear.h" namespace "freud::order":
         shared_array[float] getQlNorm()
         shared_array[float] getQlAveNorm()
         unsigned int getNP()
+
+cdef extern from "LocalWl.h" namespace "freud::order":
+    cdef cppclass LocalWl:
+        LocalWl(const trajectory.Box&, float, unsigned int)
+        const trajectory.Box& getBox() const
+        void setBox(const trajectory.Box)
+        void compute(const vec3[float]*,
+                     unsigned int)
+        void computeAve(const vec3[float]*,
+                        unsigned int)
+        void computeNorm(const vec3[float]*,
+                         unsigned int)
+        void computeAveNorm(const vec3[float]*,
+                            unsigned int)
+        shared_array[float] getQl()
+        shared_array[float complex] getWl()
+        shared_array[float complex] getAveWl()
+        shared_array[float complex] getWlNorm()
+        shared_array[float complex] getAveNormWl()
+        void enableNormalization()
+        void disableNormalization()
+        unsigned int getNP()
+
+cdef extern from "LocalWlNear.h" namespace "freud::order":
+    cdef cppclass LocalWlNear:
+        LocalWlNear(const trajectory.Box&, float, unsigned int, unsigned int)
+        const trajectory.Box& getBox() const
+        void setBox(const trajectory.Box)
+        void compute(const vec3[float]*,
+                     unsigned int)
+        void computeAve(const vec3[float]*,
+                        unsigned int)
+        void computeNorm(const vec3[float]*,
+                         unsigned int)
+        void computeAveNorm(const vec3[float]*,
+                            unsigned int)
+        shared_array[float] getQl()
+        shared_array[float complex] getWl()
+        shared_array[float complex] getWlNorm()
+        shared_array[float complex] getAveWl()
+        shared_array[float complex] getWlAveNorm()
+        void enableNormalization()
+        void disableNormalization()
+        unsigned int getNP()
