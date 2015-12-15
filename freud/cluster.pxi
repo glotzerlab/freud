@@ -187,9 +187,10 @@ cdef class ClusterProperties:
         :rtype: np.float32
         """
         cdef unsigned int *cluster_com_raw = self.thisptr.getClusterCOM().get()
-        cdef np.npy_intp nClusters[1]
+        cdef np.npy_intp nClusters[2]
         nClusters[0] = <np.npy_intp>self.thisptr.getNumClusters()
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(3, nClusters, np.NPY_FLOAT32, <void*>cluster_com_raw)
+        nClusters[1] = 3
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nClusters, np.NPY_FLOAT32, <void*>cluster_com_raw)
         return result
 
     def getClusterG(self):
@@ -198,8 +199,10 @@ cdef class ClusterProperties:
         :rtype: np.float32
         """
         cdef unsigned int *cluster_G_raw = self.thisptr.getClusterG().get()
-        cdef np.npy_intp nClusters[1] = 3
+        cdef np.npy_intp nClusters[3]
         nClusters[0] = <np.npy_intp>self.thisptr.getNumClusters()
+        nClusters[1] = 3
+        nClusters[2] = 3
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nClusters, np.NPY_FLOAT32, <void*>cluster_G_raw)
         return result
 
