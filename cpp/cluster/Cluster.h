@@ -87,6 +87,12 @@ class Cluster
             return m_num_clusters;
             }
 
+        //! Return the number of particles in the current Compute
+        unsigned int getNumParticles()
+            {
+            return m_num_particles;
+            }
+
         //! Get a reference to the last computed cluster_idx
         boost::shared_array<unsigned int> getClusterIdx()
             {

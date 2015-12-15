@@ -73,7 +73,7 @@ class ClusterProperties
         //     return num_util::makeNum(arr, dims);
         //     }
 
-        //! Get a reference to the last computec cluster_G
+        //! Get a reference to the last computed cluster_G
         boost::shared_array<float> getClusterG()
             {
             return m_cluster_G;
