@@ -12,7 +12,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalQlNear::LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn = 12)
+LocalQlNear::LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn)
     :m_box(box), m_rmax(rmax), m_l(l), m_k(kn)
     {
     if (m_rmax < 0.0f)
@@ -32,7 +32,7 @@ LocalQlNear::~LocalQlNear()
     delete m_nn;
     }
 
-void LocalQlNear::Ylm(const double theta, const double phi, std::vector<std::complex<double> > &Y)
+void LocalQlNear::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     if(Y.size() != 2*m_l+1)
         Y.resize(2*m_l+1);
@@ -58,18 +58,18 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
     //Initialize neighbor list
     m_nn->compute(m_box,points,Np,points,Np);
 
-    double rmaxsq = m_rmax * m_rmax;
-    double normalizationfactor = 4*M_PI/(2*m_l+1);
+    float rmaxsq = m_rmax * m_rmax;
+    float normalizationfactor = 4*M_PI/(2*m_l+1);
 
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_Qlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
-    m_Qli = boost::shared_array<double>(new double[m_Np]);
-    m_Qlm = boost::shared_array<complex<double> >(new complex<double>[2*m_l+1]);
-    memset((void*)m_Qlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
-    memset((void*)m_Qli.get(), 0, sizeof(double)*m_Np);
-    memset((void*)m_Qlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
+    m_Qlmi = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
+    m_Qli = boost::shared_array<float>(new float[m_Np]);
+    m_Qlm = boost::shared_array<complex<float> >(new complex<float>[2*m_l+1]);
+    memset((void*)m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
+    memset((void*)m_Qli.get(), 0, sizeof(float)*m_Np);
+    memset((void*)m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
@@ -89,10 +89,10 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
 
             if (rsq > 1e-6)
                 {
-                double phi = atan2(delta.y,delta.x);      //0..2Pi
-                double theta = acos(delta.z / sqrt(rsq)); //0..Pi
+                float phi = atan2(delta.y,delta.x);      //0..2Pi
+                float theta = acos(delta.z / sqrt(rsq)); //0..Pi
 
-                std::vector<std::complex<double> > Y;
+                std::vector<std::complex<float> > Y;
                 LocalQlNear::Ylm(theta, phi,Y);  //Fill up Ylm vector
                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                     {
@@ -121,18 +121,18 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
     // compute the neighbor list
     m_nn->compute(m_box,points,Np,points,Np);
 
-    double rmaxsq = m_rmax * m_rmax;
-    double normalizationfactor = 4*M_PI/(2*m_l+1);
+    float rmaxsq = m_rmax * m_rmax;
+    float normalizationfactor = 4*M_PI/(2*m_l+1);
 
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_AveQlmi = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)*m_Np]);
-    m_AveQli = boost::shared_array<double>(new double[m_Np]);
-    m_AveQlm = boost::shared_array<complex<double> >(new complex<double> [(2*m_l+1)]);
-    memset((void*)m_AveQlmi.get(), 0, sizeof(complex<double>)*(2*m_l+1)*m_Np);
-    memset((void*)m_AveQli.get(), 0, sizeof(double)*m_Np);
-    memset((void*)m_AveQlm.get(), 0, sizeof(complex<double>)*(2*m_l+1));
+    m_AveQlmi = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
+    m_AveQli = boost::shared_array<float>(new float[m_Np]);
+    m_AveQlm = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)]);
+    memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
+    memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
+    memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
@@ -204,10 +204,10 @@ void LocalQlNear::computeNorm(const vec3<float> *points, unsigned int Np)
 
     //Set local data size
     m_Np = Np;
-    double normalizationfactor = 4*M_PI/(2*m_l+1);
+    float normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    m_QliNorm = boost::shared_array<double>(new double[m_Np]);
-    memset((void*)m_QliNorm.get(), 0, sizeof(double)*m_Np);
+    m_QliNorm = boost::shared_array<float>(new float[m_Np]);
+    memset((void*)m_QliNorm.get(), 0, sizeof(float)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
@@ -232,10 +232,10 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
 
     //Set local data size
     m_Np = Np;
-    double normalizationfactor = 4*M_PI/(2*m_l+1);
+    float normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    m_QliAveNorm = boost::shared_array<double>(new double[m_Np]);
-    memset((void*)m_QliAveNorm.get(), 0, sizeof(double)*m_Np);
+    m_QliAveNorm = boost::shared_array<float>(new float[m_Np]);
+    memset((void*)m_QliAveNorm.get(), 0, sizeof(float)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)

@@ -164,7 +164,6 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
         //get cell point is in
         // float3 ref = points[i];
         vec3<float> ref = points[i];
-        printf("point retrieved\n");
         unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=1;
 
@@ -174,7 +173,6 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
             {
             //get cell points of 1st neighbor
             unsigned int neigh_cell = neigh_cells[neigh_idx];
-            printf("found neighbor cell\n");
 
             //iterate over particles in neighboring cells
             locality::LinkCell::iteratorcell shell1 = m_lc.itercell(neigh_cell);
@@ -182,7 +180,6 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
                 {
                 // float3 ref1 = points[n1];
                 vec3<float> ref1 = points[n1];
-                printf("found point in shell\n");
                 unsigned int ref1_cell = m_lc.getCell(ref1);
                 if (n1 == i)
                     {
@@ -207,7 +204,6 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
                         {
                         //get cell points of 2nd neighbor
                         unsigned int neigh1_cell = neigh1_cells[neigh1_idx];
-                        printf("found other neighbor cell\n");
 
                         //iterate over particles in neighboring cells
                         locality::LinkCell::iteratorcell it = m_lc.itercell(neigh1_cell);
@@ -224,7 +220,6 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
 
                             // float3 delta1 = m_box.wrap(make_float3(dx1, dy1, dz1));
                             vec3<float> delta1 = m_box.wrap(points[j] - ref1);
-                            printf("point j retrieved\n");
                             // float rsq1 = delta1.x*delta1.x + delta1.y*delta1.y + delta1.z*delta1.z;
                             float rsq1 = dot(delta1, delta1);
 
@@ -234,14 +229,9 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
                                     {
                                     //adding all the Qlm of the neighbors
                                     // change to Index?
-                                    printf("%d\n", (2*m_l+1)*i+k);
-                                    printf("%f\n", std::real(m_AveQlmi[(2*m_l+1)*i+k]));
-                                    printf("%d\n", (2*m_l+1)*j+k);
-                                    printf("%f\n", std::real(m_Qlmi[(2*m_l+1)*j+k]));
                                     // Seg fault is here
-                                    // m_Qlmi is not instantiated in this loop...
+                                    // m_Qlmi is not instantiated in this loop method, compute must be called first?
                                     m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*j+k];
-                                    printf("incremented bin\n");
                                     }
                                 neighborcount++;
                                 }

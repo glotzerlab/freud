@@ -14,7 +14,7 @@ from ._freud import LocalDescriptors;
 
 # everything below is sphericalharmonic stuff
 from ._freud import LocalQl
-# from ._freud import LocalQlNear
+from ._freud import LocalQlNear
 # #from _freud import LocalWl as LWl
 # from ._freud import LocalWl
 # from ._freud import LocalWlNear

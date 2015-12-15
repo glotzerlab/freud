@@ -35,3 +35,6 @@ Lorem Ipsum
 
 .. autoclass:: freud.order.LocalQl(box, rmax, l, rmin)
     :members:
+
+.. autoclass:: freud.order.LocalQlNear(box, rmax, l, kn)
+    :members:

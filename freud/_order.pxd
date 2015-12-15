@@ -88,7 +88,27 @@ cdef extern from "LocalQl.h" namespace "freud::order":
                         unsigned int)
         void computeNorm(const vec3[float]*,
                          unsigned int)
-        void computeAveNorm(const vec3[float],
+        void computeAveNorm(const vec3[float]*,
+                            unsigned int)
+        shared_array[float] getQl()
+        shared_array[float] getAveQl()
+        shared_array[float] getQlNorm()
+        shared_array[float] getQlAveNorm()
+        unsigned int getNP()
+
+
+cdef extern from "LocalQlNear.h" namespace "freud::order":
+    cdef cppclass LocalQlNear:
+        LocalQlNear(const trajectory.Box&, float, unsigned int, unsigned int)
+        const trajectory.Box& getBox() const
+        void setBox(const trajectory.Box)
+        void compute(const vec3[float]*,
+                     unsigned int)
+        void computeAve(const vec3[float]*,
+                        unsigned int)
+        void computeNorm(const vec3[float]*,
+                         unsigned int)
+        void computeAveNorm(const vec3[float]*,
                             unsigned int)
         shared_array[float] getQl()
         shared_array[float] getAveQl()
