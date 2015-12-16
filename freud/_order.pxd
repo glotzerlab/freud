@@ -3,6 +3,7 @@ from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
 from libcpp.complex cimport complex
+from libcpp.vector cimport vector
 cimport freud._trajectory as trajectory
 
 cdef extern from "BondOrder.h" namespace "freud::order":
@@ -158,4 +159,46 @@ cdef extern from "LocalWlNear.h" namespace "freud::order":
         shared_array[float complex] getWlAveNorm()
         void enableNormalization()
         void disableNormalization()
+        unsigned int getNP()
+
+cdef extern from "SolLiq.h" namespace "freud::order":
+    cdef cppclass SolLiq:
+        SolLiq(const trajectory.Box&, float, float, unsigned int, unsigned int)
+        const trajectory.Box& getBox() const
+        void setBox(const trajectory.Box)
+        void setClusteringRadius(float)
+        void compute(const vec3[float]*,
+                     unsigned int)
+        void computeSolLiqVariant(const vec3[float]*,
+                                  unsigned int)
+        void computeSolLiqNoNorm(const vec3[float]*,
+                                 unsigned int)
+        unsigned int getLargestClusterSize()
+        vector[unsigned int] getClusterSizes()
+        shared_array[float complex] getQlmi()
+        shared_array[unsigned int] getClusters()
+        shared_array[unsigned int] getNumberOfConnections()
+        vector[float complex] getQldot_ij()
+        unsigned int getNP()
+        unsigned int getNumClusters()
+
+cdef extern from "SolLiqNear.h" namespace "freud::order":
+    cdef cppclass SolLiqNear:
+        SolLiqNear(const trajectory.Box&, float, float, unsigned int, unsigned int, unsigned int)
+        const trajectory.Box& getBox() const
+        void setBox(const trajectory.Box)
+        void setClusteringRadius(float)
+        void compute(const vec3[float]*,
+                     unsigned int)
+        void computeSolLiqVariant(const vec3[float]*,
+                                  unsigned int)
+        void computeSolLiqNoNorm(const vec3[float]*,
+                                 unsigned int)
+        unsigned int getLargestClusterSize()
+        vector[unsigned int] getClusterSizes()
+        shared_array[float complex] getQlmi()
+        shared_array[unsigned int] getClusters()
+        shared_array[unsigned int] getNumberOfConnections()
+        vector[float complex] getQldot_ij()
+        unsigned int getNumClusters()
         unsigned int getNP()

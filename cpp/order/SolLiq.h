@@ -178,6 +178,16 @@ class SolLiq
             {
             return m_qldot_ij;
             }
+
+        unsigned int getNP()
+            {
+            return m_Np;
+            }
+
+        unsigned int getNumClusters()
+            {
+            return m_num_clusters;
+            }
         // //! Python wrapper for retrieving number of connections per particle
         // boost::python::numeric::array getQldot_ijPy()
         //     {
