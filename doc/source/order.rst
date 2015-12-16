@@ -26,3 +26,18 @@ Lorem Ipsum
 
 .. autoclass:: freud.order.HexOrderParameter(rmax, k, n)
     :members:
+
+.. autoclass:: freud.order.LocalDescriptors(box, nNeigh, lmax, rmax)
+    :members:
+
+.. autoclass:: freud.order.TransOrderParameter(rmax, k, n)
+    :members:
+
+.. autoclass:: freud.order.LocalQl(box, rmax, l, rmin)
+    :members:
+
+.. autoclass:: freud.order.LocalQlNear(box, rmax, l, kn)
+    :members:
+
+.. autoclass:: freud.order.LocalWl(box, rmax, l)
+    :members:

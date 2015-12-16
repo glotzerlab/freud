@@ -1,5 +1,5 @@
 from freud import locality, trajectory
-from freud import sphericalharmonicorderparameters as shop
+from freud import order as shop
 import numpy as np
 import numpy.testing as npt
 import unittest
