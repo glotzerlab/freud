@@ -17,12 +17,13 @@ class TestCorrelationFunction(unittest.TestCase):
         corrfun = freud.density.ComplexCF(rmax, dr)
 
         try:
+            values = np.asarray(values, dtype=np.complex64)
             corrfun.compute(box, points, values, points, values.conj())
             assert False # should have thrown an exception
         except TypeError:
             assert True
 
-        values = np.asarray(values, dtype=np.complex64)
+        values = np.asarray(values, dtype=np.complex128)
         corrfun.compute(box, points, values, points, values.conj())
         assert True
 
