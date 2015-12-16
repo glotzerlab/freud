@@ -31,8 +31,8 @@ cdef class IteratorLinkCell:
             raise StopIteration()
         return result
 
-    # def __next__(self):
-    #     return self.next()
+    def __next__(self):
+        return self.next()
 
     def __iter__(self):
         return self
