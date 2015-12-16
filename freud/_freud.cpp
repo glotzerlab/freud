@@ -973,7 +973,7 @@ struct __pyx_obj_5freud_6_freud_NearestNeighbors {
  */
 struct __pyx_obj_5freud_6_freud_FloatCF {
   PyObject_HEAD
-  freud::density::CorrelationFunction<float>  *thisptr;
+  freud::density::CorrelationFunction<double>  *thisptr;
 };
 
 
@@ -986,7 +986,7 @@ struct __pyx_obj_5freud_6_freud_FloatCF {
  */
 struct __pyx_obj_5freud_6_freud_ComplexCF {
   PyObject_HEAD
-  freud::density::CorrelationFunction<__pyx_t_float_complex>  *thisptr;
+  freud::density::CorrelationFunction<__pyx_t_double_complex>  *thisptr;
 };
 
 
@@ -2079,9 +2079,11 @@ static CYTHON_INLINE PyObject *__pyx_convert_PyByteArray_string_to_py_std__in_st
 static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t = { "float32_t", NULL, sizeof(__pyx_t_5numpy_float32_t), { 0 }, 0, 'R', 0, 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t = { "float64_t", NULL, sizeof(__pyx_t_5numpy_float64_t), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t = { "uint32_t", NULL, sizeof(__pyx_t_5numpy_uint32_t), { 0 }, 0, IS_UNSIGNED(__pyx_t_5numpy_uint32_t) ? 'U' : 'I', IS_UNSIGNED(__pyx_t_5numpy_uint32_t), 0 };
-static __Pyx_TypeInfo __Pyx_TypeInfo___pyx_t_float_complex = { "float complex", NULL, sizeof(__pyx_t_float_complex), { 0 }, 0, 'C', 0, 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo___pyx_t_double_complex = { "double complex", NULL, sizeof(__pyx_t_double_complex), { 0 }, 0, 'C', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_unsigned_int = { "unsigned int", NULL, sizeof(unsigned int), { 0 }, 0, IS_UNSIGNED(unsigned int) ? 'U' : 'I', IS_UNSIGNED(unsigned int), 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo___pyx_t_float_complex = { "float complex", NULL, sizeof(__pyx_t_float_complex), { 0 }, 0, 'C', 0, 0 };
 #define __Pyx_MODULE_NAME "freud._freud"
 int __pyx_module_is_main_freud___freud = 0;
 
@@ -2200,6 +2202,7 @@ static char __pyx_k_volume[] = "volume";
 static char __pyx_k_bondMap[] = "bondMap";
 static char __pyx_k_flatten[] = "flatten";
 static char __pyx_k_float32[] = "float32";
+static char __pyx_k_float64[] = "float64";
 static char __pyx_k_fortran[] = "fortran";
 static char __pyx_k_memview[] = "memview";
 static char __pyx_k_n_neigh[] = "n_neigh";
@@ -2210,7 +2213,6 @@ static char __pyx_k_diameter[] = "diameter";
 static char __pyx_k_itemsize[] = "itemsize";
 static char __pyx_k_nthreads[] = "nthreads";
 static char __pyx_k_TypeError[] = "TypeError";
-static char __pyx_k_complex64[] = "complex64";
 static char __pyx_k_dcd_fname[] = "dcd_fname";
 static char __pyx_k_enumerate[] = "enumerate";
 static char __pyx_k_getWidthZ[] = "getWidthZ";
@@ -2222,6 +2224,7 @@ static char __pyx_k_Sthreshold[] = "Sthreshold";
 static char __pyx_k_ValueError[] = "ValueError";
 static char __pyx_k_accumulate[] = "accumulate";
 static char __pyx_k_cell_width[] = "cell_width";
+static char __pyx_k_complex128[] = "complex128";
 static char __pyx_k_nNeighbors[] = "nNeighbors";
 static char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static char __pyx_k_ref_points[] = "ref_points";
@@ -2292,8 +2295,9 @@ static char __pyx_k_the_2nd_dimension_must_have_3_va[] = "the 2nd dimension must
 static char __pyx_k_the_2nd_dimension_must_have_4_va[] = "the 2nd dimension must have 4 values: q0, q1, q2, q3";
 static char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
 static char __pyx_k_values_must_be_a_1_dimensional_a[] = "values must be a 1 dimensional array";
-static char __pyx_k_values_must_be_a_numpy_complex64[] = "values must be a numpy complex64 array";
+static char __pyx_k_values_must_be_a_numpy_complex12[] = "values must be a numpy complex128 array";
 static char __pyx_k_values_must_be_a_numpy_float32_a[] = "values must be a numpy float32 array";
+static char __pyx_k_values_must_be_a_numpy_float64_a[] = "values must be a numpy float64 array";
 static char __pyx_k_vecs_must_be_a_numpy_float32_arr[] = "vecs must be a numpy float32 array";
 static char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
 static char __pyx_k_the_2nd_dimension_must_have_3_va_2[] = "the 2nd dimension must have 3 values: q0, q1, q2, q3";
@@ -2354,7 +2358,7 @@ static PyObject *__pyx_n_s_c;
 static PyObject *__pyx_n_u_c;
 static PyObject *__pyx_n_s_cell_width;
 static PyObject *__pyx_n_s_class;
-static PyObject *__pyx_n_s_complex64;
+static PyObject *__pyx_n_s_complex128;
 static PyObject *__pyx_kp_s_contiguous_and_direct;
 static PyObject *__pyx_kp_s_contiguous_and_indirect;
 static PyObject *__pyx_n_s_dcd_fname;
@@ -2371,6 +2375,7 @@ static PyObject *__pyx_n_s_flags;
 static PyObject *__pyx_n_s_flat;
 static PyObject *__pyx_n_s_flatten;
 static PyObject *__pyx_n_s_float32;
+static PyObject *__pyx_n_s_float64;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
 static PyObject *__pyx_n_u_fortran;
@@ -2466,8 +2471,9 @@ static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_values;
 static PyObject *__pyx_kp_s_values_must_be_a_1_dimensional_a;
-static PyObject *__pyx_kp_s_values_must_be_a_numpy_complex64;
+static PyObject *__pyx_kp_s_values_must_be_a_numpy_complex12;
 static PyObject *__pyx_kp_s_values_must_be_a_numpy_float32_a;
+static PyObject *__pyx_kp_s_values_must_be_a_numpy_float64_a;
 static PyObject *__pyx_kp_s_vecs_must_be_a_numpy_float32_arr;
 static PyObject *__pyx_n_s_volume;
 static PyObject *__pyx_n_s_wrap;
@@ -10738,10 +10744,10 @@ static PyObject *__pyx_pf_5freud_6_freud_16NearestNeighbors_14compute(struct __p
 }
 
 /* "density.pxi":44
- *     cdef density.CorrelationFunction[float] *thisptr
+ *     cdef density.CorrelationFunction[double] *thisptr
  * 
  *     def __cinit__(self, rmax, dr):             # <<<<<<<<<<<<<<
- *         self.thisptr = new density.CorrelationFunction[float](rmax, dr)
+ *         self.thisptr = new density.CorrelationFunction[double](rmax, dr)
  * 
  */
 
@@ -10819,19 +10825,19 @@ static int __pyx_pf_5freud_6_freud_7FloatCF___cinit__(struct __pyx_obj_5freud_6_
   /* "density.pxi":45
  * 
  *     def __cinit__(self, rmax, dr):
- *         self.thisptr = new density.CorrelationFunction[float](rmax, dr)             # <<<<<<<<<<<<<<
+ *         self.thisptr = new density.CorrelationFunction[double](rmax, dr)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
   __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_rmax); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 45; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_v_dr); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 45; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_self->thisptr = new freud::density::CorrelationFunction<float> (__pyx_t_1, __pyx_t_2);
+  __pyx_v_self->thisptr = new freud::density::CorrelationFunction<double> (__pyx_t_1, __pyx_t_2);
 
   /* "density.pxi":44
- *     cdef density.CorrelationFunction[float] *thisptr
+ *     cdef density.CorrelationFunction[double] *thisptr
  * 
  *     def __cinit__(self, rmax, dr):             # <<<<<<<<<<<<<<
- *         self.thisptr = new density.CorrelationFunction[float](rmax, dr)
+ *         self.thisptr = new density.CorrelationFunction[double](rmax, dr)
  * 
  */
 
@@ -10847,7 +10853,7 @@ static int __pyx_pf_5freud_6_freud_7FloatCF___cinit__(struct __pyx_obj_5freud_6_
 }
 
 /* "density.pxi":47
- *         self.thisptr = new density.CorrelationFunction[float](rmax, dr)
+ *         self.thisptr = new density.CorrelationFunction[double](rmax, dr)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         del self.thisptr
@@ -10879,7 +10885,7 @@ static void __pyx_pf_5freud_6_freud_7FloatCF_2__dealloc__(struct __pyx_obj_5freu
   delete __pyx_v_self->thisptr;
 
   /* "density.pxi":47
- *         self.thisptr = new density.CorrelationFunction[float](rmax, dr)
+ *         self.thisptr = new density.CorrelationFunction[double](rmax, dr)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         del self.thisptr
@@ -10900,7 +10906,7 @@ static void __pyx_pf_5freud_6_freud_7FloatCF_2__dealloc__(struct __pyx_obj_5freu
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6_freud_7FloatCF_5accumulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6_freud_7FloatCF_4accumulate[] = "FloatCF.accumulate(self, box, refPoints, refValues, points, values)\n\n        Calculates the correlation function and adds to the current histogram.\n\n        :param box: simulation box\n        :param refPoints: reference points to calculate the local density\n        :param refValues: values to use in computation\n        :param points: points to calculate the local density\n        :param values: values to use in computation\n        :type box: :py:meth:`freud.trajectory.Box`\n        :type refPoints: np.float32\n        :type refValues: np.float32\n        :type points: np.float32\n        :type values: np.float32\n        ";
+static char __pyx_doc_5freud_6_freud_7FloatCF_4accumulate[] = "FloatCF.accumulate(self, box, refPoints, refValues, points, values)\n\n        Calculates the correlation function and adds to the current histogram.\n\n        :param box: simulation box\n        :param refPoints: reference points to calculate the local density\n        :param refValues: values to use in computation\n        :param points: points to calculate the local density\n        :param values: values to use in computation\n        :type box: :py:meth:`freud.trajectory.Box`\n        :type refPoints: np.float32\n        :type refValues: np.float64\n        :type points: np.float32\n        :type values: np.float64\n        ";
 static PyObject *__pyx_pw_5freud_6_freud_7FloatCF_5accumulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_refPoints = 0;
@@ -11054,7 +11060,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
   __pyx_pybuffernd_l_values.rcbuffer = &__pyx_pybuffer_l_values;
 
   /* "density.pxi":65
- *         :type values: np.float32
+ *         :type values: np.float64
  *         """
  *         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):             # <<<<<<<<<<<<<<
  *             raise ValueError("points must be a numpy float32 array")
@@ -11107,7 +11113,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
     {__pyx_filename = __pyx_f[3]; __pyx_lineno = 66; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
     /* "density.pxi":65
- *         :type values: np.float32
+ *         :type values: np.float64
  *         """
  *         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):             # <<<<<<<<<<<<<<
  *             raise ValueError("points must be a numpy float32 array")
@@ -11170,7 +11176,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
  *             raise ValueError("points must be a 2 dimensional array")
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_refPoints, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 69; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
@@ -11203,8 +11209,8 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
  *             raise ValueError("points must be a 2 dimensional array")
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")             # <<<<<<<<<<<<<<
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
- *             raise ValueError("values must be a numpy float32 array")
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):
+ *             raise ValueError("values must be a numpy float64 array")
  */
     __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
@@ -11217,22 +11223,22 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
  *             raise ValueError("points must be a 2 dimensional array")
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):
  */
   }
 
   /* "density.pxi":71
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):             # <<<<<<<<<<<<<<
- *             raise ValueError("values must be a numpy float32 array")
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):             # <<<<<<<<<<<<<<
+ *             raise ValueError("values must be a numpy float64 array")
  *         if refValues.ndim != 1 or values.ndim != 1:
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_refValues, __pyx_n_s_dtype); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_float64); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = PyObject_RichCompare(__pyx_t_4, __pyx_t_3, Py_NE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -11249,7 +11255,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_t_4, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -11263,8 +11269,8 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
 
     /* "density.pxi":72
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
- *             raise ValueError("values must be a numpy float32 array")             # <<<<<<<<<<<<<<
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):
+ *             raise ValueError("values must be a numpy float64 array")             # <<<<<<<<<<<<<<
  *         if refValues.ndim != 1 or values.ndim != 1:
  *             raise ValueError("values must be a 1 dimensional array")
  */
@@ -11277,15 +11283,15 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
     /* "density.pxi":71
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):             # <<<<<<<<<<<<<<
- *             raise ValueError("values must be a numpy float32 array")
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):             # <<<<<<<<<<<<<<
+ *             raise ValueError("values must be a numpy float64 array")
  *         if refValues.ndim != 1 or values.ndim != 1:
  */
   }
 
   /* "density.pxi":73
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
- *             raise ValueError("values must be a numpy float32 array")
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):
+ *             raise ValueError("values must be a numpy float64 array")
  *         if refValues.ndim != 1 or values.ndim != 1:             # <<<<<<<<<<<<<<
  *             raise ValueError("values must be a 1 dimensional array")
  *         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -11312,7 +11318,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
   if (__pyx_t_1) {
 
     /* "density.pxi":74
- *             raise ValueError("values must be a numpy float32 array")
+ *             raise ValueError("values must be a numpy float64 array")
  *         if refValues.ndim != 1 or values.ndim != 1:
  *             raise ValueError("values must be a 1 dimensional array")             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -11325,8 +11331,8 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
     {__pyx_filename = __pyx_f[3]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
     /* "density.pxi":73
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
- *             raise ValueError("values must be a numpy float32 array")
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):
+ *             raise ValueError("values must be a numpy float64 array")
  *         if refValues.ndim != 1 or values.ndim != 1:             # <<<<<<<<<<<<<<
  *             raise ValueError("values must be a 1 dimensional array")
  *         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -11456,8 +11462,8 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
  *             l_points = l_refPoints;
  *         else:
  *             l_points = np.ascontiguousarray(points.flatten())             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[float, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
- *         cdef np.ndarray[float, ndim=1] l_values
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_values
  */
   /*else*/ {
     __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 80; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -11538,8 +11544,8 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
   /* "density.pxi":81
  *         else:
  *             l_points = np.ascontiguousarray(points.flatten())
- *         cdef np.ndarray[float, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[float, ndim=1] l_values
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_values
  *         if values is refValues:
  */
   __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -11597,7 +11603,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
   __pyx_t_14 = ((PyArrayObject *)__pyx_t_3);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_refValues.rcbuffer->pybuffer, (PyObject*)__pyx_t_14, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_refValues.rcbuffer->pybuffer, (PyObject*)__pyx_t_14, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_refValues = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.buf = NULL;
       {__pyx_filename = __pyx_f[3]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     } else {__pyx_pybuffernd_l_refValues.diminfo[0].strides = __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_refValues.diminfo[0].shape = __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.shape[0];
@@ -11608,8 +11614,8 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
   __pyx_t_3 = 0;
 
   /* "density.pxi":83
- *         cdef np.ndarray[float, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
- *         cdef np.ndarray[float, ndim=1] l_values
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_values
  *         if values is refValues:             # <<<<<<<<<<<<<<
  *             l_values = l_refValues
  *         else:
@@ -11619,7 +11625,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
   if (__pyx_t_1) {
 
     /* "density.pxi":84
- *         cdef np.ndarray[float, ndim=1] l_values
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_values
  *         if values is refValues:
  *             l_values = l_refValues             # <<<<<<<<<<<<<<
  *         else:
@@ -11628,10 +11634,10 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
       __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer);
-      __pyx_t_9 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_v_l_refValues), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack);
+      __pyx_t_9 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_v_l_refValues), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack);
       if (unlikely(__pyx_t_9 < 0)) {
         PyErr_Fetch(&__pyx_t_10, &__pyx_t_11, &__pyx_t_12);
-        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_v_l_values, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_v_l_values, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
           Py_XDECREF(__pyx_t_10); Py_XDECREF(__pyx_t_11); Py_XDECREF(__pyx_t_12);
           __Pyx_RaiseBufferFallbackError();
         } else {
@@ -11645,8 +11651,8 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
     __pyx_v_l_values = ((PyArrayObject *)__pyx_v_l_refValues);
 
     /* "density.pxi":83
- *         cdef np.ndarray[float, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
- *         cdef np.ndarray[float, ndim=1] l_values
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+ *         cdef np.ndarray[np.float64_t, ndim=1] l_values
  *         if values is refValues:             # <<<<<<<<<<<<<<
  *             l_values = l_refValues
  *         else:
@@ -11718,10 +11724,10 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
       __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer);
-      __pyx_t_9 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_t_15, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack);
+      __pyx_t_9 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_t_15, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack);
       if (unlikely(__pyx_t_9 < 0)) {
         PyErr_Fetch(&__pyx_t_12, &__pyx_t_11, &__pyx_t_10);
-        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_v_l_values, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_v_l_values, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
           Py_XDECREF(__pyx_t_12); Py_XDECREF(__pyx_t_11); Py_XDECREF(__pyx_t_10);
           __Pyx_RaiseBufferFallbackError();
         } else {
@@ -11774,7 +11780,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
  *         cdef unsigned int nP = <unsigned int> points.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())             # <<<<<<<<<<<<<<
  *         with nogil:
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <double*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <double*>&l_values[0], nP)
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_box, __pyx_n_s_getLx); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
@@ -11936,7 +11942,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
  *         cdef unsigned int nP = <unsigned int> points.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:             # <<<<<<<<<<<<<<
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <double*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <double*>&l_values[0], nP)
  * 
  */
   {
@@ -11949,7 +11955,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
         /* "density.pxi":91
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)             # <<<<<<<<<<<<<<
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <double*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <double*>&l_values[0], nP)             # <<<<<<<<<<<<<<
  * 
  *     def getRDF(self):
  */
@@ -11961,14 +11967,14 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
         if (__pyx_t_26 < 0) __pyx_t_26 += __pyx_pybuffernd_l_points.diminfo[0].shape;
         __pyx_t_27 = 0;
         if (__pyx_t_27 < 0) __pyx_t_27 += __pyx_pybuffernd_l_values.diminfo[0].shape;
-        __pyx_v_self->thisptr->accumulate(__pyx_v_l_box, ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refPoints.rcbuffer->pybuffer.buf, __pyx_t_24, __pyx_pybuffernd_l_refPoints.diminfo[0].strides)))), ((float *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.buf, __pyx_t_25, __pyx_pybuffernd_l_refValues.diminfo[0].strides)))), __pyx_v_nRef, ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf, __pyx_t_26, __pyx_pybuffernd_l_points.diminfo[0].strides)))), ((float *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_values.rcbuffer->pybuffer.buf, __pyx_t_27, __pyx_pybuffernd_l_values.diminfo[0].strides)))), __pyx_v_nP);
+        __pyx_v_self->thisptr->accumulate(__pyx_v_l_box, ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refPoints.rcbuffer->pybuffer.buf, __pyx_t_24, __pyx_pybuffernd_l_refPoints.diminfo[0].strides)))), ((double *)(&(*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.buf, __pyx_t_25, __pyx_pybuffernd_l_refValues.diminfo[0].strides)))), __pyx_v_nRef, ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf, __pyx_t_26, __pyx_pybuffernd_l_points.diminfo[0].strides)))), ((double *)(&(*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_l_values.rcbuffer->pybuffer.buf, __pyx_t_27, __pyx_pybuffernd_l_values.diminfo[0].strides)))), __pyx_v_nP);
       }
 
       /* "density.pxi":90
  *         cdef unsigned int nP = <unsigned int> points.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:             # <<<<<<<<<<<<<<
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <double*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <double*>&l_values[0], nP)
  * 
  */
       /*finally:*/ {
@@ -12025,7 +12031,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_4accumulate(struct __pyx_obj_5
 }
 
 /* "density.pxi":93
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <double*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <double*>&l_values[0], nP)
  * 
  *     def getRDF(self):             # <<<<<<<<<<<<<<
  *         """
@@ -12047,7 +12053,7 @@ static PyObject *__pyx_pw_5freud_6_freud_7FloatCF_7getRDF(PyObject *__pyx_v_self
 }
 
 static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_6getRDF(struct __pyx_obj_5freud_6_freud_FloatCF *__pyx_v_self) {
-  float *__pyx_v_rdf;
+  double *__pyx_v_rdf;
   npy_intp __pyx_v_nbins[1];
   PyArrayObject *__pyx_v_result = 0;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_result;
@@ -12068,17 +12074,17 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_6getRDF(struct __pyx_obj_5freu
   /* "density.pxi":98
  *         :rtype: np.float32
  *         """
- *         cdef float *rdf = self.thisptr.getRDF().get()             # <<<<<<<<<<<<<<
+ *         cdef double *rdf = self.thisptr.getRDF().get()             # <<<<<<<<<<<<<<
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
  */
   __pyx_v_rdf = __pyx_v_self->thisptr->getRDF().get();
 
   /* "density.pxi":100
- *         cdef float *rdf = self.thisptr.getRDF().get()
+ *         cdef double *rdf = self.thisptr.getRDF().get()
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNBins()             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rdf)
+ *         cdef np.ndarray[np.float64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT64, <void*>rdf)
  *         return result
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNBins());
@@ -12086,17 +12092,17 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_6getRDF(struct __pyx_obj_5freu
   /* "density.pxi":101
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
- *         cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rdf)             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[np.float64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT64, <void*>rdf)             # <<<<<<<<<<<<<<
  *         return result
  * 
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_FLOAT32, ((void *)__pyx_v_rdf)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 101; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_FLOAT64, ((void *)__pyx_v_rdf)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 101; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 101; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
       {__pyx_filename = __pyx_f[3]; __pyx_lineno = 101; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
@@ -12108,7 +12114,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_6getRDF(struct __pyx_obj_5freu
 
   /* "density.pxi":102
  *         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
- *         cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rdf)
+ *         cdef np.ndarray[np.float64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT64, <void*>rdf)
  *         return result             # <<<<<<<<<<<<<<
  * 
  *     def getBox(self):
@@ -12119,7 +12125,7 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_6getRDF(struct __pyx_obj_5freu
   goto __pyx_L0;
 
   /* "density.pxi":93
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <double*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <double*>&l_values[0], nP)
  * 
  *     def getRDF(self):             # <<<<<<<<<<<<<<
  *         """
@@ -12744,10 +12750,10 @@ static PyObject *__pyx_pf_5freud_6_freud_7FloatCF_18getR(struct __pyx_obj_5freud
 }
 
 /* "density.pxi":196
- *     cdef density.CorrelationFunction[np.complex64_t] *thisptr
+ *     cdef density.CorrelationFunction[np.complex128_t] *thisptr
  * 
  *     def __cinit__(self, rmax, dr):             # <<<<<<<<<<<<<<
- *         self.thisptr = new density.CorrelationFunction[np.complex64_t](rmax, dr)
+ *         self.thisptr = new density.CorrelationFunction[np.complex128_t](rmax, dr)
  * 
  */
 
@@ -12825,19 +12831,19 @@ static int __pyx_pf_5freud_6_freud_9ComplexCF___cinit__(struct __pyx_obj_5freud_
   /* "density.pxi":197
  * 
  *     def __cinit__(self, rmax, dr):
- *         self.thisptr = new density.CorrelationFunction[np.complex64_t](rmax, dr)             # <<<<<<<<<<<<<<
+ *         self.thisptr = new density.CorrelationFunction[np.complex128_t](rmax, dr)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
   __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_rmax); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_v_dr); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_self->thisptr = new freud::density::CorrelationFunction<__pyx_t_float_complex> (__pyx_t_1, __pyx_t_2);
+  __pyx_v_self->thisptr = new freud::density::CorrelationFunction<__pyx_t_double_complex> (__pyx_t_1, __pyx_t_2);
 
   /* "density.pxi":196
- *     cdef density.CorrelationFunction[np.complex64_t] *thisptr
+ *     cdef density.CorrelationFunction[np.complex128_t] *thisptr
  * 
  *     def __cinit__(self, rmax, dr):             # <<<<<<<<<<<<<<
- *         self.thisptr = new density.CorrelationFunction[np.complex64_t](rmax, dr)
+ *         self.thisptr = new density.CorrelationFunction[np.complex128_t](rmax, dr)
  * 
  */
 
@@ -12853,7 +12859,7 @@ static int __pyx_pf_5freud_6_freud_9ComplexCF___cinit__(struct __pyx_obj_5freud_
 }
 
 /* "density.pxi":199
- *         self.thisptr = new density.CorrelationFunction[np.complex64_t](rmax, dr)
+ *         self.thisptr = new density.CorrelationFunction[np.complex128_t](rmax, dr)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         del self.thisptr
@@ -12885,7 +12891,7 @@ static void __pyx_pf_5freud_6_freud_9ComplexCF_2__dealloc__(struct __pyx_obj_5fr
   delete __pyx_v_self->thisptr;
 
   /* "density.pxi":199
- *         self.thisptr = new density.CorrelationFunction[np.complex64_t](rmax, dr)
+ *         self.thisptr = new density.CorrelationFunction[np.complex128_t](rmax, dr)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         del self.thisptr
@@ -12906,7 +12912,7 @@ static void __pyx_pf_5freud_6_freud_9ComplexCF_2__dealloc__(struct __pyx_obj_5fr
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6_freud_9ComplexCF_5accumulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6_freud_9ComplexCF_4accumulate[] = "ComplexCF.accumulate(self, box, refPoints, refValues, points, values)\n\n        Calculates the correlation function and adds to the current histogram.\n\n        :param box: simulation box\n        :param refPoints: reference points to calculate the local density\n        :param refValues: values to use in computation\n        :param points: points to calculate the local density\n        :param values: values to use in computation\n        :type box: :py:meth:`freud.trajectory.Box`\n        :type refPoints: np.float32\n        :type refValues: np.complex64\n        :type points: np.float32\n        :type values: np.complex64\n        ";
+static char __pyx_doc_5freud_6_freud_9ComplexCF_4accumulate[] = "ComplexCF.accumulate(self, box, refPoints, refValues, points, values)\n\n        Calculates the correlation function and adds to the current histogram.\n\n        :param box: simulation box\n        :param refPoints: reference points to calculate the local density\n        :param refValues: values to use in computation\n        :param points: points to calculate the local density\n        :param values: values to use in computation\n        :type box: :py:meth:`freud.trajectory.Box`\n        :type refPoints: np.float32\n        :type refValues: np.complex128\n        :type points: np.float32\n        :type values: np.complex128\n        ";
 static PyObject *__pyx_pw_5freud_6_freud_9ComplexCF_5accumulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_refPoints = 0;
@@ -13060,7 +13066,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
   __pyx_pybuffernd_l_values.rcbuffer = &__pyx_pybuffer_l_values;
 
   /* "density.pxi":217
- *         :type values: np.complex64
+ *         :type values: np.complex128
  *         """
  *         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):             # <<<<<<<<<<<<<<
  *             raise TypeError("points must be a numpy float32 array")
@@ -13113,7 +13119,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
     {__pyx_filename = __pyx_f[3]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
     /* "density.pxi":217
- *         :type values: np.complex64
+ *         :type values: np.complex128
  *         """
  *         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):             # <<<<<<<<<<<<<<
  *             raise TypeError("points must be a numpy float32 array")
@@ -13176,7 +13182,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
  *             raise ValueError("points must be a 2 dimensional array")
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_refPoints, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 221; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
@@ -13209,8 +13215,8 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
  *             raise ValueError("points must be a 2 dimensional array")
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")             # <<<<<<<<<<<<<<
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
- *             raise TypeError("values must be a numpy complex64 array")
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
+ *             raise TypeError("values must be a numpy complex128 array")
  */
     __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 222; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
@@ -13223,22 +13229,22 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
  *             raise ValueError("points must be a 2 dimensional array")
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
  */
   }
 
   /* "density.pxi":223
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):             # <<<<<<<<<<<<<<
- *             raise TypeError("values must be a numpy complex64 array")
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):             # <<<<<<<<<<<<<<
+ *             raise TypeError("values must be a numpy complex128 array")
  *         if refValues.ndim != 1 or values.ndim != 1:
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_refValues, __pyx_n_s_dtype); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_complex64); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_complex128); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = PyObject_RichCompare(__pyx_t_4, __pyx_t_3, Py_NE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -13255,7 +13261,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_complex64); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_complex128); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_t_4, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -13269,8 +13275,8 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
 
     /* "density.pxi":224
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
- *             raise TypeError("values must be a numpy complex64 array")             # <<<<<<<<<<<<<<
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
+ *             raise TypeError("values must be a numpy complex128 array")             # <<<<<<<<<<<<<<
  *         if refValues.ndim != 1 or values.ndim != 1:
  *             raise ValueError("values must be a 1 dimensional array")
  */
@@ -13283,15 +13289,15 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
     /* "density.pxi":223
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):             # <<<<<<<<<<<<<<
- *             raise TypeError("values must be a numpy complex64 array")
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):             # <<<<<<<<<<<<<<
+ *             raise TypeError("values must be a numpy complex128 array")
  *         if refValues.ndim != 1 or values.ndim != 1:
  */
   }
 
   /* "density.pxi":225
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
- *             raise TypeError("values must be a numpy complex64 array")
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
+ *             raise TypeError("values must be a numpy complex128 array")
  *         if refValues.ndim != 1 or values.ndim != 1:             # <<<<<<<<<<<<<<
  *             raise ValueError("values must be a 1 dimensional array")
  *         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -13318,7 +13324,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
   if (__pyx_t_1) {
 
     /* "density.pxi":226
- *             raise TypeError("values must be a numpy complex64 array")
+ *             raise TypeError("values must be a numpy complex128 array")
  *         if refValues.ndim != 1 or values.ndim != 1:
  *             raise ValueError("values must be a 1 dimensional array")             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -13331,8 +13337,8 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
     {__pyx_filename = __pyx_f[3]; __pyx_lineno = 226; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
     /* "density.pxi":225
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
- *             raise TypeError("values must be a numpy complex64 array")
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
+ *             raise TypeError("values must be a numpy complex128 array")
  *         if refValues.ndim != 1 or values.ndim != 1:             # <<<<<<<<<<<<<<
  *             raise ValueError("values must be a 1 dimensional array")
  *         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -13462,8 +13468,8 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
  *             l_points = l_refPoints;
  *         else:
  *             l_points = np.ascontiguousarray(points.flatten())             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_values
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_values
  */
   /*else*/ {
     __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -13544,8 +13550,8 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
   /* "density.pxi":233
  *         else:
  *             l_points = np.ascontiguousarray(points.flatten())
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_values
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_values
  *         if values is refValues:
  */
   __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -13603,7 +13609,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
   __pyx_t_14 = ((PyArrayObject *)__pyx_t_3);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_refValues.rcbuffer->pybuffer, (PyObject*)__pyx_t_14, &__Pyx_TypeInfo___pyx_t_float_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_refValues.rcbuffer->pybuffer, (PyObject*)__pyx_t_14, &__Pyx_TypeInfo___pyx_t_double_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_refValues = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.buf = NULL;
       {__pyx_filename = __pyx_f[3]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     } else {__pyx_pybuffernd_l_refValues.diminfo[0].strides = __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_refValues.diminfo[0].shape = __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.shape[0];
@@ -13614,8 +13620,8 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
   __pyx_t_3 = 0;
 
   /* "density.pxi":235
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_values
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_values
  *         if values is refValues:             # <<<<<<<<<<<<<<
  *             l_values = l_refValues
  *         else:
@@ -13625,7 +13631,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
   if (__pyx_t_1) {
 
     /* "density.pxi":236
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_values
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_values
  *         if values is refValues:
  *             l_values = l_refValues             # <<<<<<<<<<<<<<
  *         else:
@@ -13634,10 +13640,10 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
       __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer);
-      __pyx_t_9 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_v_l_refValues), &__Pyx_TypeInfo___pyx_t_float_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack);
+      __pyx_t_9 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_v_l_refValues), &__Pyx_TypeInfo___pyx_t_double_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack);
       if (unlikely(__pyx_t_9 < 0)) {
         PyErr_Fetch(&__pyx_t_10, &__pyx_t_11, &__pyx_t_12);
-        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_v_l_values, &__Pyx_TypeInfo___pyx_t_float_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_v_l_values, &__Pyx_TypeInfo___pyx_t_double_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
           Py_XDECREF(__pyx_t_10); Py_XDECREF(__pyx_t_11); Py_XDECREF(__pyx_t_12);
           __Pyx_RaiseBufferFallbackError();
         } else {
@@ -13651,8 +13657,8 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
     __pyx_v_l_values = ((PyArrayObject *)__pyx_v_l_refValues);
 
     /* "density.pxi":235
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
- *         cdef np.ndarray[np.complex64_t, ndim=1] l_values
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+ *         cdef np.ndarray[np.complex128_t, ndim=1] l_values
  *         if values is refValues:             # <<<<<<<<<<<<<<
  *             l_values = l_refValues
  *         else:
@@ -13724,10 +13730,10 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
       __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer);
-      __pyx_t_9 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_t_15, &__Pyx_TypeInfo___pyx_t_float_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack);
+      __pyx_t_9 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_t_15, &__Pyx_TypeInfo___pyx_t_double_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack);
       if (unlikely(__pyx_t_9 < 0)) {
         PyErr_Fetch(&__pyx_t_12, &__pyx_t_11, &__pyx_t_10);
-        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_v_l_values, &__Pyx_TypeInfo___pyx_t_float_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_values.rcbuffer->pybuffer, (PyObject*)__pyx_v_l_values, &__Pyx_TypeInfo___pyx_t_double_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
           Py_XDECREF(__pyx_t_12); Py_XDECREF(__pyx_t_11); Py_XDECREF(__pyx_t_10);
           __Pyx_RaiseBufferFallbackError();
         } else {
@@ -13780,7 +13786,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
  *         cdef unsigned int nP = <unsigned int> points.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())             # <<<<<<<<<<<<<<
  *         with nogil:
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex128_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex128_t*>&l_values[0], nP)
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_box, __pyx_n_s_getLx); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 241; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
@@ -13942,7 +13948,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
  *         cdef unsigned int nP = <unsigned int> points.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:             # <<<<<<<<<<<<<<
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex128_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex128_t*>&l_values[0], nP)
  * 
  */
   {
@@ -13955,7 +13961,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
         /* "density.pxi":243
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)             # <<<<<<<<<<<<<<
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex128_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex128_t*>&l_values[0], nP)             # <<<<<<<<<<<<<<
  * 
  *     def getRDF(self):
  */
@@ -13967,14 +13973,14 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
         if (__pyx_t_26 < 0) __pyx_t_26 += __pyx_pybuffernd_l_points.diminfo[0].shape;
         __pyx_t_27 = 0;
         if (__pyx_t_27 < 0) __pyx_t_27 += __pyx_pybuffernd_l_values.diminfo[0].shape;
-        __pyx_v_self->thisptr->accumulate(__pyx_v_l_box, ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refPoints.rcbuffer->pybuffer.buf, __pyx_t_24, __pyx_pybuffernd_l_refPoints.diminfo[0].strides)))), ((__pyx_t_float_complex *)(&(*__Pyx_BufPtrStrided1d(__pyx_t_float_complex *, __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.buf, __pyx_t_25, __pyx_pybuffernd_l_refValues.diminfo[0].strides)))), __pyx_v_nRef, ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf, __pyx_t_26, __pyx_pybuffernd_l_points.diminfo[0].strides)))), ((__pyx_t_float_complex *)(&(*__Pyx_BufPtrStrided1d(__pyx_t_float_complex *, __pyx_pybuffernd_l_values.rcbuffer->pybuffer.buf, __pyx_t_27, __pyx_pybuffernd_l_values.diminfo[0].strides)))), __pyx_v_nP);
+        __pyx_v_self->thisptr->accumulate(__pyx_v_l_box, ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refPoints.rcbuffer->pybuffer.buf, __pyx_t_24, __pyx_pybuffernd_l_refPoints.diminfo[0].strides)))), ((__pyx_t_double_complex *)(&(*__Pyx_BufPtrStrided1d(__pyx_t_double_complex *, __pyx_pybuffernd_l_refValues.rcbuffer->pybuffer.buf, __pyx_t_25, __pyx_pybuffernd_l_refValues.diminfo[0].strides)))), __pyx_v_nRef, ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf, __pyx_t_26, __pyx_pybuffernd_l_points.diminfo[0].strides)))), ((__pyx_t_double_complex *)(&(*__Pyx_BufPtrStrided1d(__pyx_t_double_complex *, __pyx_pybuffernd_l_values.rcbuffer->pybuffer.buf, __pyx_t_27, __pyx_pybuffernd_l_values.diminfo[0].strides)))), __pyx_v_nP);
       }
 
       /* "density.pxi":242
  *         cdef unsigned int nP = <unsigned int> points.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:             # <<<<<<<<<<<<<<
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex128_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex128_t*>&l_values[0], nP)
  * 
  */
       /*finally:*/ {
@@ -14031,7 +14037,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_4accumulate(struct __pyx_obj
 }
 
 /* "density.pxi":245
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex128_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex128_t*>&l_values[0], nP)
  * 
  *     def getRDF(self):             # <<<<<<<<<<<<<<
  *         """
@@ -14053,7 +14059,7 @@ static PyObject *__pyx_pw_5freud_6_freud_9ComplexCF_7getRDF(PyObject *__pyx_v_se
 }
 
 static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_6getRDF(struct __pyx_obj_5freud_6_freud_ComplexCF *__pyx_v_self) {
-  __pyx_t_float_complex *__pyx_v_rdf;
+  __pyx_t_double_complex *__pyx_v_rdf;
   npy_intp __pyx_v_nbins[1];
   PyArrayObject *__pyx_v_result = 0;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_result;
@@ -14074,17 +14080,17 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_6getRDF(struct __pyx_obj_5fr
   /* "density.pxi":250
  *         :rtype: np.complex64
  *         """
- *         cdef np.complex64_t *rdf = self.thisptr.getRDF().get()             # <<<<<<<<<<<<<<
+ *         cdef np.complex128_t *rdf = self.thisptr.getRDF().get()             # <<<<<<<<<<<<<<
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
  */
   __pyx_v_rdf = __pyx_v_self->thisptr->getRDF().get();
 
   /* "density.pxi":252
- *         cdef np.complex64_t *rdf = self.thisptr.getRDF().get()
+ *         cdef np.complex128_t *rdf = self.thisptr.getRDF().get()
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNBins()             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>rdf)
+ *         cdef np.ndarray[np.complex128_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX128, <void*>rdf)
  *         return result
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNBins());
@@ -14092,17 +14098,17 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_6getRDF(struct __pyx_obj_5fr
   /* "density.pxi":253
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
- *         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>rdf)             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[np.complex128_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX128, <void*>rdf)             # <<<<<<<<<<<<<<
  *         return result
  * 
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_COMPLEX64, ((void *)__pyx_v_rdf)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 253; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_COMPLEX128, ((void *)__pyx_v_rdf)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 253; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 253; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo___pyx_t_float_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo___pyx_t_double_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
       {__pyx_filename = __pyx_f[3]; __pyx_lineno = 253; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
@@ -14114,7 +14120,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_6getRDF(struct __pyx_obj_5fr
 
   /* "density.pxi":254
  *         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
- *         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>rdf)
+ *         cdef np.ndarray[np.complex128_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX128, <void*>rdf)
  *         return result             # <<<<<<<<<<<<<<
  * 
  *     def getBox(self):
@@ -14125,7 +14131,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9ComplexCF_6getRDF(struct __pyx_obj_5fr
   goto __pyx_L0;
 
   /* "density.pxi":245
- *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)
+ *             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex128_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex128_t*>&l_values[0], nP)
  * 
  *     def getRDF(self):             # <<<<<<<<<<<<<<
  *         """
@@ -66336,7 +66342,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_u_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 1, 0, 1},
   {&__pyx_n_s_cell_width, __pyx_k_cell_width, sizeof(__pyx_k_cell_width), 0, 0, 1, 1},
   {&__pyx_n_s_class, __pyx_k_class, sizeof(__pyx_k_class), 0, 0, 1, 1},
-  {&__pyx_n_s_complex64, __pyx_k_complex64, sizeof(__pyx_k_complex64), 0, 0, 1, 1},
+  {&__pyx_n_s_complex128, __pyx_k_complex128, sizeof(__pyx_k_complex128), 0, 0, 1, 1},
   {&__pyx_kp_s_contiguous_and_direct, __pyx_k_contiguous_and_direct, sizeof(__pyx_k_contiguous_and_direct), 0, 0, 1, 0},
   {&__pyx_kp_s_contiguous_and_indirect, __pyx_k_contiguous_and_indirect, sizeof(__pyx_k_contiguous_and_indirect), 0, 0, 1, 0},
   {&__pyx_n_s_dcd_fname, __pyx_k_dcd_fname, sizeof(__pyx_k_dcd_fname), 0, 0, 1, 1},
@@ -66353,6 +66359,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_flat, __pyx_k_flat, sizeof(__pyx_k_flat), 0, 0, 1, 1},
   {&__pyx_n_s_flatten, __pyx_k_flatten, sizeof(__pyx_k_flatten), 0, 0, 1, 1},
   {&__pyx_n_s_float32, __pyx_k_float32, sizeof(__pyx_k_float32), 0, 0, 1, 1},
+  {&__pyx_n_s_float64, __pyx_k_float64, sizeof(__pyx_k_float64), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
   {&__pyx_n_u_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 1, 0, 1},
@@ -66448,8 +66455,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_unpack, __pyx_k_unpack, sizeof(__pyx_k_unpack), 0, 0, 1, 1},
   {&__pyx_n_s_values, __pyx_k_values, sizeof(__pyx_k_values), 0, 0, 1, 1},
   {&__pyx_kp_s_values_must_be_a_1_dimensional_a, __pyx_k_values_must_be_a_1_dimensional_a, sizeof(__pyx_k_values_must_be_a_1_dimensional_a), 0, 0, 1, 0},
-  {&__pyx_kp_s_values_must_be_a_numpy_complex64, __pyx_k_values_must_be_a_numpy_complex64, sizeof(__pyx_k_values_must_be_a_numpy_complex64), 0, 0, 1, 0},
+  {&__pyx_kp_s_values_must_be_a_numpy_complex12, __pyx_k_values_must_be_a_numpy_complex12, sizeof(__pyx_k_values_must_be_a_numpy_complex12), 0, 0, 1, 0},
   {&__pyx_kp_s_values_must_be_a_numpy_float32_a, __pyx_k_values_must_be_a_numpy_float32_a, sizeof(__pyx_k_values_must_be_a_numpy_float32_a), 0, 0, 1, 0},
+  {&__pyx_kp_s_values_must_be_a_numpy_float64_a, __pyx_k_values_must_be_a_numpy_float64_a, sizeof(__pyx_k_values_must_be_a_numpy_float64_a), 0, 0, 1, 0},
   {&__pyx_kp_s_vecs_must_be_a_numpy_float32_arr, __pyx_k_vecs_must_be_a_numpy_float32_arr, sizeof(__pyx_k_vecs_must_be_a_numpy_float32_arr), 0, 0, 1, 0},
   {&__pyx_n_s_volume, __pyx_k_volume, sizeof(__pyx_k_volume), 0, 0, 1, 1},
   {&__pyx_n_s_wrap, __pyx_k_wrap, sizeof(__pyx_k_wrap), 0, 0, 1, 1},
@@ -66641,8 +66649,8 @@ static int __Pyx_InitCachedConstants(void) {
  *             raise ValueError("points must be a 2 dimensional array")
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")             # <<<<<<<<<<<<<<
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
- *             raise ValueError("values must be a numpy float32 array")
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):
+ *             raise ValueError("values must be a numpy float64 array")
  */
   __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_the_2nd_dimension_must_have_3_va); if (unlikely(!__pyx_tuple__15)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__15);
@@ -66650,17 +66658,17 @@ static int __Pyx_InitCachedConstants(void) {
 
   /* "density.pxi":72
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.float32) or (values.dtype != np.float32):
- *             raise ValueError("values must be a numpy float32 array")             # <<<<<<<<<<<<<<
+ *         if (refValues.dtype != np.float64) or (values.dtype != np.float64):
+ *             raise ValueError("values must be a numpy float64 array")             # <<<<<<<<<<<<<<
  *         if refValues.ndim != 1 or values.ndim != 1:
  *             raise ValueError("values must be a 1 dimensional array")
  */
-  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_values_must_be_a_numpy_float32_a); if (unlikely(!__pyx_tuple__16)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_values_must_be_a_numpy_float64_a); if (unlikely(!__pyx_tuple__16)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__16);
   __Pyx_GIVEREF(__pyx_tuple__16);
 
   /* "density.pxi":74
- *             raise ValueError("values must be a numpy float32 array")
+ *             raise ValueError("values must be a numpy float64 array")
  *         if refValues.ndim != 1 or values.ndim != 1:
  *             raise ValueError("values must be a 1 dimensional array")             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -66696,8 +66704,8 @@ static int __Pyx_InitCachedConstants(void) {
  *             raise ValueError("points must be a 2 dimensional array")
  *         if refPoints.shape[1] != 3 or points.shape[1] != 3:
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")             # <<<<<<<<<<<<<<
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
- *             raise TypeError("values must be a numpy complex64 array")
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
+ *             raise TypeError("values must be a numpy complex128 array")
  */
   __pyx_tuple__20 = PyTuple_Pack(1, __pyx_kp_s_the_2nd_dimension_must_have_3_va); if (unlikely(!__pyx_tuple__20)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 222; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__20);
@@ -66705,17 +66713,17 @@ static int __Pyx_InitCachedConstants(void) {
 
   /* "density.pxi":224
  *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
- *             raise TypeError("values must be a numpy complex64 array")             # <<<<<<<<<<<<<<
+ *         if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
+ *             raise TypeError("values must be a numpy complex128 array")             # <<<<<<<<<<<<<<
  *         if refValues.ndim != 1 or values.ndim != 1:
  *             raise ValueError("values must be a 1 dimensional array")
  */
-  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_values_must_be_a_numpy_complex64); if (unlikely(!__pyx_tuple__21)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 224; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_values_must_be_a_numpy_complex12); if (unlikely(!__pyx_tuple__21)) {__pyx_filename = __pyx_f[3]; __pyx_lineno = 224; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
 
   /* "density.pxi":226
- *             raise TypeError("values must be a numpy complex64 array")
+ *             raise TypeError("values must be a numpy complex128 array")
  *         if refValues.ndim != 1 or values.ndim != 1:
  *             raise ValueError("values must be a 1 dimensional array")             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())

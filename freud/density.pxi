@@ -39,10 +39,10 @@ cdef class FloatCF:
     :type r_max: float
     :type dr: float
     """
-    cdef density.CorrelationFunction[float] *thisptr
+    cdef density.CorrelationFunction[double] *thisptr
 
     def __cinit__(self, rmax, dr):
-        self.thisptr = new density.CorrelationFunction[float](rmax, dr)
+        self.thisptr = new density.CorrelationFunction[double](rmax, dr)
 
     def __dealloc__(self):
         del self.thisptr
@@ -58,9 +58,9 @@ cdef class FloatCF:
         :param values: values to use in computation
         :type box: :py:meth:`freud.trajectory.Box`
         :type refPoints: np.float32
-        :type refValues: np.float32
+        :type refValues: np.float64
         :type points: np.float32
-        :type values: np.float32
+        :type values: np.float64
         """
         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
@@ -68,8 +68,8 @@ cdef class FloatCF:
             raise ValueError("points must be a 2 dimensional array")
         if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if (refValues.dtype != np.float32) or (values.dtype != np.float32):
-            raise ValueError("values must be a numpy float32 array")
+        if (refValues.dtype != np.float64) or (values.dtype != np.float64):
+            raise ValueError("values must be a numpy float64 array")
         if refValues.ndim != 1 or values.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -78,8 +78,8 @@ cdef class FloatCF:
             l_points = l_refPoints;
         else:
             l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
-        cdef np.ndarray[float, ndim=1] l_values
+        cdef np.ndarray[np.float64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+        cdef np.ndarray[np.float64_t, ndim=1] l_values
         if values is refValues:
             l_values = l_refValues
         else:
@@ -88,17 +88,17 @@ cdef class FloatCF:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <float*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <float*>&l_values[0], nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <double*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <double*>&l_values[0], nP)
 
     def getRDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
         :rtype: np.float32
         """
-        cdef float *rdf = self.thisptr.getRDF().get()
+        cdef double *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rdf)
+        cdef np.ndarray[np.float64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT64, <void*>rdf)
         return result
 
     def getBox(self):
@@ -191,10 +191,10 @@ cdef class ComplexCF:
     :type r_max: float
     :type dr: float
     """
-    cdef density.CorrelationFunction[np.complex64_t] *thisptr
+    cdef density.CorrelationFunction[np.complex128_t] *thisptr
 
     def __cinit__(self, rmax, dr):
-        self.thisptr = new density.CorrelationFunction[np.complex64_t](rmax, dr)
+        self.thisptr = new density.CorrelationFunction[np.complex128_t](rmax, dr)
 
     def __dealloc__(self):
         del self.thisptr
@@ -210,9 +210,9 @@ cdef class ComplexCF:
         :param values: values to use in computation
         :type box: :py:meth:`freud.trajectory.Box`
         :type refPoints: np.float32
-        :type refValues: np.complex64
+        :type refValues: np.complex128
         :type points: np.float32
-        :type values: np.complex64
+        :type values: np.complex128
         """
         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
             raise TypeError("points must be a numpy float32 array")
@@ -220,8 +220,8 @@ cdef class ComplexCF:
             raise ValueError("points must be a 2 dimensional array")
         if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if (refValues.dtype != np.complex64) or (values.dtype != np.complex64):
-            raise TypeError("values must be a numpy complex64 array")
+        if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
+            raise TypeError("values must be a numpy complex128 array")
         if refValues.ndim != 1 or values.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
@@ -230,8 +230,8 @@ cdef class ComplexCF:
             l_points = l_refPoints;
         else:
             l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[np.complex64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
-        cdef np.ndarray[np.complex64_t, ndim=1] l_values
+        cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+        cdef np.ndarray[np.complex128_t, ndim=1] l_values
         if values is refValues:
             l_values = l_refValues
         else:
@@ -240,17 +240,17 @@ cdef class ComplexCF:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex64_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex64_t*>&l_values[0], nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex128_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex128_t*>&l_values[0], nP)
 
     def getRDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
         :rtype: np.complex64
         """
-        cdef np.complex64_t *rdf = self.thisptr.getRDF().get()
+        cdef np.complex128_t *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>rdf)
+        cdef np.ndarray[np.complex128_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX128, <void*>rdf)
         return result
 
     def getBox(self):
