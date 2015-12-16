@@ -378,9 +378,15 @@ void checkCFType<std::complex<float> >(boost::python::numeric::array values)
     num_util::check_type(values, NPY_COMPLEX64);
     }
 
+template<>
+void checkCFType<std::complex<double> >(boost::python::numeric::array values)
+    {
+    num_util::check_type(values, NPY_COMPLEX128);
+    }
+
 void export_CorrelationFunction()
     {
-    typedef CorrelationFunction<std::complex<float> > ComplexCF;
+    typedef CorrelationFunction<std::complex<double> > ComplexCF;
     class_<ComplexCF>("ComplexCF", init<float, float>())
         .def("getBox", &ComplexCF::getBox, return_internal_reference<>())
         .def("accumulate", &ComplexCF::accumulatePy)
@@ -389,7 +395,7 @@ void export_CorrelationFunction()
         .def("getCounts", &ComplexCF::getCountsPy)
         .def("getR", &ComplexCF::getRPy)
         ;
-    typedef CorrelationFunction<float> FloatCF;
+    typedef CorrelationFunction<double> FloatCF;
     class_<FloatCF>("FloatCF", init<float, float>())
         .def("getBox", &FloatCF::getBox, return_internal_reference<>())
         .def("accumulate", &FloatCF::accumulatePy)
