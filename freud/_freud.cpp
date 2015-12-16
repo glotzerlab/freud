@@ -836,7 +836,6 @@ typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
 struct __pyx_obj_5freud_6_freud_Box;
 struct __pyx_obj_5freud_6_freud_DCDLoader;
 struct __pyx_obj_5freud_6_freud_InterfaceMeasure;
-struct __pyx_obj_5freud_6_freud_IteratorLinkCell;
 struct __pyx_obj_5freud_6_freud_LinkCell;
 struct __pyx_obj_5freud_6_freud_NearestNeighbors;
 struct __pyx_obj_5freud_6_freud_FloatCF;
@@ -939,22 +938,8 @@ struct __pyx_obj_5freud_6_freud_InterfaceMeasure {
 };
 
 
-/* "locality.pxi":8
- * cimport numpy as np
- * 
- * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
- *     """Iterates over the particles in a cell.
- * 
- */
-struct __pyx_obj_5freud_6_freud_IteratorLinkCell {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_5freud_6_freud_IteratorLinkCell *__pyx_vtab;
-  freud::locality::IteratorLinkCell *thisptr;
-};
-
-
 /* "locality.pxi":40
- *         return self
+ * #         return self
  * 
  * cdef class LinkCell:             # <<<<<<<<<<<<<<
  *     """Supports efficiently finding all points in a set within a certain
@@ -1316,20 +1301,6 @@ struct __pyx_memoryviewslice_obj {
 
 
 
-/* "locality.pxi":8
- * cimport numpy as np
- * 
- * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
- *     """Iterates over the particles in a cell.
- * 
- */
-
-struct __pyx_vtabstruct_5freud_6_freud_IteratorLinkCell {
-  void (*copy)(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *, freud::locality::IteratorLinkCell const &);
-};
-static struct __pyx_vtabstruct_5freud_6_freud_IteratorLinkCell *__pyx_vtabptr_5freud_6_freud_IteratorLinkCell;
-
-
 /* "View.MemoryView":304
  * 
  * @cname('__pyx_memoryview')
@@ -1544,8 +1515,6 @@ static CYTHON_INLINE PyObject* __Pyx_decode_cpp_string(
         cppstring.data(), cppstring.size(), start, stop, encoding, errors, decode_func);
 }
 
-static CYTHON_INLINE int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
-
 static double __Pyx__PyObject_AsDouble(PyObject* obj);
 #if CYTHON_COMPILING_IN_PYPY
 #define __Pyx_PyObject_AsDouble(obj)\
@@ -1593,6 +1562,8 @@ static CYTHON_INLINE int __Pyx_SetItemInt_Fast(PyObject *o, Py_ssize_t i, PyObje
                                                int is_list, int wraparound, int boundscheck);
 
 static void __Pyx_RaiseBufferFallbackError(void);
+
+static CYTHON_INLINE int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
 
 #define __Pyx_PyObject_DelSlice(obj, cstart, cstop, py_start, py_stop, py_slice, has_cstart, has_cstop, wraparound)\
     __Pyx_PyObject_SetSlice(obj, (PyObject*)NULL, cstart, cstop, py_start, py_stop, py_slice, has_cstart, has_cstop, wraparound)
@@ -1955,7 +1926,6 @@ static PyTypeObject *__Pyx_ImportType(const char *module_name, const char *class
 
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
-static void __pyx_f_5freud_6_freud_16IteratorLinkCell_copy(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self, freud::locality::IteratorLinkCell const &__pyx_v_rhs); /* proto*/
 static char *__pyx_memoryview_get_item_pointer(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index); /* proto*/
 static PyObject *__pyx_memoryview_is_slice(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_obj); /* proto*/
 static PyObject *__pyx_memoryview_setitem_slice_assignment(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_dst, PyObject *__pyx_v_src); /* proto*/
@@ -2034,7 +2004,6 @@ static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, c
 static PyTypeObject *__pyx_ptype_5freud_6_freud_Box = 0;
 static PyTypeObject *__pyx_ptype_5freud_6_freud_DCDLoader = 0;
 static PyTypeObject *__pyx_ptype_5freud_6_freud_InterfaceMeasure = 0;
-static PyTypeObject *__pyx_ptype_5freud_6_freud_IteratorLinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_6_freud_LinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_6_freud_NearestNeighbors = 0;
 static PyTypeObject *__pyx_ptype_5freud_6_freud_FloatCF = 0;
@@ -2121,7 +2090,6 @@ static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_TypeError;
 static PyObject *__pyx_builtin_enumerate;
 static PyObject *__pyx_builtin_RuntimeError;
-static PyObject *__pyx_builtin_StopIteration;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_Ellipsis;
@@ -2181,7 +2149,6 @@ static char __pyx_k_main[] = "__main__";
 static char __pyx_k_mode[] = "mode";
 static char __pyx_k_name[] = "name";
 static char __pyx_k_ndim[] = "ndim";
-static char __pyx_k_next[] = "next";
 static char __pyx_k_pack[] = "pack";
 static char __pyx_k_rMax[] = "rMax";
 static char __pyx_k_rmax[] = "rmax";
@@ -2262,7 +2229,6 @@ static char __pyx_k_MemoryError[] = "MemoryError";
 static char __pyx_k_RuntimeError[] = "RuntimeError";
 static char __pyx_k_freud__freud[] = "freud._freud";
 static char __pyx_k_orientations[] = "orientations";
-static char __pyx_k_StopIteration[] = "StopIteration";
 static char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static char __pyx_k_setNumThreads[] = "setNumThreads";
 static char __pyx_k_Could_not_setL[] = "Could not setL({})";
@@ -2365,7 +2331,6 @@ static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_Qthreshold;
 static PyObject *__pyx_n_s_RuntimeError;
 static PyObject *__pyx_n_s_Sthreshold;
-static PyObject *__pyx_n_s_StopIteration;
 static PyObject *__pyx_kp_b_T;
 static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_kp_s_UTF_8;
@@ -2449,7 +2414,6 @@ static PyObject *__pyx_n_s_nbytes;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_ndim;
-static PyObject *__pyx_n_s_next;
 static PyObject *__pyx_n_s_np;
 static PyObject *__pyx_n_s_nr;
 static PyObject *__pyx_n_s_nthreads;
@@ -2551,19 +2515,13 @@ static PyObject *__pyx_pf_5freud_6_freud_9DCDLoader_20getPoints(struct __pyx_obj
 static int __pyx_pf_5freud_6_freud_16InterfaceMeasure___cinit__(struct __pyx_obj_5freud_6_freud_InterfaceMeasure *__pyx_v_self, PyObject *__pyx_v_box, float __pyx_v_r_cut); /* proto */
 static void __pyx_pf_5freud_6_freud_16InterfaceMeasure_2__dealloc__(struct __pyx_obj_5freud_6_freud_InterfaceMeasure *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_16InterfaceMeasure_4compute(struct __pyx_obj_5freud_6_freud_InterfaceMeasure *__pyx_v_self, PyObject *__pyx_v_ref_points, PyObject *__pyx_v_points); /* proto */
-static int __pyx_pf_5freud_6_freud_16IteratorLinkCell___cinit__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
-static void __pyx_pf_5freud_6_freud_16IteratorLinkCell_2__dealloc__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_4next(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_6__next__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_8__iter__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
 static int __pyx_pf_5freud_6_freud_8LinkCell___cinit__(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_cell_width); /* proto */
 static void __pyx_pf_5freud_6_freud_8LinkCell_2__dealloc__(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_4getBox(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_6getNumCells(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_8getCell(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_point); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_10itercell(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, unsigned int __pyx_v_cell); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_12getCellNeighbors(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_cell); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_14computeCellList(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_points); /* proto */
+static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_10getCellNeighbors(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_cell); /* proto */
+static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_12computeCellList(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_points); /* proto */
 static int __pyx_pf_5freud_6_freud_16NearestNeighbors___cinit__(struct __pyx_obj_5freud_6_freud_NearestNeighbors *__pyx_v_self, PyObject *__pyx_v_rmax, PyObject *__pyx_v_n_neigh); /* proto */
 static void __pyx_pf_5freud_6_freud_16NearestNeighbors_2__dealloc__(struct __pyx_obj_5freud_6_freud_NearestNeighbors *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_16NearestNeighbors_4getBox(struct __pyx_obj_5freud_6_freud_NearestNeighbors *__pyx_v_self); /* proto */
@@ -2820,7 +2778,6 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_16_memoryviewslice_4base___get__
 static PyObject *__pyx_tp_new_5freud_6_freud_Box(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_6_freud_DCDLoader(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_6_freud_InterfaceMeasure(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_5freud_6_freud_IteratorLinkCell(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_6_freud_LinkCell(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_6_freud_NearestNeighbors(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_6_freud_FloatCF(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -8344,380 +8301,6 @@ static PyObject *__pyx_pf_5freud_6_freud_16InterfaceMeasure_4compute(struct __py
   return __pyx_r;
 }
 
-/* "locality.pxi":19
- *     cdef locality.IteratorLinkCell *thisptr
- * 
- *     def __cinit__(self):             # <<<<<<<<<<<<<<
- *         self.thisptr = new locality.IteratorLinkCell()
- * 
- */
-
-/* Python wrapper */
-static int __pyx_pw_5freud_6_freud_16IteratorLinkCell_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_5freud_6_freud_16IteratorLinkCell_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  int __pyx_r;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
-  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
-    __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return -1;}
-  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__cinit__", 0))) return -1;
-  __pyx_r = __pyx_pf_5freud_6_freud_16IteratorLinkCell___cinit__(((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static int __pyx_pf_5freud_6_freud_16IteratorLinkCell___cinit__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self) {
-  int __pyx_r;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__cinit__", 0);
-
-  /* "locality.pxi":20
- * 
- *     def __cinit__(self):
- *         self.thisptr = new locality.IteratorLinkCell()             # <<<<<<<<<<<<<<
- * 
- *     def __dealloc__(self):
- */
-  __pyx_v_self->thisptr = new freud::locality::IteratorLinkCell();
-
-  /* "locality.pxi":19
- *     cdef locality.IteratorLinkCell *thisptr
- * 
- *     def __cinit__(self):             # <<<<<<<<<<<<<<
- *         self.thisptr = new locality.IteratorLinkCell()
- * 
- */
-
-  /* function exit code */
-  __pyx_r = 0;
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "locality.pxi":22
- *         self.thisptr = new locality.IteratorLinkCell()
- * 
- *     def __dealloc__(self):             # <<<<<<<<<<<<<<
- *         del self.thisptr
- * 
- */
-
-/* Python wrapper */
-static void __pyx_pw_5freud_6_freud_16IteratorLinkCell_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
-static void __pyx_pw_5freud_6_freud_16IteratorLinkCell_3__dealloc__(PyObject *__pyx_v_self) {
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
-  __pyx_pf_5freud_6_freud_16IteratorLinkCell_2__dealloc__(((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-}
-
-static void __pyx_pf_5freud_6_freud_16IteratorLinkCell_2__dealloc__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self) {
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__dealloc__", 0);
-
-  /* "locality.pxi":23
- * 
- *     def __dealloc__(self):
- *         del self.thisptr             # <<<<<<<<<<<<<<
- * 
- *     cdef void copy(self, const locality.IteratorLinkCell &rhs):
- */
-  delete __pyx_v_self->thisptr;
-
-  /* "locality.pxi":22
- *         self.thisptr = new locality.IteratorLinkCell()
- * 
- *     def __dealloc__(self):             # <<<<<<<<<<<<<<
- *         del self.thisptr
- * 
- */
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-}
-
-/* "locality.pxi":25
- *         del self.thisptr
- * 
- *     cdef void copy(self, const locality.IteratorLinkCell &rhs):             # <<<<<<<<<<<<<<
- *         self.thisptr.copy(rhs)
- * 
- */
-
-static void __pyx_f_5freud_6_freud_16IteratorLinkCell_copy(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self, freud::locality::IteratorLinkCell const &__pyx_v_rhs) {
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("copy", 0);
-
-  /* "locality.pxi":26
- * 
- *     cdef void copy(self, const locality.IteratorLinkCell &rhs):
- *         self.thisptr.copy(rhs)             # <<<<<<<<<<<<<<
- * 
- *     def next(self):
- */
-  __pyx_v_self->thisptr->copy(__pyx_v_rhs);
-
-  /* "locality.pxi":25
- *         del self.thisptr
- * 
- *     cdef void copy(self, const locality.IteratorLinkCell &rhs):             # <<<<<<<<<<<<<<
- *         self.thisptr.copy(rhs)
- * 
- */
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-}
-
-/* "locality.pxi":28
- *         self.thisptr.copy(rhs)
- * 
- *     def next(self):             # <<<<<<<<<<<<<<
- *         cdef unsigned int result = self.thisptr.next()
- *         if self.thisptr.atEnd():
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_5next(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_6_freud_16IteratorLinkCell_4next[] = "IteratorLinkCell.next(self)";
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_5next(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("next (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_6_freud_16IteratorLinkCell_4next(((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_4next(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self) {
-  unsigned int __pyx_v_result;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  int __pyx_t_1;
-  PyObject *__pyx_t_2 = NULL;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("next", 0);
-
-  /* "locality.pxi":29
- * 
- *     def next(self):
- *         cdef unsigned int result = self.thisptr.next()             # <<<<<<<<<<<<<<
- *         if self.thisptr.atEnd():
- *             raise StopIteration()
- */
-  __pyx_v_result = __pyx_v_self->thisptr->next();
-
-  /* "locality.pxi":30
- *     def next(self):
- *         cdef unsigned int result = self.thisptr.next()
- *         if self.thisptr.atEnd():             # <<<<<<<<<<<<<<
- *             raise StopIteration()
- *         return result
- */
-  __pyx_t_1 = (__pyx_v_self->thisptr->atEnd() != 0);
-  if (__pyx_t_1) {
-
-    /* "locality.pxi":31
- *         cdef unsigned int result = self.thisptr.next()
- *         if self.thisptr.atEnd():
- *             raise StopIteration()             # <<<<<<<<<<<<<<
- *         return result
- * 
- */
-    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_builtin_StopIteration); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    {__pyx_filename = __pyx_f[2]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-
-    /* "locality.pxi":30
- *     def next(self):
- *         cdef unsigned int result = self.thisptr.next()
- *         if self.thisptr.atEnd():             # <<<<<<<<<<<<<<
- *             raise StopIteration()
- *         return result
- */
-  }
-
-  /* "locality.pxi":32
- *         if self.thisptr.atEnd():
- *             raise StopIteration()
- *         return result             # <<<<<<<<<<<<<<
- * 
- *     def __next__(self):
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_v_result); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_r = __pyx_t_2;
-  __pyx_t_2 = 0;
-  goto __pyx_L0;
-
-  /* "locality.pxi":28
- *         self.thisptr.copy(rhs)
- * 
- *     def next(self):             # <<<<<<<<<<<<<<
- *         cdef unsigned int result = self.thisptr.next()
- *         if self.thisptr.atEnd():
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("freud._freud.IteratorLinkCell.next", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "locality.pxi":34
- *         return result
- * 
- *     def __next__(self):             # <<<<<<<<<<<<<<
- *         return self.next()
- * 
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_7__next__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_7__next__(PyObject *__pyx_v_self) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__next__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_6_freud_16IteratorLinkCell_6__next__(((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_6__next__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("__next__", 0);
-
-  /* "locality.pxi":35
- * 
- *     def __next__(self):
- *         return self.next()             # <<<<<<<<<<<<<<
- * 
- *     def __iter__(self):
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_next); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = NULL;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_3);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-    }
-  }
-  if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
-
-  /* "locality.pxi":34
- *         return result
- * 
- *     def __next__(self):             # <<<<<<<<<<<<<<
- *         return self.next()
- * 
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("freud._freud.IteratorLinkCell.__next__", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "locality.pxi":37
- *         return self.next()
- * 
- *     def __iter__(self):             # <<<<<<<<<<<<<<
- *         return self
- * 
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_9__iter__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_9__iter__(PyObject *__pyx_v_self) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__iter__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_6_freud_16IteratorLinkCell_8__iter__(((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_8__iter__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__iter__", 0);
-
-  /* "locality.pxi":38
- * 
- *     def __iter__(self):
- *         return self             # <<<<<<<<<<<<<<
- * 
- * cdef class LinkCell:
- */
-  __Pyx_XDECREF(__pyx_r);
-  __Pyx_INCREF(((PyObject *)__pyx_v_self));
-  __pyx_r = ((PyObject *)__pyx_v_self);
-  goto __pyx_L0;
-
-  /* "locality.pxi":37
- *         return self.next()
- * 
- *     def __iter__(self):             # <<<<<<<<<<<<<<
- *         return self
- * 
- */
-
-  /* function exit code */
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
 /* "locality.pxi":69
  *     cdef locality.LinkCell *thisptr
  * 
@@ -9293,7 +8876,7 @@ static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_8getCell(struct __pyx_obj_5fr
  * 
  *         return self.thisptr.getCell(dereference(<vec3[float]*>&cPoint[0]))             # <<<<<<<<<<<<<<
  * 
- *     def itercell(self, unsigned int cell):
+ *     # def itercell(self, unsigned int cell):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_9 = 0;
@@ -9329,118 +8912,8 @@ static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_8getCell(struct __pyx_obj_5fr
   return __pyx_r;
 }
 
-/* "locality.pxi":95
- *         return self.thisptr.getCell(dereference(<vec3[float]*>&cPoint[0]))
- * 
- *     def itercell(self, unsigned int cell):             # <<<<<<<<<<<<<<
- *         """Return an iterator over all particles in the given cell
- * 
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_11itercell(PyObject *__pyx_v_self, PyObject *__pyx_arg_cell); /*proto*/
-static char __pyx_doc_5freud_6_freud_8LinkCell_10itercell[] = "LinkCell.itercell(self, unsigned int cell)\nReturn an iterator over all particles in the given cell\n\n        :param cell: Cell index\n        ";
-static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_11itercell(PyObject *__pyx_v_self, PyObject *__pyx_arg_cell) {
-  unsigned int __pyx_v_cell;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("itercell (wrapper)", 0);
-  assert(__pyx_arg_cell); {
-    __pyx_v_cell = __Pyx_PyInt_As_unsigned_int(__pyx_arg_cell); if (unlikely((__pyx_v_cell == (unsigned int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 95; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("freud._freud.LinkCell.itercell", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_6_freud_8LinkCell_10itercell(((struct __pyx_obj_5freud_6_freud_LinkCell *)__pyx_v_self), ((unsigned int)__pyx_v_cell));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_10itercell(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, unsigned int __pyx_v_cell) {
-  struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_result = NULL;
-  freud::locality::IteratorLinkCell __pyx_v_cResult;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("itercell", 0);
-
-  /* "locality.pxi":100
- *         :param cell: Cell index
- *         """
- *         result = IteratorLinkCell()             # <<<<<<<<<<<<<<
- *         cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
- *         result.copy(cResult)
- */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5freud_6_freud_IteratorLinkCell), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 100; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_result = ((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "locality.pxi":101
- *         """
- *         result = IteratorLinkCell()
- *         cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)             # <<<<<<<<<<<<<<
- *         result.copy(cResult)
- *         return iter(result)
- */
-  __pyx_v_cResult = __pyx_v_self->thisptr->itercell(__pyx_v_cell);
-
-  /* "locality.pxi":102
- *         result = IteratorLinkCell()
- *         cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
- *         result.copy(cResult)             # <<<<<<<<<<<<<<
- *         return iter(result)
- * 
- */
-  ((struct __pyx_vtabstruct_5freud_6_freud_IteratorLinkCell *)__pyx_v_result->__pyx_vtab)->copy(__pyx_v_result, __pyx_v_cResult);
-
-  /* "locality.pxi":103
- *         cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
- *         result.copy(cResult)
- *         return iter(result)             # <<<<<<<<<<<<<<
- * 
- *     def getCellNeighbors(self, cell):
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyObject_GetIter(((PyObject *)__pyx_v_result)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 103; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
-
-  /* "locality.pxi":95
- *         return self.thisptr.getCell(dereference(<vec3[float]*>&cPoint[0]))
- * 
- *     def itercell(self, unsigned int cell):             # <<<<<<<<<<<<<<
- *         """Return an iterator over all particles in the given cell
- * 
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud._freud.LinkCell.itercell", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XDECREF((PyObject *)__pyx_v_result);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
 /* "locality.pxi":105
- *         return iter(result)
+ *     #     return iter(result)
  * 
  *     def getCellNeighbors(self, cell):             # <<<<<<<<<<<<<<
  *         """Returns the neighboring cell indices of the given cell
@@ -9448,20 +8921,20 @@ static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_10itercell(struct __pyx_obj_5
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_13getCellNeighbors(PyObject *__pyx_v_self, PyObject *__pyx_v_cell); /*proto*/
-static char __pyx_doc_5freud_6_freud_8LinkCell_12getCellNeighbors[] = "LinkCell.getCellNeighbors(self, cell)\nReturns the neighboring cell indices of the given cell\n\n        :param cell: Cell index\n        ";
-static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_13getCellNeighbors(PyObject *__pyx_v_self, PyObject *__pyx_v_cell) {
+static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_11getCellNeighbors(PyObject *__pyx_v_self, PyObject *__pyx_v_cell); /*proto*/
+static char __pyx_doc_5freud_6_freud_8LinkCell_10getCellNeighbors[] = "LinkCell.getCellNeighbors(self, cell)\nReturns the neighboring cell indices of the given cell\n\n        :param cell: Cell index\n        ";
+static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_11getCellNeighbors(PyObject *__pyx_v_self, PyObject *__pyx_v_cell) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getCellNeighbors (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_6_freud_8LinkCell_12getCellNeighbors(((struct __pyx_obj_5freud_6_freud_LinkCell *)__pyx_v_self), ((PyObject *)__pyx_v_cell));
+  __pyx_r = __pyx_pf_5freud_6_freud_8LinkCell_10getCellNeighbors(((struct __pyx_obj_5freud_6_freud_LinkCell *)__pyx_v_self), ((PyObject *)__pyx_v_cell));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_12getCellNeighbors(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_cell) {
+static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_10getCellNeighbors(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_cell) {
   std::vector<unsigned int>  __pyx_v_neighbors;
   PyObject *__pyx_v_result = NULL;
   size_t __pyx_v_i;
@@ -9566,7 +9039,7 @@ static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_12getCellNeighbors(struct __p
   goto __pyx_L0;
 
   /* "locality.pxi":105
- *         return iter(result)
+ *     #     return iter(result)
  * 
  *     def getCellNeighbors(self, cell):             # <<<<<<<<<<<<<<
  *         """Returns the neighboring cell indices of the given cell
@@ -9598,9 +9071,9 @@ static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_12getCellNeighbors(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_15computeCellList(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6_freud_8LinkCell_14computeCellList[] = "LinkCell.computeCellList(self, box, points)\nUpdate the data structure for the given set of points\n\n        :param box: :py:class:`freud.trajectory.Box` object\n        :param points: Nx3 array-like object specifying coordinates\n        ";
-static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_15computeCellList(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_13computeCellList(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_6_freud_8LinkCell_12computeCellList[] = "LinkCell.computeCellList(self, box, points)\nUpdate the data structure for the given set of points\n\n        :param box: :py:class:`freud.trajectory.Box` object\n        :param points: Nx3 array-like object specifying coordinates\n        ";
+static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_13computeCellList(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_points = 0;
   int __pyx_lineno = 0;
@@ -9652,14 +9125,14 @@ static PyObject *__pyx_pw_5freud_6_freud_8LinkCell_15computeCellList(PyObject *_
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_6_freud_8LinkCell_14computeCellList(((struct __pyx_obj_5freud_6_freud_LinkCell *)__pyx_v_self), __pyx_v_box, __pyx_v_points);
+  __pyx_r = __pyx_pf_5freud_6_freud_8LinkCell_12computeCellList(((struct __pyx_obj_5freud_6_freud_LinkCell *)__pyx_v_self), __pyx_v_box, __pyx_v_points);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_14computeCellList(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_points) {
+static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_12computeCellList(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_points) {
   freud::trajectory::Box __pyx_v_cBox;
   PyArrayObject *__pyx_v_cPoints = 0;
   unsigned int __pyx_v_Np;
@@ -63917,105 +63390,6 @@ static PyTypeObject __pyx_type_5freud_6_freud_InterfaceMeasure = {
   0, /*tp_finalize*/
   #endif
 };
-static struct __pyx_vtabstruct_5freud_6_freud_IteratorLinkCell __pyx_vtable_5freud_6_freud_IteratorLinkCell;
-
-static PyObject *__pyx_tp_new_5freud_6_freud_IteratorLinkCell(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_5freud_6_freud_IteratorLinkCell *p;
-  PyObject *o;
-  if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
-    o = (*t->tp_alloc)(t, 0);
-  } else {
-    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
-  }
-  if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)o);
-  p->__pyx_vtab = __pyx_vtabptr_5freud_6_freud_IteratorLinkCell;
-  if (unlikely(__pyx_pw_5freud_6_freud_16IteratorLinkCell_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) {
-    Py_DECREF(o); o = 0;
-  }
-  return o;
-}
-
-static void __pyx_tp_dealloc_5freud_6_freud_IteratorLinkCell(PyObject *o) {
-  #if PY_VERSION_HEX >= 0x030400a1
-  if (unlikely(Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
-    if (PyObject_CallFinalizerFromDealloc(o)) return;
-  }
-  #endif
-  {
-    PyObject *etype, *eval, *etb;
-    PyErr_Fetch(&etype, &eval, &etb);
-    ++Py_REFCNT(o);
-    __pyx_pw_5freud_6_freud_16IteratorLinkCell_3__dealloc__(o);
-    --Py_REFCNT(o);
-    PyErr_Restore(etype, eval, etb);
-  }
-  (*Py_TYPE(o)->tp_free)(o);
-}
-
-static PyMethodDef __pyx_methods_5freud_6_freud_IteratorLinkCell[] = {
-  {"next", (PyCFunction)__pyx_pw_5freud_6_freud_16IteratorLinkCell_5next, METH_NOARGS, __pyx_doc_5freud_6_freud_16IteratorLinkCell_4next},
-  {"__next__", (PyCFunction)__pyx_pw_5freud_6_freud_16IteratorLinkCell_7__next__, METH_NOARGS|METH_COEXIST, 0},
-  {0, 0, 0, 0}
-};
-
-static PyTypeObject __pyx_type_5freud_6_freud_IteratorLinkCell = {
-  PyVarObject_HEAD_INIT(0, 0)
-  "freud._freud.IteratorLinkCell", /*tp_name*/
-  sizeof(struct __pyx_obj_5freud_6_freud_IteratorLinkCell), /*tp_basicsize*/
-  0, /*tp_itemsize*/
-  __pyx_tp_dealloc_5freud_6_freud_IteratorLinkCell, /*tp_dealloc*/
-  0, /*tp_print*/
-  0, /*tp_getattr*/
-  0, /*tp_setattr*/
-  #if PY_MAJOR_VERSION < 3
-  0, /*tp_compare*/
-  #endif
-  #if PY_MAJOR_VERSION >= 3
-  0, /*tp_as_async*/
-  #endif
-  0, /*tp_repr*/
-  0, /*tp_as_number*/
-  0, /*tp_as_sequence*/
-  0, /*tp_as_mapping*/
-  0, /*tp_hash*/
-  0, /*tp_call*/
-  0, /*tp_str*/
-  0, /*tp_getattro*/
-  0, /*tp_setattro*/
-  0, /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  "Iterates over the particles in a cell.\n\n    Example::\n\n       # grab particles in cell 0\n       for j in linkcell.itercell(0):\n           print(positions[j])\n    ", /*tp_doc*/
-  0, /*tp_traverse*/
-  0, /*tp_clear*/
-  0, /*tp_richcompare*/
-  0, /*tp_weaklistoffset*/
-  __pyx_pw_5freud_6_freud_16IteratorLinkCell_9__iter__, /*tp_iter*/
-  __pyx_pw_5freud_6_freud_16IteratorLinkCell_7__next__, /*tp_iternext*/
-  __pyx_methods_5freud_6_freud_IteratorLinkCell, /*tp_methods*/
-  0, /*tp_members*/
-  0, /*tp_getset*/
-  0, /*tp_base*/
-  0, /*tp_dict*/
-  0, /*tp_descr_get*/
-  0, /*tp_descr_set*/
-  0, /*tp_dictoffset*/
-  0, /*tp_init*/
-  0, /*tp_alloc*/
-  __pyx_tp_new_5freud_6_freud_IteratorLinkCell, /*tp_new*/
-  0, /*tp_free*/
-  0, /*tp_is_gc*/
-  0, /*tp_bases*/
-  0, /*tp_mro*/
-  0, /*tp_cache*/
-  0, /*tp_subclasses*/
-  0, /*tp_weaklist*/
-  0, /*tp_del*/
-  0, /*tp_version_tag*/
-  #if PY_VERSION_HEX >= 0x030400a1
-  0, /*tp_finalize*/
-  #endif
-};
 
 static PyObject *__pyx_tp_new_5freud_6_freud_LinkCell(PyTypeObject *t, PyObject *a, PyObject *k) {
   PyObject *o;
@@ -64052,9 +63426,8 @@ static PyMethodDef __pyx_methods_5freud_6_freud_LinkCell[] = {
   {"getBox", (PyCFunction)__pyx_pw_5freud_6_freud_8LinkCell_5getBox, METH_NOARGS, __pyx_doc_5freud_6_freud_8LinkCell_4getBox},
   {"getNumCells", (PyCFunction)__pyx_pw_5freud_6_freud_8LinkCell_7getNumCells, METH_NOARGS, __pyx_doc_5freud_6_freud_8LinkCell_6getNumCells},
   {"getCell", (PyCFunction)__pyx_pw_5freud_6_freud_8LinkCell_9getCell, METH_O, __pyx_doc_5freud_6_freud_8LinkCell_8getCell},
-  {"itercell", (PyCFunction)__pyx_pw_5freud_6_freud_8LinkCell_11itercell, METH_O, __pyx_doc_5freud_6_freud_8LinkCell_10itercell},
-  {"getCellNeighbors", (PyCFunction)__pyx_pw_5freud_6_freud_8LinkCell_13getCellNeighbors, METH_O, __pyx_doc_5freud_6_freud_8LinkCell_12getCellNeighbors},
-  {"computeCellList", (PyCFunction)__pyx_pw_5freud_6_freud_8LinkCell_15computeCellList, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6_freud_8LinkCell_14computeCellList},
+  {"getCellNeighbors", (PyCFunction)__pyx_pw_5freud_6_freud_8LinkCell_11getCellNeighbors, METH_O, __pyx_doc_5freud_6_freud_8LinkCell_10getCellNeighbors},
+  {"computeCellList", (PyCFunction)__pyx_pw_5freud_6_freud_8LinkCell_13computeCellList, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6_freud_8LinkCell_12computeCellList},
   {0, 0, 0, 0}
 };
 
@@ -66940,7 +66313,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_Qthreshold, __pyx_k_Qthreshold, sizeof(__pyx_k_Qthreshold), 0, 0, 1, 1},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
   {&__pyx_n_s_Sthreshold, __pyx_k_Sthreshold, sizeof(__pyx_k_Sthreshold), 0, 0, 1, 1},
-  {&__pyx_n_s_StopIteration, __pyx_k_StopIteration, sizeof(__pyx_k_StopIteration), 0, 0, 1, 1},
   {&__pyx_kp_b_T, __pyx_k_T, sizeof(__pyx_k_T), 0, 0, 0, 0},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
   {&__pyx_kp_s_UTF_8, __pyx_k_UTF_8, sizeof(__pyx_k_UTF_8), 0, 0, 1, 0},
@@ -67024,7 +66396,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_ndim, __pyx_k_ndim, sizeof(__pyx_k_ndim), 0, 0, 1, 1},
-  {&__pyx_n_s_next, __pyx_k_next, sizeof(__pyx_k_next), 0, 0, 1, 1},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
   {&__pyx_n_s_nr, __pyx_k_nr, sizeof(__pyx_k_nr), 0, 0, 1, 1},
   {&__pyx_n_s_nthreads, __pyx_k_nthreads, sizeof(__pyx_k_nthreads), 0, 0, 1, 1},
@@ -67098,7 +66469,6 @@ static int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 119; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 33; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 112; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) {__pyx_filename = __pyx_f[9]; __pyx_lineno = 144; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_Ellipsis = __Pyx_GetBuiltinName(__pyx_n_s_Ellipsis); if (!__pyx_builtin_Ellipsis) {__pyx_filename = __pyx_f[9]; __pyx_lineno = 359; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -69052,13 +68422,6 @@ PyMODINIT_FUNC PyInit__freud(void)
   __pyx_type_5freud_6_freud_InterfaceMeasure.tp_print = 0;
   if (PyObject_SetAttrString(__pyx_m, "InterfaceMeasure", (PyObject *)&__pyx_type_5freud_6_freud_InterfaceMeasure) < 0) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 8; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_5freud_6_freud_InterfaceMeasure = &__pyx_type_5freud_6_freud_InterfaceMeasure;
-  __pyx_vtabptr_5freud_6_freud_IteratorLinkCell = &__pyx_vtable_5freud_6_freud_IteratorLinkCell;
-  __pyx_vtable_5freud_6_freud_IteratorLinkCell.copy = (void (*)(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *, freud::locality::IteratorLinkCell const &))__pyx_f_5freud_6_freud_16IteratorLinkCell_copy;
-  if (PyType_Ready(&__pyx_type_5freud_6_freud_IteratorLinkCell) < 0) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 8; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_type_5freud_6_freud_IteratorLinkCell.tp_print = 0;
-  if (__Pyx_SetVtable(__pyx_type_5freud_6_freud_IteratorLinkCell.tp_dict, __pyx_vtabptr_5freud_6_freud_IteratorLinkCell) < 0) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 8; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (PyObject_SetAttrString(__pyx_m, "IteratorLinkCell", (PyObject *)&__pyx_type_5freud_6_freud_IteratorLinkCell) < 0) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 8; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_ptype_5freud_6_freud_IteratorLinkCell = &__pyx_type_5freud_6_freud_IteratorLinkCell;
   if (PyType_Ready(&__pyx_type_5freud_6_freud_LinkCell) < 0) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 40; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type_5freud_6_freud_LinkCell.tp_print = 0;
   if (PyObject_SetAttrString(__pyx_m, "LinkCell", (PyObject *)&__pyx_type_5freud_6_freud_LinkCell) < 0) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 40; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -70853,45 +70216,6 @@ static CYTHON_INLINE PyObject* __Pyx_decode_c_bytes(
     }
 }
 
-static CYTHON_INLINE int __Pyx_CheckKeywordStrings(
-    PyObject *kwdict,
-    const char* function_name,
-    int kw_allowed)
-{
-    PyObject* key = 0;
-    Py_ssize_t pos = 0;
-#if CYTHON_COMPILING_IN_PYPY
-    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
-        goto invalid_keyword;
-    return 1;
-#else
-    while (PyDict_Next(kwdict, &pos, &key, 0)) {
-        #if PY_MAJOR_VERSION < 3
-        if (unlikely(!PyString_CheckExact(key)) && unlikely(!PyString_Check(key)))
-        #endif
-            if (unlikely(!PyUnicode_Check(key)))
-                goto invalid_keyword_type;
-    }
-    if ((!kw_allowed) && unlikely(key))
-        goto invalid_keyword;
-    return 1;
-invalid_keyword_type:
-    PyErr_Format(PyExc_TypeError,
-        "%.200s() keywords must be strings", function_name);
-    return 0;
-#endif
-invalid_keyword:
-    PyErr_Format(PyExc_TypeError,
-    #if PY_MAJOR_VERSION < 3
-        "%.200s() got an unexpected keyword argument '%.200s'",
-        function_name, PyString_AsString(key));
-    #else
-        "%s() got an unexpected keyword argument '%U'",
-        function_name, key);
-    #endif
-    return 0;
-}
-
 static double __Pyx__PyObject_AsDouble(PyObject* obj) {
     PyObject* float_value;
 #if CYTHON_COMPILING_IN_PYPY
@@ -71116,6 +70440,45 @@ static CYTHON_INLINE int __Pyx_SetItemInt_Fast(PyObject *o, Py_ssize_t i, PyObje
 static void __Pyx_RaiseBufferFallbackError(void) {
   PyErr_SetString(PyExc_ValueError,
      "Buffer acquisition failed on assignment; and then reacquiring the old buffer failed too!");
+}
+
+static CYTHON_INLINE int __Pyx_CheckKeywordStrings(
+    PyObject *kwdict,
+    const char* function_name,
+    int kw_allowed)
+{
+    PyObject* key = 0;
+    Py_ssize_t pos = 0;
+#if CYTHON_COMPILING_IN_PYPY
+    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
+        goto invalid_keyword;
+    return 1;
+#else
+    while (PyDict_Next(kwdict, &pos, &key, 0)) {
+        #if PY_MAJOR_VERSION < 3
+        if (unlikely(!PyString_CheckExact(key)) && unlikely(!PyString_Check(key)))
+        #endif
+            if (unlikely(!PyUnicode_Check(key)))
+                goto invalid_keyword_type;
+    }
+    if ((!kw_allowed) && unlikely(key))
+        goto invalid_keyword;
+    return 1;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    return 0;
+#endif
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+    return 0;
 }
 
 static CYTHON_INLINE int __Pyx_PyObject_SetSlice(PyObject* obj, PyObject* value,
