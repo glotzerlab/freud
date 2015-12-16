@@ -582,8 +582,9 @@ class ConvexSpheropolyhedron(ConvexPolyhedron):
     ## Create a ConvexPolyhedron object from a list of points and a rounding radius.
     # \param points Nx3 list of vertices from which to construct the convex hull
     # \param R rounding radius by which to extend the polyhedron boundary
-    def __init__(self, points, R=0.0):
-        ConvexPolyhedron.__init__(self, points)
+    # \param mergeFacets automatically try to merge coplanar simplicial facets of the polyhedron (default True) 
+    def __init__(self, points, R=0.0, mergeFacets=True):
+        ConvexPolyhedron.__init__(self, points, mergeFacets)
         self.R = float(R)
         self.originalR = self.R
     ## Find surface area of spheropolyhedron.

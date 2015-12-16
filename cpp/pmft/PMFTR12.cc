@@ -227,8 +227,8 @@ class ComputePMFTR12
                             // calculate angles
                             float dTheta1 = atan2(delta.y, delta.x);
                             float dTheta2 = atan2(-delta.y, -delta.x);
-                            float T1 = dTheta1 - m_ref_orientations[i];
-                            float T2 = dTheta2 - m_orientations[j];
+                            float T1 = m_ref_orientations[i] - dTheta1;
+                            float T2 = m_orientations[j] - dTheta2;
                             // make sure that T1, T2 are bounded between 0 and 2PI
                             T1 = (T1 < 0) ? T1+2*M_PI : T1;
                             T1 = (T1 > 2*M_PI) ? T1-2*M_PI : T1;
