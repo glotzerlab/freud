@@ -2181,7 +2181,6 @@ static char __pyx_k_main[] = "__main__";
 static char __pyx_k_mode[] = "mode";
 static char __pyx_k_name[] = "name";
 static char __pyx_k_ndim[] = "ndim";
-static char __pyx_k_next[] = "next";
 static char __pyx_k_pack[] = "pack";
 static char __pyx_k_rMax[] = "rMax";
 static char __pyx_k_rmax[] = "rmax";
@@ -2449,7 +2448,6 @@ static PyObject *__pyx_n_s_nbytes;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_ndim;
-static PyObject *__pyx_n_s_next;
 static PyObject *__pyx_n_s_np;
 static PyObject *__pyx_n_s_nr;
 static PyObject *__pyx_n_s_nthreads;
@@ -2554,8 +2552,7 @@ static PyObject *__pyx_pf_5freud_6_freud_16InterfaceMeasure_4compute(struct __py
 static int __pyx_pf_5freud_6_freud_16IteratorLinkCell___cinit__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
 static void __pyx_pf_5freud_6_freud_16IteratorLinkCell_2__dealloc__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_4next(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_6__next__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_8__iter__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_6__iter__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self); /* proto */
 static int __pyx_pf_5freud_6_freud_8LinkCell___cinit__(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_cell_width); /* proto */
 static void __pyx_pf_5freud_6_freud_8LinkCell_2__dealloc__(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_8LinkCell_4getBox(struct __pyx_obj_5freud_6_freud_LinkCell *__pyx_v_self); /* proto */
@@ -8552,7 +8549,7 @@ static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_4next(struct __pyx_o
  *             raise StopIteration()
  *         return result             # <<<<<<<<<<<<<<
  * 
- *     def __next__(self):
+ *     # def __next__(self):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_v_result); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -8580,93 +8577,8 @@ static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_4next(struct __pyx_o
   return __pyx_r;
 }
 
-/* "locality.pxi":34
- *         return result
- * 
- *     def __next__(self):             # <<<<<<<<<<<<<<
- *         return self.next()
- * 
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_7__next__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_7__next__(PyObject *__pyx_v_self) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__next__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_6_freud_16IteratorLinkCell_6__next__(((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_6__next__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("__next__", 0);
-
-  /* "locality.pxi":35
- * 
- *     def __next__(self):
- *         return self.next()             # <<<<<<<<<<<<<<
- * 
- *     def __iter__(self):
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_next); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = NULL;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_3);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-    }
-  }
-  if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  }
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
-
-  /* "locality.pxi":34
- *         return result
- * 
- *     def __next__(self):             # <<<<<<<<<<<<<<
- *         return self.next()
- * 
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("freud._freud.IteratorLinkCell.__next__", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
 /* "locality.pxi":37
- *         return self.next()
+ *     #     return self.next()
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
  *         return self
@@ -8674,19 +8586,19 @@ static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_6__next__(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_9__iter__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_9__iter__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_7__iter__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_6_freud_16IteratorLinkCell_7__iter__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__iter__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_6_freud_16IteratorLinkCell_8__iter__(((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_6_freud_16IteratorLinkCell_6__iter__(((struct __pyx_obj_5freud_6_freud_IteratorLinkCell *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_8__iter__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_6__iter__(struct __pyx_obj_5freud_6_freud_IteratorLinkCell *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__iter__", 0);
@@ -8704,7 +8616,7 @@ static PyObject *__pyx_pf_5freud_6_freud_16IteratorLinkCell_8__iter__(struct __p
   goto __pyx_L0;
 
   /* "locality.pxi":37
- *         return self.next()
+ *     #     return self.next()
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
  *         return self
@@ -63955,7 +63867,6 @@ static void __pyx_tp_dealloc_5freud_6_freud_IteratorLinkCell(PyObject *o) {
 
 static PyMethodDef __pyx_methods_5freud_6_freud_IteratorLinkCell[] = {
   {"next", (PyCFunction)__pyx_pw_5freud_6_freud_16IteratorLinkCell_5next, METH_NOARGS, __pyx_doc_5freud_6_freud_16IteratorLinkCell_4next},
-  {"__next__", (PyCFunction)__pyx_pw_5freud_6_freud_16IteratorLinkCell_7__next__, METH_NOARGS|METH_COEXIST, 0},
   {0, 0, 0, 0}
 };
 
@@ -63990,8 +63901,8 @@ static PyTypeObject __pyx_type_5freud_6_freud_IteratorLinkCell = {
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
-  __pyx_pw_5freud_6_freud_16IteratorLinkCell_9__iter__, /*tp_iter*/
-  __pyx_pw_5freud_6_freud_16IteratorLinkCell_7__next__, /*tp_iternext*/
+  __pyx_pw_5freud_6_freud_16IteratorLinkCell_7__iter__, /*tp_iter*/
+  0, /*tp_iternext*/
   __pyx_methods_5freud_6_freud_IteratorLinkCell, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
@@ -67024,7 +66935,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_ndim, __pyx_k_ndim, sizeof(__pyx_k_ndim), 0, 0, 1, 1},
-  {&__pyx_n_s_next, __pyx_k_next, sizeof(__pyx_k_next), 0, 0, 1, 1},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
   {&__pyx_n_s_nr, __pyx_k_nr, sizeof(__pyx_k_nr), 0, 0, 1, 1},
   {&__pyx_n_s_nthreads, __pyx_k_nthreads, sizeof(__pyx_k_nthreads), 0, 0, 1, 1},
