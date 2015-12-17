@@ -449,8 +449,8 @@ cdef class DCDLoader:
         :rtype: np.ndarray(shape=[N, 3], dtype=np.float32)
         """
         cdef float *points = self.thisptr.getPoints().get()
-        cdef np.npy_intp nbins[1]
+        cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>points)
+        nbins[1] = 3
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>points)
         return result
-

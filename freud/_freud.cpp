@@ -2373,7 +2373,7 @@ static char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array 
 static char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
 static char __pyx_k_Could_not_create_a_Box_with_the[] = "Could not create a Box with the given arguments: {}";
 static char __pyx_k_GaussianDensity_takes_exactly_3[] = "GaussianDensity takes exactly 3 or 5 arguments";
-static char __pyx_k_home_mspells_dev_freud_freud_pa[] = "/home/mspells/dev/freud/freud/parallel.pxi";
+static char __pyx_k_home_matthew_dev_freud_freud_pa[] = "/home/matthew/dev/freud/freud/parallel.pxi";
 static char __pyx_k_position_and_orientation_should[] = "position and orientation should have the same length";
 static char __pyx_k_position_should_be_an_Nx3_array[] = "position should be an Nx3 array";
 static char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
@@ -2504,7 +2504,7 @@ static PyObject *__pyx_n_s_getTiltFactorXZ;
 static PyObject *__pyx_n_s_getTiltFactorYZ;
 static PyObject *__pyx_n_s_getWidthZ;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
-static PyObject *__pyx_kp_s_home_mspells_dev_freud_freud_pa;
+static PyObject *__pyx_kp_s_home_matthew_dev_freud_freud_pa;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_index;
@@ -7671,7 +7671,7 @@ static PyObject *__pyx_pw_5freud_6_freud_9DCDLoader_21getPoints(PyObject *__pyx_
 
 static PyObject *__pyx_pf_5freud_6_freud_9DCDLoader_20getPoints(struct __pyx_obj_5freud_6_freud_DCDLoader *__pyx_v_self) {
   float *__pyx_v_points;
-  npy_intp __pyx_v_nbins[1];
+  npy_intp __pyx_v_nbins[2];
   PyArrayObject *__pyx_v_result = 0;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_result;
   __Pyx_Buffer __pyx_pybuffer_result;
@@ -7692,48 +7692,55 @@ static PyObject *__pyx_pf_5freud_6_freud_9DCDLoader_20getPoints(struct __pyx_obj
  *         :rtype: np.ndarray(shape=[N, 3], dtype=np.float32)
  *         """
  *         cdef float *points = self.thisptr.getPoints().get()             # <<<<<<<<<<<<<<
- *         cdef np.npy_intp nbins[1]
+ *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
  */
   __pyx_v_points = __pyx_v_self->thisptr->getPoints().get();
 
   /* "trajectory.pxi":453
  *         cdef float *points = self.thisptr.getPoints().get()
- *         cdef np.npy_intp nbins[1]
+ *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>points)
- *         return result
+ *         nbins[1] = 3
+ *         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>points)
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNumParticles());
 
   /* "trajectory.pxi":454
- *         cdef np.npy_intp nbins[1]
+ *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
- *         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>points)             # <<<<<<<<<<<<<<
+ *         nbins[1] = 3             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>points)
  *         return result
- * 
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_FLOAT32, ((void *)__pyx_v_points)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 454; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  (__pyx_v_nbins[1]) = 3;
+
+  /* "trajectory.pxi":455
+ *         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
+ *         nbins[1] = 3
+ *         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>points)             # <<<<<<<<<<<<<<
+ *         return result
+ */
+  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_FLOAT32, ((void *)__pyx_v_points)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 455; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 454; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 455; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 454; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 455; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_t_2 = 0;
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "trajectory.pxi":455
- *         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
- *         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>points)
+  /* "trajectory.pxi":456
+ *         nbins[1] = 3
+ *         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>points)
  *         return result             # <<<<<<<<<<<<<<
- * 
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_result));
@@ -69078,7 +69085,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_getTiltFactorYZ, __pyx_k_getTiltFactorYZ, sizeof(__pyx_k_getTiltFactorYZ), 0, 0, 1, 1},
   {&__pyx_n_s_getWidthZ, __pyx_k_getWidthZ, sizeof(__pyx_k_getWidthZ), 0, 0, 1, 1},
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
-  {&__pyx_kp_s_home_mspells_dev_freud_freud_pa, __pyx_k_home_mspells_dev_freud_freud_pa, sizeof(__pyx_k_home_mspells_dev_freud_freud_pa), 0, 0, 1, 0},
+  {&__pyx_kp_s_home_matthew_dev_freud_freud_pa, __pyx_k_home_matthew_dev_freud_freud_pa, sizeof(__pyx_k_home_matthew_dev_freud_freud_pa), 0, 0, 1, 0},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_index, __pyx_k_index, sizeof(__pyx_k_index), 0, 0, 1, 1},
@@ -71069,7 +71076,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__177 = PyTuple_Pack(2, __pyx_n_s_nthreads, __pyx_n_s_nthreads); if (unlikely(!__pyx_tuple__177)) {__pyx_filename = __pyx_f[7]; __pyx_lineno = 9; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__177);
   __Pyx_GIVEREF(__pyx_tuple__177);
-  __pyx_codeobj__178 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__177, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_mspells_dev_freud_freud_pa, __pyx_n_s_setNumThreads, 9, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__178)) {__pyx_filename = __pyx_f[7]; __pyx_lineno = 9; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__178 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__177, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_matthew_dev_freud_freud_pa, __pyx_n_s_setNumThreads, 9, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__178)) {__pyx_filename = __pyx_f[7]; __pyx_lineno = 9; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "View.MemoryView":278
  *         return self.name
