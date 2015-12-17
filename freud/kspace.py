@@ -2,8 +2,8 @@ import numpy
 import math
 import copy
 from math import *
-from _freud import FTdelta as _FTdelta
-from _freud import FTsphere as _FTsphere
+from ._freud import FTdelta as _FTdelta
+from ._freud import FTsphere as _FTsphere
 
 ## \package freud.kspace
 #
@@ -346,7 +346,7 @@ class SingleCell3D:
         self.bases_valid = False
 
     ## Set positions and orientations for a particle type
-    # To best maintain valid state in the event of changing numbers of particles, position and orienation are updated 
+    # To best maintain valid state in the event of changing numbers of particles, position and orienation are updated
     # in a single method.
     # \param name particle type name
     # \param position (N,3) array of particle positions

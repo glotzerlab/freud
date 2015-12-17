@@ -3,7 +3,7 @@
 from . import parallel
 # from . import cluster
 from . import density
-# from . import kspace
+from . import kspace
 from . import locality
 from . import trajectory
 from . import order
