@@ -35,12 +35,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/density
                     ${CMAKE_CURRENT_SOURCE_DIR}/voronoi
                     ${CMAKE_CURRENT_SOURCE_DIR}/kspace
-                    ${CMAKE_CURRENT_SOURCE_DIR}/lindemann
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/pairing
                     ${CMAKE_CURRENT_SOURCE_DIR}/pmft
-                    ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
@@ -65,8 +63,6 @@ set(FREUD_SOURCES
             voronoi/VoronoiBuffer.cc
             kspace/kspace.h
             kspace/kspace.cc
-            lindemann/lindemann.h
-            lindemann/lindemann.cc
             cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h
@@ -109,8 +105,6 @@ set(FREUD_SOURCES
             pmft/PMFTRPM.h
             pmft/PMFTR12.cc
             pmft/PMFTR12.h
-            bootstrap/Bootstrap.cc
-            bootstrap/Bootstrap.h
             shapesplit/shapesplit.cc
             shapesplit/shapesplit.h
             interface/InterfaceMeasure.h
