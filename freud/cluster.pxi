@@ -76,13 +76,13 @@ cdef class Cluster:
         :param keys: Membership keys, one for each particle
         :type keys: np.uint32
         """
-        keys = np.ascontiguousarray(keys, dtype=uint32)
+        keys = np.ascontiguousarray(keys, dtype=np.uint32)
         N = self.getNumParticles()
         if keys.ndim !=1 or keys.shape[0] != N:
             raise RuntimeError('keys must be a 1D array of length NumParticles')
         cdef np.ndarray cKeys= keys
         with nogil:
-            self.thisptr.computeClusterMembership(cKeys.data)
+            self.thisptr.computeClusterMembership(<unsigned int *>cKeys.data)
 
     def getNumClusters(self):
         """Returns the number of clusters
@@ -113,9 +113,12 @@ cdef class Cluster:
         """Returns the keys containted in each cluster
         :return: list of lists of each key containted in clusters
         :rtype: list
+
+        .. todo: Determine correct way to export. As-is, I do not particularly like how it was previously handled.
         """
-        cdef vector[unsigned int] cluster_keys = self.thisptr.getClusterKeys()
-        return cluster_keys;
+        pass
+        # cdef vector[unsigned int] cluster_keys = self.thisptr.getClusterKeys()
+        # return cluster_keys;
 
 
 cdef class ClusterProperties:
@@ -137,9 +140,9 @@ cdef class ClusterProperties:
     """
     cdef cluster.ClusterProperties *thisptr
 
-    def __cinit__(self, box)
-    cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-    self.thisptr = new cluster.ClusterProperties(cBox)
+    def __cinit__(self, box):
+        cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr = new cluster.ClusterProperties(cBox)
 
 
     def __dealloc__(self):
@@ -165,14 +168,14 @@ cdef class ClusterProperties:
         points = np.ascontiguousarray(points, dtype=np.float32)
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeClusterProperties()')
-        cluster_idx = np.ascontiguousarray(cluster_idx, dtype=uint32)
+        cluster_idx = np.ascontiguousarray(cluster_idx, dtype=np.uint32)
         if cluster_idx.ndim !=1 or cluster_idx.shape[0] != points.shape[0]:
             raise RuntimeError('cluster_idx must be a 1D array of matching length/number of particles to points')
         cdef np.ndarray cPoints = points
         cdef np.ndarray cCluster_idx= cluster_idx
         cdef unsigned int Np = points.shape[0]
         with nogil:
-            self.thisptr.computeClusterProperties(<vec3[float]*> cPoints.data, cCluster_idx.data, Np)
+            self.thisptr.computeProperties(<vec3[float]*> cPoints.data, <unsigned int *> cCluster_idx.data, Np)
 
     def getNumClusters(self):
         """Count the number of clusters found in the last call to computeProperties()
@@ -186,7 +189,7 @@ cdef class ClusterProperties:
         :return: numpy array of cluster center of mass coordinates (x,y,z)
         :rtype: np.float32
         """
-        cdef unsigned int *cluster_com_raw = self.thisptr.getClusterCOM().get()
+        cdef vec3[float] *cluster_com_raw = self.thisptr.getClusterCOM().get()
         cdef np.npy_intp nClusters[2]
         nClusters[0] = <np.npy_intp>self.thisptr.getNumClusters()
         nClusters[1] = 3
@@ -198,7 +201,7 @@ cdef class ClusterProperties:
         :return: numpy array of cluster center of mass coordinates (x,y,z)
         :rtype: np.float32
         """
-        cdef unsigned int *cluster_G_raw = self.thisptr.getClusterG().get()
+        cdef float *cluster_G_raw = self.thisptr.getClusterG().get()
         cdef np.npy_intp nClusters[3]
         nClusters[0] = <np.npy_intp>self.thisptr.getNumClusters()
         nClusters[1] = 3
@@ -211,8 +214,8 @@ cdef class ClusterProperties:
         :return: numpy array of sizes of each cluster
         :rtype: np.uint32
         """
-        cdef unsigned int *cluster_sizes_raw = self.thisptr.getClusterG().get()
+        cdef unsigned int *cluster_sizes_raw = self.thisptr.getClusterSize().get()
         cdef np.npy_intp nClusters[1]
         nClusters[0] = <np.npy_intp>self.thisptr.getNumClusters()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nClusters, np.NPY_UINT32, <void*>cluster_sizes_raw)
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nClusters, np.NPY_UINT32, <void*>cluster_sizes_raw)
         return result

@@ -13,8 +13,8 @@
 #include "trajectory.h"
 #include "Index1D.h"
 
-#ifndef _pairing_H__
-#define _pairing_H__
+#ifndef _Pairing_H__
+#define _Pairing_H__
 
 namespace freud { namespace pairing {
 
@@ -29,16 +29,16 @@ namespace freud { namespace pairing {
     RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
     3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
-class pairing
+class Pairing2D
     {
     public:
         //! Constructor
-        pairing(const float rmax,
-                const unsigned int k,
-                float comp_dot_tol);
+        Pairing2D(const float rmax,
+                  const unsigned int k,
+                  float comp_dot_tol);
 
         //! Destructor
-        ~pairing();
+        ~Pairing2D();
 
         //! Get the simulation box
         const trajectory::Box& getBox() const
@@ -72,27 +72,26 @@ class pairing
         //     return num_util::makeNum(arr, m_Np);
         //     }
 
+        //! Compute the pairing function
+        void compute(trajectory::Box& box,
+                     const vec3<float>* points,
+                     const float* orientations,
+                     const float* comp_orientations,
+                     const unsigned int Np,
+                     const unsigned int No);
 
+        unsigned int getNumParticles()
+            {
+            return m_Np;
+            }
+
+    private:
         void ComputePairing2D(const vec3<float> *points,
                               const float *orientations,
                               const float *comp_orientations,
                               const unsigned int Np,
                               const unsigned int No);
 
-        //! Compute the pairing function
-        void compute(const vec3<float>* points,
-                     const float* orientations,
-                     const float* comp_orientations,
-                     const unsigned int Np,
-                     const unsigned int No);
-
-        // //! Python wrapper for compute with a specific orientations
-        // void computePy(trajectory::Box& box,
-        //                boost::python::numeric::array points,
-        //                boost::python::numeric::array orientations,
-        //                boost::python::numeric::array comp_orientations);
-
-    private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r to check for nearest neighbors
         float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
@@ -108,4 +107,4 @@ class pairing
 
 }; }; // end namespace freud::pairing
 
-#endif // _pairing_H__
+#endif // _Pairing_H__

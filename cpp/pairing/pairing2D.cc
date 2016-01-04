@@ -1,4 +1,4 @@
-#include "pairing2D.h"
+#include "Pairing2D.h"
 
 #include <stdexcept>
 #ifdef __SSE2__
@@ -18,9 +18,9 @@ using namespace tbb;
 
 namespace freud { namespace pairing {
 
-pairing::pairing(const float rmax,
-                 const unsigned int k,
-                 const float comp_dot_tol)
+Pairing2D::Pairing2D(const float rmax,
+                     const unsigned int k,
+                     const float comp_dot_tol)
     : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
     {
     // create the unsigned int array to store whether or not a particle is paired
@@ -40,16 +40,16 @@ pairing::pairing(const float rmax,
     m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
 
-pairing::~pairing()
+Pairing2D::~Pairing2D()
     {
     delete m_nn;
     }
 
-void pairing::ComputePairing2D(const vec3<float> *points,
-                               const float *orientations,
-                               const float *comp_orientations,
-                               const unsigned int Np,
-                               const unsigned int No)
+void Pairing2D::ComputePairing2D(const vec3<float> *points,
+                                 const float *orientations,
+                                 const float *comp_orientations,
+                                 const unsigned int Np,
+                                 const unsigned int No)
     {
     // for each particle
     Index2D b_i = Index2D(m_No, m_Np);
@@ -144,12 +144,14 @@ void pairing::ComputePairing2D(const vec3<float> *points,
         } // done looping over reference points
     }
 
-void pairing::compute(const vec3<float>* points,
-                      const float* orientations,
-                      const float* comp_orientations,
-                      const unsigned int Np,
-                      const unsigned int No)
+void Pairing2D::compute(trajectory::Box& box,
+                        const vec3<float>* points,
+                        const float* orientations,
+                        const float* comp_orientations,
+                        const unsigned int Np,
+                        const unsigned int No)
     {
+    m_box = box;
     m_nn->compute(m_box,points,Np,points,Np);
     m_nn->setRMax(m_rmax);
     // reallocate the output array if it is not the right size

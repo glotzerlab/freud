@@ -89,8 +89,8 @@ set(FREUD_SOURCES
             molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
-            pairing/pairing2D.cc
-            pairing/pairing2D.h
+            pairing/Pairing2D.cc
+            pairing/Pairing2D.h
             pmft/PMFXYZ.cc
             pmft/PMFXYZ.h
             pmft/PMFXY2D.cc
