@@ -202,3 +202,18 @@ cdef extern from "SolLiqNear.h" namespace "freud::order":
         vector[float complex] getQldot_ij()
         unsigned int getNumClusters()
         unsigned int getNP()
+
+cdef extern from "Pairing2D.h" namespace "freud::order":
+    cdef cppclass Pairing2D:
+        Pairing2D(const float, const unsigned int, float)
+        const trajectory.Box &getBox() const
+        void resetBondOrder()
+        void compute(trajectory.Box &,
+                     vec3[float]*,
+                     float*,
+                     float*,
+                     unsigned int,
+                     unsigned int)
+        shared_array[unsigned int] getMatch()
+        shared_array[unsigned int] getPair()
+        unsigned int getNumParticles()

@@ -37,7 +37,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/kspace
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
-                    ${CMAKE_CURRENT_SOURCE_DIR}/pairing
                     ${CMAKE_CURRENT_SOURCE_DIR}/pmft
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
@@ -89,8 +88,8 @@ set(FREUD_SOURCES
             molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
-            pairing/Pairing2D.cc
-            pairing/Pairing2D.h
+            order/Pairing2D.cc
+            order/Pairing2D.h
             pmft/PMFXYZ.cc
             pmft/PMFXYZ.h
             pmft/PMFXY2D.cc
