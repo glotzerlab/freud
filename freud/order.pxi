@@ -242,7 +242,7 @@ cdef class EntropicBonding:
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
         nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bonds)
+        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)
         return result
 
     def getBox(self):
