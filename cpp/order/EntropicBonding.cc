@@ -32,6 +32,8 @@ EntropicBonding::EntropicBonding(float xmax,
     : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
       m_nBonds(nBonds), m_bond_map(bond_map), m_nP(0)
     {
+    // create the unsigned int array to store whether or not a particle is paired
+    m_bonds = boost::shared_array<unsigned int>(new unsigned int[m_nP * m_nBonds]);
     if (m_nbins_x < 1)
         throw invalid_argument("must be at least 1 bin in x");
     if (m_nbins_y < 1)
