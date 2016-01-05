@@ -107,7 +107,7 @@ class ComputeBonds
             float dy_inv = (float)m_nY/m_ymax;
             float rmaxsq = m_rmax * m_rmax;
             Index2D b_i = Index2D(m_nX, m_nY);
-            Index2D bonding_i = Index2D(m_nP, m_nBonds);
+            Index2D bonding_i = Index2D(m_nBonds,m_nP);
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
