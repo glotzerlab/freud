@@ -35,6 +35,7 @@ cdef extern from "EntropicBonding.h" namespace "freud::order":
                      unsigned int) nogil
         shared_array[unsigned int] getBonds()
         unsigned int getNP()
+        unsigned int getNBonds()
         unsigned int getNBinsX()
         unsigned int getNBinsY()
 

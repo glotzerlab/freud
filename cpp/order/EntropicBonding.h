@@ -62,6 +62,11 @@ class EntropicBonding
             return m_nP;
             }
 
+        unsigned int getNBonds()
+            {
+            return m_nBonds;
+            }
+
         unsigned int getNBinsX()
             {
             return m_nbins_x;

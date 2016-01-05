@@ -240,8 +240,8 @@ cdef class EntropicBonding:
         """
         cdef unsigned int *bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBonds()
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)
         return result
 
