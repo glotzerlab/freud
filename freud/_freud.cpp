@@ -29118,42 +29118,42 @@ static PyObject *__pyx_pf_5freud_6_freud_15EntropicBonding_6getBonds(struct __py
  *         """
  *         cdef unsigned int *bonds = self.thisptr.getBonds().get()             # <<<<<<<<<<<<<<
  *         cdef np.npy_intp nbins[2]
- *         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
+ *         nbins[0] = <np.npy_intp>self.thisptr.getNP()
  */
   __pyx_v_bonds = __pyx_v_self->thisptr->getBonds().get();
 
   /* "order.pxi":243
  *         cdef unsigned int *bonds = self.thisptr.getBonds().get()
  *         cdef np.npy_intp nbins[2]
- *         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()             # <<<<<<<<<<<<<<
- *         nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
- *         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bonds)
+ *         nbins[0] = <np.npy_intp>self.thisptr.getNP()             # <<<<<<<<<<<<<<
+ *         nbins[1] = <np.npy_intp>self.thisptr.getNBonds()
+ *         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)
  */
-  (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNBinsY());
+  (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNP());
 
   /* "order.pxi":244
  *         cdef np.npy_intp nbins[2]
- *         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
- *         nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bonds)
+ *         nbins[0] = <np.npy_intp>self.thisptr.getNP()
+ *         nbins[1] = <np.npy_intp>self.thisptr.getNBonds()             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)
  *         return result
  */
-  (__pyx_v_nbins[1]) = ((npy_intp)__pyx_v_self->thisptr->getNBinsX());
+  (__pyx_v_nbins[1]) = ((npy_intp)__pyx_v_self->thisptr->getNBonds());
 
   /* "order.pxi":245
- *         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
- *         nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
- *         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bonds)             # <<<<<<<<<<<<<<
+ *         nbins[0] = <np.npy_intp>self.thisptr.getNP()
+ *         nbins[1] = <np.npy_intp>self.thisptr.getNBonds()
+ *         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)             # <<<<<<<<<<<<<<
  *         return result
  * 
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_FLOAT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
       {__pyx_filename = __pyx_f[5]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
@@ -29164,8 +29164,8 @@ static PyObject *__pyx_pf_5freud_6_freud_15EntropicBonding_6getBonds(struct __py
   __pyx_t_1 = 0;
 
   /* "order.pxi":246
- *         nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
- *         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bonds)
+ *         nbins[1] = <np.npy_intp>self.thisptr.getNBonds()
+ *         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)
  *         return result             # <<<<<<<<<<<<<<
  * 
  *     def getBox(self):
