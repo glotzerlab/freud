@@ -4,6 +4,7 @@ from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
+from libcpp.map cimport map
 cimport freud._trajectory as trajectory
 
 cdef extern from "BondOrder.h" namespace "freud::order":
@@ -33,7 +34,9 @@ cdef extern from "EntropicBonding.h" namespace "freud::order":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil
-        shared_array[unsigned int] getBonds()
+        shared_array[ map[uint, uint] ] getBonds()
+        # shared_array[map] getBonds()
+        # vector[map] *getBonds()
         unsigned int getNP()
         unsigned int getNBonds()
         unsigned int getNBinsX()

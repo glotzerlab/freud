@@ -7,6 +7,7 @@ cimport freud._order as order
 from libc.string cimport memcpy
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
+from libcpp.map cimport map
 import numpy as np
 cimport numpy as np
 
@@ -236,13 +237,16 @@ cdef class EntropicBonding:
     def getBonds(self):
         """
         :return: particle bonds
-        :rtype: np.float32
+        :rtype: list[dict]
         """
-        cdef unsigned int *bonds = self.thisptr.getBonds().get()
-        cdef np.npy_intp nbins[2]
+        cdef map[unsigned int, unsigned int] *bonds = self.thisptr.getBonds().get()
+        # cdef np.npy_intp nbins[2]
+        # nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        # nbins[1] = <np.npy_intp>self.thisptr.getNBonds()
+        # cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)
+        cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBonds()
-        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)
+        cdef np.ndarray[dtype=object, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_OBJECT, <void*>bonds)
         return result
 
     def getBox(self):

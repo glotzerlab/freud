@@ -15,6 +15,8 @@
 #include "trajectory.h"
 #include "Index1D.h"
 
+#include <map>
+
 #ifndef _ENTROPIC_BONDING_H__
 #define _ENTROPIC_BONDING_H__
 
@@ -55,7 +57,8 @@ class EntropicBonding
                      unsigned int nP);
 
         //! Get a reference to the last computed rdf
-        boost::shared_array<unsigned int> getBonds();
+        boost::shared_array< std::map<unsigned int, unsigned int> > getBonds();
+        // std::vector< std::map< unsigned int, unsigned int > > *getBonds();
 
         unsigned int getNP()
             {
@@ -92,7 +95,8 @@ class EntropicBonding
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_nP;                //!< Last number of points computed
 
-        boost::shared_array<unsigned int> m_bonds;         //!< bin counts computed
+        // boost::shared_array<unsigned int> m_bonds;         //!< bin counts computed
+        boost::shared_array< std::map< unsigned int, unsigned int > > m_bonds;         //!< bin counts computed
         // do I need this? I don't think so...
         // tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };

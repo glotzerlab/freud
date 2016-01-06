@@ -10,8 +10,8 @@
 #include <omp.h>
 #endif
 
-#include <stdexcept>
 #include <complex>
+#include <map>
 
 using namespace std;
 using namespace tbb;
@@ -33,7 +33,9 @@ EntropicBonding::EntropicBonding(float xmax,
       m_nBonds(nBonds), m_bond_map(bond_map), m_nP(0)
     {
     // create the unsigned int array to store whether or not a particle is paired
-    m_bonds = boost::shared_array<unsigned int>(new unsigned int[m_nP * m_nBonds]);
+    m_bonds = boost::shared_array< std::map<unsigned int, unsigned int> >(new std::map<unsigned int, unsigned int>[m_nP]);
+    // std::vector< std::map< unsigned int, unsigned int > > m_bonds;
+    // m_bonds.resize(m_nP);
     if (m_nbins_x < 1)
         throw invalid_argument("must be at least 1 bin in x");
     if (m_nbins_y < 1)
@@ -69,7 +71,8 @@ EntropicBonding::~EntropicBonding()
 class ComputeBonds
     {
     private:
-        unsigned int* m_bonds;
+        std::map<unsigned int, unsigned int>* m_bonds;
+        // std::vector< std::map< unsigned int, unsigned int > > m_bonds;
         const trajectory::Box& m_box;
         const float m_xmax;
         const float m_ymax;
@@ -83,7 +86,8 @@ class ComputeBonds
         const unsigned int m_nY;
         const unsigned int m_nBonds;
     public:
-        ComputeBonds(unsigned int* bonds,
+        ComputeBonds(std::map<unsigned int, unsigned int>* bonds,
+                     // std::vector< std::map< unsigned int, unsigned int > > &bonds,
                      const trajectory::Box& box,
                      const float xmax,
                      const float ymax,
@@ -111,6 +115,7 @@ class ComputeBonds
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
+                // std::map<unsigned int, unsigned int> l_bonds;
                 vec3<float> pos = m_points[i];
                 float angle = m_orientations[i];
 
@@ -155,15 +160,19 @@ class ComputeBonds
                             {
                             // get the bond
                             unsigned int bond = m_bond_map[b_i(ibinx, ibiny)];
-                            m_bonds[bonding_i(i, bond)] = j;
+                            // m_bonds[bonding_i(i, bond)] = j;
+                            m_bonds[i][bond] = j;
+                            // l_bonds[bond] = j;
                             }
                         }
                     }
+                // m_bonds[i] = l_bonds;
                 }
             }
     };
 
-boost::shared_array<unsigned int> EntropicBonding::getBonds()
+boost::shared_array< std::map<unsigned int, unsigned int> > EntropicBonding::getBonds()
+// std::vector< std::map< unsigned int, unsigned int > > *EntropicBonding::getBonds()
     {
     return m_bonds;
     }
@@ -188,12 +197,16 @@ void EntropicBonding::compute(trajectory::Box& box,
     m_nn->setRMax(m_rmax);
     if (nP != m_nP)
         {
-        m_bonds = boost::shared_array<unsigned int>(new unsigned int[nP * m_nBonds]);
+        m_bonds = boost::shared_array< std::map<unsigned int, unsigned int> >(new std::map<unsigned int, unsigned int>[m_nP]);
+        // make sure to clear this out at some point
+        // m_bonds.resize(m_nP);
         }
 
+    m_bonds[2][4] = 5;
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,nP),
-                 ComputeBonds((unsigned int*)m_bonds.get(),
+                 ComputeBonds((std::map<unsigned int, unsigned int>*)m_bonds.get(),
+                 // ComputeBonds(m_bonds,
                               m_box,
                               m_xmax,
                               m_ymax,
