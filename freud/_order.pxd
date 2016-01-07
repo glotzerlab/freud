@@ -34,7 +34,7 @@ cdef extern from "EntropicBonding.h" namespace "freud::order":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil
-        shared_array[ map[uint, uint] ] getBonds()
+        shared_array[ map[uint, vector[uint] ] ] getBonds()
         # shared_array[map] getBonds()
         # vector[map] *getBonds()
         unsigned int getNP()

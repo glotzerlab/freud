@@ -57,7 +57,7 @@ class EntropicBonding
                      unsigned int nP);
 
         //! Get a reference to the last computed rdf
-        boost::shared_array< std::map<unsigned int, unsigned int> > getBonds();
+        boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > > getBonds();
         // std::vector< std::map< unsigned int, unsigned int > > *getBonds();
 
         unsigned int getNP()
@@ -96,7 +96,7 @@ class EntropicBonding
         unsigned int m_nP;                //!< Last number of points computed
 
         // boost::shared_array<unsigned int> m_bonds;         //!< bin counts computed
-        boost::shared_array< std::map< unsigned int, unsigned int > > m_bonds;         //!< bin counts computed
+        boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > > m_bonds;         //!< bin counts computed
         // do I need this? I don't think so...
         // tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };

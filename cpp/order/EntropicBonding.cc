@@ -33,7 +33,7 @@ EntropicBonding::EntropicBonding(float xmax,
       m_nBonds(nBonds), m_bond_map(bond_map), m_nP(0)
     {
     // create the unsigned int array to store whether or not a particle is paired
-    m_bonds = boost::shared_array< std::map<unsigned int, unsigned int> >(new std::map<unsigned int, unsigned int>[m_nP]);
+    m_bonds = boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > >(new std::map<unsigned int, std::vector<unsigned int> >[m_nP]);
     // std::vector< std::map< unsigned int, unsigned int > > m_bonds;
     // m_bonds.resize(m_nP);
     if (m_nbins_x < 1)
@@ -71,7 +71,7 @@ EntropicBonding::~EntropicBonding()
 class ComputeBonds
     {
     private:
-        std::map<unsigned int, unsigned int>* m_bonds;
+        std::map<unsigned int, std::vector<unsigned int> >* m_bonds;
         // std::vector< std::map< unsigned int, unsigned int > > m_bonds;
         const trajectory::Box& m_box;
         const float m_xmax;
@@ -86,7 +86,7 @@ class ComputeBonds
         const unsigned int m_nY;
         const unsigned int m_nBonds;
     public:
-        ComputeBonds(std::map<unsigned int, unsigned int>* bonds,
+        ComputeBonds(std::map<unsigned int, std::vector<unsigned int> >* bonds,
                      // std::vector< std::map< unsigned int, unsigned int > > &bonds,
                      const trajectory::Box& box,
                      const float xmax,
@@ -107,6 +107,7 @@ class ComputeBonds
 
         void operator()( const blocked_range<size_t>& r ) const
             {
+            // Error may be here
             float dx_inv = (float)m_nX/m_xmax;
             float dy_inv = (float)m_nY/m_ymax;
             float rmaxsq = m_rmax * m_rmax;
@@ -115,7 +116,7 @@ class ComputeBonds
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
-                // std::map<unsigned int, unsigned int> l_bonds;
+                std::map<unsigned int, std::vector<unsigned int> > l_bonds;
                 vec3<float> pos = m_points[i];
                 float angle = m_orientations[i];
 
@@ -160,18 +161,24 @@ class ComputeBonds
                             {
                             // get the bond
                             unsigned int bond = m_bond_map[b_i(ibinx, ibiny)];
-                            // m_bonds[bonding_i(i, bond)] = j;
-                            m_bonds[i][bond] = j;
+                            l_bonds[bond].push_back(j);
+                            // printf("getting vector from data structure\n");
+                            // std::vector<unsigned int> tmpVec = m_bonds[i][bond];
+                            // printf("pushing in val\n");
+                            // tmpVec.push_back(j);
+                            // printf("putting into data structure\n");
+                            // m_bonds[i][bond] = tmpVec;
                             // l_bonds[bond] = j;
                             }
                         }
                     }
-                // m_bonds[i] = l_bonds;
+                m_bonds[i] = l_bonds;
+                // std::map<unsigned int, std::vector<unsigned int> > x = m_bonds[i];
                 }
             }
     };
 
-boost::shared_array< std::map<unsigned int, unsigned int> > EntropicBonding::getBonds()
+boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > > EntropicBonding::getBonds()
 // std::vector< std::map< unsigned int, unsigned int > > *EntropicBonding::getBonds()
     {
     return m_bonds;
@@ -197,15 +204,26 @@ void EntropicBonding::compute(trajectory::Box& box,
     m_nn->setRMax(m_rmax);
     if (nP != m_nP)
         {
-        m_bonds = boost::shared_array< std::map<unsigned int, unsigned int> >(new std::map<unsigned int, unsigned int>[m_nP]);
+        m_bonds = boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > >(new std::map<unsigned int, std::vector<unsigned int> >[nP]);
         // make sure to clear this out at some point
         // m_bonds.resize(m_nP);
         }
-
-    m_bonds[2][4] = 5;
+    for (unsigned int i=0; i<nP; i++)
+        {
+        new (&m_bonds[i]) std::map<unsigned int, std::vector<unsigned int> >();
+        }
+    // std::vector< std::map<unsigned int, std::vector<unsigned int> > > testShit(nP);
+    // printf("about to access data\n");
+    // printf("data stored in %p\n", (void *)m_bonds.get());
+    // printf("data stored in %p\n", (void *)&m_bonds[0]);
+    // printf("data stored in %p\n", (void *)&m_bonds);
+    // std::map<unsigned int, std::vector<unsigned int> > x = m_bonds[0];
+    // m_bonds[0][0].push_back(5);
+    // testShit[0][0].push_back(5);
+    // printf("this line will not be reached\n");
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,nP),
-                 ComputeBonds((std::map<unsigned int, unsigned int>*)m_bonds.get(),
+                 ComputeBonds((std::map<unsigned int, std::vector<unsigned int> >*)m_bonds.get(),
                  // ComputeBonds(m_bonds,
                               m_box,
                               m_xmax,
