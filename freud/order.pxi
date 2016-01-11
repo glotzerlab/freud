@@ -198,10 +198,12 @@ cdef class EntropicBonding:
     """
     cdef order.EntropicBonding *thisptr
 
-    def __cinit__(self, xmax, ymax, nx, ny, nNeighbors, nBonds, bondMap):
-        # should I extract from the bond map (nx, ny)
-        cdef np.ndarray[unsigned int, ndim=1] l_bondMap = np.ascontiguousarray(bondMap.flatten())
-        self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, nBonds, <unsigned int*>&l_bondMap[0])
+    def __cinit__(self, xmax, ymax, nNeighbors, bondMap):
+        # extract nx, ny from the bondMap
+        ny = bondMap.shape[0]
+        nx = bondMap.shape[1]
+        cdef np.ndarray l_bondMap = bondMap
+        self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, <unsigned int*>l_bondMap.data)
 
     def __dealloc__(self):
         del self.thisptr
@@ -227,12 +229,12 @@ cdef class EntropicBonding:
             raise ValueError("values must be a numpy float32 array")
         if orientations.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
+        cdef np.ndarray l_points = points
+        cdef np.ndarray l_orientations = orientations
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], nP)
+            self.thisptr.compute(l_box, <vec3[float]*> l_points.data, <float*> l_orientations.data, nP)
 
     def getBonds(self):
         """

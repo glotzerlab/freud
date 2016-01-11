@@ -28,7 +28,7 @@ cdef extern from "BondOrder.h" namespace "freud::order":
 
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:
-        EntropicBonding(float, float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *)
+        EntropicBonding(float, float, unsigned int, unsigned int, unsigned int, unsigned int *)
         const trajectory.Box &getBox() const
         void compute(trajectory.Box &,
                      vec3[float]*,

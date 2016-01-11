@@ -27,10 +27,9 @@ EntropicBonding::EntropicBonding(float xmax,
                                  unsigned int nx,
                                  unsigned int ny,
                                  unsigned int nNeighbors,
-                                 unsigned int nBonds,
                                  unsigned int *bond_map)
     : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
-      m_nBonds(nBonds), m_bond_map(bond_map), m_nP(0)
+      m_bond_map(bond_map), m_nP(0)
     {
     // create the unsigned int array to store whether or not a particle is paired
     m_bonds = boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > >(new std::map<unsigned int, std::vector<unsigned int> >[m_nP]);
@@ -46,8 +45,6 @@ EntropicBonding::EntropicBonding(float xmax,
         throw invalid_argument("ymax must be positive");
     if (m_nNeighbors < 1)
         throw invalid_argument("must be at least 1 neighbor");
-    if (m_nBonds < 1)
-        throw invalid_argument("must be at least 1 bond");
     // calculate dx, dy
     m_dx = 2.0 * m_xmax / float(m_nbins_x);
     m_dy = 2.0 * m_ymax / float(m_nbins_y);
@@ -86,7 +83,6 @@ class ComputeBonds
         const unsigned int *m_bond_map;
         const unsigned int m_nX;
         const unsigned int m_nY;
-        const unsigned int m_nBonds;
     public:
         ComputeBonds(std::map<unsigned int, std::vector<unsigned int> >* bonds,
                      // std::vector< std::map< unsigned int, unsigned int > > &bonds,
@@ -102,11 +98,9 @@ class ComputeBonds
                      const unsigned int nP,
                      const unsigned int *bond_map,
                      const unsigned int nX,
-                     const unsigned int nY,
-                     const unsigned int nBonds)
+                     const unsigned int nY)
             : m_bonds(bonds), m_box(box), m_xmax(xmax), m_ymax(ymax), m_rmax(rmax), m_dx(dx), m_dy(dy), m_nn(nn),
-              m_points(points), m_orientations(orientations), m_nP(nP), m_bond_map(bond_map), m_nX(nX), m_nY(nY),
-              m_nBonds(nBonds)
+              m_points(points), m_orientations(orientations), m_nP(nP), m_bond_map(bond_map), m_nX(nX), m_nY(nY)
             {
             }
 
@@ -117,7 +111,6 @@ class ComputeBonds
             float dy_inv = 1.0f / m_dy;
             float rmaxsq = m_rmax * m_rmax;
             Index2D b_i = Index2D(m_nX, m_nY);
-            Index2D bonding_i = Index2D(m_nBonds,m_nP);
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
@@ -136,20 +129,14 @@ class ComputeBonds
                     float rsq = dot(delta, delta);
                     if (rsq > 1e-6)
                         {
-                        //compute psi for neighboring particle(only constructed for 2d)
-                        // get orientation
-                        // I don't think this is needed
-                        // quat<float> orient(m_orientations[j]);
+                        // create 2D vector
                         vec2<float> v(delta.x, delta.y);
+                        // rotate vector into particle reference frame
                         rotmat2<float> myMat = rotmat2<float>::fromAngle(-angle);
                         vec2<float> rotVec = myMat * v;
+                        // find the bin to increment
                         float x = rotVec.x + m_xmax;
                         float y = rotVec.y + m_ymax;
-                        // get theta, phi
-                        // float theta = atan2f(v.y, v.x);
-                        // theta = (theta < 0) ? theta+2*M_PI : theta;
-                        // theta = (theta > 2*M_PI) ? theta-2*M_PI : theta;
-                        // find the bin to increment
                         float binx = floorf(x * dx_inv);
                         float biny = floorf(y * dy_inv);
                         // fast float to int conversion with truncation
@@ -166,7 +153,11 @@ class ComputeBonds
                             {
                             // get the bond
                             unsigned int bond = m_bond_map[b_i(ibinx, ibiny)];
-                            l_bonds[bond].push_back(j);
+                            // not sure this is necessary
+                            if (! isnan(bond))
+                                {
+                                l_bonds[bond].push_back(j);
+                                }
                             }
                         }
                     }
@@ -214,8 +205,7 @@ void EntropicBonding::compute(trajectory::Box& box,
                               nP,
                               m_bond_map,
                               m_nbins_x,
-                              m_nbins_y,
-                              m_nBonds));
+                              m_nbins_y));
 
     // save the last computed number of particles
     m_nP = nP;

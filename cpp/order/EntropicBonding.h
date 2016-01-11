@@ -38,7 +38,6 @@ class EntropicBonding
                         unsigned int nx,
                         unsigned int ny,
                         unsigned int nNeighbors,
-                        unsigned int nBonds,
                         unsigned int *bond_map);
 
         //! Destructor
@@ -65,11 +64,6 @@ class EntropicBonding
             return m_nP;
             }
 
-        unsigned int getNBonds()
-            {
-            return m_nBonds;
-            }
-
         unsigned int getNBinsX()
             {
             return m_nbins_x;
@@ -90,7 +84,6 @@ class EntropicBonding
         unsigned int m_nbins_x;             //!< Number of x bins to compute bonds
         unsigned int m_nbins_y;             //!< Number of y bins to compute bonds
         unsigned int m_nNeighbors;                        //!< number of neighbors to get
-        unsigned int m_nBonds;                        //!< number of neighbors to get
         unsigned int *m_bond_map;                   //!< pointer to bonding map
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_nP;                //!< Last number of points computed
