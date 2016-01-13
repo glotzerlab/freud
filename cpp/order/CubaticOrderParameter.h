@@ -16,8 +16,8 @@
 #include "trajectory.h"
 #include "Index1D.h"
 
-#ifndef _HEX_ORDER_PARAMTER_H__
-#define _HEX_ORDER_PARAMTER_H__
+#ifndef _CUBATIC_ORDER_PARAMTER_H__
+#define _CUBATIC_ORDER_PARAMTER_H__
 
 /*! \file CubaticOrderParameter.h
     \brief Compute the global cubatic order parameter
@@ -76,4 +76,4 @@ class CubaticOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _HEX_ORDER_PARAMTER_H__
+#endif // _CUBATIC_ORDER_PARAMTER_H__

@@ -13,18 +13,18 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-HexOrderParameter::HexOrderParameter(float rmax, float k, unsigned int n)
+CubaticOrderParameter::CubaticOrderParameter(float rmax, float k, unsigned int n)
     : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
     m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
     }
 
-HexOrderParameter::~HexOrderParameter()
+CubaticOrderParameter::~CubaticOrderParameter()
     {
     delete m_nn;
     }
 
-class ComputeHexOrderParameter
+class ComputeCubaticOrderParameter
     {
     private:
         const trajectory::Box& m_box;
@@ -34,7 +34,7 @@ class ComputeHexOrderParameter
         const vec3<float> *m_points;
         std::complex<float> *m_psi_array;
     public:
-        ComputeHexOrderParameter(std::complex<float> *psi_array,
+        ComputeCubaticOrderParameter(std::complex<float> *psi_array,
                                  const trajectory::Box& box,
                                  const float rmax,
                                  const float k,
@@ -74,7 +74,7 @@ class ComputeHexOrderParameter
             }
     };
 
-void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points, unsigned int Np)
+void CubaticOrderParameter::compute(trajectory::Box& box, const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
     m_box = box;
@@ -88,7 +88,7 @@ void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points,
         }
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,Np), ComputeHexOrderParameter(m_psi_array.get(), m_box, m_rmax, m_k, m_nn, points));
+    parallel_for(blocked_range<size_t>(0,Np), ComputeCubaticOrderParameter(m_psi_array.get(), m_box, m_rmax, m_k, m_nn, points));
 
     // save the last computed number of particles
     m_Np = Np;
