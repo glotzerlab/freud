@@ -77,8 +77,8 @@ class EntropicBonding
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_xmax;                     //!< Maximum r at which to determine neighbors
-        float m_ymax;                     //!< Maximum r at which to determine neighbors
+        float m_xmax;                     //!< Maximum possible x on bond map
+        float m_ymax;                     //!< Maximum possible y on bond map
         float m_dx;
         float m_dy;
         unsigned int m_nbins_x;             //!< Number of x bins to compute bonds

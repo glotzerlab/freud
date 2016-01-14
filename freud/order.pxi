@@ -184,17 +184,12 @@ cdef class EntropicBonding:
 
     :param xmax: +/- x distance to search for bonds
     :param ymax: +/- y distance to search for bonds
-    :param nx: number of bins in x
-    :param ny: number of bins in x
     :param nNeighbors: number of neighbors to find
-    :param nBonds: number of bonds to populate per particle
     :param bondMap: 2D array containing the bond index for each x, y coordinate
     :type xmax: float
     :type ymax: float
-    :type nx: unsigned int
-    :type ny: unsigned int
     :type nNeighbors: unsigned int
-    :type nBonds: unsigned int
+    :type bondMap: np.ndarray(shape=(nx, ny), dtype=np.uint32)
     """
     cdef order.EntropicBonding *thisptr
 
@@ -241,22 +236,9 @@ cdef class EntropicBonding:
         :return: particle bonds
         :rtype: list[dict]
         """
-        # cdef map[unsigned int, vector[uint] ] *bonds = self.thisptr.getBonds().get()
-        # cdef shared_array[ map[uint, vector[uint] ] ] bonds = self.thisptr.getBonds()
-
-        # cdef np.npy_intp nbins[2]
-        # nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        # nbins[1] = <np.npy_intp>self.thisptr.getNBonds()
-        # cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bonds)
-
-        # this does not work...
-        # cdef np.npy_intp nbins[1]
-        # nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        # cdef np.ndarray[dtype=object, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_OBJECT, <void*>bonds)
-
-
         # this works, but is obviously not copy-free
-        cdef map[unsigned int, vector[uint] ] *bonds = self.thisptr.getBonds().get()
+        # keep for now, given the unique data structure
+        cdef map[ unsigned int, vector[uint] ] *bonds = self.thisptr.getBonds().get()
         result = [None] * self.thisptr.getNP()
         for i in range(self.thisptr.getNP()):
             result[i] = bonds[i]

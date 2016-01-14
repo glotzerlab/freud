@@ -28,8 +28,8 @@ EntropicBonding::EntropicBonding(float xmax,
                                  unsigned int ny,
                                  unsigned int nNeighbors,
                                  unsigned int *bond_map)
-    : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
-      m_bond_map(bond_map), m_nP(0)
+    : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny),
+      m_nNeighbors(nNeighbors), m_bond_map(bond_map), m_nP(0)
     {
     // create the unsigned int array to store whether or not a particle is paired
     m_bonds = boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > >(new std::map<unsigned int, std::vector<unsigned int> >[m_nP]);
@@ -54,8 +54,6 @@ EntropicBonding::EntropicBonding(float xmax,
         throw invalid_argument("ymax must be greater than dy");
 
     // create NearestNeighbors object
-    // if n is zero, set the number of neighbors to k
-    // otherwise set to n
     m_rmax = sqrtf(m_xmax*m_xmax + m_ymax*m_ymax);
     m_nn = new locality::NearestNeighbors(m_rmax, nNeighbors);
     }
