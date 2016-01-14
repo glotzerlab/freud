@@ -32,7 +32,7 @@ class CubaticOrderParameter
     {
     public:
         //! Constructor
-        CubaticOrderParameter();
+        CubaticOrderParameter(float tInitial, float tFinal, float scale, float norm);
 
         //! Destructor
         ~CubaticOrderParameter();
@@ -66,9 +66,13 @@ class CubaticOrderParameter
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
+        float m_tInitial;
+        float m_tFinal;
+        float m_scale;
+        float m_norm;
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;                        //!< Multiplier in the exponent
-        locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
+        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_Np;                //!< Last number of points computed
 
         boost::shared_array< std::complex<float> > m_psi_array;         //!< psi array computed

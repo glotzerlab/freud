@@ -27,7 +27,7 @@ cdef extern from "BondOrder.h" namespace "freud::order":
 
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter()
+        CubaticOrderParameter(float, float, float, float, float)
         const trajectory.Box &getBox() const
         void reset()
         void compute() nogil

@@ -175,30 +175,30 @@ cdef class BondOrder:
         return np
 
 cdef class CubaticOrderParameter:
-    """Compute the bond order diagram for the system of particles.
+    """Compute the Cubatic Order Parameter for a system of particles using simulated annealing.
 
     Create the 2D histogram containing the number of bonds formed through the surface of a unit sphere based on the
     equatorial (Theta) and azimuthal (Phi) *check on this* angles.
 
-    .. note:: currently being debugged. not guaranteed to work.
+    :param tInitial: Starting temperature
+    :param tFinal: Final temperature
+    :param scale: Scaling factor to reduce temperature
+    :param norm: normalization factor, is/should be system dependent. If not provided, defaults to 1.0
+    :type tInitial: float
+    :type tFinal: float
+    :type scale: float
+    :type norm: float
 
-    :param r_max: distance over which to calculate
-    :param k: order parameter i. to be removed
-    :param n: number of neighbors to find
-    :param nBinsT: number of theta bins
-    :param nBinsP: number of phi bins
-    :type r_max: float
-    :type k: unsigned int
-    :type n: unsigned int
-    :type nBinsT: unsigned int
-    :type nBinsP: unsigned int
-
-    .. todo:: remove k, it is not used as such
     """
-    cdef order.BondOrder *thisptr
+    cdef order.CubaticOrderParameter *thisptr
 
-    def __cinit__(self, rmax, k, n, nBinsT, nBinsP):
-        self.thisptr = new order.BondOrder(rmax, k, n, nBinsT, nBinsP)
+    def __cinit__(self, tInitial, tFinal, scale, norm=1.0):
+        # run checks
+        if (tFinal >= tInitial):
+            raise ValueError("tFinal must be less than tInitial")
+        if (scale >= 1.0):
+            raise ValueError("scale must be less than 1")
+        self.thisptr = new order.CubaticOrderParameter(tInitial, tFinal, scale, norm)
 
     def __dealloc__(self):
         del self.thisptr

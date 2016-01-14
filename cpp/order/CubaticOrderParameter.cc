@@ -13,15 +13,16 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-CubaticOrderParameter::CubaticOrderParameter(float rmax, float k, unsigned int n)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
+CubaticOrderParameter::CubaticOrderParameter(float tInitial, float tFinal, float scale, float norm)
+    : m_box(trajectory::Box()), m_tInitial(tInitial), m_tFinal(tFinal), m_scale(scale), m_norm(norm), m_Np(0)
     {
-    m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
+    // I don't think this is necessary...
+    m_lc = new locality::LinkCell(m_box, m_rmax);
     }
 
 CubaticOrderParameter::~CubaticOrderParameter()
     {
-    delete m_nn;
+    delete m_lc;
     }
 
 class ComputeCubaticOrderParameter
