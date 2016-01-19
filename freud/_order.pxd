@@ -30,7 +30,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         CubaticOrderParameter(float, float, float, float)
         const trajectory.Box &getBox() const
         void compute(trajectory.Box &,
-                     vec3[float]*,
+                     const vec3[float]*,
                      unsigned int) nogil
         float getTInitial()
         float getTFinal()
