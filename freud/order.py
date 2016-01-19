@@ -7,6 +7,7 @@
 
 # not sure if broken
 from ._freud import BondOrder;
+from ._freud import CubaticOrderParameter;
 from ._freud import EntropicBonding;
 from ._freud import HexOrderParameter;
 from ._freud import TransOrderParameter;

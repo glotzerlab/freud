@@ -27,10 +27,16 @@ cdef extern from "BondOrder.h" namespace "freud::order":
 
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter(float, float, float, float, float)
+        CubaticOrderParameter(float, float, float, float)
         const trajectory.Box &getBox() const
-        void reset()
-        void compute() nogil
+        void compute(trajectory.Box &,
+                     vec3[float]*,
+                     unsigned int) nogil
+        float getTInitial()
+        float getTFinal()
+        float getScale()
+        float getNorm()
+        float getCubaticOrderParameter()
 
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:

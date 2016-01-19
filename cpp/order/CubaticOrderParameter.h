@@ -8,6 +8,7 @@
 #define __APPLE__
 
 #include <boost/shared_array.hpp>
+#include <stdlib.h>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -15,6 +16,8 @@
 #include "NearestNeighbors.h"
 #include "trajectory.h"
 #include "Index1D.h"
+
+#include "tbb/atomic.h"
 
 #ifndef _CUBATIC_ORDER_PARAMTER_H__
 #define _CUBATIC_ORDER_PARAMTER_H__
@@ -48,34 +51,41 @@ class CubaticOrderParameter
                      const vec3<float> *points,
                      unsigned int Np);
 
-        //! Get a reference to the last computed psi
-        boost::shared_array< std::complex<float> > getPsi()
+        float getTInitial()
             {
-            return m_psi_array;
+            return m_tInitial;
             }
 
-        unsigned int getNP()
+        float getTFinal()
             {
-            return m_Np;
+            return m_tFinal;
             }
 
-        float getK()
+        float getScale()
             {
-            return m_k;
+            return m_scale;
+            }
+
+        float getNorm()
+            {
+            return m_norm;
+            }
+
+        float getCubaticOrderParameter()
+            {
+            return (float) m_p4Sum;
             }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_tInitial;
         float m_tFinal;
+        float m_tCurrent;
         float m_scale;
         float m_norm;
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_k;                        //!< Multiplier in the exponent
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
+        tbb::atomic<float> m_p4Sum;
+        tbb::atomic<float> m_p4SumNew;
         unsigned int m_Np;                //!< Last number of points computed
-
-        boost::shared_array< std::complex<float> > m_psi_array;         //!< psi array computed
     };
 
 }; }; // end namespace freud::order
