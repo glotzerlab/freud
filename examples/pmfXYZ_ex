@@ -13,14 +13,14 @@ traj = trajectory.TrajectoryXMLDCD('start.xml', 'dump.dcd')
 
 # initialize the RDF computation using the simulation box from frame 0 (assumes constant volume)
 f = traj[0]
-# pcf = pmft.PMFXY2D(box=f.box,maxX=3.0,maxY=3.0,dx=0.01,dy=0.01)
-pcf = pmft.pmfXY2D(box=f.box,maxX=3.0,maxY=3.0,dx=0.01,dy=0.01)
+# pcf = pmft.PMFXY2D(xMax, yMax, zMax, nBinsX, nBinsY, nBinsz)
+pcf = pmft.PMFXYZ(3.0,3.0,3.0,100,100,100)
 
 # loop over all frames in the trajectory and add up a total rdf
 for f in traj:
     pos = numpy.copy(f.get("position"))
-    ang = numpy.copy(f.get("orientation"))
-    pcf.compute(pos, ang, pos, ang);
+    quat = numpy.copy(f.get("orientation"))
+    pcf.compute(f.box, pos, quat, pos, quat);
 
 pcf.calcPMF()
 xArray = pcf.xArray
