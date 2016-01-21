@@ -74,6 +74,8 @@ set(FREUD_SOURCES
             order/BondOrder.cc
             order/EntropicBonding.h
             order/EntropicBonding.cc
+            order/EntropicBondingRT.h
+            order/EntropicBondingRT.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
             util/Index1D.h
