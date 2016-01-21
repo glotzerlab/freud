@@ -30,6 +30,7 @@ namespace freud { namespace order {
 class SolLiq
     {
     public:
+        //! This is a test change 
         //! Constructor
         /**Constructor for Solid-Liquid analysis class.  After creation, call compute to calculate solid-like clusters.  Use accessor functions to retrieve data.
         @param box A freud box for the trajectory.
