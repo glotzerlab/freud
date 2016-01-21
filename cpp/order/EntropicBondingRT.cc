@@ -43,8 +43,8 @@ EntropicBondingRT::EntropicBondingRT(float rmax,
     if (m_nNeighbors < 1)
         throw invalid_argument("must be at least 1 neighbor");
     // calculate dx, dy
-    m_dr = 2.0 * m_rmax / float(m_nbins_r);
-    m_dt = 2.0 * m_tmax / float(m_nbins_t);
+    m_dr = m_rmax / float(m_nbins_r);
+    m_dt = m_tmax / float(m_nbins_t);
     if (m_dr > m_rmax)
         throw invalid_argument("rmax must be greater than dr");
     if (m_dt > m_tmax)
@@ -100,7 +100,7 @@ class ComputeBondsRT
             float dr_inv = 1.0f / m_dr;
             float dt_inv = 1.0f / m_dt;
             float rmaxsq = m_rmax * m_rmax;
-            Index3D b_i = Index3D(m_nr, m_nt, m_nt);
+            Index3D b_i = Index3D(m_nt, m_nt, m_nr);
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
@@ -117,7 +117,7 @@ class ComputeBondsRT
                     vec3<float> delta = m_box.wrap(m_points[j] - pos);
 
                     float rsq = dot(delta, delta);
-                    if (rsq > 1e-6)
+                    if (rsq < 1e-6)
                         {
                         continue;
                         }
@@ -153,6 +153,11 @@ class ComputeBondsRT
                             {
                             // get the bond
                             unsigned int bond = m_bond_map[b_i(ibinr, ibinT1, ibinT2)];
+                            printf("bond is %d in %d %d %d\n", bond, ibinr, ibinT1, ibinT2);
+                            if (bond == 1)
+                                {
+                                printf("bond is in %d %d %d\n", ibinr, ibinT1, ibinT2);
+                                }
                             // not sure this is necessary
                             if (! isnan(bond))
                                 {
@@ -189,6 +194,26 @@ void EntropicBondingRT::compute(trajectory::Box& box,
     for (unsigned int i=0; i<nP; i++)
         {
         new (&m_bonds[i]) std::map<unsigned int, std::vector<unsigned int> >();
+        }
+    // find that damn 1
+    printf("rmax = %f\n", m_rmax);
+    printf("tmax = %f\n", m_tmax);
+    printf("dr = %f\n", m_dr);
+    printf("dt = %f\n", m_dt);
+    Index3D b_i = Index3D(m_nbins_t, m_nbins_t, m_nbins_r);
+    for (unsigned int i = 0; i < m_nbins_t; i++)
+        {
+        for (unsigned int j = 0; j < m_nbins_t; j++)
+            {
+            for (unsigned int k = 0; k < m_nbins_r; k++)
+                {
+                unsigned int val = m_bond_map[b_i(i, j, k)];
+                if (val == 1)
+                    {
+                    printf("val of %d found in bin %d %d %d\n", val, i, j, k);
+                    }
+                }
+            }
         }
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,nP),

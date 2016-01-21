@@ -57,6 +57,20 @@ implement. We could even add a copy "True/False" option. I have moved forward wi
 
 Address and impose common way of indexing arrays (PMFTR12 at least is in an odd order)
 
+This really, really needs to be addressing because
+
+## Numpy
+
+myArray = np.zeros(shape=(nBinsZ, nBinsY, nBinsX))
+val = myArray[z,y,x]
+
+## Freud (C++)
+
+Index3D myIndexer(nBinsX, nBinsY, nBinsz);
+<T> val = myArray[myIndexer(x, y, z)];
+
+
+
 # Gaussian Density
 
 Change the constructor to take freud.density.GaussianDensity(width, r_cut, dr) always, and width is either a single

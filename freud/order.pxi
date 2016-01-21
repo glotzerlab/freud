@@ -273,6 +273,104 @@ cdef class EntropicBonding:
         cdef unsigned int ny = self.thisptr.getNBinsY()
         return ny
 
+cdef class EntropicBondingRT:
+    """Compute the entropic bonds each particle in the system.
+
+    For each particle in the system determine which other particles are in which entropic bonding sites.
+
+    .. note:: currently being debugged. not guaranteed to work.
+
+    :param rmax: distance to search for bonds
+    :param nNeighbors: number of neighbors to find
+    :param bondMap: 2D array containing the bond index for each x, y coordinate
+    :type rmax: float
+    :type nNeighbors: unsigned int
+    :type bondMap: np.ndarray(shape=(nx, ny), dtype=np.uint32)
+    """
+    cdef order.EntropicBondingRT *thisptr
+
+    def __cinit__(self, rmax, nNeighbors, bondMap):
+        # extract nr, nt from the bondMap
+        nr = bondMap.shape[0]
+        nt = bondMap.shape[1]
+        if (nt != bondMap.shape[2]):
+            raise ValueError("points must be a numpy float32 array")
+        cdef np.ndarray l_bondMap = bondMap
+        self.thisptr = new order.EntropicBondingRT(rmax, nr, nt, nNeighbors, <unsigned int*>l_bondMap.data)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, box, points, orientations):
+        """
+        Calculates the correlation function and adds to the current histogram.
+
+        :param box: simulation box
+        :param points: points to calculate the bonding
+        :param orientations: orientations as angles to use in computation
+        :type box: :py:meth:`freud.trajectory.Box`
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type orientations: np.ndarray(shape=(N), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        if orientations.dtype != np.float32:
+            raise ValueError("values must be a numpy float32 array")
+        if orientations.ndim != 1:
+            raise ValueError("values must be a 1 dimensional array")
+        cdef np.ndarray l_points = points
+        cdef np.ndarray l_orientations = orientations
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        with nogil:
+            self.thisptr.compute(l_box, <vec3[float]*> l_points.data, <float*> l_orientations.data, nP)
+
+    def getBonds(self):
+        """
+        :return: particle bonds
+        :rtype: list[dict]
+        """
+        # this works, but is obviously not copy-free
+        # keep for now, given the unique data structure
+        cdef map[ unsigned int, vector[uint] ] *bonds = self.thisptr.getBonds().get()
+        result = [None] * self.thisptr.getNP()
+        for i in range(self.thisptr.getNP()):
+            result[i] = bonds[i]
+        return result
+
+    def getBox(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.trajectory.Box()`
+        """
+        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+
+    def getNBinsR(self):
+        """
+        Get the number of bins in the r-dimension of histogram
+
+        :return: nr
+        :rtype: unsigned int
+        """
+        cdef unsigned int nr = self.thisptr.getNBinsR()
+        return nr
+
+    def getNBinsT(self):
+        """
+        Get the number of bins in the y-dimension of histogram
+
+        :return: nt
+        :rtype: unsigned int
+        """
+        cdef unsigned int nt = self.thisptr.getNBinsT()
+        return nt
+
 cdef class HexOrderParameter:
     """Calculates the x-atic order parameter for each particle in the system.
 

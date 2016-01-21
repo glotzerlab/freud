@@ -17,8 +17,8 @@
 
 #include <map>
 
-#ifndef _ENTROPIC_BONDING_H__
-#define _ENTROPIC_BONDING_H__
+#ifndef _ENTROPIC_BONDING_RT_H__
+#define _ENTROPIC_BONDING_RT_H__
 
 /*! \file EntropicBonding.h
     \brief Compute the hexatic order parameter for each particle
@@ -91,4 +91,4 @@ class EntropicBondingRT
 
 }; }; // end namespace freud::order
 
-#endif // _ENTROPIC_BONDING_H__
+#endif // _ENTROPIC_BONDING_RT_H__
