@@ -20,3 +20,4 @@ Several modules are available currently. Feel free to contribute your own module
    trajectory
    pmft
    order
+   indexer
