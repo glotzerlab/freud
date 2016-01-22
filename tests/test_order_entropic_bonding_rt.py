@@ -8,11 +8,13 @@ class TestBond(unittest.TestCase):
     def test_correct_bond(self):
         # generate the bonding map
         nr = 10
-        nt = 100
-        testArray = np.zeros(shape=(nr, nt, nt), dtype=np.uint32)
+        nt1 = 100
+        nt2 = 50
+        testArray = np.zeros(shape=(nr, nt2, nt1), dtype=np.uint32)
         rmax = 3.0
         dr = rmax / float(nr)
-        dt = 2.0 * np.pi / float(nt)
+        dt2 = 2.0 * np.pi / float(nt2)
+        dt1 = 2.0 * np.pi / float(nt1)
 
         # make sure the radius for each bin is generated correctly
         posList = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 0.0]], dtype=np.float32)
@@ -30,9 +32,9 @@ class TestBond(unittest.TestCase):
         theta2 = theta2 if (theta2 > 0) else theta2 + 2.0*np.pi
         theta2 = theta2 if (theta2 < 2.0*np.pi) else theta2 - 2.0*np.pi
         binR = numpy.floor(r / dr)
-        binT1 = numpy.floor(theta1 / dt)
-        binT2 = numpy.floor(theta2 / dt)
-        testArray[binR,binT1,binT2] = 1
+        binT1 = numpy.floor(theta1 / dt1)
+        binT2 = numpy.floor(theta2 / dt2)
+        testArray[binR,binT2,binT1] = 1
 
         # create object
         numNeighbors = 1

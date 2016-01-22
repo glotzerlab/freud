@@ -32,7 +32,8 @@ class EntropicBondingRT
         //! Constructor
         EntropicBondingRT(float rmax,
                         unsigned int nr,
-                        unsigned int nt,
+                        unsigned int nT2,
+                        unsigned int nT1,
                         unsigned int nNeighbors,
                         unsigned int *bond_map);
 
@@ -65,19 +66,26 @@ class EntropicBondingRT
             return m_nbins_r;
             }
 
-        unsigned int getNBinsT()
+        unsigned int getNBinsT2()
             {
-            return m_nbins_t;
+            return m_nbins_t2;
+            }
+
+        unsigned int getNBinsT1()
+            {
+            return m_nbins_t1;
             }
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_tmax;                     //!< Maximum r at which to determine neighbors
+        float m_tmax;                     //!< Maximum theta at which to determine neighbors
         float m_dr;
-        float m_dt;
+        float m_dt1;
+        float m_dt2;
         unsigned int m_nbins_r;             //!< Number of x bins to compute bonds
-        unsigned int m_nbins_t;             //!< Number of y bins to compute bonds
+        unsigned int m_nbins_t1;             //!< Number of y bins to compute bonds
+        unsigned int m_nbins_t2;             //!< Number of y bins to compute bonds
         unsigned int m_nNeighbors;                        //!< number of neighbors to get
         unsigned int *m_bond_map;                   //!< pointer to bonding map
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation

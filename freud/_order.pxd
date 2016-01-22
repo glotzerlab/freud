@@ -44,7 +44,7 @@ cdef extern from "EntropicBonding.h" namespace "freud::order":
 
 cdef extern from "EntropicBondingRT.h" namespace "freud::order":
     cdef cppclass EntropicBondingRT:
-        EntropicBondingRT(float, unsigned int, unsigned int, unsigned int, unsigned int *)
+        EntropicBondingRT(float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *)
         const trajectory.Box &getBox() const
         void compute(trajectory.Box &,
                      vec3[float]*,
@@ -56,7 +56,8 @@ cdef extern from "EntropicBondingRT.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getNBonds()
         unsigned int getNBinsR()
-        unsigned int getNBinsT()
+        unsigned int getNBinsT1()
+        unsigned int getNBinsT2()
 
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:

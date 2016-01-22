@@ -285,18 +285,17 @@ cdef class EntropicBondingRT:
     :param bondMap: 2D array containing the bond index for each x, y coordinate
     :type rmax: float
     :type nNeighbors: unsigned int
-    :type bondMap: np.ndarray(shape=(nx, ny), dtype=np.uint32)
+    :type bondMap: np.ndarray(shape=(nr, nT2, nT1), dtype=np.uint32)
     """
     cdef order.EntropicBondingRT *thisptr
 
     def __cinit__(self, rmax, nNeighbors, bondMap):
         # extract nr, nt from the bondMap
-        nr = bondMap.shape[0]
-        nt = bondMap.shape[1]
-        if (nt != bondMap.shape[2]):
-            raise ValueError("points must be a numpy float32 array")
+        nR = bondMap.shape[0]
+        nT2 = bondMap.shape[1]
+        nT1 = bondMap.shape[2]
         cdef np.ndarray l_bondMap = bondMap
-        self.thisptr = new order.EntropicBondingRT(rmax, nr, nt, nNeighbors, <unsigned int*>l_bondMap.data)
+        self.thisptr = new order.EntropicBondingRT(rmax, nR, nT2, nT1, nNeighbors, <unsigned int*>l_bondMap.data)
 
     def __dealloc__(self):
         del self.thisptr
@@ -353,7 +352,7 @@ cdef class EntropicBondingRT:
 
     def getNBinsR(self):
         """
-        Get the number of bins in the r-dimension of histogram
+        Get the number of bins in the :math:`r`-dimension of histogram
 
         :return: nr
         :rtype: unsigned int
@@ -361,15 +360,25 @@ cdef class EntropicBondingRT:
         cdef unsigned int nr = self.thisptr.getNBinsR()
         return nr
 
-    def getNBinsT(self):
+    def getNBinsT1(self):
         """
-        Get the number of bins in the y-dimension of histogram
+        Get the number of bins in the :math:`\\theta_1`-dimension of histogram
 
-        :return: nt
+        :return: nT1
         :rtype: unsigned int
         """
-        cdef unsigned int nt = self.thisptr.getNBinsT()
-        return nt
+        cdef unsigned int nT1 = self.thisptr.getNBinsT1()
+        return nT1
+
+    def getNBinsT2(self):
+        """
+        Get the number of bins in the :math:`\\theta_2`-dimension of histogram
+
+        :return: nT2
+        :rtype: unsigned int
+        """
+        cdef unsigned int nT2 = self.thisptr.getNBinsT2()
+        return nT2
 
 cdef class HexOrderParameter:
     """Calculates the x-atic order parameter for each particle in the system.

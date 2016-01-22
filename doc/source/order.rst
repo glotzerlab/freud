@@ -16,7 +16,10 @@ Bond Order
 Entropic Bonding
 ================
 
-.. autoclass:: freud.order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, nBonds, bondMap)
+.. autoclass:: freud.order.EntropicBonding(xmax, ymax, nNeighbors, bondMap)
+    :members:
+
+.. autoclass:: freud.order.EntropicBondingRT(rmax, nNeighbors, bondMap)
     :members:
 
 Order Parameters

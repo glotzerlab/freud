@@ -132,13 +132,16 @@ cdef class PMFTR12:
         :param copy: Specify whether returned array will be a copy of the calculated data or not
         :type copy: bool
         :return: PCF
-        :rtype: np.ndarray(shape=(R, T1, T2), dtype=np.float32)
+        :rtype: np.ndarray(shape=(T1, T2, R), dtype=np.float32)
 
         :todo: check on the actual dimensions
         """
         cdef unsigned int* pcf = self.thisptr.getPCF().get()
-        cdef np.ndarray[float, ndim=1] result = np.zeros(shape=(self.thisptr.getNBinsR(), self.thisptr.getNBinsT1(), self.thisptr.getNBinsT2()), dtype=np.int32)
-        memcpy(&result[0], pcf, result.nbytes)
+        cdef np.npy_intp nbins[3]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT1()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBinsT2()
+        nbins[2] = <np.npy_intp>self.thisptr.getNBinsR()
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>pcf)
         return result
 
     def getR(self):

@@ -90,7 +90,7 @@ PMFTR12::~PMFTR12()
     delete m_lc;
     }
 
-class CombinePCFRPM
+class CombinePCFR12
     {
     private:
         unsigned int m_nbins_r;
@@ -99,7 +99,7 @@ class CombinePCFRPM
         unsigned int *m_pcf_array;
         tbb::enumerable_thread_specific<unsigned int *>& m_local_pcf_array;
     public:
-        CombinePCFRPM(unsigned int nbins_r,
+        CombinePCFR12(unsigned int nbins_r,
                       unsigned int nbins_T1,
                       unsigned int nbins_T2,
                       unsigned int *pcf_array,
@@ -110,12 +110,14 @@ class CombinePCFRPM
         }
         void operator()( const blocked_range<size_t> &myBin ) const
             {
-            Index3D b_i = Index3D(m_nbins_r, m_nbins_T1, m_nbins_T2);
+            Index3D b_i = Index3D(m_nbins_T1, m_nbins_T2, m_nbins_r);
+            // T1
             for (size_t i = myBin.begin(); i != myBin.end(); i++)
                 {
-                for (size_t j = 0; j < m_nbins_T1; j++)
+                // T2
+                for (size_t j = 0; j < m_nbins_T2; j++)
                     {
-                    for (size_t k = 0; k < m_nbins_T2; k++)
+                    for (size_t k = 0; k < m_nbins_r; k++)
                         {
                         for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_pcf_array.begin();
                              local_bins != m_local_pcf_array.end(); ++local_bins)
@@ -186,7 +188,7 @@ class ComputePMFTR12
             float dT1_inv = 1.0f / m_dT1;
             float dT2_inv = 1.0f / m_dT2;
 
-            Index3D b_i = Index3D(m_nbins_r, m_nbins_T1, m_nbins_T2);
+            Index3D b_i = Index3D(m_nbins_T1, m_nbins_T2, m_nbins_r);
 
             bool exists;
             m_pcf_array.local(exists);
@@ -250,7 +252,7 @@ class ComputePMFTR12
 
                             if ((ibinr < m_nbins_r) && (ibinT1 < m_nbins_T1) && (ibinT2 < m_nbins_T2))
                                 {
-                                ++m_pcf_array.local()[b_i(ibinr, ibinT1, ibinT2)];
+                                ++m_pcf_array.local()[b_i(ibinT1, ibinT2, ibinr)];
                                 }
                             }
                         }
@@ -264,8 +266,8 @@ class ComputePMFTR12
 void PMFTR12::reducePCF()
     {
     memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_T1*m_nbins_T2);
-    parallel_for(blocked_range<size_t>(0,m_nbins_r),
-                 CombinePCFRPM(m_nbins_r,
+    parallel_for(blocked_range<size_t>(0,m_nbins_T1),
+                 CombinePCFR12(m_nbins_r,
                                m_nbins_T1,
                                m_nbins_T2,
                                m_pcf_array.get(),
