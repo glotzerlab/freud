@@ -48,7 +48,7 @@ class CubaticOrderParameter
 
         //! Compute the hex order parameter
         void compute(trajectory::Box& box,
-                     const vec3<float> *points,
+                     const quat<float> *orientations,
                      unsigned int Np);
 
         float getTInitial()

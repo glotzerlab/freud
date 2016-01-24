@@ -203,26 +203,26 @@ cdef class CubaticOrderParameter:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points):
+    def compute(self, box, orientations):
         """
         Calculates the correlation function and adds to the current histogram.
 
         :param box: simulation box
-        :param points: points to calculate the local density
+        :param orientations: orientations to calculate the local density
         :type box: :py:meth:`freud.trajectory.Box`
-        :type points: np.float32
+        :type orientations: np.float32
         """
-        if (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        if (orientations.dtype != np.float32):
+            raise ValueError("orientations must be a numpy float32 array")
+        if orientations.ndim != 2:
+            raise ValueError("orientations must be a 2 dimensional array")
+        if orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef unsigned int nP = <unsigned int> orientations.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
+            self.thisptr.compute(l_box, <quat[float]*>l_orientations.data, nP)
 
     def getBox(self):
         """

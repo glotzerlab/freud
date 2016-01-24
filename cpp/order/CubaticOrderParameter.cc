@@ -34,26 +34,25 @@ class ComputeCubaticOrderParameter
     {
     private:
         atomic<float> &m_p4Sum;
-        const vec3<float> m_trial;
-        const vec3<float> *m_points;
+        const quat<float> m_trial;
+        const quat<float> *m_orientations;
     public:
         ComputeCubaticOrderParameter(atomic<float> &p4Sum,
-                                 const vec3<float> trial,
-                                 const vec3<float> *points)
-            : m_p4Sum(p4Sum), m_trial(trial), m_points(points)
+                                 const quat<float> trial,
+                                 const quat<float> *orientations)
+            : m_p4Sum(p4Sum), m_trial(trial), m_orientations(orientations)
             {
             }
 
         void operator()( const blocked_range<size_t>& r ) const
             {
             float l_sum = 0.0;
-            vec3<float> trial = m_trial;
+            quat<float> trial = m_trial;
 
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
-                vec3<float> ref = m_points[i];
-                vec3<float> cross_i = cross(trial, ref);
-                float angle = asin(sqrt(dot(cross_i, cross_i))/(sqrt(dot(trial, trial))*sqrt(dot(ref, ref))));
+                quat<float> ref = m_orientations[i];
+                float angle = acos(2.0 * powf(ref.s*trial.s + ref.v.x*trial.v.x + ref.v.y*trial.v.y + ref.v.z*trial.v.z, 2.0) - 1.0);
                 float p4_i = 35.0*powf(cosf(angle), 4) - 30.0*powf(cosf(angle), 2) + 3.0;
                 l_sum += p4_i;
                 }
@@ -62,26 +61,29 @@ class ComputeCubaticOrderParameter
     };
 
 void CubaticOrderParameter::compute(trajectory::Box& box,
-                                    const vec3<float> *points,
+                                    const quat<float> *orientations,
                                     unsigned int Np)
     {
 
     m_box = box;
     m_tCurrent = m_tInitial;
 
-    // generate first trial and normalize
+    // generate first trial rotation and normalize
     // http://mathworld.wolfram.com/SpherePointPicking.html
     float theta(2.0 * M_PI * rand());
     float phi(acos(2.0 * rand() - 1));
-    vec3<float> trial(cosf(theta) * sinf(phi), sinf(theta) * sinf(phi), cos(phi));
-    trial /= sqrt(dot(trial, trial));
+    vec3<float> axis(cosf(theta) * sinf(phi), sinf(theta) * sinf(phi), cos(phi));
+    axis /= sqrt(dot(axis, axis));
+    float angle(2.0 * M_PI * rand());
+    // generate the quaternion
+    quat<float> trial = quat<float>::fromAxisAngle(axis, angle);
     // initialize the sum to zero
     m_p4Sum = 0.0;
     // calculate the sum for the current trial vector
     parallel_for(blocked_range<size_t>(0,Np),
                  ComputeCubaticOrderParameter(m_p4Sum,
                                               trial,
-                                              points));
+                                              orientations));
     // normalize the sum
     m_p4Sum = m_p4Sum * (m_norm / Np);
 
@@ -92,16 +94,20 @@ void CubaticOrderParameter::compute(trajectory::Box& box,
         while (keepAnnealing)
             {
             // generate new trial vector
-            float theta(2.0 * M_PI * rand());
-            float phi(acos(2.0 * rand() - 1));
-            vec3<float> newTrial(cosf(theta) * sinf(phi), sinf(theta) * sinf(phi), cos(phi));
-            newTrial /= sqrt(dot(newTrial, newTrial));
+            theta = 2.0 * M_PI * rand();
+            phi = acos(2.0 * rand() - 1);
+            axis.x = cosf(theta) * sinf(phi);
+            axis.y = sinf(theta) * sinf(phi);
+            axis.z = cos(phi);
+            axis /= sqrt(dot(axis, axis));
+            angle = 2.0 * M_PI * rand();
+            quat<float> newTrial = quat<float>::fromAxisAngle(axis, angle);
             m_p4SumNew = 0.0;
             // calculate the sum for the new trial vector
             parallel_for(blocked_range<size_t>(0,Np),
                          ComputeCubaticOrderParameter(m_p4SumNew,
                                                       newTrial,
-                                                      points));
+                                                      orientations));
             // normalize the sum
             m_p4SumNew = m_p4SumNew * (m_norm / Np);
             // perform checks

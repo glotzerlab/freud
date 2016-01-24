@@ -2853,7 +2853,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9BondOrder_20getNBinsTheta(struct __pyx
 static PyObject *__pyx_pf_5freud_6_freud_9BondOrder_22getNBinsPhi(struct __pyx_obj_5freud_6_freud_BondOrder *__pyx_v_self); /* proto */
 static int __pyx_pf_5freud_6_freud_21CubaticOrderParameter___cinit__(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self, PyObject *__pyx_v_tInitial, PyObject *__pyx_v_tFinal, PyObject *__pyx_v_scale, PyObject *__pyx_v_norm); /* proto */
 static void __pyx_pf_5freud_6_freud_21CubaticOrderParameter_2__dealloc__(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_points); /* proto */
+static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_orientations); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_6getBox(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_8getTInitial(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_10getTFinal(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self); /* proto */
@@ -28315,7 +28315,7 @@ static void __pyx_pf_5freud_6_freud_21CubaticOrderParameter_2__dealloc__(struct 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
  * 
- *     def compute(self, box, points):
+ *     def compute(self, box, orientations):
  */
   delete __pyx_v_self->thisptr;
 
@@ -28334,17 +28334,17 @@ static void __pyx_pf_5freud_6_freud_21CubaticOrderParameter_2__dealloc__(struct 
 /* "order.pxi":206
  *         del self.thisptr
  * 
- *     def compute(self, box, points):             # <<<<<<<<<<<<<<
+ *     def compute(self, box, orientations):             # <<<<<<<<<<<<<<
  *         """
  *         Calculates the correlation function and adds to the current histogram.
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6_freud_21CubaticOrderParameter_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6_freud_21CubaticOrderParameter_4compute[] = "CubaticOrderParameter.compute(self, box, points)\n\n        Calculates the correlation function and adds to the current histogram.\n\n        :param box: simulation box\n        :param points: points to calculate the local density\n        :type box: :py:meth:`freud.trajectory.Box`\n        :type points: np.float32\n        ";
+static char __pyx_doc_5freud_6_freud_21CubaticOrderParameter_4compute[] = "CubaticOrderParameter.compute(self, box, orientations)\n\n        Calculates the correlation function and adds to the current histogram.\n\n        :param box: simulation box\n        :param orientations: orientations to calculate the local density\n        :type box: :py:meth:`freud.trajectory.Box`\n        :type orientations: np.float32\n        ";
 static PyObject *__pyx_pw_5freud_6_freud_21CubaticOrderParameter_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
-  PyObject *__pyx_v_points = 0;
+  PyObject *__pyx_v_orientations = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -28352,7 +28352,7 @@ static PyObject *__pyx_pw_5freud_6_freud_21CubaticOrderParameter_5compute(PyObje
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("compute (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_box,&__pyx_n_s_points,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_box,&__pyx_n_s_orientations,0};
     PyObject* values[2] = {0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
@@ -28369,7 +28369,7 @@ static PyObject *__pyx_pw_5freud_6_freud_21CubaticOrderParameter_5compute(PyObje
         if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_box)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
         case  1:
-        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_points)) != 0)) kw_args--;
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_orientations)) != 0)) kw_args--;
         else {
           __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, 1); {__pyx_filename = __pyx_f[5]; __pyx_lineno = 206; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
@@ -28384,7 +28384,7 @@ static PyObject *__pyx_pw_5freud_6_freud_21CubaticOrderParameter_5compute(PyObje
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
     __pyx_v_box = values[0];
-    __pyx_v_points = values[1];
+    __pyx_v_orientations = values[1];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -28394,19 +28394,19 @@ static PyObject *__pyx_pw_5freud_6_freud_21CubaticOrderParameter_5compute(PyObje
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(((struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *)__pyx_v_self), __pyx_v_box, __pyx_v_points);
+  __pyx_r = __pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(((struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *)__pyx_v_self), __pyx_v_box, __pyx_v_orientations);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_points) {
-  PyArrayObject *__pyx_v_l_points = 0;
+static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct __pyx_obj_5freud_6_freud_CubaticOrderParameter *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_orientations) {
+  PyArrayObject *__pyx_v_l_orientations = 0;
   unsigned int __pyx_v_nP;
   freud::trajectory::Box __pyx_v_l_box;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_l_points;
-  __Pyx_Buffer __pyx_pybuffer_l_points;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_l_orientations;
+  __Pyx_Buffer __pyx_pybuffer_l_orientations;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -28425,19 +28425,19 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("compute", 0);
-  __pyx_pybuffer_l_points.pybuffer.buf = NULL;
-  __pyx_pybuffer_l_points.refcount = 0;
-  __pyx_pybuffernd_l_points.data = NULL;
-  __pyx_pybuffernd_l_points.rcbuffer = &__pyx_pybuffer_l_points;
+  __pyx_pybuffer_l_orientations.pybuffer.buf = NULL;
+  __pyx_pybuffer_l_orientations.refcount = 0;
+  __pyx_pybuffernd_l_orientations.data = NULL;
+  __pyx_pybuffernd_l_orientations.rcbuffer = &__pyx_pybuffer_l_orientations;
 
   /* "order.pxi":215
- *         :type points: np.float32
+ *         :type orientations: np.float32
  *         """
- *         if (points.dtype != np.float32):             # <<<<<<<<<<<<<<
- *             raise ValueError("points must be a numpy float32 array")
- *         if points.ndim != 2:
+ *         if (orientations.dtype != np.float32):             # <<<<<<<<<<<<<<
+ *             raise ValueError("orientations must be a numpy float32 array")
+ *         if orientations.ndim != 2:
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_dtype); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 215; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_dtype); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 215; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 215; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
@@ -28453,10 +28453,10 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
 
     /* "order.pxi":216
  *         """
- *         if (points.dtype != np.float32):
- *             raise ValueError("points must be a numpy float32 array")             # <<<<<<<<<<<<<<
- *         if points.ndim != 2:
- *             raise ValueError("points must be a 2 dimensional array")
+ *         if (orientations.dtype != np.float32):
+ *             raise ValueError("orientations must be a numpy float32 array")             # <<<<<<<<<<<<<<
+ *         if orientations.ndim != 2:
+ *             raise ValueError("orientations must be a 2 dimensional array")
  */
     __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__59, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 216; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
@@ -28465,22 +28465,22 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
     {__pyx_filename = __pyx_f[5]; __pyx_lineno = 216; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
     /* "order.pxi":215
- *         :type points: np.float32
+ *         :type orientations: np.float32
  *         """
- *         if (points.dtype != np.float32):             # <<<<<<<<<<<<<<
- *             raise ValueError("points must be a numpy float32 array")
- *         if points.ndim != 2:
+ *         if (orientations.dtype != np.float32):             # <<<<<<<<<<<<<<
+ *             raise ValueError("orientations must be a numpy float32 array")
+ *         if orientations.ndim != 2:
  */
   }
 
   /* "order.pxi":217
- *         if (points.dtype != np.float32):
- *             raise ValueError("points must be a numpy float32 array")
- *         if points.ndim != 2:             # <<<<<<<<<<<<<<
- *             raise ValueError("points must be a 2 dimensional array")
- *         if points.shape[1] != 3:
+ *         if (orientations.dtype != np.float32):
+ *             raise ValueError("orientations must be a numpy float32 array")
+ *         if orientations.ndim != 2:             # <<<<<<<<<<<<<<
+ *             raise ValueError("orientations must be a 2 dimensional array")
+ *         if orientations.shape[1] != 4:
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_ndim); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_ndim); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_2, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -28489,11 +28489,11 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
   if (__pyx_t_4) {
 
     /* "order.pxi":218
- *             raise ValueError("points must be a numpy float32 array")
- *         if points.ndim != 2:
- *             raise ValueError("points must be a 2 dimensional array")             # <<<<<<<<<<<<<<
- *         if points.shape[1] != 3:
- *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+ *             raise ValueError("orientations must be a numpy float32 array")
+ *         if orientations.ndim != 2:
+ *             raise ValueError("orientations must be a 2 dimensional array")             # <<<<<<<<<<<<<<
+ *         if orientations.shape[1] != 4:
+ *             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
  */
     __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__60, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
@@ -28502,38 +28502,38 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
     {__pyx_filename = __pyx_f[5]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
     /* "order.pxi":217
- *         if (points.dtype != np.float32):
- *             raise ValueError("points must be a numpy float32 array")
- *         if points.ndim != 2:             # <<<<<<<<<<<<<<
- *             raise ValueError("points must be a 2 dimensional array")
- *         if points.shape[1] != 3:
+ *         if (orientations.dtype != np.float32):
+ *             raise ValueError("orientations must be a numpy float32 array")
+ *         if orientations.ndim != 2:             # <<<<<<<<<<<<<<
+ *             raise ValueError("orientations must be a 2 dimensional array")
+ *         if orientations.shape[1] != 4:
  */
   }
 
   /* "order.pxi":219
- *         if points.ndim != 2:
- *             raise ValueError("points must be a 2 dimensional array")
- *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
- *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         cdef np.ndarray[float, ndim=1] l_points = points
+ *         if orientations.ndim != 2:
+ *             raise ValueError("orientations must be a 2 dimensional array")
+ *         if orientations.shape[1] != 4:             # <<<<<<<<<<<<<<
+ *             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+ *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 219; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 219; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 219; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 219; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_4, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 219; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 219; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_4) {
 
     /* "order.pxi":220
- *             raise ValueError("points must be a 2 dimensional array")
- *         if points.shape[1] != 3:
- *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[float, ndim=1] l_points = points
- *         cdef unsigned int nP = <unsigned int> points.shape[0]
+ *             raise ValueError("orientations must be a 2 dimensional array")
+ *         if orientations.shape[1] != 4:
+ *             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
+ *         cdef unsigned int nP = <unsigned int> orientations.shape[0]
  */
     __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__61, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 220; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
@@ -28542,43 +28542,43 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
     {__pyx_filename = __pyx_f[5]; __pyx_lineno = 220; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
     /* "order.pxi":219
- *         if points.ndim != 2:
- *             raise ValueError("points must be a 2 dimensional array")
- *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
- *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         cdef np.ndarray[float, ndim=1] l_points = points
+ *         if orientations.ndim != 2:
+ *             raise ValueError("orientations must be a 2 dimensional array")
+ *         if orientations.shape[1] != 4:             # <<<<<<<<<<<<<<
+ *             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+ *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  */
   }
 
   /* "order.pxi":221
- *         if points.shape[1] != 3:
- *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         cdef np.ndarray[float, ndim=1] l_points = points             # <<<<<<<<<<<<<<
- *         cdef unsigned int nP = <unsigned int> points.shape[0]
+ *         if orientations.shape[1] != 4:
+ *             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+ *         cdef np.ndarray[float, ndim=1] l_orientations = orientations             # <<<<<<<<<<<<<<
+ *         cdef unsigned int nP = <unsigned int> orientations.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  */
-  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 221; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_3 = __pyx_v_points;
+  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 221; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __pyx_v_orientations;
   __Pyx_INCREF(__pyx_t_3);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_3), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
-      __pyx_v_l_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf = NULL;
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_3), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+      __pyx_v_l_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.buf = NULL;
       {__pyx_filename = __pyx_f[5]; __pyx_lineno = 221; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    } else {__pyx_pybuffernd_l_points.diminfo[0].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_points.diminfo[0].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[0];
+    } else {__pyx_pybuffernd_l_orientations.diminfo[0].strides = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_orientations.diminfo[0].shape = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.shape[0];
     }
   }
-  __pyx_v_l_points = ((PyArrayObject *)__pyx_t_3);
+  __pyx_v_l_orientations = ((PyArrayObject *)__pyx_t_3);
   __pyx_t_3 = 0;
 
   /* "order.pxi":222
- *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
- *         cdef np.ndarray[float, ndim=1] l_points = points
- *         cdef unsigned int nP = <unsigned int> points.shape[0]             # <<<<<<<<<<<<<<
+ *             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+ *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
+ *         cdef unsigned int nP = <unsigned int> orientations.shape[0]             # <<<<<<<<<<<<<<
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 222; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 222; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 222; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_2);
@@ -28588,11 +28588,11 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
   __pyx_v_nP = ((unsigned int)__pyx_t_5);
 
   /* "order.pxi":223
- *         cdef np.ndarray[float, ndim=1] l_points = points
- *         cdef unsigned int nP = <unsigned int> points.shape[0]
+ *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
+ *         cdef unsigned int nP = <unsigned int> orientations.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())             # <<<<<<<<<<<<<<
  *         with nogil:
- *             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
+ *             self.thisptr.compute(l_box, <quat[float]*>l_orientations.data, nP)
  */
   __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_box, __pyx_n_s_getLx); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
@@ -28751,10 +28751,10 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
   __pyx_v_l_box = freud::trajectory::Box(__pyx_t_6, __pyx_t_7, __pyx_t_8, __pyx_t_9, __pyx_t_10, __pyx_t_11, __pyx_t_12);
 
   /* "order.pxi":224
- *         cdef unsigned int nP = <unsigned int> points.shape[0]
+ *         cdef unsigned int nP = <unsigned int> orientations.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:             # <<<<<<<<<<<<<<
- *             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
+ *             self.thisptr.compute(l_box, <quat[float]*>l_orientations.data, nP)
  * 
  */
   {
@@ -28767,18 +28767,18 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
         /* "order.pxi":225
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:
- *             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)             # <<<<<<<<<<<<<<
+ *             self.thisptr.compute(l_box, <quat[float]*>l_orientations.data, nP)             # <<<<<<<<<<<<<<
  * 
  *     def getBox(self):
  */
-        __pyx_v_self->thisptr->compute(__pyx_v_l_box, ((vec3<float>  *)__pyx_v_l_points->data), __pyx_v_nP);
+        __pyx_v_self->thisptr->compute(__pyx_v_l_box, ((quat<float>  *)__pyx_v_l_orientations->data), __pyx_v_nP);
       }
 
       /* "order.pxi":224
- *         cdef unsigned int nP = <unsigned int> points.shape[0]
+ *         cdef unsigned int nP = <unsigned int> orientations.shape[0]
  *         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
  *         with nogil:             # <<<<<<<<<<<<<<
- *             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
+ *             self.thisptr.compute(l_box, <quat[float]*>l_orientations.data, nP)
  * 
  */
       /*finally:*/ {
@@ -28795,7 +28795,7 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
   /* "order.pxi":206
  *         del self.thisptr
  * 
- *     def compute(self, box, points):             # <<<<<<<<<<<<<<
+ *     def compute(self, box, orientations):             # <<<<<<<<<<<<<<
  *         """
  *         Calculates the correlation function and adds to the current histogram.
  */
@@ -28809,22 +28809,22 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_4compute(struct
   __Pyx_XDECREF(__pyx_t_3);
   { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
     __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_l_points.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_l_orientations.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
   __Pyx_AddTraceback("freud._freud.CubaticOrderParameter.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
   __pyx_L0:;
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_l_points.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_l_orientations.rcbuffer->pybuffer);
   __pyx_L2:;
-  __Pyx_XDECREF((PyObject *)__pyx_v_l_points);
+  __Pyx_XDECREF((PyObject *)__pyx_v_l_orientations);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
 /* "order.pxi":227
- *             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
+ *             self.thisptr.compute(l_box, <quat[float]*>l_orientations.data, nP)
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         """
@@ -28869,7 +28869,7 @@ static PyObject *__pyx_pf_5freud_6_freud_21CubaticOrderParameter_6getBox(struct 
   goto __pyx_L0;
 
   /* "order.pxi":227
- *             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
+ *             self.thisptr.compute(l_box, <quat[float]*>l_orientations.data, nP)
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         """
@@ -75203,34 +75203,34 @@ static int __Pyx_InitCachedConstants(void) {
 
   /* "order.pxi":216
  *         """
- *         if (points.dtype != np.float32):
- *             raise ValueError("points must be a numpy float32 array")             # <<<<<<<<<<<<<<
- *         if points.ndim != 2:
- *             raise ValueError("points must be a 2 dimensional array")
+ *         if (orientations.dtype != np.float32):
+ *             raise ValueError("orientations must be a numpy float32 array")             # <<<<<<<<<<<<<<
+ *         if orientations.ndim != 2:
+ *             raise ValueError("orientations must be a 2 dimensional array")
  */
-  __pyx_tuple__59 = PyTuple_Pack(1, __pyx_kp_s_points_must_be_a_numpy_float32_a); if (unlikely(!__pyx_tuple__59)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 216; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__59 = PyTuple_Pack(1, __pyx_kp_s_orientations_must_be_a_numpy_flo); if (unlikely(!__pyx_tuple__59)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 216; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__59);
   __Pyx_GIVEREF(__pyx_tuple__59);
 
   /* "order.pxi":218
- *             raise ValueError("points must be a numpy float32 array")
- *         if points.ndim != 2:
- *             raise ValueError("points must be a 2 dimensional array")             # <<<<<<<<<<<<<<
- *         if points.shape[1] != 3:
- *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+ *             raise ValueError("orientations must be a numpy float32 array")
+ *         if orientations.ndim != 2:
+ *             raise ValueError("orientations must be a 2 dimensional array")             # <<<<<<<<<<<<<<
+ *         if orientations.shape[1] != 4:
+ *             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
  */
-  __pyx_tuple__60 = PyTuple_Pack(1, __pyx_kp_s_points_must_be_a_2_dimensional_a); if (unlikely(!__pyx_tuple__60)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__60 = PyTuple_Pack(1, __pyx_kp_s_orientations_must_be_a_2_dimensi); if (unlikely(!__pyx_tuple__60)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__60);
   __Pyx_GIVEREF(__pyx_tuple__60);
 
   /* "order.pxi":220
- *             raise ValueError("points must be a 2 dimensional array")
- *         if points.shape[1] != 3:
- *             raise ValueError("the 2nd dimension must have 3 values: x, y, z")             # <<<<<<<<<<<<<<
- *         cdef np.ndarray[float, ndim=1] l_points = points
- *         cdef unsigned int nP = <unsigned int> points.shape[0]
+ *             raise ValueError("orientations must be a 2 dimensional array")
+ *         if orientations.shape[1] != 4:
+ *             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
+ *         cdef unsigned int nP = <unsigned int> orientations.shape[0]
  */
-  __pyx_tuple__61 = PyTuple_Pack(1, __pyx_kp_s_the_2nd_dimension_must_have_3_va); if (unlikely(!__pyx_tuple__61)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 220; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__61 = PyTuple_Pack(1, __pyx_kp_s_the_2nd_dimension_must_have_4_va); if (unlikely(!__pyx_tuple__61)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 220; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__61);
   __Pyx_GIVEREF(__pyx_tuple__61);
 
