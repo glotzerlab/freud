@@ -76,13 +76,13 @@ void CubaticOrderParameter::compute(trajectory::Box& box,
     axis /= sqrt(dot(axis, axis));
     float angle(2.0 * M_PI * rand());
     // generate the quaternion
-    quat<float> trial = quat<float>::fromAxisAngle(axis, angle);
+    m_trial = quat<float>::fromAxisAngle(axis, angle);
     // initialize the sum to zero
     m_p4Sum = 0.0;
     // calculate the sum for the current trial vector
     parallel_for(blocked_range<size_t>(0,Np),
                  ComputeCubaticOrderParameter(m_p4Sum,
-                                              trial,
+                                              m_trial,
                                               orientations));
     // normalize the sum
     m_p4Sum = m_p4Sum * (m_norm / Np);
@@ -113,7 +113,7 @@ void CubaticOrderParameter::compute(trajectory::Box& box,
             // perform checks
             if (m_p4SumNew >= m_p4Sum)
                 {
-                trial = newTrial;
+                m_trial = newTrial;
                 m_p4Sum = m_p4SumNew;
                 keepAnnealing = false;
                 }
@@ -123,7 +123,7 @@ void CubaticOrderParameter::compute(trajectory::Box& box,
                 float test = rand();
                 if (factor >= test)
                     {
-                    trial = newTrial;
+                    m_trial = newTrial;
                     m_p4Sum = m_p4SumNew;
                     keepAnnealing = false;
                     }

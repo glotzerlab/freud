@@ -76,6 +76,11 @@ class CubaticOrderParameter
             return (float) m_p4Sum;
             }
 
+        quat<float>* getOrientation()
+            {
+            return &m_trial;
+            }
+
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
         float m_tInitial;
@@ -86,6 +91,7 @@ class CubaticOrderParameter
         tbb::atomic<float> m_p4Sum;
         tbb::atomic<float> m_p4SumNew;
         unsigned int m_Np;                //!< Last number of points computed
+        quat<float> m_trial;
     };
 
 }; }; // end namespace freud::order

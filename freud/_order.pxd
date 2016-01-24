@@ -37,6 +37,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         float getScale()
         float getNorm()
         float getCubaticOrderParameter()
+        quat[float]* getOrientation()
 
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:

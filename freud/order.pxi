@@ -265,6 +265,25 @@ cdef class CubaticOrderParameter:
         cdef float norm = self.thisptr.getNorm()
         return norm
 
+    def getCubaticOrderParameter(self):
+        """
+        :return: Cubatic Order parameter
+        :rtype: float
+        """
+        cdef float cop = self.thisptr.getCubaticOrderParameter()
+        return cop
+
+    def getOrientation(self):
+        """
+        :return: orientation of global orientation
+        :rtype: np.float32
+        """
+        cdef quat[float] *qij = self.thisptr.getOrientation()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = 4
+        cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>qij)
+        return result
+
 cdef class EntropicBonding:
     """Compute the entropic bonds each particle in the system.
 
