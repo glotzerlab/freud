@@ -182,10 +182,11 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getNumClusters()
 
-cdef extern from "EnvMatch.h" namespace "freud::order":
-    cdef cppclass EnvMatch:
-        EnvMatch(const trajectory.Box&, float)
+cdef extern from "MatchEnv.h" namespace "freud::order":
+    cdef cppclass MatchEnv:
+        MatchEnv(float)
         void compute(const vec3[float]*,
+                     const trajectory.Box&,
                      unsigned int)
         shared_array[unsigned int] getClusters()
         vector[vec3[float]] getEnvironment(unsigned int)

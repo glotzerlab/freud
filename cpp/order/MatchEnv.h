@@ -27,7 +27,7 @@ namespace freud { namespace order {
 struct Environment
     {
     //! Constructor. Builds an environment indexed by ind
-    Environment(unsigned int i) : ind(i), vecs(0);
+    Environment(unsigned int i) : ind(i), vecs(0) {}
     //! Is the set of vectors defined by v2 similar to this environment?
     bool isSimilar(std::vector< vec3<float> > v2)
         {
@@ -46,7 +46,7 @@ struct Environment
 
     unsigned int ind;
     std::vector<vec3<float> > vecs;
-    }
+    };
 
 class MatchEnv
     {
@@ -58,7 +58,7 @@ class MatchEnv
         MatchEnv(float rmax);
 
         //! Construct and return a local environment surrounding a particle indexed by i
-        Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i);
+        Environment buildEnv(const vec3<float> *points, const trajectory::Box& box, unsigned int i);
 
         //! Determine clusters of particles with matching environments
         void compute(const vec3<float> *points, const trajectory::Box& box, unsigned int Np);
@@ -72,7 +72,7 @@ class MatchEnv
         //! Returns the set of vectors defining the environment indexed by i
         std::vector< vec3<float> > getEnvironment(unsigned int i)
             {
-            const Environment e& = m_env[i];
+            Environment e = m_env[i];
             return e.vecs;
             }
 
@@ -85,6 +85,7 @@ class MatchEnv
         float m_rmax;               //!< Maximum cutoff radius at which to determine local environment
         locality::LinkCell m_lc;    //!< LinkCell to bin particles for the computation of local environments
         unsigned int m_Np;          //!< Last number of points computed
+        float m_rmaxsq;             //!< square of m_rmax
 
         boost::shared_array<unsigned int> m_env_index;              //!< Cluster index determined for each particle
         std::vector<Environment> m_env;                             //!< Vector of all local environments

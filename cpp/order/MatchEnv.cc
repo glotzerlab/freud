@@ -8,17 +8,20 @@ using namespace std;
 
 namespace freud { namespace order {
 
+// Constructor
 MatchEnv::MatchEnv(float rmax)
     :m_rmax(rmax)
     {
     m_Np = 0;
     if (m_rmax < 0.0f)
         throw invalid_argument("rmax must be positive");
+    m_rmaxsq = m_rmax * m_rmax;
     }
 
 // Construct and return a local environment surrounding a particle
-Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
+Environment MatchEnv::buildEnv(const vec3<float> *points, const trajectory::Box& box, unsigned int i)
     {
+    trajectory::Box m_box = box;
     Environment ei = Environment(i);
 
     // get the cell the point is in
@@ -39,7 +42,7 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
             vec3<float> delta = m_box.wrap(p - points[j]);
             float rsq = dot(delta, delta);
 
-            if (rsq < rmaxsq)
+            if (rsq < m_rmaxsq)
                 {
                 ei.addVec(delta);
                 }
@@ -51,19 +54,18 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
 // Determine clusters of particles with matching environments
 void MatchEnv::compute(const vec3<float> *points, const trajectory::Box& box, unsigned int Np)
     {
+    trajectory::Box m_box = box;
     m_Np = Np;
-    m_box = box;
-    m_lc.computeCellList(m_box,points,Np);
-    float rmaxsq = m_rmax * m_rmax;
+    m_lc.computeCellList(m_box, points, Np);
 
     // loop through points
     for (unsigned int i = 0; i < Np; i++)
         {
         // 1. make an Environment instance and add it to the vector m_env
-        Environment ei = buildEnv(i);
+        Environment ei = buildEnv(points, m_box, i);
         m_env.push_back(ei);
 
-        // 2. loop over the neighbors again. Now, construct the environment for the neighboring particle and compare
+        // 2. loop over the neighbors again. Now, construct the environment for the neighboring particle and compare.
         // get the cell the point is in
         vec3<float> p = points[i];
         unsigned int cell = m_lc.getCell(p);
