@@ -218,7 +218,7 @@ cdef class CubaticOrderParameter:
             raise ValueError("orientations must be a 2 dimensional array")
         if orientations.shape[1] != 4:
             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
         cdef unsigned int nP = <unsigned int> orientations.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
@@ -270,8 +270,12 @@ cdef class CubaticOrderParameter:
         :return: Cubatic Order parameter
         :rtype: float
         """
-        cdef float cop = self.thisptr.getCubaticOrderParameter()
-        return cop
+        # cdef float cop = self.thisptr.getCubaticOrderParameter()
+        cdef float *cop = self.thisptr.getCubaticOrderParameter().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>cop)
+        return result
 
     def getOrientation(self):
         """
