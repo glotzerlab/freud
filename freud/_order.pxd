@@ -182,6 +182,15 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getNumClusters()
 
+cdef extern from "EnvMatch.h" namespace "freud::order":
+    cdef cppclass EnvMatch:
+        EnvMatch(const trajectory.Box&, float)
+        void compute(const vec3[float]*,
+                     unsigned int)
+        shared_array[unsigned int] getClusters()
+        vector[vec3[float]] getEnvironment(unsigned int)
+        unsigned int getNP()
+
 cdef extern from "SolLiqNear.h" namespace "freud::order":
     cdef cppclass SolLiqNear:
         SolLiqNear(const trajectory.Box&, float, float, unsigned int, unsigned int, unsigned int)

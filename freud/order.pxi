@@ -1548,6 +1548,73 @@ cdef class SolLiq:
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+cdef class MatchEnv:
+    """Clusters particles according to whether their local environments match or not, according to various shape matching metrics.
+
+    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
+    """
+    cdef order.MatchEnv *thisptr
+
+    def __cinit__(self, rmax):
+        self.thisptr = new order.MatchEnv(rmax)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, points, box):
+        """Determine clusters of particles with matching environments.
+
+        :param points: points to calculate the order parameter
+        :param box: simulation box
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type box: :py:meth:`freud.trajectory.Box`
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr.compute(<vec3[float]*>&l_points[0], l_box, nP)
+
+    def getClusters(self):
+        """
+        Get a reference to the particles, indexed into clusters according to their matching local environments
+
+        :return: clusters
+        :rtype: np.uint32
+        """
+        cdef unsigned int *clusters = self.thisptr.getClusters().get()
+        cdef np.npy_intp nbins[1]
+        # this is the correct number
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
+        return result
+
+    def getEnvironment(self, i):
+        """
+        Returns the set of vectors defining the environment indexed by i
+
+        :param i: particle index
+        :type i: unsigned int
+        :return: the array of vectors
+        :rtype: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        return 0
+
+    def getNP(self):
+        """
+        Get the number of particles
+
+        :return: np
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
 cdef class SolLiqNear:
     """Computes dot products of qlm between particles and uses these for clustering.
 
