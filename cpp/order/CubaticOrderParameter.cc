@@ -266,7 +266,8 @@ void CubaticOrderParameter::compute(trajectory::Box& box,
     vec3<float> axis1(m_cq1.v.x / sin(angle1/2.0), m_cq1.v.y / sin(angle1/2.0), m_cq1.v.z / sin(angle1/2.0));
     // find the final axis
     vec3<float> axis2 = cross(axis0, axis1);
-    axis /= sqrt(dot(axis, axis));
+    // fixed the axis -> axis 2...may have been part of the issue?
+    axis2 /= sqrt(dot(axis2, axis2));
     // looks like maybe this is 2x too big?
     // float angle2 = 2.0 * atan(-1.0 / (tan(angle0/2.0) * dot(axis0, axis2)));
     float angle2 = atan(-1.0 / (tan(angle0/2.0) * dot(axis0, axis2)));
