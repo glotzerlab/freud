@@ -9,11 +9,10 @@ namespace freud { namespace order {
 // TO DO:
 // 1. Create MatchEnv::isSimilar(vec1, vec2) (or maybe EnvDisjointSet::isSimilar). This should somehow both indicate to us if a set of vectors
 // OF THE SAME LENGTH are similar, and if so, what the order of the vectors in vec2 should be st they match
-// those in vec1
-// 1.5 Then I think during the main loop you have to SET the vec_ind of vec2 to that, if they're similar.
+// those in vec1 AND what the order of the vectors in vec1 should be st they match those in vec2
 // 2. During MERGE, call through to vec_ind for each Environment object, and perform the same set of operations
-// on each index as you do for env_ind.
-// 3. During path compression, do the same thing for all vec_ind as you do for env_ind.
+// on each index as you do for env_ind. you have to feed it the vec_ind for the environment that is being assimilated, and then set those vec_ind.
+// 3. During find, do the same thing for all vec_ind as you do for env_ind.
 
 // Constructor for EnvDisjointSet
 // Taken mostly from Cluster.cc
@@ -26,15 +25,24 @@ EnvDisjointSet::EnvDisjointSet(unsigned int num_neigh, unsigned int Np)
 // Merge the two sets labeled by a and b.
 // There is incorrect behavior if a == b or either are not set labels
 // Taken mostly from Cluster.cc
-void EnvDisjointSet::merge(const unsigned int a, const unsigned int b)
+void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, std::map<unsigned int, unsigned int> vec_map)
     {
     assert(a < s.size() && b < s.size());
+    assert(vec_map.size() == m_num_neigh)
 
     // if tree heights are equal, merge to a
     if (rank[a] == rank[b])
         {
         rank[a]++;
+        // 1. set the environment index properly
         s[b].env_ind = a;
+        // 2. set the vector indices properly
+        for (unsigned int i=0; i<m_num_neigh; i++)
+            {
+            // STOPPED HERE.
+            }
+
+
         }
     else
         {
@@ -110,6 +118,15 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
     return ei;
     }
 
+// Is the environment e1 similar to the environment e2?
+// If so, return the mapping between the vectors of the environments that will make them correspond to each other.
+// If not, return an empty map
+std::map<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Environment e2)
+    {
+    std::map<unsigned int, unsigned int> vec_map;
+    return vec_map;
+    }
+
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
 void MatchEnv::compute(const vec3<float> *points, unsigned int Np)
@@ -151,14 +168,16 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np)
 
             if (i != j)
                 {
-                bool similar = dj.s[i].isSimilar(dj.s[j].vecs);
-                if (similar)
+                std::map<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j]);
+                // if the mapping between the vectors of the environments is NOT empty, then the environments
+                // are similar. so merge them.
+                if (!vec_map.empty())
                     {
                     // merge the two sets using the disjoint set
                     unsigned int a = dj.find(i);
                     unsigned int b = dj.find(j);
                     if (a != b)
-                        dj.merge(a,b);
+                        dj.merge(a,b,vec_map);
                     }
                 }
             }

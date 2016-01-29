@@ -33,11 +33,6 @@ struct Environment
         num_neigh = n;
         env_ind = 0;
         }
-    //! Is the set of vectors defined by v2 similar to this environment?
-    bool isSimilar(std::vector< vec3<float> > v2)
-        {
-        return true;
-        }
     //! Assimilate the set of vectors v2 (INDEXED PROPERLY) into this environment
     void assimilate(std::vector< vec3<float> > v2)
         {
@@ -70,7 +65,7 @@ class EnvDisjointSet
         //! Constructor
         EnvDisjointSet(unsigned int num_neigh, unsigned int Np);
         //! Merge two sets
-        void merge(const unsigned int a, const unsigned int b);
+        void merge(const unsigned int a, const unsigned int b, std::map<unsigned int, unsigned int> vec_map);
         //! Find the set with a given element
         unsigned int find(const unsigned int c);
         std::vector<Environment> s;         //!< The disjoint set data
@@ -95,6 +90,11 @@ class MatchEnv
 
         //! Determine clusters of particles with matching environments
         void compute(const vec3<float> *points, unsigned int Np);
+
+        //! Is the environment e1 similar to the environment e2?
+        //! If so, return the mapping between the vectors of the environments that will make them correspond to each other.
+        //! If not, return an empty map
+        std::map<unsigned int, unsigned int> isSimilar(Environment e1, Environment e2);
 
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
         boost::shared_array<unsigned int> getClusters()
