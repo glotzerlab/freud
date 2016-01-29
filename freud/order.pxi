@@ -1555,13 +1555,24 @@ cdef class MatchEnv:
     """
     cdef order.MatchEnv *thisptr
 
-    def __cinit__(self, rmax):
-        self.thisptr = new order.MatchEnv(rmax)
+    def __cinit__(self, box, rmax, k):
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr = new order.MatchEnv(l_box, rmax, k)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points, box):
+    def setBox(self, box):
+        """
+        Reset the simulation box
+
+        :param box: simulation box
+        :type box: :py:meth:`freud.trajectory.Box`
+        """
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr.setBox(l_box)
+
+    def compute(self, points):
         """Determine clusters of particles with matching environments.
 
         :param points: points to calculate the order parameter
@@ -1577,8 +1588,7 @@ cdef class MatchEnv:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.compute(<vec3[float]*>&l_points[0], l_box, nP)
+        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
 
     def getClusters(self):
         """
@@ -1594,16 +1604,16 @@ cdef class MatchEnv:
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
         return result
 
-    def getEnvironment(self, i):
-        """
-        Returns the set of vectors defining the environment indexed by i
-
-        :param i: particle index
-        :type i: unsigned int
-        :return: the array of vectors
-        :rtype: np.ndarray(shape=(N, 3), dtype=np.float32)
-        """
-        return 0
+    # def getEnvironment(self, i):
+    #     """
+    #     Returns the set of vectors defining the environment indexed by i
+    #
+    #     :param i: particle index
+    #     :type i: unsigned int
+    #     :return: the array of vectors
+    #     :rtype: np.ndarray(shape=(N, 3), dtype=np.float32)
+    #     """
+    #     return 0
 
     def getNP(self):
         """

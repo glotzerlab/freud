@@ -4,132 +4,185 @@
 //#include <boost/math/special_functions.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
-using namespace std;
-
 namespace freud { namespace order {
 
+// TO DO:
+// 1. Create MatchEnv::isSimilar(vec1, vec2) (or maybe EnvDisjointSet::isSimilar). This should somehow both indicate to us if a set of vectors
+// OF THE SAME LENGTH are similar, and if so, what the order of the vectors in vec2 should be st they match
+// those in vec1
+// 1.5 Then I think during the main loop you have to SET the vec_ind of vec2 to that, if they're similar.
+// 2. During MERGE, call through to vec_ind for each Environment object, and perform the same set of operations
+// on each index as you do for env_ind.
+// 3. During path compression, do the same thing for all vec_ind as you do for env_ind.
+
+// Constructor for EnvDisjointSet
+// Taken mostly from Cluster.cc
+EnvDisjointSet::EnvDisjointSet(unsigned int num_neigh, unsigned int Np)
+    : m_num_neigh(num_neigh)
+    {
+    rank = std::vector<unsigned int>(Np, 0);
+    }
+
+// Merge the two sets labeled by a and b.
+// There is incorrect behavior if a == b or either are not set labels
+// Taken mostly from Cluster.cc
+void EnvDisjointSet::merge(const unsigned int a, const unsigned int b)
+    {
+    assert(a < s.size() && b < s.size());
+
+    // if tree heights are equal, merge to a
+    if (rank[a] == rank[b])
+        {
+        rank[a]++;
+        s[b].env_ind = a;
+        }
+    else
+        {
+        // merge the shorter tree to the taller one
+        if (rank[a] > rank[b])
+            s[b].env_ind = a;
+        else
+            s[a].env_ind = b;
+        }
+    }
+
+// Return the set label that contains the element c
+// Taken mostly from Cluster.cc
+unsigned int EnvDisjointSet::find(const unsigned int c)
+    {
+    unsigned int r = c;
+
+    // follow up to the root of the tree
+    while (s[r].env_ind != r)
+        r = s[r].env_ind;
+
+    // path compression
+    unsigned int i = c;
+    while (i != r)
+        {
+        unsigned int j = s[i].env_ind;
+        s[i].env_ind = r;
+        i = j;
+        }
+    return r;
+    }
+
 // Constructor
-MatchEnv::MatchEnv(float rmax)
-    :m_rmax(rmax)
+MatchEnv::MatchEnv(const trajectory::Box& box, float rmax, unsigned int k)
+    :m_box(box), m_rmax(rmax), m_k(k)
     {
     m_Np = 0;
     if (m_rmax < 0.0f)
-        throw invalid_argument("rmax must be positive");
+        throw std::invalid_argument("rmax must be positive");
     m_rmaxsq = m_rmax * m_rmax;
+    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
 
-// Construct and return a local environment surrounding a particle
-Environment MatchEnv::buildEnv(const vec3<float> *points, const trajectory::Box& box, unsigned int i)
+// Destructor
+MatchEnv::~MatchEnv()
     {
-    trajectory::Box m_box = box;
-    Environment ei = Environment(i);
+    delete m_nn;
+    }
 
-    // get the cell the point is in
+// Build and return a local environment surrounding a particle
+Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
+    {
+    Environment ei = Environment(m_k);
+
+    // get the neighbors
     vec3<float> p = points[i];
-    unsigned int cell = m_lc.getCell(p);
+    boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
 
-    // loop over all neighboring cells
-    const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
-    for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+    // loop over the neighbors
+    for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
         {
-        unsigned int neigh_cell = neigh_cells[neigh_idx];
+        unsigned int j = neighbors[neigh_idx];
 
-        // iterate over the particles in that cell
-        locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
-        for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+        // compute r between the two particles
+        vec3<float> delta = m_box.wrap(p - points[j]);
+        float rsq = dot(delta, delta);
+
+        if (rsq < m_rmaxsq)
             {
-            // compute r between the two particles
-            vec3<float> delta = m_box.wrap(p - points[j]);
-            float rsq = dot(delta, delta);
-
-            if (rsq < m_rmaxsq)
-                {
-                ei.addVec(delta);
-                }
+            ei.addVec(delta);
             }
         }
     return ei;
     }
 
 // Determine clusters of particles with matching environments
-void MatchEnv::compute(const vec3<float> *points, const trajectory::Box& box, unsigned int Np)
+// This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
+void MatchEnv::compute(const vec3<float> *points, unsigned int Np)
     {
-    trajectory::Box m_box = box;
+    assert(points);
+    assert(Np > 0);
+
+    // reallocate the m_env_index array if the size doesn't match the last one
+    if (Np != m_Np)
+        m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+
     m_Np = Np;
-    m_lc.computeCellList(m_box, points, Np);
+
+    // initialize the neighbor list
+    m_nn->compute(m_box, points, m_Np, points, m_Np);
+
+    // create a disjoint set where all particles belong in their own cluster
+    EnvDisjointSet dj(m_k, m_Np);
+
+    // add all the environments to the set
+    for (unsigned int i = 0; i < m_Np; i++)
+        {
+        Environment ei = buildEnv(points, i);
+        dj.s.push_back(ei);
+        }
 
     // loop through points
-    for (unsigned int i = 0; i < Np; i++)
+    for (unsigned int i = 0; i < m_Np; i++)
         {
-        // 1. make an Environment instance and add it to the vector m_env
-        Environment ei = buildEnv(points, m_box, i);
-        m_env.push_back(ei);
 
-        // 2. loop over the neighbors again. Now, construct the environment for the neighboring particle and compare.
-        // get the cell the point is in
+        // 1. Get all the neighbors
         vec3<float> p = points[i];
-        unsigned int cell = m_lc.getCell(p);
+        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
 
-        // loop over all neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+        // loop over the neighbors
+        for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
+            unsigned int j = neighbors[neigh_idx];
 
-            // iterate over the particles in that cell
-            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+            if (i != j)
                 {
-                // only construct the environment and do all this rigamarole if we haven't looked at this (i,j) combo before
-                // if (i < j)
-                int blah=0;
+                bool similar = dj.s[i].isSimilar(dj.s[j].vecs);
+                if (similar)
+                    {
+                    // merge the two sets using the disjoint set
+                    unsigned int a = dj.find(i);
+                    unsigned int b = dj.find(j);
+                    if (a != b)
+                        dj.merge(a,b);
+                    }
                 }
             }
         }
+
+    // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
+    std::map<unsigned int, unsigned int> label_map;
+
+    // loop over all particles
+    unsigned int cur_set = 0;
+    for (unsigned int i = 0; i < m_Np; i++)
+        {
+        unsigned int c = dj.find(i);
+
+        // insert the set into the mapping if we haven't seen it before
+        if (label_map.count(c) == 0)
+            {
+            label_map[c] = cur_set;
+            cur_set++;
+            }
+
+        // label this particle in m_env_index
+        m_env_index[i] = label_map[c];
+        }
     }
 
-    //
-    // freud::cluster::DisjointSet dj(Np);
-    //
-    //             // loop over particles i, then loop over their neighbors j
-    //             if (i != j)
-    //                 {
-    //                 // if we belong in the same cluster
-    //                     {
-    //                         // merge the two sets using the disjoint set
-    //                         uint32_t a = dj.find(i);
-    //                         uint32_t b = dj.find(j);
-    //                         if (a != b)
-    //                             dj.merge(a,b);
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    // // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
-    // map<uint32_t, uint32_t> label_map;
-    //
-    // // go over every point
-    // uint32_t cur_set = 0;
-    // for (uint32_t i = 0; i < Np; i++)
-    //     {
-    //     uint32_t s = dj.find(i);
-    //
-    //     // insert it into the mapping if we haven't seen this one yet
-    //     if (label_map.count(s) == 0)
-    //         {
-    //         label_map[s] = cur_set;
-    //         cur_set++;
-    //         }
-    //
-    //     // label this point in cluster_idx
-    //     m_cluster_idx[i] = label_map[s];
-    //     }
-    //
-    // // cur_set is now the number of clusters
-    // m_num_clusters = cur_set;
-    // }
-
-}; };// end namespace freud::match_env;
+}; }; // end namespace freud::match_env;
