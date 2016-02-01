@@ -1,8 +1,6 @@
 #include "MatchEnv.h"
 #include "Cluster.h"
 #include <map>
-//#include <boost/math/special_functions.hpp>
-#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 namespace freud { namespace order {
 
@@ -10,9 +8,6 @@ namespace freud { namespace order {
 // 1. Create MatchEnv::isSimilar(vec1, vec2) (or maybe EnvDisjointSet::isSimilar). This should somehow both indicate to us if a set of vectors
 // OF THE SAME LENGTH are similar, and if so, what the order of the vectors in vec2 should be st they match
 // those in vec1 AND what the order of the vectors in vec1 should be st they match those in vec2
-// 2. During MERGE, call through to vec_ind for each Environment object, and perform the same set of operations
-// on each index as you do for env_ind. you have to feed it the vec_ind for the environment that is being assimilated, and then set those vec_ind.
-// 3. During find, do the same thing for all vec_ind as you do for env_ind.
 
 // Constructor for EnvDisjointSet
 // Taken mostly from Cluster.cc
@@ -25,32 +20,58 @@ EnvDisjointSet::EnvDisjointSet(unsigned int num_neigh, unsigned int Np)
 // Merge the two sets labeled by a and b.
 // There is incorrect behavior if a == b or either are not set labels
 // Taken mostly from Cluster.cc
-void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, std::map<unsigned int, unsigned int> vec_map)
+// The vec_map must be a bimap of vector indices where those of set a are on the left and those of set b are
+// on the right.
+void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map)
     {
     assert(a < s.size() && b < s.size());
-    assert(vec_map.size() == m_num_neigh)
+    assert(vec_map.size() == m_num_neigh);
 
     // if tree heights are equal, merge to a
     if (rank[a] == rank[b])
         {
         rank[a]++;
         // 1. set the environment index properly
-        s[b].env_ind = a;
-        // 2. set the vector indices properly
+        s[b].env_ind = s[a].env_ind;
+        // 2. set the vector indices properly.
+        // Iterate over the vector indices of a.
+        // Take the LEFT MAP view of the a<->b bimap.
+        // Find the value of b_ind that corresponds to the value of a_ind, and set it for b.
         for (unsigned int i=0; i<m_num_neigh; i++)
             {
-            // STOPPED HERE.
+            unsigned int a_ind = s[a].vec_ind[i];
+            boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
+            unsigned int b_ind = it->second;
+            s[b].vec_ind[i] = b_ind;
             }
-
-
         }
     else
         {
         // merge the shorter tree to the taller one
         if (rank[a] > rank[b])
-            s[b].env_ind = a;
+            {
+            s[b].env_ind = s[a].env_ind;
+            // Merge to a.
+            for (unsigned int i=0; i<m_num_neigh; i++)
+                {
+                unsigned int a_ind = s[a].vec_ind[i];
+                boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
+                unsigned int b_ind = it->second;
+                s[b].vec_ind[i] = b_ind;
+                }
+            }
         else
-            s[a].env_ind = b;
+            {
+            s[a].env_ind = s[b].env_ind;
+            // Merge to b.
+            for (unsigned int i=0; i<m_num_neigh; i++)
+                {
+                unsigned int b_ind = s[b].vec_ind[i];
+                boost::bimap<unsigned int, unsigned int>::right_const_iterator it = vec_map.right.find(b_ind);
+                unsigned int a_ind = it->second;
+                s[a].vec_ind[i] = a_ind;
+                }
+            }
         }
     }
 
@@ -121,9 +142,9 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
 // Is the environment e1 similar to the environment e2?
 // If so, return the mapping between the vectors of the environments that will make them correspond to each other.
 // If not, return an empty map
-std::map<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Environment e2)
+boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Environment e2)
     {
-    std::map<unsigned int, unsigned int> vec_map;
+    boost::bimap<unsigned int, unsigned int> vec_map;
     return vec_map;
     }
 
@@ -168,7 +189,7 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np)
 
             if (i != j)
                 {
-                std::map<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j]);
+                boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j]);
                 // if the mapping between the vectors of the environments is NOT empty, then the environments
                 // are similar. so merge them.
                 if (!vec_map.empty())

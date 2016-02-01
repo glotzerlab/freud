@@ -2,7 +2,7 @@
 #define _MATCH_ENV_H__
 
 #include <boost/shared_array.hpp>
-//#include <boost/math/special_functions/spherical_harmonic.hpp>
+#include <boost/bimap.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -65,7 +65,7 @@ class EnvDisjointSet
         //! Constructor
         EnvDisjointSet(unsigned int num_neigh, unsigned int Np);
         //! Merge two sets
-        void merge(const unsigned int a, const unsigned int b, std::map<unsigned int, unsigned int> vec_map);
+        void merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map);
         //! Find the set with a given element
         unsigned int find(const unsigned int c);
         std::vector<Environment> s;         //!< The disjoint set data
@@ -94,7 +94,7 @@ class MatchEnv
         //! Is the environment e1 similar to the environment e2?
         //! If so, return the mapping between the vectors of the environments that will make them correspond to each other.
         //! If not, return an empty map
-        std::map<unsigned int, unsigned int> isSimilar(Environment e1, Environment e2);
+        boost::bimap<unsigned int, unsigned int> isSimilar(Environment e1, Environment e2);
 
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
         boost::shared_array<unsigned int> getClusters()
