@@ -18,7 +18,7 @@
 #include <complex>
 #include <map>
 #include <algorithm>
-
+#include <iostream>
 
 
 namespace freud { namespace order {
@@ -32,6 +32,7 @@ struct Environment
         {
         num_neigh = n;
         env_ind = 0;
+        num_vecs = 0;
         }
     //! Assimilate the set of vectors v2 (INDEXED PROPERLY) into this environment
     void assimilate(std::vector< vec3<float> > v2)
@@ -89,12 +90,12 @@ class MatchEnv
         Environment buildEnv(const vec3<float> *points, unsigned int i);
 
         //! Determine clusters of particles with matching environments
-        void compute(const vec3<float> *points, unsigned int Np);
+        void compute(const vec3<float> *points, unsigned int Np, float threshold);
 
         //! Is the environment e1 similar to the environment e2?
         //! If so, return the mapping between the vectors of the environments that will make them correspond to each other.
         //! If not, return an empty map
-        boost::bimap<unsigned int, unsigned int> isSimilar(Environment e1, Environment e2);
+        boost::bimap<unsigned int, unsigned int> isSimilar(Environment e1, Environment e2, float threshold_sq);
 
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
         boost::shared_array<unsigned int> getClusters()
@@ -126,10 +127,10 @@ class MatchEnv
     private:
         trajectory::Box m_box;              //!< Simulation box
         float m_rmax;                       //!< Maximum cutoff radius at which to determine local environment
-        float m_k;                          //!< Number of nearest neighbors used to determine local environment
-        locality::NearestNeighbors *m_nn;    //!< NearestNeighbors to bin particles for the computation of local environments
-        unsigned int m_Np;                  //!< Last number of points computed
         float m_rmaxsq;                     //!< square of m_rmax
+        float m_k;                          //!< Number of nearest neighbors used to determine local environment
+        locality::NearestNeighbors *m_nn;   //!< NearestNeighbors to bin particles for the computation of local environments
+        unsigned int m_Np;                  //!< Last number of points computed
 
         boost::shared_array<unsigned int> m_env_index;              //!< Cluster index determined for each particle
     };

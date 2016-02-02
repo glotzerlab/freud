@@ -1,6 +1,5 @@
 #include "MatchEnv.h"
 #include "Cluster.h"
-#include <map>
 
 namespace freud { namespace order {
 
@@ -117,6 +116,8 @@ MatchEnv::~MatchEnv()
 Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
     {
     Environment ei = Environment(m_k);
+    // set the environment index equal to the particle index
+    ei.env_ind = i;
 
     // get the neighbors
     vec3<float> p = points[i];
@@ -141,25 +142,67 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
 
 // Is the environment e1 similar to the environment e2?
 // If so, return the mapping between the vectors of the environments that will make them correspond to each other.
-// If not, return an empty map
-boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Environment e2)
+// If not, return an empty map.
+// The threshold is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
+boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Environment e2, float threshold_sq)
     {
+    std::vector< vec3<float> > v1 = e1.vecs;
+    std::vector< vec3<float> > v2 = e2.vecs;
     boost::bimap<unsigned int, unsigned int> vec_map;
-    return vec_map;
+
+    // Inelegant: if either vector set does not have m_k vectors in it (i.e. maybe we are at a surface),
+    // just return an empty map for now since the 1-1 bimapping will be too weird in this case.
+    if (v1.size() != m_k) { return vec_map; }
+    if (v2.size() != m_k) { return vec_map; }
+
+    // compare all iterations of vectors
+    for (unsigned int i = 0; i < m_k; i++)
+        {
+        for (unsigned int j = 0; j < m_k; j++)
+            {
+            vec3<float> delta = v1[i] - v2[j];
+
+            delta = m_box.wrap(delta);
+            float rsq = dot(delta, delta);
+            // std::cout<<rsq<<std::endl;
+
+            if (rsq < threshold_sq)
+                {
+                // these vectors are deemed "matching"
+                // since this is a bimap, this (i,j) pair is only inserted if j has not already been assigned an i pairing.
+                // (ditto with i not being assigned a j pairing)
+                vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(i,j));
+                }
+            }
+        }
+
+    // if every vector has been paired with every other vector, return this bimap
+    if (vec_map.size() == m_k)
+        {
+        return vec_map;
+        }
+    // otherwise, return an empty bimap
+    else
+        {
+        boost::bimap<unsigned int, unsigned int> empty_map;
+        return empty_map;
+        }
     }
 
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::compute(const vec3<float> *points, unsigned int Np)
+void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float threshold)
     {
     assert(points);
     assert(Np > 0);
+    assert(threshold > 0);
 
     // reallocate the m_env_index array if the size doesn't match the last one
     if (Np != m_Np)
         m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
 
     m_Np = Np;
+    float m_threshold_sq = threshold*threshold;
 
     // initialize the neighbor list
     m_nn->compute(m_box, points, m_Np, points, m_Np);
@@ -186,10 +229,11 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np)
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             unsigned int j = neighbors[neigh_idx];
+            // std::cout<<j<<std::endl;
 
             if (i != j)
                 {
-                boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j]);
+                boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j], m_threshold_sq);
                 // if the mapping between the vectors of the environments is NOT empty, then the environments
                 // are similar. so merge them.
                 if (!vec_map.empty())

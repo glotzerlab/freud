@@ -18,6 +18,7 @@ from ._freud import LocalQl
 from ._freud import LocalQlNear
 from ._freud import LocalWl
 from ._freud import LocalWlNear
+from ._freud import MatchEnv
 # from ._freud import SolLiq
 # from ._freud import SolLiqNear
 #import scipy.io as sio
@@ -87,4 +88,3 @@ import numpy as np
      wigner['l'+str(l)]=W_l
 
 sio.savemat('wigner3j.mat',wigner)'''
-

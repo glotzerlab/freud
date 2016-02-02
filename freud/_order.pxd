@@ -187,7 +187,8 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         MatchEnv(const trajectory.Box&, float, unsigned int)
         void setBox(const trajectory.Box)
         void compute(const vec3[float]*,
-                     unsigned int)
+                     unsigned int,
+                     float)
         shared_array[unsigned int] getClusters()
         #vector[vec3[float]] getEnvironment(unsigned int)
         unsigned int getNP()
