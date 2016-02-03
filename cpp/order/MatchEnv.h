@@ -112,12 +112,13 @@ class MatchEnv
             }
 
 
-        // //! Returns the set of vectors defining the environment indexed by i
-        // std::vector< vec3<float> > getEnvironment(unsigned int i)
-        //     {
-        //     Environment e = m_env[i];
-        //     return e.vecs;
-        //     }
+        //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
+        std::vector< vec3<float> > getEnvironment(unsigned int i)
+            {
+            std::map<unsigned int, std::vector<vec3<float> > >::const_iterator it = vec_map.left.find(a_ind);
+            std::vector<vec3<float> > vecs = m_env[i];
+            return vecs;
+            }
 
         unsigned int getNP()
             {
@@ -133,6 +134,7 @@ class MatchEnv
         unsigned int m_Np;                  //!< Last number of points computed
 
         boost::shared_array<unsigned int> m_env_index;              //!< Cluster index determined for each particle
+        std::map<unsigned int, std::vector<vec3<float> > > m_env;   //!< Dictionary of (cluster id, vectors) pairs
     };
 
 }; }; // end namespace freud::match_env

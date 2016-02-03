@@ -3,11 +3,6 @@
 
 namespace freud { namespace order {
 
-// TO DO:
-// 1. Create MatchEnv::isSimilar(vec1, vec2) (or maybe EnvDisjointSet::isSimilar). This should somehow both indicate to us if a set of vectors
-// OF THE SAME LENGTH are similar, and if so, what the order of the vectors in vec2 should be st they match
-// those in vec1 AND what the order of the vectors in vec1 should be st they match those in vec2
-
 // Constructor for EnvDisjointSet
 // Taken mostly from Cluster.cc
 EnvDisjointSet::EnvDisjointSet(unsigned int num_neigh, unsigned int Np)
