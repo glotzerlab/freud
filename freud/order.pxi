@@ -1605,16 +1605,21 @@ cdef class MatchEnv:
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
         return result
 
-    # def getEnvironment(self, i):
-    #     """
-    #     Returns the set of vectors defining the environment indexed by i
-    #
-    #     :param i: particle index
-    #     :type i: unsigned int
-    #     :return: the array of vectors
-    #     :rtype: np.ndarray(shape=(N, 3), dtype=np.float32)
-    #     """
-    #     return 0
+    def getEnvironment(self, i):
+        """
+        Returns the set of vectors defining the environment indexed by i
+
+        :param i: environment index
+        :type i: unsigned int
+        :return: the array of vectors
+        :rtype: list[list[float, float, float]]
+        """
+        cdef vec3[float] *environment = self.thisptr.getEnvironment(i).get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
+        nbins[1] = 3
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>environment)
+        return result
 
     def getNP(self):
         """
@@ -1625,6 +1630,16 @@ cdef class MatchEnv:
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    def getNumClusters(self):
+        """
+        Get the number of clusters
+
+        :return: num_clust
+        :rtype: unsigned int
+        """
+        cdef unsigned int num_clust = self.thisptr.getNumClusters()
+        return num_clust
 
 cdef class SolLiqNear:
     """Computes dot products of qlm between particles and uses these for clustering.

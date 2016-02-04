@@ -90,13 +90,66 @@ unsigned int EnvDisjointSet::find(const unsigned int c)
     return r;
     }
 
+//! Get the vectors corresponding to environment root index m
+//! If environment i doesn't exist as a ROOT in the set, throw an error.
+boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
+    {
+    assert(s.size() > 0);
+    bool invalid_ind = true;
+
+    boost::shared_array<vec3<float> > env(new vec3<float>[m_num_neigh]);
+    for (unsigned int n = 0; n < m_num_neigh; n++)
+        {
+        env[n] = vec3<float>(0.0,0.0,0.0);
+        }
+    float N = 0;
+
+    // loop over all the environments in the set
+    for (unsigned int i = 0; i < s.size(); i++)
+        {
+        // get the root environment index
+        unsigned int root_env = find(s[i].env_ind);
+        // if we are part of the environment m, add the vectors to env
+        if (root_env == m)
+            {
+            assert(s[i].vec_ind.size() == m_num_neigh);
+            assert(s[i].vecs.size() == m_num_neigh);
+            // loop through the vectors, getting them properly indexed
+            // add them to env
+            for (unsigned int j = 0; j < m_num_neigh; j++)
+                {
+                unsigned int proper_ind = s[i].vec_ind[j];
+                env[j] += s[i].vecs[proper_ind];
+                }
+            N ++;
+            bool invalid_ind = false;
+            }
+        }
+
+    if (invalid_ind)
+        {
+        throw std::invalid_argument("m must be a root index in the environment set!");
+        }
+
+    else
+        {
+        // loop through the vectors in env now, dividing by the total number of contributing particle environments to make an average
+        for (unsigned int n = 0; n < m_num_neigh; n++)
+            {
+            env[n] = env[n]/N;
+            }
+        }
+    return env;
+    }
+
 // Constructor
 MatchEnv::MatchEnv(const trajectory::Box& box, float rmax, unsigned int k)
     :m_box(box), m_rmax(rmax), m_k(k)
     {
     m_Np = 0;
+    m_num_clusters = 0;
     if (m_rmax < 0.0f)
-        throw std::invalid_argument("rmax must be positive");
+        throw std::invalid_argument("rmax must be positive!");
     m_rmaxsq = m_rmax * m_rmax;
     m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
@@ -257,8 +310,9 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
         if (label_map.count(c) == 0)
             {
             label_map[c] = cur_set;
-            
-            m_env[c] = vecs;
+
+            boost::shared_array<vec3<float> > vecs = dj.getEnv(c);
+            m_env[cur_set] = vecs;
 
             cur_set++;
             }
@@ -266,6 +320,10 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
         // label this particle in m_env_index
         m_env_index[i] = label_map[c];
         }
+
+    // specify the number of cluster environments
+    m_num_clusters = cur_set;
+
     }
 
 }; }; // end namespace freud::match_env;

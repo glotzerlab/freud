@@ -69,6 +69,8 @@ class EnvDisjointSet
         void merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map);
         //! Find the set with a given element
         unsigned int find(const unsigned int c);
+        //! Get the vectors corresponding to environment root index m
+        boost::shared_array<vec3<float> > getEnv(const unsigned int m);
         std::vector<Environment> s;         //!< The disjoint set data
         std::vector<unsigned int> rank;     //!< The rank of each tree in the set
         unsigned int m_num_neigh;           //!< The number of neighbors allowed per environment
@@ -113,16 +115,21 @@ class MatchEnv
 
 
         //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
-        std::vector< vec3<float> > getEnvironment(unsigned int i)
+        boost::shared_array< vec3<float> > getEnvironment(unsigned int i)
             {
-            std::map<unsigned int, std::vector<vec3<float> > >::const_iterator it = m_env.find(i);
-            std::vector<vec3<float> > vecs = it->second;
+            std::map<unsigned int, boost::shared_array<vec3<float> > >::iterator it = m_env.find(i);
+            boost::shared_array<vec3<float> > vecs = it->second;
             return vecs;
             }
 
         unsigned int getNP()
             {
             return m_Np;
+            }
+
+        unsigned int getNumClusters()
+            {
+            return m_num_clusters;
             }
 
     private:
@@ -132,9 +139,10 @@ class MatchEnv
         float m_k;                          //!< Number of nearest neighbors used to determine local environment
         locality::NearestNeighbors *m_nn;   //!< NearestNeighbors to bin particles for the computation of local environments
         unsigned int m_Np;                  //!< Last number of points computed
+        unsigned int m_num_clusters;        //!< Last number of local environments computed
 
         boost::shared_array<unsigned int> m_env_index;              //!< Cluster index determined for each particle
-        std::map<unsigned int, std::vector<vec3<float> > > m_env;   //!< Dictionary of (cluster id, vectors) pairs
+        std::map<unsigned int, boost::shared_array<vec3<float> > > m_env;   //!< Dictionary of (cluster id, vectors) pairs
     };
 
 }; }; // end namespace freud::match_env
