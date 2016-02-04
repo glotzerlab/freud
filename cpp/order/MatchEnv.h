@@ -115,8 +115,8 @@ class MatchEnv
         //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
         std::vector< vec3<float> > getEnvironment(unsigned int i)
             {
-            std::map<unsigned int, std::vector<vec3<float> > >::const_iterator it = vec_map.left.find(a_ind);
-            std::vector<vec3<float> > vecs = m_env[i];
+            std::map<unsigned int, std::vector<vec3<float> > >::const_iterator it = m_env.find(i);
+            std::vector<vec3<float> > vecs = it->second;
             return vecs;
             }
 

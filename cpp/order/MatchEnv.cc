@@ -252,10 +252,14 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
         {
         unsigned int c = dj.find(i);
 
-        // insert the set into the mapping if we haven't seen it before
+        // insert the set into the mapping if we haven't seen it before.
+        // also grab the vectors that define the set and insert them into m_env
         if (label_map.count(c) == 0)
             {
             label_map[c] = cur_set;
+            
+            m_env[c] = vecs;
+
             cur_set++;
             }
 
