@@ -193,6 +193,7 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         shared_array[vec3[float]] getEnvironment(unsigned int)
         unsigned int getNP()
         unsigned int getNumClusters()
+        unsigned int getNumNeighbors()
 
 cdef extern from "SolLiqNear.h" namespace "freud::order":
     cdef cppclass SolLiqNear:

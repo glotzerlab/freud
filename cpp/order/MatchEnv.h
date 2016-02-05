@@ -131,6 +131,10 @@ class MatchEnv
             {
             return m_num_clusters;
             }
+        unsigned int getNumNeighbors()
+            {
+            return m_k;
+            }
 
     private:
         trajectory::Box m_box;              //!< Simulation box

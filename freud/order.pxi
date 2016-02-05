@@ -1616,7 +1616,7 @@ cdef class MatchEnv:
         """
         cdef vec3[float] *environment = self.thisptr.getEnvironment(i).get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
+        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
         nbins[1] = 3
         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>environment)
         return result

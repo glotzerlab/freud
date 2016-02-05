@@ -22,9 +22,9 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
     assert(vec_map.size() == m_num_neigh);
 
     // if tree heights are equal, merge to a
-    if (rank[a] == rank[b])
+    if (rank[s[a].env_ind] == rank[s[b].env_ind])
         {
-        rank[a]++;
+        rank[s[a].env_ind]++;
         // 1. set the environment index properly
         s[b].env_ind = s[a].env_ind;
         // 2. set the vector indices properly.
@@ -37,16 +37,12 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
             boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
             unsigned int b_ind = it->second;
             s[b].vec_ind[i] = b_ind;
-            if (i==0) {
-                if (s[b].env_ind==31 || s[a].env_ind==31) {std::cout<<"INSIDE MERGE SAME SIZE:"<<b<<" into "<<a<<" "<<std::endl;}
-                if (s[b].env_ind==31 || s[a].env_ind==31) {std::cout<<"v0:"<<s[a].vecs[a_ind].x<<" "<<s[a].vecs[a_ind].y<<" "<<s[a].vecs[a_ind].z<<std::endl;}
-                if (s[b].env_ind==31 || s[a].env_ind==31) {std::cout<<"v1:"<<s[b].vecs[b_ind].x<<" "<<s[b].vecs[b_ind].y<<" "<<s[b].vecs[b_ind].z<<std::endl;}}
             }
         }
     else
         {
         // merge the shorter tree to the taller one
-        if (rank[a] > rank[b])
+        if (rank[s[a].env_ind] > rank[s[b].env_ind])
             {
             s[b].env_ind = s[a].env_ind;
             // Merge to a.
@@ -56,10 +52,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
                 unsigned int b_ind = it->second;
                 s[b].vec_ind[i] = b_ind;
-                if (i==0) {
-                    if (s[b].env_ind==31 || s[a].env_ind==31) {std::cout<<"INSIDE MERGE:"<<b<<" into "<<a<<" "<<std::endl;}
-                    if (s[b].env_ind==31 || s[a].env_ind==31) {std::cout<<"v0:"<<s[a].vecs[a_ind].x<<" "<<s[a].vecs[a_ind].y<<" "<<s[a].vecs[a_ind].z<<std::endl;}
-                    if (s[b].env_ind==31 || s[a].env_ind==31) {std::cout<<"v1:"<<s[b].vecs[b_ind].x<<" "<<s[b].vecs[b_ind].y<<" "<<s[b].vecs[b_ind].z<<std::endl;}}
                 }
             }
         else
@@ -72,10 +64,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 boost::bimap<unsigned int, unsigned int>::right_const_iterator it = vec_map.right.find(b_ind);
                 unsigned int a_ind = it->second;
                 s[a].vec_ind[i] = a_ind;
-                if (i==0) {
-                    if (s[a].env_ind==31 || s[b].env_ind==31) {std::cout<<"INSIDE MERGE REVERSE:"<<a<<" into "<<b<<" "<<std::endl;}
-                    if (s[a].env_ind==31 || s[b].env_ind==31) {std::cout<<"v0:"<<s[a].vecs[a_ind].x<<" "<<s[a].vecs[a_ind].y<<" "<<s[a].vecs[a_ind].z<<std::endl;}
-                    if (s[b].env_ind==31 || s[a].env_ind==31) {std::cout<<"v1:"<<s[b].vecs[b_ind].x<<" "<<s[b].vecs[b_ind].y<<" "<<s[b].vecs[b_ind].z<<std::endl;}}
                 }
             }
         }
@@ -110,8 +98,7 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
     bool invalid_ind = true;
     bool single_particle = true;
 
-    boost::shared_array<vec3<float> > env;
-    env = boost::shared_array<vec3<float> >(new vec3<float> [m_num_neigh] );
+    boost::shared_array<vec3<float> > env(new vec3<float> [m_num_neigh] );
     for (unsigned int n = 0; n < m_num_neigh; n++)
         {
         env[n] = vec3<float>(0.0,0.0,0.0);
@@ -136,22 +123,9 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
             for (unsigned int j = 0; j < s[i].vecs.size(); j++)
                 {
                 unsigned int proper_ind = s[i].vec_ind[j];
-                // std::cout<<"vec index "<<j<<" maps to "<<proper_ind<<std::endl;
-                // std::cout<<"env before: "<<env[j].x<<" "<<env[j].y<<" "<<env[j].z<<std::endl;
-                // if (root_env == 86)
-                //     {
-                //     std::cout<<"BIG CLUST"<<std::endl;
-                //     float rmag = sqrt(dot(s[i].vecs[proper_ind],s[i].vecs[proper_ind]));
-                //     if (rmag > 1.5) {std::cout<<"rmag BIG: "<<rmag<<std::endl;}
-                //     if (rmag < 1.0) {std::cout<<"rmag SMALL: "<<rmag<<std::endl;}
-                //     }
                 env[j] += s[i].vecs[proper_ind];
-                // std::cout<<"env after: "<<env[j].x<<" "<<env[j].y<<" "<<env[j].z<<std::endl;
                 }
             N += float(1);
-            // if (root_env == 31) {std::cout<<"num particles: "<<N<<std::endl;}
-            // if (root_env == 31) {std::cout<<"vec0: "<<env[0].x<<" "<<env[0].y<<" "<<env[0].z<<std::endl;}
-            // std::cout<<"particle "<<i<<" has matched the root env index "<<root_env<<std::endl;
             single_particle=false;
             invalid_ind = false;
             }
@@ -169,7 +143,6 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
         for (unsigned int n = 0; n < m_num_neigh; n++)
             {
             vec3<float> normed = env[n]/N;
-            // std::cout<<"normed vec: "<<normed.x<<" "<<normed.y<<" "<<normed.z<<std::endl;
             env[n] = normed;
             }
         }
@@ -240,25 +213,21 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
     // compare all iterations of vectors
     for (unsigned int i = 0; i < m_k; i++)
         {
+        // be sure to tie together the PROPER vector indices, in case any index re-ordering has taken place
+        unsigned int proper_i = e1.vec_ind[i];
         for (unsigned int j = 0; j < m_k; j++)
             {
-            vec3<float> delta = v1[i] - v2[j];
-
+            unsigned int proper_j = e2.vec_ind[j];
+            vec3<float> delta = v1[proper_i] - v2[proper_j];
             // delta = m_box.wrap(delta);
             float rsq = dot(delta, delta);
-            // std::cout<<rsq<<std::endl;
-
             if (rsq < threshold_sq)
                 {
                 // these vectors are deemed "matching"
                 // since this is a bimap, this (i,j) pair is only inserted if j has not already been assigned an i pairing.
                 // (ditto with i not being assigned a j pairing)
-                if (i==0) {
-                    if (e1.env_ind==31) {std::cout<<"INSIDE ISSIMILAR: "<<std::endl;}
-                    if (e1.env_ind==31) {std::cout<<"v1: "<<v1[i].x<<" "<<v1[i].y<<" "<<v1[i].z<<std::endl;}
-                    if (e1.env_ind==31) {std::cout<<"v2: "<<v2[j].x<<" "<<v2[j].y<<" "<<v2[j].z<<std::endl;}
-                    if (e1.env_ind==31) {std::cout<<"i: "<<i<<" j: "<<j<<std::endl;}}
-                vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(i,j));
+                vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(proper_i, proper_j));
+
                 }
             }
         }
@@ -316,7 +285,6 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             unsigned int j = neighbors[neigh_idx];
-            // std::cout<<j<<std::endl;
 
             if (i != j)
                 {
@@ -329,7 +297,7 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
                     unsigned int a = dj.find(i);
                     unsigned int b = dj.find(j);
                     if (a != b)
-                        dj.merge(a,b,vec_map);
+                        dj.merge(i,j,vec_map);
                     }
                 }
             }
@@ -349,9 +317,6 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
         if (label_map.count(c) == 0)
             {
             label_map[c] = cur_set;
-            // std::cout<<"particle index: "<<i<<std::endl;
-            // std::cout<<"the original root env index: "<<c<<std::endl;
-            // std::cout<<"the reset root env index: "<<cur_set<<std::endl;
             boost::shared_array<vec3<float> > vecs = dj.getEnv(c);
             m_env[cur_set] = vecs;
 
