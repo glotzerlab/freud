@@ -74,7 +74,6 @@ cdef class PMFTR12:
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type orientations: np.ndarray(shape=(N), dtype=np.float32)
         """
-        print("test, not sure why this isn't working")
         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if (refOrientations.dtype != np.float32) or (orientations.dtype != np.float32):
@@ -85,10 +84,10 @@ cdef class PMFTR12:
             raise ValueError("orientations must be a 2 dimensional array")
         if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("2nd dimension for points must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints)
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points)
-        cdef np.ndarray[float, ndim=1] l_refOrientations = np.ascontiguousarray(refOrientations)
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations)
+        cdef np.ndarray l_refPoints = refPoints
+        cdef np.ndarray l_points = points
+        cdef np.ndarray l_refOrientations = refOrientations
+        cdef np.ndarray l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())

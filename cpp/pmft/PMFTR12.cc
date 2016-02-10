@@ -297,6 +297,7 @@ void PMFTR12::accumulate(trajectory::Box& box,
                          float *orientations,
                          unsigned int Np)
     {
+    m_box = box;
     m_lc->computeCellList(m_box, points, Np);
     parallel_for(blocked_range<size_t>(0,Nref),
                  ComputePMFTR12(m_local_pcf_array,
