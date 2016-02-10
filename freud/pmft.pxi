@@ -74,6 +74,7 @@ cdef class PMFTR12:
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type orientations: np.ndarray(shape=(N), dtype=np.float32)
         """
+        print("test, not sure why this isn't working")
         if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if (refOrientations.dtype != np.float32) or (orientations.dtype != np.float32):
@@ -93,11 +94,11 @@ cdef class PMFTR12:
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
-                                    <vec3[float]*>&l_refPoints[0],
-                                    <float*>&l_refOrientations[0],
+                                    <vec3[float]*>l_refPoints.data,
+                                    <float*>l_refOrientations.data,
                                     nRef,
-                                    <vec3[float]*>&l_points[0],
-                                    <float*>&l_orientations[0],
+                                    <vec3[float]*>l_points.data,
+                                    <float*>l_orientations.data,
                                     nP)
 
     def compute(self, box, refPoints, refOrientations, points, orientations):
