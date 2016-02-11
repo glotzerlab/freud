@@ -33,6 +33,7 @@ struct Environment
         num_neigh = n;
         env_ind = 0;
         num_vecs = 0;
+        ignore = false;
         }
     //! Assimilate the set of vectors v2 (INDEXED PROPERLY) into this environment
     void assimilate(std::vector< vec3<float> > v2)
@@ -54,6 +55,7 @@ struct Environment
 
     unsigned int env_ind;                   //!< The index of the environment
     std::vector<vec3<float> > vecs;         //!< The vectors that define the environment
+    bool ignore;                            //!< Do we ignore this environment when we compute actual physical quantities associated with all environments?
     unsigned int num_vecs;                  //!< The number of vectors defining the environment currently
     unsigned int num_neigh;                 //!< The maximum allowed number of vectors to define the environment
     std::vector<unsigned int> vec_ind;      //!< The order that the vectors must be in to define the environment
@@ -88,11 +90,17 @@ class MatchEnv
         //! Destructor
         ~MatchEnv();
 
-        //! Construct and return a local environment surrounding a particle indexed by i
-        Environment buildEnv(const vec3<float> *points, unsigned int i);
+        //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
+        Environment buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind);
 
         //! Determine clusters of particles with matching environments
-        void compute(const vec3<float> *points, unsigned int Np, float threshold);
+        void cluster(const vec3<float> *points, unsigned int Np, float threshold);
+
+        //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
+        void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold);
+
+        //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1
+        void reLabel(EnvDisjointSet dj);
 
         //! Is the environment e1 similar to the environment e2?
         //! If so, return the mapping between the vectors of the environments that will make them correspond to each other.

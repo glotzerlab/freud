@@ -108,26 +108,30 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
     // loop over all the environments in the set
     for (unsigned int i = 0; i < s.size(); i++)
         {
-        // get the root environment index
-        unsigned int root_env = find(s[i].env_ind);
-        // if we are part of the environment m, add the vectors to env
-        if (root_env == m)
+        // if we have been told NOT to ignore this environment:
+        if (s[i].ignore == false)
             {
-            if (!single_particle)
+            // get the root environment index
+            unsigned int root_env = find(s[i].env_ind);
+            // if we are part of the environment m, add the vectors to env
+            if (root_env == m)
                 {
-                assert(s[i].vec_ind.size() == m_num_neigh);
-                assert(s[i].vecs.size() == m_num_neigh);
+                if (!single_particle)
+                    {
+                    assert(s[i].vec_ind.size() == m_num_neigh);
+                    assert(s[i].vecs.size() == m_num_neigh);
+                    }
+                // loop through the vectors, getting them properly indexed
+                // add them to env
+                for (unsigned int j = 0; j < s[i].vecs.size(); j++)
+                    {
+                    unsigned int proper_ind = s[i].vec_ind[j];
+                    env[j] += s[i].vecs[proper_ind];
+                    }
+                N += float(1);
+                single_particle=false;
+                invalid_ind = false;
                 }
-            // loop through the vectors, getting them properly indexed
-            // add them to env
-            for (unsigned int j = 0; j < s[i].vecs.size(); j++)
-                {
-                unsigned int proper_ind = s[i].vec_ind[j];
-                env[j] += s[i].vecs[proper_ind];
-                }
-            N += float(1);
-            single_particle=false;
-            invalid_ind = false;
             }
         }
 
@@ -167,12 +171,13 @@ MatchEnv::~MatchEnv()
     delete m_nn;
     }
 
-// Build and return a local environment surrounding a particle
-Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i)
+// Build and return a local environment surrounding a particle.
+// Label its environment with env_ind
+Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind)
     {
     Environment ei = Environment(m_k);
     // set the environment index equal to the particle index
-    ei.env_ind = i;
+    ei.env_ind = env_ind;
 
     // get the neighbors
     vec3<float> p = points[i];
@@ -247,7 +252,7 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
 
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float threshold)
+void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold)
     {
     assert(points);
     assert(Np > 0);
@@ -267,9 +272,11 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
     EnvDisjointSet dj(m_k, m_Np);
 
     // add all the environments to the set
+    // take care, here: set things up s.t. the env_ind of every environment matches its location in the disjoint set.
+    // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        Environment ei = buildEnv(points, i);
+        Environment ei = buildEnv(points, i, i);
         dj.s.push_back(ei);
         }
 
@@ -304,11 +311,81 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
         }
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
+    reLabel(dj);
+    }
+
+//! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
+void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold)
+    {
+    assert(points);
+    assert(refPoints);
+    assert(numRef == m_k);
+    assert(Np > 0);
+    assert(threshold > 0);
+
+    // reallocate the m_env_index array if the size doesn't match the last one
+    if (Np != m_Np)
+        m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+
+    m_Np = Np;
+    float m_threshold_sq = threshold*threshold;
+
+    // initialize the neighbor list
+    m_nn->compute(m_box, points, m_Np, points, m_Np);
+
+    // create a disjoint set where all particles belong in their own cluster.
+    // this has to have ONE MORE environment than there are actual particles, because we're inserting the motif into it.
+    EnvDisjointSet dj(m_k, m_Np+1);
+
+    // create the environment characterized by refPoints. Index it as 0.
+    // set the IGNORE flag to true, since this is not an environment we have actually encountered in the simulation.
+    Environment e0 = Environment(m_k);
+    e0.env_ind = 0;
+    e0.ignore = true;
+
+    // loop through all the vectors in refPoints and add them to the environment.
+    // wrap all the vectors back into the box. I think this is necessary since all the vectors
+    // that will be added to actual particle environments will be wrapped into the box as well.
+    for (unsigned int i = 0; i < numRef; i++)
+        {
+        vec3<float> p = m_box.wrap(refPoints[i]);
+        e0.addVec(p);
+        }
+
+    // add this environment to the set
+    dj.s.push_back(e0);
+
+    // loop through the particles and add their environments to the set
+    // take care, here: set things up s.t. the env_ind of every environment matches its location in the disjoint set.
+    // if you don't do this, things will get screwy.
+    for (unsigned int i = 0; i < m_Np; i++)
+        {
+        unsigned int dummy = i+1;
+        Environment ei = buildEnv(points, i, dummy);
+        dj.s.push_back(ei);
+
+        // if the environment matches e0, merge it into the e0 environment set
+        boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[0], dj.s[dummy], m_threshold_sq);
+        // if the mapping between the vectors of the environments is NOT empty, then the environments are similar.
+        if (!vec_map.empty())
+            {
+            dj.merge(0, dummy, vec_map);
+            }
+        }
+
+    // Renumber the clusters in the disjoint set from zero to num_clusters-1.
+    // The way I have set it up here, the "0th" cluster is the one that matches the motif.
+    reLabel(dj);
+    }
+
+//! Renumber the clusters in the disjoint set dj from zero to num_clusters-1.
+void MatchEnv::reLabel(EnvDisjointSet dj)
+    {
     std::map<unsigned int, unsigned int> label_map;
 
     // loop over all particles
     unsigned int cur_set = 0;
-    for (unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < dj.s.size(); i++)
         {
         unsigned int c = dj.find(i);
 
@@ -329,7 +406,6 @@ void MatchEnv::compute(const vec3<float> *points, unsigned int Np, float thresho
 
     // specify the number of cluster environments
     m_num_clusters = cur_set;
-
     }
 
 }; }; // end namespace freud::match_env;

@@ -1573,7 +1573,7 @@ cdef class MatchEnv:
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
-    def compute(self, points, threshold):
+    def cluster(self, points, threshold):
         """Determine clusters of particles with matching environments.
 
         :param points: points to calculate the order parameter
@@ -1589,7 +1589,7 @@ cdef class MatchEnv:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP, threshold)
+        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold)
 
     def getClusters(self):
         """

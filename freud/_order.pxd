@@ -186,7 +186,7 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
     cdef cppclass MatchEnv:
         MatchEnv(const trajectory.Box&, float, unsigned int)
         void setBox(const trajectory.Box)
-        void compute(const vec3[float]*,
+        void cluster(const vec3[float]*,
                      unsigned int,
                      float)
         shared_array[unsigned int] getClusters()
