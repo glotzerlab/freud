@@ -141,7 +141,7 @@ cdef class PMFTR12:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsT1()
         nbins[1] = <np.npy_intp>self.thisptr.getNBinsT2()
         nbins[2] = <np.npy_intp>self.thisptr.getNBinsR()
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>pcf)
+        cdef np.ndarray[uint, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>pcf)
         return result
 
     def getR(self):
