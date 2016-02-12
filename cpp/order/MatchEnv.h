@@ -100,7 +100,7 @@ class MatchEnv
         void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold);
 
         //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1
-        void reLabel(EnvDisjointSet dj);
+        void populateEnv(EnvDisjointSet dj, bool reLabel=true);
 
         //! Is the environment e1 similar to the environment e2?
         //! If so, return the mapping between the vectors of the environments that will make them correspond to each other.

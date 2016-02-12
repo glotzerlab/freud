@@ -189,6 +189,11 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         void cluster(const vec3[float]*,
                      unsigned int,
                      float)
+        void matchMotif(const vec3[float]*,
+                        unsigned int,
+                        const vec3[float]*,
+                        unsigned int,
+                        float)
         shared_array[unsigned int] getClusters()
         shared_array[vec3[float]] getEnvironment(unsigned int)
         unsigned int getNP()

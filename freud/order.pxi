@@ -1576,7 +1576,7 @@ cdef class MatchEnv:
     def cluster(self, points, threshold):
         """Determine clusters of particles with matching environments.
 
-        :param points: points to calculate the order parameter
+        :param points: particle positions
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type threshold: np.float32
@@ -1590,6 +1590,34 @@ cdef class MatchEnv:
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold)
+
+    def matchMotif(self, points, refPoints, threshold):
+        """Determine clusters of particles that match the motif provided by refPoints.
+
+        :param points: particle positions
+        :param refPoints: vectors that make up the motif against which we are matching
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type threshold: np.float32
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        if refPoints.dtype != np.float32:
+            raise ValueError("refPoints must be a numpy float32 array")
+        if refPoints.ndim != 2:
+            raise ValueError("refPoints must be a 2 dimensional array")
+        if refPoints.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold)
 
     def getClusters(self):
         """

@@ -258,9 +258,8 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     assert(Np > 0);
     assert(threshold > 0);
 
-    // reallocate the m_env_index array if the size doesn't match the last one
-    if (Np != m_Np)
-        m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    // reallocate the m_env_index array for safety
+    m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -311,7 +310,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
         }
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
-    reLabel(dj);
+    populateEnv(dj, true);
     }
 
 //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
@@ -323,9 +322,8 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     assert(Np > 0);
     assert(threshold > 0);
 
-    // reallocate the m_env_index array if the size doesn't match the last one
-    if (Np != m_Np)
-        m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    // reallocate the m_env_index array for safety
+    m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -373,35 +371,51 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
             }
         }
 
-    // Renumber the clusters in the disjoint set from zero to num_clusters-1.
+    // DON'T renumber the clusters in the disjoint set from zero to num_clusters-1.
     // The way I have set it up here, the "0th" cluster is the one that matches the motif.
-    reLabel(dj);
+    populateEnv(dj, false);
+
     }
 
-//! Renumber the clusters in the disjoint set dj from zero to num_clusters-1.
-void MatchEnv::reLabel(EnvDisjointSet dj)
+//! Populate the m_env_index and m_env arrays.
+//! Renumber the clusters in the disjoint set dj from zero to num_clusters-1, if that is called.
+void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
     {
     std::map<unsigned int, unsigned int> label_map;
 
-    // loop over all particles
+    // loop over all environments
+    unsigned int label_ind;
     unsigned int cur_set = 0;
+    unsigned int particle_ind = 0;
     for (unsigned int i = 0; i < dj.s.size(); i++)
         {
-        unsigned int c = dj.find(i);
-
-        // insert the set into the mapping if we haven't seen it before.
-        // also grab the vectors that define the set and insert them into m_env
-        if (label_map.count(c) == 0)
+        // only count this if the environment is physical
+        if (dj.s[i].ignore == false)
             {
-            label_map[c] = cur_set;
-            boost::shared_array<vec3<float> > vecs = dj.getEnv(c);
-            m_env[cur_set] = vecs;
+            unsigned int c = dj.find(i);
 
-            cur_set++;
+            // insert the set into the mapping if we haven't seen it before.
+            // also grab the vectors that define the set and insert them into m_env
+            if (label_map.count(c) == 0)
+                {
+                label_map[c] = cur_set;
+                boost::shared_array<vec3<float> > vecs = dj.getEnv(c);
+
+                if (reLabel == true) { label_ind = label_map[c]; }
+                else { label_ind = c; }
+
+                m_env[label_ind] = vecs;
+
+                cur_set++;
+                }
+
+            if (reLabel == true) { label_ind = label_map[c]; }
+            else { label_ind = c; }
+
+            // label this particle in m_env_index
+            m_env_index[particle_ind] = label_ind;
+            particle_ind++;
             }
-
-        // label this particle in m_env_index
-        m_env_index[i] = label_map[c];
         }
 
     // specify the number of cluster environments
