@@ -48,6 +48,58 @@ class TestBins(unittest.TestCase):
         npt.assert_almost_equal(yArray, listY, decimal=3)
         npt.assert_almost_equal(zArray, listZ, decimal=3)
 
+class TestBinsR12(unittest.TestCase):
+    # this just tests from pmftXYZ but might want to add in others...
+    def test_generateBins(self):
+        maxR = 5.23
+        nbinsR = 10
+        nbinsT1 = 20
+        nbinsT2 = 30
+        dr = (maxR / float(nbinsR))
+        dT1 = (2.0 * numpy.pi / float(nbinsT1))
+        dT2 = (2.0 * numpy.pi / float(nbinsT2))
+
+        # make sure the radius for each bin is generated correctly
+        listR = numpy.zeros(nbinsR, dtype=numpy.float32)
+        listT1 = numpy.zeros(nbinsT1, dtype=numpy.float32)
+        listT2 = numpy.zeros(nbinsT2, dtype=numpy.float32)
+
+        for i in range(nbinsR):
+            r = float(i) * dr
+            nextr = float(i + 1) * dr
+            listR[i] = 2.0/3.0 * (nextr*nextr*nextr - r*r*r)/(nextr*nextr - r*r)
+
+        for i in range(nbinsT1):
+            t = float(i) * dT1
+            nextt = float(i + 1) * dT1
+            listT1[i] = ((t + nextt) / 2.0)
+
+        for i in range(nbinsT2):
+            t = float(i) * dT2
+            nextt = float(i + 1) * dT2
+            listT2[i] = ((t + nextt) / 2.0)
+
+        myPMFT = pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
+
+        # get the info from pmft
+
+        rArray = numpy.copy(myPMFT.getR())
+        T1Array = numpy.copy(myPMFT.getT1())
+        T2Array = numpy.copy(myPMFT.getT2())
+
+        npt.assert_almost_equal(rArray, listR, decimal=3)
+        npt.assert_almost_equal(T1Array, listT1, decimal=3)
+        npt.assert_almost_equal(T2Array, listT2, decimal=3)
+
+        npt.assert_equal(nbinsR, myPMFT.getNBinsR())
+        npt.assert_equal(nbinsT1, myPMFT.getNBinsT1())
+        npt.assert_equal(nbinsT2, myPMFT.getNBinsT2())
+
+        pmftArr = myPMFT.getPCF()
+        npt.assert_equal(nbinsR, pmftArr.shape[0])
+        npt.assert_equal(nbinsT1, pmftArr.shape[2])
+        npt.assert_equal(nbinsT2, pmftArr.shape[1])
+
 class TestPMFXY2DAccumulate(unittest.TestCase):
     def test_twoParticlesWithCellList(self):
         boxSize = 16.0

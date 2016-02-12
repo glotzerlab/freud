@@ -84,20 +84,20 @@ cdef class PMFTR12:
             raise ValueError("orientations must be a 2 dimensional array")
         if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("2nd dimension for points must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints)
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points)
-        cdef np.ndarray[float, ndim=1] l_refOrientations = np.ascontiguousarray(refOrientations)
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations)
+        cdef np.ndarray l_refPoints = refPoints
+        cdef np.ndarray l_points = points
+        cdef np.ndarray l_refOrientations = refOrientations
+        cdef np.ndarray l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
-                                    <vec3[float]*>&l_refPoints[0],
-                                    <float*>&l_refOrientations[0],
+                                    <vec3[float]*>l_refPoints.data,
+                                    <float*>l_refOrientations.data,
                                     nRef,
-                                    <vec3[float]*>&l_points[0],
-                                    <float*>&l_orientations[0],
+                                    <vec3[float]*>l_points.data,
+                                    <float*>l_orientations.data,
                                     nP)
 
     def compute(self, box, refPoints, refOrientations, points, orientations):
@@ -138,10 +138,10 @@ cdef class PMFTR12:
         """
         cdef unsigned int* pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT1()
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
         nbins[1] = <np.npy_intp>self.thisptr.getNBinsT2()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsR()
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>pcf)
+        nbins[2] = <np.npy_intp>self.thisptr.getNBinsT1()
+        cdef np.ndarray[uint, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>pcf)
         return result
 
     def getR(self):
