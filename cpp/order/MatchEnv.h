@@ -33,7 +33,7 @@ struct Environment
         num_neigh = n;
         env_ind = 0;
         num_vecs = 0;
-        ignore = false;
+        ghost = false;
         }
     //! Assimilate the set of vectors v2 (INDEXED PROPERLY) into this environment
     void assimilate(std::vector< vec3<float> > v2)
@@ -55,7 +55,7 @@ struct Environment
 
     unsigned int env_ind;                   //!< The index of the environment
     std::vector<vec3<float> > vecs;         //!< The vectors that define the environment
-    bool ignore;                            //!< Do we ignore this environment when we compute actual physical quantities associated with all environments?
+    bool ghost;                             //!< Is this environment a ghost? Do we ignore it when we compute actual physical quantities associated with all environments?
     unsigned int num_vecs;                  //!< The number of vectors defining the environment currently
     unsigned int num_neigh;                 //!< The maximum allowed number of vectors to define the environment
     std::vector<unsigned int> vec_ind;      //!< The order that the vectors must be in to define the environment
@@ -71,8 +71,11 @@ class EnvDisjointSet
         void merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map);
         //! Find the set with a given element
         unsigned int find(const unsigned int c);
-        //! Get the vectors corresponding to environment root index m
+        //! Return ALL nodes in the tree that correspond to the head index m
+        std::vector<unsigned int> findSet(const unsigned int m);
+        //! Get the vectors corresponding to environment head index m
         boost::shared_array<vec3<float> > getEnv(const unsigned int m);
+
         std::vector<Environment> s;         //!< The disjoint set data
         std::vector<unsigned int> rank;     //!< The rank of each tree in the set
         unsigned int m_num_neigh;           //!< The number of neighbors allowed per environment

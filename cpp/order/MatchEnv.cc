@@ -21,24 +21,18 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
     assert(a < s.size() && b < s.size());
     assert(vec_map.size() == m_num_neigh);
 
-    // if (s[a].vecs[7].x > 0) {std::cout<<"merging "<<a<<" and "<<b<<std::endl;}
-    // if (s[a].vecs[7].x > 0) {std::cout<<"env ind "<<s[a].env_ind<<" and "<<s[b].env_ind<<std::endl;}
-    // if (a==4 && b==5) {std::cout<<"merging "<<a<<" and "<<b<<std::endl;}
-    // if (a==4 && b==5) {std::cout<<"env ind "<<s[a].env_ind<<" and "<<s[b].env_ind<<std::endl;}
-
     // if tree heights are equal, merge b to a
     if (rank[s[a].env_ind] == rank[s[b].env_ind])
         {
-        // 0. Head up the tree, starting at the current environment.
+        // 0. Get the ENTIRE set that corresponds to head_b.
         // First make a copy of the current environment so we don't get all mixed up.
         std::vector<unsigned int> old_b_vec_ind = s[b].vec_ind;
-        unsigned int r = b;
         unsigned int head_b = find(b);
-        bool my_own_head = false;
-        while (!my_own_head)
+        std::vector<unsigned int> m_set = findSet(head_b);
+        for (unsigned int n = 0; n < m_set.size(); n++)
             {
-            // if (first_time==false) {std::cout<<"we're going up the tree!"<<std::endl;}
-            // if (first_time==false) {std::cout<<"particle_ind: "<<r<<" env_ind: "<<s[r].env_ind<<std::endl;}
+            // Go through the entire tree/set.
+            unsigned int node = m_set[n];
             // Set the vector indices properly.
             // Iterate over the vector indices of a.
             // Take the LEFT MAP view of the a<->b bimap.
@@ -50,27 +44,14 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 unsigned int b_ind = it->second;
 
                 // Here's the proper setting: find the location of b_ind in the current vec_ind vector, then bind the corresponding vec_ind to a_ind. (in the same location as a_ind.)
-                // For r=b, the first time, this is the same as s[b].vec_ind[i] = b_ind.
+                // For node=b, this is the same as s[b].vec_ind[i] = b_ind.
                 std::vector<unsigned int>::iterator b_it = std::find(old_b_vec_ind.begin(), old_b_vec_ind.end(), b_ind);
                 unsigned int b_ind_position = b_it - old_b_vec_ind.begin();
-                // std::cout<<"b_ind: "<<b_ind<<std::endl;
-                // std::cout<<"b_ind_position: "<<b_ind_position<<std::endl;
-                s[r].vec_ind[i] = s[r].vec_ind[b_ind_position];
+                s[node].vec_ind[i] = s[node].vec_ind[b_ind_position];
                 }
 
-            // prepare to go up the tree
-            unsigned int j = s[r].env_ind;
             // set the environment index properly
-            s[r].env_ind = s[a].env_ind;
-
-            if (r == j)
-                {
-                my_own_head = true;
-                }
-            else
-                {
-                r = j;
-                }
+            s[node].env_ind = s[a].env_ind;
 
             // we've added another leaf to the tree or whatever the lingo is.
             rank[s[a].env_ind]++;
@@ -81,16 +62,15 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
         // merge the shorter tree to the taller one
         if (rank[s[a].env_ind] > rank[s[b].env_ind])
             {
-            // 0. Head up the tree, starting at the current environment.
+            // 0. Get the ENTIRE set that corresponds to head_b.
             // First make a copy of the current environment so we don't get all mixed up.
             std::vector<unsigned int> old_b_vec_ind = s[b].vec_ind;
-            unsigned int r = b;
             unsigned int head_b = find(b);
-            bool my_own_head = false;
-            while (!my_own_head)
+            std::vector<unsigned int> m_set = findSet(head_b);
+            for (unsigned int n = 0; n < m_set.size(); n++)
                 {
-                // if (first_time==false) {std::cout<<"we're going up the tree!"<<std::endl;}
-                // if (first_time==false) {std::cout<<"particle_ind: "<<r<<" env_ind: "<<s[r].env_ind<<std::endl;}
+                // Go through the entire tree/set.
+                unsigned int node = m_set[n];
                 // Set the vector indices properly.
                 // Iterate over the vector indices of a.
                 // Take the LEFT MAP view of the a<->b bimap.
@@ -105,24 +85,11 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                     // For r=b, the first time, this is the same as s[b].vec_ind[i] = b_ind.
                     std::vector<unsigned int>::iterator b_it = std::find(old_b_vec_ind.begin(), old_b_vec_ind.end(), b_ind);
                     unsigned int b_ind_position = b_it - old_b_vec_ind.begin();
-                    // std::cout<<"b_ind: "<<b_ind<<std::endl;
-                    // std::cout<<"b_ind_position: "<<b_ind_position<<std::endl;
-                    s[r].vec_ind[i] = s[r].vec_ind[b_ind_position];
+                    s[node].vec_ind[i] = s[node].vec_ind[b_ind_position];
                     }
 
-                // prepare to go up the tree
-                unsigned int j = s[r].env_ind;
                 // set the environment index properly
-                s[r].env_ind = s[a].env_ind;
-
-                if (r == j)
-                    {
-                    my_own_head = true;
-                    }
-                else
-                    {
-                    r = j;
-                    }
+                s[node].env_ind = s[a].env_ind;
 
                 // we've added another leaf to the tree or whatever the lingo is.
                 rank[s[a].env_ind]++;
@@ -130,16 +97,15 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
             }
         else
             {
-            // 0. Head up the tree, starting at the current environment.
+            // 0. Get the ENTIRE set that corresponds to head_a.
             // First make a copy of the current environment so we don't get all mixed up.
             std::vector<unsigned int> old_a_vec_ind = s[a].vec_ind;
-            unsigned int r = a;
             unsigned int head_a = find(a);
-            bool my_own_head = false;
-            while (!my_own_head)
+            std::vector<unsigned int> m_set = findSet(head_a);
+            for (unsigned int n = 0; n < m_set.size(); n++)
                 {
-                // if (first_time==false) {std::cout<<"we're going up the tree!"<<std::endl;}
-                // if (first_time==false) {std::cout<<"particle_ind: "<<r<<" env_ind: "<<s[r].env_ind<<std::endl;}
+                // Go through the entire tree/set.
+                unsigned int node = m_set[n];
                 // Set the vector indices properly.
                 // Iterate over the vector indices of b.
                 // Take the RIGHT MAP view of the a<->b bimap.
@@ -154,24 +120,11 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                     // For r=a, the first time, this is the same as s[a].vec_ind[i] = a_ind.
                     std::vector<unsigned int>::iterator a_it = std::find(old_a_vec_ind.begin(), old_a_vec_ind.end(), a_ind);
                     unsigned int a_ind_position = a_it - old_a_vec_ind.begin();
-                    // std::cout<<"a_ind: "<<a_ind<<std::endl;
-                    // std::cout<<"a_ind_position: "<<a_ind_position<<std::endl;
-                    s[r].vec_ind[i] = s[r].vec_ind[a_ind_position];
+                    s[node].vec_ind[i] = s[node].vec_ind[a_ind_position];
                     }
 
-                // prepare to go up the tree
-                unsigned int j = s[r].env_ind;
                 // set the environment index properly
-                s[r].env_ind = s[b].env_ind;
-
-                if (r == j)
-                    {
-                    my_own_head = true;
-                    }
-                else
-                    {
-                    r = j;
-                    }
+                s[node].env_ind = s[b].env_ind;
 
                 // we've added another leaf to the tree or whatever the lingo is.
                 rank[s[b].env_ind]++;
@@ -186,23 +139,55 @@ unsigned int EnvDisjointSet::find(const unsigned int c)
     {
     unsigned int r = c;
 
-    // follow up to the root of the tree
+    // follow up to the head of the tree
     while (s[r].env_ind != r)
         r = s[r].env_ind;
 
-    // // path compression
-    // unsigned int i = c;
-    // while (i != r)
-    //     {
-    //     unsigned int j = s[i].env_ind;
-    //     s[i].env_ind = r;
-    //     i = j;
-    //     }
+    // path compression
+    unsigned int i = c;
+    while (i != r)
+        {
+        unsigned int j = s[i].env_ind;
+        s[i].env_ind = r;
+        i = j;
+        }
     return r;
     }
 
-//! Get the vectors corresponding to environment root index m
-//! If environment i doesn't exist as a ROOT in the set, throw an error.
+// Return ALL nodes in the tree that correspond to the head index m.
+// Values returned: the actual locations of the nodes in s. (i.e. if i is returned, the node is accessed by s[i]).
+// If environment m doesn't exist as a HEAD in the set, throw an error.
+std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
+    {
+    assert(s.size() > 0);
+    bool invalid_ind = true;
+
+    std::vector<unsigned int> m_set;
+
+    // this is wildly inefficient
+    for (unsigned int i = 0; i < s.size(); i++)
+        {
+        // get the head environment index
+        unsigned int head_env = find(s[i].env_ind);
+        // if we are part of the environment m, add the vectors to m_set
+        if (head_env == m)
+            {
+            m_set.push_back(i);
+            invalid_ind = false;
+            }
+        }
+
+    if (invalid_ind)
+        {
+        fprintf(stderr, "m is %d\n", m);
+        throw std::invalid_argument("m must be a head index in the environment set!");
+        }
+
+    return m_set;
+    }
+
+// Get the vectors corresponding to environment head index m
+// If environment m doesn't exist as a HEAD in the set, throw an error.
 boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
     {
     assert(s.size() > 0);
@@ -219,13 +204,13 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
     // loop over all the environments in the set
     for (unsigned int i = 0; i < s.size(); i++)
         {
-        // if we have been told NOT to ignore this environment:
-        if (s[i].ignore == false)
+        // if this environment is NOT a ghost (i.e. non-physical):
+        if (s[i].ghost == false)
             {
-            // get the root environment index
-            unsigned int root_env = find(s[i].env_ind);
+            // get the head environment index
+            unsigned int head_env = find(s[i].env_ind);
             // if we are part of the environment m, add the vectors to env
-            if (root_env == m)
+            if (head_env == m)
                 {
                 if (!single_particle)
                     {
@@ -237,7 +222,7 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
                 for (unsigned int j = 0; j < s[i].vecs.size(); j++)
                     {
                     unsigned int proper_ind = s[i].vec_ind[j];
-                    // if (proper_ind==7) { std::cout<<"env "<<m<<" vec 7: "<<s[i].vecs[proper_ind].x<<" "<<s[i].vecs[proper_ind].y<<" "<<s[i].vecs[proper_ind].z<<std::endl; }
+                    if (proper_ind==7) { std::cout<<"particle "<<i<<" env "<<m<<" vec 7: "<<s[i].vecs[proper_ind].x<<" "<<s[i].vecs[proper_ind].y<<" "<<s[i].vecs[proper_ind].z<<std::endl; }
                     env[j] += s[i].vecs[proper_ind];
                     }
                 N += float(1);
@@ -250,7 +235,7 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
     if (invalid_ind)
         {
         fprintf(stderr, "m is %d\n", m);
-        throw std::invalid_argument("m must be a root index in the environment set!");
+        throw std::invalid_argument("m must be a head index in the environment set!");
         }
 
     else
@@ -348,7 +333,7 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
                 // these vectors are deemed "matching"
                 // since this is a bimap, this (i,j) pair is only inserted if j has not already been assigned an i pairing.
                 // (ditto with i not being assigned a j pairing)
-                // if (e1.env_ind==4 && proper_i==7) {std::cout<<"MATCH "<<proper_i<<" "<<proper_j<<" "<<std::endl;}
+                if (e1.env_ind==20 && e2.env_ind==0) {std::cout<<"MATCH "<<i<<" "<<j<<" "<<std::endl;}
                 vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(i, j));
                 // vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(proper_i, proper_j));
                 }
@@ -421,8 +406,19 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
                     // merge the two sets using the disjoint set
                     unsigned int a = dj.find(i);
                     unsigned int b = dj.find(j);
+                    if (i==20) {std::cout<<"particle 20 env "<<a<<" merging with particle "<<j<<" env "<<b<<std::endl;}
+                    if (j==20) {std::cout<<"particle "<<i<<" env "<<a<<" merging with particle 20 env "<<b<<std::endl;}
                     if (a != b)
                         dj.merge(i,j,vec_map);
+                        if (i==20)
+                            {
+                            std::cout<<"particle 20 vec ind: ";
+                            for (std::vector<unsigned int>::const_iterator it = dj.s[i].vec_ind.begin(); it != dj.s[i].vec_ind.end(); it++)
+                                {
+                                std::cout<<*it<<" ";
+                                }
+                            std::cout<<std::endl;
+                            }
                     }
                 }
             }
@@ -458,7 +454,7 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     // set the IGNORE flag to true, since this is not an environment we have actually encountered in the simulation.
     Environment e0 = Environment(m_k);
     e0.env_ind = 0;
-    e0.ignore = true;
+    e0.ghost = true;
 
     // loop through all the vectors in refPoints and add them to the environment.
     // wrap all the vectors back into the box. I think this is necessary since all the vectors
@@ -509,7 +505,7 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
     for (unsigned int i = 0; i < dj.s.size(); i++)
         {
         // only count this if the environment is physical
-        if (dj.s[i].ignore == false)
+        if (dj.s[i].ghost == false)
             {
             unsigned int c = dj.find(i);
             // insert the set into the mapping if we haven't seen it before.
