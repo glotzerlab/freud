@@ -85,8 +85,10 @@ class MatchEnv
     {
     public:
         //! Constructor
-        /**Constructor for Match-Environment analysis class.  After creation, call compute to calculate clusters grouped by matching environment.  Use accessor functions to retrieve data.
+        /**Constructor for Match-Environment analysis class.  After creation, call cluster to agnostically calculate clusters grouped by matching environment,
+        or matchMotif to match all particle environments against an input motif.  Use accessor functions to retrieve data.
         @param rmax Cutoff radius for cell list and clustering algorithm.  Values near first minimum of the rdf are recommended.
+        @param k Number of nearest neighbors taken to construct the environment of any given particle.
         **/
         MatchEnv(const trajectory::Box& box, float rmax, unsigned int k=12);
 
@@ -97,9 +99,15 @@ class MatchEnv
         Environment buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind);
 
         //! Determine clusters of particles with matching environments
+        //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
+        //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
+        //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
         void cluster(const vec3<float> *points, unsigned int Np, float threshold);
 
         //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
+        //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
+        //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
+        //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
         void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold);
 
         //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1

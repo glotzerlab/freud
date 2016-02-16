@@ -306,7 +306,8 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
 // Is the environment e1 similar to the environment e2?
 // If so, return the mapping between the vectors of the environments that will make them correspond to each other.
 // If not, return an empty map.
-// The threshold is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
+// The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
+// This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
 boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Environment e2, float threshold_sq)
     {
     std::vector< vec3<float> > v1 = e1.vecs;
@@ -326,7 +327,7 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
             vec3<float> delta = v1[i] - v2[j];
             // delta = m_box.wrap(delta);
             float rsq = dot(delta, delta);
-            if (rsq < threshold_sq)
+            if (rsq < threshold_sq*m_rmaxsq)
                 {
                 // these vectors are deemed "matching"
                 // since this is a bimap, this (i,j) pair is only inserted if j has not already been assigned an i pairing.
