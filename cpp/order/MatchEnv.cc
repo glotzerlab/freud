@@ -21,22 +21,59 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
     assert(a < s.size() && b < s.size());
     assert(vec_map.size() == m_num_neigh);
 
-    // if tree heights are equal, merge to a
+    // if (s[a].vecs[7].x > 0) {std::cout<<"merging "<<a<<" and "<<b<<std::endl;}
+    // if (s[a].vecs[7].x > 0) {std::cout<<"env ind "<<s[a].env_ind<<" and "<<s[b].env_ind<<std::endl;}
+    // if (a==4 && b==5) {std::cout<<"merging "<<a<<" and "<<b<<std::endl;}
+    // if (a==4 && b==5) {std::cout<<"env ind "<<s[a].env_ind<<" and "<<s[b].env_ind<<std::endl;}
+
+    // if tree heights are equal, merge b to a
     if (rank[s[a].env_ind] == rank[s[b].env_ind])
         {
-        rank[s[a].env_ind]++;
-        // 1. set the environment index properly
-        s[b].env_ind = s[a].env_ind;
-        // 2. set the vector indices properly.
-        // Iterate over the vector indices of a.
-        // Take the LEFT MAP view of the a<->b bimap.
-        // Find the value of b_ind that corresponds to the value of a_ind, and set it for b.
-        for (unsigned int i=0; i<m_num_neigh; i++)
+        // 0. Head up the tree, starting at the current environment.
+        // First make a copy of the current environment so we don't get all mixed up.
+        std::vector<unsigned int> old_b_vec_ind = s[b].vec_ind;
+        unsigned int r = b;
+        unsigned int head_b = find(b);
+        bool my_own_head = false;
+        while (!my_own_head)
             {
-            unsigned int a_ind = s[a].vec_ind[i];
-            boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
-            unsigned int b_ind = it->second;
-            s[b].vec_ind[i] = b_ind;
+            // if (first_time==false) {std::cout<<"we're going up the tree!"<<std::endl;}
+            // if (first_time==false) {std::cout<<"particle_ind: "<<r<<" env_ind: "<<s[r].env_ind<<std::endl;}
+            // Set the vector indices properly.
+            // Iterate over the vector indices of a.
+            // Take the LEFT MAP view of the a<->b bimap.
+            // Find the value of b_ind that corresponds to the value of a_ind, and set it properly.
+            for (unsigned int i=0; i<m_num_neigh; i++)
+                {
+                unsigned int a_ind = s[a].vec_ind[i];
+                boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
+                unsigned int b_ind = it->second;
+
+                // Here's the proper setting: find the location of b_ind in the current vec_ind vector, then bind the corresponding vec_ind to a_ind. (in the same location as a_ind.)
+                // For r=b, the first time, this is the same as s[b].vec_ind[i] = b_ind.
+                std::vector<unsigned int>::iterator b_it = std::find(old_b_vec_ind.begin(), old_b_vec_ind.end(), b_ind);
+                unsigned int b_ind_position = b_it - old_b_vec_ind.begin();
+                // std::cout<<"b_ind: "<<b_ind<<std::endl;
+                // std::cout<<"b_ind_position: "<<b_ind_position<<std::endl;
+                s[r].vec_ind[i] = s[r].vec_ind[b_ind_position];
+                }
+
+            // prepare to go up the tree
+            unsigned int j = s[r].env_ind;
+            // set the environment index properly
+            s[r].env_ind = s[a].env_ind;
+
+            if (r == j)
+                {
+                my_own_head = true;
+                }
+            else
+                {
+                r = j;
+                }
+
+            // we've added another leaf to the tree or whatever the lingo is.
+            rank[s[a].env_ind]++;
             }
         }
     else
@@ -44,26 +81,100 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
         // merge the shorter tree to the taller one
         if (rank[s[a].env_ind] > rank[s[b].env_ind])
             {
-            s[b].env_ind = s[a].env_ind;
-            // Merge to a.
-            for (unsigned int i=0; i<m_num_neigh; i++)
+            // 0. Head up the tree, starting at the current environment.
+            // First make a copy of the current environment so we don't get all mixed up.
+            std::vector<unsigned int> old_b_vec_ind = s[b].vec_ind;
+            unsigned int r = b;
+            unsigned int head_b = find(b);
+            bool my_own_head = false;
+            while (!my_own_head)
                 {
-                unsigned int a_ind = s[a].vec_ind[i];
-                boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
-                unsigned int b_ind = it->second;
-                s[b].vec_ind[i] = b_ind;
+                // if (first_time==false) {std::cout<<"we're going up the tree!"<<std::endl;}
+                // if (first_time==false) {std::cout<<"particle_ind: "<<r<<" env_ind: "<<s[r].env_ind<<std::endl;}
+                // Set the vector indices properly.
+                // Iterate over the vector indices of a.
+                // Take the LEFT MAP view of the a<->b bimap.
+                // Find the value of b_ind that corresponds to the value of a_ind, and set it properly.
+                for (unsigned int i=0; i<m_num_neigh; i++)
+                    {
+                    unsigned int a_ind = s[a].vec_ind[i];
+                    boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
+                    unsigned int b_ind = it->second;
+
+                    // Here's the proper setting: find the location of b_ind in the current vec_ind vector, then bind the corresponding vec_ind to a_ind. (in the same location as a_ind.)
+                    // For r=b, the first time, this is the same as s[b].vec_ind[i] = b_ind.
+                    std::vector<unsigned int>::iterator b_it = std::find(old_b_vec_ind.begin(), old_b_vec_ind.end(), b_ind);
+                    unsigned int b_ind_position = b_it - old_b_vec_ind.begin();
+                    // std::cout<<"b_ind: "<<b_ind<<std::endl;
+                    // std::cout<<"b_ind_position: "<<b_ind_position<<std::endl;
+                    s[r].vec_ind[i] = s[r].vec_ind[b_ind_position];
+                    }
+
+                // prepare to go up the tree
+                unsigned int j = s[r].env_ind;
+                // set the environment index properly
+                s[r].env_ind = s[a].env_ind;
+
+                if (r == j)
+                    {
+                    my_own_head = true;
+                    }
+                else
+                    {
+                    r = j;
+                    }
+
+                // we've added another leaf to the tree or whatever the lingo is.
+                rank[s[a].env_ind]++;
                 }
             }
         else
             {
-            s[a].env_ind = s[b].env_ind;
-            // Merge to b.
-            for (unsigned int i=0; i<m_num_neigh; i++)
+            // 0. Head up the tree, starting at the current environment.
+            // First make a copy of the current environment so we don't get all mixed up.
+            std::vector<unsigned int> old_a_vec_ind = s[a].vec_ind;
+            unsigned int r = a;
+            unsigned int head_a = find(a);
+            bool my_own_head = false;
+            while (!my_own_head)
                 {
-                unsigned int b_ind = s[b].vec_ind[i];
-                boost::bimap<unsigned int, unsigned int>::right_const_iterator it = vec_map.right.find(b_ind);
-                unsigned int a_ind = it->second;
-                s[a].vec_ind[i] = a_ind;
+                // if (first_time==false) {std::cout<<"we're going up the tree!"<<std::endl;}
+                // if (first_time==false) {std::cout<<"particle_ind: "<<r<<" env_ind: "<<s[r].env_ind<<std::endl;}
+                // Set the vector indices properly.
+                // Iterate over the vector indices of b.
+                // Take the RIGHT MAP view of the a<->b bimap.
+                // Find the value of a_ind that corresponds to the value of b_ind, and set it properly.
+                for (unsigned int i=0; i<m_num_neigh; i++)
+                    {
+                    unsigned int b_ind = s[b].vec_ind[i];
+                    boost::bimap<unsigned int, unsigned int>::right_const_iterator it = vec_map.right.find(b_ind);
+                    unsigned int a_ind = it->second;
+
+                    // Here's the proper setting: find the location of a_ind in the current vec_ind vector, then bind the corresponding vec_ind to b_ind. (in the same location as b_ind.)
+                    // For r=a, the first time, this is the same as s[a].vec_ind[i] = a_ind.
+                    std::vector<unsigned int>::iterator a_it = std::find(old_a_vec_ind.begin(), old_a_vec_ind.end(), a_ind);
+                    unsigned int a_ind_position = a_it - old_a_vec_ind.begin();
+                    // std::cout<<"a_ind: "<<a_ind<<std::endl;
+                    // std::cout<<"a_ind_position: "<<a_ind_position<<std::endl;
+                    s[r].vec_ind[i] = s[r].vec_ind[a_ind_position];
+                    }
+
+                // prepare to go up the tree
+                unsigned int j = s[r].env_ind;
+                // set the environment index properly
+                s[r].env_ind = s[b].env_ind;
+
+                if (r == j)
+                    {
+                    my_own_head = true;
+                    }
+                else
+                    {
+                    r = j;
+                    }
+
+                // we've added another leaf to the tree or whatever the lingo is.
+                rank[s[b].env_ind]++;
                 }
             }
         }
@@ -79,14 +190,14 @@ unsigned int EnvDisjointSet::find(const unsigned int c)
     while (s[r].env_ind != r)
         r = s[r].env_ind;
 
-    // path compression
-    unsigned int i = c;
-    while (i != r)
-        {
-        unsigned int j = s[i].env_ind;
-        s[i].env_ind = r;
-        i = j;
-        }
+    // // path compression
+    // unsigned int i = c;
+    // while (i != r)
+    //     {
+    //     unsigned int j = s[i].env_ind;
+    //     s[i].env_ind = r;
+    //     i = j;
+    //     }
     return r;
     }
 
@@ -126,6 +237,7 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
                 for (unsigned int j = 0; j < s[i].vecs.size(); j++)
                     {
                     unsigned int proper_ind = s[i].vec_ind[j];
+                    // if (proper_ind==7) { std::cout<<"env "<<m<<" vec 7: "<<s[i].vecs[proper_ind].x<<" "<<s[i].vecs[proper_ind].y<<" "<<s[i].vecs[proper_ind].z<<std::endl; }
                     env[j] += s[i].vecs[proper_ind];
                     }
                 N += float(1);
@@ -219,11 +331,16 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
     for (unsigned int i = 0; i < m_k; i++)
         {
         // be sure to tie together the PROPER vector indices, in case any index re-ordering has taken place
-        unsigned int proper_i = e1.vec_ind[i];
+        // unsigned int proper_i = e1.vec_ind[i];
+        // if (e1.env_ind==4 && proper_i==7) { std::cout<<"env4 vec 7: "<<v1[proper_i].x<<" "<<v1[proper_i].y<<" "<<v1[proper_i].z<<std::endl; }
         for (unsigned int j = 0; j < m_k; j++)
             {
-            unsigned int proper_j = e2.vec_ind[j];
-            vec3<float> delta = v1[proper_i] - v2[proper_j];
+            // unsigned int proper_j = e2.vec_ind[j];
+            vec3<float> delta = v1[i] - v2[j];
+            // vec3<float> delta = v1[proper_i] - v2[proper_j];
+            // if (e1.env_ind==0 && e2.env_ind==1) { std::cout<<"v1: "<<v1[proper_i].x<<" "<<v1[proper_i].y<<" "<<v1[proper_i].z<<std::endl; }
+            // if (e1.env_ind==4 && proper_i==7) { std::cout<<"v2: "<<v2[proper_j].x<<" "<<v2[proper_j].y<<" "<<v2[proper_j].z<<std::endl; }
+            // if (e1.env_ind==4 && proper_i==7) { std::cout<<"delta: "<<delta.x<<" "<<delta.y<<" "<<delta.z<<std::endl; }
             // delta = m_box.wrap(delta);
             float rsq = dot(delta, delta);
             if (rsq < threshold_sq)
@@ -231,8 +348,9 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
                 // these vectors are deemed "matching"
                 // since this is a bimap, this (i,j) pair is only inserted if j has not already been assigned an i pairing.
                 // (ditto with i not being assigned a j pairing)
-                vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(proper_i, proper_j));
-
+                // if (e1.env_ind==4 && proper_i==7) {std::cout<<"MATCH "<<proper_i<<" "<<proper_j<<" "<<std::endl;}
+                vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(i, j));
+                // vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(proper_i, proper_j));
                 }
             }
         }
@@ -299,6 +417,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
                 // are similar. so merge them.
                 if (!vec_map.empty())
                     {
+                    // std::cout<<"particle pair: "<<i<<" "<<j<<std::endl;
                     // merge the two sets using the disjoint set
                     unsigned int a = dj.find(i);
                     unsigned int b = dj.find(j);
@@ -393,7 +512,6 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
         if (dj.s[i].ignore == false)
             {
             unsigned int c = dj.find(i);
-
             // insert the set into the mapping if we haven't seen it before.
             // also grab the vectors that define the set and insert them into m_env
             if (label_map.count(c) == 0)
