@@ -84,6 +84,9 @@ cdef class PMFTR12:
             raise ValueError("orientations must be a 2 dimensional array")
         if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        # make sure that the angle is 0 to 2pi
+        refOrientations = refOrientations % (2.0*np.pi)
+        orientations = orientations % (2.0*np.pi)
         cdef np.ndarray l_refPoints = refPoints
         cdef np.ndarray l_points = points
         cdef np.ndarray l_refOrientations = refOrientations
