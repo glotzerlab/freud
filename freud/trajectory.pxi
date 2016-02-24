@@ -4,6 +4,10 @@ cimport freud._trajectory as trajectory
 import numpy as np
 cimport numpy as np
 from libcpp.string cimport string
+from libc.string cimport memcpy
+# Numpy must be initialized. When using numpy from C or Cython you must 
+# _always_ do that, or you will have segfaults 
+np.import_array()
 
 cdef class Box:
     """
@@ -298,8 +302,8 @@ cdef class Box:
                 vecs[i] = self._wrap(vec)
 
     def _wrap(self, vec):
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
-        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec[0])
+        cdef np.ndarray l_vec = vec
+        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec.data)
         return [result.x, result.y, result.z]
 
     def makeCoordinates(self, f):
@@ -310,8 +314,8 @@ cdef class Box:
         :type f: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: A vector inside the box corresponding to f
         """
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(f.flatten())
-        cdef vec3[float] result = self.thisptr.makeCoordinates(<const vec3[float]&>l_vec[0])
+        cdef np.ndarray l_vec = f
+        cdef vec3[float] result = self.thisptr.makeCoordinates(<const vec3[float]&>l_vec.data)
         return [result.x, result.y, result.z]
 
     def makeFraction(self, vec):
@@ -322,8 +326,8 @@ cdef class Box:
         :type vec: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: Fractional vector inside the box corresponding to f
         """
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
-        cdef vec3[float] result = self.thisptr.makeFraction(<const vec3[float]&>l_vec[0])
+        cdef np.ndarray l_vec = vec
+        cdef vec3[float] result = self.thisptr.makeFraction(<const vec3[float]&>l_vec.data)
         return [result.x, result.y, result.z]
 
     def getLatticeVector(self, i):
@@ -449,8 +453,7 @@ cdef class DCDLoader:
         :rtype: np.ndarray(shape=[N, 3], dtype=np.float32)
         """
         cdef float *points = self.thisptr.getPoints().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
-        nbins[1] = 3
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>points)
+        # this needs to be a copy, otherwise it may pass out of scope and result in a seg fault
+        cdef np.ndarray[np.float32_t,ndim=2] result = np.zeros(shape=(self.thisptr.getNumParticles(),3),dtype=np.float32)
+        memcpy(result.data,points,result.nbytes)
         return result
