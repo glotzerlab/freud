@@ -350,6 +350,54 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
         }
     }
 
+// Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
+// Construct the environments accordingly, and utilize isSimilar() as above.
+//! Return a std map for ease of use.
+std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq)
+    {
+    assert(refPoints1);
+    assert(refPoints2);
+    assert(numRef == m_k);
+
+    // create the environment characterized by refPoints1. Index it as 0.
+    // set the IGNORE flag to true, since this is not an environment we have actually encountered in the simulation.
+    Environment e0 = Environment(m_k);
+    e0.env_ind = 0;
+    e0.ghost = true;
+
+    // create the environment characterized by refPoints2. Index it as 1.
+    // set the IGNORE flag to true again.
+    Environment e1 = Environment(m_k);
+    e1.env_ind = 1;
+    e1.ghost = true;
+
+    // loop through all the vectors in refPoints1 and refPoints2 and add them to the environments.
+    // wrap all the vectors back into the box. I think this is necessary since all the vectors
+    // that will be added to actual particle environments will be wrapped into the box as well.
+    for (unsigned int i = 0; i < numRef; i++)
+        {
+        vec3<float> p0 = m_box.wrap(refPoints1[i]);
+        vec3<float> p1 = m_box.wrap(refPoints2[i]);
+        e0.addVec(p0);
+        e1.addVec(p1);
+        }
+
+    // call isSimilar for e0 and e1
+    boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(e0, e1, threshold_sq);
+
+    // convert to a std::map
+    // the lamest.
+    // from stackoverflow.com/questions/20667187/convert-boostbimap-to-stdmap
+    std::map<unsigned int, unsigned int> std_vec_map;
+    for (boost::bimap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
+        {
+        std_vec_map[it->left] = it->right;
+        }
+
+    // return the vector map
+    return std_vec_map;
+    }
+
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
 void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold)

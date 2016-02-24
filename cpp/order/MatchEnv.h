@@ -118,6 +118,11 @@ class MatchEnv
         //! If not, return an empty map
         boost::bimap<unsigned int, unsigned int> isSimilar(Environment e1, Environment e2, float threshold_sq);
 
+        //! Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
+        //! Construct the environments accordingly, and utilize isSimilar() as above.
+        //! Return a std map for ease of use.
+        std::map<unsigned int, unsigned int> isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq);
+
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
         boost::shared_array<unsigned int> getClusters()
             {

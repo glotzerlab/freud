@@ -7,6 +7,7 @@ cimport freud._order as order
 from libc.string cimport memcpy
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
+from libcpp.map cimport map
 import numpy as np
 cimport numpy as np
 
@@ -1586,9 +1587,11 @@ cdef class MatchEnv:
         if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
+
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
+
         self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold)
 
     def matchMotif(self, points, refPoints, threshold):
@@ -1606,18 +1609,55 @@ cdef class MatchEnv:
         if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
         if refPoints.dtype != np.float32:
             raise ValueError("refPoints must be a numpy float32 array")
         if refPoints.ndim != 2:
             raise ValueError("refPoints must be a 2 dimensional array")
         if refPoints.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
+
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+
         self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold)
+
+    def isSimilar(self, refPoints1, refPoints2, threshold):
+        """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
+
+        :param refPoints1: vectors that make up motif 1
+        :param refPoints2: vectors that make up motif 2
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type threshold: np.float32
+        """
+        if refPoints1.dtype != np.float32:
+            raise ValueError("refPoints1 must be a numpy float32 array")
+        if refPoints1.ndim != 2:
+            raise ValueError("refPoints1 must be a 2 dimensional array")
+        if refPoints1.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
+        if refPoints2.dtype != np.float32:
+            raise ValueError("refPoints2 must be a numpy float32 array")
+        if refPoints2.ndim != 2:
+            raise ValueError("refPoints2 must be a 2 dimensional array")
+        if refPoints2.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.ascontiguousarray(refPoints1.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.ascontiguousarray(refPoints2.flatten())
+        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
+        cdef float threshold_sq = threshold*threshold
+
+        if nRef1 != nRef2:
+            raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
+
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints1[0], nRef1, threshold_sq)
+        return vec_map
 
     def getClusters(self):
         """

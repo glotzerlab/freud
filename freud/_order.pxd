@@ -4,6 +4,7 @@ from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
+from libcpp.map cimport map
 cimport freud._trajectory as trajectory
 
 cdef extern from "BondOrder.h" namespace "freud::order":
@@ -194,6 +195,10 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
                         const vec3[float]*,
                         unsigned int,
                         float)
+        map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
+                                        const vec3[float]*,
+                                        unsigned int,
+                                        float)
         shared_array[unsigned int] getClusters()
         shared_array[vec3[float]] getEnvironment(unsigned int)
         unsigned int getNP()
