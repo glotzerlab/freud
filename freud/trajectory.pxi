@@ -302,8 +302,8 @@ cdef class Box:
                 vecs[i] = self._wrap(vec)
 
     def _wrap(self, vec):
-        cdef np.ndarray l_vec = vec
-        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec.data)
+        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
     def makeCoordinates(self, f):
@@ -314,8 +314,8 @@ cdef class Box:
         :type f: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: A vector inside the box corresponding to f
         """
-        cdef np.ndarray l_vec = f
-        cdef vec3[float] result = self.thisptr.makeCoordinates(<const vec3[float]&>l_vec.data)
+        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(f.flatten())
+        cdef vec3[float] result = self.thisptr.makeCoordinates(<const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
     def makeFraction(self, vec):
@@ -326,8 +326,8 @@ cdef class Box:
         :type vec: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: Fractional vector inside the box corresponding to f
         """
-        cdef np.ndarray l_vec = vec
-        cdef vec3[float] result = self.thisptr.makeFraction(<const vec3[float]&>l_vec.data)
+        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef vec3[float] result = self.thisptr.makeFraction(<const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
     def getLatticeVector(self, i):
