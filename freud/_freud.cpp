@@ -47149,7 +47149,7 @@ static PyObject *__pyx_pw_5freud_6_freud_8MatchEnv_11isSimilar(PyObject *__pyx_v
 
 static PyObject *__pyx_pf_5freud_6_freud_8MatchEnv_10isSimilar(struct __pyx_obj_5freud_6_freud_MatchEnv *__pyx_v_self, PyObject *__pyx_v_refPoints1, PyObject *__pyx_v_refPoints2, PyObject *__pyx_v_threshold) {
   PyArrayObject *__pyx_v_l_refPoints1 = 0;
-  CYTHON_UNUSED PyArrayObject *__pyx_v_l_refPoints2 = 0;
+  PyArrayObject *__pyx_v_l_refPoints2 = 0;
   unsigned int __pyx_v_nRef1;
   unsigned int __pyx_v_nRef2;
   float __pyx_v_threshold_sq;
@@ -47629,7 +47629,7 @@ static PyObject *__pyx_pf_5freud_6_freud_8MatchEnv_10isSimilar(struct __pyx_obj_
  *         if nRef1 != nRef2:
  *             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")             # <<<<<<<<<<<<<<
  * 
- *         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints1[0], nRef1, threshold_sq)
+ *         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)
  */
     __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__145, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 1657; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
@@ -47649,19 +47649,19 @@ static PyObject *__pyx_pf_5freud_6_freud_8MatchEnv_10isSimilar(struct __pyx_obj_
   /* "order.pxi":1659
  *             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
  * 
- *         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints1[0], nRef1, threshold_sq)             # <<<<<<<<<<<<<<
+ *         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)             # <<<<<<<<<<<<<<
  *         return vec_map
  * 
  */
   __pyx_t_11 = 0;
   if (__pyx_t_11 < 0) __pyx_t_11 += __pyx_pybuffernd_l_refPoints1.diminfo[0].shape;
   __pyx_t_12 = 0;
-  if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_pybuffernd_l_refPoints1.diminfo[0].shape;
-  __pyx_v_vec_map = __pyx_v_self->thisptr->isSimilar(((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refPoints1.rcbuffer->pybuffer.buf, __pyx_t_11, __pyx_pybuffernd_l_refPoints1.diminfo[0].strides)))), ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refPoints1.rcbuffer->pybuffer.buf, __pyx_t_12, __pyx_pybuffernd_l_refPoints1.diminfo[0].strides)))), __pyx_v_nRef1, __pyx_v_threshold_sq);
+  if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_pybuffernd_l_refPoints2.diminfo[0].shape;
+  __pyx_v_vec_map = __pyx_v_self->thisptr->isSimilar(((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refPoints1.rcbuffer->pybuffer.buf, __pyx_t_11, __pyx_pybuffernd_l_refPoints1.diminfo[0].strides)))), ((vec3<float>  *)(&(*__Pyx_BufPtrStrided1d(float *, __pyx_pybuffernd_l_refPoints2.rcbuffer->pybuffer.buf, __pyx_t_12, __pyx_pybuffernd_l_refPoints2.diminfo[0].strides)))), __pyx_v_nRef1, __pyx_v_threshold_sq);
 
   /* "order.pxi":1660
  * 
- *         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints1[0], nRef1, threshold_sq)
+ *         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)
  *         return vec_map             # <<<<<<<<<<<<<<
  * 
  *     def getClusters(self):
@@ -77747,7 +77747,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         if nRef1 != nRef2:
  *             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")             # <<<<<<<<<<<<<<
  * 
- *         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints1[0], nRef1, threshold_sq)
+ *         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)
  */
   __pyx_tuple__145 = PyTuple_Pack(1, __pyx_kp_s_the_number_of_vectors_in_refPoin); if (unlikely(!__pyx_tuple__145)) {__pyx_filename = __pyx_f[5]; __pyx_lineno = 1657; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__145);

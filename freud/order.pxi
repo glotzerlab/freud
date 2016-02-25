@@ -1656,7 +1656,7 @@ cdef class MatchEnv:
         if nRef1 != nRef2:
             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
 
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints1[0], nRef1, threshold_sq)
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)
         return vec_map
 
     def getClusters(self):
