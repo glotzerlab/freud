@@ -300,6 +300,7 @@ void BondOrder::accumulate(trajectory::Box& box,
                            quat<float> *orientations,
                            unsigned int Np)
     {
+    m_box = box;
     // compute the cell list
     m_nn->compute(m_box,ref_points,Nref,points,Np);
     m_nn->setRMax(m_rmax);
