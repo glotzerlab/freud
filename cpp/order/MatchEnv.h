@@ -35,11 +35,6 @@ struct Environment
         num_vecs = 0;
         ghost = false;
         }
-    //! Assimilate the set of vectors v2 (INDEXED PROPERLY) into this environment
-    void assimilate(std::vector< vec3<float> > v2)
-        {
-        int blah=0;
-        }
     //! Add a vector to define the local environment
     void addVec(vec3<float> vec)
         {
@@ -122,6 +117,10 @@ class MatchEnv
         //! Construct the environments accordingly, and utilize isSimilar() as above.
         //! Return a std map for ease of use.
         std::map<unsigned int, unsigned int> isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq);
+
+        //! Get the optimal RMSD between the set of vectors v1 and the set of vectors v2
+        //! Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this optimal RMSD
+        double getMinRMSD(const std::vector<vec3<float> >& v1, const std::vector<vec3<float> >& v2, boost::bimap<unsigned int, unsigned int>& m);
 
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
         boost::shared_array<unsigned int> getClusters()

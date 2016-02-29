@@ -319,7 +319,7 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
     if (v1.size() != m_k) { return vec_map; }
     if (v2.size() != m_k) { return vec_map; }
 
-    // compare all iterations of vectors
+    // compare all combinations of vectors
     for (unsigned int i = 0; i < m_k; i++)
         {
         for (unsigned int j = 0; j < m_k; j++)
@@ -348,6 +348,39 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
         boost::bimap<unsigned int, unsigned int> empty_map;
         return empty_map;
         }
+    }
+
+// Get the optimal RMSD between the set of vectors v1 and the set of vectors v2
+// Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this optimal RMSD.
+// If vectors have a different number of elements, return -1.0 and force the bimap to be empty
+// A little of the logic here is taken from Paul's procrustes library, in his original brute_force.h AlignedRMSD() method. Thanks Paul!
+double MatchEnv::getMinRMSD(const std::vector<vec3<float> >& v1, const std::vector<vec3<float> >& v2, boost::bimap<unsigned int, unsigned int>& m)
+    {
+    boost::bimap<unsigned int, unsigned int> vec_map;
+
+    // If the vectors are two different sizes, force the map to be empty since it can never be 1-1.
+    // Return Min RMSD = -1.
+    if (v1.size() != v2.size())
+        {
+        m = vec_map;
+        return -1.0;
+        }
+
+    // compare all combinations of vectors
+    for (unsigned int i = 0; i < v1.size(); i++)
+        {
+        double min_rsq = -1.0;
+        for (unsigned int j = 0; j < v2.size(); j++)
+            {
+            vec3<float> delta = v1[i] - v2[j];
+            float rsq = dot(delta, delta);
+            if (rsq < min_rsq || min_rsq < 0.0)
+                {
+                min_rsq = rsq;
+                }
+            }
+        }
+
     }
 
 // Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?

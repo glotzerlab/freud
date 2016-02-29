@@ -44,17 +44,34 @@ SOFTWARE.
 #ifndef BRUTE_FORCE_H
 #define BRUTE_FORCE_H
 
-namespace procrustes{
-    namespace registration{
+namespace freud { namespace registration {
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> matrix;
+
+inline matrix makeEigenMatrix(const std::vector<vec3<float> >& vecs)
+{
+    // build the Eigen matrix
+    matrix mat;
+    unsigned int size = vecs.size();
+    // we know the dimension is 3 bc we're dealing with a vector of vec3's.
+    mat.resize(size, 3);
+    for (unsigned int i=0; i<size; i++)
+        {
+        mat(i,0) = vecs[i].x;
+        mat(i,1) = vecs[i].y;
+        mat(i,2) = vecs[i].z;
+        }
+
+    return mat;
+}
+
 inline matrix CenterOfMass(const matrix& P)
 {
-    // Assumes that P = (v**T) if v is a column vector.  or in other notation  P = [x1, y1, z1; ...]
+    // Assumes that P = (v^T) if v is a column vector.  or in other notation  P = [x1, y1, z1; ...]
+    // p.size = (N rows, 3 cols)
     matrix cm(1, P.cols());
     for(int i =0; i < P.cols(); i++)
         cm(0,i) = P.col(i).sum()/double(P.rows());
-    //cout << "cm = \n"<< cm << endl;
 
     return cm;
 }
@@ -70,27 +87,33 @@ inline matrix Translate(const matrix& vec, const matrix& P)
 inline double RMSD(const matrix& P, const matrix& Q)
 {
     matrix pmq = P-Q;
+    // matrix.norm() squares EVERY entry of the matrix, and adds them all together.
+    // for our RMSD purposes, this is exactly what we want.
     return pmq.norm()/double(P.rows());
 }
 
+// some helpful references:
+// http://cnx.org/contents/HV-RsdwL@23/Molecular-Distance-Measures
+// http://btk.sourceforge.net/html_docs/0.8.1/rmsd_theory.html
 inline void KabschAlgorithm(const matrix& P, const matrix& Q, matrix& Rotation)
 {
     // Preconditions: P and Q have been translated to have the same center of mass.
     matrix A = P.transpose()*Q;
+    // singular value decomposition (~ eigen decomposition)
     Eigen::JacobiSVD<matrix> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV );
-    // A = USV**T
+    // A = USV^T
     matrix U = svd.matrixU();
     matrix V = svd.matrixV();
 
     double det = (V*U.transpose()).determinant();
 
+    // if the rotation as we've found it, rot=VU^T, is IMPROPER, find the next best
+    // (proper) rotation by reflecting the smallest principal axis in rot:
     if(det < 0)
     {
-        //std::cout << "Vb = \n" << V << std::endl<< std::endl;
         V.col(V.cols()-1)*= -1.0;
-        //std::cout << "Va = \n" << V << std::endl<< std::endl;
     }
-    //Solve for the rotation matrix
+    // This is the rotation matrix that minimizes the MSD between all pairs of points P and Q.
     Rotation= V*U.transpose();
 }
 
@@ -104,48 +127,58 @@ inline void AlignVectorSets(matrix& P,matrix& Q, matrix* pRotation = NULL)
     P = Translate(-CenterOfMass(P), P);
     Q = Translate(-CenterOfMass(Q), Q);
     KabschAlgorithm(P, Q, rotation); // Find the rotation.
-    P = (rotation*P.transpose()).transpose();  // Apply the transform
+    // Apply the rotation.
+    // The rotation that we've found from the KabschAlgorithm actually acts on P^T.
+    // Then we have to take the transpose again to get our matrix back to its original dimensionality.
+    P = (rotation*P.transpose()).transpose();  // Apply the transformation.
 
     if(pRotation) // optionally copy the roation.
         *pRotation = rotation;
 }
+
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
 
 class RegisterBruteForce  // : public Register
 {
-    using point = bg::model::point<double, 3, bg::cs::cartesian>;
-    using value = std::pair<point, unsigned int>;
+    // using point = bg::model::point<double, 3, bg::cs::cartesian>;
+    // using value = std::pair<point, unsigned int>;
 
     public:
-        RegisterBruteForce(boost::python::list pts) : m_rmsd(0.0), m_tol(1e-6), m_shuffles(1)
+        RegisterBruteForce(std::vector<vec3<float> > vecs) : m_rmsd(0.0), m_tol(1e-6), m_shuffles(1)
         {
-            utils::_2d_python_list_eigen_matrix(pts, m_data);
-            for(int r = 0; r < m_data.rows(); r++)
-                m_rtree.insert(std::make_pair(make_point<matrix>(m_data.row(r)), r));
+            // make the Eigen matrix from vecs
+            m_data = makeEigenMatrix(vecs);
+
+            // for(int r = 0; r < m_data.rows(); r++)
+            //     m_rtree.insert(std::make_pair(make_point<matrix>(m_data.row(r)), r));
             // m_data = Translate(-CenterOfMass(m_data), m_data);
         }
         ~RegisterBruteForce(){}
 
-        bool Fit(boost::python::list pts)
+        bool Fit(std::vector<vec3<float> > pts)
         {
             matrix points;
             matrix p, q, r;
-            utils::_2d_python_list_eigen_matrix(pts, points);
+            // make the Eigen matrix from pts
+            points = makeEigenMatrix(pts);
+
             // m_translation = -CenterOfMass(points);
             // points = Translate(m_translation, points);
-            int N = points.rows();
-            if(N != m_data.rows())
+
+            unsigned int N = points.rows();
+            if (N != m_data.rows())
             {
-                std::cout << "brute force matchign requires the same number of points" << std::endl;
-                return false;
+                fprintf(stderr, "Number of vecs to which we are matching is %d\n", m_data.rows());
+                fprintf(stderr, "Number of vecs we are trying to match is %d\n", N);
+                throw std::invalid_argument("Brute force matching requires the same number of points!");
             }
             RandomNumber<std::mt19937_64> rng;
             double rmsd_min = -1.0;
-            for(size_t shuffles = 0; shuffles < m_shuffles; shuffles++)
+            for (size_t shuffles = 0; shuffles < m_shuffles; shuffles++)
             {
                 int p0 = 0, p1 = 0, p2 = 0;
-                while( p0 == p1 || p0 == p2 || p1 == p2)
+                while ( p0 == p1 || p0 == p2 || p1 == p2)
                 {
                     p0 = rng.random_int(0,N-1);
                     p1 = rng.random_int(0,N-1);
@@ -172,18 +205,18 @@ class RegisterBruteForce  // : public Register
                         //     qfit.row(i) = r*(q.row(i).transpose());
                         // }
                         double rmsd = AlignedRSMDTree(points, r);
-                        if(rmsd < rmsd_min || rmsd_min < 0.0)
+                        if (rmsd < rmsd_min || rmsd_min < 0.0)
                         {
                             rmsd_min = rmsd;
                             m_rotation = r;
                             m_rmsd = rmsd_min;
-                            if(rmsd_min < m_tol)
+                            if (rmsd_min < m_tol)
                             {
                                 return true;
                             }
                         }
                     } while ( std::next_permutation(comb,comb+3) );
-                }while(NextCombination(comb, N, 3));
+                } while(NextCombination(comb, N, 3));
             }
             return true;
         }
@@ -206,7 +239,9 @@ class RegisterBruteForce  // : public Register
 
         void setNumShuffles(size_t s) { m_shuffles = s; }
 
-        double AlignedRSMD(const matrix& points, const matrix& rot)
+        void setTol(double tol) {m_tol = tol; }
+
+        double AlignedRMSD(const matrix& points, const matrix& rot)
         {
             // As named we will do the brute force algorithm here as well.
             // we can optimize it later.
@@ -231,53 +266,53 @@ class RegisterBruteForce  // : public Register
             return sqrt(rmsd/double(points.rows()));
         }
 
-        double AlignedRSMDTree(const matrix& points, const matrix& rot)
-        {
-            // As named we will do the brute force algorithm here as well.
-            // we can optimize it later.
-            assert(points.rows() == m_data.rows());
-            double rmsd = 0.0;
-            std::vector<bool> found(m_data.rows(), false);
-            for(int r = 0; r < points.rows(); r++)
-            {
-                double dist = -1.0;
-                Eigen::VectorXd pfit = rot*(points.row(r).transpose());
-                point query = make_point<Eigen::VectorXd>(pfit);
-                for ( bgi::rtree< value, bgi::rstar<16> >::const_query_iterator it = m_rtree.qbegin(bgi::nearest(query, m_data.rows())); it != m_rtree.qend(); ++it )
-                {
-                    if(!found[it->second])
-                    {
-
-                        dist = bg::distance(query, it->first);
-                        found[it->second] = true;
-                        break;
-                    }
-                }
-
-
-                if(dist < 0.0)
-                {
-                    std::cout << "nearest neighbor not found!" << std::endl;
-                    throw(0x000);
-                }
-                rmsd += dist*dist;
-            }
-
-            return sqrt(rmsd/double(points.rows()));
-        }
+        // double AlignedRSMDTree(const matrix& points, const matrix& rot)
+        // {
+        //     // As named we will do the brute force algorithm here as well.
+        //     // we can optimize it later.
+        //     assert(points.rows() == m_data.rows());
+        //     double rmsd = 0.0;
+        //     std::vector<bool> found(m_data.rows(), false);
+        //     for(int r = 0; r < points.rows(); r++)
+        //     {
+        //         double dist = -1.0;
+        //         Eigen::VectorXd pfit = rot*(points.row(r).transpose());
+        //         point query = make_point<Eigen::VectorXd>(pfit);
+        //         for ( bgi::rtree< value, bgi::rstar<16> >::const_query_iterator it = m_rtree.qbegin(bgi::nearest(query, m_data.rows())); it != m_rtree.qend(); ++it )
+        //         {
+        //             if(!found[it->second])
+        //             {
+        //
+        //                 dist = bg::distance(query, it->first);
+        //                 found[it->second] = true;
+        //                 break;
+        //             }
+        //         }
+        //
+        //
+        //         if(dist < 0.0)
+        //         {
+        //             std::cout << "nearest neighbor not found!" << std::endl;
+        //             throw(0x000);
+        //         }
+        //         rmsd += dist*dist;
+        //     }
+        //
+        //     return sqrt(rmsd/double(points.rows()));
+        // }
 
 
     private:
-        template<class MatrixType>
-        point make_point(const Eigen::VectorXd& row) {
-            if(row.rows() == 2)
-                return point(row[0], row[1], 0.0);
-            else if(row.rows() == 3)
-                return point(row[0], row[1], row[2]);
-            else
-                throw(std::runtime_error("points must 2 or 3 dimensions"));
-
-        }
+        // template<class MatrixType>
+        // point make_point(const Eigen::VectorXd& row) {
+        //     if(row.rows() == 2)
+        //         return point(row[0], row[1], 0.0);
+        //     else if(row.rows() == 3)
+        //         return point(row[0], row[1], row[2]);
+        //     else
+        //         throw(std::runtime_error("points must 2 or 3 dimensions"));
+        //
+        // }
         inline bool NextCombination(size_t* comb, int N, int k)
         {
             //    returns next combination.
@@ -299,6 +334,7 @@ class RegisterBruteForce  // : public Register
 
             return bRetVal;
         }
+
         template<class RNG>
         class RandomNumber
         {
