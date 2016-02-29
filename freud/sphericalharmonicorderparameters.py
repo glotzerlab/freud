@@ -1,6 +1,6 @@
 import warnings
 warnings.simplefilter("always", DeprecationWarning)
-warnings.warn("sphericalharmonicorderparameters have been moved to order. \
+warnings.warn("sphericalharmonicorderparameters has been moved to order. \
  This module is deprecated and will be deleted in the next version",
  DeprecationWarning)
 from ._freud import LocalQl
