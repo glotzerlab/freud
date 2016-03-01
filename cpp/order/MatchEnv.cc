@@ -381,6 +381,12 @@ double MatchEnv::getMinRMSD(const std::vector<vec3<float> >& v1, const std::vect
             }
         }
 
+    // THIS DOESNT QUITE WORK: it depends on the order with which you loop through v1, doesn't it? for that matter so does isSimilar. imagine 2 sets of 2 vectors each, A and B.
+    // vector B1 is 0.5 distance away from A1 and A2, and vector B2 is 0.5 distance away from A2 and 1.0 distance away from A1. Let's say we look at A2 first. we find the closest vector is B1.
+    // Then we look at A1 and find the closest vector has to be B2. The RMSD here is 0.5 [0.5 + 1.0]. This isn't optimal though. The optimal RMSD is obviously 0.5 [0.5 + 0.5]. Were we to measure
+    // isSimilar with a threshold of 0.6 difference between each vector, we would say A and B were NOT similar in the first case, even though they should be called as similar.
+    // Does Paul's AlignedRMSDTree take care of this?
+
     }
 
 // Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
