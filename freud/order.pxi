@@ -1696,7 +1696,7 @@ cdef class MatchEnv:
         :return: the array of vectors
         :rtype: list[list[list[float, float, float]]]
         """
-        cdef vector[vec3[float]] *tot_environment = self.thisptr.getAllParticleEnvironments().get()
+        cdef vector[vec3[float]] *tot_environment = self.thisptr.getTotEnvironment().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()

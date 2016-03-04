@@ -143,7 +143,7 @@ class MatchEnv
             }
 
         //! Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
-        boost::shared_array<std::vector<vec3<float> > > getAllParticleEnvironments()
+        boost::shared_array<std::vector<vec3<float> > > getTotEnvironment()
             {
             return m_tot_env;
             }
