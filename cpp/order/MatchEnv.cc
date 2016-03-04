@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "MatchEnv.h"
 #include "Cluster.h"
 
