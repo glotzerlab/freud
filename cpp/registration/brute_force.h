@@ -2,6 +2,7 @@
 The MIT License (MIT)
 
 Copyright (c) 2015 Paul Dodd
+Modified 2015 Erin Teich
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +30,7 @@ SOFTWARE.
 // boost include
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/bimap.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
@@ -38,7 +40,7 @@ SOFTWARE.
 #include "eigen3/Eigen/Dense"
 #include "eigen3/Eigen/Sparse"
 // procrustes includes
-#include "boost_utils.h"
+// #include "boost_utils.h"
 
 
 #ifndef BRUTE_FORCE_H
@@ -132,7 +134,7 @@ inline void AlignVectorSets(matrix& P,matrix& Q, matrix* pRotation = NULL)
     // Then we have to take the transpose again to get our matrix back to its original dimensionality.
     P = (rotation*P.transpose()).transpose();  // Apply the transformation.
 
-    if(pRotation) // optionally copy the roation.
+    if(pRotation) // optionally copy the rotation.
         *pRotation = rotation;
 }
 
@@ -141,8 +143,8 @@ namespace bgi = boost::geometry::index;
 
 class RegisterBruteForce  // : public Register
 {
-    // using point = bg::model::point<double, 3, bg::cs::cartesian>;
-    // using value = std::pair<point, unsigned int>;
+    using point = bg::model::point<double, 3, bg::cs::cartesian>;
+    using value = std::pair<point, unsigned int>;
 
     public:
         RegisterBruteForce(std::vector<vec3<float> > vecs) : m_rmsd(0.0), m_tol(1e-6), m_shuffles(1)
@@ -150,9 +152,11 @@ class RegisterBruteForce  // : public Register
             // make the Eigen matrix from vecs
             m_data = makeEigenMatrix(vecs);
 
-            // for(int r = 0; r < m_data.rows(); r++)
-            //     m_rtree.insert(std::make_pair(make_point<matrix>(m_data.row(r)), r));
+            // populate the R-tree with (point, index) pairs, from the vectors of vecs
+            for(unsigned int r = 0; r < m_data.rows(); r++)
+                m_rtree.insert(std::make_pair(make_point<matrix>(m_data.row(r)), r));
             // m_data = Translate(-CenterOfMass(m_data), m_data);
+
         }
         ~RegisterBruteForce(){}
 
@@ -199,12 +203,9 @@ class RegisterBruteForce  // : public Register
                         q.row(2) = points.row(comb[2]);
 
                         KabschAlgorithm(p, q, r);
-                        // matrix qfit(q.rows(), q.cols());
-                        // for(int i = 0; i < qfit.rows(); i++)
-                        // {
-                        //     qfit.row(i) = r*(q.row(i).transpose());
-                        // }
-                        double rmsd = AlignedRSMDTree(points, r);
+
+                        boost::bimap<unsigned int, unsigned int> vec_map;
+                        double rmsd = AlignedRMSDTree(points, r, vec_map);
                         if (rmsd < rmsd_min || rmsd_min < 0.0)
                         {
                             rmsd_min = rmsd;
@@ -215,8 +216,8 @@ class RegisterBruteForce  // : public Register
                                 return true;
                             }
                         }
-                    } while ( std::next_permutation(comb,comb+3) );
-                } while(NextCombination(comb, N, 3));
+                    } while (std::next_permutation(comb,comb+3));
+                } while (NextCombination(comb, N, 3));
             }
             return true;
         }
@@ -241,59 +242,23 @@ class RegisterBruteForce  // : public Register
 
         void setTol(double tol) {m_tol = tol; }
 
-        double AlignedRMSD(const matrix& points, const matrix& rot)
-        {
-            // As named we will do the brute force algorithm here as well.
-            // we can optimize it later.
-            assert(points.rows() == m_data.rows());
-            double rmsd = 0.0;
-            for(int r = 0; r < m_data.rows(); r++)
-            {
-                double dist = -1.0;
-                for(int pr = 0; pr < points.rows(); pr++)
-                {
-                    Eigen::VectorXd pfit = rot*(points.row(pr).transpose());
-                    Eigen::VectorXd delta = pfit - m_data.row(r).transpose();
-
-                    // here we should really resolve the mapping and use that.
-                    // this can map 2 points to one.
-                    if(delta.norm() < dist || dist < 0.0)
-                        dist = delta.norm();
-                }
-                rmsd += dist*dist;
-            }
-
-            return sqrt(rmsd/double(points.rows()));
-        }
-
-        // double AlignedRSMDTree(const matrix& points, const matrix& rot)
+        // double AlignedRMSD(const matrix& points, const matrix& rot)
         // {
-        //     // As named we will do the brute force algorithm here as well.
-        //     // we can optimize it later.
+        //     // Also brute force.
         //     assert(points.rows() == m_data.rows());
         //     double rmsd = 0.0;
-        //     std::vector<bool> found(m_data.rows(), false);
-        //     for(int r = 0; r < points.rows(); r++)
+        //     for(int r = 0; r < m_data.rows(); r++)
         //     {
         //         double dist = -1.0;
-        //         Eigen::VectorXd pfit = rot*(points.row(r).transpose());
-        //         point query = make_point<Eigen::VectorXd>(pfit);
-        //         for ( bgi::rtree< value, bgi::rstar<16> >::const_query_iterator it = m_rtree.qbegin(bgi::nearest(query, m_data.rows())); it != m_rtree.qend(); ++it )
+        //         for(int pr = 0; pr < points.rows(); pr++)
         //         {
-        //             if(!found[it->second])
-        //             {
+        //             Eigen::VectorXd pfit = rot*(points.row(pr).transpose());
+        //             Eigen::VectorXd delta = pfit - m_data.row(r).transpose();
         //
-        //                 dist = bg::distance(query, it->first);
-        //                 found[it->second] = true;
-        //                 break;
-        //             }
-        //         }
-        //
-        //
-        //         if(dist < 0.0)
-        //         {
-        //             std::cout << "nearest neighbor not found!" << std::endl;
-        //             throw(0x000);
+        //             // here we should really resolve the mapping and use that.
+        //             // this can map 2 points to one.
+        //             if(delta.norm() < dist || dist < 0.0)
+        //                 dist = delta.norm();
         //         }
         //         rmsd += dist*dist;
         //     }
@@ -301,18 +266,117 @@ class RegisterBruteForce  // : public Register
         //     return sqrt(rmsd/double(points.rows()));
         // }
 
+        // This uses an R-tree to efficiently determine pairs of points that are closest, next closest, etc to each other.
+        // NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
+        // of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second
+        // set, the vector set used in the argument below.
+        // To fully solve this, we need to use the Hungarian algorithm or some other way of solving the
+        // so-called assignment problem.
+        double AlignedRMSDTree(const matrix& points, const matrix& rot, boost::bimap<unsigned int, unsigned int>& m)
+        {
+            // Also brute force.
+            assert(points.rows() == m_data.rows());
+            double rmsd = 0.0;
+            // keeps track of whether points in m_rtree have been matched to any point in points
+            // guarantees 1-1 mapping
+            std::vector<bool> found(m_data.rows(), false);
+            // a mapping between the vectors of m_data and the vectors of points
+            boost::bimap<unsigned int, unsigned int> vec_map;
+            // loop through all the points
+            for(int r = 0; r < points.rows(); r++)
+            {
+                double dist = -1.0;
+                // find the rotated point
+                Eigen::VectorXd pfit = rot*(points.row(r).transpose());
+                // this is the "query" point we will feed in to the R-tree
+                point query = make_point<Eigen::VectorXd>(pfit);
+                // loop over a set of queries. Each query grabs the next-nearest point in m_rtree to the query point.
+                for ( bgi::rtree< value, bgi::rstar<16> >::const_query_iterator it = m_rtree.qbegin(bgi::nearest(query, m_data.rows())); it != m_rtree.qend(); ++it )
+                {
+                    // if this point in m_rtree has not been matched already to some point in points
+                    if(!found[it->second])
+                    {
+                        dist = bg::distance(query, it->first);
+                        found[it->second] = true;
+                        // add this pairing to the mapping between vectors
+                        vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(it->second, r));
+                        break;
+                    }
+                }
+
+                if (dist < 0.0)
+                {
+                    throw std::runtime_error("Nearest neighbor not found!");
+                }
+                rmsd += dist*dist;
+            }
+
+            m = vec_map;
+            return sqrt(rmsd/double(points.rows()));
+        }
+
+        // Enable external scripts to use the infrastructure of AlignedRMSDTree to compare two vecs of vec3s to each other.
+        double RMSDTree(const std::vector<vec3<float> >& pts, boost::bimap<unsigned int, unsigned int>& m)
+        {
+            // Also brute force.
+            matrix points;
+            // make the Eigen matrix from pts
+            points = makeEigenMatrix(pts);
+            assert(points.rows() == m_data.rows());
+            double rmsd = 0.0;
+
+            // keeps track of whether points in m_rtree have been matched to any point in points
+            // guarantees 1-1 mapping
+            std::vector<bool> found(m_data.rows(), false);
+            // a mapping between the vectors of m_data and the vectors of points
+            boost::bimap<unsigned int, unsigned int> vec_map;
+            // loop through all the points
+            for(int r = 0; r < points.rows(); r++)
+            {
+                double dist = -1.0;
+                // find the rotated point
+                Eigen::VectorXd pfit = points.row(r).transpose();
+                // this is the "query" point we will feed in to the R-tree
+                point query = make_point<Eigen::VectorXd>(pfit);
+                // loop over a set of queries. Each query grabs the next-nearest point in m_rtree to the query point.
+                for ( bgi::rtree< value, bgi::rstar<16> >::const_query_iterator it = m_rtree.qbegin(bgi::nearest(query, m_data.rows())); it != m_rtree.qend(); ++it )
+                {
+                    // if this point in m_rtree has not been matched already to some point in points
+                    if(!found[it->second])
+                    {
+                        dist = bg::distance(query, it->first);
+                        found[it->second] = true;
+                        // add this pairing to the mapping between vectors
+                        vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(it->second, r));
+                        break;
+                    }
+                }
+
+                if (dist < 0.0)
+                {
+                    throw std::runtime_error("Nearest neighbor not found!");
+                }
+                rmsd += dist*dist;
+            }
+
+            m = vec_map;
+            return sqrt(rmsd/double(points.rows()));
+        }
+
 
     private:
-        // template<class MatrixType>
-        // point make_point(const Eigen::VectorXd& row) {
-        //     if(row.rows() == 2)
-        //         return point(row[0], row[1], 0.0);
-        //     else if(row.rows() == 3)
-        //         return point(row[0], row[1], row[2]);
-        //     else
-        //         throw(std::runtime_error("points must 2 or 3 dimensions"));
-        //
-        // }
+
+        template<class MatrixType>
+        point make_point(const Eigen::VectorXd& row) {
+            if(row.rows() == 2)
+                return point(row[0], row[1], 0.0);
+            else if(row.rows() == 3)
+                return point(row[0], row[1], row[2]);
+            else
+                throw(std::runtime_error("points must 2 or 3 dimensions"));
+
+        }
+
         inline bool NextCombination(size_t* comb, int N, int k)
         {
             //    returns next combination.
@@ -371,6 +435,9 @@ class RegisterBruteForce  // : public Register
         double m_rmsd;
         double m_tol;
         size_t m_shuffles;
+        // R-tree. It stores (point, index) pairs and is initialized via the R*-tree algorithm.
+        // The maximum number of elements in each node is set to 16.
+        // R*-trees are more costly to set up than R-trees but apparently can be queried more efficiently.
         bgi::rtree< value, bgi::rstar<16> > m_rtree;
 };
 
