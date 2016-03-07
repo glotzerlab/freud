@@ -381,7 +381,7 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
 
 // Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
 // Construct the environments accordingly, and utilize isSimilar() as above.
-//! Return a std map for ease of use.
+// Return a std map for ease of use.
 std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq)
     {
     assert(refPoints1);
