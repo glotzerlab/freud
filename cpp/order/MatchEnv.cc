@@ -438,7 +438,8 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     // reallocate the m_env_index array for safety
     m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
     // also reallocate the m_tot_env array
-    m_tot_env = boost::shared_array<std::vector<vec3<float> > >(new std::vector<vec3<float> >[Np]);
+    unsigned int array_size = Np*m_k;
+    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -504,8 +505,9 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     // reallocate the m_env_index array for safety
     m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
     // also reallocate the m_tot_env array
-    m_tot_env = boost::shared_array<std::vector<vec3<float> > >(new std::vector<vec3<float> >[Np]);
-    
+    unsigned int array_size = Np*m_k;
+    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
+
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
 
@@ -598,7 +600,14 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
             // label this particle in m_env_index
             m_env_index[particle_ind] = label_ind;
             // add the particle environment to m_tot_env
-            m_tot_env[particle_ind] = part_vecs;
+            // get a pointer to the start of m_tot_env
+            vec3<float> *start = m_tot_env.get();
+            // loop through part_vecs and add them
+            for (unsigned int m = 0; m < part_vecs.size(); m++)
+                {
+                unsigned int index = particle_ind*m_k + m;
+                start[index] = part_vecs[m];
+                }
             particle_ind++;
             }
         }

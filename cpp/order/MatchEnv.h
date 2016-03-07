@@ -143,7 +143,7 @@ class MatchEnv
             }
 
         //! Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
-        boost::shared_array<std::vector<vec3<float> > > getTotEnvironment()
+        boost::shared_array<vec3<float> > getTotEnvironment()
             {
             return m_tot_env;
             }
@@ -173,7 +173,7 @@ class MatchEnv
 
         boost::shared_array<unsigned int> m_env_index;                          //!< Cluster index determined for each particle
         std::map<unsigned int, boost::shared_array<vec3<float> > > m_env;       //!< Dictionary of (cluster id, vectors) pairs
-        boost::shared_array<std::vector<vec3<float> > > m_tot_env;              //!< m_NP by m_k by 3 matrix of all environments for all particles
+        boost::shared_array<vec3<float> > m_tot_env;              //!< m_NP by m_k by 3 matrix of all environments for all particles
     };
 
 }; }; // end namespace freud::match_env

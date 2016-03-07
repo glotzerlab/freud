@@ -201,7 +201,7 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
                                         float)
         shared_array[unsigned int] getClusters()
         shared_array[vec3[float]] getEnvironment(unsigned int)
-        shared_array[vector[vec3[float]]] getTotEnvironment()
+        shared_array[vec3[float]] getTotEnvironment()
         unsigned int getNP()
         unsigned int getNumClusters()
         unsigned int getNumNeighbors()
