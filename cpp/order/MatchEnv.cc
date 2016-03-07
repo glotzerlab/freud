@@ -1,6 +1,5 @@
 #include <cstdio>
 #include "MatchEnv.h"
-#include "Cluster.h"
 
 namespace freud { namespace order {
 
@@ -379,10 +378,11 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
         }
     }
 
-// Get the optimal RMSD between the set of vectors v1 and the set of vectors v2
-// Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this optimal RMSD.
-// If vectors have a different number of elements, return -1.0 and force the bimap to be empty
-// A little of the logic here is taken from Paul's procrustes library, in his original brute_force.h AlignedRMSD() method. Thanks Paul!
+// Get the somewhat-optimal RMSD between the set of vectors v1 and the set of vectors v2
+// Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this RMSD
+// NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
+// of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
+// To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
 double MatchEnv::getMinRMSD(const std::vector<vec3<float> >& v1, const std::vector<vec3<float> >& v2, boost::bimap<unsigned int, unsigned int>& m)
     {
     boost::bimap<unsigned int, unsigned int> vec_map;
@@ -395,27 +395,13 @@ double MatchEnv::getMinRMSD(const std::vector<vec3<float> >& v1, const std::vect
         return -1.0;
         }
 
-    // compare all combinations of vectors
-    for (unsigned int i = 0; i < v1.size(); i++)
-        {
-        double min_rsq = -1.0;
-        for (unsigned int j = 0; j < v2.size(); j++)
-            {
-            vec3<float> delta = v1[i] - v2[j];
-            float rsq = dot(delta, delta);
-            if (rsq < min_rsq || min_rsq < 0.0)
-                {
-                min_rsq = rsq;
-                }
-            }
-        }
+    // call RMSDTree from brute_force.h
+    registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
+    double min_rmsd = r.RMSDTree(v2, vec_map);
 
-    // THIS DOESNT QUITE WORK: it depends on the order with which you loop through v1, doesn't it? for that matter so does isSimilar. imagine 2 sets of 2 vectors each, A and B.
-    // vector B1 is 0.5 distance away from A1 and A2, and vector B2 is 0.5 distance away from A2 and 1.0 distance away from A1. Let's say we look at A2 first. we find the closest vector is B1.
-    // Then we look at A1 and find the closest vector has to be B2. The RMSD here is 0.5 [0.5 + 1.0]. This isn't optimal though. The optimal RMSD is obviously 0.5 [0.5 + 0.5]. Were we to measure
-    // isSimilar with a threshold of 0.6 difference between each vector, we would say A and B were NOT similar in the first case, even though they should be called as similar.
-    // Does Paul's AlignedRMSDTree take care of this?
+    m = vec_map;
 
+    return min_rmsd;
     }
 
 // Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?

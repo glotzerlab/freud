@@ -37,11 +37,8 @@ SOFTWARE.
 #include <boost/geometry/index/rtree.hpp>
 
 // eigen include
-#include "eigen3/Eigen/Dense"
-#include "eigen3/Eigen/Sparse"
-// procrustes includes
-// #include "boost_utils.h"
-
+#include "Eigen/Dense"
+#include "Eigen/Sparse"
 
 #ifndef BRUTE_FORCE_H
 #define BRUTE_FORCE_H
@@ -222,19 +219,19 @@ class RegisterBruteForce  // : public Register
             return true;
         }
 
-        boost::python::list getRotation()
-        {
-            boost::python::list ret;
-            utils::eigen_matrix_to_2d_python_list(m_rotation, ret);
-            return ret;
-        }
-
-        boost::python::list getTranslation()
-        {
-            boost::python::list ret;
-            utils::eigen_matrix_to_2d_python_list(m_translation, ret);
-            return ret;
-        }
+        // boost::python::list getRotation()
+        // {
+        //     boost::python::list ret;
+        //     utils::eigen_matrix_to_2d_python_list(m_rotation, ret);
+        //     return ret;
+        // }
+        //
+        // boost::python::list getTranslation()
+        // {
+        //     boost::python::list ret;
+        //     utils::eigen_matrix_to_2d_python_list(m_translation, ret);
+        //     return ret;
+        // }
 
         double getRMSD() { return m_rmsd; }
 
@@ -277,6 +274,7 @@ class RegisterBruteForce  // : public Register
             // Also brute force.
             assert(points.rows() == m_data.rows());
             double rmsd = 0.0;
+
             // keeps track of whether points in m_rtree have been matched to any point in points
             // guarantees 1-1 mapping
             std::vector<bool> found(m_data.rows(), false);
@@ -441,21 +439,6 @@ class RegisterBruteForce  // : public Register
         bgi::rtree< value, bgi::rstar<16> > m_rtree;
 };
 
-void export_RegisterBruteForce()
-{
-    boost::python::class_<RegisterBruteForce, boost::shared_ptr<RegisterBruteForce>, boost::noncopyable>
-    ("BruteForce", boost::python::init< boost::python::list
-                                 /* other initializers here */>())
-    .def("fit", &RegisterBruteForce::Fit)
-    .def("getRotation", &RegisterBruteForce::getRotation)
-    .def("getTranslation", &RegisterBruteForce::getTranslation)
-    .def("getRMSD", &RegisterBruteForce::getRMSD)
-    .def("setNumShuffles", &RegisterBruteForce::setNumShuffles)
-    ;
-}
-
-
 }}
-
 
 #endif
