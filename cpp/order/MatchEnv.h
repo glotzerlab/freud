@@ -68,8 +68,10 @@ class EnvDisjointSet
         unsigned int find(const unsigned int c);
         //! Return ALL nodes in the tree that correspond to the head index m
         std::vector<unsigned int> findSet(const unsigned int m);
-        //! Get the vectors corresponding to environment head index m
-        boost::shared_array<vec3<float> > getEnv(const unsigned int m);
+        //! Get the vectors corresponding to environment head index m. Vectors are averaged over all members of the environment cluster.
+        boost::shared_array<vec3<float> > getAvgEnv(const unsigned int m);
+        //! Get the vectors corresponding to index m in the dj set
+        std::vector<vec3<float> > getIndividualEnv(const unsigned int m);
 
         std::vector<Environment> s;         //!< The disjoint set data
         std::vector<unsigned int> rank;     //!< The rank of each tree in the set
@@ -136,13 +138,18 @@ class MatchEnv
             m_nn = new locality::NearestNeighbors(m_rmax, m_k);
             }
 
-
         //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
         boost::shared_array< vec3<float> > getEnvironment(unsigned int i)
             {
             std::map<unsigned int, boost::shared_array<vec3<float> > >::iterator it = m_env.find(i);
             boost::shared_array<vec3<float> > vecs = it->second;
             return vecs;
+            }
+
+        //! Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
+        boost::shared_array<vec3<float> > getTotEnvironment()
+            {
+            return m_tot_env;
             }
 
         unsigned int getNP()
@@ -168,8 +175,9 @@ class MatchEnv
         unsigned int m_Np;                  //!< Last number of points computed
         unsigned int m_num_clusters;        //!< Last number of local environments computed
 
-        boost::shared_array<unsigned int> m_env_index;              //!< Cluster index determined for each particle
-        std::map<unsigned int, boost::shared_array<vec3<float> > > m_env;   //!< Dictionary of (cluster id, vectors) pairs
+        boost::shared_array<unsigned int> m_env_index;                          //!< Cluster index determined for each particle
+        std::map<unsigned int, boost::shared_array<vec3<float> > > m_env;       //!< Dictionary of (cluster id, vectors) pairs
+        boost::shared_array<vec3<float> > m_tot_env;              //!< m_NP by m_k by 3 matrix of all environments for all particles
     };
 
 }; }; // end namespace freud::match_env

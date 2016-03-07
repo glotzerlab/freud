@@ -1689,6 +1689,21 @@ cdef class MatchEnv:
         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>environment)
         return result
 
+    def getTotEnvironment(self):
+        """
+        Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
+
+        :return: the array of vectors
+        :rtype: list[list[list[float, float, float]]]
+        """
+        cdef vec3[float] *tot_environment = self.thisptr.getTotEnvironment().get()
+        cdef np.npy_intp nbins[3]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        nbins[2] = 3
+        cdef np.ndarray[float, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>tot_environment)
+        return result
+
     def getNP(self):
         """
         Get the number of particles

@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "MatchEnv.h"
 #include "Cluster.h"
 
@@ -193,9 +194,9 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
     return m_set;
     }
 
-// Get the vectors corresponding to environment head index m
+// Get the vectors corresponding to environment head index m. Vectors are averaged over all members of the environment cluster.
 // If environment m doesn't exist as a HEAD in the set, throw an error.
-boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
+boost::shared_array<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
     {
     assert(s.size() > 0);
     bool invalid_ind = true;
@@ -253,6 +254,34 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getEnv(const unsigned int m)
             env[n] = normed;
             }
         }
+    return env;
+    }
+
+// Get the vectors corresponding to index m in the dj set
+// If index m doesn't exist in the set, throw an error.
+std::vector<vec3<float> > EnvDisjointSet::getIndividualEnv(const unsigned int m)
+    {
+    assert(s.size() > 0);
+    if (m >= s.size())
+        {
+        fprintf(stderr, "m is %d\n", m);
+        throw std::invalid_argument("m is indexing into the environment set. It must be less than the size of the set!");
+        }
+
+    std::vector<vec3<float> > env;
+    for (unsigned int n = 0; n < m_num_neigh; n++)
+        {
+        env.push_back(vec3<float>(0.0,0.0,0.0));
+        }
+
+    // loop through the vectors, getting them properly indexed
+    // add them to env
+    for (unsigned int j = 0; j < s[m].vecs.size(); j++)
+        {
+        unsigned int proper_ind = s[m].vec_ind[j];
+        env[j] += s[m].vecs[proper_ind];
+        }
+
     return env;
     }
 
@@ -391,7 +420,7 @@ double MatchEnv::getMinRMSD(const std::vector<vec3<float> >& v1, const std::vect
 
 // Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
 // Construct the environments accordingly, and utilize isSimilar() as above.
-//! Return a std map for ease of use.
+// Return a std map for ease of use.
 std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq)
     {
     assert(refPoints1);
@@ -447,6 +476,9 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
 
     // reallocate the m_env_index array for safety
     m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    // also reallocate the m_tot_env array
+    unsigned int array_size = Np*m_k;
+    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -511,6 +543,9 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
 
     // reallocate the m_env_index array for safety
     m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    // also reallocate the m_tot_env array
+    unsigned int array_size = Np*m_k;
+    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -564,7 +599,7 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
 
     }
 
-//! Populate the m_env_index and m_env arrays.
+//! Populate the m_env_index, m_env and m_tot_env arrays.
 //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1, if that is called.
 void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
     {
@@ -579,13 +614,16 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
         // only count this if the environment is physical
         if (dj.s[i].ghost == false)
             {
+            // grab the set of vectors that define this individual environment
+            std::vector<vec3<float> > part_vecs = dj.getIndividualEnv(i);
+
             unsigned int c = dj.find(i);
             // insert the set into the mapping if we haven't seen it before.
             // also grab the vectors that define the set and insert them into m_env
             if (label_map.count(c) == 0)
                 {
                 label_map[c] = cur_set;
-                boost::shared_array<vec3<float> > vecs = dj.getEnv(c);
+                boost::shared_array<vec3<float> > vecs = dj.getAvgEnv(c);
 
                 if (reLabel == true) { label_ind = label_map[c]; }
                 else { label_ind = c; }
@@ -600,6 +638,15 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
 
             // label this particle in m_env_index
             m_env_index[particle_ind] = label_ind;
+            // add the particle environment to m_tot_env
+            // get a pointer to the start of m_tot_env
+            vec3<float> *start = m_tot_env.get();
+            // loop through part_vecs and add them
+            for (unsigned int m = 0; m < part_vecs.size(); m++)
+                {
+                unsigned int index = particle_ind*m_k + m;
+                start[index] = part_vecs[m];
+                }
             particle_ind++;
             }
         }
