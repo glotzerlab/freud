@@ -54,6 +54,8 @@ set(FREUD_SOURCES
             locality/LinkCell.h
             locality/NearestNeighbors.h
             locality/NearestNeighbors.cc
+            density/CorrelationFunction.h
+            density/CorrelationFunction.cc
             density/RDF.cc
             density/RDF.h
             density/GaussianDensity.cc

@@ -116,6 +116,71 @@ class CorrelationFunction
         tbb::enumerable_thread_specific<T *> m_local_rdf_array;
     };
 
+template<typename T>
+class CombineOCF
+    {
+    private:
+        unsigned int m_nbins;
+        unsigned int *m_bin_counts;
+        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
+        T *m_rdf_array;
+        tbb::enumerable_thread_specific<T *>& m_local_rdf_array;
+        float m_Nref;
+    public:
+        CombineOCF(unsigned int nbins,
+                   unsigned int *bin_counts,
+                   tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
+                   T *rdf_array,
+                   tbb::enumerable_thread_specific<T *>& local_rdf_array,
+                   float Nref)
+            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
+              m_local_rdf_array(local_rdf_array), m_Nref(Nref)
+        {
+        }
+        void operator()( const tbb::blocked_range<size_t> &myBin ) const;
+    };
+
+template<typename T>
+class ComputeOCF
+    {
+    private:
+        const unsigned int m_nbins;
+        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
+        tbb::enumerable_thread_specific<T *>& m_rdf_array;
+        const trajectory::Box m_box;
+        const float m_rmax;
+        const float m_dr;
+        const locality::LinkCell *m_lc;
+        const vec3<float> *m_ref_points;
+        const T *m_ref_values;
+        const unsigned int m_Nref;
+        const vec3<float> *m_points;
+        const T *m_point_values;
+        unsigned int m_Np;
+    public:
+        ComputeOCF(const unsigned int nbins,
+                   tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
+                   tbb::enumerable_thread_specific<T *>& rdf_array,
+                   const trajectory::Box &box,
+                   const float rmax,
+                   const float dr,
+                   const locality::LinkCell *lc,
+                   const vec3<float> *ref_points,
+                   const T *ref_values,
+                   unsigned int Nref,
+                   const vec3<float> *points,
+                   const T *point_values,
+                   unsigned int Np)
+            : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_rmax(rmax), m_dr(dr),
+              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_Nref(Nref), m_points(points),
+              m_point_values(point_values), m_Np(Np)
+        {
+        }
+        void operator()( const tbb::blocked_range<size_t> &myR ) const;
+    };
+
+
+
 // /*! \internal
 //     \brief Template function to check the type of a given correlation
 //         function value array. Should be specialized for its argument.
@@ -123,7 +188,7 @@ class CorrelationFunction
 // template<typename T>
 // void checkCFType(boost::python::numeric::array values);
 
-#include "CorrelationFunction.cc"
+// #include "CorrelationFunction.cc"
 
 }; }; // end namespace freud::density
 
