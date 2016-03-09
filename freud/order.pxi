@@ -1574,13 +1574,15 @@ cdef class MatchEnv:
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
-    def cluster(self, points, threshold):
+    def cluster(self, points, threshold, hard_r=False):
         """Determine clusters of particles with matching environments.
 
         :param points: particle positions
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type threshold: np.float32
+        :type hard_r: bool
         """
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
@@ -1592,17 +1594,19 @@ cdef class MatchEnv:
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold)
+        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r)
 
-    def matchMotif(self, points, refPoints, threshold):
+    def matchMotif(self, points, refPoints, threshold, hard_r=False):
         """Determine clusters of particles that match the motif provided by refPoints.
 
         :param points: particle positions
         :param refPoints: vectors that make up the motif against which we are matching
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
+        :type hard_r: bool
         """
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
@@ -1622,7 +1626,7 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold)
+        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, hard_r)
 
     def isSimilar(self, refPoints1, refPoints2, threshold):
         """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.

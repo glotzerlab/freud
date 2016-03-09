@@ -1,4 +1,4 @@
-# from libcpp cimport bool
+from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
@@ -189,12 +189,14 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         void setBox(const trajectory.Box)
         void cluster(const vec3[float]*,
                      unsigned int,
-                     float)
+                     float,
+                     bool)
         void matchMotif(const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
                         unsigned int,
-                        float)
+                        float,
+                        bool)
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
                                         const vec3[float]*,
                                         unsigned int,
