@@ -94,19 +94,22 @@ class MatchEnv
         ~MatchEnv();
 
         //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
-        Environment buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind);
+        //! if hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
+        Environment buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind, bool hard_r);
 
         //! Determine clusters of particles with matching environments
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
-        void cluster(const vec3<float> *points, unsigned int Np, float threshold);
+        //! If hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
+        void cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false);
 
         //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
-        void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold);
+        //! If hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
+        void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool hard_r=false);
 
         //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1
         void populateEnv(EnvDisjointSet dj, bool reLabel=true);

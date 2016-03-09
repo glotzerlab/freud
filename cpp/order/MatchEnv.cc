@@ -304,7 +304,7 @@ MatchEnv::~MatchEnv()
 
 // Build and return a local environment surrounding a particle.
 // Label its environment with env_ind.
-Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind)
+Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind, bool hard_r)
     {
     Environment ei = Environment(m_k);
     // set the environment index equal to the particle index
@@ -317,13 +317,21 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
     // loop over the neighbors
     for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
         {
+        // compute vec{r} between the two particles
         unsigned int j = neighbors[neigh_idx];
-
-        // compute r between the two particles
         vec3<float> delta = m_box.wrap(p - points[j]);
-        float rsq = dot(delta, delta);
 
-        if (rsq < m_rmaxsq)
+        // if hard_r is true, only add the particle to the environment if it falls within the threshold of m_rmaxsq
+        bool add_neigh = true;
+        if (hard_r == true)
+            {
+            float rsq = dot(delta, delta);
+            if (rsq >= m_rmaxsq)
+                {
+                add_neigh = false;
+                }
+            }
+        if (add_neigh == true)
             {
             ei.addVec(delta);
             }
@@ -454,7 +462,7 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refP
 
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold)
+void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r)
     {
     assert(points);
     assert(Np > 0);
@@ -480,7 +488,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        Environment ei = buildEnv(points, i, i);
+        Environment ei = buildEnv(points, i, i, hard_r);
         dj.s.push_back(ei);
         }
 
@@ -519,7 +527,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     }
 
 //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
-void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold)
+void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool hard_r)
     {
     assert(points);
     assert(refPoints);
@@ -567,7 +575,7 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     for (unsigned int i = 0; i < m_Np; i++)
         {
         unsigned int dummy = i+1;
-        Environment ei = buildEnv(points, i, dummy);
+        Environment ei = buildEnv(points, i, dummy, hard_r);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
