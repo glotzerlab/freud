@@ -170,7 +170,7 @@ class RegisterBruteForce  // : public Register
             unsigned int N = points.rows();
             if (N != m_data.rows())
             {
-                fprintf(stderr, "Number of vecs to which we are matching is %d\n", m_data.rows());
+                fprintf(stderr, "Number of vecs to which we are matching is %ld\n", m_data.rows());
                 fprintf(stderr, "Number of vecs we are trying to match is %d\n", N);
                 throw std::invalid_argument("Brute force matching requires the same number of points!");
             }
