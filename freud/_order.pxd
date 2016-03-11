@@ -5,6 +5,7 @@ from freud.util._Boost cimport shared_array
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
+from libcpp.pair cimport pair
 cimport freud._trajectory as trajectory
 
 cdef extern from "BondOrder.h" namespace "freud::order":
@@ -190,17 +191,25 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         void cluster(const vec3[float]*,
                      unsigned int,
                      float,
+                     bool,
                      bool)
         void matchMotif(const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
                         unsigned int,
                         float,
+                        bool,
                         bool)
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
                                         const vec3[float]*,
                                         unsigned int,
-                                        float)
+                                        float,
+                                        bool)
+        map[unsigned int, unsigned int] getMinRMSD(const vec3[float]*,
+                                        const vec3[float]*,
+                                        unsigned int,
+                                        float&,
+                                        bool)
         shared_array[unsigned int] getClusters()
         shared_array[vec3[float]] getEnvironment(unsigned int)
         shared_array[vec3[float]] getTotEnvironment()

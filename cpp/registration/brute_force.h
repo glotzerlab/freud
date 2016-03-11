@@ -64,6 +64,28 @@ inline matrix makeEigenMatrix(const std::vector<vec3<float> >& vecs)
     return mat;
 }
 
+inline std::vector<vec3<float> > makeVec3Matrix(const matrix& m)
+{
+    // assume the matrix m is an Nx3 matrix.
+    // if it isn't, just throw an error to be safe, rather than trying to take the transpose on your own.
+    // force the user to put this in correctly.
+    if (m.cols() != 3)
+    {
+        fprintf(stderr, "Number of columns in the input matrix is %ld\n", m.cols());
+        throw std::invalid_argument("makeVec3Matrix requires the input matrix to be Nx3!");
+    }
+    std::vector<vec3<float> > vecs;
+    for (unsigned int i=0; i<m.rows(); i++)
+    {
+        vec3<float> v;
+        v.x = m(i, 0);
+        v.y = m(i, 1);
+        v.z = m(i, 2);
+        vecs.push_back(v);
+    }
+    return vecs;
+}
+
 inline matrix CenterOfMass(const matrix& P)
 {
     // Assumes that P = (v^T) if v is a column vector.  or in other notation  P = [x1, y1, z1; ...]
@@ -81,6 +103,22 @@ inline matrix Translate(const matrix& vec, const matrix& P)
     for(int i = 0; i < P.rows(); i++)
         trans.row(i) = P.row(i)+vec;
     return trans;
+}
+
+inline matrix Rotate(const matrix& R, const matrix& P)
+{
+    // assume the matrix P is an Nx3 matrix.
+    // then make sure that matrix R is ready to act on it
+    if (R.cols() != P.rows())
+    {
+        fprintf(stderr, "Number of columns in the rotation matrix is %ld\n", R.cols());
+        fprintf(stderr, "Number of rows in the point matrix is %ld\n", P.rows());
+        throw std::invalid_argument("These values must be equal to perform the rotation!");
+    }
+    matrix rotated = matrix::Zero(P.rows(), P.cols());
+    // Apply the rotation R.
+    rotated = R*P;
+    return rotated;
 }
 
 inline double RMSD(const matrix& P, const matrix& Q)
@@ -157,7 +195,7 @@ class RegisterBruteForce  // : public Register
         }
         ~RegisterBruteForce(){}
 
-        bool Fit(std::vector<vec3<float> > pts)
+        bool Fit(std::vector<vec3<float> >& pts)
         {
             matrix points;
             matrix p, q, r;
@@ -210,28 +248,34 @@ class RegisterBruteForce  // : public Register
                             m_rmsd = rmsd_min;
                             if (rmsd_min < m_tol)
                             {
+                                // The rotation that we've found from the KabschAlgorithm actually acts on P^T.
+                                matrix ptsT = Rotate(r, points.transpose());
+                                // Then we have to take the transpose again to get our matrix back to its original dimensionality.
+                                pts = makeVec3Matrix(ptsT.transpose());
                                 return true;
                             }
                         }
                     } while (std::next_permutation(comb,comb+3));
                 } while (NextCombination(comb, N, 3));
             }
+            // The rotation that we've found from the KabschAlgorithm actually acts on P^T.
+            matrix ptsT = Rotate(r, points.transpose());
+            // Then we have to take the transpose again to get our matrix back to its original dimensionality.
+            pts = makeVec3Matrix(ptsT.transpose());
             return true;
         }
 
-        // boost::python::list getRotation()
-        // {
-        //     boost::python::list ret;
-        //     utils::eigen_matrix_to_2d_python_list(m_rotation, ret);
-        //     return ret;
-        // }
-        //
-        // boost::python::list getTranslation()
-        // {
-        //     boost::python::list ret;
-        //     utils::eigen_matrix_to_2d_python_list(m_translation, ret);
-        //     return ret;
-        // }
+        std::vector<vec3<float> > getRotation()
+        {
+            matrix R = m_rotation;
+            return makeVec3Matrix(R);
+        }
+
+        std::vector<vec3<float> > getTranslation()
+        {
+            matrix T = m_translation;
+            return makeVec3Matrix(T);
+        }
 
         double getRMSD() { return m_rmsd; }
 

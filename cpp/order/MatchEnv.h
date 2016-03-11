@@ -102,14 +102,16 @@ class MatchEnv
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
         //! If hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
-        void cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false);
+        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+        void cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false, bool registration=false);
 
         //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
         //! If hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
-        void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool hard_r=false);
+        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+        void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool hard_r=false, bool registration=false);
 
         //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1
         void populateEnv(EnvDisjointSet dj, bool reLabel=true);
@@ -117,19 +119,28 @@ class MatchEnv
         //! Is the environment e1 similar to the environment e2?
         //! If so, return the mapping between the vectors of the environments that will make them correspond to each other.
         //! If not, return an empty map
-        boost::bimap<unsigned int, unsigned int> isSimilar(Environment e1, Environment e2, float threshold_sq);
+        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+        boost::bimap<unsigned int, unsigned int> isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration);
 
         //! Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
         //! Construct the environments accordingly, and utilize isSimilar() as above.
         //! Return a std map for ease of use.
-        std::map<unsigned int, unsigned int> isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq);
+        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+        std::map<unsigned int, unsigned int> isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration);
 
         //! Get the somewhat-optimal RMSD between the set of vectors v1 and the set of vectors v2
         //! Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this RMSD
         //! NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
         //! of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
         //! To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
-        double getMinRMSD(const std::vector<vec3<float> >& v1, const std::vector<vec3<float> >& v2, boost::bimap<unsigned int, unsigned int>& m);
+        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+        double getMinRMSD(std::vector<vec3<float> >& v1, std::vector<vec3<float> >& v2, boost::bimap<unsigned int, unsigned int>& m, bool registration);
+
+        //! Overload: get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2
+        //! Arguments are pointers to interface directly with python
+        //! Return a pair that gives the associated min_rmsd and the mapping between the vectors of refPoints1 and refPoints2 that minimizes the RMSD.
+        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+        std::map<unsigned int, unsigned int> getMinRMSD(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration);
 
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
         boost::shared_array<unsigned int> getClusters()

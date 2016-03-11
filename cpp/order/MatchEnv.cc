@@ -344,7 +344,8 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
 // If not, return an empty map.
 // The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
 // This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
-boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Environment e2, float threshold_sq)
+// The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration)
     {
     std::vector< vec3<float> > v1 = e1.vecs;
     std::vector< vec3<float> > v2 = e2.vecs;
@@ -354,6 +355,17 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
     // just return an empty map for now since the 1-1 bimapping will be too weird in this case.
     if (v1.size() != m_k) { return vec_map; }
     if (v2.size() != m_k) { return vec_map; }
+
+    // if we have to register, first find the rotated set of v2 that best maps to v1
+    // the Fit operation CHANGES v2.
+    if (registration == true)
+        {
+        registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
+        // std::cout<<"v2[0].x pre reg: "<<v2[0].x<<std::endl;
+        bool good_fit = r.Fit(v2);
+        // std::cout<<"v2[0].x post reg: "<<v2[0].x<<std::endl;
+
+        }
 
     // compare all combinations of vectors
     for (unsigned int i = 0; i < m_k; i++)
@@ -376,6 +388,11 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
     // if every vector has been paired with every other vector, return this bimap
     if (vec_map.size() == m_k)
         {
+        // if we've registered v2, update e2's vecs to reflect the optimal rotation
+        if (registration == true)
+            {
+            e2.vecs = v2;
+            }
         return vec_map;
         }
     // otherwise, return an empty bimap
@@ -386,36 +403,11 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment e1, Env
         }
     }
 
-// Get the somewhat-optimal RMSD between the set of vectors v1 and the set of vectors v2
-// Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this RMSD
-// NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
-// of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
-// To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
-double MatchEnv::getMinRMSD(const std::vector<vec3<float> >& v1, const std::vector<vec3<float> >& v2, boost::bimap<unsigned int, unsigned int>& m)
-    {
-    boost::bimap<unsigned int, unsigned int> vec_map;
-
-    // If the vectors are two different sizes, force the map to be empty since it can never be 1-1.
-    // Return Min RMSD = -1.
-    if (v1.size() != v2.size())
-        {
-        m = vec_map;
-        return -1.0;
-        }
-
-    // call RMSDTree from brute_force.h
-    registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
-    double min_rmsd = r.RMSDTree(v2, vec_map);
-
-    m = vec_map;
-
-    return min_rmsd;
-    }
-
 // Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
 // Construct the environments accordingly, and utilize isSimilar() as above.
 // Return a std map for ease of use.
-std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq)
+// The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration)
     {
     assert(refPoints1);
     assert(refPoints2);
@@ -445,7 +437,7 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refP
         }
 
     // call isSimilar for e0 and e1
-    boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(e0, e1, threshold_sq);
+    boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(e0, e1, threshold_sq, registration);
 
     // convert to a std::map
     // the lamest.
@@ -460,9 +452,82 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refP
     return std_vec_map;
     }
 
+// Get the somewhat-optimal RMSD between the set of vectors v1 and the set of vectors v2
+// Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this RMSD
+// NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
+// of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
+// To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
+// The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+double MatchEnv::getMinRMSD(std::vector<vec3<float> >& v1, std::vector<vec3<float> >& v2, boost::bimap<unsigned int, unsigned int>& m, bool registration)
+    {
+    boost::bimap<unsigned int, unsigned int> vec_map;
+
+    // If the vectors are two different sizes, force the map to be empty since it can never be 1-1.
+    // Return Min RMSD = -1.
+    if (v1.size() != v2.size())
+        {
+        m = vec_map;
+        return -1.0;
+        }
+
+    // call RMSDTree from brute_force.h
+    registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
+    // if we have to register, first find the rotated set of v2 that best maps to v1
+    // the Fit operation CHANGES v2.
+    if (registration == true)
+        {
+        bool good_fit = r.Fit(v2);
+        }
+
+    double min_rmsd = r.RMSDTree(v2, vec_map);
+
+    m = vec_map;
+
+    return min_rmsd;
+    }
+
+// Overload: Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
+// Arguments are pointers to interface directly with python.
+// Return a pair that gives the associated min_rmsd and the mapping between the vectors of refPoints1 and refPoints2 that minimizes the RMSD.
+// The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+std::map<unsigned int, unsigned int> MatchEnv::getMinRMSD(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration)
+    {
+    assert(refPoints1);
+    assert(refPoints2);
+    assert(numRef == m_k);
+
+    // build the std::vectors
+    std::vector<vec3<float> > v1;
+    std::vector<vec3<float> > v2;
+
+    for (unsigned int i = 0; i < numRef; i++)
+        {
+        vec3<float> p1 = refPoints1[i];
+        vec3<float> p2 = refPoints2[i];
+
+        v1.push_back(p1);
+        v2.push_back(p2);
+        }
+
+    // call getMinRMSD and update min_rmsd accordingly
+    boost::bimap<unsigned int, unsigned int> vec_map;
+    min_rmsd = getMinRMSD(v1, v2, vec_map, registration);
+
+    // lamely convert to a std::map
+    // from stackoverflow.com/questions/20667187/convert-boostbimap-to-stdmap
+    std::map<unsigned int, unsigned int> std_vec_map;
+    for (boost::bimap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
+        {
+        std_vec_map[it->left] = it->right;
+        }
+
+    // return the vector map
+    return std_vec_map;
+    }
+
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r)
+void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r, bool registration)
     {
     assert(points);
     assert(Np > 0);
@@ -507,7 +572,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
 
             if (i != j)
                 {
-                boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j], m_threshold_sq);
+                boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
                 // if the mapping between the vectors of the environments is NOT empty, then the environments
                 // are similar. so merge them.
                 if (!vec_map.empty())
@@ -527,7 +592,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     }
 
 //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
-void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool hard_r)
+void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool hard_r, bool registration)
     {
     assert(points);
     assert(refPoints);
@@ -579,7 +644,7 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
-        boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[0], dj.s[dummy], m_threshold_sq);
+        boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[0], dj.s[dummy], m_threshold_sq, registration);
         // if the mapping between the vectors of the environments is NOT empty, then the environments are similar.
         if (!vec_map.empty())
             {

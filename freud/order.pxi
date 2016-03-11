@@ -8,6 +8,7 @@ from libc.string cimport memcpy
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
+from libcpp.pair cimport pair
 import numpy as np
 cimport numpy as np
 
@@ -1574,15 +1575,17 @@ cdef class MatchEnv:
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
-    def cluster(self, points, threshold, hard_r=False):
+    def cluster(self, points, threshold, hard_r=False, registration=False):
         """Determine clusters of particles with matching environments.
 
         :param points: particle positions
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
         :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type threshold: np.float32
         :type hard_r: bool
+        :type registration: bool
         """
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
@@ -1594,19 +1597,21 @@ cdef class MatchEnv:
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r)
+        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r, registration)
 
-    def matchMotif(self, points, refPoints, threshold, hard_r=False):
+    def matchMotif(self, points, refPoints, threshold, hard_r=False, registration=False):
         """Determine clusters of particles that match the motif provided by refPoints.
 
         :param points: particle positions
         :param refPoints: vectors that make up the motif against which we are matching
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
         :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
         :type hard_r: bool
+        :type registration: bool
         """
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
@@ -1626,17 +1631,21 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, hard_r)
+        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, hard_r, registration)
 
-    def isSimilar(self, refPoints1, refPoints2, threshold):
+    def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):
         """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
 
         :param refPoints1: vectors that make up motif 1
         :param refPoints2: vectors that make up motif 2
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
         :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
+        :type registration: bool
+        :return: the mapping between the vectors of the environments that will make them correspond to each other. empty if they do not correspond to each other.
+        :rtype: map[int, int]
         """
         if refPoints1.dtype != np.float32:
             raise ValueError("refPoints1 must be a numpy float32 array")
@@ -1660,8 +1669,45 @@ cdef class MatchEnv:
         if nRef1 != nRef2:
             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
 
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq, registration)
         return vec_map
+
+    def getMinRMSD(self, refPoints1, refPoints2, registration=False):
+        """Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
+
+        :param refPoints1: vectors that make up motif 1
+        :param refPoints2: vectors that make up motif 2
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type registration: bool
+        :return: a pair that gives the associated min_rmsd and the mapping between the vectors of refPoints1 and refPoints2 that minimizes the RMSD.
+        :rtype: tuple[float, map[int, int]]
+        """
+        if refPoints1.dtype != np.float32:
+            raise ValueError("refPoints1 must be a numpy float32 array")
+        if refPoints1.ndim != 2:
+            raise ValueError("refPoints1 must be a 2 dimensional array")
+        if refPoints1.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
+        if refPoints2.dtype != np.float32:
+            raise ValueError("refPoints2 must be a numpy float32 array")
+        if refPoints2.ndim != 2:
+            raise ValueError("refPoints2 must be a 2 dimensional array")
+        if refPoints2.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.ascontiguousarray(refPoints1.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.ascontiguousarray(refPoints2.flatten())
+        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
+
+        if nRef1 != nRef2:
+            raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
+
+        cdef float min_rmsd = -1
+        cdef map[unsigned int, unsigned int] results_map = self.thisptr.getMinRMSD(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, min_rmsd, registration)
+        return [min_rmsd, results_map]
 
     def getClusters(self):
         """
