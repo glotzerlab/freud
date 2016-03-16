@@ -9,6 +9,7 @@ from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 import numpy as np
 cimport numpy as np
+from cython.view cimport array as cvarray
 
 # Numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -175,40 +176,127 @@ cdef class BondOrder:
         return np
 
 cdef class CubaticOrderParameter:
-    """Compute the Cubatic Order Parameter for a system of particles using simulated annealing.
-
-    Create the 2D histogram containing the number of bonds formed through the surface of a unit sphere based on the
-    equatorial (Theta) and azimuthal (Phi) *check on this* angles.
+    """Compute the Cubatic Order Parameter for a system of particles using the OP from INSERT REFERENCE \
+    with simulated annealing instead of Newton-Raphson.
 
     :param tInitial: Starting temperature
     :param tFinal: Final temperature
     :param scale: Scaling factor to reduce temperature
-    :param norm: normalization factor, is/should be system dependent. If not provided, defaults to 1.0
     :type tInitial: float
     :type tFinal: float
     :type scale: float
-    :type norm: float
 
     """
-    cdef order.CubaticOrderParameter *thisptr
+    cdef float t_initial, t_final, scale, num_particles
+    # object is supposed to be slow...may be able to make this faster
+    cdef object global_mbar, global_gm
+    cdef float global_op
+    cdef object orientation, particle_op
 
-    def __cinit__(self, tInitial, tFinal, scale, norm=1.0):
+    def __cinit__(self, t_initial, t_final, scale):
         # run checks
-        if (tFinal >= tInitial):
-            raise ValueError("tFinal must be less than tInitial")
+        if (t_final >= t_initial):
+            raise ValueError("t_final must be less than t_initial")
         if (scale >= 1.0):
             raise ValueError("scale must be less than 1")
-        self.thisptr = new order.CubaticOrderParameter(tInitial, tFinal, scale, norm)
+        self.t_initial = t_initial
+        self.t_final = t_final
+        self.scale = scale
 
-    def __dealloc__(self):
-        del self.thisptr
+    # should these be cdef? would this make it faster? check on the fsph...
 
-    def compute(self, box, orientations):
+    def genQ(self, axis=[0, 0, 1], angle=0.0): #generates a quaternion from an axis and an angle of rotation, not needed in this calculation
+        cdef np.ndarray[float, ndim=1] q = np.zeros(shape=(4), dtype=np.float32)
+        q[0] = np.cos(0.5 * angle)
+        q[1] = axis[0] * np.sin(0.5 * angle)
+        q[2] = axis[1] * np.sin(0.5 * angle)
+        q[3] = axis[2] * np.sin(0.5 * angle)
+        q /= np.linalg.norm(q)
+        return q
+
+    def quatMult(self, a, b): #multiplies two quaternions
+        cdef np.ndarray[float, ndim=1] c = np.zeros(shape=(4), dtype=np.float32)
+        c[0] = (a[0] * b[0]) - (a[1] * b[1]) - (a[2] * b[2]) - (a[3] * b[3])
+        c[1] = (a[0] * b[1]) + (a[1] * b[0]) + (a[2] * b[3]) - (a[3] * b[2])
+        c[2] = (a[0] * b[2]) - (a[1] * b[3]) + (a[2] * b[0]) + (a[3] * b[1])
+        c[3] = (a[0] * b[3]) + (a[1] * b[2]) - (a[2] * b[1]) + (a[3] * b[0])
+        return c
+
+    def quatRot(self, np.ndarray[float, ndim=1] vec, np.ndarray[float, ndim=1] q): #uses a quaternion to to rotate a vector
+        q /= np.linalg.norm(q) #normalizes quaternion, just in case
+        cdef np.ndarray[float, ndim=1] qvert = np.array([0.0, vec[0], vec[1], vec[2]], dtype=np.float32)
+        qs = np.copy(q)
+        qs[1:] *= -1.0
+        tmp = self.quatMult(q, qvert)
+        rot = self.quatMult(tmp, qs)
+        cdef np.ndarray[float, ndim=1] result = np.asarray(rot[1:], dtype=np.float32)
+        return result
+
+    def m_bar(self, np.ndarray[float, ndim=2] orientations):
+        # create orthonormal vectors
+        cdef np.ndarray[float, ndim=2] v = np.zeros(shape=(3,3), dtype=np.float32)
+        v[0] = [1, 0, 0]
+        v[1] = [0, 1, 0]
+        v[2] = [0, 0, 1]
+        # create generalized rank four tensor
+        cdef np.ndarray[float, ndim=2] kd = np.eye(3, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] dijkl = np.einsum("ij,kl->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] dikjl = np.einsum("ik,jl->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] diljk = np.einsum("il,jk->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
+        # sum over each orthonormal vector for each orientation
+        cdef np.ndarray[float, ndim=4] U = np.zeros(shape=(3,3,3,3), dtype=np.float32)
+        for i in range(3):
+            for q in orientations:
+                u = self.quatRot(v[i], q)
+                U += np.einsum("i,j,k,l->ijkl",u,u,u,u,dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] result = ((2.0/float(orientations.shape[0])) * U) - ((2.0/5.0) * r4)
+        return result
+
+    def g_m(self, np.ndarray[float, ndim=1] orientation):
+        # create and rotate orthonormal vectors
+        cdef np.ndarray[float, ndim=2] v = np.zeros(shape=(3,3), dtype=np.float32)
+        v[0] = [1, 0, 0]
+        v[1] = [0, 1, 0]
+        v[2] = [0, 0, 1]
+        for i in range(3):
+            v[i] = self.quatRot(v[i], orientation)
+        # create generalized rank four tensor
+        cdef np.ndarray[float, ndim=2] kd = np.eye(3, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] dijkl = np.einsum("ij,kl->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] dikjl = np.einsum("ik,jl->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] diljk = np.einsum("il,jk->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
+        # rank5 tensor to hold each rank 4 tensor to sum at the end
+        cdef np.ndarray[float, ndim=4] V = np.zeros(shape=(3,3,3,3), dtype=np.float32)
+        for i in range(3):
+            V += np.einsum("i,j,k,l->ijkl",v[i],v[i],v[i],v[i], dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] result = (2.0 * (V)) - ((2.0/5.0) * r4)
+        return result
+
+    def random_quat(self):
+        # create random orientation to start
+        cdef float theta = 2.0 * np.pi * np.random.rand()
+        cdef float phi = np.arccos(2.0 * np.random.rand() - 1.0)
+        cdef np.ndarray[float, ndim=1] axis = np.array([np.cos(theta) * np.sin(phi),
+                                                        np.sin(theta) * np.sin(phi),
+                                                        np.cos(phi)], dtype=np.float32)
+        axis /= np.linalg.norm(axis)
+        cdef float angle = 2.0 * np.pi * np.random.rand()
+        cdef np.ndarray[float, ndim=1] q = self.genQ(axis=axis, angle=angle)
+        return q
+
+    def calc_cubatic_op(self, np.ndarray[float, ndim=4] m_bar, np.ndarray[float, ndim=4] g_m):
+        cdef np.ndarray[float, ndim=4] diff = m_bar - g_m
+        cdef float op = 1.0 - np.einsum("ijkl,ijkl->",diff,diff)/np.einsum("ijkl,ijkl->",g_m,g_m)
+        return op
+
+    def compute(self, orientations):
         """
-        Calculates the correlation function and adds to the current histogram.
+        Calculates the per-particle and global OP
 
         :param box: simulation box
-        :param orientations: orientations to calculate the local density
+        :param orientations: orientations to calculate the order parameter
         :type box: :py:meth:`freud.trajectory.Box`
         :type orientations: np.float32
         """
@@ -219,74 +307,100 @@ cdef class CubaticOrderParameter:
         if orientations.shape[1] != 4:
             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
         cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef unsigned int nP = <unsigned int> orientations.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        with nogil:
-            self.thisptr.compute(l_box, <quat[float]*>l_orientations.data, nP)
+        cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
+        # cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        # create mBar
+        cdef np.ndarray[float, ndim=4] l_mb = self.m_bar(l_orientations)
+        # create random orientation to start
+        cdef np.ndarray[float, ndim=1] l_q = self.random_quat()
+        # compute gm
+        cdef np.ndarray[float, ndim=4] l_gm = self.g_m(l_q)
+        # calculate the OP
+        cdef float l_op = self.calc_cubatic_op(l_mb, l_gm)
+        # start the simulated annealing
+        t_current = self.t_initial
+        while t_current > self.t_final:
+            # generate new trial quaternion
+            n_q = self.random_quat()
+            # calc the new gm
+            n_gm = self.g_m(n_q)
+            # calc the new op
+            n_op = self.calc_cubatic_op(l_mb, n_gm)
+            # apply boltzmann criterion
+            # accept if the new op is better
+            if n_op >= l_op:
+                l_gm = n_gm
+                l_q = n_q
+                l_op = n_op
+            # accept "worse" depending on boltzmann factor
+            else:
+                boltzmann_factor = np.exp(-(l_op - n_op) / t_current)
+                test_value = np.random.random()
+                if boltzmann_factor >= test_value:
+                    l_gm = n_gm
+                    l_q = n_q
+                    l_op = n_op
+                else:
+                    continue
 
-    def getBox(self):
-        """
-        Get the box used in the calculation
+            t_current *= self.scale #lower temperature
 
-        :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
-        """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        # save found quantities
+        self.global_mbar = l_mb
+        self.global_gm = l_gm
+        self.global_op = l_op
+        self.orientation = l_q
+
+        # calculate per particle
+        cdef np.ndarray[float, ndim=1] particle_op = np.zeros(shape=num_particles,dtype=np.float32)
+        for i, orientation in enumerate(l_orientations):
+            l_gm = self.g_m(orientation)
+            l_op = self.calc_cubatic_op(self.global_mbar, l_gm)
+            particle_op[i] = l_op
+
+        self.particle_op = particle_op
 
     def getTInitial(self):
         """
         :return: value of initial temperature
         :rtype: float
         """
-        cdef float tInitial = self.thisptr.getTInitial()
-        return tInitial
+        return self.t_initial
 
     def getTFinal(self):
         """
         :return: value of final temperature
         :rtype: float
         """
-        cdef float tFinal = self.thisptr.getTFinal()
-        return tFinal
+        return self.t_final
 
     def getScale(self):
         """
         :return: value of scale
         :rtype: float
         """
-        cdef float scale = self.thisptr.getScale()
-        return scale
+        return self.scale
 
-    def getNorm(self):
-        """
-        :return: value of norm
-        :rtype: float
-        """
-        cdef float norm = self.thisptr.getNorm()
-        return norm
-
-    def getCubaticOrderParameter(self):
+    def get_global_op(self):
         """
         :return: Cubatic Order parameter
         :rtype: float
         """
-        # cdef float cop = self.thisptr.getCubaticOrderParameter()
-        cdef float *cop = self.thisptr.getCubaticOrderParameter().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>3
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>cop)
-        return result
+        return self.global_op
 
-    def getOrientation(self):
+    def get_orientation(self):
         """
         :return: orientation of global orientation
         :rtype: np.float32
         """
-        cdef quat[float] *qij = self.thisptr.getOrientation()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = 4
-        cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>qij)
-        return result
+        return self.orientation
+
+    def get_particle_op(self):
+        """
+        :return: Cubatic Order parameter
+        :rtype: float
+        """
+        return self.particle_op
 
 cdef class EntropicBonding:
     """Compute the entropic bonds each particle in the system.

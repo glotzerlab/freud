@@ -25,21 +25,6 @@ cdef extern from "BondOrder.h" namespace "freud::order":
         unsigned int getNBinsTheta()
         unsigned int getNBinsPhi()
 
-cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
-    cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter(float, float, float, float)
-        const trajectory.Box &getBox() const
-        void compute(trajectory.Box &,
-                     const quat[float]*,
-                     unsigned int) nogil
-        float getTInitial()
-        float getTFinal()
-        float getScale()
-        float getNorm()
-        # float getCubaticOrderParameter()
-        shared_array[float] getCubaticOrderParameter()
-        quat[float]* getOrientation()
-
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:
         EntropicBonding(float, float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *)
