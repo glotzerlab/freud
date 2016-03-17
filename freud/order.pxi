@@ -218,7 +218,7 @@ cdef class CubaticOrderParameter:
         q[1] /= ssum
         q[2] /= ssum
         q[3] /= ssum
-        return 1
+        return q
 
     def genQ(self, axis=[0, 0, 1], angle=0.0): #generates a quaternion from an axis and an angle of rotation, not needed in this calculation
         cdef np.ndarray[float, ndim=1] q = np.zeros(shape=(4), dtype=np.float32)
