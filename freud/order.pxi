@@ -205,13 +205,28 @@ cdef class CubaticOrderParameter:
 
     # should these be cdef? would this make it faster? check on the fsph...
 
+    cdef inline norm3(self, np.ndarray[np.float32_t, ndim=1] v):
+        cdef float ssum = np.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+        v[0] /= ssum
+        v[1] /= ssum
+        v[2] /= ssum
+        return v
+
+    cdef inline norm4(self, np.ndarray[np.float32_t, ndim=1] q):
+        cdef float ssum = np.sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3])
+        q[0] /= ssum
+        q[1] /= ssum
+        q[2] /= ssum
+        q[3] /= ssum
+        return 1
+
     def genQ(self, axis=[0, 0, 1], angle=0.0): #generates a quaternion from an axis and an angle of rotation, not needed in this calculation
         cdef np.ndarray[float, ndim=1] q = np.zeros(shape=(4), dtype=np.float32)
         q[0] = np.cos(0.5 * angle)
         q[1] = axis[0] * np.sin(0.5 * angle)
         q[2] = axis[1] * np.sin(0.5 * angle)
         q[3] = axis[2] * np.sin(0.5 * angle)
-        q /= np.linalg.norm(q)
+        q = self.norm4(q)
         return q
 
     def quatMult(self, a, b): #multiplies two quaternions
@@ -223,7 +238,7 @@ cdef class CubaticOrderParameter:
         return c
 
     def quatRot(self, np.ndarray[float, ndim=1] vec, np.ndarray[float, ndim=1] q): #uses a quaternion to to rotate a vector
-        q /= np.linalg.norm(q) #normalizes quaternion, just in case
+        q = self.norm4(q)
         cdef np.ndarray[float, ndim=1] qvert = np.array([0.0, vec[0], vec[1], vec[2]], dtype=np.float32)
         qs = np.copy(q)
         qs[1:] *= -1.0
@@ -274,14 +289,14 @@ cdef class CubaticOrderParameter:
         cdef np.ndarray[float, ndim=4] result = (2.0 * (V)) - ((2.0/5.0) * r4)
         return result
 
-    def random_quat(self):
+    def random_quat(self, theta_multiplier=1.0):
         # create random orientation to start
-        cdef float theta = 2.0 * np.pi * np.random.rand()
+        cdef float theta = theta_multiplier * 2.0 * np.pi * np.random.rand()
         cdef float phi = np.arccos(2.0 * np.random.rand() - 1.0)
         cdef np.ndarray[float, ndim=1] axis = np.array([np.cos(theta) * np.sin(phi),
                                                         np.sin(theta) * np.sin(phi),
                                                         np.cos(phi)], dtype=np.float32)
-        axis /= np.linalg.norm(axis)
+        axis = self.norm3(axis)
         cdef float angle = 2.0 * np.pi * np.random.rand()
         cdef np.ndarray[float, ndim=1] q = self.genQ(axis=axis, angle=angle)
         return q
@@ -321,7 +336,8 @@ cdef class CubaticOrderParameter:
         t_current = self.t_initial
         while t_current > self.t_final:
             # generate new trial quaternion
-            n_q = self.random_quat()
+            n_q = self.quatMult(self.random_quat(theta_multiplier=0.1), l_q)
+            # re-implement as a change to the quaternion. will be so much faster
             # calc the new gm
             n_gm = self.g_m(n_q)
             # calc the new op
