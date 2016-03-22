@@ -35,12 +35,16 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                      unsigned int) nogil
         void reduceCubaticOrderParameter()
         unsigned int getNumParticles()
-        float getCubaticOrderParameter()
-        shared_ptr[float] getParticleCubaticOrderParamter()
+        float get_cubatic_order_parameter()
+        shared_ptr[float] getParticleCubaticOrderParameter()
         shared_ptr[float] getParticleTensor()
         shared_ptr[float] getGlobalTensor()
         shared_ptr[float] getCubaticTensor()
         shared_ptr[float] getGenR4Tensor()
+        float get_t_initial()
+        float get_t_final()
+        float get_scale()
+        quat[float] get_cubatic_orientation()
 
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:

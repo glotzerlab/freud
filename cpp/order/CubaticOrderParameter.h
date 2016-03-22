@@ -64,7 +64,9 @@ class CubaticOrderParameter
         void reduceCubaticOrderParameter();
 
         //! Get a reference to the last computed rdf
-        float getCubaticOrderParameter();
+        float get_cubatic_order_parameter();
+
+        quat<float> calcRandomQuaternion(float angle_multiplier);
 
         std::shared_ptr<float> getParticleCubaticOrderParameter();
 
@@ -77,6 +79,14 @@ class CubaticOrderParameter
         std::shared_ptr<float> getGenR4Tensor();
 
         unsigned int getNumParticles();
+
+        float get_t_initial();
+
+        float get_t_final();
+
+        float get_scale();
+
+        quat<float> get_cubatic_orientation();
 
 
         // std::shared_ptr<float> getParticleCubaticOrderParameter();
