@@ -2,6 +2,7 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
+from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 cimport freud._trajectory as trajectory
@@ -24,6 +25,22 @@ cdef extern from "BondOrder.h" namespace "freud::order":
         shared_array[float] getPhi()
         unsigned int getNBinsTheta()
         unsigned int getNBinsPhi()
+
+cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
+    cdef cppclass CubaticOrderParameter:
+        CubaticOrderParameter(float, float, float, float*)
+        void resetCubaticOrderParameter()
+        void compute(quat[float]*,
+                     unsigned int,
+                     unsigned int) nogil
+        void reduceCubaticOrderParameter()
+        unsigned int getNumParticles()
+        float getCubaticOrderParameter()
+        shared_ptr[float] getParticleCubaticOrderParamter()
+        shared_ptr[float] getParticleTensor()
+        shared_ptr[float] getGlobalTensor()
+        shared_ptr[float] getCubaticTensor()
+        shared_ptr[float] getGenR4Tensor()
 
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:

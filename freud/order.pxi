@@ -192,6 +192,7 @@ cdef class CubaticOrderParameter:
     cdef object global_mbar, global_gm
     cdef float global_op
     cdef object orientation, particle_op
+    cdef order.CubaticOrderParameter *thisptr
 
     def __cinit__(self, t_initial, t_final, scale):
         # run checks
@@ -202,9 +203,19 @@ cdef class CubaticOrderParameter:
         self.t_initial = t_initial
         self.t_final = t_final
         self.scale = scale
+        # for c++ code
+        # create generalized rank four tensor, pass into c++
+        cdef np.ndarray[float, ndim=2] kd = np.eye(3, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] dijkl = np.einsum("ij,kl->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] dikjl = np.einsum("ik,jl->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] diljk = np.einsum("il,jk->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
+        r4 *= (2.0/5.0)
+        self.thisptr = new order.CubaticOrderParameter(t_initial, t_final, scale, <float*>r4.data)
 
     # should these be cdef? would this make it faster? check on the fsph...
-
+    # also, it looks like I should be able to pass these as pointers...which means I can do in-place
+    # the inline "doesn't work", but this is better than the numpy version, so...
     cdef inline norm3(self, np.ndarray[np.float32_t, ndim=1] v):
         cdef float ssum = np.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
         v[0] /= ssum
@@ -305,6 +316,27 @@ cdef class CubaticOrderParameter:
         cdef np.ndarray[float, ndim=4] diff = m_bar - g_m
         cdef float op = 1.0 - np.einsum("ijkl,ijkl->",diff,diff)/np.einsum("ijkl,ijkl->",g_m,g_m)
         return op
+
+    def _compute(self, orientations):
+        """
+        Calculates the per-particle and global OP
+
+        :param box: simulation box
+        :param orientations: orientations to calculate the order parameter
+        :type box: :py:meth:`freud.trajectory.Box`
+        :type orientations: np.float32
+        """
+        if (orientations.dtype != np.float32):
+            raise ValueError("orientations must be a numpy float32 array")
+        if orientations.ndim != 2:
+            raise ValueError("orientations must be a 2 dimensional array")
+        if orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
+
+        with nogil:
+            self.thisptr.compute(<quat[float]*>l_orientations.data, num_particles, 1)
 
     def compute(self, orientations):
         """
@@ -417,6 +449,63 @@ cdef class CubaticOrderParameter:
         :rtype: float
         """
         return self.particle_op
+
+    def get_particle_tensor(self):
+        """
+        :return: Rank 4 tensor corresponding to each individual particle orientation
+        :rtype: np.float32
+        """
+        cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
+        cdef np.npy_intp nbins[5]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        nbins[3] = <np.npy_intp>3
+        nbins[4] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=5] result = np.PyArray_SimpleNewFromData(5, nbins, np.NPY_FLOAT32, <void*>particle_tensor)
+        return result
+
+    def get_global_tensor(self):
+        """
+        :return: Rank 4 tensor corresponding to each individual particle orientation
+        :rtype: np.float32
+        """
+        cdef float *global_tensor = self.thisptr.getGlobalTensor().get()
+        cdef np.npy_intp nbins[4]
+        nbins[0] = <np.npy_intp>3
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        nbins[3] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=4] result = np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32, <void*>global_tensor)
+        return result
+
+    def get_cubatic_tensor(self):
+        """
+        :return: Rank 4 tensor corresponding to each individual particle orientation
+        :rtype: np.float32
+        """
+        cdef float *cubatic_tensor = self.thisptr.getCubaticTensor().get()
+        cdef np.npy_intp nbins[4]
+        nbins[0] = <np.npy_intp>3
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        nbins[3] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=4] result = np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32, <void*>cubatic_tensor)
+        return result
+
+    def get_gen_r4_tensor(self):
+        """
+        :return: Rank 4 tensor corresponding to each individual particle orientation
+        :rtype: np.float32
+        """
+        cdef float *gen_r4_tensor = self.thisptr.getGenR4Tensor().get()
+        cdef np.npy_intp nbins[4]
+        nbins[0] = <np.npy_intp>3
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        nbins[3] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=4] result = np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32, <void*>gen_r4_tensor)
+        return result
 
 cdef class EntropicBonding:
     """Compute the entropic bonds each particle in the system.
