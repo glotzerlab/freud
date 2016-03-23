@@ -12,6 +12,7 @@
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
+#include "saruprng.h"
 
 #include "NearestNeighbors.h"
 #include "trajectory.h"
@@ -66,7 +67,7 @@ class CubaticOrderParameter
         //! Get a reference to the last computed rdf
         float get_cubatic_order_parameter();
 
-        quat<float> calcRandomQuaternion(float angle_multiplier);
+        quat<float> calcRandomQuaternion(Saru &saru, float angle_multiplier);
 
         std::shared_ptr<float> getParticleCubaticOrderParameter();
 
@@ -113,6 +114,7 @@ class CubaticOrderParameter
         std::uniform_real_distribution<float> m_theta_dist;
         std::uniform_real_distribution<float> m_phi_dist;
         std::uniform_real_distribution<float> m_angle_dist;
+        Saru m_saru;
         // boost::shared_array<float> m_particle_order_parameter;         //!< phi order array computed
         // tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
         // tbb::enumerable_thread_specific<std::random_device *> m_local_rd;
