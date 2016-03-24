@@ -28,23 +28,23 @@ cdef extern from "BondOrder.h" namespace "freud::order":
 
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter(float, float, float, float*)
+        CubaticOrderParameter(float, float, float, float*, unsigned int, unsigned int)
         void resetCubaticOrderParameter()
         void compute(quat[float]*,
                      unsigned int,
                      unsigned int) nogil
         void reduceCubaticOrderParameter()
         unsigned int getNumParticles()
-        float get_cubatic_order_parameter()
+        float getCubaticOrderParameter()
         shared_ptr[float] getParticleCubaticOrderParameter()
         shared_ptr[float] getParticleTensor()
         shared_ptr[float] getGlobalTensor()
         shared_ptr[float] getCubaticTensor()
         shared_ptr[float] getGenR4Tensor()
-        float get_t_initial()
-        float get_t_final()
-        float get_scale()
-        quat[float] get_cubatic_orientation()
+        float getTInitial()
+        float getTFinal()
+        float getScale()
+        quat[float] getCubaticOrientation()
 
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:

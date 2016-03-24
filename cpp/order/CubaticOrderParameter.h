@@ -35,6 +35,128 @@ void tensorDiv(float *tensor_out, float a);
 void tensorSub(float *tensor_out, float *tensor_i, float *tensor_j);
 void tensorAdd(float *tensor_out, float *tensor_i, float *tensor_j);
 
+template < class Real >
+struct tensor4
+    {
+    tensor4()
+        {
+        memset((void*)&data, 0, sizeof(float)*81);
+        }
+    tensor4(vec3<Real> &_vector)
+        {
+        unsigned int cnt = 0;
+        float v[3];
+        v[0] = _vector.x;
+        v[1] = _vector.y;
+        v[2] = _vector.z;
+        for (unsigned int i = 0; i < 3; i++)
+            {
+            float v_i = v[i];
+            for (unsigned int j = 0; j < 3; j++)
+                {
+                float v_j = v[j];
+                for (unsigned int k = 0; k < 3; k++)
+                    {
+                    float v_k = v[k];
+                    for (unsigned int l = 0; l < 3; l++)
+                        {
+                        float v_l = v[l];
+                        data[cnt] = v_i * v_j * v_k * v_l;
+                        cnt++;
+                        }
+                    }
+                }
+            }
+        }
+    tensor4(Real (&_data)[81])
+        {
+        memcpy((void*)data, (void*)_data, sizeof(float)*81);
+        }
+    tensor4(float (*_data)[81])
+        {
+        memcpy((void*)data, (void*)_data, sizeof(float)*81);
+        }
+    Real data[81];
+    };
+
+template < class Real >
+tensor4<Real> operator+(const tensor4<Real>& a, const tensor4<Real>& b)
+    {
+    tensor4<Real> c;
+    for (unsigned int i=0; i<81; i++)
+        {
+        c.data[i] = a.data[i] + b.data[i];
+        }
+    return c;
+    }
+
+template < class Real >
+tensor4<Real> operator+(const tensor4<Real>& a, const Real& b)
+    {
+    tensor4<Real> c;
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        c.data[i] = a.data[i] + b;
+        }
+    return c;
+    }
+
+template < class Real >
+tensor4<Real> operator-(const tensor4<Real>& a, const tensor4<Real>& b)
+    {
+    tensor4<Real> c;
+    for (unsigned int i=0; i<81; i++)
+        {
+        c.data[i] = a.data[i] - b.data[i];
+        }
+    return c;
+    }
+
+template < class Real >
+tensor4<Real> operator-(const tensor4<Real>& a, const Real& b)
+    {
+    tensor4<Real> c;
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        c.data[i] = a.data[i] - b;
+        }
+    return c;
+    }
+
+template < class Real >
+tensor4<Real> dot(const tensor4<Real>& a, const tensor4<Real>& b)
+    {
+    Real c = 0;
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        c = a.data[i] - b.data[i];
+        }
+    return c;
+    }
+
+template < class Real >
+tensor4<Real> operator*(const tensor4<Real>& a, const Real& b)
+    {
+    tensor4<Real> c;
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        c.data[i] = a.data[i] * b;
+        }
+    return c;
+    }
+
+template < class Real >
+tensor4<Real> operator/(const tensor4<Real>& a, const Real& b)
+    {
+    Real b_inv = 1.0/b;
+    tensor4<Real> c;
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        c.data[i] = a.data[i] * b_inv;
+        }
+    return c;
+    }
+
 //! Compute the hexagonal order parameter for a set of points
 /*!
 */
@@ -42,12 +164,10 @@ class CubaticOrderParameter
     {
     public:
         //! Constructor
-        CubaticOrderParameter();
-
-        CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor);
+        CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor, unsigned int n_replicates, unsigned int seed);
 
         //! Destructor
-        ~CubaticOrderParameter();
+        // ~CubaticOrderParameter();
 
         //! Reset the bond order array to all zeros
         void resetCubaticOrderParameter(quat<float> orientation);
@@ -65,7 +185,7 @@ class CubaticOrderParameter
         void reduceCubaticOrderParameter();
 
         //! Get a reference to the last computed rdf
-        float get_cubatic_order_parameter();
+        float getCubaticOrderParameter();
 
         quat<float> calcRandomQuaternion(Saru &saru, float angle_multiplier);
 
@@ -81,13 +201,13 @@ class CubaticOrderParameter
 
         unsigned int getNumParticles();
 
-        float get_t_initial();
+        float getTInitial();
 
-        float get_t_final();
+        float getTFinal();
 
-        float get_scale();
+        float getScale();
 
-        quat<float> get_cubatic_orientation();
+        quat<float> getCubaticOrientation();
 
 
         // std::shared_ptr<float> getParticleCubaticOrderParameter();
@@ -115,6 +235,7 @@ class CubaticOrderParameter
         std::uniform_real_distribution<float> m_phi_dist;
         std::uniform_real_distribution<float> m_angle_dist;
         Saru m_saru;
+        unsigned int m_seed;
         // boost::shared_array<float> m_particle_order_parameter;         //!< phi order array computed
         // tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
         // tbb::enumerable_thread_specific<std::random_device *> m_local_rd;

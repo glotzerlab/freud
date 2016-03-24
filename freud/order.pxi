@@ -10,6 +10,7 @@ from libcpp.vector cimport vector
 import numpy as np
 cimport numpy as np
 from cython.view cimport array as cvarray
+import time
 
 # Numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -182,19 +183,32 @@ cdef class CubaticOrderParameter:
     :param t_initial: Starting temperature
     :param t_final: Final temperature
     :param scale: Scaling factor to reduce temperature
+    :param n_replicates: Number of replicate simulated annealing runs
+    :param seed: random seed to use in calculations. If None, system time used
     :type t_initial: float
     :type t_final: float
     :type scale: float
+    :type n_replicates: unsigned int
+    :type seed: unsigned int
 
     """
     cdef order.CubaticOrderParameter *thisptr
 
-    def __cinit__(self, t_initial, t_final, scale):
+    def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
         # run checks
         if (t_final >= t_initial):
             raise ValueError("t_final must be less than t_initial")
         if (scale >= 1.0):
             raise ValueError("scale must be less than 1")
+        if seed is None:
+            seed = int(time.time())
+        elif not isinstance(seed, int):
+            try:
+                seed = int(seed)
+            finally:
+                print("supplied seed could not be used. using time as seed")
+                seed = time.time()
+
         # for c++ code
         # create generalized rank four tensor, pass into c++
         cdef np.ndarray[float, ndim=2] kd = np.eye(3, dtype=np.float32)
@@ -203,7 +217,7 @@ cdef class CubaticOrderParameter:
         cdef np.ndarray[float, ndim=4] diljk = np.einsum("il,jk->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
         r4 *= (2.0/5.0)
-        self.thisptr = new order.CubaticOrderParameter(t_initial, t_final, scale, <float*>r4.data)
+        self.thisptr = new order.CubaticOrderParameter(t_initial, t_final, scale, <float*>r4.data, n_replicates, seed)
 
     def compute(self, orientations):
         """
@@ -231,35 +245,35 @@ cdef class CubaticOrderParameter:
         :return: value of initial temperature
         :rtype: float
         """
-        return self.thisptr.get_t_initial()
+        return self.thisptr.getTInitial()
 
     def get_t_final(self):
         """
         :return: value of final temperature
         :rtype: float
         """
-        return self.thisptr.get_t_final()
+        return self.thisptr.getTFinal()
 
     def get_scale(self):
         """
         :return: value of scale
         :rtype: float
         """
-        return self.thisptr.get_scale()
+        return self.thisptr.getScale()
 
     def get_cubatic_order_parameter(self):
         """
         :return: Cubatic Order parameter
         :rtype: float
         """
-        return self.thisptr.get_cubatic_order_parameter()
+        return self.thisptr.getCubaticOrderParameter()
 
     def get_orientation(self):
         """
         :return: orientation of global orientation
         :rtype: np.float32
         """
-        cdef quat[float] q = self.thisptr.get_cubatic_orientation()
+        cdef quat[float] q = self.thisptr.getCubaticOrientation()
         cdef np.npy_intp nbins[1]
         nbins[0] = 4
         # This should be updated/changed at some point
