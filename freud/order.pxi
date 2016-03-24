@@ -439,10 +439,11 @@ cdef class LocalDescriptors:
 
         """
         cdef quat[float] *qij = self.thisptr.getQij().get()
-        cdef np.npy_intp nbins[2]
+        cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        nbins[1] = 4
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>qij)
+        nbins[1] = <np.npy_intp>self.thisptr.getNNeigh()
+        nbins[2] = 4
+        cdef np.ndarray[float, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>qij)
         return result
 
     def getSph(self):

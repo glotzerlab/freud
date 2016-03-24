@@ -28,9 +28,14 @@ class FTdelta
         // void set_K(float3* K, unsigned int NK)
         void set_K(vec3<float>* K, unsigned int NK)
             {
-            m_K = K;
             m_NK = NK;
+            m_K.resize(NK);
+            std::copy(K, K+NK, m_K.begin());
+
+            // initialize output array
+            m_arr = boost::shared_array< std::complex<float> >(new std::complex<float>[m_NK]);
             }
+
         // /*! Python wrapper to set_K
         // \param K NK x 3 ndarray of K values to evaluate
         // */
@@ -56,8 +61,10 @@ class FTdelta
         void set_rq(unsigned int Np, vec3<float>* position, quat<float>* orientation)
             {
             m_Np = Np;
-            m_r = position;
-            m_q = orientation;
+            m_r.resize(Np);
+            m_q.resize(Np);
+            std::copy(position, position + Np, m_r.begin());
+            std::copy(orientation, orientation + Np, m_q.begin());
             }
         // /*! Python wrapper to set_rq
         // \param position Np x 3 ndrray of particle position vectors
@@ -105,13 +112,11 @@ class FTdelta
         //! C++ interface to return the FT values
         boost::shared_array< std::complex<float> > getFT()
             {
-            boost::shared_array< std::complex<float> > arr;
-            arr = boost::shared_array< std::complex<float> >(new std::complex<float>[m_NK]);
             for(unsigned int i = 0; i < m_NK; i++)
                 {
-                arr[i] = std::complex<float>(m_S_Re[i], m_S_Im[i]);
+                m_arr[i] = std::complex<float>(m_S_Re[i], m_S_Im[i]);
                 }
-            return arr;
+            return m_arr;
             }
 
         // //! Python interface to return the FT values (returns a copy)
@@ -126,16 +131,14 @@ class FTdelta
         //     }
 
     protected:
+        boost::shared_array< std::complex<float> > m_arr;
         boost::shared_array<float> m_S_Re;  //!< Real component of structure factor
         boost::shared_array<float> m_S_Im;  //!< Imaginary component of structure factor
         unsigned int m_NK;                  //!< number of K points evaluated
         unsigned int m_Np;                  //!< number of particles (length of r and q arrays)
-        // float3* m_K;                        //!< array of K points
-        // float3* m_r;                        //!< array of particle positions
-        vec3<float>* m_K;                        //!< array of K points
-        vec3<float>* m_r;                        //!< array of particle positions
-        // float4* m_q;                        //!< array of particle orientations
-        quat<float>* m_q;                        //!< array of particle orientations
+        std::vector<vec3<float> > m_K;      //!< array of K points
+        std::vector<vec3<float> > m_r;      //!< array of particle positions
+        std::vector<quat<float> > m_q;      //!< array of particle orientations
         float m_density_Re;                 //!< real component of the scattering density
         float m_density_Im;                 //!< imaginary component of the scattering density
     };
@@ -168,8 +171,8 @@ struct poly3d_param_t
     std::vector< vec3<float> > vert;                    //!< Polyhedron vertices
     std::vector< std::vector<unsigned int> > facet;     //!< list of facets, which are lists of vertex indices
     std::vector< vec3<float> > norm;                    //!< normal unit vectors corresponding to facets
-    std::vector< float > d;                             //!< distances of origin to facets
     std::vector< float > area;                          //!< pre-computed facet areas
+    std::vector< float > d;                             //!< pre-computed facet areas
     float volume;                                       //!< pre-computed polyhedron volume
     };
 
@@ -186,9 +189,15 @@ class FTpolyhedron: public FTdelta
         //! S_lambda(k) == lambda**3 * S(lambda * k)
         virtual void compute();
 
-        //! Set particle data structure
-        // \param params data structure of necessary polyhedron information
-        void set_params(const param_type& params);
+        void set_params(unsigned int nvert,
+                       vec3<float>* vert,
+                       unsigned int nfacet,
+                       unsigned int *facet_offs,
+                       unsigned int *facet,
+                       vec3<float>* norm,
+                       float *d,
+                       float * area,
+                       float volume);
 
     private:
         param_type m_params;        //!< polyhedron data structure
