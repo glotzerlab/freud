@@ -232,10 +232,12 @@ void FTpolyhedron::compute()
                             float dotKl = dot(K_proj, l_n);
                             vec3<float> crosslK = cross(l_n, K_proj);
 
-//                            float x = dotKl*0.5f; // argument to sinc function
-                            float x = dotKl; // argument to sinc function
-                            f_n = dot(norm, crosslK) * (sinf(x)/x) * K2inv;
-
+                            float x = dotKl*0.5f; // argument to sinc function
+//                            float x = dotKl; // argument to sinc function
+                            float sinc = 1.0;
+                            const float eps = 0.000001;
+                            if (fabs(x) > eps) sinc = sinf(x)/x;
+                            f_n = dot(norm, crosslK) * sinc * K2inv;
                             f2D_Re -= sinf(dotKc) * f_n;
                             f2D_Im -= cosf(dotKc) * f_n;
                             } // end foreach edge
@@ -256,7 +258,7 @@ void FTpolyhedron::compute()
 
             // Get structure factor
             float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
-            float d = dot(K, r); // dot product of K and r
+            float d = dot(K, rotate(conj(q),r)); // dot product of K and r (rotated back)
             // d = K.x * r.x + K.y * r.y + K.z * r.z;
             CosKr = cosf(d);
             negSinKr = sinf(d);
