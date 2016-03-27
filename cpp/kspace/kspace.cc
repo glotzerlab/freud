@@ -187,7 +187,8 @@ void FTpolyhedron::compute()
             // f(0) = volume
             if (K2 == 0.0f)
                 {
-                f_Re = f_Im = m_params.volume;
+                f_Re = m_params.volume;
+                f_Im = 0;
                 }
             else
                 {
