@@ -208,7 +208,8 @@ void FTpolyhedron::compute()
                     // FT evaluated at K_proj==0 is the scattering volume (area)
                     if (K_proj2 == 0.0f)
                         {
-                        f2D_Re = f2D_Im = m_params.area[facet_idx];
+                        f2D_Re = m_params.area[facet_idx];
+                        f2D_Im = 0;
                         }
                     else
                         {
