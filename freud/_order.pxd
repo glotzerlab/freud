@@ -201,12 +201,12 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
                         bool,
                         bool)
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
-                                        const vec3[float]*,
+                                        vec3[float]*,
                                         unsigned int,
                                         float,
                                         bool)
-        map[unsigned int, unsigned int] getMinRMSD(const vec3[float]*,
-                                        const vec3[float]*,
+        map[unsigned int, unsigned int] minimizeRMSD(const vec3[float]*,
+                                        vec3[float]*,
                                         unsigned int,
                                         float&,
                                         bool)

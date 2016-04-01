@@ -1670,9 +1670,10 @@ cdef class MatchEnv:
             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
 
         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq, registration)
-        return vec_map
+        cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(l_refPoints2, (nRef2, 3))
+        return [rot_refPoints2, vec_map]
 
-    def getMinRMSD(self, refPoints1, refPoints2, registration=False):
+    def minimizeRMSD(self, refPoints1, refPoints2, registration=False):
         """Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
 
         :param refPoints1: vectors that make up motif 1
@@ -1681,8 +1682,8 @@ cdef class MatchEnv:
         :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type registration: bool
-        :return: a pair that gives the associated min_rmsd and the mapping between the vectors of refPoints1 and refPoints2 that minimizes the RMSD.
-        :rtype: tuple[float, map[int, int]]
+        :return: a triplet that gives the associated min_rmsd, rotated (or not) set of refPoints2, and the mapping between the vectors of refPoints1 and refPoints2 that somewhat minimizes the RMSD.
+        :rtype: tuple[float, np.ndarray(shape=(num_neigh, 3), dtype=np.float32), map[int, int]]
         """
         if refPoints1.dtype != np.float32:
             raise ValueError("refPoints1 must be a numpy float32 array")
@@ -1706,8 +1707,9 @@ cdef class MatchEnv:
             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
 
         cdef float min_rmsd = -1
-        cdef map[unsigned int, unsigned int] results_map = self.thisptr.getMinRMSD(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, min_rmsd, registration)
-        return [min_rmsd, results_map]
+        cdef map[unsigned int, unsigned int] results_map = self.thisptr.minimizeRMSD(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, min_rmsd, registration)
+        cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(l_refPoints2, (nRef2, 3))
+        return [min_rmsd, rot_refPoints2, results_map]
 
     def getClusters(self):
         """

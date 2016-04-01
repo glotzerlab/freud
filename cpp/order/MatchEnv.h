@@ -126,7 +126,7 @@ class MatchEnv
         //! Construct the environments accordingly, and utilize isSimilar() as above.
         //! Return a std map for ease of use.
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-        std::map<unsigned int, unsigned int> isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration);
+        std::map<unsigned int, unsigned int> isSimilar(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration);
 
         //! Get the somewhat-optimal RMSD between the set of vectors v1 and the set of vectors v2
         //! Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this RMSD
@@ -140,7 +140,7 @@ class MatchEnv
         //! Arguments are pointers to interface directly with python
         //! Return a pair that gives the associated min_rmsd and the mapping between the vectors of refPoints1 and refPoints2 that minimizes the RMSD.
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-        std::map<unsigned int, unsigned int> getMinRMSD(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration);
+        std::map<unsigned int, unsigned int> minimizeRMSD(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration);
 
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
         boost::shared_array<unsigned int> getClusters()

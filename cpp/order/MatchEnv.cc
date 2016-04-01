@@ -407,7 +407,7 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment& e1, En
 // Construct the environments accordingly, and utilize isSimilar() as above.
 // Return a std map for ease of use.
 // The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration)
+std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration)
     {
     assert(refPoints1);
     assert(refPoints2);
@@ -446,6 +446,12 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refP
     for (boost::bimap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
         {
         std_vec_map[it->left] = it->right;
+        }
+
+    // update refPoints2 in case registration has taken place
+    for (unsigned int i = 0; i < numRef; i++)
+        {
+        refPoints2[i] = e1.vecs[i];
         }
 
     // return the vector map
@@ -490,7 +496,7 @@ double MatchEnv::getMinRMSD(std::vector<vec3<float> >& v1, std::vector<vec3<floa
 // Arguments are pointers to interface directly with python.
 // Return a pair that gives the associated min_rmsd and the mapping between the vectors of refPoints1 and refPoints2 that minimizes the RMSD.
 // The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-std::map<unsigned int, unsigned int> MatchEnv::getMinRMSD(const vec3<float> *refPoints1, const vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration)
+std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration)
     {
     assert(refPoints1);
     assert(refPoints2);
@@ -519,6 +525,12 @@ std::map<unsigned int, unsigned int> MatchEnv::getMinRMSD(const vec3<float> *ref
     for (boost::bimap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
         {
         std_vec_map[it->left] = it->right;
+        }
+
+    // update refPoints2 in case registration has taken place
+    for (unsigned int i = 0; i < numRef; i++)
+        {
+        refPoints2[i] = v2[i];
         }
 
     // return the vector map

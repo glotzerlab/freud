@@ -107,7 +107,7 @@ inline matrix Translate(const matrix& vec, const matrix& P)
 
 inline matrix Rotate(const matrix& R, const matrix& P)
 {
-    // assume the matrix P is an Nx3 matrix.
+    // assume the matrix P is a 3xN matrix.
     // then make sure that matrix R is ready to act on it
     if (R.cols() != P.rows())
     {
@@ -237,10 +237,20 @@ class RegisterBruteForce  // : public Register
                         q.row(1) = points.row(comb[1]);
                         q.row(2) = points.row(comb[2]);
 
-                        KabschAlgorithm(p, q, r);
+                        // std::cout<<"p: "<<p.row(0)<<" "<<p.row(1)<<" "<<p.row(2)<<std::endl;
+                        // std::cout<<"q: "<<q.row(0)<<" "<<q.row(1)<<" "<<q.row(2)<<std::endl;
+
+                        // finds the optimal rotation of the FIRST input set of points such that they
+                        // match the SECOND input set of points
+                        KabschAlgorithm(q, p, r);
+
+                        // std::cout<<"rot: "<<r.row(0)<<" "<<r.row(1)<<" "<<r.row(2)<<std::endl;
+                        matrix rot_q = Rotate(r, q.transpose()).transpose();
+                        // std::cout<<"rot q: "<<rot_q.row(0)<<" "<<rot_q.row(1)<<" "<<rot_q.row(2)<<std::endl;
 
                         boost::bimap<unsigned int, unsigned int> vec_map;
                         double rmsd = AlignedRMSDTree(points, r, vec_map);
+                        // std::cout<<"rmsd: "<<rmsd<<std::endl;
                         if (rmsd < rmsd_min || rmsd_min < 0.0)
                         {
                             rmsd_min = rmsd;
@@ -249,7 +259,7 @@ class RegisterBruteForce  // : public Register
                             if (rmsd_min < m_tol)
                             {
                                 // The rotation that we've found from the KabschAlgorithm actually acts on P^T.
-                                matrix ptsT = Rotate(r, points.transpose());
+                                matrix ptsT = Rotate(m_rotation, points.transpose());
                                 // Then we have to take the transpose again to get our matrix back to its original dimensionality.
                                 pts = makeVec3Matrix(ptsT.transpose());
                                 return true;
@@ -259,7 +269,7 @@ class RegisterBruteForce  // : public Register
                 } while (NextCombination(comb, N, 3));
             }
             // The rotation that we've found from the KabschAlgorithm actually acts on P^T.
-            matrix ptsT = Rotate(r, points.transpose());
+            matrix ptsT = Rotate(m_rotation, points.transpose());
             // Then we have to take the transpose again to get our matrix back to its original dimensionality.
             pts = makeVec3Matrix(ptsT.transpose());
             return true;
