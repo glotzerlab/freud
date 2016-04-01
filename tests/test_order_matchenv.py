@@ -28,22 +28,35 @@ class TestCluster(unittest.TestCase):
         num_cluster = len(cluster_env)
         env_cluster = cluster_env[0]
 
-        npt.assert_equal(num_cluster, 1, err_msg="Number of cluster fail")
-        npt.assert_almost_equal(env_cluster, bcc_env, decimal=2, err_msg="Cluster Environment fail")
+        npt.assert_equal(num_cluster, 1, err_msg="Number of BCC cluster fail")
+        npt.assert_almost_equal(env_cluster, bcc_env, decimal=2, err_msg="BCC Cluster Environment fail")
 
-    '''def test_double_cluster(self):
-        xyz = np.load("fcc.npy")
+    def test_multi_cluster(self):
+        xyz = np.load("sc.npy")
         xyz = np.array(xyz, dtype=np.float32)
-        Lx = np.max(xyz[:,0])*2
-        Ly = np.max(xyz[:,1])*2
-        Lz = np.max(xyz[:,2])*2
-        box = trajectory.Box(Lx, Ly, Lz, 0, 0, 0)
+        box = trajectory.Box(21, 21, 21, 0, 0, 0)
 
-        rcut = 3.1
-        kn = 12
+        rcut = 4
+        kn = 6
         threshold = 0.1
 
-        '''
+        match = MatchEnv(box, rcut, kn)
+        match.cluster(xyz, threshold)
+        clusters = match.getClusters()
+
+        cluster_env = {}
+        for cluster_ind in clusters:
+            if cluster_ind not in cluster_env:
+                cluster_env[cluster_ind] = np.copy(np.array(match.getEnvironment(cluster_ind)))
+
+        sc_env = np.load("sc_env.npy")
+        # Randomly choose the 3rd cluster here to test
+        env_cluster = cluster_env[2]
+        num_cluster = len(cluster_env)
+
+        npt.assert_equal(num_cluster, 6, err_msg="Number of SC cluster fail")
+        npt.assert_almost_equal(env_cluster, sc_env, decimal=2, err_msg="SC Cluster Environment fail")
+
 
 if __name__ == '__main__':
     unittest.main()
