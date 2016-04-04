@@ -21,7 +21,7 @@ LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float r
     if (m_rmin >= m_rmax)
         throw invalid_argument("rmin should be smaller than rmax!");
     if (m_l < 2)
-        throw invalid_argument("l must be two or greater (and even)!");
+        throw invalid_argument("l must be two or greater!");
     }
 
 void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
