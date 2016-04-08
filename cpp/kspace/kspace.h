@@ -172,7 +172,8 @@ struct poly3d_param_t
     std::vector< std::vector<unsigned int> > facet;     //!< list of facets, which are lists of vertex indices
     std::vector< vec3<float> > norm;                    //!< normal unit vectors corresponding to facets
     std::vector< float > area;                          //!< pre-computed facet areas
-    std::vector< float > d;                             //!< pre-computed facet areas
+#include "TwoStepBDNVTGPU.h"
+    std::vector< float > d;                             //!< distances of origin to facets
     float volume;                                       //!< pre-computed polyhedron volume
     };
 
