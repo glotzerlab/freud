@@ -17,9 +17,6 @@ cdef class FTdelta:
     def __cinit__(self):
         self.thisptr = new kspace.FTdelta()
         self.NK = 0
-        # keep copies of arrays we pass in since the C++ class just
-        # keeps raw pointers
-        #self.K = self.position = self.orientation = None
 
     def __dealloc__(self):
         del self.thisptr
@@ -132,9 +129,7 @@ cdef class FTsphere:
             raise TypeError('position and orientation should have the same length')
         Np = position.shape[0]
         cdef np.ndarray[float,ndim=2] cr = position
-#        self.position = position
         cdef np.ndarray[float,ndim=2] cq = orientation
-#        self.orientation = orientation
         self.thisptr.set_rq(Np, <vec3[float]*>cr.data, <quat[float]*> cq.data)
 
     def set_density(self, float complex density):
