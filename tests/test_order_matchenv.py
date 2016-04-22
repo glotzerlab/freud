@@ -29,7 +29,7 @@ class TestCluster(unittest.TestCase):
         env_cluster = cluster_env[0]
 
         npt.assert_equal(num_cluster, 1, err_msg="Number of BCC cluster fail")
-        npt.assert_almost_equal(env_cluster, bcc_env, decimal=2, err_msg="BCC Cluster Environment fail")
+        npt.assert_almost_equal(env_cluster, bcc_env, decimal=5, err_msg="BCC Cluster Environment fail")
 
     def test_multi_cluster(self):
         xyz = np.load("sc.npy")
@@ -54,8 +54,10 @@ class TestCluster(unittest.TestCase):
         env_cluster = cluster_env[2]
         num_cluster = len(cluster_env)
 
+        print(env_cluster)
+        print(sc_env)
         npt.assert_equal(num_cluster, 6, err_msg="Number of SC cluster fail")
-        npt.assert_almost_equal(env_cluster, sc_env, decimal=2, err_msg="SC Cluster Environment fail")
+        npt.assert_almost_equal(env_cluster, sc_env, decimal=5, err_msg="SC Cluster Environment fail")
 
 
 if __name__ == '__main__':
