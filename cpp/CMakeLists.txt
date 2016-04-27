@@ -119,6 +119,8 @@ set(FREUD_SOURCES
             order/LocalWlNear.cc
             order/SolLiq.h
             order/SolLiq.cc
+            order/MatchEnv.h
+            order/MatchEnv.cc
             order/SolLiqNear.h
             order/SolLiqNear.cc
             order/wigner3j.cc

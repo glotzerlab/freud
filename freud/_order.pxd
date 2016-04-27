@@ -1,10 +1,11 @@
-# from libcpp cimport bool
+from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
+from libcpp.map cimport map
 cimport freud._trajectory as trajectory
 
 cdef extern from "BondOrder.h" namespace "freud::order":
@@ -202,6 +203,31 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         vector[float complex] getQldot_ij()
         unsigned int getNP()
         unsigned int getNumClusters()
+
+cdef extern from "MatchEnv.h" namespace "freud::order":
+    cdef cppclass MatchEnv:
+        MatchEnv(const trajectory.Box&, float, unsigned int)
+        void setBox(const trajectory.Box)
+        void cluster(const vec3[float]*,
+                     unsigned int,
+                     float,
+                     bool)
+        void matchMotif(const vec3[float]*,
+                        unsigned int,
+                        const vec3[float]*,
+                        unsigned int,
+                        float,
+                        bool)
+        map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
+                                        const vec3[float]*,
+                                        unsigned int,
+                                        float)
+        shared_array[unsigned int] getClusters()
+        shared_array[vec3[float]] getEnvironment(unsigned int)
+        shared_array[vec3[float]] getTotEnvironment()
+        unsigned int getNP()
+        unsigned int getNumClusters()
+        unsigned int getNumNeighbors()
 
 cdef extern from "SolLiqNear.h" namespace "freud::order":
     cdef cppclass SolLiqNear:
