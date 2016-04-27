@@ -1,3 +1,5 @@
+
+import sys
 from freud import locality, trajectory
 import numpy as np
 import numpy.testing as npt
@@ -42,6 +44,9 @@ class TestLinkCell(unittest.TestCase):
         self.assertEqual(len(test0), len(test1))
 
     def test_symmetric(self):
+        current_version = sys.version_info
+        if current_version.major < 3:
+            self.assertEqual(1, 1)
         L = 10; #Box Dimensions
         rcut = 2; #Cutoff radius
         N = 40; # number of particles

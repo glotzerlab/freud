@@ -1,4 +1,5 @@
 
+import sys
 from freud.util._VectorMath cimport vec3
 cimport freud._locality as locality
 from cython.operator cimport dereference
@@ -17,7 +18,12 @@ cdef class IteratorLinkCell:
     cdef locality.IteratorLinkCell *thisptr
 
     def __cinit__(self):
-        self.thisptr = new locality.IteratorLinkCell()
+        # must be running python 3.x
+        current_version = sys.version_info
+        if current_version.major < 3:
+            raise RuntimeError("Must use python 3.x or greater to use IteratorLinkCell")
+        else:
+            self.thisptr = new locality.IteratorLinkCell()
 
     def __dealloc__(self):
         del self.thisptr
@@ -97,6 +103,9 @@ cdef class LinkCell:
 
         :param cell: Cell index
         """
+        current_version = sys.version_info
+        if current_version.major < 3:
+            raise RuntimeError("Must use python 3.x or greater to use itercell")
         result = IteratorLinkCell()
         cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
         result.copy(cResult)
