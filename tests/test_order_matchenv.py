@@ -28,8 +28,14 @@ class TestCluster(unittest.TestCase):
         num_cluster = len(cluster_env)
         env_cluster = cluster_env[0]
 
+        # this is a nifty way of lexicographically sorting our arrays, for the purposes of an element-by-element comparison.
+        # np.lexsort() sorts by the columns you feed it, with the final fed column being the "primary" sorting key.
+        # getEnvironment() might return the motif with its vectors sorted any old way, and if we compare against a saved numpy
+        # array then we have to order the two arrays in the same fashion.
+        sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:,0],env_cluster[:,1],env_cluster[:,2]))]
+        sorted_bcc_env = bcc_env[np.lexsort((bcc_env[:,0],bcc_env[:,1],bcc_env[:,2]))]
         npt.assert_equal(num_cluster, 1, err_msg="Number of BCC cluster fail")
-        npt.assert_almost_equal(env_cluster, bcc_env, decimal=2, err_msg="BCC Cluster Environment fail")
+        npt.assert_almost_equal(sorted_env_cluster, sorted_bcc_env, decimal=5, err_msg="BCC Cluster Environment fail")
 
     def test_multi_cluster(self):
         xyz = np.load("sc.npy")
@@ -54,8 +60,14 @@ class TestCluster(unittest.TestCase):
         env_cluster = cluster_env[2]
         num_cluster = len(cluster_env)
 
+        # this is a nifty way of lexicographically sorting our arrays, for the purposes of an element-by-element comparison.
+        # np.lexsort() sorts by the columns you feed it, with the final fed column being the "primary" sorting key.
+        # getEnvironment() might return the motif with its vectors sorted any old way, and if we compare against a saved numpy
+        # array then we have to order the two arrays in the same fashion.
+        sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:,0],env_cluster[:,1],env_cluster[:,2]))]
+        sorted_sc_env = sc_env[np.lexsort((sc_env[:,0],sc_env[:,1],sc_env[:,2]))]
         npt.assert_equal(num_cluster, 6, err_msg="Number of SC cluster fail")
-        npt.assert_almost_equal(env_cluster, sc_env, decimal=2, err_msg="SC Cluster Environment fail")
+        npt.assert_almost_equal(sorted_env_cluster, sorted_sc_env, decimal=5, err_msg="SC Cluster Environment fail")
 
 
 if __name__ == '__main__':
