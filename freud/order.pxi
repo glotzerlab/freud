@@ -178,8 +178,8 @@ cdef class BondOrder:
         return np
 
 cdef class CubaticOrderParameter:
-    """Compute the Cubatic Order Parameter for a system of particles using the OP from INSERT REFERENCE \
-    with simulated annealing instead of Newton-Raphson.
+    """Compute the Cubatic Order Parameter for a system of particles using the OP from [AmirPaper]_ \
+    with simulated annealing instead of the Newton-Raphson method for root finding.
 
     :param t_initial: Starting temperature
     :param t_final: Final temperature
@@ -191,6 +191,10 @@ cdef class CubaticOrderParameter:
     :type scale: float
     :type n_replicates: unsigned int
     :type seed: unsigned int
+
+    .. [AmirPaper] Haji-Akbari, A. ; Glotzer, S. C. Strong Orientational Coordinates and \
+    Orientational Order Parameters for Symmetric Objects. Journal of Physics A: Mathematical and \
+    Theoretical 2015, 48, 485201. 
 
     """
     cdef order.CubaticOrderParameter *thisptr
