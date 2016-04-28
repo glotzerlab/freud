@@ -72,7 +72,7 @@ struct tensor4
         {
         memcpy((void*)data, (void*)_data, sizeof(float)*81);
         }
-    tensor4(float (*_data)[81])
+    tensor4(float* _data)
         {
         memcpy((void*)data, (void*)_data, sizeof(float)*81);
         }
@@ -102,6 +102,26 @@ tensor4<Real> operator+(const tensor4<Real>& a, const Real& b)
     }
 
 template < class Real >
+tensor4<Real> operator+=(tensor4<Real>& a, const tensor4<Real>& b)
+    {
+    for (unsigned int i=0; i<81; i++)
+        {
+        a.data[i] += b.data[i];
+        }
+    return a;
+    }
+
+template < class Real >
+tensor4<Real> operator+=(tensor4<Real>& a, const Real& b)
+    {
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        a.data[i] += b;
+        }
+    return a;
+    }
+
+template < class Real >
 tensor4<Real> operator-(const tensor4<Real>& a, const tensor4<Real>& b)
     {
     tensor4<Real> c;
@@ -124,12 +144,31 @@ tensor4<Real> operator-(const tensor4<Real>& a, const Real& b)
     }
 
 template < class Real >
-tensor4<Real> dot(const tensor4<Real>& a, const tensor4<Real>& b)
+tensor4<Real> operator-=(tensor4<Real>& a, const tensor4<Real>& b)
+    {
+    for (unsigned int i=0; i<81; i++)
+        {
+        a.data[i] -= b.data[i];
+        }
+    return a;
+    }
+
+template < class Real >
+tensor4<Real> operator-=(tensor4<Real>& a, const Real& b)
+    {
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        a.data[i] -= b;
+        }
+    }
+
+template < class Real >
+float dot(const tensor4<Real>& a, const tensor4<Real>& b)
     {
     Real c = 0;
     for (unsigned int i = 0; i < 81; i++)
         {
-        c = a.data[i] - b.data[i];
+        c += a.data[i] * b.data[i];
         }
     return c;
     }
@@ -155,6 +194,25 @@ tensor4<Real> operator/(const tensor4<Real>& a, const Real& b)
         c.data[i] = a.data[i] * b_inv;
         }
     return c;
+    }
+
+template < class Real >
+tensor4<Real> operator*=(tensor4<Real>& a, const Real& b)
+    {
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        a.data[i] *= b;
+        }
+    }
+
+template < class Real >
+tensor4<Real> operator/=(tensor4<Real>& a, const Real& b)
+    {
+    Real b_inv = 1.0/b;
+    for (unsigned int i = 0; i < 81; i++)
+        {
+        a.data[i] *= b_inv;
+        }
     }
 
 //! Compute the hexagonal order parameter for a set of points
@@ -217,15 +275,18 @@ class CubaticOrderParameter
         float m_t_initial;
         float m_t_final;
         float m_scale;
-        std::shared_ptr<float> m_gen_r4_tensor;
+        // std::shared_ptr<float> m_gen_r4_tensor;
+        tensor4<float> m_gen_r4_tensor;
         unsigned int m_n;                //!< Last number of points computed
         unsigned int m_n_replicates;                //!< Last number of points computed
 
         float m_cubatic_order_parameter;
         quat<float> m_cubatic_orientation;
         std::shared_ptr<float> m_particle_order_parameter;
-        std::shared_ptr<float> m_global_tensor;
-        std::shared_ptr<float> m_cubatic_tensor;
+        // std::shared_ptr<float> m_global_tensor;
+        tensor4<float> m_global_tensor;
+        // std::shared_ptr<float> m_cubatic_tensor;
+        tensor4<float> m_cubatic_tensor;
         std::shared_ptr<float> m_particle_tensor;
 
         // serial rng

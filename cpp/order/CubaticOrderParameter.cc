@@ -35,17 +35,19 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     if ((scale > 1) || (scale < 0))
         throw invalid_argument("scale must be between 0 and 1");
     // create tensor arrays
-    m_global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
-    m_cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+    // m_global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+    // m_cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
     m_particle_tensor = std::shared_ptr<float>(new float[m_n*81], std::default_delete<float[]>());
     m_particle_order_parameter = std::shared_ptr<float>(new float[m_n], std::default_delete<float[]>());
-    m_gen_r4_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
-    memset((void*)m_global_tensor.get(), 0, sizeof(float)*81);
-    memset((void*)m_cubatic_tensor.get(), 0, sizeof(float)*81);
+    // m_gen_r4_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+    // memset((void*)m_global_tensor.get(), 0, sizeof(float)*81);
+    memset((void*)&m_global_tensor.data, 0, sizeof(float)*81);
+    // memset((void*)m_cubatic_tensor.get(), 0, sizeof(float)*81);
+    memset((void*)&m_cubatic_tensor.data, 0, sizeof(float)*81);
     memset((void*)m_particle_tensor.get(), 0, sizeof(float)*m_n*81);
     memset((void*)m_particle_order_parameter.get(), 0, sizeof(float)*m_n);
     // required to not have memory overwritten
-    memcpy(m_gen_r4_tensor.get(), r4_tensor, sizeof(float)*81);
+    memcpy((void*)&m_gen_r4_tensor.data, r4_tensor, sizeof(float)*81);
     // create random number generators. will be moved to thread specific versions
     m_gen = std::mt19937(m_rd());
     m_theta_dist = std::uniform_real_distribution<float>(0,2.0*M_PI);
@@ -143,8 +145,9 @@ void CubaticOrderParameter::calcCubaticTensor(float *cubatic_tensor, quat<float>
     system_vectors[0] = vec3<float>(1,0,0);
     system_vectors[1] = vec3<float>(0,1,0);
     system_vectors[2] = vec3<float>(0,0,1);
-    float calculated_tensor[81];
-    memset((void*)&calculated_tensor, 0, sizeof(float)*81);
+    // float calculated_tensor[81];
+    tensor4<float> calculated_tensor = tensor4<float>();
+    // memset((void*)&calculated_tensor.data, 0, sizeof(float)*81);
     // rotate by supplied orientation
     for (unsigned int i=0; i<3; i++)
         {
@@ -153,23 +156,32 @@ void CubaticOrderParameter::calcCubaticTensor(float *cubatic_tensor, quat<float>
     // calculate for each system vector
     for (unsigned int v_idx = 0; v_idx < 3; v_idx++)
         {
-        float l_tensor[81];
-        tensorProduct((float*)&l_tensor, system_vectors[v_idx]);
-        tensorAdd((float*)&calculated_tensor, (float*)&calculated_tensor, (float*)&l_tensor);
+        tensor4<float> l_tensor(system_vectors[v_idx]);
+        // float l_tensor[81];
+        // tensorProduct((float*)&l_tensor, system_vectors[v_idx]);
+        // tensorAdd((float*)&calculated_tensor, (float*)&calculated_tensor, (float*)&l_tensor);
+        calculated_tensor += l_tensor;
         }
     // normalize
-    tensorMult((float*)&calculated_tensor, 2.0);
-    tensorSub((float*)&calculated_tensor, (float*)&calculated_tensor, m_gen_r4_tensor.get());
+    calculated_tensor *= (float) 2.0;
+    calculated_tensor -= m_gen_r4_tensor;
+    // tensorMult((float*)&calculated_tensor, 2.0);
+    // tensorSub((float*)&calculated_tensor, (float*)&calculated_tensor, m_gen_r4_tensor.get());
     // now, memcpy
-    memcpy((void*)cubatic_tensor, &calculated_tensor, sizeof(float)*81);
+    memcpy((void*)cubatic_tensor, (void*)&calculated_tensor.data, sizeof(float)*81);
     }
 
 void CubaticOrderParameter::calcCubaticOrderParameter(float &cubatic_order_parameter, float* cubatic_tensor)
     {
-    float diff[81];
-    memset((void*)&diff, 0, sizeof(float)*81);
-    tensorSub((float*)&diff, m_global_tensor.get(), cubatic_tensor);
-    cubatic_order_parameter = 1.0 - tensorDot((float*)&diff,(float*)&diff)/tensorDot(cubatic_tensor,cubatic_tensor);
+    // float diff[81];
+    // memset((void*)&diff, 0, sizeof(float)*81);
+    tensor4<float> l_cubatic_tensor = tensor4<float>();
+    memcpy((void*)&l_cubatic_tensor.data, (void*)cubatic_tensor, sizeof(float)*81);
+    tensor4<float> diff;
+    diff = m_global_tensor - l_cubatic_tensor;
+    // tensorSub((float*)&diff, m_global_tensor.get(), cubatic_tensor);
+    cubatic_order_parameter = 1.0 - dot(diff, diff)/dot(l_cubatic_tensor, l_cubatic_tensor);
+    // cubatic_order_parameter = 1.0 - tensorDot((float*)&diff,(float*)&diff)/tensorDot(cubatic_tensor,cubatic_tensor);
     }
 
 float CubaticOrderParameter::getCubaticOrderParameter()
@@ -189,17 +201,23 @@ std::shared_ptr<float> CubaticOrderParameter::getParticleTensor()
 
 std::shared_ptr<float> CubaticOrderParameter::getGlobalTensor()
     {
-    return m_global_tensor;
+    std::shared_ptr<float> global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+    memcpy(global_tensor.get(), (void*)&m_global_tensor.data, sizeof(float)*81);
+    return global_tensor;
     }
 
 std::shared_ptr<float> CubaticOrderParameter::getCubaticTensor()
     {
-    return m_cubatic_tensor;
+    std::shared_ptr<float> cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+    memcpy(cubatic_tensor.get(), (void*)&m_cubatic_tensor.data, sizeof(float)*81);
+    return cubatic_tensor;
     }
 
 std::shared_ptr<float> CubaticOrderParameter::getGenR4Tensor()
     {
-    return m_gen_r4_tensor;
+    std::shared_ptr<float> gen_r4_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+    memcpy(gen_r4_tensor.get(), (void*)&m_gen_r4_tensor.data, sizeof(float)*81);
+    return gen_r4_tensor;
     }
 
 unsigned int CubaticOrderParameter::getNumParticles()
@@ -260,7 +278,8 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
         m_particle_order_parameter = std::shared_ptr<float>(new float[n], std::default_delete<float[]>());
         }
     // reset the values
-    memset((void*)m_global_tensor.get(), 0, sizeof(float)*81);
+    // memset((void*)m_global_tensor.get(), 0, sizeof(float)*81);
+    memset((void*)&m_global_tensor.data, 0, sizeof(float)*81);
     memset((void*)m_particle_tensor.get(), 0, sizeof(float)*n*81);
     memset((void*)m_particle_order_parameter.get(), 0, sizeof(float)*n);
     // calculate per-particle tensor
@@ -275,33 +294,38 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
             v[1] = vec3<float>(0,1,0);
             v[2] = vec3<float>(0,0,1);
             // create the tensor object
-            float r4_tensor[81];
-            float l_mbar[81];
+            // float r4_tensor[81];
+            // float l_mbar[81];
+            // tensor4<float> l_mbar = tensor4<float>();
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 // get the orientation for the particle
                 quat<float> l_orientation = orientations[i];
-                memset((void*)l_mbar, 0, sizeof(float)*81);
+                tensor4<float> l_mbar = tensor4<float>();
+                // memset((void*)l_mbar, 0, sizeof(float)*81);
                 for (unsigned int j = 0; j < 3; j++)
                     {
                     // set all the values to 0;
-                    memset((void*)r4_tensor, 0, sizeof(float)*81);
+                    // memset((void*)r4_tensor, 0, sizeof(float)*81);
                     // rotate local vector
                     vec3<float> v_r = rotate(l_orientation, v[j]);
-                    tensorProduct((float*)r4_tensor, v_r);
-                    tensorAdd((float*)l_mbar, (float*)r4_tensor, (float*)l_mbar);
+                    // using new tensor struct
+                    tensor4<float> r4_tensor(v_r);
+                    l_mbar += r4_tensor;
+                    // tensorProduct((float*)r4_tensor, v_r);
+                    // tensorAdd((float*)l_mbar, (float*)r4_tensor, (float*)l_mbar);
                     }
                 // apply normalization
-                tensorMult((float*)l_mbar,2.0);
+                l_mbar *= (float)2.0;
+                // tensorMult((float*)l_mbar,2.0);
                 // set the values
                 for (unsigned int j = 0; j < 81; j++)
                     {
-                    m_particle_tensor.get()[a_i(i,j)] = l_mbar[j];
+                    m_particle_tensor.get()[a_i(i,j)] = l_mbar.data[j];
                     }
                 }
             });
     // now calculate the global tensor
-    // using the lambda...this isn't working properly
     parallel_for(blocked_range<size_t>(0,81),
         [=] (const blocked_range<size_t>& r)
            {
@@ -316,17 +340,12 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
                    tensor_value += m_particle_tensor.get()[a_i(j,i)];
                    }
                tensor_value *= n_inv;
-               m_global_tensor.get()[i] = tensor_value;
+               m_global_tensor.data[i] = tensor_value;
                }
            });
     // subtract off the general tensor
-    // this does not work...moving to the per-particle
-    // Index2D a_i = Index2D(n, 81);
-    // for (unsigned int i = 0; i < n; i++)
-    //     {
-    //     tensorSub((float*)&(m_particle_tensor.get()[a_i(i, 0)]), (float*)&(m_particle_tensor.get()[a_i(i, 0)]), m_gen_r4_tensor.get());
-    //     }
-    tensorSub(m_global_tensor.get(), m_global_tensor.get(), m_gen_r4_tensor.get());
+    m_global_tensor -= m_gen_r4_tensor;
+    // tensorSub(m_global_tensor.get(), m_global_tensor.get(), m_gen_r4_tensor.get());
     // prep for the simulated annealing
     std::shared_ptr<float> p_cubatic_tensor = std::shared_ptr<float>(new float[m_n_replicates*81], std::default_delete<float[]>());
     memset((void*)p_cubatic_tensor.get(), 0, sizeof(float)*m_n_replicates*81);
@@ -346,17 +365,19 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
             Index2D a_i = Index2D(m_n_replicates, 81);
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                float cubatic_tensor[81];
-                memset((void*)cubatic_tensor, 0, sizeof(float)*81);
-                float new_cubatic_tensor[81];
-                memset((void*)new_cubatic_tensor, 0, sizeof(float)*81);
+                // float cubatic_tensor[81];
+                // memset((void*)cubatic_tensor, 0, sizeof(float)*81);
+                // float new_cubatic_tensor[81];
+                // memset((void*)new_cubatic_tensor, 0, sizeof(float)*81);
+                tensor4<float> cubatic_tensor;
+                tensor4<float> new_cubatic_tensor;
                 // need to generate random orientation
                 quat<float> cubatic_orientation = calcRandomQuaternion(l_saru);
                 quat<float> current_orientation = cubatic_orientation;
                 float cubatic_order_parameter = 0;
                 // now calculate the cubatic tensor
-                calcCubaticTensor((float*)&cubatic_tensor, cubatic_orientation);
-                calcCubaticOrderParameter(cubatic_order_parameter, (float*)&cubatic_tensor);
+                calcCubaticTensor((float*)&cubatic_tensor.data, cubatic_orientation);
+                calcCubaticOrderParameter(cubatic_order_parameter, (float*)&cubatic_tensor.data);
                 float new_order_parameter = cubatic_order_parameter;
                 // set initial temperature and count
                 float t_current = m_t_initial;
@@ -367,11 +388,11 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
                     loop_count++;
                     current_orientation = calcRandomQuaternion(l_saru, 0.1)*(cubatic_orientation);
                     // now calculate the cubatic tensor
-                    calcCubaticTensor((float*)&new_cubatic_tensor, current_orientation);
-                    calcCubaticOrderParameter(new_order_parameter, (float*)&new_cubatic_tensor);
+                    calcCubaticTensor((float*)&new_cubatic_tensor.data, current_orientation);
+                    calcCubaticOrderParameter(new_order_parameter, (float*)&new_cubatic_tensor.data);
                     if (new_order_parameter > cubatic_order_parameter)
                         {
-                        memcpy((void*)&cubatic_tensor, (void*)&new_cubatic_tensor, sizeof(float)*81);
+                        memcpy((void*)&cubatic_tensor.data, (void*)&new_cubatic_tensor.data, sizeof(float)*81);
                         cubatic_order_parameter = new_order_parameter;
                         cubatic_orientation = current_orientation;
                         }
@@ -381,7 +402,7 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
                         float test_value = l_saru.s<float>(0,1);
                         if (boltzmann_factor >= test_value)
                             {
-                            memcpy((void*)&cubatic_tensor, (void*)&new_cubatic_tensor, sizeof(float)*81);
+                            memcpy((void*)&cubatic_tensor.data, (void*)&new_cubatic_tensor.data, sizeof(float)*81);
                             cubatic_order_parameter = new_order_parameter;
                             cubatic_orientation = current_orientation;
                             }
@@ -413,7 +434,7 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
         }
     // set the values
     Index2D a_i = Index2D(m_n_replicates, 81);
-    memcpy((void*)m_cubatic_tensor.get(), (void*)&(p_cubatic_tensor.get()[a_i(max_idx,0)]), sizeof(float)*81);
+    memcpy((void*)&m_cubatic_tensor.data, (void*)&(p_cubatic_tensor.get()[a_i(max_idx,0)]), sizeof(float)*81);
     m_cubatic_orientation.s = p_cubatic_orientation.get()[max_idx].s;
     m_cubatic_orientation.v = p_cubatic_orientation.get()[max_idx].v;
     m_cubatic_order_parameter = p_cubatic_order_parameter.get()[max_idx];
@@ -422,19 +443,25 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
         [=] (const blocked_range<size_t>& r)
             {
             Index2D a_i = Index2D(n, 81);
-            float l_mbar[81];
-            float diff[81];
+            // float l_mbar[81];
+            // float diff[81];
+            tensor4<float> l_mbar;
             // float l_tensor[81];
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 // I may be able to "one-line this" when I change to the structs...
+                tensor4<float> l_particle_tensor = tensor4<float>((float*)&m_particle_tensor.get()[a_i(i,0)]);
                 for (unsigned int j = 0; j < 81; j++)
                     {
-                    l_mbar[j] = m_particle_tensor.get()[a_i(i,j)] - m_gen_r4_tensor.get()[j];
+                    l_mbar = l_particle_tensor - m_gen_r4_tensor;
+                    // l_mbar[j] = m_particle_tensor.get()[a_i(i,j)] - m_gen_r4_tensor.get()[j];
                     }
-                memset((void*)diff, 0, sizeof(float)*81);
-                tensorSub((float*)diff, (float*)l_mbar, m_cubatic_tensor.get());
-                m_particle_order_parameter.get()[i] = 1.0 - tensorDot((float*)&diff,(float*)&diff)/tensorDot(m_cubatic_tensor.get(),m_cubatic_tensor.get());
+                tensor4<float> diff;
+                // memset((void*)diff, 0, sizeof(float)*81);
+                diff = l_mbar - m_cubatic_tensor;
+                // tensorSub((float*)diff, (float*)l_mbar, m_cubatic_tensor.get());
+                m_particle_order_parameter.get()[i] = 1.0 - dot(diff, diff)/dot(m_cubatic_tensor, m_cubatic_tensor);
+                // m_particle_order_parameter.get()[i] = 1.0 - tensorDot((float*)&diff,(float*)&diff)/tensorDot(m_cubatic_tensor.get(),m_cubatic_tensor.get());
                 }
             });
     // save the last computed number of particles
