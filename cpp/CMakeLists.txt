@@ -70,6 +70,8 @@ set(FREUD_SOURCES
             order/HexOrderParameter.cc
             order/TransOrderParameter.h
             order/TransOrderParameter.cc
+            order/CubaticOrderParameter.h
+            order/CubaticOrderParameter.cc
             order/BondOrder.h
             order/BondOrder.cc
             order/EntropicBonding.h
@@ -119,6 +121,8 @@ set(FREUD_SOURCES
             order/LocalWlNear.cc
             order/SolLiq.h
             order/SolLiq.cc
+            order/MatchEnv.h
+            order/MatchEnv.cc
             order/SolLiqNear.h
             order/SolLiqNear.cc
             order/wigner3j.cc
@@ -141,6 +145,7 @@ endforeach(src IN LISTS FREUD_SOURCES)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} ${CYTHON_SOURCES})
+target_compile_features(_freud PRIVATE cxx_range_for)
 setup_pymodule(_freud)
 
 INSTALL(TARGETS _freud

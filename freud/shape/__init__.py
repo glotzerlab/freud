@@ -525,6 +525,15 @@ class Polyhedron:
         Q = numpy.pi * 36 * V*V / (S*S*S)
         return Q
 
+    ## Get tau = 4\pi R^2 / S (ref: Naumann and Leland)
+    # Tau is a measure of asphericity that appears to be relevant to the third and fourth virial coefficients
+    # \returns tau
+    def getTau(self):
+        R = self.getMeanCurvature()
+        S = self.getArea()
+        return 4. * numpy.pi * R * R / S
+
+
 ## Store and compute data associated with a convex polyhedron, calculated as the convex hull of a set of input points.
 # ConvexPolyhedron objects are a modification to the scipy.spatial.ConvexHull object with data in a form more useful to operations involving polyhedra.
 # \note freud.shape.ConvexPolyhedron requires scipy.spatil.ConvexHull (as of scipy 0.12.0).

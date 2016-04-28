@@ -4,6 +4,7 @@ import copy
 from math import *
 from ._freud import FTdelta as _FTdelta
 from ._freud import FTsphere as _FTsphere
+from ._freud import FTpolyhedron as _FTpolyhedron
 
 ## \package freud.kspace
 #
@@ -163,9 +164,9 @@ class AnalyzeSFactor3D:
 
         qsq_list = [];
         # create an list of q^2 in the proper order
-        for i in xrange(0,self.grid):
-            for j in xrange(0,self.grid):
-                for k in xrange(0,self.grid):
+        for i in range(0,self.grid):
+            for j in range(0,self.grid):
+                for k in range(0,self.grid):
                     qsq_list.append(hx[i]*hx[i] + hx[j] * hx[j] + hx[k] * hx[k]);
 
         return (self.S.flatten(), qsq_list)
@@ -336,7 +337,7 @@ class SingleCell3D:
     # \param scale nm per unit for input file coordinates
     def set_scale(self, scale):
         self.scale = numpy.float32(scale)
-        for i in xrange(len(self.ptype_ff)):
+        for i in range(len(self.ptype_ff)):
             self.ptype_ff[i].set_scale(scale)
         self.bases_valid = False
     ## Set box matrix
@@ -412,7 +413,7 @@ class SingleCell3D:
     def update_Kpoints(self):
         self.Kpoints_valid = True
         self.Kpoints = numpy.float32(constrainedLatticePoints(self.g1, self.g2, self.g3, self.K_constraint))
-        for i in xrange(len(self.ptype_ff)):
+        for i in range(len(self.ptype_ff)):
             self.ptype_ff[i].set_K(self.Kpoints)
         self.FT_valid = False
     ## Calculate FT. The details and arguments will vary depending on the form factor chosen for the particles.
@@ -577,13 +578,63 @@ class FTsphere(FTdelta):
         self.radius = self.FTobj.get_radius()
         return self.radius
 
-class FTconvexPolyhedron(FTbase):
+class FTpolyhedron(FTbase):
+    def __init__(self, *args, **kwargs):
+        FTbase.__init__(self, *args, **kwargs)
+        self.FTobj = _FTpolyhedron()
+        self.set_param_map['radius'] = self.set_radius
+        self.get_param_map['radius'] = self.get_radius
+    def set_K(self, K):
+        FTbase.set_K(self, K)
+        self.FTobj.set_K(self.K * self.scale)
+    def set_rq(self, r, q):
+        FTbase.set_rq(self, r, q)
+        self.FTobj.set_rq(self.position, self.orientation)
+    def set_density(self, density):
+        FTbase.set_density(self, density)
+        self.FTobj.set_density(complex(self.density))
+    def set_params(self, verts, facets, norms, d, areas, volume):
+        # construct list of facet offsets
+        facet_offs = numpy.zeros((len(facets)+1))
+        for i,f in enumerate(facets):
+            facet_offs[i+1] = facet_offs[i] + len(f)
+        self.FTobj.set_params(verts, facet_offs, [vi for f in facets for vi in f], norms, d, areas, volume)
+
+    ## Set radius of in-sphere
+    # \param radius inscribed sphere radius without scale applied
+    def set_radius(self, radius):
+        # Find original in-sphere radius, determine necessary scale factor, and scale vertices and surface distances
+        radius = float(radius)
+        self.hull.setInsphereRadius(radius)
+    ## Get radius of in-sphere
+    # If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+    def get_radius(self):
+        # Find current in-sphere radius
+        inradius = self.hull.getInsphereRadius()
+        return inradius
+    ## Compute FT
+    # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
+    def compute(self, *args, **kwargs):
+        self.FTobj.compute()
+        self.S = self.FTobj.getFT() * self.scale**3
+
+class FTconvexPolyhedron(FTpolyhedron):
     #! \param hull convex hull object as returned by freud.shape.ConvexPolyhedron(points)
     def __init__(self, hull, *args, **kwargs):
-        FTbase.__init__(self, *args, **kwargs)
+        FTpolyhedron.__init__(self, *args, **kwargs)
         self.set_param_map['radius'] = self.set_radius
         self.get_param_map['radius'] = self.get_radius
         self.hull = hull
+
+        # set convex hull geometry
+        verts = self.hull.points * self.scale
+        facets = [self.hull.facets[i,0:n] for (i,n) in enumerate(self.hull.nverts)]
+        norms  = self.hull.equations[:, 0:3]
+        d = - self.hull.equations[:, 3] * self.scale
+        area = [self.hull.getArea(i)*self.scale**2.0 for i in range(len(facets))]
+        volume = self.hull.getVolume() * self.scale**3.0
+        self.set_params(verts,facets,norms,d,area,volume)
+
     ## Set radius of in-sphere
     # \param radius inscribed sphere radius without scale applied
     def set_radius(self, radius):
@@ -600,14 +651,14 @@ class FTconvexPolyhedron(FTbase):
     # Calculate P = F * S
     # S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
     # F is the analytical form factor for a polyhedron, computed with Spoly3D
-    def compute(self, *args, **kwargs):
+    def compute_py(self, *args, **kwargs):
         # Return FT of delta function at one or more locations
         position = self.scale * self.position
         orientation = self.orientation
         self.outputShape = (self.K.shape[0],)
         self.S = numpy.zeros(self.outputShape, dtype=numpy.complex64)
         for r, q in zip(position, orientation):
-            for i in xrange(len(self.K)):
+            for i in range(len(self.K)):
                 # The FT of an object with orientation q at a given k-space point is the same as the FT
                 # of the unrotated object at a k-space point rotated the opposite way.
                 # The opposite of the rotation represented by a quaternion is the conjugate of the quaternion,
@@ -629,7 +680,7 @@ class FTconvexPolyhedron(FTbase):
             verts.append(verts[0])
             points = self.hull.points * self.scale
             n = self.hull.equations[i, 0:3]
-            for j in xrange(self.hull.nverts[i]):
+            for j in range(self.hull.nverts[i]):
                 v1 = points[verts[j+1]]
                 v0 = points[verts[j]]
                 edge = v1 - v0
@@ -648,7 +699,7 @@ class FTconvexPolyhedron(FTbase):
         else:
             S = 0.0
             # for face in faces
-            for i in xrange(self.hull.nfacets):
+            for i in range(self.hull.nfacets):
                 # need to project k into plane of face
                 ni = self.hull.equations[i, 0:3]
                 di = - self.hull.equations[i, 3] * self.scale
@@ -660,26 +711,26 @@ class FTconvexPolyhedron(FTbase):
 
 def mkSCcoords(nx, ny, nz):
     coords = list()
-    for i in xrange(-int(nx/2), -int(nx/2) + nx):
-        for j in xrange(-int(ny/2), -int(ny/2) + ny):
-            for k in xrange(-int(nz/2), -int(nz/2) + nz):
+    for i in range(-int(nx/2), -int(nx/2) + nx):
+        for j in range(-int(ny/2), -int(ny/2) + ny):
+            for k in range(-int(nz/2), -int(nz/2) + nz):
                 coords.append([i, j, k])
     return numpy.array(coords, dtype=float)
 def mkBCCcoords(nx, ny, nz):
     # Note that now ni is number of half-lattice vectors
     coords = list()
-    for i in xrange(-int(nx/2), -int(nx/2) + nx):
-        for j in xrange(-int(ny/2), -int(ny/2) + ny):
-            for k in xrange(-int(nz/2), -int(nz/2) + nz):
+    for i in range(-int(nx/2), -int(nx/2) + nx):
+        for j in range(-int(ny/2), -int(ny/2) + ny):
+            for k in range(-int(nz/2), -int(nz/2) + nz):
                 if (i%2 == j%2) and (i%2 == k%2):
                     coords.append([i, j, k])
     return numpy.array(coords, dtype=float)
 def mkFCCcoords(nx, ny, nz):
     # Note that now ni is number of half-lattice vectors
     coords = list()
-    for i in xrange(-int(nx/2), -int(nx/2) + nx):
-        for j in xrange(-int(ny/2), -int(ny/2) + ny):
-            for k in xrange(-int(nz/2), -int(nz/2) + nz):
+    for i in range(-int(nx/2), -int(nx/2) + nx):
+        for j in range(-int(ny/2), -int(ny/2) + ny):
+            for k in range(-int(nz/2), -int(nz/2) + nz):
                 if (i+j+k)%2 == 0:
                     coords.append([i, j, k])
     return numpy.array(coords, dtype=float)
@@ -778,9 +829,9 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
     # Check each point against constraint
     # This potentially checks redundant vectors but we don't want to assume anything about the constraint.
     vec_list = list()
-    for h in xrange(-nmax, nmax + 1):
-        for k in xrange(-nmax, nmax + 1):
-            for l in xrange(-nmax, nmax + 1):
+    for h in range(-nmax, nmax + 1):
+        for k in range(-nmax, nmax + 1):
+            for l in range(-nmax, nmax + 1):
                 gvec = h*v1 + k*v2 + l*v3
                 if constraint.satisfies(gvec):
                     vec_list.append(gvec)

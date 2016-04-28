@@ -33,10 +33,10 @@ void FTdelta::compute()
     unsigned int Np = m_Np;
     // float3* K = m_K;
     // float3* r = m_r;
-    vec3<float>* K = m_K;
-    vec3<float>* r = m_r;
+    vec3<float>* K = &m_K.front();
+    vec3<float>* r = &m_r.front();
     // float4* q = m_q;
-    quat<float>* q = m_q;
+    quat<float>* q = &m_q.front();
     float density_Im = m_density_Im;
     float density_Re = m_density_Re;
     m_S_Re = boost::shared_array<float>(new float[NK]);
@@ -79,10 +79,10 @@ void FTsphere::compute()
     unsigned int Np = m_Np;
     // float3* K = m_K;
     // float3* r = m_r;
-    vec3<float>* K = m_K;
-    vec3<float>* r = m_r;
+    vec3<float>* K = &m_K.front();
+    vec3<float>* r = &m_r.front();
     // float4* q = m_q;
-    quat<float>* q = m_q;
+    quat<float>* q = &m_q.front();
     float radius = m_radius;
 
     /* S += e**(-i * dot(K, r))
@@ -167,14 +167,14 @@ void FTpolyhedron::compute()
         // For each particle
         for(unsigned int p_idx=0; p_idx < Np; p_idx++)
             {
-            vec3<float> r(*m_r);
+            vec3<float> r(m_r[p_idx]);
             /* The FT of an object with orientation q at a given k-space point is the same as the FT
                of the unrotated object at a k-space point rotated the opposite way.
                The opposite of the rotation represented by a quaternion is the conjugate of the quaternion,
                found by inverting the sign of the imaginary components.
             */
-            quat<float> q(*m_q);
-            vec3<float> K(*m_K);
+            quat<float> q(m_q[p_idx]);
+            vec3<float> K(m_K[K_idx]);
             K = rotate(conj(q), K);
 
             // Get form factor
@@ -187,7 +187,8 @@ void FTpolyhedron::compute()
             // f(0) = volume
             if (K2 == 0.0f)
                 {
-                f_Re = f_Im = m_params.volume;
+                f_Re = m_params.volume;
+                f_Im = 0;
                 }
             else
                 {
@@ -196,7 +197,7 @@ void FTpolyhedron::compute()
                 for(unsigned int facet_idx=0; facet_idx < N_facet; facet_idx++)
                     {
                     // Project K into plane of face
-                    vec3<float> norm(m_params.norm[p_idx]);
+                    vec3<float> norm(m_params.norm[facet_idx]);
                     float dotKnorm(dot(K,norm));
                     vec3<float> K_proj = K - norm * dotKnorm;
                     float K_proj2 = dot(K_proj, K_proj);
@@ -207,7 +208,8 @@ void FTpolyhedron::compute()
                     // FT evaluated at K_proj==0 is the scattering volume (area)
                     if (K_proj2 == 0.0f)
                         {
-                        f2D_Re = f2D_Im = m_params.area[facet_idx];
+                        f2D_Re = m_params.area[facet_idx];
+                        f2D_Im = 0;
                         }
                     else
                         {
@@ -223,7 +225,9 @@ void FTpolyhedron::compute()
                         for(unsigned int edge_idx=0; edge_idx < N_vert; edge_idx++)
                             {
                             vec3<float> r0 = m_params.vert[m_params.facet[facet_idx][edge_idx]];
-                            vec3<float> r1 = m_params.vert[m_params.facet[facet_idx][edge_idx+1]];
+                            unsigned int next_idx = edge_idx + 1;
+                            if (next_idx == N_vert) next_idx = 0;
+                            vec3<float> r1 = m_params.vert[m_params.facet[facet_idx][next_idx]];
                             vec3<float> l_n = r1 - r0;
                             vec3<float> c_n = (r1 + r0)*0.5f;
                             float dotKc = dot(K_proj, c_n);
@@ -231,23 +235,32 @@ void FTpolyhedron::compute()
                             vec3<float> crosslK = cross(l_n, K_proj);
 
                             float x = dotKl*0.5f; // argument to sinc function
-                            f_n = dot(norm, crosslK) * (sinf(x)/x) * K2inv;
-
-                            f2D_Re += sinf(dotKc) * f_n;
+//                            float x = dotKl; // argument to sinc function
+                            float sinc = 1.0;
+                            const float eps = 0.000001;
+                            if (fabs(x) > eps) sinc = sinf(x)/x;
+                            f_n = dot(norm, crosslK) * sinc * K2inv;
+                            f2D_Re -= sinf(dotKc) * f_n;
                             f2D_Im -= cosf(dotKc) * f_n;
                             } // end foreach edge
                         }
 
-                    // accumulate
-                    f_Re += f2D_Re;
-                    f_Im += f2D_Im;
-                    } // end foreach facet
+                    float d = m_params.d[facet_idx];
 
-                } // end K != 0
+                    // accumulate
+                    float re_exp = cosf(dotKnorm*d);
+                    float im_exp = -sinf(dotKnorm*d);
+                    f_Im += dotKnorm*(f2D_Re*re_exp-f2D_Im*im_exp);
+                    f_Re -= dotKnorm*(f2D_Im*re_exp+f2D_Re*im_exp);
+                    } // end for each facet
+
+                f_Re /= K2;
+                f_Im /= K2;
+                } // end if K != 0
 
             // Get structure factor
             float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
-            float d = dot(K, r); // dot product of K and r
+            float d = dot(K, rotate(conj(q),r)); // dot product of K and r (rotated back)
             // d = K.x * r.x + K.y * r.y + K.z * r.z;
             CosKr = cosf(d);
             negSinKr = sinf(d);
@@ -255,91 +268,61 @@ void FTpolyhedron::compute()
             // S += rho * f * exp(-i K r)
             S_Re += CosKr * f_Re + negSinKr * f_Im;
             S_Im += CosKr * f_Im - negSinKr * f_Re;
-            } // end foreach particle
+            } // end for each ptl
 
         m_S_Re[K_idx] = S_Re * rho_Re - S_Im * rho_Im;
         m_S_Im[K_idx] = S_Re * rho_Im + S_Im * rho_Re;
-        } // end foreach K point
+        } // end foreach K
     }
 
-void FTpolyhedron::set_params(const FTpolyhedron::param_type& params)
+//! Helper function to build FTpolyhedron parameters
+/*  \param nvert Number of vertices
+    \param vert list of (x,y,z) tuples
+    \param nfacet Number of facets
+    \param facet_offs Offset of facet i in facet vertex list (nfacet+1)
+    \param facet list of vertex indices
+    \param norm list of (x,y,z) tuples of facet normal vectors
+    \param d list of distance to facet
+    \param area list of facet areas
+    \param volume particle volume
+*/
+void FTpolyhedron::set_params(unsigned int nvert,
+               vec3<float>* vert,
+               unsigned int nfacet,
+               unsigned int *facet_offs,
+               unsigned int *facet,
+               vec3<float>* norm,
+               float *d,
+               float * area,
+               float volume)
     {
-    /*
-    unsigned int N_vert = params.vert.size();
-    m_params.vert.resize(N_vert);
-    unsigned int N_facet = params.facet.size();
-    m_params.facet.resize(N_facet);
-    m_params.area.resize(N_facet);
-    m_params.norm.resize(N_facet);
-    m_params.d.resize(N_facet);
-    */
+    poly3d_param_t params;
+    params.volume = volume;
+    params.vert.resize(nvert);
+    for (unsigned int i=0; i < nvert; i++)
+        {
+        params.vert[i] = vert[i];
+        }
+
+    params.facet.resize(nfacet);
+    params.norm.resize(nfacet);
+    params.d.resize(nfacet);
+    params.area.resize(nfacet);
+    for (unsigned int i=0; i < nfacet; i++)
+        {
+        unsigned int facet_length = facet_offs[i+1] - facet_offs[i];
+
+        params.facet[i].resize(facet_length);
+        for (unsigned int j=0 ; j < facet_length; j++)
+            {
+            params.facet[i][j] = facet[facet_offs[i]+j];
+            }
+        params.norm[i] = norm[i];
+        params.area[i] = area[i];
+        params.d[i] = d[i];
+        }
+
     m_params = params;
     }
-
-// //! Helper function to build FTpolyhedron parameters
-// /*  \param vert list of (x,y,z) tuples
-//     \param facet list of lists of vertex indices
-//     \param norm list of (x,y,z) tuples of facet normal vectors
-//     \param d list of distances of facets from particle origin
-//     \param area list of facet areas
-//     \param volume particle volume
-// */
-// poly3d_param_t make_poly3d(boost::python::list vert,
-//                            boost::python::list facet,
-//                            boost::python::list norm,
-//                            boost::python::list d,
-//                            boost::python::list area,
-//                            float volume)
-//     {
-//     poly3d_param_t result;
-//     result.volume = volume;
-//     unsigned int N_vert = len(vert);
-//     result.vert.resize(N_vert);
-//     for (unsigned int i=0; i < N_vert; i++)
-//         {
-//         boost::python::tuple v = extract<boost::python::tuple>(vert[i]);
-//         result.vert[i] = vec3<float>(extract<float>(v[0]), extract<float>(v[1]), extract<float>(v[2]));
-//         }
-
-//     unsigned int N_facet = len(facet);
-//     result.facet.resize(N_facet);
-//     result.norm.resize(N_facet);
-//     result.d.resize(N_facet);
-//     result.area.resize(N_facet);
-//     for (unsigned int i=0; i < N_facet; i++)
-//         {
-//         boost::python::list f = extract<boost::python::list>(facet[i]);
-//         result.facet[i].resize(len(f));
-//         for (unsigned int j=0 ; j < len(f); j++)
-//             {
-//             result.facet[i][j] = extract<unsigned int>(f[j]);
-//             }
-//         boost::python::tuple v = extract<boost::python::tuple>(norm[i]);
-//         result.norm[i] = vec3<float>(extract<float>(v[0]), extract<float>(v[1]), extract<float>(v[2]));
-//         result.d[i] = extract<float>(d[i]);
-//         result.area[i] = extract<float>(area[i]);
-//         }
-
-//     return result;
-//     }
-
-// void export_kspace()
-//     {
-//     class_<FTdelta>("FTdelta")
-//         .def("compute", &FTdelta::computePy)
-//         .def("getFT", &FTdelta::getFTPy)
-//         .def("set_K", &FTdelta::set_K_Py)
-//         .def("set_rq", &FTdelta::set_rq_Py)
-//         .def("set_density", &FTdelta::set_density)
-//         ;
-//     class_<FTsphere, bases<FTdelta> >("FTsphere")
-//         .def("set_radius", &FTsphere::set_radius)
-//         ;
-//     class_<FTpolyhedron, bases<FTdelta> >("FTpolyhedron")
-//         .def("set_params", &FTpolyhedron::set_params)
-//         ;
-//     class_<poly3d_param_t>("poly3d_param");
-//     def("make_poly3d", &make_poly3d);
-//     }
 
 }; }; // end namespace freud::kspace

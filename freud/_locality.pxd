@@ -6,13 +6,13 @@ cimport freud._trajectory as trajectory
 from libcpp.vector cimport vector
 
 cdef extern from "LinkCell.h" namespace "freud::locality":
-    # cdef cppclass IteratorLinkCell:
-    #     IteratorLinkCell()
-    #     IteratorLinkCell(const shared_array[unsigned int] &, unsigned int, unsigned int, unsigned int)
-    #     void copy(const IteratorLinkCell&);
-    #     bool atEnd()
-    #     unsigned int next()
-    #     unsigned int begin()
+    cdef cppclass IteratorLinkCell:
+        IteratorLinkCell()
+        IteratorLinkCell(const shared_array[unsigned int] &, unsigned int, unsigned int, unsigned int)
+        void copy(const IteratorLinkCell&);
+        bool atEnd()
+        unsigned int next()
+        unsigned int begin()
 
     cdef cppclass LinkCell:
         LinkCell(const trajectory.Box&, float)
@@ -26,7 +26,7 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int getNumCells() const
         float getCellWidth() const
         unsigned int getCell(const vec3[float]&) const
-        # IteratorLinkCell itercell(unsigned int) const
+        IteratorLinkCell itercell(unsigned int) const
         vector[unsigned int] getCellNeighbors(unsigned int) const
         void computeCellList(const trajectory.Box&, const vec3[float]*, unsigned int) nogil
 

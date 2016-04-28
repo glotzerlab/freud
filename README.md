@@ -7,16 +7,26 @@ Numpy is **required** to build freud.
 
 # Documentation {#documentation_section}
 
+Documentation written in sphinx, not doxygen. Please install sphinx:
+
+	conda install sphinx
+
+OR
+
+	pip install sphinx
+
 To view the full documentation run the following commands in the source directory:
 
 ~~~
 # Linux
-doxygen
-firefox doc/html/index.html
+cd doc
+make html
+firefox build/html/index.html
 
 # Mac
-/Applications/Doxygen.app/Contents/Resources/doxygen
-open doc/html/index.html
+cd doc
+make html
+open build/html/index.html
 ~~~
 
 # Build {#build_section}
@@ -34,6 +44,8 @@ By default, freud installs to the [USER_SITE](https://docs.python.org/2/install/
 modify `PYTHONPATH`.
 
 # Tests {#tests_section}
+
+# EVERYTHING BELOW IS OUT OF DATE! #
 
 Run all unit tests with nosetests in the source directory. To add a test, simply add a file to the `tests` directory,
 and nosetests will automatically discover it. See http://pythontesting.net/framework/nose/nose-introduction/ for
