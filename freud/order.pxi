@@ -455,22 +455,25 @@ cdef class EntropicBondingRT:
 
     .. note:: currently being debugged. not guaranteed to work.
 
-    :param rmax: distance to search for bonds
-    :param nNeighbors: number of neighbors to find
-    :param bondMap: 2D array containing the bond index for each x, y coordinate
-    :type rmax: float
-    :type nNeighbors: unsigned int
-    :type bondMap: np.ndarray(shape=(nr, nT2, nT1), dtype=np.uint32)
+    :param r_max: distance to search for bonds
+    :param bond_map: 2D array containing the bond index for each x, y coordinate
+    :param bond_list: list containing the bond indices to be tracked bond_list[i] = bond_index
+    :type r_max: float
+    :type bond_map: np.ndarray(shape=(n_r, n_t2, n_t1), dtype=np.uint32)
+    :type bond_list: np.ndarray(shape=(n_bonds), dtype=np.uint32)
     """
     cdef order.EntropicBondingRT *thisptr
 
-    def __cinit__(self, rmax, nNeighbors, bondMap):
-        # extract nr, nt from the bondMap
-        nR = bondMap.shape[0]
-        nT2 = bondMap.shape[1]
-        nT1 = bondMap.shape[2]
-        cdef np.ndarray l_bondMap = bondMap
-        self.thisptr = new order.EntropicBondingRT(rmax, nR, nT2, nT1, nNeighbors, <unsigned int*>l_bondMap.data)
+    def __cinit__(self, r_max, bond_map, bond_list):
+        # extract nr, nt from the bond_map
+        n_r = bond_map.shape[0]
+        n_t2 = bond_map.shape[1]
+        n_t1 = bond_map.shape[2]
+        n_bonds = bond_list.shape[0]
+        cdef np.ndarray l_bond_map = bond_map
+        cdef np.ndarray l_bond_list = bond_list
+        self.thisptr = new order.EntropicBondingRT(r_max, n_r, n_t2, n_t1, n_bonds,
+            <unsigned int*>l_bond_map.data, <unsigned int*>l_bond_list.data)
 
     def __dealloc__(self):
         del self.thisptr
@@ -510,10 +513,11 @@ cdef class EntropicBondingRT:
         """
         # this works, but is obviously not copy-free
         # keep for now, given the unique data structure
-        cdef map[ unsigned int, vector[uint] ] *bonds = self.thisptr.getBonds().get()
-        result = [None] * self.thisptr.getNP()
-        for i in range(self.thisptr.getNP()):
-            result[i] = bonds[i]
+        cdef unsigned int *bonds = self.thisptr.getBonds().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp>self.thisptr.getNumBonds()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>bonds)
         return result
 
     def getBox(self):
