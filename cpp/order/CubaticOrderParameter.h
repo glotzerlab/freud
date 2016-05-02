@@ -87,7 +87,6 @@ class CubaticOrderParameter
         float m_t_initial;
         float m_t_final;
         float m_scale;
-        // std::shared_ptr<float> m_gen_r4_tensor;
         tensor4<float> m_gen_r4_tensor;
         unsigned int m_n;                //!< Last number of points computed
         unsigned int m_n_replicates;                //!< Last number of points computed
@@ -95,9 +94,7 @@ class CubaticOrderParameter
         float m_cubatic_order_parameter;
         quat<float> m_cubatic_orientation;
         std::shared_ptr<float> m_particle_order_parameter;
-        // std::shared_ptr<float> m_global_tensor;
         tensor4<float> m_global_tensor;
-        // std::shared_ptr<float> m_cubatic_tensor;
         tensor4<float> m_cubatic_tensor;
         std::shared_ptr<float> m_particle_tensor;
 
@@ -109,12 +106,6 @@ class CubaticOrderParameter
         std::uniform_real_distribution<float> m_angle_dist;
         Saru m_saru;
         unsigned int m_seed;
-        // boost::shared_array<float> m_particle_order_parameter;         //!< phi order array computed
-        // tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
-        // tbb::enumerable_thread_specific<std::random_device *> m_local_rd;
-        // tbb::enumerable_thread_specific<std::mt19937 *> m_local_gen;
-        // tbb::enumerable_thread_specific<std::uniform_real_distribution *> m_local_dist;
-
     };
 
 }; }; // end namespace freud::order
