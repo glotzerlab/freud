@@ -11,5 +11,6 @@ from . import interface
 # from . import shape
 from . import voronoi
 from . import pmft
-
 from . import index
+
+__version__ = '0.4.0'
