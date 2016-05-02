@@ -2,6 +2,7 @@
 
 ## v0.4.0 ##
 
+* Replace boost::shared_array with std::shared_ptr (C++ 11)
 * Added Saru RNG (specifically for Cubatic Order Parameter, available to all)
 * Cubatic Order Parameter
 * Rank 4 tensor struct
