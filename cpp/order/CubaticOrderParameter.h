@@ -98,12 +98,7 @@ class CubaticOrderParameter
         tensor4<float> m_cubatic_tensor;
         std::shared_ptr<float> m_particle_tensor;
 
-        // serial rng
-        std::random_device m_rd;
-        std::mt19937 m_gen;
-        std::uniform_real_distribution<float> m_theta_dist;
-        std::uniform_real_distribution<float> m_phi_dist;
-        std::uniform_real_distribution<float> m_angle_dist;
+        // saru rng
         Saru m_saru;
         unsigned int m_seed;
     };
