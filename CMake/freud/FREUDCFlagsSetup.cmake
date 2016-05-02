@@ -69,6 +69,8 @@ if (ENABLE_OPENMP)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif (ENABLE_OPENMP)
 
+add_definitions(-std=gnu++11)
+
 # disable crazy windows warnings
 if (WIN32)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
