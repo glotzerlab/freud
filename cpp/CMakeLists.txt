@@ -9,7 +9,7 @@ endmacro(setup_pymodule)
 file(GLOB_RECURSE PXIS ${CMAKE_CURRENT_SOURCE_DIR}/../freud/*.pxi)
 file(GLOB_RECURSE PYXS ${CMAKE_CURRENT_SOURCE_DIR}/../freud/*.pyx)
 
-file(GLOB_RECURSE PYX_CPPS ${CMAKE_CURRENT_SOURCE_DIR}/../freud/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../freud/*.c)
+set(PYX_CPPS ${CMAKE_CURRENT_SOURCE_DIR}/../freud/_freud.cpp)
 
 set(ENABLE_CYTHON OFF CACHE BOOL "Regenerate cython sources")
 if(ENABLE_CYTHON)
