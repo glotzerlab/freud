@@ -572,7 +572,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
         {
-
+        std::cout<<"point "<<i<<std::endl;
         // 1. Get all the neighbors
         vec3<float> p = points[i];
         boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
@@ -581,7 +581,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             unsigned int j = neighbors[neigh_idx];
-
+            std::cout<<"neighbor "<<j<<std::endl;
             if (i != j)
                 {
                 boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
