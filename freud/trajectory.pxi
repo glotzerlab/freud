@@ -306,6 +306,41 @@ cdef class Box:
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
+    def unwrap(self, vecs, imgs):
+        """
+        Wrap a given array of vectors back into the box from python
+
+        :param vecs: numpy array of vectors (Nx3) (or just 3 elements) to wrap
+        :note: vecs returned in place (nothing returned)
+        """
+        if vecs.dtype != np.float32:
+            raise ValueError("vecs must be a numpy float32 array")
+        if imgs.dtype != np.int32:
+            raise ValueError("imgs must be a numpy int32 array")
+            # edit from here
+        if len(vecs.shape) == 1:
+            # only one vector to wrap
+            # verify only one img
+            if len(imgs.shape == 1):
+                vecs = np.ascontiguousarray(self._unwrap(vecs, imgs), dtype=np.float32)
+            else:
+                raise RuntimeError("imgs do not match vectors")
+        elif len(vecs.shape) == 2:
+            # check to make sure the second dim is x, y, z
+            if vecs.shape[1] != 3:
+                raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            if len(imgs.shape) == 2:
+                for i, (vec, img) in enumerate(zip(vecs, imgs)):
+                    vecs[i] = self._unwrap(vec, img)
+            else:
+                raise RuntimeError("imgs do not match vectors")
+
+    def _unwrap(self, vec, img):
+        cdef np.ndarray[float,ndim=1] l_vec = vec
+        cdef np.ndarray[int,ndim=1] l_img = img
+        cdef vec3[float] result = self.thisptr.unwrap(<vec3[float]&>l_vec[0], <vec3[int]&>l_img[0])
+        return [result.x, result.y, result.z]
+
     def makeCoordinates(self, f):
         """
         Convert fractional coordinates into real coordinates

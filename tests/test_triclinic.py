@@ -41,6 +41,16 @@ class TestBox(unittest.TestCase):
 
         npt.assert_almost_equal(testpoints[0,0], -2, decimal=2, err_msg="WrapFail")
 
+    def test_unwrap(self):
+        box = trajectory.Box(2, 2, 2, 1, 0, 0)
+        testpoints = np.array([[0, -1, -1],
+                               [0, 0.5, 0]], dtype=np.float32)
+        imgs = np.array([[1,0,0],
+                         [1,1,0]], dtype=np.int32)
+        box.unwrap(testpoints, imgs)
+
+        npt.assert_almost_equal(testpoints[0,0], 2, decimal=2, err_msg="WrapFail")
+
 class TestXML(unittest.TestCase):
     def test_readBox(self):
         xmllist = ["triclinic.xml"]
