@@ -1660,8 +1660,8 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.ascontiguousarray(refPoints1.flatten())
-        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.ascontiguousarray(refPoints2.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
         cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
         cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
         cdef float threshold_sq = threshold*threshold
@@ -1698,8 +1698,8 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.ascontiguousarray(refPoints1.flatten())
-        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.ascontiguousarray(refPoints2.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
         cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
         cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
 
