@@ -1,3 +1,5 @@
+
+import sys
 from freud import locality, trajectory
 import numpy as np
 import numpy.testing as npt
@@ -19,11 +21,11 @@ class TestLinkCell(unittest.TestCase):
                              msg="Cell %d does not have 27 unique adjacent cell indices, it has %d" % (i, len(np.unique(neighbors))))
 
     def test_bug2100(self):
-        L = 10; #Box Dimensions
+        L = 31; #Box Dimensions
         rcut = 3; #Cutoff radius
 
         #Initialize test points across periodic BC
-        testpoints = np.array([[-4.95,0,0],[4.95,0,0]], dtype=np.float32);
+        testpoints = np.array([[-5.0,0,0],[2.05,0,0]], dtype=np.float32);
         box = trajectory.Box(L);#Initialize Box
         cl = locality.LinkCell(box,rcut);#Initialize cell list
         cl.computeCellList(box,testpoints);#Compute cell list
@@ -41,26 +43,30 @@ class TestLinkCell(unittest.TestCase):
         test1 = np.where(neighbors0 == cell_index1)[0];
         self.assertEqual(len(test0), len(test1))
 
-    # def test_symmetric(self):
-    #     L = 10; #Box Dimensions
-    #     rcut = 2; #Cutoff radius
-    #     N = 40; # number of particles
+    def test_symmetric(self):
+        current_version = sys.version_info
+        if current_version.major < 3:
+            self.assertEqual(1, 1)
+        else:
+            L = 10; #Box Dimensions
+            rcut = 2; #Cutoff radius
+            N = 40; # number of particles
 
-    #     #Initialize test points randomly
-    #     points = np.random.uniform(-L/2, L/2, (N, 3))
-    #     box = trajectory.Box(L);#Initialize Box
-    #     cl = locality.LinkCell(box,rcut);#Initialize cell list
-    #     cl.computeCellList(box, points);#Compute cell list
+            #Initialize test points randomly
+            points = np.random.uniform(-L/2, L/2, (N, 3))
+            box = trajectory.Box(L);#Initialize Box
+            cl = locality.LinkCell(box,rcut);#Initialize cell list
+            cl.computeCellList(box, points);#Compute cell list
 
-    #     neighbors_ij = set()
-    #     for i in range(N):
-    #         cells = cl.getCellNeighbors(cl.getCell(points[i]))
-    #         for cell in cells:
-    #             neighbors_ij.update([(i, j) for j in cl.itercell(cell)])
+            neighbors_ij = set()
+            for i in range(N):
+                cells = cl.getCellNeighbors(cl.getCell(points[i]))
+                for cell in cells:
+                    neighbors_ij.update([(i, j) for j in cl.itercell(cell)])
 
-    #     neighbors_ji = set((j, i) for (i, j) in neighbors_ij)
-    #     # if i is a neighbor of j, then j should be a neighbor of i
-    #     self.assertEqual(neighbors_ij, neighbors_ji)
+            neighbors_ji = set((j, i) for (i, j) in neighbors_ij)
+            # if i is a neighbor of j, then j should be a neighbor of i
+            self.assertEqual(neighbors_ij, neighbors_ji)
 
 if __name__ == '__main__':
     unittest.main()

@@ -11,3 +11,5 @@ from . import interface
 # from . import shape
 from . import voronoi
 from . import pmft
+
+__version__ = '0.4.0'
