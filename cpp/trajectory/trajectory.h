@@ -285,13 +285,19 @@ class Box
                 float tilt_x = (m_xz - m_xy*m_yz) * w.z + m_xy * w.y;
                 if (((w.x >= m_hi.x + tilt_x) && !flags.x) || flags.x == 1)
                     {
-                    w.x -= L.x;
-                    img.x++;
+                    while (w.x >= m_hi.x + tilt_x)
+                        {
+                        w.x -= L.x;
+                        img.x++;
+                        }
                     }
                 else if (((w.x < m_lo.x + tilt_x) && !flags.x) || flags.x == -1)
                     {
-                    w.x += L.x;
-                    img.x--;
+                    while (w.x < m_hi.x + tilt_x)
+                        {
+                        w.x += L.x;
+                        img.x--;
+                        }
                     }
                 }
 
@@ -300,15 +306,21 @@ class Box
                 float tilt_y = m_yz * w.z;
                 if (((w.y >= m_hi.y + tilt_y) && !flags.y)  || flags.y == 1)
                     {
-                    w.y -= L.y;
-                    w.x -= L.y * m_xy;
-                    img.y++;
+                    while (w.y >= m_hi.y + tilt_y)
+                        {
+                        w.y -= L.y;
+                        w.x -= L.y * m_xy;
+                        img.y++;
+                        }
                     }
                 else if (((w.y < m_lo.y + tilt_y) && !flags.y) || flags.y == -1)
                     {
-                    w.y += L.y;
-                    w.x += L.y * m_xy;
-                    img.y--;
+                    while (w.y < m_hi.y + tilt_y)
+                        {
+                        w.y += L.y;
+                        w.x += L.y * m_xy;
+                        img.y--;
+                        }
                     }
                 }
 
@@ -316,17 +328,23 @@ class Box
                 {
                 if (((w.z >= m_hi.z) && !flags.z) || flags.z == 1)
                     {
-                    w.z -= L.z;
-                    w.y -= L.z * m_yz;
-                    w.x -= L.z * m_xz;
-                    img.z++;
+                    while (w.z >= m_hi.z)
+                        {
+                        w.z -= L.z;
+                        w.y -= L.z * m_yz;
+                        w.x -= L.z * m_xz;
+                        img.z++;
+                        }
                     }
                 else if (((w.z < m_lo.z) && !flags.z) || flags.z == -1)
                     {
-                    w.z += L.z;
-                    w.y += L.z * m_yz;
-                    w.x += L.z * m_xz;
-                    img.z--;
+                    while (w.z < m_hi.z)
+                        {
+                        w.z += L.z;
+                        w.y += L.z * m_yz;
+                        w.x += L.z * m_xz;
+                        img.z--;
+                        }
                     }
                 }
            }
@@ -425,6 +443,17 @@ class Box
             \returns The unwrapped coordinates
         */
         vec3<float> unwrap(const vec3<float>& p, const int3& image) const
+            {
+            vec3<float> newp = p;
+
+            newp += getLatticeVector(0) * float(image.x);
+            newp += getLatticeVector(1) * float(image.y);
+            if(!m_2d)
+                newp += getLatticeVector(2) * float(image.z);
+            return newp;
+            }
+
+        vec3<float> unwrap(const vec3<float>& p, const vec3<int>& image) const
             {
             vec3<float> newp = p;
 
