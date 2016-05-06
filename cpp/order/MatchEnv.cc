@@ -320,7 +320,7 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
         {
         // compute vec{r} between the two particles
         unsigned int j = neighbors[neigh_idx];
-        vec3<float> delta = m_box.wrap(p - points[j]);
+        vec3<float> delta = m_box.wrap(points[j]-p);
 
         // if hard_r is true, only add the particle to the environment if it falls within the threshold of m_rmaxsq
         bool add_neigh = true;
