@@ -70,9 +70,12 @@ if (ENABLE_OPENMP)
 endif (ENABLE_OPENMP)
 
 # adding C++11
+MESSAGE( STATUS "CMAKE_SYSTEM_NAME: " ${CMAKE_SYSTEM_NAME} )
 if (${CMAKE_SYSTEM_NAME} MATCHES "DARWIN")
+    MESSAGE( STATUS "OS X" )
     set(CMAKE_CXX_FLAGS "-std=c++11" CACHE STRING "Flag used to specify C++11." FORCE)
 else (CMAKE_COMPILER_IS_GNUCXX)
+    MESSAGE( STATUS "LINUX" )
     set(CMAKE_CXX_FLAGS "-std=gnu++11" CACHE STRING "Flag used to specify C++11." FORCE)
 endif ()
 
