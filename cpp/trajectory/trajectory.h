@@ -276,6 +276,7 @@ class Box
             \post \a img and \a v are updated appropriately
             \note \a v must not extend more than 1 image beyond the box
         */
+        // the while is breaking other things...
         void wrap(vec3<float>& w, int3& img, char3 flags = make_char3(0,0,0)) const
             {
             vec3<float> L = getL();
@@ -285,19 +286,23 @@ class Box
                 float tilt_x = (m_xz - m_xy*m_yz) * w.z + m_xy * w.y;
                 if (((w.x >= m_hi.x + tilt_x) && !flags.x) || flags.x == 1)
                     {
-                    while (w.x >= m_hi.x + tilt_x)
-                        {
-                        w.x -= L.x;
-                        img.x++;
-                        }
+                    w.x -= L.x;
+                    img.x++;
+                    // while (w.x >= m_hi.x + tilt_x)
+                    //     {
+                    //     w.x -= L.x;
+                    //     img.x++;
+                    //     }
                     }
                 else if (((w.x < m_lo.x + tilt_x) && !flags.x) || flags.x == -1)
                     {
-                    while (w.x < m_hi.x + tilt_x)
-                        {
-                        w.x += L.x;
-                        img.x--;
-                        }
+                    w.x += L.x;
+                    img.x--;
+                    // while (w.x < m_hi.x + tilt_x)
+                    //     {
+                    //     w.x += L.x;
+                    //     img.x--;
+                    //     }
                     }
                 }
 
@@ -306,21 +311,27 @@ class Box
                 float tilt_y = m_yz * w.z;
                 if (((w.y >= m_hi.y + tilt_y) && !flags.y)  || flags.y == 1)
                     {
-                    while (w.y >= m_hi.y + tilt_y)
-                        {
-                        w.y -= L.y;
-                        w.x -= L.y * m_xy;
-                        img.y++;
-                        }
+                    w.y -= L.y;
+                    w.x -= L.y * m_xy;
+                    img.y++;
+                    // while (w.y >= m_hi.y + tilt_y)
+                    //     {
+                    //     w.y -= L.y;
+                    //     w.x -= L.y * m_xy;
+                    //     img.y++;
+                    //     }
                     }
                 else if (((w.y < m_lo.y + tilt_y) && !flags.y) || flags.y == -1)
                     {
-                    while (w.y < m_hi.y + tilt_y)
-                        {
-                        w.y += L.y;
-                        w.x += L.y * m_xy;
-                        img.y--;
-                        }
+                    w.y += L.y;
+                    w.x += L.y * m_xy;
+                    img.y--;
+                    // while (w.y < m_hi.y + tilt_y)
+                    //     {
+                    //     w.y += L.y;
+                    //     w.x += L.y * m_xy;
+                    //     img.y--;
+                    //     }
                     }
                 }
 
@@ -328,23 +339,31 @@ class Box
                 {
                 if (((w.z >= m_hi.z) && !flags.z) || flags.z == 1)
                     {
-                    while (w.z >= m_hi.z)
-                        {
-                        w.z -= L.z;
-                        w.y -= L.z * m_yz;
-                        w.x -= L.z * m_xz;
-                        img.z++;
-                        }
+                    w.z -= L.z;
+                    w.y -= L.z * m_yz;
+                    w.x -= L.z * m_xz;
+                    img.z++;
+                    // while (w.z >= m_hi.z)
+                    //     {
+                    //     w.z -= L.z;
+                    //     w.y -= L.z * m_yz;
+                    //     w.x -= L.z * m_xz;
+                    //     img.z++;
+                    //     }
                     }
                 else if (((w.z < m_lo.z) && !flags.z) || flags.z == -1)
                     {
-                    while (w.z < m_hi.z)
-                        {
-                        w.z += L.z;
-                        w.y += L.z * m_yz;
-                        w.x += L.z * m_xz;
-                        img.z--;
-                        }
+                    w.z += L.z;
+                    w.y += L.z * m_yz;
+                    w.x += L.z * m_xz;
+                    img.z--;
+                    // while (w.z < m_hi.z)
+                    //     {
+                    //     w.z += L.z;
+                    //     w.y += L.z * m_yz;
+                    //     w.x += L.z * m_xz;
+                    //     img.z--;
+                    //     }
                     }
                 }
            }
