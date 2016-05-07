@@ -7,6 +7,10 @@ Numpy is **required** to build freud.
 
 # Documentation {#documentation_section}
 
+You may download the documentation in the [downloads section](https://bitbucket.org/glotzer/freud/downloads), or you may build the documentation yourself:
+
+## Building the documentation
+
 Documentation written in sphinx, not doxygen. Please install sphinx:
 
 	conda install sphinx
