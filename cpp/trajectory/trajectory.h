@@ -5,6 +5,8 @@
 
 #include "VectorMath.h"
 
+#include <math.h>
+
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
 
@@ -269,6 +271,17 @@ class Box
             return img;
             }
 
+        //! wrap a vector back into the box. This function is specifically designed to be
+        // called from python and wrap vectors which are greater than one image away
+        vec3<float> wrapMultiple(vec3<float>& v) const
+            {
+            vec3<float> tmp = makeFraction(v);
+            tmp.x = fmod(tmp.x,(float)1);
+            tmp.y = fmod(tmp.y,(float)1);
+            tmp.z = fmod(tmp.z,(float)1);
+            return makeCoordinates(tmp);
+            }
+
         //! Wrap a vector back into the box
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
             \param img Image of the vector, updated to reflect the new image
@@ -276,7 +289,6 @@ class Box
             \post \a img and \a v are updated appropriately
             \note \a v must not extend more than 1 image beyond the box
         */
-        // the while is breaking other things...
         void wrap(vec3<float>& w, int3& img, char3 flags = make_char3(0,0,0)) const
             {
             vec3<float> L = getL();
@@ -288,21 +300,11 @@ class Box
                     {
                     w.x -= L.x;
                     img.x++;
-                    // while (w.x >= m_hi.x + tilt_x)
-                    //     {
-                    //     w.x -= L.x;
-                    //     img.x++;
-                    //     }
                     }
                 else if (((w.x < m_lo.x + tilt_x) && !flags.x) || flags.x == -1)
                     {
                     w.x += L.x;
                     img.x--;
-                    // while (w.x < m_hi.x + tilt_x)
-                    //     {
-                    //     w.x += L.x;
-                    //     img.x--;
-                    //     }
                     }
                 }
 
@@ -314,24 +316,12 @@ class Box
                     w.y -= L.y;
                     w.x -= L.y * m_xy;
                     img.y++;
-                    // while (w.y >= m_hi.y + tilt_y)
-                    //     {
-                    //     w.y -= L.y;
-                    //     w.x -= L.y * m_xy;
-                    //     img.y++;
-                    //     }
                     }
                 else if (((w.y < m_lo.y + tilt_y) && !flags.y) || flags.y == -1)
                     {
                     w.y += L.y;
                     w.x += L.y * m_xy;
                     img.y--;
-                    // while (w.y < m_hi.y + tilt_y)
-                    //     {
-                    //     w.y += L.y;
-                    //     w.x += L.y * m_xy;
-                    //     img.y--;
-                    //     }
                     }
                 }
 
@@ -343,13 +333,6 @@ class Box
                     w.y -= L.z * m_yz;
                     w.x -= L.z * m_xz;
                     img.z++;
-                    // while (w.z >= m_hi.z)
-                    //     {
-                    //     w.z -= L.z;
-                    //     w.y -= L.z * m_yz;
-                    //     w.x -= L.z * m_xz;
-                    //     img.z++;
-                    //     }
                     }
                 else if (((w.z < m_lo.z) && !flags.z) || flags.z == -1)
                     {
@@ -357,13 +340,6 @@ class Box
                     w.y += L.z * m_yz;
                     w.x += L.z * m_xz;
                     img.z--;
-                    // while (w.z < m_hi.z)
-                    //     {
-                    //     w.z += L.z;
-                    //     w.y += L.z * m_yz;
-                    //     w.x += L.z * m_xz;
-                    //     img.z--;
-                    //     }
                     }
                 }
            }
