@@ -279,6 +279,19 @@ class Box
             tmp.x = fmod(tmp.x,(float)1);
             tmp.y = fmod(tmp.y,(float)1);
             tmp.z = fmod(tmp.z,(float)1);
+            // handle negative mod
+            if (tmp.x < 0)
+                {
+                tmp.x += 1;
+                }
+            if (tmp.y < 0)
+                {
+                tmp.y += 1;
+                }
+            if (tmp.z < 0)
+                {
+                tmp.z += 1;
+                }
             return makeCoordinates(tmp);
             }
 
