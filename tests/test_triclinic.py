@@ -41,6 +41,14 @@ class TestBox(unittest.TestCase):
 
         npt.assert_almost_equal(testpoints[0,0], -2, decimal=2, err_msg="WrapFail")
 
+    def test_WrapMultiple(self):
+        box = trajectory.Box(2, 2, 2, 1, 0, 0)
+        testpoints = np.array([[10, -5, -5],
+                               [0, 0.5, 0]], dtype=np.float32)
+        box.wrap(testpoints)
+
+        npt.assert_almost_equal(testpoints[0,0], -2, decimal=2, err_msg="WrapFail")
+
     def test_unwrap(self):
         box = trajectory.Box(2, 2, 2, 1, 0, 0)
         testpoints = np.array([[0, -1, -1],
