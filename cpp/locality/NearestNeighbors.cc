@@ -51,7 +51,7 @@ bool compareRsqVectors(const pair<float, unsigned int> &left,
 class ComputeNearestNeighbors
     {
 private:
-    atomic<unsigned int> &m_deficits;
+    tbb::atomic<unsigned int> &m_deficits;
     float *m_rsq_array;
     unsigned int *m_neighbor_array;
     const trajectory::Box& m_box;
@@ -62,7 +62,7 @@ private:
     const vec3<float> *m_ref_pos;
     const vec3<float> *m_pos;
 public:
-    ComputeNearestNeighbors(atomic<unsigned int> &deficits,
+    ComputeNearestNeighbors(tbb::atomic<unsigned int> &deficits,
                             float *r_array,
                             unsigned int *neighbor_array,
                             const trajectory::Box& box,

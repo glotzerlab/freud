@@ -69,6 +69,13 @@ if (ENABLE_OPENMP)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif (ENABLE_OPENMP)
 
+# adding C++11 Flags
+if (${CMAKE_SYSTEM_NAME} MATCHES "DARWIN")
+    set(CMAKE_CXX_FLAGS "-std=c++11" CACHE STRING "Flag used to specify C++11." FORCE)
+else (${CMAKE_SYSTEM_NAME} MATCHES "DARWIN")
+    set(CMAKE_CXX_FLAGS "-std=gnu++11" CACHE STRING "Flag used to specify C++11." FORCE)
+endif (${CMAKE_SYSTEM_NAME} MATCHES "DARWIN")
+
 # disable crazy windows warnings
 if (WIN32)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)

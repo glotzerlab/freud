@@ -12,6 +12,11 @@ try:
 except ImportError:
     h5py = None
 
+import warnings
+warnings.warn("trajectory is slated for deprecation in v0.6.0. Please plan to use an external tool to load simulation \
+ trajectories. Box will be its own module in v0.6.0.",
+ PendingDeprecationWarning)
+
 from ._freud import Box
 from ._freud import DCDLoader
 from . import _freud

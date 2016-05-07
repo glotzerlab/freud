@@ -10,6 +10,8 @@ from libcpp.vector cimport vector
 from libcpp.map cimport map
 import numpy as np
 cimport numpy as np
+from cython.view cimport array as cvarray
+import time
 
 # Numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -174,6 +176,179 @@ cdef class BondOrder:
         """
         cdef unsigned int np = self.thisptr.getNBinsPhi()
         return np
+
+cdef class CubaticOrderParameter:
+    """Compute the Cubatic Order Parameter [Cit1]_ for a system of particles using simulated annealing instead of \
+    Newton-Raphson root finding.
+
+    :param t_initial: Starting temperature
+    :param t_final: Final temperature
+    :param scale: Scaling factor to reduce temperature
+    :param n_replicates: Number of replicate simulated annealing runs
+    :param seed: random seed to use in calculations. If None, system time used
+    :type t_initial: float
+    :type t_final: float
+    :type scale: float
+    :type n_replicates: unsigned int
+    :type seed: unsigned int
+
+    """
+    cdef order.CubaticOrderParameter *thisptr
+
+    def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
+        # run checks
+        if (t_final >= t_initial):
+            raise ValueError("t_final must be less than t_initial")
+        if (scale >= 1.0):
+            raise ValueError("scale must be less than 1")
+        if seed is None:
+            seed = int(time.time())
+        elif not isinstance(seed, int):
+            try:
+                seed = int(seed)
+            finally:
+                print("supplied seed could not be used. using time as seed")
+                seed = time.time()
+
+        # for c++ code
+        # create generalized rank four tensor, pass into c++
+        cdef np.ndarray[float, ndim=2] kd = np.eye(3, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] dijkl = np.einsum("ij,kl->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] dikjl = np.einsum("ik,jl->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] diljk = np.einsum("il,jk->ijkl", kd, kd, dtype=np.float32)
+        cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
+        r4 *= (2.0/5.0)
+        self.thisptr = new order.CubaticOrderParameter(t_initial, t_final, scale, <float*>r4.data, n_replicates, seed)
+
+    def compute(self, orientations):
+        """
+        Calculates the per-particle and global OP
+
+        :param box: simulation box
+        :param orientations: orientations to calculate the order parameter
+        :type box: :py:meth:`freud.trajectory.Box`
+        :type orientations: np.float32
+        """
+        if (orientations.dtype != np.float32):
+            raise ValueError("orientations must be a numpy float32 array")
+        if orientations.ndim != 2:
+            raise ValueError("orientations must be a 2 dimensional array")
+        if orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
+
+        with nogil:
+            self.thisptr.compute(<quat[float]*>l_orientations.data, num_particles, 1)
+
+    def get_t_initial(self):
+        """
+        :return: value of initial temperature
+        :rtype: float
+        """
+        return self.thisptr.getTInitial()
+
+    def get_t_final(self):
+        """
+        :return: value of final temperature
+        :rtype: float
+        """
+        return self.thisptr.getTFinal()
+
+    def get_scale(self):
+        """
+        :return: value of scale
+        :rtype: float
+        """
+        return self.thisptr.getScale()
+
+    def get_cubatic_order_parameter(self):
+        """
+        :return: Cubatic Order parameter
+        :rtype: float
+        """
+        return self.thisptr.getCubaticOrderParameter()
+
+    def get_orientation(self):
+        """
+        :return: orientation of global orientation
+        :rtype: np.float32
+        """
+        cdef quat[float] q = self.thisptr.getCubaticOrientation()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = 4
+        # This should be updated/changed at some point
+        # cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>&qij)
+        cdef np.ndarray[float, ndim=1] result = np.array([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
+        return result
+
+    def get_particle_op(self):
+        """
+        :return: Cubatic Order parameter
+        :rtype: float
+        """
+        cdef float * particle_op = self.thisptr.getParticleCubaticOrderParameter().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32,<void*>particle_op)
+        return result
+
+    def get_particle_tensor(self):
+        """
+        :return: Rank 4 tensor corresponding to each individual particle orientation
+        :rtype: np.float32
+        """
+        cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
+        cdef np.npy_intp nbins[5]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        nbins[3] = <np.npy_intp>3
+        nbins[4] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=5] result = np.PyArray_SimpleNewFromData(5, nbins, np.NPY_FLOAT32, <void*>particle_tensor)
+        return result
+
+    def get_global_tensor(self):
+        """
+        :return: Rank 4 tensor corresponding to each individual particle orientation
+        :rtype: np.float32
+        """
+        cdef float *global_tensor = self.thisptr.getGlobalTensor().get()
+        cdef np.npy_intp nbins[4]
+        nbins[0] = <np.npy_intp>3
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        nbins[3] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=4] result = np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32, <void*>global_tensor)
+        return result
+
+    def get_cubatic_tensor(self):
+        """
+        :return: Rank 4 tensor corresponding to each individual particle orientation
+        :rtype: np.float32
+        """
+        cdef float *cubatic_tensor = self.thisptr.getCubaticTensor().get()
+        cdef np.npy_intp nbins[4]
+        nbins[0] = <np.npy_intp>3
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        nbins[3] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=4] result = np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32, <void*>cubatic_tensor)
+        return result
+
+    def get_gen_r4_tensor(self):
+        """
+        :return: Rank 4 tensor corresponding to each individual particle orientation
+        :rtype: np.float32
+        """
+        cdef float *gen_r4_tensor = self.thisptr.getGenR4Tensor().get()
+        cdef np.npy_intp nbins[4]
+        nbins[0] = <np.npy_intp>3
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        nbins[3] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=4] result = np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32, <void*>gen_r4_tensor)
+        return result
 
 cdef class EntropicBonding:
     """Compute the entropic bonds each particle in the system.
@@ -1653,6 +1828,185 @@ cdef class SolLiq:
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+cdef class MatchEnv:
+    """Clusters particles according to whether their local environments match or not, according to various shape matching metrics.
+
+    :param box: simulation box
+    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
+    """
+    cdef order.MatchEnv *thisptr
+
+    def __cinit__(self, box, rmax, k):
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr = new order.MatchEnv(l_box, rmax, k)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def setBox(self, box):
+        """
+        Reset the simulation box
+
+        :param box: simulation box
+        :type box: :py:meth:`freud.trajectory.Box`
+        """
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr.setBox(l_box)
+
+    def cluster(self, points, threshold, hard_r=False):
+        """Determine clusters of particles with matching environments.
+
+        :param points: particle positions
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type threshold: np.float32
+        :type hard_r: bool
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+
+        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r)
+
+    def matchMotif(self, points, refPoints, threshold, hard_r=False):
+        """Determine clusters of particles that match the motif provided by refPoints.
+
+        :param points: particle positions
+        :param refPoints: vectors that make up the motif against which we are matching
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type threshold: np.float32
+        :type hard_r: bool
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
+        if refPoints.dtype != np.float32:
+            raise ValueError("refPoints must be a numpy float32 array")
+        if refPoints.ndim != 2:
+            raise ValueError("refPoints must be a 2 dimensional array")
+        if refPoints.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+
+        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, hard_r)
+
+    def isSimilar(self, refPoints1, refPoints2, threshold):
+        """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
+
+        :param refPoints1: vectors that make up motif 1
+        :param refPoints2: vectors that make up motif 2
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type threshold: np.float32
+        """
+        if refPoints1.dtype != np.float32:
+            raise ValueError("refPoints1 must be a numpy float32 array")
+        if refPoints1.ndim != 2:
+            raise ValueError("refPoints1 must be a 2 dimensional array")
+        if refPoints1.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
+        if refPoints2.dtype != np.float32:
+            raise ValueError("refPoints2 must be a numpy float32 array")
+        if refPoints2.ndim != 2:
+            raise ValueError("refPoints2 must be a 2 dimensional array")
+        if refPoints2.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
+        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
+        cdef float threshold_sq = threshold*threshold
+
+        if nRef1 != nRef2:
+            raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
+
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)
+        return vec_map
+
+    def getClusters(self):
+        """
+        Get a reference to the particles, indexed into clusters according to their matching local environments
+
+        :return: clusters
+        :rtype: np.uint32
+        """
+        cdef unsigned int *clusters = self.thisptr.getClusters().get()
+        cdef np.npy_intp nbins[1]
+        # this is the correct number
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
+        return result
+
+    def getEnvironment(self, i):
+        """
+        Returns the set of vectors defining the environment indexed by i
+
+        :param i: environment index
+        :type i: unsigned int
+        :return: the array of vectors
+        :rtype: list[list[float, float, float]]
+        """
+        cdef vec3[float] *environment = self.thisptr.getEnvironment(i).get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        nbins[1] = 3
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>environment)
+        return result
+
+    def getTotEnvironment(self):
+        """
+        Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
+
+        :return: the array of vectors
+        :rtype: list[list[list[float, float, float]]]
+        """
+        cdef vec3[float] *tot_environment = self.thisptr.getTotEnvironment().get()
+        cdef np.npy_intp nbins[3]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        nbins[2] = 3
+        cdef np.ndarray[float, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>tot_environment)
+        return result
+
+    def getNP(self):
+        """
+        Get the number of particles
+
+        :return: np
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
+    def getNumClusters(self):
+        """
+        Get the number of clusters
+
+        :return: num_clust
+        :rtype: unsigned int
+        """
+        cdef unsigned int num_clust = self.thisptr.getNumClusters()
+        return num_clust
 
 cdef class SolLiqNear:
     """Computes dot products of qlm between particles and uses these for clustering.

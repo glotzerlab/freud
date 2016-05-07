@@ -50,11 +50,11 @@ private:
     float *m_magrArray;
     quat<float> *m_qijArray;
     complex<float> *m_sphArray;
-    atomic<unsigned int> &m_deficits;
+    tbb::atomic<unsigned int> &m_deficits;
 public:
     ComputeLocalDescriptors(float *magrArray, quat<float> *qijArray,
         complex<float> *sphArray,
-        atomic<unsigned int> &deficits,
+        tbb::atomic<unsigned int> &deficits,
         const trajectory::Box& box,
         const unsigned int nNeigh,
         const unsigned int lmax,
