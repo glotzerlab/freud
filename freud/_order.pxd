@@ -55,7 +55,7 @@ cdef extern from "EntropicBonding.h" namespace "freud::order":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil
-        shared_array[ map[uint, vector[uint] ] ] getBonds()
+        shared_ptr[ map[uint, vector[uint] ] ] getBonds()
         # shared_array[map] getBonds()
         # vector[map] *getBonds()
         unsigned int getNP()
@@ -65,17 +65,17 @@ cdef extern from "EntropicBonding.h" namespace "freud::order":
 
 cdef extern from "EntropicBondingRT.h" namespace "freud::order":
     cdef cppclass EntropicBondingRT:
-        EntropicBondingRT(float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *)
+        EntropicBondingRT(float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
         const trajectory.Box &getBox() const
         void compute(trajectory.Box &,
                      vec3[float]*,
                      float*,
                      unsigned int) nogil
-        shared_array[ map[uint, vector[uint] ] ] getBonds()
+        shared_array[ uint ] getBonds()
         # shared_array[map] getBonds()
         # vector[map] *getBonds()
-        unsigned int getNP()
-        unsigned int getNBonds()
+        unsigned int getNumParticles()
+        unsigned int getNumBonds()
         unsigned int getNBinsR()
         unsigned int getNBinsT1()
         unsigned int getNBinsT2()

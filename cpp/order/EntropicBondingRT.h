@@ -6,6 +6,7 @@
 #include <Python.h>
 #define __APPLE__
 
+#include <memory>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
@@ -30,12 +31,13 @@ class EntropicBondingRT
     {
     public:
         //! Constructor
-        EntropicBondingRT(float rmax,
-                        unsigned int nr,
-                        unsigned int nT2,
-                        unsigned int nT1,
-                        unsigned int nNeighbors,
-                        unsigned int *bond_map);
+        EntropicBondingRT(float r_max,
+                          unsigned int n_r,
+                          unsigned int n_t2,
+                          unsigned int n_t1,
+                          unsigned int n_bonds,
+                          unsigned int *bond_map,
+                          unsigned int *bond_list);
 
         //! Destructor
         ~EntropicBondingRT();
@@ -50,15 +52,20 @@ class EntropicBondingRT
         void compute(trajectory::Box& box,
                      vec3<float> *points,
                      float *orientations,
-                     unsigned int nP);
+                     unsigned int n_p);
 
-        //! Get a reference to the last computed rdf
-        boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > > getBonds();
+        //! Get a reference to the last computed bond list
+        std::shared_ptr<unsigned int> getBonds();
         // std::vector< std::map< unsigned int, unsigned int > > *getBonds();
 
-        unsigned int getNP()
+        unsigned int getNumParticles()
             {
-            return m_nP;
+            return m_n_p;
+            }
+
+        unsigned int getNumBonds()
+            {
+            return m_n_bonds;
             }
 
         unsigned int getNBinsR()
@@ -78,21 +85,25 @@ class EntropicBondingRT
 
     private:
         trajectory::Box m_box;            //!< Simulation box the particles belong in
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_tmax;                     //!< Maximum theta at which to determine neighbors
+        float m_r_max;                     //!< Maximum r at which to determine neighbors
+        float m_t_max;                     //!< Maximum theta at which to determine neighbors
         float m_dr;
         float m_dt1;
         float m_dt2;
         unsigned int m_nbins_r;             //!< Number of x bins to compute bonds
         unsigned int m_nbins_t1;             //!< Number of y bins to compute bonds
         unsigned int m_nbins_t2;             //!< Number of y bins to compute bonds
-        unsigned int m_nNeighbors;                        //!< number of neighbors to get
+        unsigned int m_n_bonds;                        //!< number of bonds to track
         unsigned int *m_bond_map;                   //!< pointer to bonding map
-        locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
-        unsigned int m_nP;                //!< Last number of points computed
+        unsigned int *m_bond_list;
+        std::map<unsigned int, unsigned int> m_list_map; //! maps bond index to list index
+        // locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
+        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
+        unsigned int m_n_p;                //!< Last number of points computed
 
         // boost::shared_array<unsigned int> m_bonds;         //!< bin counts computed
-        boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > > m_bonds;         //!< bin counts computed
+        std::shared_ptr<unsigned int> m_bonds;
+        // boost::shared_array< std::map<unsigned int, std::vector<unsigned int> > > m_bonds;         //!< bin counts computed
         // do I need this? I don't think so...
         // tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
