@@ -70,14 +70,17 @@ conda create -n my_env python=3.5 freud
 
 ## glotzpkgs install {#glotzpkgs_section}
 
-*It would appear these instructions may be out of date with the latest updates to glotzpkgs, so YMMV*
+*Please refer to the official glotzpkgs documentation*
 
-Make sure you have a working glotzpkgs env.
+*Make sure you have a working glotzpkgs env.*
 
 ~~~
+# install from provided binary
+$: gpacman -S freud
+# installing your own version
 $: cd /pth/to/glotzpkgs/freud
-$: cd <version>
 $: gmakepkg
+# tab completion is your friend here
 $: gpacman -U freud-<version>-flux.pkg.tar.gz
 # now you can load the binary
 $: module load freud
