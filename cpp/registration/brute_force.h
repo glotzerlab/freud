@@ -201,6 +201,7 @@ class RegisterBruteForce  // : public Register
             matrix p, q, r;
             // make the Eigen matrix from pts
             points = makeEigenMatrix(pts);
+            int num_pts;
 
             // m_translation = -CenterOfMass(points);
             // points = Translate(m_translation, points);
@@ -220,25 +221,49 @@ class RegisterBruteForce  // : public Register
                 while ( p0 == p1 || p0 == p2 || p1 == p2)
                 {
                     p0 = rng.random_int(0,N-1);
-                    p1 = rng.random_int(0,N-1);
-                    p2 = rng.random_int(0,N-1);
+                    if (N == int(1)) { p1 = int(-2); }
+                    else { p1 = rng.random_int(0,N-1); }
+                    if (N == int(2) || N == int(1)) { p2 = int(-1); }
+                    else { p2 = rng.random_int(0,N-1); }
                 }
 
                 size_t comb[3] = {0, 1, 2};
-                p.resize(3,m_data.cols());
-                p.row(0) = m_data.row(p0);
-                p.row(1) = m_data.row(p1);
-                p.row(2) = m_data.row(p2);
-                q.resize(3,m_data.cols());
+                if (N == int(2)) {
+                    num_pts = 2;
+                    p.resize(num_pts, m_data.cols());
+                    p.row(0) = m_data.row(p0);
+                    p.row(1) = m_data.row(p1);
+                    q.resize(num_pts, m_data.cols());
+                }
+                else if (N == int(1)) {
+                    num_pts = 1;
+                    p.resize(num_pts, m_data.cols());
+                    p.row(0) = m_data.row(p0);
+                    q.resize(num_pts, m_data.cols());
+                }
+                else {
+                    num_pts = 3;
+                    p.resize(num_pts, m_data.cols());
+                    p.row(0) = m_data.row(p0);
+                    p.row(1) = m_data.row(p1);
+                    p.row(2) = m_data.row(p2);
+                    q.resize(num_pts, m_data.cols());
+                }
                 do
                 {
                     do {
-                        q.row(0) = points.row(comb[0]);
-                        q.row(1) = points.row(comb[1]);
-                        q.row(2) = points.row(comb[2]);
-
-                        // std::cout<<"p: "<<p.row(0)<<" "<<p.row(1)<<" "<<p.row(2)<<std::endl;
-                        // std::cout<<"q: "<<q.row(0)<<" "<<q.row(1)<<" "<<q.row(2)<<std::endl;
+                        if (N == int(2)) {
+                            q.row(0) = points.row(comb[0]);
+                            q.row(1) = points.row(comb[1]);
+                        }
+                        else if (N == int(1)) {
+                            q.row(0) = points.row(comb[0]);
+                        }
+                        else {
+                            q.row(0) = points.row(comb[0]);
+                            q.row(1) = points.row(comb[1]);
+                            q.row(2) = points.row(comb[2]);
+                        }
 
                         // finds the optimal rotation of the FIRST input set of points such that they
                         // match the SECOND input set of points
@@ -265,8 +290,8 @@ class RegisterBruteForce  // : public Register
                                 return true;
                             }
                         }
-                    } while (std::next_permutation(comb,comb+3));
-                } while (NextCombination(comb, N, 3));
+                    } while (std::next_permutation(comb,comb+num_pts));
+                } while (NextCombination(comb, N, num_pts));
             }
             // The rotation that we've found from the KabschAlgorithm actually acts on P^T.
             matrix ptsT = Rotate(m_rotation, points.transpose());

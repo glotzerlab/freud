@@ -1,41 +1,47 @@
 
+import sys
 from freud.util._VectorMath cimport vec3
 cimport freud._locality as locality
 from cython.operator cimport dereference
 import numpy as np
 cimport numpy as np
 
-# cdef class IteratorLinkCell:
-#     """Iterates over the particles in a cell.
+cdef class IteratorLinkCell:
+    """Iterates over the particles in a cell.
 
-#     Example::
+    Example::
 
-#        # grab particles in cell 0
-#        for j in linkcell.itercell(0):
-#            print(positions[j])
-#     """
-#     cdef locality.IteratorLinkCell *thisptr
+       # grab particles in cell 0
+       for j in linkcell.itercell(0):
+           print(positions[j])
+    """
+    cdef locality.IteratorLinkCell *thisptr
 
-#     def __cinit__(self):
-#         self.thisptr = new locality.IteratorLinkCell()
+    def __cinit__(self):
+        # must be running python 3.x
+        current_version = sys.version_info
+        if current_version.major < 3:
+            raise RuntimeError("Must use python 3.x or greater to use IteratorLinkCell")
+        else:
+            self.thisptr = new locality.IteratorLinkCell()
 
-#     def __dealloc__(self):
-#         del self.thisptr
+    def __dealloc__(self):
+        del self.thisptr
 
-#     cdef void copy(self, const locality.IteratorLinkCell &rhs):
-#         self.thisptr.copy(rhs)
+    cdef void copy(self, const locality.IteratorLinkCell &rhs):
+        self.thisptr.copy(rhs)
 
-#     def next(self):
-#         cdef unsigned int result = self.thisptr.next()
-#         if self.thisptr.atEnd():
-#             raise StopIteration()
-#         return result
+    def next(self):
+        cdef unsigned int result = self.thisptr.next()
+        if self.thisptr.atEnd():
+            raise StopIteration()
+        return result
 
-#     def __next__(self):
-#         return self.next()
+    def __next__(self):
+        return self.next()
 
-#     def __iter__(self):
-#         return self
+    def __iter__(self):
+        return self
 
 cdef class LinkCell:
     """Supports efficiently finding all points in a set within a certain
@@ -92,15 +98,18 @@ cdef class LinkCell:
 
         return self.thisptr.getCell(dereference(<vec3[float]*>&cPoint[0]))
 
-    # def itercell(self, unsigned int cell):
-    #     """Return an iterator over all particles in the given cell
+    def itercell(self, unsigned int cell):
+        """Return an iterator over all particles in the given cell
 
-    #     :param cell: Cell index
-    #     """
-    #     result = IteratorLinkCell()
-    #     cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
-    #     result.copy(cResult)
-    #     return iter(result)
+        :param cell: Cell index
+        """
+        current_version = sys.version_info
+        if current_version.major < 3:
+            raise RuntimeError("Must use python 3.x or greater to use itercell")
+        result = IteratorLinkCell()
+        cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
+        result.copy(cResult)
+        return iter(result)
 
     def getCellNeighbors(self, cell):
         """Returns the neighboring cell indices of the given cell

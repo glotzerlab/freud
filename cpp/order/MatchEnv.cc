@@ -319,7 +319,7 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
         {
         // compute vec{r} between the two particles
         unsigned int j = neighbors[neigh_idx];
-        vec3<float> delta = m_box.wrap(p - points[j]);
+        vec3<float> delta = m_box.wrap(points[j]-p);
 
         // if hard_r is true, only add the particle to the environment if it falls within the threshold of m_rmaxsq
         bool add_neigh = true;
@@ -362,7 +362,6 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment& e1, En
         {
         registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
         bool good_fit = r.Fit(v2);
-
         }
 
     // compare all combinations of vectors
@@ -386,11 +385,14 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment& e1, En
     // if every vector has been paired with every other vector, return this bimap
     if (vec_map.size() == m_k)
         {
-        // if we've registered v2, update e2's vecs to reflect the optimal rotation
-        if (registration == true)
-            {
-            e2.vecs = v2;
-            }
+        // if we've registered v2, update e2's vecs to reflect the optimal rotation.
+        // actually DON'T DO THIS YET: if you merge e1 into e2, you will be rotating the wrong set of vectors.
+        // instead, probably should keep track of "proper" rotation for every env, and just carry it through
+        // the way you carry through proper vector indices.
+        // if (registration == true)
+        //     {
+        //     e2.vecs = v2;
+        //     }
         return vec_map;
         }
     // otherwise, return an empty bimap
@@ -570,7 +572,6 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
         {
-
         // 1. Get all the neighbors
         vec3<float> p = points[i];
         boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
@@ -579,7 +580,6 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             unsigned int j = neighbors[neigh_idx];
-
             if (i != j)
                 {
                 boost::bimap<unsigned int, unsigned int> vec_map = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);

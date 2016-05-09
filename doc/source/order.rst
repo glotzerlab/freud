@@ -24,6 +24,9 @@ Order Parameters
 
 Lorem Ipsum
 
+.. autoclass:: freud.order.CubaticOrderParameter(t_initial, t_final, scale, n_replicates, seed)
+    :members:
+
 .. autoclass:: freud.order.HexOrderParameter(rmax, k, n)
     :members:
 
@@ -40,4 +43,19 @@ Lorem Ipsum
     :members:
 
 .. autoclass:: freud.order.LocalWl(box, rmax, l)
+    :members:
+
+.. autoclass:: freud.order.LocalWlNear(box, rmax, l, kn)
+    :members:
+
+.. autoclass:: freud.order.SolLiq(box, rmax, Qthreshold, Sthreshold, l)
+    :members:
+
+.. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l)
+    :members:
+
+.. autoclass:: freud.order.MatchEnv(box, rmax, k)
+    :members:
+
+.. autoclass:: freud.order.Pairing2D(rmax, k, compDotTol)
     :members:

@@ -14,11 +14,13 @@ Installation
 Freud is currently installed via CMake. CCMake is recommended to set various environment variables.
 
 Contents:
+=========
 
 .. toctree::
    :maxdepth: 4
 
    modules
+   citations
 
 
 
@@ -28,4 +30,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
