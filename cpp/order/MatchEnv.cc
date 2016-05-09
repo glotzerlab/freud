@@ -361,9 +361,7 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment& e1, En
     if (registration == true)
         {
         registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
-        // std::cout<<"v2[0].x pre reg: "<<v2[0].x<<std::endl;
         bool good_fit = r.Fit(v2);
-        // std::cout<<"v2[0].x post reg: "<<v2[0].x<<std::endl;
 
         }
 
