@@ -191,7 +191,7 @@ cdef class CubaticOrderParameter:
     :type t_final: float
     :type scale: float
     :type n_replicates: unsigned int
-    :type seed: unsigned int 
+    :type seed: unsigned int
 
     """
     cdef order.CubaticOrderParameter *thisptr
