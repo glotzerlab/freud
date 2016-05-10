@@ -191,7 +191,9 @@ public:
                                            dot(eigenvec2, rij));
 
                     const float magR(sqrt(neighbors[k].first));
-                    const float theta(atan2(bond.y, bond.x)); // theta in [0..2*pi]
+                    float theta(atan2(bond.y, bond.x)); // theta in [-pi..pi] initially
+                    if(theta < 0)
+                        theta += 2*M_PI; // move theta into [0..2*pi]
                     const float phi(acos(bond.z/magR)); // phi in [0..pi]
 
                     sph_eval.compute(phi, theta);
