@@ -77,6 +77,8 @@ public:
         // tuple<> is c++11, so for now just make a pair with pairs inside
         vector<pair<float, pair<vec3<float>, unsigned int> > > neighbors;
 
+        fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
+
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {
             neighbors.clear();
@@ -152,34 +154,33 @@ public:
                 diagonalize(inertiaTensor, eigenvalues, eigenvectors);
 
                 // Sort eigenvalues and eigenvectors so that
-                // eigenvalues is in descending order. This is
+                // eigenvalues is in ascending order. This is
                 // a kind of gross way to do it, but it gets
                 // the job done.
-                if(eigenvalues[0] < eigenvalues[1])
+                if(eigenvalues[0] > eigenvalues[1])
                     {
                     std::swap(eigenvalues[0], eigenvalues[1]);
                     for(size_t ii(0); ii < 3; ++ii)
                         std::swap(eigenvectors[0][ii], eigenvectors[1][ii]);
                     }
-                if(eigenvalues[1] < eigenvalues[2])
+                if(eigenvalues[1] > eigenvalues[2])
                     {
                     std::swap(eigenvalues[1], eigenvalues[2]);
                     for(size_t ii(0); ii < 3; ++ii)
                         std::swap(eigenvectors[1][ii], eigenvectors[2][ii]);
                     }
-                if(eigenvalues[0] < eigenvalues[1])
+                if(eigenvalues[0] > eigenvalues[1])
                     {
                     std::swap(eigenvalues[0], eigenvalues[1]);
                     for(size_t ii(0); ii < 3; ++ii)
                         std::swap(eigenvectors[0][ii], eigenvectors[1][ii]);
                     }
 
-                const vec3<float> eigenvec0(eigenvectors[0][0], eigenvectors[0][1], eigenvectors[0][2]);
-                const vec3<float> eigenvec1(eigenvectors[1][0], eigenvectors[1][1], eigenvectors[1][2]);
-                const vec3<float> eigenvec2(eigenvectors[2][0], eigenvectors[2][1], eigenvectors[2][2]);
+                const vec3<float> eigenvec0(eigenvectors[0][0], eigenvectors[1][0], eigenvectors[2][0]);
+                const vec3<float> eigenvec1(eigenvectors[0][1], eigenvectors[1][1], eigenvectors[2][1]);
+                const vec3<float> eigenvec2(eigenvectors[0][2], eigenvectors[1][2], eigenvectors[2][2]);
 
                 unsigned int sphCount(i*m_nNeigh*m_sphwidth);
-                fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
 
                 for(size_t k(0); k < m_nNeigh; ++k)
                     {
@@ -189,8 +190,8 @@ public:
                                            dot(eigenvec2, rij));
 
                     const float magR(sqrt(neighbors[k].first));
-                    const float theta(atan2(bond.y, bond.x)); // theta in [0..2*pi)
-                    const float phi(acos(bond.z/magR)); // phi in [0..pi)
+                    const float theta(atan2(bond.y, bond.x)); // theta in [0..2*pi]
+                    const float phi(acos(bond.z/magR)); // phi in [0..pi]
 
                     sph_eval.compute(phi, theta);
 
