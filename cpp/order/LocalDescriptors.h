@@ -7,6 +7,8 @@
 
 #include "tbb/atomic.h"
 
+#include "fsph/src/spherical_harmonics.hpp"
+
 #ifndef _LOCAL_DESCRIPTORS_H__
 #define _LOCAL_DESCRIPTORS_H__
 
@@ -28,8 +30,9 @@ public:
     //! \param nNeigh Number of neighbors to compute descriptors for
     //! \param lmax Maximum spherical harmonic l to consider
     //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
+    //! \param negative_m whether to calculate Ylm for negative m
     LocalDescriptors(const trajectory::Box& box, unsigned int nNeigh,
-        unsigned int lmax, float rmax);
+                     unsigned int lmax, float rmax, bool negative_m);
 
     //! Get the simulation box
     const trajectory::Box& getBox() const
@@ -87,6 +90,12 @@ public:
         return m_sphArray;
         }
 
+    unsigned int getSphWidth() const
+        {
+        return fsph::sphCount(m_lmax) +
+            (m_lmax > 0 && m_negative_m ? fsph::sphCount(m_lmax - 1): 0);
+        }
+
     // //! Python wrapper for getMagR() (returns a copy)
     // boost::python::numeric::array getMagRPy()
     //     {
@@ -122,6 +131,7 @@ private:
     unsigned int m_nNeigh;            //!< Number of neighbors to calculate
     unsigned int m_lmax;              //!< Maximum spherical harmonic l to calculate
     float m_rmax;                     //!< Maximum r at which to determine neighbors
+    bool m_negative_m;                //!< true if we should compute Ylm for negative m
     locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
     unsigned int m_Np;                //!< Last number of points computed
     tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step

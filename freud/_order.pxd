@@ -77,10 +77,12 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         LocalDescriptors(const trajectory.Box &,
                          unsigned int,
                          unsigned int,
-                         float)
+                         float,
+                         bool)
         const trajectory.Box &getBox() const
         unsigned int getNNeigh() const
         unsigned int getLMax() const
+        unsigned int getSphWidth() const
         float getRMax() const
         unsigned int getNP()
         void compute(const vec3[float]*,

@@ -22,9 +22,9 @@ using hoomd::matrix::quaternionFromExyz;
 namespace freud { namespace order {
 
 LocalDescriptors::LocalDescriptors(const trajectory::Box& box,
-    unsigned int nNeigh, unsigned int lmax,
-    float rmax):
-    m_box(box), m_nNeigh(nNeigh), m_lmax(lmax), m_rmax(rmax), m_lc(box, rmax), m_Np(0), m_deficits()
+        unsigned int nNeigh, unsigned int lmax, float rmax, bool negative_m):
+    m_box(box), m_nNeigh(nNeigh), m_lmax(lmax), m_rmax(rmax),
+    m_negative_m(negative_m), m_lc(box, rmax), m_Np(0), m_deficits()
     {
     m_deficits = 0;
     }
@@ -43,7 +43,9 @@ private:
     const trajectory::Box& m_box;
     const unsigned int m_nNeigh;
     const unsigned int m_lmax;
+    const unsigned int m_sphwidth;
     const float m_rmax;
+    const bool m_negative_m;
     const locality::LinkCell& m_lc;
     const vec3<float> *m_r;
     const quat<float> *m_q;
@@ -58,10 +60,13 @@ public:
         const trajectory::Box& box,
         const unsigned int nNeigh,
         const unsigned int lmax,
+        const unsigned int sphwidth,
         const float rmax,
+        const bool negative_m,
         const locality::LinkCell& lc,
         const vec3<float> *r, const quat<float> *q):
-        m_box(box), m_nNeigh(nNeigh), m_lmax(lmax), m_rmax(rmax), m_lc(lc),
+        m_box(box), m_nNeigh(nNeigh), m_lmax(lmax), m_sphwidth(sphwidth),
+        m_rmax(rmax), m_negative_m(negative_m), m_lc(lc),
         m_r(r), m_q(q), m_magrArray(magrArray), m_qijArray(qijArray),
         m_sphArray(sphArray), m_deficits(deficits)
         {
@@ -170,51 +175,28 @@ public:
                         std::swap(eigenvectors[0][ii], eigenvectors[1][ii]);
                     }
 
-                float4 diagQuat;
-                float4 xAxis, yAxis, zAxis;
+                const vec3<float> eigenvec0(eigenvectors[0][0], eigenvectors[0][1], eigenvectors[0][2]);
+                const vec3<float> eigenvec1(eigenvectors[1][0], eigenvectors[1][1], eigenvectors[1][2]);
+                const vec3<float> eigenvec2(eigenvectors[2][0], eigenvectors[2][1], eigenvectors[2][2]);
 
-                xAxis.x = eigenvectors[2][0];
-                xAxis.y = eigenvectors[2][1];
-                xAxis.z = eigenvectors[2][2];
-                xAxis.w = 0;
-                yAxis.x = eigenvectors[1][0];
-                yAxis.y = eigenvectors[1][1];
-                yAxis.z = eigenvectors[1][2];
-                yAxis.w = 0;
-                zAxis.x = eigenvectors[0][0];
-                zAxis.y = eigenvectors[0][1];
-                zAxis.z = eigenvectors[0][2];
-                zAxis.w = 0;
-
-                quaternionFromExyz(xAxis, yAxis, zAxis, diagQuat);
-                const quat<float> diagonalizationQuat(
-                    conj(quat<float>(diagQuat.x,
-                            vec3<float>(diagQuat.y, diagQuat.z, diagQuat.w))));
-
-                const rotmat3<float> diagonalizationMat(diagonalizationQuat);
-                const unsigned int sphWidth(m_nNeigh*(m_lmax*m_lmax + 2*m_lmax));
+                unsigned int sphCount(0);
+                fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
 
                 for(size_t k(0); k < m_nNeigh; ++k)
                     {
-                    const unsigned int neighborOffset(k*(m_lmax*m_lmax + 2*m_lmax));
+                    const vec3<float> rij(neighbors[k].second.first);
+                    const vec3<float> bond(dot(eigenvec0, rij),
+                                           dot(eigenvec1, rij),
+                                           dot(eigenvec2, rij));
+
                     const float magR(sqrt(neighbors[k].first));
-                    const vec3<float> rij(diagonalizationMat*neighbors[k].second.first);
-                    const unsigned int j(neighbors[k].second.second);
-                    const quat<float> qij(m_q[j]*conj(m_q[i]));
+                    const float phi(atan2(bond.y, bond.x)); // phi in [0..2*pi)
+                    const float theta(acos(bond.z/magR)); // theta in [0..pi)
 
-                    m_magrArray[i*m_nNeigh + k] = magR;
-                    m_qijArray[i*m_nNeigh + k] = qij;
+                    sph_eval.compute(phi, theta);
 
-                    const float phi(atan2(rij.y, rij.x)); // phi in [0..2*pi)
-                    const float theta(acos(rij.z/magR)); // theta in [0..pi)
-
-                    for(unsigned int l(1); l <= m_lmax; ++l)
-                        {
-                        const unsigned int offset(i*sphWidth + neighborOffset +
-                            (l - 1)*(l - 1) + 2*(l - 1));
-                        for(int m(-l); m <= (int) l; ++m)
-                            m_sphArray[offset + l + m] = boost::math::spherical_harmonic(l, m, theta, phi);
-                        }
+                    std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray[sphCount]);
+                    sphCount += m_sphwidth;
                     }
                 }
             }
@@ -228,7 +210,7 @@ void LocalDescriptors::compute(const vec3<float> *r, const quat<float> *q, unsig
         {
         m_magrArray = boost::shared_array<float>(new float[m_nNeigh*Np]);
         m_qijArray = boost::shared_array<quat<float> >(new quat<float>[m_nNeigh*Np]);
-        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[m_nNeigh*Np*(m_lmax*m_lmax + 2*m_lmax)]);
+        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[m_nNeigh*Np*getSphWidth()]);
         }
 
     // compute the order parameter
@@ -242,7 +224,7 @@ void LocalDescriptors::compute(const vec3<float> *r, const quat<float> *q, unsig
         parallel_for(blocked_range<size_t>(0,Np),
             ComputeLocalDescriptors(m_magrArray.get(), m_qijArray.get(),
                 m_sphArray.get(), m_deficits, m_box, m_nNeigh,
-                m_lmax, m_rmax, m_lc, r, q));
+                m_lmax, getSphWidth(), m_rmax, m_negative_m, m_lc, r, q));
 
         // Increase m_rmax
         if(m_deficits > 0)

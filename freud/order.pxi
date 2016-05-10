@@ -553,6 +553,7 @@ cdef class LocalDescriptors:
     :param nNeigh: Number of neighbors to compute descriptors for
     :param lmax: Maximum spherical harmonic l to consider
     :param rmax: Initial guess of the maximum radius to looks for neighbors
+    :param negative_m: True if we should also calculate Ylm for negative m
     :type box: :py:meth:`freud.trajectory.Box()`
     :type nNeigh: unsigned int
     :type l: unsigned int
@@ -563,9 +564,9 @@ cdef class LocalDescriptors:
     """
     cdef order.LocalDescriptors *thisptr
 
-    def __cinit__(self, box, nNeigh, lmax, rmax):
+    def __cinit__(self, box, nNeigh, lmax, rmax, negative_m=True):
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.LocalDescriptors(l_box, nNeigh, lmax, rmax)
+        self.thisptr = new order.LocalDescriptors(l_box, nNeigh, lmax, rmax, negative_m)
 
     def __dealloc__(self):
         del self.thisptr
@@ -629,9 +630,11 @@ cdef class LocalDescriptors:
         :rtype: np.complex64
         """
         cdef float complex *sph = self.thisptr.getSph().get()
-        cdef np.npy_intp nbins[1]
+        cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>sph)
+        nbins[1] = <np.npy_intp>self.thisptr.getNNeigh()
+        nbins[2] = <np.npy_intp>self.thisptr.getSphWidth()
+        cdef np.ndarray[np.complex64_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_COMPLEX64, <void*>sph)
         return result
 
     def getBox(self):
