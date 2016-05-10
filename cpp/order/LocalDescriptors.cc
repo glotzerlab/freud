@@ -178,7 +178,7 @@ public:
                 const vec3<float> eigenvec1(eigenvectors[1][0], eigenvectors[1][1], eigenvectors[1][2]);
                 const vec3<float> eigenvec2(eigenvectors[2][0], eigenvectors[2][1], eigenvectors[2][2]);
 
-                unsigned int sphCount(0);
+                unsigned int sphCount(i*m_nNeigh*m_sphwidth);
                 fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
 
                 for(size_t k(0); k < m_nNeigh; ++k)
@@ -189,8 +189,8 @@ public:
                                            dot(eigenvec2, rij));
 
                     const float magR(sqrt(neighbors[k].first));
-                    const float phi(atan2(bond.y, bond.x)); // phi in [0..2*pi)
-                    const float theta(acos(bond.z/magR)); // theta in [0..pi)
+                    const float theta(atan2(bond.y, bond.x)); // theta in [0..2*pi)
+                    const float phi(acos(bond.z/magR)); // phi in [0..pi)
 
                     sph_eval.compute(phi, theta);
 
