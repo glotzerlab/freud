@@ -65,18 +65,12 @@ public:
         }
 
     //! Compute the local neighborhood descriptors given some
-    //! positions, orientations, and the number of particles
-    void compute(const vec3<float> *r, const quat<float> *q, unsigned int Np);
+    //! positions and the number of particles
+    void compute(const vec3<float> *r, unsigned int Np);
 
     // //! Python wrapper for compute
     // void computePy(boost::python::numeric::array r,
     //     boost::python::numeric::array q);
-
-    //! Get a reference to the last computed relative orientation array
-    boost::shared_array<quat<float> > getQij()
-        {
-        return m_qijArray;
-        }
 
     //! Get a reference to the last computed spherical harmonic array
     boost::shared_array<std::complex<float> > getSph()
@@ -89,15 +83,6 @@ public:
         return fsph::sphCount(m_lmax) +
             (m_lmax > 0 && m_negative_m ? fsph::sphCount(m_lmax - 1): 0);
         }
-
-    // //! Python wrapper for getQij() (returns a copy)
-    // boost::python::numeric::array getQijPy()
-    //     {
-    //     const intp cshape[] = {m_Np, m_nNeigh, 4};
-    //     const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
-    //     float *arr = (float*) m_qijArray.get();
-    //     return num_util::makeNum(arr, shape);
-    //     }
 
     // //! Python wrapper for getSph() (returns a copy)
     // boost::python::numeric::array getSphPy()
@@ -119,8 +104,6 @@ private:
     locality::NearestNeighbors m_nn;  //!< NearestNeighbors to find neighbors with
     unsigned int m_Np;                //!< Last number of points computed
 
-    //! Quaternion to rotate into each neighbor's orientation
-    boost::shared_array<quat<float> > m_qijArray;
     //! Spherical harmonics for each neighbor
     boost::shared_array<std::complex<float> > m_sphArray;
     };

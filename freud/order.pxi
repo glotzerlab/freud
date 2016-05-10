@@ -571,43 +571,24 @@ cdef class LocalDescriptors:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points, orientations):
+    def compute(self, points):
         """
         Calculates the local descriptors.
 
         :param points: points to calculate the order parameter
         :param orientations: orientations to calculate the order parameter
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
         """
-        if points.dtype != np.float32 or orientations.dtype != np.float32:
+        if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2 or orientations.ndim !=2:
+        if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if orientations.shape[1] != 4:
-            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.compute(<vec3[float]*>&l_points[0], <quat[float]*>&l_orientations[0], nP)
-
-    def getQij(self):
-        """
-        Get a reference to the last computed relative orientation array
-
-        :return: Qij
-        :rtype: np.float32
-
-        """
-        cdef quat[float] *qij = self.thisptr.getQij().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        nbins[1] = 4
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>qij)
-        return result
+            self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
 
     def getSph(self):
         """

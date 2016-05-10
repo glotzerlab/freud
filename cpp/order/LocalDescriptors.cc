@@ -35,25 +35,23 @@ private:
     const unsigned int m_sphwidth;
     const bool m_negative_m;
     const vec3<float> *m_r;
-    const quat<float> *m_q;
     const unsigned int *m_neighborList;
     const float *m_rsqArray;
-    quat<float> *m_qijArray;
     complex<float> *m_sphArray;
 public:
-    ComputeLocalDescriptors(quat<float> *qijArray,
+    ComputeLocalDescriptors(
         complex<float> *sphArray,
         const trajectory::Box& box,
         const unsigned int nNeigh,
         const unsigned int lmax,
         const unsigned int sphwidth,
         const bool negative_m,
-        const vec3<float> *r, const quat<float> *q,
+        const vec3<float> *r,
         const unsigned int *neighborList, const float *rsqArray):
         m_box(box), m_nNeigh(nNeigh), m_lmax(lmax), m_sphwidth(sphwidth),
         m_negative_m(negative_m),
-        m_r(r), m_q(q), m_neighborList(neighborList), m_rsqArray(rsqArray),
-        m_qijArray(qijArray), m_sphArray(sphArray)
+        m_r(r), m_neighborList(neighborList), m_rsqArray(rsqArray),
+        m_sphArray(sphArray)
         {
         }
 
@@ -149,21 +147,20 @@ public:
         }
     };
 
-void LocalDescriptors::compute(const vec3<float> *r, const quat<float> *q, unsigned int Np)
+void LocalDescriptors::compute(const vec3<float> *r, unsigned int Np)
     {
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
         {
-        m_qijArray = boost::shared_array<quat<float> >(new quat<float>[m_nNeigh*Np]);
         m_sphArray = boost::shared_array<complex<float> >(new complex<float>[m_nNeigh*Np*getSphWidth()]);
         }
 
     m_nn.compute(m_box, r, Np, r, Np);
 
     parallel_for(blocked_range<size_t>(0,Np),
-        ComputeLocalDescriptors(m_qijArray.get(),
+        ComputeLocalDescriptors(
             m_sphArray.get(), m_box, m_nNeigh,
-            m_lmax, getSphWidth(), m_negative_m, r, q,
+            m_lmax, getSphWidth(), m_negative_m, r,
             m_nn.getNeighborList().get(), m_nn.getRsqList().get()));
 
     // save the last computed number of particles
@@ -206,7 +203,6 @@ void LocalDescriptors::compute(const vec3<float> *r, const quat<float> *q, unsig
 //         .def("getLMax", &LocalDescriptors::getLMax)
 //         .def("compute", &LocalDescriptors::computePy)
 //         .def("getMagR", &LocalDescriptors::getMagRPy)
-//         .def("getQij", &LocalDescriptors::getQijPy)
 //         .def("getSph", &LocalDescriptors::getSphPy)
 //         ;
 //     }

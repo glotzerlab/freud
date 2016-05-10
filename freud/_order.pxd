@@ -86,9 +86,7 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         float getRMax() const
         unsigned int getNP()
         void compute(const vec3[float]*,
-                     const quat[float]*,
                      unsigned int) nogil
-        shared_array[quat[float]] getQij()
         shared_array[float complex] getSph()
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
