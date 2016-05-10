@@ -88,7 +88,6 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         void compute(const vec3[float]*,
                      const quat[float]*,
                      unsigned int) nogil
-        shared_array[float] getMagR()
         shared_array[quat[float]] getQij()
         shared_array[float complex] getSph()
 

@@ -594,19 +594,6 @@ cdef class LocalDescriptors:
         with nogil:
             self.thisptr.compute(<vec3[float]*>&l_points[0], <quat[float]*>&l_orientations[0], nP)
 
-    def getMagR(self):
-        """
-        Get a reference to the last computed radius magnitude array
-
-        :return: MagR
-        :rtype: np.float32
-        """
-        cdef float *magr = self.thisptr.getMagR().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>magr)
-        return result
-
     def getQij(self):
         """
         Get a reference to the last computed relative orientation array

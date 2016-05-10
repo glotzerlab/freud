@@ -1,6 +1,6 @@
 #include <boost/shared_array.hpp>
 
-#include "LinkCell.h"
+#include "NearestNeighbors.h"
 // hack to keep VectorMath's swap from polluting the global namespace
 #include "VectorMath.h"
 #include "trajectory.h"
@@ -52,10 +52,10 @@ public:
         return m_lmax;
         }
 
-    //! Get the current cutoff radius used
-    float getRMax() const
+    //! Get the maximum neighbor distance
+    unsigned int getRMax() const
         {
-        return m_rmax;
+        return m_nn.getRMax();
         }
 
     //! Get the number of particles
@@ -71,12 +71,6 @@ public:
     // //! Python wrapper for compute
     // void computePy(boost::python::numeric::array r,
     //     boost::python::numeric::array q);
-
-    //! Get a reference to the last computed radius magnitude array
-    boost::shared_array<float> getMagR()
-        {
-        return m_magrArray;
-        }
 
     //! Get a reference to the last computed relative orientation array
     boost::shared_array<quat<float> > getQij()
@@ -95,15 +89,6 @@ public:
         return fsph::sphCount(m_lmax) +
             (m_lmax > 0 && m_negative_m ? fsph::sphCount(m_lmax - 1): 0);
         }
-
-    // //! Python wrapper for getMagR() (returns a copy)
-    // boost::python::numeric::array getMagRPy()
-    //     {
-    //     const intp cshape[] = {m_Np, m_nNeigh};
-    //     const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
-    //     float *arr = m_magrArray.get();
-    //     return num_util::makeNum(arr, shape);
-    //     }
 
     // //! Python wrapper for getQij() (returns a copy)
     // boost::python::numeric::array getQijPy()
@@ -130,14 +115,10 @@ private:
     trajectory::Box m_box;            //!< Simulation box the particles belong in
     unsigned int m_nNeigh;            //!< Number of neighbors to calculate
     unsigned int m_lmax;              //!< Maximum spherical harmonic l to calculate
-    float m_rmax;                     //!< Maximum r at which to determine neighbors
     bool m_negative_m;                //!< true if we should compute Ylm for negative m
-    locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
+    locality::NearestNeighbors m_nn;  //!< NearestNeighbors to find neighbors with
     unsigned int m_Np;                //!< Last number of points computed
-    tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
 
-    //! Magnitude of the radius vector for each neighbor
-    boost::shared_array<float> m_magrArray;
     //! Quaternion to rotate into each neighbor's orientation
     boost::shared_array<quat<float> > m_qijArray;
     //! Spherical harmonics for each neighbor
