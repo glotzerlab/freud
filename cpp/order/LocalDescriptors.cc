@@ -81,6 +81,7 @@ public:
 
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {
+            if(m_deficits > 0) break;
             neighbors.clear();
 
             //get cell point is in
