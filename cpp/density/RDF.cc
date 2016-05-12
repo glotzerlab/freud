@@ -156,7 +156,7 @@ class CombineArrays
                     {
                     m_bin_counts[i] += (*local_bins)[i];
                     }
-                m_avg_counts[i] = m_bin_counts[i] / m_Nref;
+                m_avg_counts[i] = (float)m_bin_counts[i] / m_Nref;
                 m_rdf_array[i] = m_avg_counts[i] / m_vol_array[i] / m_ndens;
                 }
             }
