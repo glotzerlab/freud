@@ -270,7 +270,7 @@ class RegisterBruteForce  // : public Register
                         KabschAlgorithm(q, p, r);
 
                         // std::cout<<"rot: "<<r.row(0)<<" "<<r.row(1)<<" "<<r.row(2)<<std::endl;
-                        matrix rot_q = Rotate(r, q.transpose()).transpose();
+                        // matrix rot_q = Rotate(r, q.transpose()).transpose();
                         // std::cout<<"rot q: "<<rot_q.row(0)<<" "<<rot_q.row(1)<<" "<<rot_q.row(2)<<std::endl;
 
                         boost::bimap<unsigned int, unsigned int> vec_map;

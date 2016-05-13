@@ -35,6 +35,8 @@ struct Environment
         env_ind = 0;
         num_vecs = 0;
         ghost = false;
+        proper_rot = rotmat3<float>(); // the default construction is the identity matrix
+        std::cout<<"init proper rot: "<<proper_rot.row0<<" "<<proper_rot.row1<<" "proper_rot.row2<<std::endl;
         }
     //! Add a vector to define the local environment
     void addVec(vec3<float> vec)
@@ -55,6 +57,7 @@ struct Environment
     unsigned int num_vecs;                  //!< The number of vectors defining the environment currently
     unsigned int num_neigh;                 //!< The maximum allowed number of vectors to define the environment
     std::vector<unsigned int> vec_ind;      //!< The order that the vectors must be in to define the environment
+    rotmat3<float> proper_rot;              //!< The rotation that defines the proper orientation of the environment
     };
 
 //! General disjoint set class, taken mostly from Cluster.h

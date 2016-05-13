@@ -364,6 +364,10 @@ boost::bimap<unsigned int, unsigned int> MatchEnv::isSimilar(Environment& e1, En
         bool good_fit = r.Fit(v2);
         }
 
+    // THIS DOUBLE THING IS DUMB. instead, do something IN registration. grab the vec_map from the r.Fit,
+    // and use it to test if things are below the threshold? this should be a little smarter than what you're doing.
+    // put it inside the above if statement and then put the below in an else() statement.
+
     // compare all combinations of vectors
     for (unsigned int i = 0; i < m_k; i++)
         {
