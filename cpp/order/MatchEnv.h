@@ -36,7 +36,7 @@ struct Environment
         num_vecs = 0;
         ghost = false;
         proper_rot = rotmat3<float>(); // the default construction is the identity matrix
-        std::cout<<"init proper rot: "<<proper_rot.row0<<" "<<proper_rot.row1<<" "proper_rot.row2<<std::endl;
+        std::cout<<"init proper rot: "<<proper_rot.row0.x<<proper_rot.row0.y<<proper_rot.row0.z<<" "<<proper_rot.row1.x<<proper_rot.row1.y<<proper_rot.row1.z<<" "<<proper_rot.row2.x<<proper_rot.row2.y<<proper_rot.row2.z<<std::endl;
         }
     //! Add a vector to define the local environment
     void addVec(vec3<float> vec)
@@ -67,7 +67,7 @@ class EnvDisjointSet
         //! Constructor
         EnvDisjointSet(unsigned int num_neigh, unsigned int Np);
         //! Merge two sets
-        void merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map);
+        void merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation);
         //! Find the set with a given element
         unsigned int find(const unsigned int c);
         //! Return ALL nodes in the tree that correspond to the head index m
@@ -120,29 +120,26 @@ class MatchEnv
         void populateEnv(EnvDisjointSet dj, bool reLabel=true);
 
         //! Is the environment e1 similar to the environment e2?
-        //! If so, return the mapping between the vectors of the environments that will make them correspond to each other.
-        //! If not, return an empty map
+        //! If so, return a std::pair of the rotation matrix that takes the vectors of e2 to the vectors of e1 AND the mapping between the vectors of the environments that will make them correspond to each other.
+        //! If not, return a std::pair of the identity matrix AND an empty map.
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-        boost::bimap<unsigned int, unsigned int> isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration);
+        std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration);
 
         //! Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
         //! Construct the environments accordingly, and utilize isSimilar() as above.
         //! Return a std map for ease of use.
-        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets.
+        //! If registration=True, then refPoints2 is CHANGED by this function.
         std::map<unsigned int, unsigned int> isSimilar(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration);
 
-        //! Get the somewhat-optimal RMSD between the set of vectors v1 and the set of vectors v2
-        //! Populate the empty boost::bimap with the mapping between vectors v1 and v2 that gives this RMSD
-        //! NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
-        //! of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
-        //! To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
-        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-        double getMinRMSD(std::vector<vec3<float> >& v1, std::vector<vec3<float> >& v2, boost::bimap<unsigned int, unsigned int>& m, bool registration);
-
-        //! Overload: get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2
-        //! Arguments are pointers to interface directly with python
-        //! Return a pair that gives the associated min_rmsd and the mapping between the vectors of refPoints1 and refPoints2 that minimizes the RMSD.
-        //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
+        // Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
+        // Arguments are pointers to interface directly with python.
+        // Return a std::map (for ease of use) with the mapping between vectors refPoints1 and refPoints2 that gives this RMSD.
+        // Populate the associated minimum RMSD.
+        // The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets.
+        // NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
+        // of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
+        // To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
         std::map<unsigned int, unsigned int> minimizeRMSD(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration);
 
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
