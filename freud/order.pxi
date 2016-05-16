@@ -549,8 +549,7 @@ cdef class HexOrderParameter:
 cdef class LocalDescriptors:
     """Compute a set of descriptors (a numerical "fingerprint") of a particle's local environment.
 
-    :param box: This Frame's box
-    :param nNeigh: Number of neighbors to compute descriptors for
+    :param nNeigh: Maximum number of neighbors to compute descriptors for
     :param lmax: Maximum spherical harmonic l to consider
     :param rmax: Initial guess of the maximum radius to looks for neighbors
     :param negative_m: True if we should also calculate Ylm for negative m
@@ -559,26 +558,25 @@ cdef class LocalDescriptors:
     :type l: unsigned int
     :type rmax: float
 
-    .. todo:: update constructor/compute to take box in compute
 
     """
     cdef order.LocalDescriptors *thisptr
 
-    def __cinit__(self, box, nNeigh, lmax, rmax, negative_m=True):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.LocalDescriptors(l_box, nNeigh, lmax, rmax, negative_m)
+    def __cinit__(self, nNeigh, lmax, rmax, negative_m=True):
+        self.thisptr = new order.LocalDescriptors(nNeigh, lmax, rmax, negative_m)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points):
+    def computeNList(self, box, points):
         """
         Calculates the local descriptors.
 
+        :param nNeigh: Number of neighbors to compute with
         :param points: points to calculate the order parameter
-        :param orientations: orientations to calculate the order parameter
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -588,7 +586,27 @@ cdef class LocalDescriptors:
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+            self.thisptr.computeNList(l_box, <vec3[float]*>&l_points[0], nP)
+
+    def compute(self, box, unsigned int nNeigh, points):
+        """
+        Calculates the local descriptors.
+
+        :param nNeigh: Number of neighbors to compute with
+        :param points: points to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        with nogil:
+            self.thisptr.compute(l_box, nNeigh, <vec3[float]*>&l_points[0], nP)
 
     def getSph(self):
         """
@@ -604,15 +622,6 @@ cdef class LocalDescriptors:
         nbins[2] = <np.npy_intp>self.thisptr.getSphWidth()
         cdef np.ndarray[np.complex64_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_COMPLEX64, <void*>sph)
         return result
-
-    def getBox(self):
-        """
-        Get the box used in the calculation
-
-        :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
-        """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
 
     def getNP(self):
         """

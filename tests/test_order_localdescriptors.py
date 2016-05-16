@@ -14,13 +14,27 @@ class TestLocalDescriptors(unittest.TestCase):
         box = freud.trajectory.Box(10)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
-        comp = LocalDescriptors(box, Nneigh, lmax, .5, True)
-        comp.compute(positions)
+        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp.computeNList(box, positions)
+        comp.compute(box, Nneigh, positions)
 
         sphs = comp.getSph()
 
         assert sphs.shape[0] == N
         assert sphs.shape[1] == Nneigh
+
+    def test_no_nlist(self):
+        N = 1000
+        Nneigh = 4
+        lmax = 8
+
+        box = freud.trajectory.Box(10)
+        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
+
+        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+
+        with self.assertRaises(RuntimeError):
+            comp.compute(box, Nneigh, positions)
 
 if __name__ == '__main__':
     unittest.main()

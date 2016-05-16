@@ -19,10 +19,10 @@ using hoomd::matrix::diagonalize;
 
 namespace freud { namespace order {
 
-LocalDescriptors::LocalDescriptors(const trajectory::Box& box,
-        unsigned int nNeigh, unsigned int lmax, float rmax, bool negative_m):
-    m_box(box), m_nNeigh(nNeigh), m_lmax(lmax),
-    m_negative_m(negative_m), m_nn(rmax, nNeigh), m_Np(0)
+LocalDescriptors::LocalDescriptors(
+        unsigned int neighmax, unsigned int lmax, float rmax, bool negative_m):
+    m_neighmax(neighmax), m_lmax(lmax),
+    m_negative_m(negative_m), m_nn(rmax, neighmax), m_Np(0), m_nNeigh(0)
     {
     }
 
@@ -31,6 +31,7 @@ class ComputeLocalDescriptors
 private:
     const trajectory::Box& m_box;
     const unsigned int m_nNeigh;
+    const unsigned int m_neighmax;
     const unsigned int m_lmax;
     const unsigned int m_sphwidth;
     const bool m_negative_m;
@@ -43,12 +44,13 @@ public:
         complex<float> *sphArray,
         const trajectory::Box& box,
         const unsigned int nNeigh,
+        const unsigned int neighmax,
         const unsigned int lmax,
         const unsigned int sphwidth,
         const bool negative_m,
         const vec3<float> *r,
         const unsigned int *neighborList, const float *rsqArray):
-        m_box(box), m_nNeigh(nNeigh), m_lmax(lmax), m_sphwidth(sphwidth),
+        m_box(box), m_nNeigh(nNeigh), m_neighmax(neighmax), m_lmax(lmax), m_sphwidth(sphwidth),
         m_negative_m(negative_m),
         m_r(r), m_neighborList(neighborList), m_rsqArray(rsqArray),
         m_sphArray(sphArray)
@@ -58,7 +60,7 @@ public:
     void operator()( const blocked_range<size_t>& r ) const
         {
         fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
-        Index2D idx_nlist(m_nNeigh, 0);
+        Index2D idx_nlist(m_neighmax, 0);
 
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {
@@ -147,19 +149,26 @@ public:
         }
     };
 
-void LocalDescriptors::compute(const vec3<float> *r, unsigned int Np)
+void LocalDescriptors::computeNList(const trajectory::Box& box, const vec3<float> *r, unsigned int Np)
     {
-    // reallocate the output array if it is not the right size
-    if (Np != m_Np)
-        {
-        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[m_nNeigh*Np*getSphWidth()]);
-        }
+    m_nn.compute(box, r, Np, r, Np);
+    }
 
-    m_nn.compute(m_box, r, Np, r, Np);
+void LocalDescriptors::compute(const trajectory::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np)
+    {
+    if(m_nn.getNp() != Np)
+        throw runtime_error("Must call computeNList() before compute");
+
+    // reallocate the output array if it is not the right size
+    if (Np != m_Np || nNeigh != m_nNeigh)
+        {
+        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()]);
+        m_nNeigh = nNeigh;
+        }
 
     parallel_for(blocked_range<size_t>(0,Np),
         ComputeLocalDescriptors(
-            m_sphArray.get(), m_box, m_nNeigh,
+            m_sphArray.get(), box, nNeigh, m_neighmax,
             m_lmax, getSphWidth(), m_negative_m, r,
             m_nn.getNeighborList().get(), m_nn.getRsqList().get()));
 
