@@ -156,7 +156,7 @@ public:
         }
     };
 
-void NearestNeighbors::compute(trajectory::Box& box,
+void NearestNeighbors::compute(const trajectory::Box& box,
                                const vec3<float> *ref_pos,
                                unsigned int Nref,
                                const vec3<float> *pos,

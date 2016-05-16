@@ -244,7 +244,7 @@ class NearestNeighbors
         //     }
 
         //! find the requested nearest neighbors
-        void compute(trajectory::Box& box, const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np);
+        void compute(const trajectory::Box& box, const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np);
 
         // //! Python wrapper for compute
         // void computePy(trajectory::Box& box, boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
