@@ -2,6 +2,7 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
+from libcpp.memory cimport shared_ptr
 cimport freud._trajectory as trajectory
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
@@ -40,11 +41,13 @@ cdef extern from "PMFXY2D.h" namespace "freud::pmft":
                         float*,
                         unsigned int) nogil
         void reducePCF()
-        shared_array[unsigned int] getPCF()
-        shared_array[float] getX()
-        shared_array[float] getY()
+        shared_ptr[unsigned int] getBinCounts()
+        shared_ptr[float] getPCF()
+        shared_ptr[float] getX()
+        shared_ptr[float] getY()
         unsigned int getNBinsX()
         unsigned int getNBinsY()
+        float getRCut()
 
 cdef extern from "PMFXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFXYZ:

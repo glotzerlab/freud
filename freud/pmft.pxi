@@ -329,11 +329,25 @@ cdef class PMFXY2D:
         :return: PCF
         :rtype: np.ndarray(shape=(Ny, Nx), dtype=np.float32)
         """
-        cdef unsigned int* pcf = self.thisptr.getPCF().get()
+        cdef float* pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
         nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>pcf)
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>pcf)
+        return result
+
+    def getBinCounts(self):
+        """
+        Get the raw bin counts (non-normalized).
+
+        :return: Bin Counts
+        :rtype: np.ndarray(shape=(Ny, Nx), dtype=np.uint32)
+        """
+        cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
     def getX(self):
@@ -382,6 +396,16 @@ cdef class PMFXY2D:
         """
         cdef unsigned int y = self.thisptr.getNBinsY()
         return y
+
+    def getRCut(self):
+        """
+        Get the r_cut value used in the cell list
+
+        :return: r_cut
+        :rtype: float
+        """
+        cdef float r_cut = self.thisptr.getRCut()
+        return r_cut
 
 cdef class PMFXYZ:
     """

@@ -24,7 +24,8 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFXY2D::PMFXY2D(float max_x, float max_y, unsigned int nbins_x, unsigned int nbins_y)
-    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_nbins_x(nbins_x), m_nbins_y(nbins_y)
+    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_nbins_x(nbins_x), m_nbins_y(nbins_y),
+      m_frame_counter(0), m_n_ref(0), m_n_p(0), m_reduce(false)
     {
     if (nbins_x < 1)
         throw invalid_argument("must be at least 1 bin in x");
@@ -43,122 +44,140 @@ PMFXY2D::PMFXY2D(float max_x, float max_y, unsigned int nbins_x, unsigned int nb
     if (m_dy > max_y)
         throw invalid_argument("max_y must be greater than dy");
 
+    m_jacobian = m_dx * m_dy;
+
     // precompute the bin center positions for x
-    m_x_array = boost::shared_array<float>(new float[m_nbins_x]);
+    m_x_array = std::shared_ptr<float>(new float[m_nbins_x], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins_x; i++)
         {
         float x = float(i) * m_dx;
         float nextx = float(i+1) * m_dx;
-        m_x_array[i] = -m_max_x + ((x + nextx) / 2.0);
+        m_x_array.get()[i] = -m_max_x + ((x + nextx) / 2.0);
         }
 
     // precompute the bin center positions for y
-    m_y_array = boost::shared_array<float>(new float[m_nbins_y]);
+    m_y_array = std::shared_ptr<float>(new float[m_nbins_y], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins_y; i++)
         {
         float y = float(i) * m_dy;
         float nexty = float(i+1) * m_dy;
-        m_y_array[i] = -m_max_y + ((y + nexty) / 2.0);
+        m_y_array.get()[i] = -m_max_y + ((y + nexty) / 2.0);
         }
 
     // create and populate the pcf_array
-    m_pcf_array = boost::shared_array<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y]);
-    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+    m_pcf_array = std::shared_ptr<float>(new float[m_nbins_x * m_nbins_y], std::default_delete<float[]>());
+    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_nbins_x*m_nbins_y);
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins_x * m_nbins_y], std::default_delete<unsigned int[]>());
+    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+
+
+    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
 
     m_lc = new locality::LinkCell(m_box, sqrtf(m_max_x*m_max_x + m_max_y*m_max_y));
     }
 
 PMFXY2D::~PMFXY2D()
     {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
         delete[] (*i);
         }
     delete m_lc;
     }
 
-class CombinePCFXY2D
+//! \internal
+//! helper function to reduce the thread specific arrays into the boost array
+void PMFXY2D::reducePCF()
     {
-    private:
-        unsigned int m_nbins_x;
-        unsigned int m_nbins_y;
-        unsigned int *m_pcf_array;
-        tbb::enumerable_thread_specific<unsigned int *>& m_local_pcf_array;
-    public:
-        CombinePCFXY2D(unsigned int nbins_x,
-                       unsigned int nbins_y,
-                       unsigned int *pcf_array,
-                       tbb::enumerable_thread_specific<unsigned int *>& local_pcf_array)
-            : m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_pcf_array(pcf_array), m_local_pcf_array(local_pcf_array)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myBin ) const
+    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_nbins_x*m_nbins_y);
+    parallel_for(blocked_range<size_t>(0,m_nbins_x),
+        [=] (const blocked_range<size_t>& r)
             {
             Index2D b_i = Index2D(m_nbins_x, m_nbins_y);
-            for (size_t i = myBin.begin(); i != myBin.end(); i++)
+            for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 for (size_t j = 0; j < m_nbins_y; j++)
                     {
-                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_pcf_array.begin();
-                         local_bins != m_local_pcf_array.end(); ++local_bins)
+                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+                         local_bins != m_local_bin_counts.end(); ++local_bins)
                         {
-                        m_pcf_array[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
+                        m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
                         }
                     }
                 }
-            }
-    };
+            });
+    float inv_num_dens = m_box.getVolume() / (float)m_n_p;
+    float inv_jacobian = (float) 1.0 / m_jacobian;
+    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
+    // normalize pcf_array
+    parallel_for(blocked_range<size_t>(0,m_nbins_x*m_nbins_y),
+        [=] (const blocked_range<size_t>& r)
+            {
+            for (size_t i = r.begin(); i != r.end(); i++)
+                {
+                m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
+                }
+            });
+    }
+
+//! Get a reference to the PCF array
+std::shared_ptr<float> PMFXY2D::getPCF()
+    {
+    if (m_reduce == true)
+        {
+        reducePCF();
+        }
+    m_reduce = false;
+    return m_pcf_array;
+    }
+
+//! Get a reference to the bin counts array
+std::shared_ptr<unsigned int> PMFXY2D::getBinCounts()
+    {
+    if (m_reduce == true)
+        {
+        reducePCF();
+        }
+    m_reduce = false;
+    return m_bin_counts;
+    }
 
 //! \internal
-/*! \brief Helper class to compute PMF in parallel with the cell list
+/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
 
-class ComputePMFXY2D
+void PMFXY2D::resetPCF()
     {
-    private:
-        tbb::enumerable_thread_specific<unsigned int *>& m_pcf_array;
-        unsigned int m_nbins_x;
-        unsigned int m_nbins_y;
-        const trajectory::Box m_box;
-        const float m_max_x;
-        const float m_max_y;
-        const float m_dx;
-        const float m_dy;
-        const locality::LinkCell *m_lc;
-        vec3<float> *m_ref_points;
-        float *m_ref_orientations;
-        const unsigned int m_Nref;
-        vec3<float> *m_points;
-        float *m_orientations;
-        const unsigned int m_Np;
-    public:
-        ComputePMFXY2D(tbb::enumerable_thread_specific<unsigned int *>& pcf_array,
-                       unsigned int nbins_x,
-                       unsigned int nbins_y,
-                       const trajectory::Box &box,
-                       const float max_x,
-                       const float max_y,
-                       const float dx,
-                       const float dy,
-                       const locality::LinkCell *lc,
-                       vec3<float> *ref_points,
-                       float *ref_orientations,
-                       unsigned int Nref,
-                       vec3<float> *points,
-                       float *orientations,
-                       unsigned int Np)
-            : m_pcf_array(pcf_array), m_nbins_x(nbins_x), m_nbins_y(nbins_y), m_box(box),
-              m_max_x(max_x), m_max_y(max_y), m_dx(dx), m_dy(dy), m_lc(lc), m_ref_points(ref_points),
-              m_ref_orientations(ref_orientations), m_Nref(Nref), m_points(points), m_orientations(orientations),
-              m_Np(Np)
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
         }
-        void operator()( const blocked_range<size_t> &myR ) const
+    m_frame_counter = 0;
+    m_reduce = true;
+    }
+
+//! \internal
+/*! \brief Helper functionto direct the calculation to the correct helper class
+*/
+
+void PMFXY2D::accumulate(trajectory::Box& box,
+                         vec3<float> *ref_points,
+                         float *ref_orientations,
+                         unsigned int n_ref,
+                         vec3<float> *points,
+                         float *orientations,
+                         unsigned int n_p)
+    {
+    m_box = box;
+    m_lc->computeCellList(m_box, points, n_p);
+    parallel_for(blocked_range<size_t>(0,n_ref),
+        [=] (const blocked_range<size_t>& r)
             {
-            assert(m_ref_points);
-            assert(m_points);
-            assert(m_Nref > 0);
-            assert(m_Np > 0);
+            assert(ref_points);
+            assert(points);
+            assert(n_ref > 0);
+            assert(n_p > 0);
 
             // precalc some values for faster computation within the loop
             float dx_inv = 1.0f / m_dx;
@@ -169,17 +188,17 @@ class ComputePMFXY2D
             Index2D b_i = Index2D(m_nbins_x, m_nbins_y);
 
             bool exists;
-            m_pcf_array.local(exists);
+            m_local_bin_counts.local(exists);
             if (! exists)
                 {
-                m_pcf_array.local() = new unsigned int [m_nbins_x*m_nbins_y];
-                memset((void*)m_pcf_array.local(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
+                m_local_bin_counts.local() = new unsigned int [m_nbins_x*m_nbins_y];
+                memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
                 }
 
             // for each reference point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
+            for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                vec3<float> ref = m_ref_points[i];
+                vec3<float> ref = ref_points[i];
                 // get the cell the point is in
                 unsigned int ref_cell = m_lc->getCell(ref);
 
@@ -193,7 +212,7 @@ class ComputePMFXY2D
                     locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
-                        vec3<float> delta = m_box.wrap(m_points[j] - ref);
+                        vec3<float> delta = m_box.wrap(points[j] - ref);
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
@@ -205,7 +224,7 @@ class ComputePMFXY2D
 
                         // rotate interparticle vector
                         vec2<float> myVec(delta.x, delta.y);
-                        rotmat2<float> myMat = rotmat2<float>::fromAngle(-m_ref_orientations[i]);
+                        rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
                         vec2<float> rotVec = myMat * myVec;
                         float x = rotVec.x + m_max_x;
                         float y = rotVec.y + m_max_y;
@@ -225,76 +244,17 @@ class ComputePMFXY2D
                         // increment the bin
                         if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
                             {
-                            ++m_pcf_array.local()[b_i(ibinx, ibiny)];
+                            ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
                             }
                         }
                     }
                 } // done looping over reference points
-            }
-    };
-
-//! \internal
-//! helper function to reduce the thread specific arrays into the boost array
-void PMFXY2D::reducePCF()
-    {
-    memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
-    parallel_for(blocked_range<size_t>(0,m_nbins_x),
-                 CombinePCFXY2D(m_nbins_x,
-                                m_nbins_y,
-                                m_pcf_array.get(),
-                                m_local_pcf_array));
-    }
-
-//! Get a reference to the PCF array
-boost::shared_array<unsigned int> PMFXY2D::getPCF()
-    {
-    reducePCF();
-    return m_pcf_array;
-    }
-
-//! \internal
-/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
-*/
-
-void PMFXY2D::resetPCF()
-    {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_pcf_array.begin(); i != m_local_pcf_array.end(); ++i)
-        {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
-        }
-    // memset((void*)m_pcf_array.get(), 0, sizeof(unsigned int)*m_nbins_x*m_nbins_y);
-    }
-
-//! \internal
-/*! \brief Helper functionto direct the calculation to the correct helper class
-*/
-
-void PMFXY2D::accumulate(trajectory::Box& box,
-                         vec3<float> *ref_points,
-                         float *ref_orientations,
-                         unsigned int Nref,
-                         vec3<float> *points,
-                         float *orientations,
-                         unsigned int Np)
-    {
-    m_box = box;
-    m_lc->computeCellList(m_box, points, Np);
-    parallel_for(blocked_range<size_t>(0,Nref),
-                 ComputePMFXY2D(m_local_pcf_array,
-                                m_nbins_x,
-                                m_nbins_y,
-                                m_box,
-                                m_max_x,
-                                m_max_y,
-                                m_dx,
-                                m_dy,
-                                m_lc,
-                                ref_points,
-                                ref_orientations,
-                                Nref,
-                                points,
-                                orientations,
-                                Np));
+            });
+    m_frame_counter++;
+    m_n_ref = n_ref;
+    m_n_p = n_p;
+    // flag to reduce
+    m_reduce = true;
     }
 
 }; }; // end namespace freud::pmft

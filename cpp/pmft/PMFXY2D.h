@@ -6,6 +6,7 @@
 #include <Python.h>
 #define __APPLE__
 
+#include <memory>
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
@@ -67,28 +68,36 @@ class PMFXY2D
         void accumulate(trajectory::Box& box,
                         vec3<float> *ref_points,
                         float *ref_orientations,
-                        unsigned int Nref,
+                        unsigned int n_ref,
                         vec3<float> *points,
                         float *orientations,
-                        unsigned int Np);
+                        unsigned int n_p);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
         void reducePCF();
 
         //! Get a reference to the PCF array
-        boost::shared_array<unsigned int> getPCF();
+        std::shared_ptr<float> getPCF();
+
+        //! Get a reference to the bin counts array
+        std::shared_ptr<unsigned int> getBinCounts();
 
         //! Get a reference to the x array
-        boost::shared_array<float> getX()
+        std::shared_ptr<float> getX()
             {
             return m_x_array;
             }
 
         //! Get a reference to the y array
-        boost::shared_array<float> getY()
+        std::shared_ptr<float> getY()
             {
             return m_y_array;
+            }
+
+        float getRCut()
+            {
+            return m_r_cut;
             }
 
         // //! Python wrapper for getPCF() (returns a copy)
@@ -113,11 +122,18 @@ class PMFXY2D
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins_x;             //!< Number of x bins to compute pcf over
         unsigned int m_nbins_y;             //!< Number of y bins to compute pcf over
+        float m_r_cut;                      //!< r_cut used in cell list construction
+        unsigned int m_frame_counter;       //!< number of frames calc'd
+        unsigned int m_n_ref;
+        unsigned int m_n_p;
+        float m_jacobian;
+        bool m_reduce;
 
-        boost::shared_array<unsigned int> m_pcf_array;         //!< array of pcf computed
-        boost::shared_array<float> m_x_array;           //!< array of x values that the pcf is computed at
-        boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
-        tbb::enumerable_thread_specific<unsigned int *> m_local_pcf_array;
+        std::shared_ptr<float> m_pcf_array;         //!< array of pcf computed
+        std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed
+        std::shared_ptr<float> m_x_array;           //!< array of x values that the pcf is computed at
+        std::shared_ptr<float> m_y_array;           //!< array of y values that the pcf is computed at
+        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
 }; }; // end namespace freud::pmft

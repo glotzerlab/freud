@@ -80,7 +80,7 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         binY = numpy.floor(y / dy)
         correct[binY,binX] = 1
         absoluteTolerance = 0.1
-        pcfArray = myPMFT.getPCF()
+        pcfArray = myPMFT.getBinCounts()
         npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
 
     def test_twoParticlesWithoutCellList(self):
@@ -114,7 +114,7 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         binY = numpy.floor(y / dy)
         correct[binY,binX] = 1
         absoluteTolerance = 0.1
-        pcfArray = myPMFT.getPCF()
+        pcfArray = myPMFT.getBinCounts()
         npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
 
 class TestPMFXY2DCompute(unittest.TestCase):
@@ -149,7 +149,7 @@ class TestPMFXY2DCompute(unittest.TestCase):
         binY = numpy.floor(y / dy)
         correct[binY,binX] = 1
         absoluteTolerance = 0.1
-        pcfArray = myPMFT.getPCF()
+        pcfArray = myPMFT.getBinCounts()
         npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
 
     def test_twoParticlesWithoutCellList(self):
@@ -183,7 +183,7 @@ class TestPMFXY2DCompute(unittest.TestCase):
         binY = numpy.floor(y / dy)
         correct[binY,binX] = 1
         absoluteTolerance = 0.1
-        pcfArray = myPMFT.getPCF()
+        pcfArray = myPMFT.getBinCounts()
         npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
 
 if __name__ == '__main__':
