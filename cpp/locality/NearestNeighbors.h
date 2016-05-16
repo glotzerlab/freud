@@ -144,6 +144,12 @@ class NearestNeighbors
             return m_nNeigh;
             }
 
+        //! Get the number of particles we've computed for
+        unsigned int getNp() const
+            {
+            return m_Np;
+            }
+
         //! Get the current cutoff radius used
         float getRMax() const
             {
