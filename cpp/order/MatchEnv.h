@@ -36,7 +36,6 @@ struct Environment
         num_vecs = 0;
         ghost = false;
         proper_rot = rotmat3<float>(); // the default construction is the identity matrix
-        std::cout<<"init proper rot: "<<proper_rot.row0.x<<proper_rot.row0.y<<proper_rot.row0.z<<" "<<proper_rot.row1.x<<proper_rot.row1.y<<proper_rot.row1.z<<" "<<proper_rot.row2.x<<proper_rot.row2.y<<proper_rot.row2.z<<std::endl;
         }
     //! Add a vector to define the local environment
     void addVec(vec3<float> vec)
