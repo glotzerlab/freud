@@ -96,16 +96,10 @@ set(FREUD_SOURCES
             pmft/PMFXYZ.h
             pmft/PMFXY2D.cc
             pmft/PMFXY2D.h
-            pmft/PMFTXYT2D.cc
-            pmft/PMFTXYT2D.h
-            pmft/PMFTXYTP2D.cc
-            pmft/PMFTXYTP2D.h
-            pmft/PMFTXYTM2D.cc
-            pmft/PMFTXYTM2D.h
-            pmft/PMFTRPM.cc
-            pmft/PMFTRPM.h
             pmft/PMFTR12.cc
             pmft/PMFTR12.h
+            pmft/PMFTXYT.cc
+            pmft/PMFTXYT.h
             shapesplit/shapesplit.cc
             shapesplit/shapesplit.h
             interface/InterfaceMeasure.h

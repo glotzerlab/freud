@@ -19,13 +19,39 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
                         float*,
                         unsigned int) nogil
         void reducePCF()
-        shared_array[unsigned int] getPCF()
-        shared_array[float] getR()
-        shared_array[float] getT1()
-        shared_array[float] getT2()
+        shared_ptr[unsigned int] getBinCounts()
+        shared_ptr[float] getPCF()
+        shared_ptr[float] getR()
+        shared_ptr[float] getT1()
+        shared_ptr[float] getT2()
         unsigned int getNBinsR()
         unsigned int getNBinsT1()
         unsigned int getNBinsT2()
+        float getRCut()
+
+cdef extern from "PMFTXYT.h" namespace "freud::pmft":
+    cdef cppclass PMFTXYT:
+        PMFTXYT(float, float, unsigned int, unsigned int, unsigned int)
+
+        const trajectory.Box& getBox() const
+        void resetPCF()
+        void accumulate(trajectory.Box&,
+                        vec3[float]*,
+                        float*,
+                        unsigned int,
+                        vec3[float]*,
+                        float*,
+                        unsigned int) nogil
+        void reducePCF()
+        shared_ptr[unsigned int] getBinCounts()
+        shared_ptr[float] getPCF()
+        shared_ptr[float] getX()
+        shared_ptr[float] getY()
+        shared_ptr[float] getT()
+        unsigned int getNBinsX()
+        unsigned int getNBinsY()
+        unsigned int getNBinsT()
+        float getRCut()
 
 cdef extern from "PMFXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFXY2D:
