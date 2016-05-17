@@ -13,8 +13,8 @@ EnvDisjointSet::EnvDisjointSet(unsigned int num_neigh, unsigned int Np)
 
 // Merge the two sets that elements a and b belong to.
 // Taken partially from Cluster.cc
-// The vec_map must be a bimap of vector indices where those of set a are on the left and those of set b are on the right.
-// The rotation must take the set of vectors b and rotate them to match the set of vectors a
+// The vec_map must be a bimap of PROPERLY ORDERED vector indices where those of set a are on the left and those of set b are on the right.
+// The rotation must take the set of PROPERLY ROTATED vectors b and rotate them to match the set of PROPERLY ROTATED vectors a
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation)
     {
     assert(a < s.size() && b < s.size());
@@ -24,32 +24,25 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
     if (rank[s[a].env_ind] == rank[s[b].env_ind])
         {
         // 0. Get the ENTIRE set that corresponds to head_b.
-        // First make a copy of the b environment so we don't get all mixed up.
-        std::vector<unsigned int> old_b_vec_ind = s[b].vec_ind;
         unsigned int head_b = find(b);
         std::vector<unsigned int> m_set = findSet(head_b);
         for (unsigned int n = 0; n < m_set.size(); n++)
             {
             // Go through the entire tree/set.
             unsigned int node = m_set[n];
-            // Make a copy of the old set of vector indices for this particular node. This is complicated and weird.
+            // Make a copy of the old set of vector indices for this particular node.
             std::vector<unsigned int> old_node_vec_ind = s[node].vec_ind;
 
             // Set the vector indices properly.
-            // Iterate over the vector indices of a.
-            // Take the LEFT MAP view of the a<->b bimap.
-            // Find the value of b_ind that corresponds to the value of a_ind, and set it properly.
-            for (unsigned int i=0; i<m_num_neigh; i++)
+            // Take the LEFT MAP view of the proper_a<->proper_b bimap.
+            // Iterate over the values of proper_a_ind IN ORDER, find the value of proper_b_ind that corresponds to each proper_a_ind, and set it properly.
+            for (unsigned int proper_a_ind=0; proper_a_ind<m_num_neigh; proper_a_ind++)
                 {
-                unsigned int a_ind = s[a].vec_ind[i];
-                boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
-                unsigned int b_ind = it->second;
+                boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(proper_a_ind);
+                unsigned int proper_b_ind = it->second;
 
-                // Here's the proper setting: find the location of b_ind in the current vec_ind vector, then bind the corresponding vec_ind to a_ind. (in the same location as a_ind.)
-                // For node=b, this is the same as s[b].vec_ind[i] = b_ind.
-                std::vector<unsigned int>::iterator b_it = std::find(old_b_vec_ind.begin(), old_b_vec_ind.end(), b_ind);
-                unsigned int b_ind_position = b_it - old_b_vec_ind.begin();
-                s[node].vec_ind[i] = old_node_vec_ind[b_ind_position];
+                // old_node_vec_ind[proper_b_ind] is "relative_b_ind"
+                s[node].vec_ind[proper_a_ind] = old_node_vec_ind[proper_b_ind];
                 }
 
             // set the environment index properly
@@ -68,8 +61,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
         if (rank[s[a].env_ind] > rank[s[b].env_ind])
             {
             // 0. Get the ENTIRE set that corresponds to head_b.
-            // First make a copy of the b environment so we don't get all mixed up.
-            std::vector<unsigned int> old_b_vec_ind = s[b].vec_ind;
             unsigned int head_b = find(b);
             std::vector<unsigned int> m_set = findSet(head_b);
             for (unsigned int n = 0; n < m_set.size(); n++)
@@ -80,20 +71,15 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 std::vector<unsigned int> old_node_vec_ind = s[node].vec_ind;
 
                 // Set the vector indices properly.
-                // Iterate over the vector indices of a.
-                // Take the LEFT MAP view of the a<->b bimap.
-                // Find the value of b_ind that corresponds to the value of a_ind, and set it properly.
-                for (unsigned int i=0; i<m_num_neigh; i++)
+                // Take the LEFT MAP view of the proper_a<->proper_b bimap.
+                // Iterate over the values of proper_a_ind IN ORDER, find the value of proper_b_ind that corresponds to each proper_a_ind, and set it properly.
+                for (unsigned int proper_a_ind=0; proper_a_ind<m_num_neigh; proper_a_ind++)
                     {
-                    unsigned int a_ind = s[a].vec_ind[i];
-                    boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(a_ind);
-                    unsigned int b_ind = it->second;
+                    boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(proper_a_ind);
+                    unsigned int proper_b_ind = it->second;
 
-                    // Here's the proper setting: find the location of b_ind in the current vec_ind vector, then bind the corresponding vec_ind to a_ind. (in the same location as a_ind.)
-                    // For node=b, this is the same as s[b].vec_ind[i] = b_ind.
-                    std::vector<unsigned int>::iterator b_it = std::find(old_b_vec_ind.begin(), old_b_vec_ind.end(), b_ind);
-                    unsigned int b_ind_position = b_it - old_b_vec_ind.begin();
-                    s[node].vec_ind[i] = old_node_vec_ind[b_ind_position];
+                    // old_node_vec_ind[proper_b_ind] is "relative_b_ind"
+                    s[node].vec_ind[proper_a_ind] = old_node_vec_ind[proper_b_ind];
                     }
 
                 // set the environment index properly
@@ -110,8 +96,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
             {
             rotmat3<float> rotationT = transpose(rotation);
             // 0. Get the ENTIRE set that corresponds to head_a.
-            // First make a copy of the a environment so we don't get all mixed up.
-            std::vector<unsigned int> old_a_vec_ind = s[a].vec_ind;
             unsigned int head_a = find(a);
             std::vector<unsigned int> m_set = findSet(head_a);
             for (unsigned int n = 0; n < m_set.size(); n++)
@@ -122,27 +106,22 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 std::vector<unsigned int> old_node_vec_ind = s[node].vec_ind;
 
                 // Set the vector indices properly.
-                // Iterate over the vector indices of b.
-                // Take the RIGHT MAP view of the a<->b bimap.
-                // Find the value of a_ind that corresponds to the value of b_ind, and set it properly.
-                for (unsigned int i=0; i<m_num_neigh; i++)
+                // Take the RIGHT MAP view of the proper_a<->proper_b bimap.
+                // Iterate over the values of proper_b_ind IN ORDER, find the value of proper_a_ind that corresponds to each proper_b_ind, and set it properly.
+                for (unsigned int proper_b_ind=0; proper_b_ind<m_num_neigh; proper_b_ind++)
                     {
-                    unsigned int b_ind = s[b].vec_ind[i];
-                    boost::bimap<unsigned int, unsigned int>::right_const_iterator it = vec_map.right.find(b_ind);
-                    unsigned int a_ind = it->second;
+                    boost::bimap<unsigned int, unsigned int>::right_const_iterator it = vec_map.right.find(proper_b_ind);
+                    unsigned int proper_a_ind = it->second;
 
-                    // Here's the proper setting: find the location of a_ind in the current vec_ind vector, then bind the corresponding vec_ind to b_ind. (in the same location as b_ind.)
-                    // For node=a, this is the same as s[a].vec_ind[i] = a_ind.
-                    std::vector<unsigned int>::iterator a_it = std::find(old_a_vec_ind.begin(), old_a_vec_ind.end(), a_ind);
-                    unsigned int a_ind_position = a_it - old_a_vec_ind.begin();
-                    s[node].vec_ind[i] = old_node_vec_ind[a_ind_position];
+                    // old_node_vec_ind[proper_a_ind] is "relative_a_ind"
+                    s[node].vec_ind[proper_b_ind] = old_node_vec_ind[proper_a_ind];
                     }
 
                 // set the environment index properly
                 s[node].env_ind = s[b].env_ind;
 
                 // set the proper orientation. ORDER MATTERS since rotations don't commute in 3D.
-                // note that here we are rotating vector set a such that it matches vector set b, so we need to multiply by the INVERSE (transpose) of the matrix rotation.
+                // note that here we are rotating vector set proper_a such that it matches vector set proper_b, so we need to multiply by the INVERSE (transpose) of the matrix rotation.
                 s[node].proper_rot = rotationT*s[node].proper_rot;
 
                 // we've added another leaf to the tree or whatever the lingo is.
@@ -238,10 +217,10 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m
                     }
                 // loop through the vectors, getting them properly indexed
                 // add them to env
-                for (unsigned int j = 0; j < s[i].vecs.size(); j++)
+                for (unsigned int proper_ind = 0; proper_ind < s[i].vecs.size(); proper_ind++)
                     {
-                    unsigned int proper_ind = s[i].vec_ind[j];
-                    env[j] += s[i].proper_rot*s[i].vecs[proper_ind];
+                    unsigned int relative_ind = s[i].vec_ind[proper_ind];
+                    env[proper_ind] += s[i].proper_rot*s[i].vecs[relative_ind];
                     }
                 N += float(1);
                 single_particle=false;
@@ -287,10 +266,10 @@ std::vector<vec3<float> > EnvDisjointSet::getIndividualEnv(const unsigned int m)
 
     // loop through the vectors, getting them properly indexed
     // add them to env
-    for (unsigned int j = 0; j < s[m].vecs.size(); j++)
+    for (unsigned int proper_ind = 0; proper_ind < s[m].vecs.size(); proper_ind++)
         {
-        unsigned int proper_ind = s[m].vec_ind[j];
-        env[j] += s[m].proper_rot*s[m].vecs[proper_ind];
+        unsigned int relative_ind = s[m].vec_ind[proper_ind];
+        env[proper_ind] += s[m].proper_rot*s[m].vecs[relative_ind];
         }
 
     return env;
@@ -351,23 +330,31 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
     return ei;
     }
 
-// Is the environment e2 similar to the environment e1?
-// If so, return a std::pair of the rotation matrix that takes the vectors of e2 to the vectors of e1 AND the mapping between the vectors of the environments that will make them correspond to each other.
+// Is the (PROPERLY REGISTERED) environment e2 similar to the (PROPERLY REGISTERED) environment e1?
+// If so, return a std::pair of the rotation matrix that takes the vectors of e2 to the vectors of e1 AND the mapping between the properly indexed vectors of the environments that will make them correspond to each other.
 // If not, return a std::pair of the identity matrix AND an empty map.
 // The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
 // This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
 // The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
 std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration)
     {
-    std::vector< vec3<float> > v1 = e1.vecs;
-    std::vector< vec3<float> > v2 = e2.vecs;
     boost::bimap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
 
     // Inelegant: if either vector set does not have m_k vectors in it (i.e. maybe we are at a surface),
     // just return an empty map for now since the 1-1 bimapping will be too weird in this case.
-    if (v1.size() != m_k) { return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map); }
-    if (v2.size() != m_k) { return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map); }
+    if (e1.vecs.size() != m_k) { return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map); }
+    if (e2.vecs.size() != m_k) { return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map); }
+
+    std::vector< vec3<float> > v1(m_k);
+    std::vector< vec3<float> > v2(m_k);
+
+    // get the vectors into the proper orientation and order with respect to their parent environment
+    for (unsigned int m = 0; m < m_k; m++)
+        {
+        v1[m] = e1.proper_rot*e1.vecs[e1.vec_ind[m]];
+        v2[m] = e2.proper_rot*e2.vecs[e2.vec_ind[m]];
+        }
 
     // if we have to register, first find the rotated set of v2 that best maps to v1
     // the Fit operation CHANGES v2.
@@ -384,7 +371,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
 
         for (boost::bimap<unsigned int, unsigned int>::const_iterator it = tmp_vec_map.begin(); it != tmp_vec_map.end(); ++it)
             {
-            // RegisterBruteForce has found the vector mapping that results in minimal RMSD, as far as it can figure out.
+            // RegisterBruteForce has found the vector mapping that results in minimal RMSD, as best as it can figure out.
             // Does this vector mapping pass the more stringent criterion imposed by the threshold?
             vec3<float> delta = v1[it->left] - v2[it->right];
             float rsq = dot(delta, delta);

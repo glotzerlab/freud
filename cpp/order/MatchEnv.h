@@ -118,9 +118,11 @@ class MatchEnv
         //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1
         void populateEnv(EnvDisjointSet dj, bool reLabel=true);
 
-        //! Is the environment e1 similar to the environment e2?
-        //! If so, return a std::pair of the rotation matrix that takes the vectors of e2 to the vectors of e1 AND the mapping between the vectors of the environments that will make them correspond to each other.
+        //! Is the (PROPERLY REGISTERED) environment e1 similar to the (PROPERLY REGISTERED) environment e2?
+        //! If so, return a std::pair of the rotation matrix that takes the vectors of e2 to the vectors of e1 AND the mapping between the properly indexed vectors of the environments that will make them correspond to each other.
         //! If not, return a std::pair of the identity matrix AND an empty map.
+        //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
+        //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
         std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration);
 
