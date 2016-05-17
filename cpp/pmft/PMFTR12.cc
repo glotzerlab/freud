@@ -58,11 +58,18 @@ PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsig
         }
 
     // calculate the jacobian array; calc'd as the inv for faster use later
-    m_inv_jacobian_array = std::shared_ptr<float>(new float[m_nbins_r], std::default_delete<float[]>());
+    m_inv_jacobian_array = std::shared_ptr<float>(new float[m_nbins_r*m_nbins_t1*m_nbins_t2], std::default_delete<float[]>());
+    Index3D b_i = Index3D(m_nbins_r, m_nbins_t1, m_nbins_t2);
     for (unsigned int i = 0; i < m_nbins_r; i++)
         {
         float r = m_r_array.get()[i];
-        m_inv_jacobian_array.get()[i] = (float)1.0 / (r * m_dr * m_dt1 * m_dt2);
+        for (unsigned int j = 0; j < m_nbins_t1; j++)
+            {
+            for (unsigned int k = 0; k < m_nbins_t2; k++)
+                {
+                m_inv_jacobian_array.get()[b_i((int)i, (int)j, (int)k)] = (float)1.0 / (r * m_dr * m_dt1 * m_dt2);
+                }
+            }
         }
 
     // precompute the bin center positions for T1
@@ -131,6 +138,7 @@ void PMFTR12::reducePCF()
     float inv_num_dens = m_box.getVolume() / (float)m_n_p;
     float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
     // normalize pcf_array
+    // avoid need to unravel b/c arrays are in the same index order
     parallel_for(blocked_range<size_t>(0,m_nbins_r*m_nbins_t1*m_nbins_t2),
         [=] (const blocked_range<size_t>& r)
             {
