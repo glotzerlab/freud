@@ -116,7 +116,7 @@ void PMFTR12::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
     memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_nbins_r*m_nbins_t1*m_nbins_t2);
-    parallel_for(blocked_range<size_t>(0,m_nbins_r),
+    parallel_for(blocked_range<size_t>(0,m_nbins_t1),
         [=] (const blocked_range<size_t>& r)
             {
             Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
