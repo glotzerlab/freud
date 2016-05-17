@@ -59,14 +59,14 @@ PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsig
 
     // calculate the jacobian array; calc'd as the inv for faster use later
     m_inv_jacobian_array = std::shared_ptr<float>(new float[m_nbins_r*m_nbins_t1*m_nbins_t2], std::default_delete<float[]>());
-    Index3D b_i = Index3D(m_nbins_r, m_nbins_t1, m_nbins_t2);
-    for (unsigned int i = 0; i < m_nbins_r; i++)
+    Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
+    for (unsigned int i = 0; i < m_nbins_t1; i++)
         {
-        float r = m_r_array.get()[i];
-        for (unsigned int j = 0; j < m_nbins_t1; j++)
+        for (unsigned int j = 0; j < m_nbins_t2; j++)
             {
-            for (unsigned int k = 0; k < m_nbins_t2; k++)
+            for (unsigned int k = 0; k < m_nbins_r; k++)
                 {
+                float r = m_r_array.get()[k];
                 m_inv_jacobian_array.get()[b_i((int)i, (int)j, (int)k)] = (float)1.0 / (r * m_dr * m_dt1 * m_dt2);
                 }
             }
@@ -119,12 +119,12 @@ void PMFTR12::reducePCF()
     parallel_for(blocked_range<size_t>(0,m_nbins_r),
         [=] (const blocked_range<size_t>& r)
             {
-            Index3D b_i = Index3D(m_nbins_r, m_nbins_t1, m_nbins_t2);
+            Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                for (size_t j = 0; j < m_nbins_t1; j++)
+                for (size_t j = 0; j < m_nbins_t2; j++)
                     {
-                    for (size_t k = 0; k < m_nbins_t2; k++)
+                    for (size_t k = 0; k < m_nbins_r; k++)
                         {
                         for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                              local_bins != m_local_bin_counts.end(); ++local_bins)
@@ -204,7 +204,7 @@ void PMFTR12::accumulate(trajectory::Box& box,
             float dt1_inv = 1.0f / m_dt1;
             float dt2_inv = 1.0f / m_dt2;
 
-            Index3D b_i = Index3D(m_nbins_r, m_nbins_t1, m_nbins_t2);
+            Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
 
             bool exists;
             m_local_bin_counts.local(exists);
@@ -268,7 +268,7 @@ void PMFTR12::accumulate(trajectory::Box& box,
 
                             if ((ibin_r < m_nbins_r) && (ibin_t1 < m_nbins_t1) && (ibin_t2 < m_nbins_t2))
                                 {
-                                ++m_local_bin_counts.local()[b_i(ibin_r, ibin_t1, ibin_t2)];
+                                ++m_local_bin_counts.local()[b_i(ibin_t1, ibin_t2, ibin_r)];
                                 }
                             }
                         }
