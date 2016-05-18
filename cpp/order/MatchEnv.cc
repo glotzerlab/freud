@@ -20,26 +20,26 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
     assert(a < s.size() && b < s.size());
     assert(vec_map.size() == m_num_neigh);
 
-    //////////////// TEST
-    std::cout<<"old properly registered "<<a<<" vecs:"<<std::endl;;
-    for (unsigned int k=0;k<s[a].vecs.size();k++)
-        {
-        vec3<float> dummy = s[a].proper_rot*s[a].vecs[s[a].vec_ind[k]];
-        std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-        }
-
-    std::cout<<"old properly registered "<<b<<" vecs:"<<std::endl;;
-    for (unsigned int k=0;k<s[b].vecs.size();k++)
-        {
-        vec3<float> dummy = s[b].proper_rot*s[b].vecs[s[b].vec_ind[k]];
-        std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-        }
-    ////////////////
+    // //////////////// TEST
+    // std::cout<<"old properly registered "<<a<<" vecs:"<<std::endl;;
+    // for (unsigned int k=0;k<s[a].vecs.size();k++)
+    //     {
+    //     vec3<float> dummy = s[a].proper_rot*s[a].vecs[s[a].vec_ind[k]];
+    //     std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
+    //     }
+    //
+    // std::cout<<"old properly registered "<<b<<" vecs:"<<std::endl;;
+    // for (unsigned int k=0;k<s[b].vecs.size();k++)
+    //     {
+    //     vec3<float> dummy = s[b].proper_rot*s[b].vecs[s[b].vec_ind[k]];
+    //     std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
+    //     }
+    // ////////////////
 
     // if tree heights are equal, merge b to a
     if (rank[s[a].env_ind] == rank[s[b].env_ind])
         {
-        std::cout<<"merging "<<b<<" to "<<a<<std::endl;
+        // std::cout<<"merging "<<b<<" to "<<a<<std::endl;
         // 0. Get the ENTIRE set that corresponds to head_b.
         unsigned int head_b = find(b);
         std::vector<unsigned int> m_set = findSet(head_b);
@@ -71,23 +71,23 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
             // we've added another leaf to the tree or whatever the lingo is.
             rank[s[a].env_ind]++;
 
-            //////////////// TEST
-            if (node == b)
-                {
-                std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
-                for (unsigned int k=0;k<s[node].vecs.size();k++)
-                    {
-                    vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
-                    std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-                    }
-                }
-            ///////////////
+            // //////////////// TEST
+            // if (node == b)
+            //     {
+            //     std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
+            //     for (unsigned int k=0;k<s[node].vecs.size();k++)
+            //         {
+            //         vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
+            //         std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
+            //         }
+            //     }
+            // ///////////////
 
             }
         }
     else
         {
-        std::cout<<"merging "<<b<<" to "<<a<<std::endl;
+        // std::cout<<"merging "<<b<<" to "<<a<<std::endl;
         // merge the shorter tree to the taller one
         if (rank[s[a].env_ind] > rank[s[b].env_ind])
             {
@@ -122,22 +122,22 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 // we've added another leaf to the tree or whatever the lingo is.
                 rank[s[a].env_ind]++;
 
-                //////////////// TEST
-                if (node == b)
-                    {
-                    std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
-                    for (unsigned int k=0;k<s[node].vecs.size();k++)
-                        {
-                        vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
-                        std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-                        }
-                    }
-                ///////////////
+                // //////////////// TEST
+                // if (node == b)
+                //     {
+                //     std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
+                //     for (unsigned int k=0;k<s[node].vecs.size();k++)
+                //         {
+                //         vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
+                //         std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
+                //         }
+                //     }
+                // ///////////////
                 }
             }
         else
             {
-            std::cout<<"merging "<<a<<" to "<<b<<std::endl;
+            // std::cout<<"merging "<<a<<" to "<<b<<std::endl;
             rotmat3<float> rotationT = transpose(rotation);
             // 0. Get the ENTIRE set that corresponds to head_a.
             unsigned int head_a = find(a);
@@ -171,17 +171,17 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 // we've added another leaf to the tree or whatever the lingo is.
                 rank[s[b].env_ind]++;
 
-                //////////////// TEST
-                if (node == a)
-                    {
-                    std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
-                    for (unsigned int k=0;k<s[node].vecs.size();k++)
-                        {
-                        vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
-                        std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-                        }
-                    }
-                ///////////////
+                // //////////////// TEST
+                // if (node == a)
+                //     {
+                //     std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
+                //     for (unsigned int k=0;k<s[node].vecs.size();k++)
+                //         {
+                //         vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
+                //         std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
+                //         }
+                //     }
+                // ///////////////
                 }
             }
         }
