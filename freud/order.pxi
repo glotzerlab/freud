@@ -1728,8 +1728,9 @@ cdef class SolLiq:
 cdef class MatchEnv:
     """Clusters particles according to whether their local environments match or not, according to various shape matching metrics.
 
-    :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
+    :param box: Simulation box
+    :param rmax: Cutoff radius for cell list and clustering algorithm. Values near first minima of the rdf are recommended.
+    :param k: Number of nearest neighbors taken to define the local environment of any given particle.
     """
     cdef order.MatchEnv *thisptr
 
@@ -1755,7 +1756,7 @@ cdef class MatchEnv:
 
         :param points: particle positions
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :param hard_r: if true, add all particles that fall within the threshold of m_rmaxsq to the environment
         :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type threshold: np.float32
@@ -1774,13 +1775,12 @@ cdef class MatchEnv:
 
         self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r, registration)
 
-    def matchMotif(self, points, refPoints, threshold, hard_r=False, registration=False):
+    def matchMotif(self, points, refPoints, threshold, registration=False):
         """Determine clusters of particles that match the motif provided by refPoints.
 
         :param points: particle positions
         :param refPoints: vectors that make up the motif against which we are matching
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
         :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
@@ -1806,7 +1806,7 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, hard_r, registration)
+        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, registration)
 
     def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):
         """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.

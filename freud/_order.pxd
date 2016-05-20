@@ -219,7 +219,6 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
                         const vec3[float]*,
                         unsigned int,
                         float,
-                        bool,
                         bool)
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
                                         vec3[float]*,

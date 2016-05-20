@@ -29,9 +29,8 @@ namespace freud { namespace order {
 struct Environment
     {
     //! Constructor.
-    Environment(unsigned int n) : vecs(0), vec_ind(0)
+    Environment() : vecs(0), vec_ind(0)
         {
-        num_neigh = n;
         env_ind = 0;
         num_vecs = 0;
         ghost = false;
@@ -40,11 +39,6 @@ struct Environment
     //! Add a vector to define the local environment
     void addVec(vec3<float> vec)
         {
-        if (num_vecs > num_neigh)
-            {
-            fprintf(stderr, "Current number of vecs is %d\n", num_vecs);
-            throw std::invalid_argument("You've added too many vectors to the environment!");
-            }
         vecs.push_back(vec);
         vec_ind.push_back(num_vecs);
         num_vecs++;
@@ -54,7 +48,6 @@ struct Environment
     std::vector<vec3<float> > vecs;         //!< The vectors that define the environment
     bool ghost;                             //!< Is this environment a ghost? Do we ignore it when we compute actual physical quantities associated with all environments?
     unsigned int num_vecs;                  //!< The number of vectors defining the environment currently
-    unsigned int num_neigh;                 //!< The maximum allowed number of vectors to define the environment
     std::vector<unsigned int> vec_ind;      //!< The order that the vectors must be in to define the environment
     rotmat3<float> proper_rot;              //!< The rotation that defines the proper orientation of the environment
     };
@@ -64,7 +57,7 @@ class EnvDisjointSet
     {
     public:
         //! Constructor
-        EnvDisjointSet(unsigned int num_neigh, unsigned int Np);
+        EnvDisjointSet(unsigned int Np);
         //! Merge two sets
         void merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation);
         //! Find the set with a given element
@@ -78,7 +71,7 @@ class EnvDisjointSet
 
         std::vector<Environment> s;         //!< The disjoint set data
         std::vector<unsigned int> rank;     //!< The rank of each tree in the set
-        unsigned int m_num_neigh;           //!< The number of neighbors allowed per environment
+        unsigned int m_max_num_neigh;       //!< The maximum number of neighbors in any environment in the set
     };
 
 class MatchEnv
@@ -88,7 +81,7 @@ class MatchEnv
         /**Constructor for Match-Environment analysis class.  After creation, call cluster to agnostically calculate clusters grouped by matching environment,
         or matchMotif to match all particle environments against an input motif.  Use accessor functions to retrieve data.
         @param rmax Cutoff radius for cell list and clustering algorithm.  Values near first minimum of the rdf are recommended.
-        @param k Number of nearest neighbors taken to construct the environment of any given particle.
+        @param k Number of nearest neighbors taken to define the local environment of any given particle.
         **/
         MatchEnv(const trajectory::Box& box, float rmax, unsigned int k=12);
 
@@ -96,14 +89,14 @@ class MatchEnv
         ~MatchEnv();
 
         //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
-        //! if hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
+        //! if hard_r is true, add all particles that fall within the threshold of m_rmaxsq to the environment
         Environment buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind, bool hard_r);
 
         //! Determine clusters of particles with matching environments
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
-        //! If hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
+        //! If hard_r is true, add all particles that fall within the threshold of m_rmaxsq to the environment
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
         void cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false, bool registration=false);
 
@@ -111,9 +104,8 @@ class MatchEnv
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
-        //! If hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-        void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool hard_r=false, bool registration=false);
+        void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool registration=false);
 
         //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1
         void populateEnv(EnvDisjointSet dj, bool reLabel=true);
@@ -154,7 +146,9 @@ class MatchEnv
             {
             m_box = newbox;
             delete m_nn;
+            delete m_lc;
             m_nn = new locality::NearestNeighbors(m_rmax, m_k);
+            m_lc = new locality::LinkCell(m_box, m_rmax);
             }
 
         //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
@@ -184,19 +178,25 @@ class MatchEnv
             {
             return m_k;
             }
+        unsigned int getMaxNumNeighbors()
+            {
+            return m_maxk;
+            }
 
     private:
         trajectory::Box m_box;              //!< Simulation box
         float m_rmax;                       //!< Maximum cutoff radius at which to determine local environment
-        float m_rmaxsq;                     //!< square of m_rmax
-        float m_k;                          //!< Number of nearest neighbors used to determine local environment
+        float m_rmaxsq;                     //!< Square of m_rmax
+        float m_k;                          //!< Number of nearest neighbors used to determine which environments are compared during local environment clustering. If hard_r=false, this is also the number of neighbors in each local environment.
+        unsigned int m_maxk;                //!< Maximum number of neighbors in any particle's local environment. If hard_r=false, m_maxk = m_k.
         locality::NearestNeighbors *m_nn;   //!< NearestNeighbors to bin particles for the computation of local environments
+        locality::LinkCell *m_lc;           //!< LinkCell to bin particles for the computation
         unsigned int m_Np;                  //!< Last number of points computed
         unsigned int m_num_clusters;        //!< Last number of local environments computed
 
         boost::shared_array<unsigned int> m_env_index;                          //!< Cluster index determined for each particle
         std::map<unsigned int, boost::shared_array<vec3<float> > > m_env;       //!< Dictionary of (cluster id, vectors) pairs
-        boost::shared_array<vec3<float> > m_tot_env;              //!< m_NP by m_k by 3 matrix of all environments for all particles
+        boost::shared_array<vec3<float> > m_tot_env;              //!< m_NP by m_maxk by 3 matrix of all environments for all particles
     };
 
 }; }; // end namespace freud::match_env
