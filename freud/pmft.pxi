@@ -368,9 +368,9 @@ cdef class PMFTXYT:
         """
         cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT()
         nbins[1] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsT()
+        nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
@@ -383,9 +383,9 @@ cdef class PMFTXYT:
         """
         cdef float* pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT()
         nbins[1] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsT()
+        nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
