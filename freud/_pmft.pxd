@@ -1,7 +1,6 @@
 # from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
 from libcpp.memory cimport shared_ptr
 cimport freud._trajectory as trajectory
 
@@ -53,9 +52,9 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
         unsigned int getNBinsT()
         float getRCut()
 
-cdef extern from "PMFXY2D.h" namespace "freud::pmft":
-    cdef cppclass PMFXY2D:
-        PMFXY2D(float, unsigned int, unsigned int, unsigned int)
+cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
+    cdef cppclass PMFTXY2D:
+        PMFTXY2D(float, unsigned int, unsigned int, unsigned int)
 
         const trajectory.Box& getBox() const
         void resetPCF()
@@ -75,9 +74,9 @@ cdef extern from "PMFXY2D.h" namespace "freud::pmft":
         unsigned int getNBinsY()
         float getRCut()
 
-cdef extern from "PMFXYZ.h" namespace "freud::pmft":
-    cdef cppclass PMFXYZ:
-        PMFXYZ(float, float, float, unsigned int, unsigned int, unsigned int)
+cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
+    cdef cppclass PMFTXYZ:
+        PMFTXYZ(float, float, float, unsigned int, unsigned int, unsigned int)
 
         const trajectory.Box& getBox() const
         void resetPCF()
@@ -91,10 +90,12 @@ cdef extern from "PMFXYZ.h" namespace "freud::pmft":
                         quat[float]*,
                         unsigned int) nogil
         void reducePCF()
-        shared_array[unsigned int] getPCF()
-        shared_array[float] getX()
-        shared_array[float] getY()
-        shared_array[float] getZ()
+        shared_ptr[float] getPCF()
+        shared_ptr[unsigned int] getBinCounts()
+        shared_ptr[float] getX()
+        shared_ptr[float] getY()
+        shared_ptr[float] getZ()
         unsigned int getNBinsX()
         unsigned int getNBinsY()
         unsigned int getNBinsZ()
+        float getRCut()

@@ -16,5 +16,5 @@
 
 from ._freud import PMFTR12
 from ._freud import PMFTXYT
-from ._freud import PMFXY2D
-from ._freud import PMFXYZ
+from ._freud import PMFTXY2D
+from ._freud import PMFTXYZ

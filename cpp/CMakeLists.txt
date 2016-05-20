@@ -92,10 +92,10 @@ set(FREUD_SOURCES
             interface/InterfaceMeasure.h
             order/Pairing2D.cc
             order/Pairing2D.h
-            pmft/PMFXYZ.cc
-            pmft/PMFXYZ.h
-            pmft/PMFXY2D.cc
-            pmft/PMFXY2D.h
+            pmft/PMFTXYZ.cc
+            pmft/PMFTXYZ.h
+            pmft/PMFTXY2D.cc
+            pmft/PMFTXY2D.h
             pmft/PMFTR12.cc
             pmft/PMFTR12.h
             pmft/PMFTXYT.cc
