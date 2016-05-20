@@ -213,6 +213,7 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
                      unsigned int,
                      float,
                      bool,
+                     bool,
                      bool)
         void matchMotif(const vec3[float]*,
                         unsigned int,

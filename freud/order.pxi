@@ -1750,13 +1750,14 @@ cdef class MatchEnv:
         cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
-    def cluster(self, points, threshold, hard_r=False, registration=False):
+    def cluster(self, points, threshold, hard_r=False, registration=False, global_search=False):
         """Determine clusters of particles with matching environments.
 
         :param points: particle positions
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
         :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
         :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :param global_search: if true, do an exhaustive search wherein you compare the environments of every single pair of particles in the simulation. If false, only compare the environments of neighboring particles.
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type threshold: np.float32
         :type hard_r: bool
@@ -1772,7 +1773,7 @@ cdef class MatchEnv:
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r, registration)
+        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r, registration, global_search)
 
     def matchMotif(self, points, refPoints, threshold, hard_r=False, registration=False):
         """Determine clusters of particles that match the motif provided by refPoints.

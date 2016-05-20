@@ -603,7 +603,7 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *r
 
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r, bool registration)
+void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r, bool registration, bool global)
     {
     assert(points);
     assert(Np > 0);
@@ -636,15 +636,37 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        // 1. Get all the neighbors
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
 
-        // loop over the neighbors
-        for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
+        if (global == false)
             {
-            unsigned int j = neighbors[neigh_idx];
-            if (i != j)
+            // loop over the neighbors
+            boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+            for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
+                {
+                unsigned int j = neighbors[neigh_idx];
+                if (i != j)
+                    {
+                    std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
+                    rotmat3<float> rotation = mapping.first;
+                    boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+                    // if the mapping between the vectors of the environments is NOT empty, then the environments
+                    // are similar. so merge them.
+                    if (!vec_map.empty())
+                        {
+                        // merge the two sets using the disjoint set
+                        unsigned int a = dj.find(i);
+                        unsigned int b = dj.find(j);
+                        if (a != b)
+                            dj.merge(i,j,vec_map,rotation);
+                        }
+                    }
+                }
+            }
+        else
+            {
+            // loop over all other particles
+            for (unsigned int j = i+1; j < m_Np; j++)
                 {
                 std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
                 rotmat3<float> rotation = mapping.first;

@@ -105,7 +105,8 @@ class MatchEnv
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
         //! If hard_r is true, only add the neighbor particles to the environment if they fall within the threshold of m_rmaxsq
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-        void cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false, bool registration=false);
+        //! If global is true, do an exhaustive search wherein you compare the environments of every single pair of particles in the simulation. If global is false, only compare the environments of neighboring particles.
+        void cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false, bool registration=false, bool global=false);
 
         //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
