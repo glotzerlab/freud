@@ -237,6 +237,7 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getNumClusters()
         unsigned int getNumNeighbors()
+        unsigned int getMaxNumNeighbors()
 
 cdef extern from "SolLiqNear.h" namespace "freud::order":
     cdef cppclass SolLiqNear:

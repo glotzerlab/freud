@@ -645,6 +645,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     unsigned int array_size = Np*m_maxk;
     m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
 
+    std::cout<<"still okay"<<std::endl;
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
         {
