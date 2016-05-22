@@ -112,7 +112,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                     // old_node_vec_ind[proper_b_ind] is "relative_b_ind"
                     s[node].vec_ind[proper_a_ind] = old_node_vec_ind[proper_b_ind];
                     }
-
                 // set the environment index properly
                 s[node].env_ind = s[a].env_ind;
 
@@ -366,8 +365,11 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
             {
             // compute vec{r} between the two particles
             unsigned int j = neighbors[neigh_idx];
-            vec3<float> delta = m_box.wrap(points[j]-p);
-            ei.addVec(delta);
+            if (i != j)
+                {
+                vec3<float> delta = m_box.wrap(points[j]-p);
+                ei.addVec(delta);
+                }
             }
         }
 
@@ -384,11 +386,14 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
             locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                 {
-                vec3<float> delta = m_box.wrap(points[j]-p);
-                float rsq = dot(delta, delta);
-                if (rsq < m_rmaxsq)
+                if (i != j)
                     {
-                    ei.addVec(delta);
+                    vec3<float> delta = m_box.wrap(points[j]-p);
+                    float rsq = dot(delta, delta);
+                    if (rsq < m_rmaxsq)
+                        {
+                        ei.addVec(delta);
+                        }
                     }
                 }
             }
@@ -409,7 +414,10 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
 
     // If the vector sets do not have equal numbers of vectors, just return an empty map since the 1-1 bimapping will be too weird in this case.
-    if (e1.vecs.size() != e2.vecs.size()) { return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map); }
+    if (e1.vecs.size() != e2.vecs.size())
+        {
+        return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map);
+        }
 
     std::vector< vec3<float> > v1(e1.vecs.size());
     std::vector< vec3<float> > v2(e2.vecs.size());
@@ -450,9 +458,9 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
     // if we didn't have to register, compare all combinations of vectors
     else
         {
-        for (unsigned int i = 0; i < m_k; i++)
+        for (unsigned int i = 0; i < e1.vecs.size(); i++)
             {
-            for (unsigned int j = 0; j < m_k; j++)
+            for (unsigned int j = 0; j < e2.vecs.size(); j++)
                 {
                 vec3<float> delta = v1[i] - v2[j];
                 float rsq = dot(delta, delta);
@@ -645,7 +653,6 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     unsigned int array_size = Np*m_maxk;
     m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
 
-    std::cout<<"still okay"<<std::endl;
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
         {
