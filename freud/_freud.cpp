@@ -2641,6 +2641,7 @@ static const char __pyx_k_class[] = "__class__";
 static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_error[] = "error";
 static const char __pyx_k_flags[] = "flags";
+static const char __pyx_k_freud[] = "freud";
 static const char __pyx_k_getLx[] = "getLx";
 static const char __pyx_k_getLy[] = "getLy";
 static const char __pyx_k_getLz[] = "getLz";
@@ -2691,8 +2692,10 @@ static const char __pyx_k_Ellipsis[] = "Ellipsis";
 static const char __pyx_k_diameter[] = "diameter";
 static const char __pyx_k_itemsize[] = "itemsize";
 static const char __pyx_k_nthreads[] = "nthreads";
+static const char __pyx_k_parallel[] = "parallel";
 static const char __pyx_k_position[] = "position";
 static const char __pyx_k_TypeError[] = "TypeError";
+static const char __pyx_k_cNthreads[] = "cNthreads";
 static const char __pyx_k_complex64[] = "complex64";
 static const char __pyx_k_dcd_fname[] = "dcd_fname";
 static const char __pyx_k_enumerate[] = "enumerate";
@@ -2721,6 +2724,7 @@ static const char __pyx_k_refPoints2[] = "refPoints2";
 static const char __pyx_k_ref_points[] = "ref_points";
 static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_cluster_idx[] = "cluster_idx";
+static const char __pyx_k_lastThreads[] = "_lastThreads";
 static const char __pyx_k_orientation[] = "orientation";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_freud__freud[] = "freud._freud";
@@ -2731,6 +2735,7 @@ static const char __pyx_k_StopIteration[] = "StopIteration";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_setNumThreads[] = "setNumThreads";
 static const char __pyx_k_Could_not_setL[] = "Could not setL({})";
+static const char __pyx_k_freud_parallel[] = "freud.parallel";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_getNumParticles[] = "getNumParticles";
@@ -2894,6 +2899,7 @@ static PyObject *__pyx_n_s_box;
 static PyObject *__pyx_n_s_buffer;
 static PyObject *__pyx_n_s_c;
 static PyObject *__pyx_n_u_c;
+static PyObject *__pyx_n_s_cNthreads;
 static PyObject *__pyx_n_s_cell_width;
 static PyObject *__pyx_n_s_class;
 static PyObject *__pyx_n_s_cluster_idx;
@@ -2934,7 +2940,9 @@ static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
 static PyObject *__pyx_n_u_fortran;
 static PyObject *__pyx_kp_s_frame_idx_must_be_an_integer;
+static PyObject *__pyx_n_s_freud;
 static PyObject *__pyx_n_s_freud__freud;
+static PyObject *__pyx_n_s_freud_parallel;
 static PyObject *__pyx_n_s_getLx;
 static PyObject *__pyx_n_s_getLy;
 static PyObject *__pyx_n_s_getLz;
@@ -2965,6 +2973,7 @@ static PyObject *__pyx_n_s_k;
 static PyObject *__pyx_kp_s_keys_must_be_a_1D_array_of_lengt;
 static PyObject *__pyx_n_s_kn;
 static PyObject *__pyx_n_s_l;
+static PyObject *__pyx_n_s_lastThreads;
 static PyObject *__pyx_n_s_lmax;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_major;
@@ -3005,6 +3014,7 @@ static PyObject *__pyx_kp_s_orientations_must_be_a_1_dimensi;
 static PyObject *__pyx_kp_s_orientations_must_be_a_2_dimensi;
 static PyObject *__pyx_kp_s_orientations_must_be_a_numpy_flo;
 static PyObject *__pyx_n_s_pack;
+static PyObject *__pyx_n_s_parallel;
 static PyObject *__pyx_n_s_points;
 static PyObject *__pyx_kp_s_points_must_be_a_2_dimensional_a;
 static PyObject *__pyx_kp_s_points_must_be_a_3_dimensional_a;
@@ -3389,7 +3399,7 @@ static PyObject *__pyx_pf_5freud_6_freud_9Pairing2D_10getBox(struct __pyx_obj_5f
 static int __pyx_pf_5freud_6_freud_13VoronoiBuffer___cinit__(struct __pyx_obj_5freud_6_freud_VoronoiBuffer *__pyx_v_self, PyObject *__pyx_v_box); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_13VoronoiBuffer_2compute(struct __pyx_obj_5freud_6_freud_VoronoiBuffer *__pyx_v_self, PyObject *__pyx_v_points, float __pyx_v_buffer); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_13VoronoiBuffer_4getBufferParticles(struct __pyx_obj_5freud_6_freud_VoronoiBuffer *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_6_freud_setNumThreads(CYTHON_UNUSED PyObject *__pyx_self, unsigned int __pyx_v_nthreads); /* proto */
+static PyObject *__pyx_pf_5freud_6_freud_setNumThreads(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_nthreads); /* proto */
 static int __pyx_pf_5freud_6_freud_7FTdelta___cinit__(struct __pyx_obj_5freud_6_freud_FTdelta *__pyx_v_self); /* proto */
 static void __pyx_pf_5freud_6_freud_7FTdelta_2__dealloc__(struct __pyx_obj_5freud_6_freud_FTdelta *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_6_freud_7FTdelta_4compute(struct __pyx_obj_5freud_6_freud_FTdelta *__pyx_v_self); /* proto */
@@ -56472,61 +56482,172 @@ static PyObject *__pyx_pf_5freud_6_freud_13VoronoiBuffer_4getBufferParticles(str
   return __pyx_r;
 }
 
-/* "parallel.pxi":9
+/* "parallel.pxi":10
  * # users on nyx/flux can opt in to more threads by calling setNumThreads again after initialization
  * 
- * def setNumThreads(unsigned int nthreads):             # <<<<<<<<<<<<<<
+ * def setNumThreads(nthreads=None):             # <<<<<<<<<<<<<<
  *     """Set the number of threads for parallel computation.
  * 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_6_freud_1setNumThreads(PyObject *__pyx_self, PyObject *__pyx_arg_nthreads); /*proto*/
-static char __pyx_doc_5freud_6_freud_setNumThreads[] = "setNumThreads(unsigned int nthreads)\nSet the number of threads for parallel computation.\n\n    :param nthreads: number of threads to use\n    :type nthreads: unsigned int\n    ";
-static PyMethodDef __pyx_mdef_5freud_6_freud_1setNumThreads = {"setNumThreads", (PyCFunction)__pyx_pw_5freud_6_freud_1setNumThreads, METH_O, __pyx_doc_5freud_6_freud_setNumThreads};
-static PyObject *__pyx_pw_5freud_6_freud_1setNumThreads(PyObject *__pyx_self, PyObject *__pyx_arg_nthreads) {
-  unsigned int __pyx_v_nthreads;
+static PyObject *__pyx_pw_5freud_6_freud_1setNumThreads(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_6_freud_setNumThreads[] = "setNumThreads(nthreads=None)\nSet the number of threads for parallel computation.\n\n    :param nthreads: number of threads to use. If None (default), use all threads available\n    :type nthreads: int or None\n    ";
+static PyMethodDef __pyx_mdef_5freud_6_freud_1setNumThreads = {"setNumThreads", (PyCFunction)__pyx_pw_5freud_6_freud_1setNumThreads, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6_freud_setNumThreads};
+static PyObject *__pyx_pw_5freud_6_freud_1setNumThreads(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_nthreads = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setNumThreads (wrapper)", 0);
-  assert(__pyx_arg_nthreads); {
-    __pyx_v_nthreads = __Pyx_PyInt_As_unsigned_int(__pyx_arg_nthreads); if (unlikely((__pyx_v_nthreads == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(7, 9, __pyx_L3_error)
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_nthreads,0};
+    PyObject* values[1] = {0};
+    values[0] = ((PyObject *)Py_None);
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (kw_args > 0) {
+          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_nthreads);
+          if (value) { values[0] = value; kw_args--; }
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setNumThreads") < 0)) __PYX_ERR(7, 10, __pyx_L3_error)
+      }
+    } else {
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_nthreads = values[0];
   }
   goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("setNumThreads", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(7, 10, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud._freud.setNumThreads", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_6_freud_setNumThreads(__pyx_self, ((unsigned int)__pyx_v_nthreads));
+  __pyx_r = __pyx_pf_5freud_6_freud_setNumThreads(__pyx_self, __pyx_v_nthreads);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_6_freud_setNumThreads(CYTHON_UNUSED PyObject *__pyx_self, unsigned int __pyx_v_nthreads) {
+static PyObject *__pyx_pf_5freud_6_freud_setNumThreads(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_nthreads) {
+  unsigned int __pyx_v_cNthreads;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_t_2;
+  int __pyx_t_3;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  unsigned int __pyx_t_6;
   __Pyx_RefNannySetupContext("setNumThreads", 0);
+  __Pyx_INCREF(__pyx_v_nthreads);
 
-  /* "parallel.pxi":15
- *     :type nthreads: unsigned int
+  /* "parallel.pxi":16
+ *     :type nthreads: int or None
  *     """
- *     parallel.setNumThreads(nthreads)             # <<<<<<<<<<<<<<
+ *     if nthreads is None or nthreads < 0:             # <<<<<<<<<<<<<<
+ *         nthreads = 0
+ * 
  */
-  freud::parallel::setNumThreads(__pyx_v_nthreads);
+  __pyx_t_2 = (__pyx_v_nthreads == Py_None);
+  __pyx_t_3 = (__pyx_t_2 != 0);
+  if (!__pyx_t_3) {
+  } else {
+    __pyx_t_1 = __pyx_t_3;
+    goto __pyx_L4_bool_binop_done;
+  }
+  __pyx_t_4 = PyObject_RichCompare(__pyx_v_nthreads, __pyx_int_0, Py_LT); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(7, 16, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(7, 16, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_1 = __pyx_t_3;
+  __pyx_L4_bool_binop_done:;
+  if (__pyx_t_1) {
 
-  /* "parallel.pxi":9
+    /* "parallel.pxi":17
+ *     """
+ *     if nthreads is None or nthreads < 0:
+ *         nthreads = 0             # <<<<<<<<<<<<<<
+ * 
+ *     freud.parallel._lastThreads = nthreads
+ */
+    __Pyx_INCREF(__pyx_int_0);
+    __Pyx_DECREF_SET(__pyx_v_nthreads, __pyx_int_0);
+
+    /* "parallel.pxi":16
+ *     :type nthreads: int or None
+ *     """
+ *     if nthreads is None or nthreads < 0:             # <<<<<<<<<<<<<<
+ *         nthreads = 0
+ * 
+ */
+  }
+
+  /* "parallel.pxi":19
+ *         nthreads = 0
+ * 
+ *     freud.parallel._lastThreads = nthreads             # <<<<<<<<<<<<<<
+ * 
+ *     cdef unsigned int cNthreads = nthreads;
+ */
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(7, 19, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_parallel); if (unlikely(!__pyx_t_5)) __PYX_ERR(7, 19, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (__Pyx_PyObject_SetAttrStr(__pyx_t_5, __pyx_n_s_lastThreads, __pyx_v_nthreads) < 0) __PYX_ERR(7, 19, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "parallel.pxi":21
+ *     freud.parallel._lastThreads = nthreads
+ * 
+ *     cdef unsigned int cNthreads = nthreads;             # <<<<<<<<<<<<<<
+ *     parallel.setNumThreads(cNthreads)
+ */
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_nthreads); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(7, 21, __pyx_L1_error)
+  __pyx_v_cNthreads = __pyx_t_6;
+
+  /* "parallel.pxi":22
+ * 
+ *     cdef unsigned int cNthreads = nthreads;
+ *     parallel.setNumThreads(cNthreads)             # <<<<<<<<<<<<<<
+ */
+  freud::parallel::setNumThreads(__pyx_v_cNthreads);
+
+  /* "parallel.pxi":10
  * # users on nyx/flux can opt in to more threads by calling setNumThreads again after initialization
  * 
- * def setNumThreads(unsigned int nthreads):             # <<<<<<<<<<<<<<
+ * def setNumThreads(nthreads=None):             # <<<<<<<<<<<<<<
  *     """Set the number of threads for parallel computation.
  * 
  */
 
   /* function exit code */
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("freud._freud.setNumThreads", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_nthreads);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -81887,6 +82008,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_buffer, __pyx_k_buffer, sizeof(__pyx_k_buffer), 0, 0, 1, 1},
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
   {&__pyx_n_u_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 1, 0, 1},
+  {&__pyx_n_s_cNthreads, __pyx_k_cNthreads, sizeof(__pyx_k_cNthreads), 0, 0, 1, 1},
   {&__pyx_n_s_cell_width, __pyx_k_cell_width, sizeof(__pyx_k_cell_width), 0, 0, 1, 1},
   {&__pyx_n_s_class, __pyx_k_class, sizeof(__pyx_k_class), 0, 0, 1, 1},
   {&__pyx_n_s_cluster_idx, __pyx_k_cluster_idx, sizeof(__pyx_k_cluster_idx), 0, 0, 1, 1},
@@ -81927,7 +82049,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
   {&__pyx_n_u_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 1, 0, 1},
   {&__pyx_kp_s_frame_idx_must_be_an_integer, __pyx_k_frame_idx_must_be_an_integer, sizeof(__pyx_k_frame_idx_must_be_an_integer), 0, 0, 1, 0},
+  {&__pyx_n_s_freud, __pyx_k_freud, sizeof(__pyx_k_freud), 0, 0, 1, 1},
   {&__pyx_n_s_freud__freud, __pyx_k_freud__freud, sizeof(__pyx_k_freud__freud), 0, 0, 1, 1},
+  {&__pyx_n_s_freud_parallel, __pyx_k_freud_parallel, sizeof(__pyx_k_freud_parallel), 0, 0, 1, 1},
   {&__pyx_n_s_getLx, __pyx_k_getLx, sizeof(__pyx_k_getLx), 0, 0, 1, 1},
   {&__pyx_n_s_getLy, __pyx_k_getLy, sizeof(__pyx_k_getLy), 0, 0, 1, 1},
   {&__pyx_n_s_getLz, __pyx_k_getLz, sizeof(__pyx_k_getLz), 0, 0, 1, 1},
@@ -81958,6 +82082,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_keys_must_be_a_1D_array_of_lengt, __pyx_k_keys_must_be_a_1D_array_of_lengt, sizeof(__pyx_k_keys_must_be_a_1D_array_of_lengt), 0, 0, 1, 0},
   {&__pyx_n_s_kn, __pyx_k_kn, sizeof(__pyx_k_kn), 0, 0, 1, 1},
   {&__pyx_n_s_l, __pyx_k_l, sizeof(__pyx_k_l), 0, 0, 1, 1},
+  {&__pyx_n_s_lastThreads, __pyx_k_lastThreads, sizeof(__pyx_k_lastThreads), 0, 0, 1, 1},
   {&__pyx_n_s_lmax, __pyx_k_lmax, sizeof(__pyx_k_lmax), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_major, __pyx_k_major, sizeof(__pyx_k_major), 0, 0, 1, 1},
@@ -81998,6 +82123,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_orientations_must_be_a_2_dimensi, __pyx_k_orientations_must_be_a_2_dimensi, sizeof(__pyx_k_orientations_must_be_a_2_dimensi), 0, 0, 1, 0},
   {&__pyx_kp_s_orientations_must_be_a_numpy_flo, __pyx_k_orientations_must_be_a_numpy_flo, sizeof(__pyx_k_orientations_must_be_a_numpy_flo), 0, 0, 1, 0},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
+  {&__pyx_n_s_parallel, __pyx_k_parallel, sizeof(__pyx_k_parallel), 0, 0, 1, 1},
   {&__pyx_n_s_points, __pyx_k_points, sizeof(__pyx_k_points), 0, 0, 1, 1},
   {&__pyx_kp_s_points_must_be_a_2_dimensional_a, __pyx_k_points_must_be_a_2_dimensional_a, sizeof(__pyx_k_points_must_be_a_2_dimensional_a), 0, 0, 1, 0},
   {&__pyx_kp_s_points_must_be_a_3_dimensional_a, __pyx_k_points_must_be_a_3_dimensional_a, sizeof(__pyx_k_points_must_be_a_3_dimensional_a), 0, 0, 1, 0},
@@ -84550,17 +84676,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__224);
   __Pyx_GIVEREF(__pyx_tuple__224);
 
-  /* "parallel.pxi":9
+  /* "parallel.pxi":10
  * # users on nyx/flux can opt in to more threads by calling setNumThreads again after initialization
  * 
- * def setNumThreads(unsigned int nthreads):             # <<<<<<<<<<<<<<
+ * def setNumThreads(nthreads=None):             # <<<<<<<<<<<<<<
  *     """Set the number of threads for parallel computation.
  * 
  */
-  __pyx_tuple__230 = PyTuple_Pack(2, __pyx_n_s_nthreads, __pyx_n_s_nthreads); if (unlikely(!__pyx_tuple__230)) __PYX_ERR(7, 9, __pyx_L1_error)
+  __pyx_tuple__230 = PyTuple_Pack(2, __pyx_n_s_nthreads, __pyx_n_s_cNthreads); if (unlikely(!__pyx_tuple__230)) __PYX_ERR(7, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__230);
   __Pyx_GIVEREF(__pyx_tuple__230);
-  __pyx_codeobj__231 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__230, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_mspells_dev_freud_freud_pa, __pyx_n_s_setNumThreads, 9, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__231)) __PYX_ERR(7, 9, __pyx_L1_error)
+  __pyx_codeobj__231 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__230, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_mspells_dev_freud_freud_pa, __pyx_n_s_setNumThreads, 10, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__231)) __PYX_ERR(7, 10, __pyx_L1_error)
 
   /* "View.MemoryView":282
  *         return self.name
@@ -85066,16 +85192,31 @@ PyMODINIT_FUNC PyInit__freud(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(6, 7, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "parallel.pxi":9
+  /* "parallel.pxi":2
+ * cimport freud._parallel as parallel
+ * import freud, freud.parallel             # <<<<<<<<<<<<<<
+ * 
+ * # override TBB's default autoselection. This is necessary because once the automatic selection runs, the user cannot
+ */
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_freud, __pyx_t_1) < 0) __PYX_ERR(7, 2, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_parallel, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_freud, __pyx_t_1) < 0) __PYX_ERR(7, 2, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "parallel.pxi":10
  * # users on nyx/flux can opt in to more threads by calling setNumThreads again after initialization
  * 
- * def setNumThreads(unsigned int nthreads):             # <<<<<<<<<<<<<<
+ * def setNumThreads(nthreads=None):             # <<<<<<<<<<<<<<
  *     """Set the number of threads for parallel computation.
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_5freud_6_freud_1setNumThreads, NULL, __pyx_n_s_freud__freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 9, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_5freud_6_freud_1setNumThreads, NULL, __pyx_n_s_freud__freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setNumThreads, __pyx_t_1) < 0) __PYX_ERR(7, 9, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setNumThreads, __pyx_t_1) < 0) __PYX_ERR(7, 10, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "kspace.pxi":5
