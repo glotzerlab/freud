@@ -9,5 +9,3 @@ from ._freud import setNumThreads;
 
 if (re.match("flux*", platform.node()) is not None) or (re.match("nyx*", platform.node()) is not None):
     setNumThreads(1);
-else:
-    setNumThreads(multiprocessing.cpu_count());
