@@ -238,9 +238,14 @@ void PMFTXYT::accumulate(trajectory::Box& box,
                         // calculate angles
                         float d_theta = atan2(-delta.y, -delta.x);
                         float t = orientations[j] - d_theta;
-                        // make sure that t1, t2 are bounded between 0 and 2PI
+                        // make sure that t1 is bounded between 0 and 2PI
                         t = (t < 0) ? t+2*M_PI : t;
                         t = (t > 2*M_PI) ? t-2*M_PI : t;
+                        t = fmod(t, 2*M_PI);
+                        if (t < 0)
+                            {
+                            t += 2*M_PI;
+                            }
                         // bin that point
                         float bin_x = floorf(x * dx_inv);
                         float bin_y = floorf(y * dy_inv);

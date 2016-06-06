@@ -257,46 +257,6 @@ void PMFTR12::accumulate(trajectory::Box& box,
                                 {
                                 t2 += 2*M_PI;
                                 }
-                            // if (t1 < 0)
-                            //     {
-                            //     while (t1 < 0)
-                            //         {
-                            //         t1 += 2*M_PI;
-                            //         }
-                            //     }
-                            // else if (t1 > 2*M_PI)
-                            //     {
-                            //     while (t1 > 2*M_PI)
-                            //         {
-                            //         t1 -= 2*M_PI;
-                            //         }
-                            //     }
-                            // if (t2 < 0)
-                            //     {
-                            //     while (t2 < 0)
-                            //         {
-                            //         t2 += 2*M_PI;
-                            //         }
-                            //     }
-                            // else if (t2 > 2*M_PI)
-                            //     {
-                            //     while (t2 > 2*M_PI)
-                            //         {
-                            //         t2 -= 2*M_PI;
-                            //         }
-                            //     }
-                            // t1 = (t1 < 0) ? t1+2*M_PI : t1;
-                            // t1 = (t1 > 2*M_PI) ? t1-2*M_PI : t1;
-                            // t2 = (t2 < 0) ? t2+2*M_PI : t2;
-                            // t2 = (t2 > 2*M_PI) ? t2-2*M_PI : t2;
-                            if ((t1 < 0) || (t1 > 2*M_PI))
-                                {
-                                printf("found t1 = %f\n", t1);
-                                }
-                            if ((t2 < 0) || (t2 > 2*M_PI))
-                                {
-                                printf("found t2 = %f\n", t2);
-                                }
                             // bin that point
                             float bin_r = r * dr_inv;
                             float bin_t1 = floorf(t1 * dt1_inv);
