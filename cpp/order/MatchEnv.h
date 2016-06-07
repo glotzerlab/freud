@@ -108,6 +108,13 @@ class MatchEnv
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
         void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool registration=false);
 
+        //! Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt a given input motif, characterized by refPoints (of which there are numRef).
+        //! Returns a vector of minimal RMSD values, one value per particle.
+        //! NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
+        //! of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
+        //! To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
+        std::vector<float> minRMSDMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, bool registration=false);
+
         //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1
         void populateEnv(EnvDisjointSet dj, bool reLabel=true);
 
@@ -126,7 +133,17 @@ class MatchEnv
         //! If registration=True, then refPoints2 is CHANGED by this function.
         std::map<unsigned int, unsigned int> isSimilar(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration);
 
-        // Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
+        // Get the somewhat-optimal RMSD between the (PROPERLY REGISTERED) environment e1 and the (PROPERLY REGISTERED) environment e2.
+        // Return a std::pair of the rotation matrix that takes the vectors of e2 to the vectors of e1 AND the mapping between the properly indexed vectors of the environments that gives this RMSD.
+        // Populate the associated minimum RMSD.
+        // The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets.
+        // NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
+        // of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
+        // To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
+        std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration);
+
+        // Overload: Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
+        // Construct the environments accordingly, and utilize minimizeRMSD() as above.
         // Arguments are pointers to interface directly with python.
         // Return a std::map (for ease of use) with the mapping between vectors refPoints1 and refPoints2 that gives this RMSD.
         // Populate the associated minimum RMSD.
@@ -197,7 +214,7 @@ class MatchEnv
 
         boost::shared_array<unsigned int> m_env_index;                          //!< Cluster index determined for each particle
         std::map<unsigned int, boost::shared_array<vec3<float> > > m_env;       //!< Dictionary of (cluster id, vectors) pairs
-        boost::shared_array<vec3<float> > m_tot_env;              //!< m_NP by m_maxk by 3 matrix of all environments for all particles
+        boost::shared_array<vec3<float> > m_tot_env;                            //!< m_NP by m_maxk by 3 matrix of all environments for all particles
     };
 
 }; }; // end namespace freud::match_env

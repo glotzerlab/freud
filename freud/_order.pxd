@@ -221,6 +221,11 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
                         unsigned int,
                         float,
                         bool)
+        vector[float] minRMSDMotif(const vec3[float]*,
+                        unsigned int,
+                        const vec3[float]*,
+                        unsigned int,
+                        bool)
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
                                         vec3[float]*,
                                         unsigned int,

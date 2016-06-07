@@ -546,7 +546,63 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refP
     return std_vec_map;
     }
 
-// Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
+// Get the somewhat-optimal RMSD between the environment e1 and the environment e2.
+// Return a std::pair of the rotation matrix that takes the vectors of e2 to the vectors of e1 AND the mapping between the properly indexed vectors of the environments that gives this RMSD.
+// Populate the associated minimum RMSD.
+// The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets.
+// NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
+// of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
+// To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
+std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration)
+    {
+    boost::bimap<unsigned int, unsigned int> vec_map;
+    rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
+
+    // If the vector sets do not have equal numbers of vectors, force the map to be empty since it can never be 1-1.
+    // Return the empty vec_map and the identity matrix, and minRMSD = -1.
+    if (e1.vecs.size() != e2.vecs.size())
+        {
+        min_rmsd = -1.0;
+        return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map);
+        }
+
+    std::vector< vec3<float> > v1(e1.vecs.size());
+    std::vector< vec3<float> > v2(e2.vecs.size());
+
+    // get the vectors into the proper orientation and order with respect to their parent environment
+    for (unsigned int m = 0; m < e1.vecs.size(); m++)
+        {
+        v1[m] = e1.proper_rot*e1.vecs[e1.vec_ind[m]];
+        v2[m] = e2.proper_rot*e2.vecs[e2.vec_ind[m]];
+        }
+
+    // call RegisterBruteForce::Fit and update min_rmsd accordingly
+    registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
+    // if we have to register, first find the rotated set of v2 that best maps to v1
+    // the Fit operation CHANGES v2.
+    if (registration == true)
+        {
+        bool good_fit = r.Fit(v2);
+        // get the optimal rotation to take v2 to v1
+        std::vector<vec3<float> > rot = r.getRotation();
+        // this must be a 3x3 matrix. if it isn't, something has gone wrong.
+        assert(rot.size() == 3);
+        rotation = rotmat3<float>(rot[0], rot[1], rot[2]);
+        min_rmsd = r.getRMSD();
+        vec_map = r.getVecMap();
+        }
+    else
+        {
+        // this will populate vec_map with the correct mapping
+        min_rmsd = r.AlignedRMSDTree(registration::makeEigenMatrix(v2), vec_map);
+        }
+
+    // return the rotation matrix and bimap
+    return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map);
+    }
+
+// Overload: Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
+// Construct the environments accordingly, and utilize minimizeRMSD() as above.
 // Arguments are pointers to interface directly with python.
 // Return a std::map (for ease of use) with the mapping between vectors refPoints1 and refPoints2 that gives this RMSD.
 // Populate the associated minimum RMSD.
@@ -559,48 +615,39 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *r
     assert(refPoints1);
     assert(refPoints2);
 
-    // build the std::vectors
-    std::vector<vec3<float> > v1;
-    std::vector<vec3<float> > v2;
+    // create the environment characterized by refPoints1. Index it as 0.
+    // set the IGNORE flag to true, since this is not an environment we have actually encountered in the simulation.
+    Environment e0 = Environment();
+    e0.env_ind = 0;
+    e0.ghost = true;
 
+    // create the environment characterized by refPoints2. Index it as 1.
+    // set the IGNORE flag to true again.
+    Environment e1 = Environment();
+    e1.env_ind = 1;
+    e1.ghost = true;
+
+    // loop through all the vectors in refPoints1 and refPoints2 and add them to the environments.
+    // wrap all the vectors back into the box. I think this is necessary since all the vectors
+    // that will be added to actual particle environments will be wrapped into the box as well.
     for (unsigned int i = 0; i < numRef; i++)
         {
-        vec3<float> p1 = refPoints1[i];
-        vec3<float> p2 = refPoints2[i];
-
-        v1.push_back(p1);
-        v2.push_back(p2);
+        vec3<float> p0 = m_box.wrap(refPoints1[i]);
+        vec3<float> p1 = m_box.wrap(refPoints2[i]);
+        e0.addVec(p0);
+        e1.addVec(p1);
         }
 
-    boost::bimap<unsigned int, unsigned int> vec_map;
-    std::map<unsigned int, unsigned int> std_vec_map;
-
-    // If the vectors are two different sizes, force the map to be empty since it can never be 1-1.
-    // Return empty vec_map, and Min RMSD = -1.
-    if (v1.size() != v2.size())
-        {
-        min_rmsd = -1.0;
-        return std_vec_map;
-        }
-
-    // call RegisterBruteForce::Fit and update min_rmsd accordingly
-    registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
-    // if we have to register, first find the rotated set of v2 that best maps to v1
-    // the Fit operation CHANGES v2.
-    if (registration == true)
-        {
-        bool good_fit = r.Fit(v2);
-        min_rmsd = r.getRMSD();
-        vec_map = r.getVecMap();
-        }
-    else
-        {
-        // this will populate vec_map with the correct mapping
-        min_rmsd = r.AlignedRMSDTree(registration::makeEigenMatrix(v2), vec_map);
-        }
+    // call minimizeRMSD for e0 and e1
+    float tmp_min_rmsd = -1.0;
+    std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = minimizeRMSD(e0, e1, tmp_min_rmsd, registration);
+    rotmat3<float> rotation = mapping.first;
+    boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+    min_rmsd = tmp_min_rmsd;
 
     // lamely convert to a std::map
     // from stackoverflow.com/questions/20667187/convert-boostbimap-to-stdmap
+    std::map<unsigned int, unsigned int> std_vec_map;
     for (boost::bimap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
         {
         std_vec_map[it->left] = it->right;
@@ -609,7 +656,7 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *r
     // update refPoints2 in case registration has taken place
     for (unsigned int i = 0; i < numRef; i++)
         {
-        refPoints2[i] = v2[i];
+        refPoints2[i] = rotation*e1.vecs[i];
         }
 
     // return the vector map
@@ -781,6 +828,89 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     // The way I have set it up here, the "0th" cluster is the one that matches the motif.
     populateEnv(dj, false);
 
+    }
+
+//! Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt a given input motif, characterized by refPoints (of which there are numRef).
+//! Returns a vector of minimal RMSD values, one value per particle.
+//! NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
+//! of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
+//! To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
+std::vector<float> MatchEnv::minRMSDMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, bool registration)
+    {
+    assert(points);
+    assert(refPoints);
+    assert(numRef == m_k);
+    assert(Np > 0);
+
+    // reallocate the m_env_index array for safety
+    m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+
+    m_Np = Np;
+    std::vector<float> min_rmsd_vec(m_Np);
+
+    // compute the neighbor list
+    m_nn->compute(m_box, points, m_Np, points, m_Np);
+    // compute the cell list
+    m_lc->computeCellList(m_box, points, m_Np);
+
+    // create a disjoint set where all particles belong in their own cluster.
+    // this has to have ONE MORE environment than there are actual particles, because we're inserting the motif into it.
+    EnvDisjointSet dj(m_Np+1);
+    dj.m_max_num_neigh = m_k;
+    m_maxk = m_k;
+
+    // reallocate the m_tot_env array
+    unsigned int array_size = Np*m_maxk;
+    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
+
+    // create the environment characterized by refPoints. Index it as 0.
+    // set the IGNORE flag to true, since this is not an environment we have actually encountered in the simulation.
+    Environment e0 = Environment();
+    e0.env_ind = 0;
+    e0.ghost = true;
+
+    // loop through all the vectors in refPoints and add them to the environment.
+    // wrap all the vectors back into the box. I think this is necessary since all the vectors
+    // that will be added to actual particle environments will be wrapped into the box as well.
+    for (unsigned int i = 0; i < numRef; i++)
+        {
+        vec3<float> p = m_box.wrap(refPoints[i]);
+        e0.addVec(p);
+        }
+
+    // add this environment to the set
+    dj.s.push_back(e0);
+
+    // loop through the particles and add their environments to the set
+    // take care, here: set things up s.t. the env_ind of every environment matches its location in the disjoint set.
+    // if you don't do this, things will get screwy.
+    for (unsigned int i = 0; i < m_Np; i++)
+        {
+        unsigned int dummy = i+1;
+        Environment ei = buildEnv(points, i, dummy, false);
+        dj.s.push_back(ei);
+
+        // if the environment matches e0, merge it into the e0 environment set
+        float min_rmsd = -1.0;
+        std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = minimizeRMSD(dj.s[0], dj.s[dummy], min_rmsd, registration);
+        rotmat3<float> rotation = mapping.first;
+        boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+        // populate the min_rmsd vector
+        min_rmsd_vec[i] = min_rmsd;
+
+        // if the mapping between the vectors of the environments is NOT empty, then the environments are similar.
+        // minimizeRMSD should always return a non-empty vec_map, except if e0 and e1 have different numbers of vectors.
+        if (!vec_map.empty())
+            {
+            dj.merge(0, dummy, vec_map, rotation);
+            }
+        }
+
+    // DON'T renumber the clusters in the disjoint set from zero to num_clusters-1.
+    // The way I have set it up here, the "0th" cluster is the one that matches the motif.
+    populateEnv(dj, false);
+
+    return min_rmsd_vec;
     }
 
 //! Populate the m_env_index, m_env and m_tot_env arrays.

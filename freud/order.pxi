@@ -1809,6 +1809,45 @@ cdef class MatchEnv:
 
         self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, registration)
 
+    def minRMSDMotif(self, points, refPoints, registration=False):
+        """Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt the motif provided by refPoints.
+
+        :param points: particle positions
+        :param refPoints: vectors that make up the motif against which we are matching
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type threshold: np.float32
+        :type hard_r: bool
+        :type registration: bool
+        :return: vector of minimal RMSD values, one value per particle.
+        :rtype: np.ndarray(shape=(num_particles, 1), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
+        if refPoints.dtype != np.float32:
+            raise ValueError("refPoints must be a numpy float32 array")
+        if refPoints.ndim != 2:
+            raise ValueError("refPoints must be a 2 dimensional array")
+        if refPoints.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+
+        cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, registration)
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[float, ndim=1] min_rmsd_arr = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>&min_rmsd_vec)
+
+        return min_rmsd_arr
+
     def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):
         """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
 
@@ -1820,8 +1859,8 @@ cdef class MatchEnv:
         :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
         :type registration: bool
-        :return: the mapping between the vectors of the environments that will make them correspond to each other. empty if they do not correspond to each other.
-        :rtype: map[int, int]
+        :return: a doublet that gives the rotated (or not) set of refPoints2, and the mapping between the vectors of refPoints1 and refPoints2 that will make them correspond to each other. empty if they do not correspond to each other.
+        :rtype: tuple[np.ndarray(shape=(num_neigh, 3), dtype=np.float32), map[int, int]]
         """
         if refPoints1.dtype != np.float32:
             raise ValueError("refPoints1 must be a numpy float32 array")
