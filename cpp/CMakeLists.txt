@@ -137,7 +137,7 @@ endforeach(src IN LISTS FREUD_SOURCES)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} ${CYTHON_SOURCES})
-target_compile_features(_freud PRIVATE cxx_range_for)
+#target_compile_features(_freud PRIVATE cxx_range_for)
 setup_pymodule(_freud)
 
 INSTALL(TARGETS _freud
