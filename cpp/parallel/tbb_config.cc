@@ -19,23 +19,14 @@ task_scheduler_init *ts = NULL;
 */
 void setNumThreads(unsigned int N)
     {
-    // when N is 0, go back to the default
-    if (N == 0 && ts != NULL)
-        {
-        delete ts;
-        ts = NULL;
-        return;
-        }
+    task_scheduler_init *old_ts(ts);
 
-    // if ts is set, delete it
-    if (ts != NULL)
-        {
-        delete ts;
-        ts = NULL;
-        }
+    if (N == 0)
+        N = task_scheduler_init::automatic;
 
     // then recreate it
     ts = new task_scheduler_init(N);
+    delete old_ts;
     }
 
 }; }; // end namespace freud::parallel
