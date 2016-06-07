@@ -53,6 +53,9 @@ include_directories(${NUMPY_INCLUDE_DIR})
 # add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
 # add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
+# include external source projects
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extern)
+
 # set the default install prefix
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     SET(CMAKE_INSTALL_PREFIX ${PYTHON_USER_SITE} CACHE PATH "Python site installation directory (defaults to USER_SITE)" FORCE)

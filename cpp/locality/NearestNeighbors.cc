@@ -86,6 +86,9 @@ public:
         Index2D b_i = Index2D(m_nNeigh, m_Np);
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {
+            // If we have found an incomplete set of neighbors, end now and rebuild
+            if(m_deficits > 0)
+                break;
             neighbors.clear();
 
             //get cell point is in
@@ -153,7 +156,7 @@ public:
         }
     };
 
-void NearestNeighbors::compute(trajectory::Box& box,
+void NearestNeighbors::compute(const trajectory::Box& box,
                                const vec3<float> *ref_pos,
                                unsigned int Nref,
                                const vec3<float> *pos,

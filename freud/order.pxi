@@ -549,77 +549,64 @@ cdef class HexOrderParameter:
 cdef class LocalDescriptors:
     """Compute a set of descriptors (a numerical "fingerprint") of a particle's local environment.
 
-    :param box: This Frame's box
-    :param nNeigh: Number of neighbors to compute descriptors for
+    :param nNeigh: Maximum number of neighbors to compute descriptors for
     :param lmax: Maximum spherical harmonic l to consider
     :param rmax: Initial guess of the maximum radius to looks for neighbors
+    :param negative_m: True if we should also calculate Ylm for negative m
     :type box: :py:meth:`freud.trajectory.Box()`
     :type nNeigh: unsigned int
     :type l: unsigned int
     :type rmax: float
 
-    .. todo:: update constructor/compute to take box in compute
 
     """
     cdef order.LocalDescriptors *thisptr
 
-    def __cinit__(self, box, nNeigh, lmax, rmax):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.LocalDescriptors(l_box, nNeigh, lmax, rmax)
+    def __cinit__(self, nNeigh, lmax, rmax, negative_m=True):
+        self.thisptr = new order.LocalDescriptors(nNeigh, lmax, rmax, negative_m)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points, orientations):
+    def computeNList(self, box, points):
         """
         Calculates the local descriptors.
 
+        :param nNeigh: Number of neighbors to compute with
         :param points: points to calculate the order parameter
-        :param orientations: orientations to calculate the order parameter
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
         """
-        if points.dtype != np.float32 or orientations.dtype != np.float32:
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2 or orientations.ndim !=2:
+        if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if orientations.shape[1] != 4:
-            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.compute(<vec3[float]*>&l_points[0], <quat[float]*>&l_orientations[0], nP)
+            self.thisptr.computeNList(l_box, <vec3[float]*>&l_points[0], nP)
 
-    def getMagR(self):
+    def compute(self, box, unsigned int nNeigh, points):
         """
-        Get a reference to the last computed radius magnitude array
+        Calculates the local descriptors.
 
-        :return: MagR
-        :rtype: np.float32
+        :param nNeigh: Number of neighbors to compute with
+        :param points: points to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
-        cdef float *magr = self.thisptr.getMagR().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>magr)
-        return result
-
-    def getQij(self):
-        """
-        Get a reference to the last computed relative orientation array
-
-        :return: Qij
-        :rtype: np.float32
-
-        """
-        cdef quat[float] *qij = self.thisptr.getQij().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        nbins[1] = 4
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>qij)
-        return result
+        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        with nogil:
+            self.thisptr.compute(l_box, nNeigh, <vec3[float]*>&l_points[0], nP)
 
     def getSph(self):
         """
@@ -629,19 +616,12 @@ cdef class LocalDescriptors:
         :rtype: np.complex64
         """
         cdef float complex *sph = self.thisptr.getSph().get()
-        cdef np.npy_intp nbins[1]
+        cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>sph)
+        nbins[1] = <np.npy_intp>self.thisptr.getNNeigh()
+        nbins[2] = <np.npy_intp>self.thisptr.getSphWidth()
+        cdef np.ndarray[np.complex64_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_COMPLEX64, <void*>sph)
         return result
-
-    def getBox(self):
-        """
-        Get the box used in the calculation
-
-        :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
-        """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
 
     def getNP(self):
         """
