@@ -58,6 +58,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HOSTDEVICE
 #endif
 
+#include "VectorMath.h"
+
 //! Index a 2D array
 /*! Row major mapping of 2D onto 1D
     \ingroup utils
@@ -84,6 +86,14 @@ class Index2D
         HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j)
             {
             return j*m_w + i;
+            }
+
+        vec2<unsigned int> operator()(unsigned int i) const
+            {
+            vec2<unsigned int> l_idx;
+            l_idx.x = i % m_w;
+            l_idx.y = i / m_w;
+            return l_idx;
             }
 
         //! Get the number of 1D elements stored
@@ -173,6 +183,19 @@ class Index3D
         HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j, unsigned int k) const
             {
             return k*m_w*m_h + j*m_w + i;
+            }
+
+        //! Unravel an index
+        /*! \param i 1D index along the width
+            \returns 3D index (\a i, \a j, \a k) corresponding to the 1D index (\a i) in row major order
+        */
+        vec3<unsigned int> operator()(unsigned int i) const
+            {
+            vec3<unsigned int> l_idx;
+            l_idx.x = i % m_w;
+            l_idx.y = (i / m_w) % m_h;
+            l_idx.z = i / (m_w*m_h);
+            return l_idx;
             }
 
         //! Get the number of 1D elements stored

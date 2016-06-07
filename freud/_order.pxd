@@ -94,20 +94,18 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
 
 cdef extern from "LocalDescriptors.h" namespace "freud::order":
     cdef cppclass LocalDescriptors:
-        LocalDescriptors(const trajectory.Box &,
+        LocalDescriptors(unsigned int,
                          unsigned int,
-                         unsigned int,
-                         float)
-        const trajectory.Box &getBox() const
+                         float,
+                         bool)
         unsigned int getNNeigh() const
         unsigned int getLMax() const
+        unsigned int getSphWidth() const
         float getRMax() const
         unsigned int getNP()
-        void compute(const vec3[float]*,
-                     const quat[float]*,
-                     unsigned int) nogil
-        shared_array[float] getMagR()
-        shared_array[quat[float]] getQij()
+        void computeNList(const trajectory.Box&, const vec3[float]*, unsigned int) nogil
+        void compute(const trajectory.Box&, unsigned int, const vec3[float]*,
+                     unsigned int) nogil except +
         shared_array[float complex] getSph()
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":

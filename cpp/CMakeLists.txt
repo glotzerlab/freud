@@ -94,20 +94,14 @@ set(FREUD_SOURCES
             interface/InterfaceMeasure.h
             order/Pairing2D.cc
             order/Pairing2D.h
-            pmft/PMFXYZ.cc
-            pmft/PMFXYZ.h
-            pmft/PMFXY2D.cc
-            pmft/PMFXY2D.h
-            pmft/PMFTXYT2D.cc
-            pmft/PMFTXYT2D.h
-            pmft/PMFTXYTP2D.cc
-            pmft/PMFTXYTP2D.h
-            pmft/PMFTXYTM2D.cc
-            pmft/PMFTXYTM2D.h
-            pmft/PMFTRPM.cc
-            pmft/PMFTRPM.h
+            pmft/PMFTXYZ.cc
+            pmft/PMFTXYZ.h
+            pmft/PMFTXY2D.cc
+            pmft/PMFTXY2D.h
             pmft/PMFTR12.cc
             pmft/PMFTR12.h
+            pmft/PMFTXYT.cc
+            pmft/PMFTXYT.h
             shapesplit/shapesplit.cc
             shapesplit/shapesplit.h
             interface/InterfaceMeasure.h
@@ -145,7 +139,7 @@ endforeach(src IN LISTS FREUD_SOURCES)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} ${CYTHON_SOURCES})
-target_compile_features(_freud PRIVATE cxx_range_for)
+#target_compile_features(_freud PRIVATE cxx_range_for)
 setup_pymodule(_freud)
 
 INSTALL(TARGETS _freud
