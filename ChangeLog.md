@@ -4,6 +4,17 @@
 
 Replace boost::shared_array with std::shared_ptr (C++ 11)
 
+## v0.4.1
+* PMFT: Fixed issue involving binning of angles correctly
+* PMFT: Fixed issue in R12 which prevented compute/accumulate from being called with non-flattened arrays
+* PMFT: Updated xyz api to allow simpler symmetric orientations to be supplied
+* PMFT: Updated pmftXY2D api
+* PMFT: Histograms are properly normalized, allowing for comparison between systems without needing to "zero" the system
+* fsph: Added library to calculate spherical harmonics via cython
+* Local Descriptors: Uses fsph, updates to API  
+* Parallel: Added default behavior to setNumThreads and added context manager
+
+
 ## v0.4.0
 
 * Add compiler flags for C++11 features
