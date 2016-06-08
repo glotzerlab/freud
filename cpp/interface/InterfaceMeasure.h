@@ -37,12 +37,12 @@ class InterfaceMeasure
 
         //! Compute the interface
         // unsigned int compute(const float3 *ref_points,
-        //                      unsigned int Nref,
+        //                      unsigned int n_ref,
         //                      const float3 *points,
         //                      unsigned int Np);
 
         unsigned int compute(const vec3<float> *ref_points,
-                             unsigned int Nref,
+                             unsigned int n_ref,
                              const vec3<float> *points,
                              unsigned int Np);
 

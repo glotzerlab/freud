@@ -35,7 +35,7 @@ cdef class InterfaceMeasure:
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeCellList()')
         cdef np.ndarray cRef_points = ref_points
-        cdef unsigned int Nref = ref_points.shape[0]
+        cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        return self.thisptr.compute(<vec3[float]*> cRef_points.data, Nref, <vec3[float]*> cPoints.data, Np)
+        return self.thisptr.compute(<vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np)

@@ -70,7 +70,7 @@ class CorrelationFunction
         void accumulate(const trajectory::Box &box,
                         const vec3<float> *ref_points,
                         const T *ref_values,
-                        unsigned int Nref,
+                        unsigned int n_ref,
                         const vec3<float> *points,
                         const T *point_values,
                         unsigned int Np);
@@ -105,7 +105,7 @@ class CorrelationFunction
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
-        unsigned int m_Nref;                  //!< number of reference particles
+        unsigned int m_n_ref;                  //!< number of reference particles
         unsigned int m_Np;                  //!< number of check particles
         unsigned int m_frame_counter;       //!< number of frames calc'd
 

@@ -44,7 +44,7 @@ class LocalDensity
         //! Compute the local density
         void compute(const trajectory::Box &box,
                      const vec3<float> *ref_points,
-                     unsigned int Nref,
+                     unsigned int n_ref,
                      const vec3<float> *points,
                      unsigned int Np);
 
@@ -63,7 +63,7 @@ class LocalDensity
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
-        unsigned int m_Nref;                //!< Last number of points computed
+        unsigned int m_n_ref;                //!< Last number of points computed
 
         boost::shared_array< float > m_density_array;         //!< density array computed
         boost::shared_array< float > m_num_neighbors_array;   //!< number of neighbors array computed

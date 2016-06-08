@@ -21,7 +21,7 @@ namespace freud { namespace locality {
 
 // stop using
 NearestNeighbors::NearestNeighbors():
-    m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_Nref(0), m_deficits()
+    m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_n_ref(0), m_deficits()
     {
     m_lc = new locality::LinkCell();
     m_deficits = 0;
@@ -29,7 +29,7 @@ NearestNeighbors::NearestNeighbors():
 
 NearestNeighbors::NearestNeighbors(float rmax,
                                    unsigned int nNeigh):
-    m_box(trajectory::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_Nref(0), m_deficits()
+    m_box(trajectory::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_n_ref(0), m_deficits()
     {
     m_lc = new locality::LinkCell(m_box, m_rmax);
     m_deficits = 0;
@@ -51,16 +51,16 @@ bool compareRsqVectors(const pair<float, unsigned int> &left,
 
 void NearestNeighbors::compute(const trajectory::Box& box,
                                const vec3<float> *ref_pos,
-                               unsigned int Nref,
+                               unsigned int n_ref,
                                const vec3<float> *pos,
                                unsigned int Np)
     {
     m_box = box;
     // reallocate the output array if it is not the right size
-    if (Nref != m_Nref)
+    if (n_ref != m_n_ref)
         {
-        m_rsq_array = boost::shared_array<float>(new float[Nref * m_nNeigh]);
-        m_neighbor_array = boost::shared_array<unsigned int>(new unsigned int[Nref * m_nNeigh]);
+        m_rsq_array = boost::shared_array<float>(new float[n_ref * m_nNeigh]);
+        m_neighbor_array = boost::shared_array<unsigned int>(new unsigned int[n_ref * m_nNeigh]);
         }
     // find the nearest neighbors
     do
@@ -156,7 +156,7 @@ void NearestNeighbors::compute(const trajectory::Box& box,
             }
         } while(m_deficits > 0);
     // save the last computed number of particles
-    m_Nref = Nref;
+    m_n_ref = n_ref;
     m_Np = Np;
     }
 
@@ -172,7 +172,7 @@ void NearestNeighbors::compute(const trajectory::Box& box,
 
 //     // validate that the 2nd dimension is only 3 for r and 4 for q
 //     num_util::check_dim(ref_pos, 1, 3);
-//     unsigned int Nref = num_util::shape(ref_pos)[0];
+//     unsigned int n_ref = num_util::shape(ref_pos)[0];
 //     num_util::check_dim(pos, 1, 3);
 //     unsigned int Np = num_util::shape(pos)[0];
 
@@ -183,7 +183,7 @@ void NearestNeighbors::compute(const trajectory::Box& box,
 //     // compute the order parameter with the GIL released
 //         {
 //         util::ScopedGILRelease gil;
-//         compute(box, ref_pos_raw, Nref, pos_raw, Np);
+//         compute(box, ref_pos_raw, n_ref, pos_raw, Np);
 //         }
 //     }
 

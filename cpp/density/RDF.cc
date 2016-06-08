@@ -121,141 +121,7 @@ class CumulativeCount
             }
     };
 
-//! \internal
-//! CombineArrays class to combine the thread-specific arrays into a single array
-class CombineArrays
-    {
-    private:
-        unsigned int m_nbins;
-        unsigned int *m_bin_counts;
-        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
-        float *m_avg_counts;
-        float *m_rdf_array;
-        float *m_vol_array;
-        float m_ndens;
-        float m_Nref;
-    public:
-        CombineArrays(unsigned int nbins,
-                      unsigned int *bin_counts,
-                      tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
-                      float *avg_counts,
-                      float *rdf_array,
-                      float *vol_array,
-                      float ndens,
-                      float Nref)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_avg_counts(avg_counts),
-              m_rdf_array(rdf_array), m_vol_array(vol_array), m_ndens(ndens), m_Nref(Nref)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myBin ) const
-            {
-            for (size_t i = myBin.begin(); i != myBin.end(); i++)
-                {
-                for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
-                     local_bins != m_local_bin_counts.end(); ++local_bins)
-                    {
-                    m_bin_counts[i] += (*local_bins)[i];
-                    }
-                m_avg_counts[i] = (float)m_bin_counts[i] / m_Nref;
-                m_rdf_array[i] = m_avg_counts[i] / m_vol_array[i] / m_ndens;
-                }
-            }
-    };
 
-//! \internal
-//! ComputeRDF class used with TBB to perform the RDF calculation
-class ComputeRDF
-    {
-    private:
-        unsigned int m_nbins;
-        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
-        const trajectory::Box m_box;
-        const float m_rmax;
-        const float m_dr;
-        const locality::LinkCell *m_lc;
-        const vec3<float> *m_ref_points;
-        const unsigned int m_Nref;
-        const vec3<float> *m_points;
-        const unsigned int m_Np;
-    public:
-        ComputeRDF(unsigned int nbins,
-                   tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
-                   const trajectory::Box &box,
-                   const float rmax,
-                   const float dr,
-                   const locality::LinkCell *lc,
-                   const vec3<float> *ref_points,
-                   unsigned int Nref,
-                   const vec3<float> *points,
-                   unsigned int Np)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_box(box), m_rmax(rmax), m_dr(dr), m_lc(lc),
-              m_ref_points(ref_points), m_Nref(Nref), m_points(points), m_Np(Np)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myR ) const
-            {
-            assert(m_ref_points);
-            assert(m_points);
-            assert(m_Nref > 0);
-            assert(m_Np > 0);
-
-            float dr_inv = 1.0f / m_dr;
-            float rmaxsq = m_rmax * m_rmax;
-
-            bool exists;
-            m_bin_counts.local(exists);
-            if (! exists)
-                {
-                m_bin_counts.local() = new unsigned int [m_nbins];
-                memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
-                }
-
-            // for each reference point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
-                {
-                // get the cell the point is in
-                vec3<float> ref = m_ref_points[i];
-                unsigned int ref_cell = m_lc->getCell(ref);
-
-                // loop over all neighboring cells
-                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-                    {
-                    unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                    // iterate over the particles in that cell
-                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
-                        {
-                        // compute r between the two particles
-                        vec3<float> point = m_points[j];
-                        vec3<float> delta = m_box.wrap(m_points[j] - ref);
-
-                        float rsq = dot(delta, delta);
-
-                        if (rsq < rmaxsq)
-                            {
-                            float r = sqrtf(rsq);
-
-                            // bin that r
-                            float binr = r * dr_inv;
-                            // fast float to int conversion with truncation
-                            #ifdef __SSE2__
-                            unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                            #else
-                            unsigned int bin = (unsigned int)(binr);
-                            #endif
-
-                            if (bin < m_nbins)
-                                {
-                                ++m_bin_counts.local()[bin];
-                                }
-                            }
-                        }
-                    }
-                } // done looping over reference points
-            }
-    };
 
 //! \internal
 //! helper function to reduce the thread specific arrays into the boost array
@@ -273,14 +139,21 @@ void RDF::reduceRDF()
     else
         m_vol_array = m_vol_array3D;
     // now compute the rdf
-    parallel_for(blocked_range<size_t>(1,m_nbins), CombineArrays(m_nbins,
-                                                                 m_bin_counts.get(),
-                                                                 m_local_bin_counts,
-                                                                 m_avg_counts.get(),
-                                                                 m_rdf_array.get(),
-                                                                 m_vol_array.get(),
-                                                                 ndens,
-                                                                 (float)m_Nref));
+    parallel_for(blocked_range<size_t>(1,m_nbins),
+      [=] (const blocked_range<size_t>& r)
+      {
+      for (size_t i = r.begin(); i != r.end(); i++)
+          {
+          for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+               local_bins != m_local_bin_counts.end(); ++local_bins)
+              {
+              m_bin_counts[i] += (*local_bins)[i];
+              }
+          m_avg_counts[i] = (float)m_bin_counts[i] / m_n_ref;
+          m_rdf_array[i] = m_avg_counts[i] / m_vol_array[i] / ndens;
+          }
+      });
+
     CumulativeCount myN_r(m_N_r_array.get(), m_avg_counts.get());
     parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
     for (unsigned int i=0; i<m_nbins; i++)
@@ -340,18 +213,72 @@ void RDF::accumulate(trajectory::Box& box,
     {
     m_box = box;
     m_Np = Np;
-    m_Nref = Nref;
+    m_n_ref = Nref;
     m_lc->computeCellList(m_box, points, Np);
-    parallel_for(blocked_range<size_t>(0,Nref), ComputeRDF(m_nbins,
-                                                           m_local_bin_counts,
-                                                           m_box,
-                                                           m_rmax,
-                                                           m_dr,
-                                                           m_lc,
-                                                           ref_points,
-                                                           Nref,
-                                                           points,
-                                                           Np));
+    parallel_for(blocked_range<size_t>(0,Nref),
+      [=] (const blocked_range<size_t>& r)
+      {
+      assert(ref_points);
+      assert(points);
+      assert(m_n_ref > 0);
+      assert(Np > 0);
+
+      float dr_inv = 1.0f / m_dr;
+      float rmaxsq = m_rmax * m_rmax;
+
+      bool exists;
+      m_local_bin_counts.local(exists);
+      if (! exists)
+          {
+          m_local_bin_counts.local() = new unsigned int [m_nbins];
+          memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
+          }
+
+      // for each reference point
+      for (size_t i = r.begin(); i != r.end(); i++)
+          {
+          // get the cell the point is in
+          vec3<float> ref = ref_points[i];
+          unsigned int ref_cell = m_lc->getCell(ref);
+
+          // loop over all neighboring cells
+          const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
+          for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+              {
+              unsigned int neigh_cell = neigh_cells[neigh_idx];
+
+              // iterate over the particles in that cell
+              locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
+              for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                  {
+                  // compute r between the two particles
+                  vec3<float> point = points[j];
+                  vec3<float> delta = m_box.wrap(points[j] - ref);
+
+                  float rsq = dot(delta, delta);
+
+                  if (rsq < rmaxsq)
+                      {
+                      float r = sqrtf(rsq);
+
+                      // bin that r
+                      float binr = r * dr_inv;
+                      // fast float to int conversion with truncation
+                      #ifdef __SSE2__
+                      unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+                      #else
+                      unsigned int bin = (unsigned int)(binr);
+                      #endif
+
+                      if (bin < m_nbins)
+                          {
+                          ++m_local_bin_counts.local()[bin];
+                          }
+                      }
+                  }
+              }
+          } // done looping over reference points
+      });
     m_frame_counter += 1;
     }
 
