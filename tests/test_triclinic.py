@@ -33,7 +33,14 @@ class TestBox(unittest.TestCase):
 
         npt.assert_almost_equal(volume, 8, decimal=2, err_msg="VolumnFail")
 
-    def test_Wrap(self):
+    def test_WrapSingleParticle(self):
+        box = trajectory.Box(2, 2, 2, 1, 0, 0)
+        testpoints = np.array([0, -1, -1], dtype=np.float32)
+        box.wrap(testpoints)
+
+        npt.assert_almost_equal(testpoints[0], -2, decimal=2, err_msg="WrapFail")
+
+    def test_WrapMultipleParticles(self):
         box = trajectory.Box(2, 2, 2, 1, 0, 0)
         testpoints = np.array([[0, -1, -1],
                                [0, 0.5, 0]], dtype=np.float32)
@@ -41,7 +48,7 @@ class TestBox(unittest.TestCase):
 
         npt.assert_almost_equal(testpoints[0,0], -2, decimal=2, err_msg="WrapFail")
 
-    def test_WrapMultiple(self):
+    def test_WrapMultipleImages(self):
         box = trajectory.Box(2, 2, 2, 1, 0, 0)
         testpoints = np.array([[10, -5, -5],
                                [0, 0.5, 0]], dtype=np.float32)
