@@ -53,6 +53,9 @@ include_directories(${NUMPY_INCLUDE_DIR})
 # add_definitions(-DPY_ARRAY_UNIQUE_SYMBOL=PyArrayHandle)
 # add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 
+# macros
+include (FREUDMacros)
+
 # include external source projects
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extern)
 
