@@ -26,56 +26,44 @@ LocalDescriptors::LocalDescriptors(
     {
     }
 
-class ComputeLocalDescriptors
+
+void LocalDescriptors::computeNList(const box::Box& box, const vec3<float> *r, unsigned int Np)
     {
-private:
-    const trajectory::Box& m_box;
-    const unsigned int m_nNeigh;
-    const unsigned int m_neighmax;
-    const unsigned int m_lmax;
-    const unsigned int m_sphwidth;
-    const bool m_negative_m;
-    const vec3<float> *m_r;
-    const unsigned int *m_neighborList;
-    const float *m_rsqArray;
-    complex<float> *m_sphArray;
-public:
-    ComputeLocalDescriptors(
-        complex<float> *sphArray,
-        const trajectory::Box& box,
-        const unsigned int nNeigh,
-        const unsigned int neighmax,
-        const unsigned int lmax,
-        const unsigned int sphwidth,
-        const bool negative_m,
-        const vec3<float> *r,
-        const unsigned int *neighborList, const float *rsqArray):
-        m_box(box), m_nNeigh(nNeigh), m_neighmax(neighmax), m_lmax(lmax), m_sphwidth(sphwidth),
-        m_negative_m(negative_m),
-        m_r(r), m_neighborList(neighborList), m_rsqArray(rsqArray),
-        m_sphArray(sphArray)
+    m_nn.compute(box, r, Np, r, Np);
+    }
+
+void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np)
+    {
+    if(m_nn.getNp() != Np)
+        throw runtime_error("Must call computeNList() before compute");
+
+    // reallocate the output array if it is not the right size
+    if (Np != m_Np || nNeigh != m_nNeigh)
         {
+        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()]);
+        m_nNeigh = nNeigh;
         }
 
-    void operator()( const blocked_range<size_t>& r ) const
+    parallel_for(blocked_range<size_t>(0,Np),
+        [=] (const blocked_range<size_t>& br)
         {
         fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
         Index2D idx_nlist(m_neighmax, 0);
 
-        for(size_t i=r.begin(); i!=r.end(); ++i)
+        for(size_t i=br.begin(); i!=br.end(); ++i)
             {
-            const vec3<float> r_i(m_r[i]);
+            const vec3<float> r_i(r[i]);
 
             float inertiaTensor[3][3];
             for(size_t ii(0); ii < 3; ++ii)
                 for(size_t jj(0); jj < 3; ++jj)
                     inertiaTensor[ii][jj] = 0;
 
-            for(size_t k(0); k < m_nNeigh; ++k)
+            for(size_t k(0); k < nNeigh; ++k)
                 {
-                const float rsq(m_rsqArray[idx_nlist(k, i)]);
-                const vec3<float> r_j(m_r[m_neighborList[idx_nlist(k, i)]]);
-                const vec3<float> rvec(m_box.wrap(r_j - r_i));
+                const float rsq(m_nn.getRsqList().get()[idx_nlist(k, i)]);
+                const vec3<float> r_j(r[m_nn.getNeighborList().get()[idx_nlist(k, i)]]);
+                const vec3<float> rvec(box.wrap(r_j - r_i));
 
                 for(size_t ii(0); ii < 3; ++ii)
                     inertiaTensor[ii][ii] += rsq;
@@ -123,13 +111,13 @@ public:
             const vec3<float> eigenvec1(eigenvectors[0][1], eigenvectors[1][1], eigenvectors[2][1]);
             const vec3<float> eigenvec2(eigenvectors[0][2], eigenvectors[1][2], eigenvectors[2][2]);
 
-            unsigned int sphCount(i*m_nNeigh*m_sphwidth);
+            unsigned int sphCount(i*nNeigh*getSphWidth());
 
-            for(size_t k(0); k < m_nNeigh; ++k)
+            for(size_t k(0); k < nNeigh; ++k)
                 {
-                const float rsq(m_rsqArray[idx_nlist(k, i)]);
-                const vec3<float> r_j(m_r[m_neighborList[idx_nlist(k, i)]]);
-                const vec3<float> rij(m_box.wrap(r_j - r_i));
+                const float rsq(m_nn.getRsqList().get()[idx_nlist(k, i)]);
+                const vec3<float> r_j(r[m_nn.getNeighborList().get()[idx_nlist(k, i)]]);
+                const vec3<float> rij(box.wrap(r_j - r_i));
                 const vec3<float> bond(dot(eigenvec0, rij),
                                        dot(eigenvec1, rij),
                                        dot(eigenvec2, rij));
@@ -143,77 +131,13 @@ public:
                 sph_eval.compute(phi, theta);
 
                 std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray[sphCount]);
-                sphCount += m_sphwidth;
+                sphCount += getSphWidth();
                 }
             }
-        }
-    };
-
-void LocalDescriptors::computeNList(const trajectory::Box& box, const vec3<float> *r, unsigned int Np)
-    {
-    m_nn.compute(box, r, Np, r, Np);
-    }
-
-void LocalDescriptors::compute(const trajectory::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np)
-    {
-    if(m_nn.getNp() != Np)
-        throw runtime_error("Must call computeNList() before compute");
-
-    // reallocate the output array if it is not the right size
-    if (Np != m_Np || nNeigh != m_nNeigh)
-        {
-        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()]);
-        m_nNeigh = nNeigh;
-        }
-
-    parallel_for(blocked_range<size_t>(0,Np),
-        ComputeLocalDescriptors(
-            m_sphArray.get(), box, nNeigh, m_neighmax,
-            m_lmax, getSphWidth(), m_negative_m, r,
-            m_nn.getNeighborList().get(), m_nn.getRsqList().get()));
+        });
 
     // save the last computed number of particles
     m_Np = Np;
     }
-
-// void LocalDescriptors::computePy(boost::python::numeric::array r,
-//     boost::python::numeric::array q)
-//     {
-//     //validate input type and rank
-//     num_util::check_type(r, NPY_FLOAT);
-//     num_util::check_rank(r, 2);
-//     num_util::check_type(q, NPY_FLOAT);
-//     num_util::check_rank(q, 2);
-
-//     // validate that the 2nd dimension is only 3 for r and 4 for q
-//     num_util::check_dim(r, 1, 3);
-//     num_util::check_dim(q, 1, 4);
-//     unsigned int Np = num_util::shape(r)[0];
-
-//     if(num_util::shape(r)[0] != num_util::shape(q)[0])
-//         throw runtime_error("Position and quaternion arrays must have the same length!");
-
-//     // get the raw data pointers and compute order parameter
-//     vec3<float>* r_raw = (vec3<float>*) num_util::data(r);
-//     quat<float>* q_raw = (quat<float>*) num_util::data(q);
-
-//     // compute the order parameter with the GIL released
-//         {
-//         util::ScopedGILRelease gil;
-//         compute(r_raw, q_raw, Np);
-//         }
-//     }
-
-// void export_LocalDescriptors()
-//     {
-//     class_<LocalDescriptors>("LocalDescriptors", init<trajectory::Box&, unsigned int, unsigned int, float>())
-//         .def("getBox", &LocalDescriptors::getBox, return_internal_reference<>())
-//         .def("getNNeigh", &LocalDescriptors::getNNeigh)
-//         .def("getLMax", &LocalDescriptors::getLMax)
-//         .def("compute", &LocalDescriptors::computePy)
-//         .def("getMagR", &LocalDescriptors::getMagRPy)
-//         .def("getSph", &LocalDescriptors::getSphPy)
-//         ;
-//     }
 
 }; }; // end namespace freud::order

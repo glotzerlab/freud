@@ -7,8 +7,9 @@
 
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 #include "wigner3j.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_WL_H__
 #define _LOCAL_WL_H__
@@ -43,16 +44,16 @@ class LocalWl
         @param rmax Cutoff radius for running the local order parameter. Values near first minima of the rdf are recommended.
         @param l Spherical harmonic quantum number l.  Must be a positive even number.
         **/
-        LocalWl(const trajectory::Box& box, float rmax, unsigned int l);
+        LocalWl(const box::Box& box, float rmax, unsigned int l);
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Reset the simulation box size
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox; //Set
             locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );
@@ -187,7 +188,7 @@ class LocalWl
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;             //!< Maxium radius at which to cluster one crystal;
 

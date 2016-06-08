@@ -69,104 +69,6 @@ namespace freud { namespace viz {
 //         }
 //     }
 
-//! \internal
-/*! \brief Helper class for parallel computation in linearToSRGBA
-*/
-class ComputeHSV2RGBA
-    {
-    private:
-        float4 *m_cmap;
-        const float *m_theta_array;
-        const float *m_s_array;
-        const float *m_v_array;
-        const float m_a;
-    public:
-        ComputeHSV2RGBA(float4 *cmap,
-                        const float *theta_array,
-                        const float *s_array,
-                        const float *v_array,
-                        const float a)
-            : m_cmap(cmap), m_theta_array(theta_array), m_s_array(s_array), m_v_array(v_array), m_a(a)
-            {
-            }
-
-        void operator()( const blocked_range<size_t>& r ) const
-            {
-            float4 *cmap = m_cmap;
-            const float *theta_array = m_theta_array;
-            const float *s_array = m_s_array;
-            const float *v_array = m_v_array;
-            const float a = m_a;
-
-            for (size_t i = r.begin(); i < r.end(); ++i)
-                {
-                // algorithm from http://en.wikipedia.org/wiki/HSL_and_HSV
-                float min;
-                float chroma;
-                float Hprime;
-                float X;
-
-                // fix s and V to 1.0 for now.
-                float v = v_array[i];
-                float s = s_array[i];
-
-                // temporary holders for r,g,b
-                float r=0.0f, g=0.0f, b=0.0f;
-
-                // map angle to 0-2pi range
-                float theta = fmodf(theta_array[i],M_PI*2.0f);
-                if (theta < 0.0f)
-                    theta += M_PI*2.0f;
-
-                // compute rgb from hue angle
-                chroma = s*v;
-                Hprime = theta / (M_PI / 3.0f);
-                X = chroma * (1.0f - fabsf(fmodf(Hprime, 2.0f) - 1.0f));
-
-                if(Hprime < 1.0f)
-                    {
-                    r = chroma;
-                    g = X;
-                    }
-                else if(Hprime < 2.0f)
-                    {
-                    r = X;
-                    g = chroma;
-                    }
-                else if(Hprime < 3.0f)
-                    {
-                    g = chroma;
-                    b = X;
-                    }
-                else if(Hprime < 4.0f)
-                    {
-                    g= X;
-                    b = chroma;
-                    }
-                else if(Hprime < 5.0f)
-                    {
-                    r = X;
-                    b = chroma;
-                    }
-                else if(Hprime <= 6.0f)
-                    {
-                    r = chroma;
-                    b = X;
-                    }
-
-                min = v - chroma;
-
-                r += min;
-                g += min;
-                b += min;
-
-                cmap[i].x = powf(r, 1.0f/2.2f);
-                cmap[i].y = powf(g, 1.0f/2.2f);
-                cmap[i].z = powf(b, 1.0f/2.2f);
-                cmap[i].w = a;
-                }
-            }
-    };
 
 
 /*! \param cmap Output colormap (Nx4 float32 array)
@@ -182,7 +84,85 @@ void hsv2RGBA(float4 *cmap,
               float a,
               unsigned int N)
     {
-    parallel_for(blocked_range<size_t>(0,N,100), ComputeHSV2RGBA(cmap, theta_array, s_array, v_array, a));
+    parallel_for(blocked_range<size_t>(0,N,100),
+        [=] (const blocked_range<size_t>& r)
+        {
+        float4 *cmap = cmap;
+        const float *theta_array = theta_array;
+      const float *s_array = s_array;
+      const float *v_array = v_array;
+      const float a = a;
+
+      for (size_t i = r.begin(); i < r.end(); ++i)
+          {
+          // algorithm from http://en.wikipedia.org/wiki/HSL_and_HSV
+          float min;
+          float chroma;
+          float Hprime;
+          float X;
+
+          // fix s and V to 1.0 for now.
+          float v = v_array[i];
+          float s = s_array[i];
+
+          // temporary holders for r,g,b
+          float r=0.0f, g=0.0f, b=0.0f;
+
+          // map angle to 0-2pi range
+          float theta = fmodf(theta_array[i],M_PI*2.0f);
+          if (theta < 0.0f)
+              theta += M_PI*2.0f;
+
+          // compute rgb from hue angle
+          chroma = s*v;
+          Hprime = theta / (M_PI / 3.0f);
+          X = chroma * (1.0f - fabsf(fmodf(Hprime, 2.0f) - 1.0f));
+
+          if(Hprime < 1.0f)
+              {
+              r = chroma;
+              g = X;
+              }
+          else if(Hprime < 2.0f)
+              {
+              r = X;
+              g = chroma;
+              }
+          else if(Hprime < 3.0f)
+              {
+              g = chroma;
+              b = X;
+              }
+          else if(Hprime < 4.0f)
+              {
+              g= X;
+              b = chroma;
+              }
+          else if(Hprime < 5.0f)
+              {
+              r = X;
+              b = chroma;
+              }
+          else if(Hprime <= 6.0f)
+              {
+              r = chroma;
+              b = X;
+              }
+
+          min = v - chroma;
+
+          r += min;
+          g += min;
+          b += min;
+
+          cmap[i].x = powf(r, 1.0f/2.2f);
+          cmap[i].y = powf(g, 1.0f/2.2f);
+          cmap[i].z = powf(b, 1.0f/2.2f);
+          cmap[i].w = a;
+          }
+      });
+      //m_cmap(cmap), m_theta_array(theta_array), m_s_array(s_array), m_v_array(v_array), m_a(a)
+    //ComputeHSV2RGBA(cmap, theta_array, s_array, v_array, a));
     }
 
 
@@ -222,62 +202,6 @@ void hsv2RGBA(float4 *cmap,
 //         }
 //     }
 
-//! \internal
-/*! \brief Helper class for parallel computation in jet()
-*/
-class ComputeJet
-    {
-    private:
-        float4 *m_cmap;
-        const float *m_u_array;
-        const float m_a;
-    public:
-        ComputeJet(float4 *cmap,
-                        const float *u_array,
-                        const float a)
-            : m_cmap(cmap), m_u_array(u_array), m_a(a)
-            {
-            }
-
-        void operator()( const blocked_range<size_t>& r ) const
-            {
-            float4 *cmap = m_cmap;
-            const float *u_array = m_u_array;
-
-            for (size_t i = r.begin(); i < r.end(); ++i)
-                {
-                // clamp the input
-                float u = u_array[i];
-                u = max(0.0f, u);
-                u = min(1.0f, u);
-
-                // compute jet map
-                float v = 4.0f * u_array[i];
-                float r = min(v - 1.5f, -v + 4.5f);
-                float g = min(v - 0.5f, -v + 3.5f);
-                float b = min(v + 0.5f, -v + 2.5f);
-
-                // clamp to range 0,1
-                r = max(0.0f, r);
-                r = min(1.0f, r);
-
-                g = max(0.0f, g);
-                g = min(1.0f, g);
-
-                b = max(0.0f, b);
-                b = min(1.0f, b);
-
-                /*cmap[i].x = powf(r, 1.0f/2.2f);
-                cmap[i].y = powf(g, 1.0f/2.2f);
-                cmap[i].z = powf(b, 1.0f/2.2f);*/
-                cmap[i].x = r;
-                cmap[i].y = g;
-                cmap[i].z = b;
-                cmap[i].w = m_a;
-                }
-            }
-    };
-
 
 /*! \param cmap Output colormap (Nx4 float32 array)
     \param u_array Input values: linear values (N element float32 array)
@@ -288,7 +212,45 @@ void jet(float4 *cmap,
          float a,
          unsigned int N)
     {
-    parallel_for(blocked_range<size_t>(0,N,100), ComputeJet(cmap, u_array, a));
+    parallel_for(blocked_range<size_t>(0,N,100),
+      [=] (const blocked_range<size_t>& r)
+      {
+      float4 *cmap = cmap;
+      const float *u_array = u_array;
+
+      for (size_t i = r.begin(); i < r.end(); ++i)
+          {
+          // clamp the input
+          float u = u_array[i];
+          u = max(0.0f, u);
+          u = min(1.0f, u);
+
+          // compute jet map
+          float v = 4.0f * u_array[i];
+          float r = min(v - 1.5f, -v + 4.5f);
+          float g = min(v - 0.5f, -v + 3.5f);
+          float b = min(v + 0.5f, -v + 2.5f);
+
+          // clamp to range 0,1
+          r = max(0.0f, r);
+          r = min(1.0f, r);
+
+          g = max(0.0f, g);
+          g = min(1.0f, g);
+
+          b = max(0.0f, b);
+          b = min(1.0f, b);
+
+          /*cmap[i].x = powf(r, 1.0f/2.2f);
+          cmap[i].y = powf(g, 1.0f/2.2f);
+          cmap[i].z = powf(b, 1.0f/2.2f);*/
+          cmap[i].x = r;
+          cmap[i].y = g;
+          cmap[i].z = b;
+          cmap[i].w = a;
+          }
+      });
+
     }
 
 // /*! \internal
@@ -337,84 +299,6 @@ void jet(float4 *cmap,
 //         }
 //     }
 
-//! \internal
-/*! \brief Helper class for parallel computation in cubehelix()
-*/
-class ComputeCubehelix
-    {
-    private:
-        float4 *m_cmap;
-        const float *m_lambda_array;
-        const float m_a;
-        const float m_s;
-        const float m_r;
-        const float m_h;
-        const float m_gamma;
-        const bool m_reverse;
-    public:
-        ComputeCubehelix(float4 *cmap,
-                        const float *lambda_array,
-                        const float a,
-                        const float s,
-                        const float r,
-                        const float h,
-                        const float gamma,
-                        const bool reverse)
-            : m_cmap(cmap), m_lambda_array(lambda_array), m_a(a), m_s(s),
-              m_r(r), m_h(h), m_gamma(gamma), m_reverse(reverse)
-            {
-            }
-
-        void operator()( const blocked_range<size_t>& r ) const
-            {
-            float4 *cmap = m_cmap;
-            const float *lambda_array = m_lambda_array;
-
-            for (size_t i = r.begin(); i < r.end(); ++i)
-                {
-                // clamp the input
-                float lambda = lambda_array[i];
-                lambda = max(0.0f, lambda);
-                lambda = min(1.0f, lambda);
-                if (m_reverse)
-                    lambda = 1.0f - lambda;
-
-                // In the original colormap, phi is calculated on
-                // lambda, not lambda^gamma
-                const float phi = 2*M_PI*(m_s*(1.0f/3.0f) + m_r*lambda);
-                lambda = powf(lambda, m_gamma);
-
-                // Note that this is the "a" parameter from the paper
-                // and has nothing to do with m_a (the alpha value of
-                // the color to return)
-                const float a = m_h*lambda*(1.0f - lambda)*0.5f;
-
-                // sin and cosine of phi
-                const float sphi = sinf(phi);
-                const float cphi = cosf(phi);
-
-                float r = lambda + a*(-0.14861f*cphi + 1.78277f*sphi);
-                float g = lambda + a*(-0.29227f*cphi - 0.90649f*sphi);
-                float b = lambda + a*( 1.97294f*cphi);
-
-                // clamp to range 0,1
-                r = max(0.0f, r);
-                r = min(1.0f, r);
-
-                g = max(0.0f, g);
-                g = min(1.0f, g);
-
-                b = max(0.0f, b);
-                b = min(1.0f, b);
-
-                cmap[i].x = r;
-                cmap[i].y = g;
-                cmap[i].z = b;
-                cmap[i].w = m_a;
-                }
-            }
-    };
-
 
 /*! \param cmap Output colormap (Nx4 float32 array)
     \param lambda_array Input values: linear values (N element float32 array)
@@ -435,7 +319,55 @@ void cubehelix(float4 *cmap,
                float gamma,
                bool reverse)
     {
-    parallel_for(blocked_range<size_t>(0,N,100), ComputeCubehelix(cmap, lambda_array, a, s, r, h, gamma, reverse));
-    }
+    parallel_for(blocked_range<size_t>(0,N,100),
+      [=] (const blocked_range<size_t>& br)
+      {
+      float4 *cmap = cmap;
+      const float *lambda_array = lambda_array;
+
+      for (size_t i = br.begin(); i < br.end(); ++i)
+          {
+          // clamp the input
+          float lambda = lambda_array[i];
+          lambda = max(0.0f, lambda);
+          lambda = min(1.0f, lambda);
+          if (reverse)
+              lambda = 1.0f - lambda;
+
+          // In the original colormap, phi is calculated on
+          // lambda, not lambda^gamma
+          const float phi = 2*M_PI*(s*(1.0f/3.0f) + r*lambda);
+          lambda = powf(lambda, gamma);
+
+          // Note that this is the "a" parameter from the paper
+          // and has nothing to do with a (the alpha value of
+          // the color to return)
+          const float a_paper = h*lambda*(1.0f - lambda)*0.5f;
+
+          // sin and cosine of phi
+          const float sphi = sinf(phi);
+          const float cphi = cosf(phi);
+
+          float r = lambda + a_paper*(-0.14861f*cphi + 1.78277f*sphi);
+          float g = lambda + a_paper*(-0.29227f*cphi - 0.90649f*sphi);
+          float b = lambda + a_paper*( 1.97294f*cphi);
+
+          // clamp to range 0,1
+          r = max(0.0f, r);
+          r = min(1.0f, r);
+
+          g = max(0.0f, g);
+          g = min(1.0f, g);
+
+          b = max(0.0f, b);
+          b = min(1.0f, b);
+
+          cmap[i].x = r;
+          cmap[i].y = g;
+          cmap[i].z = b;
+          cmap[i].w = a;
+          }
+      });
+};
 
 }; }; // end namespace freud::viz

@@ -4,7 +4,7 @@
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 
 #include <tbb/tbb.h>
 
@@ -52,7 +52,7 @@ class CorrelationFunction
         ~CorrelationFunction();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -67,10 +67,10 @@ class CorrelationFunction
             }
 
         //! accumulate the correlation function
-        void accumulate(const trajectory::Box &box,
+        void accumulate(const box::Box &box,
                         const vec3<float> *ref_points,
                         const T *ref_values,
-                        unsigned int Nref,
+                        unsigned int n_ref,
                         const vec3<float> *points,
                         const T *point_values,
                         unsigned int Np);
@@ -100,12 +100,12 @@ class CorrelationFunction
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
-        unsigned int m_Nref;                  //!< number of reference particles
+        unsigned int m_n_ref;                  //!< number of reference particles
         unsigned int m_Np;                  //!< number of check particles
         unsigned int m_frame_counter;       //!< number of frames calc'd
 

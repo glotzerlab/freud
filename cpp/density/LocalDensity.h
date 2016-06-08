@@ -12,7 +12,7 @@
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 
 #ifndef _LOCAL_DENSITY_H__
 #define _LOCAL_DENSITY_H__
@@ -36,15 +36,15 @@ class LocalDensity
        ~LocalDensity();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Compute the local density
-        void compute(const trajectory::Box &box,
+        void compute(const box::Box &box,
                      const vec3<float> *ref_points,
-                     unsigned int Nref,
+                     unsigned int n_ref,
                      const vec3<float> *points,
                      unsigned int Np);
 
@@ -58,12 +58,12 @@ class LocalDensity
         boost::shared_array< float > getNumNeighbors();
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
-        unsigned int m_Nref;                //!< Last number of points computed
+        unsigned int m_n_ref;                //!< Last number of points computed
 
         boost::shared_array< float > m_density_array;         //!< density array computed
         boost::shared_array< float > m_num_neighbors_array;   //!< number of neighbors array computed

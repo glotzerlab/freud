@@ -4,7 +4,7 @@
 // hack to keep VectorMath's swap from polluting the global namespace
 // if this is a problem, we need to solve it
 #include "VectorMath.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #include "tbb/atomic.h"
@@ -117,7 +117,7 @@ class NearestNeighbors
         iteratorneighbor iterneighbor(unsigned int idx) const
             {
             assert(m_neighbor_array.get() != NULL);
-            return iteratorneighbor(m_neighbor_array, m_Nref, m_nNeigh, idx);
+            return iteratorneighbor(m_neighbor_array, m_n_ref, m_nNeigh, idx);
             }
 
         void setRMax(float rmax)
@@ -133,7 +133,7 @@ class NearestNeighbors
             }
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -202,7 +202,7 @@ class NearestNeighbors
         //     {
         //     unsigned int *arr = m_neighbor_array.get();
         //     std::vector<intp> dims(2);
-        //     dims[0] = m_Nref;
+        //     dims[0] = m_n_ref;
         //     dims[1] = m_nNeigh;
         //     return num_util::makeNum(arr, dims);
         //     }
@@ -250,17 +250,17 @@ class NearestNeighbors
         //     }
 
         //! find the requested nearest neighbors
-        void compute(const trajectory::Box& box, const vec3<float> *ref_pos, unsigned int Nref, const vec3<float> *pos, unsigned int Np);
+        void compute(const box::Box& box, const vec3<float> *ref_pos, unsigned int n_ref, const vec3<float> *pos, unsigned int Np);
 
         // //! Python wrapper for compute
-        // void computePy(trajectory::Box& box, boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
+        // void computePy(box::Box& box, boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         unsigned int m_nNeigh;            //!< Number of neighbors to calculate
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         unsigned int m_Np;                //!< Number of particles for which nearest neighbors checks
-        unsigned int m_Nref;                //!< Number of particles for which nearest neighbors calcs
+        unsigned int m_n_ref;                //!< Number of particles for which nearest neighbors calcs
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
         boost::shared_array<unsigned int> m_neighbor_array;         //!< array of nearest neighbors computed

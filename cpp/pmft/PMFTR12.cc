@@ -24,7 +24,7 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsigned int nbins_t2)
-    : m_box(trajectory::Box()), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
+    : m_box(box::Box()), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
       m_nbins_r(nbins_r), m_nbins_t1(nbins_t1), m_nbins_t2(nbins_t2), m_frame_counter(0),
       m_n_ref(0), m_n_p(0), m_reduce(true)
     {
@@ -181,7 +181,7 @@ void PMFTR12::resetPCF()
     m_reduce = true;
     }
 
-void PMFTR12::accumulate(trajectory::Box& box,
+void PMFTR12::accumulate(box::Box& box,
                          vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int n_ref,

@@ -1,6 +1,7 @@
 # distutils: language = c++
 # cython: embedsignature=True
 
+include "box.pxi"
 include "trajectory.pxi"
 include "interface.pxi"
 include "locality.pxi"

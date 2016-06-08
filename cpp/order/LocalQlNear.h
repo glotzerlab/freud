@@ -7,7 +7,8 @@
 #undef swap
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_QL_NEAR_H__
 #define _LOCAL_QL_NEAR_H__
@@ -47,19 +48,19 @@ class LocalQlNear
         @param kn Number of nearest neighbors.  Must be a positive integer.
         **/
         //! Constructor
-        LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn=12);
+        LocalQlNear(const box::Box& box, float rmax, unsigned int l, unsigned int kn=12);
 
         //! Destructor
         ~LocalQlNear();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Reset the simulation box size
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox;  //Set
             delete m_nn;
@@ -165,7 +166,7 @@ class LocalQlNear
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmin;                     //!< Minimum r at which to determine neighbors
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;             //!< Number of neighbors

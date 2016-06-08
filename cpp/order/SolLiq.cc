@@ -8,7 +8,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-SolLiq::SolLiq(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l)
+SolLiq::SolLiq(const box::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l)
     :m_box(box), m_rmax(rmax), m_rmax_cluster(rmax), m_lc(box, rmax), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold), m_l(l)
     {
     m_Np = 0;
@@ -22,7 +22,28 @@ SolLiq::SolLiq(const trajectory::Box& box, float rmax, float Qthreshold, unsigne
         throw invalid_argument("l shouldbe greater than zero!");
     }
 
+// Calculating Ylm using fsph module
+void SolLiq::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+    {
+    if (Y.size() != 2*m_l+1)
+        Y.resize(2*m_l+1);
 
+    fsph::PointSPHEvaluator<float> sph_eval(m_l);
+
+    unsigned int j(0);
+    // old definition in compute (theta: 0...pi, phi: 0...2pi)
+    // in fsph, the definition is flipped
+    sph_eval.compute(theta, phi);
+
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, true));
+        iter != sph_eval.end(); ++iter)
+        {
+        Y[j] = *iter;
+        ++j;
+        }
+    }
+
+/*
 //Spherical harmonics from boost.  Chooses appropriate l from m_l local var.
 void SolLiq::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
@@ -103,7 +124,7 @@ void SolLiq::Y4m(const float theta, const float phi, std::vector<std::complex<fl
     //Done.
     }
 
-
+*/
 
 //Begins calculation of the solid-liq order parameters.
 //Note that the SolLiq container class conatins the threshold cutoffs
@@ -195,12 +216,13 @@ void SolLiq::computeClustersQ(const vec3<float> *points, unsigned int Np)
                     float phi = atan2(delta.y,delta.x);      //0..2Pi
                     float theta = acos(delta.z / sqrt(rsq)); //0..Pi
 
-                    if (m_l == 6)
+                    /*if (m_l == 6)
                         SolLiq::Y6m(theta,phi,Y);
                     else if (m_l == 4)
                         SolLiq::Y4m(theta,phi,Y);
                     else
-                        SolLiq::Ylm(theta,phi,Y);
+                    */
+                    SolLiq::Ylm(theta,phi,Y);
 
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
@@ -744,7 +766,7 @@ void SolLiq::computeClustersSharedNeighbors(const vec3<float> *points,
 
 // void export_SolLiq()
 //     {
-//     class_<SolLiq>("SolLiq", init<trajectory::Box&, float,float,unsigned int, unsigned int>())
+//     class_<SolLiq>("SolLiq", init<box::Box&, float,float,unsigned int, unsigned int>())
 //         //.def("getBox", &SolLiq::getBox, return_internal_reference<>())
 //         .def("compute", &SolLiq::computePy)
 //         .def("computeSolLiqVariant", &SolLiq::computeSolLiqVariantPy)

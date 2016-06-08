@@ -2,6 +2,7 @@
 import sys
 from freud.util._VectorMath cimport vec3
 cimport freud._locality as locality
+cimport freud._box as _box;
 from cython.operator cimport dereference
 import numpy as np
 cimport numpy as np
@@ -47,7 +48,7 @@ cdef class LinkCell:
     """Supports efficiently finding all points in a set within a certain
     distance from a given point.
 
-    :param box: :py:class:`freud.trajectory.Box` object
+    :param box: :py:class:`freud._box.Box` object
     :param cell_width: Maximum distance to find particles within
 
     .. note::
@@ -73,14 +74,14 @@ cdef class LinkCell:
     cdef locality.LinkCell *thisptr
 
     def __cinit__(self, box, cell_width):
-        cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new locality.LinkCell(cBox, float(cell_width))
 
     def __dealloc__(self):
         del self.thisptr
 
     def getBox(self):
-        """Return the stored :py:class:`freud.trajectory.Box` object"""
+        """Return the stored :py:class:`freud._box.Box` object"""
         return BoxFromCPP(self.thisptr.getBox())
 
     def getNumCells(self):
@@ -125,13 +126,13 @@ cdef class LinkCell:
     def computeCellList(self, box, points):
         """Update the data structure for the given set of points
 
-        :param box: :py:class:`freud.trajectory.Box` object
+        :param box: :py:class:`freud._box.Box` object
         :param points: Nx3 array-like object specifying coordinates
         """
         points = np.ascontiguousarray(points, dtype=np.float32)
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeCellList()')
-        cdef _trajectory.Box cBox = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
@@ -153,7 +154,7 @@ cdef class NearestNeighbors:
         del self.thisptr
 
     def getBox(self):
-        """Return the stored :py:class:`freud.trajectory.Box` object"""
+        """Return the stored :py:class:`freud._box.Box` object"""
         return BoxFromCPP(self.thisptr.getBox())
 
     def getNNeigh(self):
@@ -185,7 +186,7 @@ cdef class NearestNeighbors:
     def compute(self, box, ref_points, points):
         """Update the data structure for the given set of points
 
-        :param box: :py:class:`freud.trajectory.Box` object
+        :param box: :py:class:`freud._box.Box` object
         :param ref_points: Reference points to find neighbors of
         :param points: Points to find as neighbors
         """
@@ -195,10 +196,10 @@ cdef class NearestNeighbors:
         points = np.ascontiguousarray(points, dtype=np.float32)
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeCellList()')
-        cdef _trajectory.Box cBox = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
-        cdef unsigned int Nref = ref_points.shape[0]
+        cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
-            self.thisptr.compute(cBox, <vec3[float]*> cRef_points.data, Nref, <vec3[float]*> cPoints.data, Np)
+            self.thisptr.compute(cBox, <vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np)

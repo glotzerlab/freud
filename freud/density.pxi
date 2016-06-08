@@ -1,7 +1,7 @@
 
 from freud.util._VectorMath cimport vec3
 from freud.util._Boost cimport shared_array
-cimport freud._trajectory as _trajectory
+cimport freud._box as _box
 cimport freud._density as density
 from libc.string cimport memcpy
 import numpy as np
@@ -56,7 +56,7 @@ cdef class FloatCF:
         :param refValues: values to use in computation
         :param points: points to calculate the local density
         :param values: values to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type refValues: np.float64
         :type points: np.float32
@@ -72,23 +72,23 @@ cdef class FloatCF:
             raise ValueError("values must be a numpy float64 array")
         if refValues.ndim != 1 or values.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
-        cdef np.ndarray[float, ndim=1] l_points;
+        cdef np.ndarray[float, ndim=2] l_refPoints = refPoints
+        cdef np.ndarray[float, ndim=2] l_points;
         if refPoints is points:
             l_points = l_refPoints;
         else:
-            l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[np.float64_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+            l_points = points
+        cdef np.ndarray[np.float64_t, ndim=1] l_refValues = refValues
         cdef np.ndarray[np.float64_t, ndim=1] l_values
         if values is refValues:
             l_values = l_refValues
         else:
-            l_values = np.ascontiguousarray(values.flatten())
+            l_values = values
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <double*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <double*>&l_values[0], nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>l_refPoints.data, <double*>l_refValues.data, nRef, <vec3[float]*>l_points.data, <double*>l_values.data, nP)
 
     def getRDF(self):
         """
@@ -106,9 +106,9 @@ cdef class FloatCF:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """
@@ -125,7 +125,7 @@ cdef class FloatCF:
         :param refValues: values to use in computation
         :param points: points to calculate the local density
         :param values: values to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type refValues: np.float32
         :type points: np.float32
@@ -208,7 +208,7 @@ cdef class ComplexCF:
         :param refValues: values to use in computation
         :param points: points to calculate the local density
         :param values: values to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type refValues: np.complex128
         :type points: np.float32
@@ -224,23 +224,23 @@ cdef class ComplexCF:
             raise TypeError("values must be a numpy complex128 array")
         if refValues.ndim != 1 or values.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
-        cdef np.ndarray[float, ndim=1] l_points;
+        cdef np.ndarray[float, ndim=2] l_refPoints = refPoints
+        cdef np.ndarray[float, ndim=2] l_points;
         if refPoints is points:
             l_points = l_refPoints;
         else:
-            l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = np.ascontiguousarray(refValues.flatten())
+            l_points = points
+        cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = refValues
         cdef np.ndarray[np.complex128_t, ndim=1] l_values
         if values is refValues:
             l_values = l_refValues
         else:
-            l_values = np.ascontiguousarray(values.flatten())
+            l_values = values
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <np.complex128_t*>&l_refValues[0], nRef, <vec3[float]*>&l_points[0], <np.complex128_t*>&l_values[0], nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>l_refPoints.data, <np.complex128_t*>l_refValues.data, nRef, <vec3[float]*>l_points.data, <np.complex128_t*>l_values.data, nP)
 
     def getRDF(self):
         """
@@ -256,9 +256,9 @@ cdef class ComplexCF:
     def getBox(self):
         """
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """
@@ -275,7 +275,7 @@ cdef class ComplexCF:
         :param refValues: values to use in computation
         :param points: points to calculate the local density
         :param values: values to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type refValues: np.complex64
         :type points: np.float32
@@ -357,7 +357,7 @@ cdef class GaussianDensity:
     def getBox(self):
         """
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 
@@ -367,7 +367,7 @@ cdef class GaussianDensity:
 
         :param box: simulation box
         :param points: points to calculate the local density
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.float32
         """
         points = np.ascontiguousarray(points, dtype=np.float32)
@@ -375,11 +375,11 @@ cdef class GaussianDensity:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
 
     def getGaussianDensity(self):
         """
@@ -389,7 +389,7 @@ cdef class GaussianDensity:
         cdef float *density = self.thisptr.getDensity().get()
         cdef np.npy_intp nbins[1]
         arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
-        cdef _trajectory.Box l_box = self.thisptr.getBox()
+        cdef _box.Box l_box = self.thisptr.getBox()
         if not l_box.is2D():
             arraySize *= self.thispth.getWidthZ()
         nbins[0] = <np.npy_intp>arraySize
@@ -438,7 +438,7 @@ cdef class LocalDensity:
     def getBox(self):
         """
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 
@@ -449,7 +449,7 @@ cdef class LocalDensity:
         :param box: simulation box
         :param refPoints: reference points to calculate the local density
         :param points: (optional) points to calculate the local density
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type points: np.float32
         """
@@ -467,13 +467,13 @@ cdef class LocalDensity:
             raise ValueError("points must be a 2 dimensional array")
         if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_refPoints = refPoints
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_refPoints[0], nRef, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.compute(l_box, <vec3[float]*>l_refPoints.data, nRef, <vec3[float]*>l_points.data, nP)
 
     def getDensity(self):
         """
@@ -527,7 +527,7 @@ cdef class RDF:
     def getBox(self):
         """
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 
@@ -538,7 +538,7 @@ cdef class RDF:
         :param box: simulation box
         :param refPoints: reference points to calculate the local density
         :param points: points to calculate the local density
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type points: np.float32
         """
@@ -548,13 +548,13 @@ cdef class RDF:
             raise ValueError("points must be a 2 dimensional array")
         if refPoints.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_refPoints = refPoints
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], nRef, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>l_refPoints.data, nRef, <vec3[float]*>l_points.data, nP)
 
     def compute(self, box, refPoints, points):
         """
@@ -563,7 +563,7 @@ cdef class RDF:
         :param box: simulation box
         :param refPoints: reference points to calculate the local density
         :param points: points to calculate the local density
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type points: np.float32
         """

@@ -43,31 +43,6 @@ namespace freud { namespace viz {
 //         }
 //     }
 
-//! \internal
-/*! \brief Helper class for parallel computation in linearToSRGBA
-*/
-class ComputeLinearToFromSRGBA
-    {
-    private:
-        float4 *m_cmap;
-        float m_p;
-    public:
-        ComputeLinearToFromSRGBA(float4 *cmap, float p)
-            : m_cmap(cmap), m_p(p)
-            {
-            }
-
-        void operator()( const blocked_range<size_t>& r ) const
-            {
-            // ispc::viz_linearToSRGBA((float*)m_cmap, r.begin(), r.end(), m_p);
-            for (unsigned int i = r.begin(); i < r.end(); i++)
-                {
-                m_cmap[i].x = powf(m_cmap[i].x, m_p);
-                m_cmap[i].y = powf(m_cmap[i].y, m_p);
-                m_cmap[i].z = powf(m_cmap[i].z, m_p);
-                }
-            }
-    };
 
 
 /*! \param cmap Input/Output colormap (Nx4 float32 array)
@@ -79,7 +54,17 @@ void linearToFromSRGBA(float4 *cmap,
                        float p)
     {
     static affinity_partitioner ap;
-    parallel_for(blocked_range<size_t>(0,N,100), ComputeLinearToFromSRGBA(cmap, p), ap);
+    parallel_for(blocked_range<size_t>(0,N,100),
+    [=] (const blocked_range<size_t>& r)
+    {
+    // ispc::viz_linearToSRGBA((float*)m_cmap, r.begin(), r.end(), m_p);
+    for (unsigned int i = r.begin(); i < r.end(); i++)
+        {
+        cmap[i].x = powf(cmap[i].x, p);
+        cmap[i].y = powf(cmap[i].y, p);
+        cmap[i].z = powf(cmap[i].z, p);
+        }
+    });
     }
 
 }; }; // end namespace freud::viz

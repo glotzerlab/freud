@@ -171,6 +171,7 @@ tensor4<Real> operator*=(tensor4<Real>& a, const Real& b)
         {
         a.data[i] *= b;
         }
+    return a;
     }
 
 template < class Real >
@@ -181,6 +182,7 @@ tensor4<Real> operator/=(tensor4<Real>& a, const Real& b)
         {
         a.data[i] *= b_inv;
         }
+    return a;
     }
 
 #endif //__TENSOR_MATH_H__

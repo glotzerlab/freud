@@ -14,7 +14,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalWl::LocalWl(const trajectory::Box& box, float rmax, unsigned int l)
+LocalWl::LocalWl(const box::Box& box, float rmax, unsigned int l)
     :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_l(l)
     {
     if (m_rmax < 0.0f)
@@ -29,6 +29,7 @@ LocalWl::LocalWl(const trajectory::Box& box, float rmax, unsigned int l)
     m_normalizeWl = false;
     }
 
+/*
 void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     if(Y.size() != 2*m_l+1)
@@ -43,6 +44,30 @@ void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<f
 
     for(unsigned int i = 1; i <= m_l; i++)
         Y[i+m_l] = Y[-i+m_l];
+    }
+*/
+
+// Calculating Ylm using fsph module
+void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+    {
+    if (Y.size() != 2*m_l+1)
+        Y.resize(2*m_l+1);
+
+    fsph::PointSPHEvaluator<float> sph_eval(m_l);
+
+    unsigned int j(0);
+    // old definition in compute (theta: 0...pi, phi: 0...2pi)
+    // in fsph, the definition is flipped
+    sph_eval.compute(theta, phi);
+
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, false));
+        iter != sph_eval.end(); ++iter)
+        {
+        Y[(j+m_l) % (2*m_l+1)] = *iter;
+        ++j;
+        }
+    for(unsigned int i = 1; i <=m_l; i++)
+        Y[-i+m_l] = Y[i+m_l];
     }
 
 // void LocalWl::compute(const float3 *points, unsigned int Np)
@@ -442,7 +467,7 @@ void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
 
 // void export_LocalWl()
 //     {
-//     class_<LocalWl>("LocalWl", init<trajectory::Box&, float, unsigned int>())
+//     class_<LocalWl>("LocalWl", init<box::Box&, float, unsigned int>())
 //         .def("getBox", &LocalWl::getBox, return_internal_reference<>())
 //         .def("compute", &LocalWl::computePy)
 //         .def("computeNorm", &LocalWl::computeNormPy)

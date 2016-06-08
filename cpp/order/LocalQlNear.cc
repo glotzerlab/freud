@@ -12,7 +12,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalQlNear::LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn)
+LocalQlNear::LocalQlNear(const box::Box& box, float rmax, unsigned int l, unsigned int kn)
     :m_box(box), m_rmax(rmax), m_l(l), m_k(kn)
     {
     if (m_rmax < 0.0f)
@@ -32,6 +32,7 @@ LocalQlNear::~LocalQlNear()
     delete m_nn;
     }
 
+/*
 void LocalQlNear::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     if(Y.size() != 2*m_l+1)
@@ -46,6 +47,28 @@ void LocalQlNear::Ylm(const float theta, const float phi, std::vector<std::compl
 
     for(unsigned int i = 1; i <= m_l; i++)
         Y[i+m_l] = Y[-i+m_l];
+    }
+*/
+
+// Calculating Ylm using fsph module
+void LocalQlNear::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+    {
+    if (Y.size() != 2*m_l+1)
+        Y.resize(2*m_l+1);
+
+    fsph::PointSPHEvaluator<float> sph_eval(m_l);
+
+    unsigned int j(0);
+    // old definition in compute (theta: 0...pi, phi: 0...2pi)
+    // in fsph, the definition is flipped
+    sph_eval.compute(theta, phi);
+
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, true));
+        iter != sph_eval.end(); ++iter)
+        {
+        Y[j] = *iter;
+        ++j;
+        }
     }
 
 // void LocalQl::compute(const float3 *points, unsigned int Np)
@@ -325,7 +348,7 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
 
 // void export_LocalQlNear()
 //     {
-//     class_<LocalQlNear>("LocalQlNear", init<trajectory::Box&, float, unsigned int, optional<unsigned int> >())
+//     class_<LocalQlNear>("LocalQlNear", init<box::Box&, float, unsigned int, optional<unsigned int> >())
 //         .def("getBox", &LocalQlNear::getBox, return_internal_reference<>())
 //         .def("setBox", &LocalQlNear::setBox)
 //         .def("compute", &LocalQlNear::computePy)
