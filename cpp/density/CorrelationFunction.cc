@@ -74,16 +74,16 @@ class CombineOCF
         tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
         T *m_rdf_array;
         tbb::enumerable_thread_specific<T *>& m_local_rdf_array;
-        float m_Nref;
+        float m_n_ref;
     public:
         CombineOCF(unsigned int nbins,
                    unsigned int *bin_counts,
                    tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
                    T *rdf_array,
                    tbb::enumerable_thread_specific<T *>& local_rdf_array,
-                   float Nref)
+                   float n_ref)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
-              m_local_rdf_array(local_rdf_array), m_Nref(Nref)
+              m_local_rdf_array(local_rdf_array), m_n_ref(n_ref)
         {
         }
         void operator()( const tbb::blocked_range<size_t> &myBin ) const
@@ -121,7 +121,7 @@ class ComputeOCF
         const locality::LinkCell *m_lc;
         const vec3<float> *m_ref_points;
         const T *m_ref_values;
-        const unsigned int m_Nref;
+        const unsigned int m_n_ref;
         const vec3<float> *m_points;
         const T *m_point_values;
         unsigned int m_Np;
@@ -135,12 +135,12 @@ class ComputeOCF
                    const locality::LinkCell *lc,
                    const vec3<float> *ref_points,
                    const T *ref_values,
-                   unsigned int Nref,
+                   unsigned int n_ref,
                    const vec3<float> *points,
                    const T *point_values,
                    unsigned int Np)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_rmax(rmax), m_dr(dr),
-              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_Nref(Nref), m_points(points),
+              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_n_ref(n_ref), m_points(points),
               m_point_values(point_values), m_Np(Np)
         {
         }
@@ -150,7 +150,7 @@ class ComputeOCF
             assert(m_ref_values);
             assert(m_points);
             assert(m_point_values);
-            assert(m_Nref > 0);
+            assert(m_n_ref > 0);
             assert(m_Np > 0);
 
             float dr_inv = 1.0f / m_dr;
@@ -234,7 +234,7 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
                                                               m_local_bin_counts,
                                                               m_rdf_array.get(),
                                                               m_local_rdf_array,
-                                                              (float)m_Nref));
+                                                              (float)m_n_ref));
     }
 
 //! Get a reference to the RDF array
@@ -268,14 +268,14 @@ template<typename T>
 void CorrelationFunction<T>::accumulate(const trajectory::Box &box,
                              const vec3<float> *ref_points,
                              const T *ref_values,
-                             unsigned int Nref,
+                             unsigned int n_ref,
                              const vec3<float> *points,
                              const T *point_values,
                              unsigned int Np)
     {
     m_box = box;
     m_lc->computeCellList(m_box, points, Np);
-    parallel_for(tbb::blocked_range<size_t>(0, Nref), ComputeOCF<T>(m_nbins,
+    parallel_for(tbb::blocked_range<size_t>(0, n_ref), ComputeOCF<T>(m_nbins,
                                                                     m_local_bin_counts,
                                                                     m_local_rdf_array,
                                                                     m_box,
@@ -284,7 +284,7 @@ void CorrelationFunction<T>::accumulate(const trajectory::Box &box,
                                                                     m_lc,
                                                                     ref_points,
                                                                     ref_values,
-                                                                    Nref,
+                                                                    n_ref,
                                                                     points,
                                                                     point_values,
                                                                     Np));

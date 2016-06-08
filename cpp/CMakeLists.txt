@@ -2,7 +2,12 @@
 # Perform setup to make a target into a functional python module
 macro(setup_pymodule target)
 set_target_properties(${target} PROPERTIES PREFIX "")
+if (APPLE)
+    set_target_properties(${target} PROPERTIES SUFFIX ".so")
+endif(APPLE)
 target_link_libraries(${target} ${PYTHON_LIBRARIES} ${TBB_LIBRARY})
+fix_tbb_rpath(${target})
+fix_conda_python(${target})
 endmacro(setup_pymodule)
 #####################
 
@@ -137,7 +142,6 @@ endforeach(src IN LISTS FREUD_SOURCES)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} ${CYTHON_SOURCES})
-#target_compile_features(_freud PRIVATE cxx_range_for)
 setup_pymodule(_freud)
 
 INSTALL(TARGETS _freud

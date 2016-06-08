@@ -16,17 +16,17 @@ InterfaceMeasure::InterfaceMeasure(const trajectory::Box& box, float r_cut)
     }
 
 // unsigned int InterfaceMeasure::compute(const float3 *ref_points,
-//                                        unsigned int Nref,
+//                                        unsigned int n_ref,
 //                                        const float3 *points,
 //                                        unsigned int Np)
 unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
-                                       unsigned int Nref,
+                                       unsigned int n_ref,
                                        const vec3<float> *points,
                                        unsigned int Np)
 {
     assert(ref_points);
     assert(points);
-    assert(Nref > 0);
+    assert(n_ref > 0);
     assert(Np > 0);
 
     // bin the second set of points
@@ -36,7 +36,7 @@ unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
     float rcutsq = m_rcut * m_rcut;
 
     // for each reference point
-    for( unsigned int i = 0; i < Nref; i++)
+    for( unsigned int i = 0; i < n_ref; i++)
     {
         bool inInterface = false;
 
@@ -100,7 +100,7 @@ unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
 //     num_util::check_dim(points, 1, 3);
 
 //     // get the number of points in the arrays
-//     unsigned int Nref = num_util::shape(points)[0];
+//     unsigned int n_ref = num_util::shape(points)[0];
 //     unsigned int Np = num_util::shape(ref_points)[0];
 
 //     // get the raw data pointers and compute the interface
@@ -109,7 +109,7 @@ unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
 //     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
 //     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
 
-//     return compute(ref_points_raw, Nref, points_raw, Np);
+//     return compute(ref_points_raw, n_ref, points_raw, Np);
 // }
 
 // // Export the methods inside the InterfaceMeasure class

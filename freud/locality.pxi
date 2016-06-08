@@ -197,8 +197,8 @@ cdef class NearestNeighbors:
             raise RuntimeError('Need a list of 3D points for computeCellList()')
         cdef _trajectory.Box cBox = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
-        cdef unsigned int Nref = ref_points.shape[0]
+        cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
-            self.thisptr.compute(cBox, <vec3[float]*> cRef_points.data, Nref, <vec3[float]*> cPoints.data, Np)
+            self.thisptr.compute(cBox, <vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np)
