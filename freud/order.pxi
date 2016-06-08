@@ -350,103 +350,103 @@ cdef class CubaticOrderParameter:
         cdef np.ndarray[np.float32_t, ndim=4] result = np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32, <void*>gen_r4_tensor)
         return result
 
-cdef class EntropicBonding:
-    """Compute the entropic bonds each particle in the system.
+# cdef class EntropicBonding:
+#     """Compute the entropic bonds each particle in the system.
 
-    For each particle in the system determine which other particles are in which entropic bonding sites.
+#     For each particle in the system determine which other particles are in which entropic bonding sites.
 
-    .. note:: currently being debugged. not guaranteed to work.
+#     .. note:: currently being debugged. not guaranteed to work.
 
-    :param xmax: +/- x distance to search for bonds
-    :param ymax: +/- y distance to search for bonds
-    :param nNeighbors: number of neighbors to find
-    :param bondMap: 2D array containing the bond index for each x, y coordinate
-    :type xmax: float
-    :type ymax: float
-    :type nNeighbors: unsigned int
-    :type bondMap: np.ndarray(shape=(nx, ny), dtype=np.uint32)
-    """
-    cdef order.EntropicBonding *thisptr
+#     :param xmax: +/- x distance to search for bonds
+#     :param ymax: +/- y distance to search for bonds
+#     :param nNeighbors: number of neighbors to find
+#     :param bondMap: 2D array containing the bond index for each x, y coordinate
+#     :type xmax: float
+#     :type ymax: float
+#     :type nNeighbors: unsigned int
+#     :type bondMap: np.ndarray(shape=(nx, ny), dtype=np.uint32)
+#     """
+#     cdef order.EntropicBonding *thisptr
 
-    def __cinit__(self, xmax, ymax, nNeighbors, bondMap):
-        # extract nx, ny from the bondMap
-        ny = bondMap.shape[0]
-        nx = bondMap.shape[1]
-        cdef np.ndarray l_bondMap = bondMap
-        self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, <unsigned int*>l_bondMap.data)
+#     def __cinit__(self, xmax, ymax, nNeighbors, bondMap):
+#         # extract nx, ny from the bondMap
+#         ny = bondMap.shape[0]
+#         nx = bondMap.shape[1]
+#         cdef np.ndarray l_bondMap = bondMap
+#         self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, <unsigned int*>l_bondMap.data)
 
-    def __dealloc__(self):
-        del self.thisptr
+#     def __dealloc__(self):
+#         del self.thisptr
 
-    def compute(self, box, points, orientations):
-        """
-        Calculates the correlation function and adds to the current histogram.
+#     def compute(self, box, points, orientations):
+#         """
+#         Calculates the correlation function and adds to the current histogram.
 
-        :param box: simulation box
-        :param points: points to calculate the bonding
-        :param orientations: orientations as angles to use in computation
-        :type box: :py:meth:`freud.box.Box`
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type orientations: np.ndarray(shape=(N), dtype=np.float32)
-        """
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if orientations.dtype != np.float32:
-            raise ValueError("values must be a numpy float32 array")
-        if orientations.ndim != 1:
-            raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, <float*>l_orientations.data, nP)
+#         :param box: simulation box
+#         :param points: points to calculate the bonding
+#         :param orientations: orientations as angles to use in computation
+#         :type box: :py:meth:`freud.box.Box`
+#         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+#         :type orientations: np.ndarray(shape=(N), dtype=np.float32)
+#         """
+#         if points.dtype != np.float32:
+#             raise ValueError("points must be a numpy float32 array")
+#         if points.ndim != 2:
+#             raise ValueError("points must be a 2 dimensional array")
+#         if points.shape[1] != 3:
+#             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+#         if orientations.dtype != np.float32:
+#             raise ValueError("values must be a numpy float32 array")
+#         if orientations.ndim != 1:
+#             raise ValueError("values must be a 1 dimensional array")
+#         cdef np.ndarray[float, ndim=2] l_points = points
+#         cdef np.ndarray[float, ndim=1] l_orientations = orientations
+#         cdef unsigned int nP = <unsigned int> points.shape[0]
+#         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+#         with nogil:
+#             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, <float*>l_orientations.data, nP)
 
-    def getBonds(self):
-        """
-        :return: particle bonds
-        :rtype: list[dict]
-        """
-        # this works, but is obviously not copy-free
-        # keep for now, given the unique data structure
-        cdef map[ unsigned int, vector[uint] ] *bonds = self.thisptr.getBonds().get()
-        result = [None] * self.thisptr.getNP()
-        for i in range(self.thisptr.getNP()):
-            result[i] = bonds[i]
-        return result
+#     def getBonds(self):
+#         """
+#         :return: particle bonds
+#         :rtype: list[dict]
+#         """
+#         # this works, but is obviously not copy-free
+#         # keep for now, given the unique data structure
+#         cdef map[ unsigned int, vector[uint] ] *bonds = self.thisptr.getBonds().get()
+#         result = [None] * self.thisptr.getNP()
+#         for i in range(self.thisptr.getNP()):
+#             result[i] = bonds[i]
+#         return result
 
-    def getBox(self):
-        """
-        Get the box used in the calculation
+#     def getBox(self):
+#         """
+#         Get the box used in the calculation
 
-        :return: Freud Box
-        :rtype: :py:meth:`freud.box.Box()`
-        """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+#         :return: Freud Box
+#         :rtype: :py:meth:`freud.box.Box()`
+#         """
+#         return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
-    def getNBinsX(self):
-        """
-        Get the number of bins in the x-dimension of histogram
+#     def getNBinsX(self):
+#         """
+#         Get the number of bins in the x-dimension of histogram
 
-        :return: nx
-        :rtype: unsigned int
-        """
-        cdef unsigned int nx = self.thisptr.getNBinsX()
-        return nx
+#         :return: nx
+#         :rtype: unsigned int
+#         """
+#         cdef unsigned int nx = self.thisptr.getNBinsX()
+#         return nx
 
-    def getNBinsY(self):
-        """
-        Get the number of bins in the y-dimension of histogram
+#     def getNBinsY(self):
+#         """
+#         Get the number of bins in the y-dimension of histogram
 
-        :return: ny
-        :rtype: unsigned int
-        """
-        cdef unsigned int ny = self.thisptr.getNBinsY()
-        return ny
+#         :return: ny
+#         :rtype: unsigned int
+#         """
+#         cdef unsigned int ny = self.thisptr.getNBinsY()
+#         return ny
 
 cdef class EntropicBondingRT:
     """Compute the entropic bonds each particle in the system.
@@ -485,7 +485,7 @@ cdef class EntropicBondingRT:
         :param box: simulation box
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type orientations: np.ndarray(shape=(N), dtype=np.float32)
         """
@@ -502,7 +502,7 @@ cdef class EntropicBondingRT:
         cdef np.ndarray l_points = points
         cdef np.ndarray l_orientations = orientations
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*> l_points.data, <float*> l_orientations.data, nP)
 
@@ -525,9 +525,9 @@ cdef class EntropicBondingRT:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def getNBinsR(self):
         """

@@ -146,12 +146,13 @@ void EntropicBonding::compute(box::Box& box,
                     #endif
 
                     // log the bond
-                    if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
-                        {
-                        // get the bond
-                        unsigned int bond = m_bond_map[b_i(ibinx, ibiny)];
-                        m_bonds[bonding_i(i, bond)] = j;
-                        }
+                    // this doesn't work
+                    // if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y))
+                    //     {
+                    //     // get the bond
+                    //     unsigned int bond = m_bond_map[b_i(ibinx, ibiny)];
+                    //     m_bonds[bonding_i(i, bond)] = j;
+                    //     }
                     }
                 }
             }

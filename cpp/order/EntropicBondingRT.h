@@ -13,7 +13,7 @@
 #include "VectorMath.h"
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #include <map>
@@ -43,13 +43,13 @@ class EntropicBondingRT
         ~EntropicBondingRT();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Compute the bond order
-        void compute(trajectory::Box& box,
+        void compute(box::Box& box,
                      vec3<float> *points,
                      float *orientations,
                      unsigned int n_p);
@@ -84,7 +84,7 @@ class EntropicBondingRT
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_r_max;                     //!< Maximum r at which to determine neighbors
         float m_t_max;                     //!< Maximum theta at which to determine neighbors
         float m_dr;

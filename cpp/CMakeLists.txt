@@ -82,8 +82,6 @@ set(FREUD_SOURCES
             order/CubaticOrderParameter.cc
             order/BondOrder.h
             order/BondOrder.cc
-            order/EntropicBonding.h
-            order/EntropicBonding.cc
             order/EntropicBondingRT.h
             order/EntropicBondingRT.cc
             order/LocalDescriptors.h

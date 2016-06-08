@@ -29,7 +29,7 @@ EntropicBondingRT::EntropicBondingRT(float r_max,
                                      unsigned int n_bonds,
                                      unsigned int *bond_map,
                                      unsigned int *bond_list)
-    : m_box(trajectory::Box()), m_r_max(r_max), m_t_max(2.0*M_PI), m_nbins_r(n_r), m_nbins_t2(n_t2), m_nbins_t1(n_t1),
+    : m_box(box::Box()), m_r_max(r_max), m_t_max(2.0*M_PI), m_nbins_r(n_r), m_nbins_t2(n_t2), m_nbins_t1(n_t1),
       m_n_bonds(n_bonds), m_bond_map(bond_map), m_bond_list(bond_list), m_n_p(0)
     {
     // create the unsigned int array to store whether or not a particle is paired
@@ -78,7 +78,7 @@ class ComputeBondsRT
     {
     private:
         std::map<unsigned int, std::vector<unsigned int> >* m_bonds;
-        const trajectory::Box& m_box;
+        const box::Box& m_box;
         const float m_r_max;
         const float m_t_max;
         const float m_dr;
@@ -94,7 +94,7 @@ class ComputeBondsRT
         const unsigned int m_n_t1;
     public:
         ComputeBondsRT(std::map<unsigned int, std::vector<unsigned int> >* bonds,
-                       const trajectory::Box& box,
+                       const box::Box& box,
                        const float rmax,
                        const float tmax,
                        const float dr,
@@ -192,7 +192,7 @@ std::shared_ptr<unsigned int> EntropicBondingRT::getBonds()
     return m_bonds;
     }
 
-void EntropicBondingRT::compute(trajectory::Box& box,
+void EntropicBondingRT::compute(box::Box& box,
                                 vec3<float> *points,
                                 float *orientations,
                                 unsigned int n_p)
