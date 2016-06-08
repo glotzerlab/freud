@@ -34,59 +34,6 @@ void ShapeSplit::updateBox(trajectory::Box& box)
         }
     }
 
-class SplitPoints
-    {
-    private:
-        float *m_split_array;
-        float *m_orientation_array;
-        const trajectory::Box m_box;
-        const vec3<float> *m_points;
-        const unsigned int m_Np;
-        const quat<float> *m_orientations;
-        const vec3<float> *m_split_points;
-        const unsigned int m_Nsplit;
-    public:
-        SplitPoints(float *split_array,
-                    float *orientation_array,
-                    const trajectory::Box &box,
-                    const vec3<float> *points,
-                    unsigned int Np,
-                    const quat<float> *orientations,
-                    const vec3<float> *split_points,
-                    unsigned int Nsplit)
-            : m_split_array(split_array), m_orientation_array(orientation_array), m_box(box), m_points(points),
-              m_Np(Np), m_orientations(orientations), m_split_points(split_points), m_Nsplit(Nsplit)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myR ) const
-            {
-            // create Index
-            Index3D b_i = Index3D(3, m_Nsplit, m_Np);
-            Index3D q_i = Index3D(4, m_Nsplit, m_Np);
-            // for each point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
-                {
-                vec3<float> point = m_points[i];
-                for (unsigned int j = 0; j < m_Nsplit; j++)
-                    {
-                    vec3<float> split_point = point + rotate(m_orientations[i], m_split_points[j]);
-
-                    split_point = m_box.wrap(split_point);
-
-                    m_split_array[b_i(0, j, i)] = split_point.x;
-                    m_split_array[b_i(1, j, i)] = split_point.y;
-                    m_split_array[b_i(2, j, i)] = split_point.z;
-
-                    m_orientation_array[q_i(0, j, i)] = m_orientations[i].s;
-                    m_orientation_array[q_i(1, j, i)] = m_orientations[i].v.x;
-                    m_orientation_array[q_i(2, j, i)] = m_orientations[i].v.z;
-                    m_orientation_array[q_i(3, j, i)] = m_orientations[i].v.z;
-
-                    }
-                } // done looping over reference points
-            }
-    };
-
 void ShapeSplit::compute(const vec3<float> *points,
                     unsigned int Np,
                     const quat<float> *orientations,
@@ -99,14 +46,35 @@ void ShapeSplit::compute(const vec3<float> *points,
         m_split_array = boost::shared_array<float>(new float[Np*Nsplit*3]);
         m_orientation_array = boost::shared_array<float>(new float[Np*Nsplit*4]);
         }
-    parallel_for(blocked_range<size_t>(0,Np), SplitPoints(m_split_array.get(),
-                                                          m_orientation_array.get(),
-                                                          m_box,
-                                                          points,
-                                                          Np,
-                                                          orientations,
-                                                          split_points,
-                                                          Nsplit));
+    parallel_for(blocked_range<size_t>(0,Np),
+      [=] (const blocked_range<size_t>& r)
+      {
+      // create Index
+      Index3D b_i = Index3D(3, Nsplit, Np);
+      Index3D q_i = Index3D(4, Nsplit, Np);
+      // for each point
+      for (size_t i = r.begin(); i != r.end(); i++)
+          {
+          vec3<float> point = points[i];
+          for (unsigned int j = 0; j < m_Nsplit; j++)
+              {
+              vec3<float> split_point = point + rotate(orientations[i], split_points[j]);
+
+              split_point = m_box.wrap(split_point);
+
+              m_split_array[b_i(0, j, i)] = split_point.x;
+              m_split_array[b_i(1, j, i)] = split_point.y;
+              m_split_array[b_i(2, j, i)] = split_point.z;
+
+              m_orientation_array[q_i(0, j, i)] = orientations[i].s;
+              m_orientation_array[q_i(1, j, i)] = orientations[i].v.x;
+              m_orientation_array[q_i(2, j, i)] = orientations[i].v.z;
+              m_orientation_array[q_i(3, j, i)] = orientations[i].v.z;
+
+              }
+          } // done looping over reference points
+      });
+
     m_Np = Np;
     m_Nsplit = Nsplit;
     }
