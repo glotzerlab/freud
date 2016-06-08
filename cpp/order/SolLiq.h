@@ -12,6 +12,7 @@
 
 #include "Cluster.h"
 #include "LinkCell.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #include "trajectory.h"
 #include <stdexcept>

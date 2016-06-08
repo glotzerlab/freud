@@ -9,6 +9,7 @@
 #include "LinkCell.h"
 #include "trajectory.h"
 #include "wigner3j.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_WL_H__
 #define _LOCAL_WL_H__
