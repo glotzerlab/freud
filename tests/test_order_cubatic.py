@@ -20,7 +20,7 @@ class TestCluster(unittest.TestCase):
         axes[:,2] = 1.0
 
         # # generate similar angles
-        # angles = np.random.uniform(low=0.0, high=0.05, size=N)
+        angles = np.random.uniform(low=0.0, high=0.05, size=N)
 
         # # generate quaternions
         # orientations = gen_quaternions(N, axes, angles)
@@ -46,7 +46,7 @@ class TestCluster(unittest.TestCase):
             axes[i] = ax_list[i % ax_list.shape[0]]
 
         # generate disordered angles
-        # angles = np.random.uniform(low=np.pi/4.0, high=np.pi/2.0, size=N)
+        angles = np.random.uniform(low=np.pi/4.0, high=np.pi/2.0, size=N)
 
         # # generate quaternions
         # orientations = gen_quaternions(N, axes, angles)
