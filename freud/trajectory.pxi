@@ -293,18 +293,20 @@ cdef class Box:
             raise ValueError("vecs must be a numpy float32 array")
         if len(vecs.shape) == 1:
             # only one vector to wrap
-            vecs = np.ascontiguousarray(self._wrap(vecs), dtype=np.float32)
+            vecs[:] = self._wrap(vecs)
         elif len(vecs.shape) == 2:
             # check to make sure the second dim is x, y, z
             if vecs.shape[1] != 3:
                 raise ValueError("the 2nd dimension must have 3 values: x, y, z")
             for i, vec in enumerate(vecs):
                 vecs[i] = self._wrap(vec)
+        else:
+            raise ValueError("Invalid dimensions given to box wrap. Wrap requires a 3 element array (3,), or (N,3) array as input");
 
     def _wrap(self, vec):
         cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
         cdef vec3[float] result = self.thisptr.wrapMultiple(<vec3[float]&>l_vec[0])
-        return [result.x, result.y, result.z]
+        return (result.x, result.y, result.z)
 
     def unwrap(self, vecs, imgs):
         """

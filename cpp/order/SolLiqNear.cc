@@ -30,6 +30,28 @@ SolLiqNear::~SolLiqNear()
     delete m_nn;
     }
 
+// Calculating Ylm using fsph module
+void SolLiqNear::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+    {
+    if (Y.size() != 2*m_l+1)
+        Y.resize(2*m_l+1);
+
+    fsph::PointSPHEvaluator<float> sph_eval(m_l);
+
+    unsigned int j(0);
+    // old definition in compute (theta: 0...pi, phi: 0...2pi)
+    // in fsph, the definition is flipped
+    sph_eval.compute(theta, phi);
+
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, true));
+        iter != sph_eval.end(); ++iter)
+        {
+        Y[j] = *iter;
+        ++j;
+        }
+    }
+
+/*
 //Spherical harmonics from boost.  Chooses appropriate l from m_l local var.
 void SolLiqNear::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
@@ -109,7 +131,7 @@ void SolLiqNear::Y4m(const float theta, const float phi, std::vector<std::comple
         }
     //Done.
     }
-
+*/
 
 
 //Begins calculation of the solid-liq order parameters.
@@ -192,12 +214,13 @@ void SolLiqNear::computeClustersQ(const vec3<float> *points, unsigned int Np)
                 float phi = atan2(delta.y,delta.x);      //0..2Pi
                 float theta = acos(delta.z / sqrt(rsq)); //0..Pi
 
-                if (m_l == 6)
+                /*if (m_l == 6)
                     SolLiqNear::Y6m(theta,phi,Y);
                 else if (m_l == 4)
                     SolLiqNear::Y4m(theta,phi,Y);
                 else
-                    SolLiqNear::Ylm(theta,phi,Y);
+                */    
+                SolLiqNear::Ylm(theta,phi,Y);
 
                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                     {

@@ -14,6 +14,7 @@
 
 #include "Cluster.h"
 #include "NearestNeighbors.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #include "trajectory.h"
 #include <stdexcept>

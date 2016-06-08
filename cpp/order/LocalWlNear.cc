@@ -34,6 +34,7 @@ LocalWlNear::~LocalWlNear()
     delete m_nn;
     }
 
+/*
 void LocalWlNear::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     if(Y.size() != 2*m_l+1)
@@ -48,6 +49,30 @@ void LocalWlNear::Ylm(const float theta, const float phi, std::vector<std::compl
 
     for(unsigned int i = 1; i <= m_l; i++)
         Y[i+m_l] = Y[-i+m_l];
+    }
+*/
+
+// Calculating Ylm using fsph module
+void LocalWlNear::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+    {
+    if (Y.size() != 2*m_l+1)
+        Y.resize(2*m_l+1);
+
+    fsph::PointSPHEvaluator<float> sph_eval(m_l);
+
+    unsigned int j(0);
+    // old definition in compute (theta: 0...pi, phi: 0...2pi)
+    // in fsph, the definition is flipped
+    sph_eval.compute(theta, phi);
+
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, false));
+        iter != sph_eval.end(); ++iter)
+        {
+        Y[(j+m_l) % (2*m_l+1)] = *iter;
+        ++j;
+        }
+    for(unsigned int i = 1; i <=m_l; i++)
+        Y[-i+m_l] = Y[i+m_l];
     }
 
 void LocalWlNear::compute(const vec3<float> *points, unsigned int Np)

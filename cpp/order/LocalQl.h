@@ -7,6 +7,7 @@
 
 #include "LinkCell.h"
 #include "trajectory.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_QL_H__
 #define _LOCAL_QL_H__
