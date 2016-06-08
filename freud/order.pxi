@@ -1842,11 +1842,8 @@ cdef class MatchEnv:
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, registration)
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[float, ndim=1] min_rmsd_arr = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>&min_rmsd_vec)
 
-        return min_rmsd_arr
+        return min_rmsd_vec
 
     def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):
         """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
