@@ -55,7 +55,7 @@ class BondOrder
         void accumulate(trajectory::Box& box,
                         vec3<float> *ref_points,
                         quat<float> *ref_orientations,
-                        unsigned int Nref,
+                        unsigned int n_ref,
                         vec3<float> *points,
                         quat<float> *orientations,
                         unsigned int Np);
@@ -70,7 +70,7 @@ class BondOrder
         //! Compute the bond order
         // void compute(vec3<float> *ref_points,
         //              quat<float> *ref_orientations,
-        //              unsigned int Nref,
+        //              unsigned int n_ref,
         //              vec3<float> *points,
         //              quat<float> *orientations,
         //              unsigned int Np);
@@ -133,7 +133,7 @@ class BondOrder
         float m_dt;
         float m_dp;
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
-        unsigned int m_Nref;                //!< Last number of points computed
+        unsigned int m_n_ref;                //!< Last number of points computed
         unsigned int m_Np;                //!< Last number of points computed
         unsigned int m_nbins_t;           //!< number of bins for theta
         unsigned int m_nbins_p;           //!< number of bins for phi
