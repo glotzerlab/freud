@@ -2,7 +2,13 @@
 
 ## v0.5.0
 
-Replace boost::shared_array with std::shared_ptr (C++ 11)
+* Replace boost::shared_array with std::shared_ptr (C++ 11)
+* Moved all tbb template classes to lambda expressions
+* Moved trajectory.Box to box.Box
+* trajectory is deprecated
+* Fixed Bond Order Diagram and allow for global, local, or orientation correlation
+* Added python-level voronoi calculation
+* Fixed issues with compiling on OS X, including against conda python installs
 
 ## v0.4.1
 * PMFT: Fixed issue involving binning of angles correctly
