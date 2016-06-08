@@ -29,7 +29,7 @@ EntropicBonding::EntropicBonding(float xmax,
                                  unsigned int nNeighbors,
                                  unsigned int nBonds,
                                  unsigned int *bond_map)
-    : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
+    : m_box(box::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
       m_nBonds(nBonds), m_bond_map(bond_map), m_nP(0)
     {
     if (m_nbins_x < 1)
@@ -59,26 +59,18 @@ EntropicBonding::EntropicBonding(float xmax,
     m_nn = new locality::NearestNeighbors(m_rmax, nNeighbors);
     }
 
+EntropicBonding::~EntropicBonding()
+    {
+    delete m_nn;
+    }
 
 boost::shared_array<unsigned int> EntropicBonding::getBonds()
     {
     return m_bonds;
     }
 
-// boost::python::numeric::array EntropicBonding::getBondsPy()
-//     {
-//     int *arr = m_bonds.get();
-//     std::vector<intp> dims(2);
-//     dims[0] = m_nP;
-//     dims[1] = m_nBonds;
-//     return num_util::makeNum(arr, dims);
-//     }
-EntropicBonding::~EntropicBonding()
-    {
-    delete m_nn;
-    }
 
-void EntropicBonding::compute(trajectory::Box& box,
+void EntropicBonding::compute(box::Box& box,
                               vec3<float> *points,
                               float *orientations,
                               unsigned int nP)
@@ -161,3 +153,5 @@ void EntropicBonding::compute(trajectory::Box& box,
     }
 
 }; }; // end namespace freud::order
+
+

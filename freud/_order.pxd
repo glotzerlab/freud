@@ -6,14 +6,14 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
-cimport freud._trajectory as trajectory
+cimport freud._box as box
 
 cdef extern from "BondOrder.h" namespace "freud::order":
     cdef cppclass BondOrder:
         BondOrder(float, float, unsigned int, unsigned int, unsigned int)
-        const trajectory.Box &getBox() const
+        const box.Box &getBox() const
         void resetBondOrder()
-        void accumulate(trajectory.Box &,
+        void accumulate(box.Box &,
                         vec3[float]*,
                         quat[float]*,
                         unsigned int,
@@ -50,8 +50,8 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
 cdef extern from "EntropicBonding.h" namespace "freud::order":
     cdef cppclass EntropicBonding:
         EntropicBonding(float, float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *)
-        const trajectory.Box &getBox() const
-        void compute(trajectory.Box &,
+        const box.Box &getBox() const
+        void compute(box.Box &,
                      vec3[float]*,
                      float*,
                      unsigned int) nogil
@@ -63,8 +63,8 @@ cdef extern from "EntropicBonding.h" namespace "freud::order":
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
         HexOrderParameter(float, float, unsigned int)
-        const trajectory.Box &getBox() const
-        void compute(trajectory.Box &,
+        const box.Box &getBox() const
+        void compute(box.Box &,
                      const vec3[float]*,
                      unsigned int) nogil
         # unsure how to pass back the std::complex, but this seems to compile...
@@ -83,16 +83,16 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         unsigned int getSphWidth() const
         float getRMax() const
         unsigned int getNP()
-        void computeNList(const trajectory.Box&, const vec3[float]*, unsigned int) nogil
-        void compute(const trajectory.Box&, unsigned int, const vec3[float]*,
+        void computeNList(const box.Box&, const vec3[float]*, unsigned int) nogil
+        void compute(const box.Box&, unsigned int, const vec3[float]*,
                      unsigned int) nogil except +
         shared_array[float complex] getSph()
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
         TransOrderParameter(float, float, unsigned int)
-        const trajectory.Box &getBox() const,
-        void compute(trajectory.Box &,
+        const box.Box &getBox() const,
+        void compute(box.Box &,
                      const vec3[float]*,
                      unsigned int) nogil
         shared_array[float complex] getDr()
@@ -100,9 +100,9 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
 
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
-        LocalQl(const trajectory.Box&, float, unsigned int, float)
-        const trajectory.Box& getBox() const
-        void setBox(const trajectory.Box)
+        LocalQl(const box.Box&, float, unsigned int, float)
+        const box.Box& getBox() const
+        void setBox(const box.Box)
         void compute(const vec3[float]*,
                      unsigned int)
         void computeAve(const vec3[float]*,
@@ -120,9 +120,9 @@ cdef extern from "LocalQl.h" namespace "freud::order":
 
 cdef extern from "LocalQlNear.h" namespace "freud::order":
     cdef cppclass LocalQlNear:
-        LocalQlNear(const trajectory.Box&, float, unsigned int, unsigned int)
-        const trajectory.Box& getBox() const
-        void setBox(const trajectory.Box)
+        LocalQlNear(const box.Box&, float, unsigned int, unsigned int)
+        const box.Box& getBox() const
+        void setBox(const box.Box)
         void compute(const vec3[float]*,
                      unsigned int)
         void computeAve(const vec3[float]*,
@@ -139,9 +139,9 @@ cdef extern from "LocalQlNear.h" namespace "freud::order":
 
 cdef extern from "LocalWl.h" namespace "freud::order":
     cdef cppclass LocalWl:
-        LocalWl(const trajectory.Box&, float, unsigned int)
-        const trajectory.Box& getBox() const
-        void setBox(const trajectory.Box)
+        LocalWl(const box.Box&, float, unsigned int)
+        const box.Box& getBox() const
+        void setBox(const box.Box)
         void compute(const vec3[float]*,
                      unsigned int)
         void computeAve(const vec3[float]*,
@@ -161,9 +161,9 @@ cdef extern from "LocalWl.h" namespace "freud::order":
 
 cdef extern from "LocalWlNear.h" namespace "freud::order":
     cdef cppclass LocalWlNear:
-        LocalWlNear(const trajectory.Box&, float, unsigned int, unsigned int)
-        const trajectory.Box& getBox() const
-        void setBox(const trajectory.Box)
+        LocalWlNear(const box.Box&, float, unsigned int, unsigned int)
+        const box.Box& getBox() const
+        void setBox(const box.Box)
         void compute(const vec3[float]*,
                      unsigned int)
         void computeAve(const vec3[float]*,
@@ -183,9 +183,9 @@ cdef extern from "LocalWlNear.h" namespace "freud::order":
 
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
-        SolLiq(const trajectory.Box&, float, float, unsigned int, unsigned int)
-        const trajectory.Box& getBox() const
-        void setBox(const trajectory.Box)
+        SolLiq(const box.Box&, float, float, unsigned int, unsigned int)
+        const box.Box& getBox() const
+        void setBox(const box.Box)
         void setClusteringRadius(float)
         void compute(const vec3[float]*,
                      unsigned int)
@@ -204,8 +204,8 @@ cdef extern from "SolLiq.h" namespace "freud::order":
 
 cdef extern from "MatchEnv.h" namespace "freud::order":
     cdef cppclass MatchEnv:
-        MatchEnv(const trajectory.Box&, float, unsigned int)
-        void setBox(const trajectory.Box)
+        MatchEnv(const box.Box&, float, unsigned int)
+        void setBox(const box.Box)
         void cluster(const vec3[float]*,
                      unsigned int,
                      float,
@@ -229,9 +229,9 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
 
 cdef extern from "SolLiqNear.h" namespace "freud::order":
     cdef cppclass SolLiqNear:
-        SolLiqNear(const trajectory.Box&, float, float, unsigned int, unsigned int, unsigned int)
-        const trajectory.Box& getBox() const
-        void setBox(const trajectory.Box)
+        SolLiqNear(const box.Box&, float, float, unsigned int, unsigned int, unsigned int)
+        const box.Box& getBox() const
+        void setBox(const box.Box)
         void setClusteringRadius(float)
         void compute(const vec3[float]*,
                      unsigned int)
@@ -251,9 +251,9 @@ cdef extern from "SolLiqNear.h" namespace "freud::order":
 cdef extern from "Pairing2D.h" namespace "freud::order":
     cdef cppclass Pairing2D:
         Pairing2D(const float, const unsigned int, float)
-        const trajectory.Box &getBox() const
+        const box.Box &getBox() const
         void resetBondOrder()
-        void compute(trajectory.Box &,
+        void compute(box.Box &,
                      vec3[float]*,
                      float*,
                      float*,

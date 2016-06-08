@@ -9,7 +9,7 @@ from libc.string cimport memcpy
 # _always_ do that, or you will have segfaults 
 np.import_array()
 
-cdef class Box:
+cdef class tBox:
     """
     Freud box object. Wrapper for the c++ trajectory.Box() class
 
@@ -386,10 +386,10 @@ cdef class Box:
     def __getinitargs__(self):
         return (self.getLx(), self.getLy(), self.getLz(), self.is2D())
 
-cdef BoxFromCPP(const trajectory.Box& cppbox):
+cdef trajBoxFromCPP(const trajectory.Box& cppbox):
     """
     """
-    return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(), cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(), cppbox.getTiltFactorYZ(), cppbox.is2D())
+    return tBox(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(), cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(), cppbox.getTiltFactorYZ(), cppbox.is2D())
 
 cdef class DCDLoader:
     """
@@ -433,7 +433,7 @@ cdef class DCDLoader:
         :return: Freud Box
         :rtype: :py:meth:`freud.trajectory.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return trajBoxFromCPP(<trajectory.Box> self.thisptr.getBox())
 
     def getNumParticles(self):
         """

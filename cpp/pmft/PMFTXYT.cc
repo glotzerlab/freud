@@ -24,7 +24,7 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTXYT::PMFTXYT(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_t)
-    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_max_t(2.0*M_PI),
+    : m_box(box::Box()), m_max_x(max_x), m_max_y(max_y), m_max_t(2.0*M_PI),
       m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_t(n_bins_t), m_frame_counter(0),
       m_n_ref(0), m_n_p(0), m_reduce(true)
     {
@@ -170,7 +170,7 @@ void PMFTXYT::resetPCF()
     m_reduce = true;
     }
 
-void PMFTXYT::accumulate(trajectory::Box& box,
+void PMFTXYT::accumulate(box::Box& box,
                          vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int n_ref,

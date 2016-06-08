@@ -1,7 +1,7 @@
 #include <boost/shared_array.hpp>
 #include <vector>
 
-#include "trajectory.h"
+#include "../box/box.h"
 #include "HOOMDMath.h"
 #include "Index1D.h"
 
@@ -142,7 +142,7 @@ class LinkCell
         typedef IteratorLinkCell iteratorcell;
 
         //! Constructor
-        LinkCell(const trajectory::Box& box, float cell_width);
+        LinkCell(const box::Box& box, float cell_width);
 
         //! Null Constructor for triclinic behavior
         LinkCell();
@@ -151,13 +151,13 @@ class LinkCell
         void setCellWidth(float cell_width);
 
         //! Update box used in linkCell
-        void updateBox(const trajectory::Box& box);
+        void updateBox(const box::Box& box);
 
         //! Compute LinkCell dimensions
-        const vec3<unsigned int> computeDimensions(const trajectory::Box& box, float cell_width) const;
+        const vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -272,18 +272,18 @@ class LinkCell
         //     }
 
         //! Compute the cell list (deprecated float3 interface)
-        void computeCellList(trajectory::Box& box, const float3 *points, unsigned int Np);
+        void computeCellList(box::Box& box, const float3 *points, unsigned int Np);
         //! Compute the cell list
-        void computeCellList(trajectory::Box& box, const vec3<float> *points, unsigned int Np);
+        void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);
 
         // //! Python wrapper for computeCellList
-        // void computeCellListPy(trajectory::Box& box, boost::python::numeric::array points);
+        // void computeCellListPy(box::Box& box, boost::python::numeric::array points);
     private:
 
         //! Rounding helper function.
         static unsigned int roundDown(unsigned int v, unsigned int m);
 
-        trajectory::Box m_box;      //!< Simulation box the particles belong in
+        box::Box m_box;      //!< Simulation box the particles belong in
         Index3D m_cell_index;       //!< Indexer to compute cell indices
         unsigned int m_Np;          //!< Number of particles last placed into the cell list
         unsigned int m_Nc;          //!< Number of cells last used

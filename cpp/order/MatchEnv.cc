@@ -286,7 +286,7 @@ std::vector<vec3<float> > EnvDisjointSet::getIndividualEnv(const unsigned int m)
     }
 
 // Constructor
-MatchEnv::MatchEnv(const trajectory::Box& box, float rmax, unsigned int k)
+MatchEnv::MatchEnv(const box::Box& box, float rmax, unsigned int k)
     :m_box(box), m_rmax(rmax), m_k(k)
     {
     m_Np = 0;

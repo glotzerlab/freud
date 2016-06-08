@@ -14,7 +14,7 @@ using namespace tbb;
 namespace freud { namespace order {
 
 HexOrderParameter::HexOrderParameter(float rmax, float k, unsigned int n)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
+    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
     m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
     }
@@ -24,7 +24,7 @@ HexOrderParameter::~HexOrderParameter()
     delete m_nn;
     }
 
-void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points, unsigned int Np)
+void HexOrderParameter::compute(box::Box& box, const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
     m_box = box;
@@ -69,6 +69,6 @@ void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points,
         });
     // save the last computed number of particles
     m_Np = Np;
-  };
-};
- }; // end namespace freud::order
+    }
+
+}; }; // end namespace freud::order

@@ -33,6 +33,7 @@ else(ENABLE_CYTHON)
 endif(ENABLE_CYTHON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/box
                     ${CMAKE_CURRENT_SOURCE_DIR}/trajectory
                     ${CMAKE_CURRENT_SOURCE_DIR}/util
                     ${CMAKE_CURRENT_SOURCE_DIR}/locality
@@ -50,6 +51,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     )
 
 set(FREUD_SOURCES
+            box/box.h
+            box/box.cc
             trajectory/trajectory.h
             trajectory/DCDLoader.cc
             trajectory/DCDLoader.h

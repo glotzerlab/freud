@@ -14,7 +14,7 @@ using namespace tbb;
 namespace freud { namespace density {
 
 LocalDensity::LocalDensity(float rcut, float volume, float diameter)
-    : m_box(trajectory::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_n_ref(0)
+    : m_box(box::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_n_ref(0)
     {
     m_lc = new locality::LinkCell(m_box, m_rcut);
     }
@@ -24,8 +24,7 @@ LocalDensity::~LocalDensity()
     delete m_lc;
     }
 
-
-void LocalDensity::compute(const trajectory::Box &box, const vec3<float> *ref_points, unsigned int n_ref, const vec3<float> *points, unsigned int Np)
+void LocalDensity::compute(const box::Box &box, const vec3<float> *ref_points, unsigned int n_ref, const vec3<float> *points, unsigned int Np)
     {
     m_box = box;
     // compute the cell list

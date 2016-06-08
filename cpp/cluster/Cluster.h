@@ -7,7 +7,7 @@
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 
 #ifndef _CLUSTER_H__
 #define _CLUSTER_H__
@@ -58,10 +58,10 @@ class Cluster
     {
     public:
         //! Constructor
-        Cluster(const trajectory::Box& box, float rcut);
+        Cluster(const box::Box& box, float rcut);
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -115,7 +115,7 @@ class Cluster
             return m_cluster_keys;
             }
     private:
-        trajectory::Box m_box;                    //!< Simulation box the particles belong in
+        box::Box m_box;                    //!< Simulation box the particles belong in
         float m_rcut;                             //!< Maximum r at which points will be counted in the same cluster
         locality::LinkCell m_lc;                  //!< LinkCell to bin particles for the computation
         unsigned int m_num_particles;             //!< Number of particles processed in the last call to compute()

@@ -68,7 +68,7 @@ uint32_t DisjointSet::find(const uint32_t c)
     return r;
     }
 
-Cluster::Cluster(const trajectory::Box& box, float rcut)
+Cluster::Cluster(const box::Box& box, float rcut)
     : m_box(box), m_rcut(rcut), m_lc(box, rcut), m_num_particles(0)
     {
     if (m_rcut < 0.0f)
@@ -244,7 +244,7 @@ void Cluster::computeClusterMembership(const unsigned int *keys)
 
 // void export_Cluster()
 //     {
-//     class_<Cluster>("Cluster", init<trajectory::Box&, float>())
+//     class_<Cluster>("Cluster", init<box::Box&, float>())
 //         .def("getBox", &Cluster::getBox, return_internal_reference<>())
 //         .def("computeClusters", &Cluster::computeClustersPy)
 //         .def("getNumClusters", &Cluster::getNumClusters)

@@ -8,7 +8,7 @@ using namespace std;
 
 namespace freud { namespace interface {
 
-InterfaceMeasure::InterfaceMeasure(const trajectory::Box& box, float r_cut)
+InterfaceMeasure::InterfaceMeasure(const box::Box& box, float r_cut)
     : m_box(box), m_rcut(r_cut), m_lc(box, r_cut)
     {
         if (r_cut < 0.0f)
@@ -115,7 +115,7 @@ unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
 // // Export the methods inside the InterfaceMeasure class
 // void export_InterfaceMeasure()
 // {
-//     class_<InterfaceMeasure>("InterfaceMeasure", init<trajectory::Box&, float>())
+//     class_<InterfaceMeasure>("InterfaceMeasure", init<box::Box&, float>())
 //         .def("getBox", &InterfaceMeasure::getBox, return_internal_reference<>())
 //         .def("compute",&InterfaceMeasure::computePy)
 //         ;

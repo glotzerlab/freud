@@ -1,7 +1,7 @@
 #include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
-#include "trajectory.h"
+#include "box.h"
 
 #ifndef _CLUSTER_PROPERTIES_H__
 #define _CLUSTER_PROPERTIES_H__
@@ -30,10 +30,10 @@ class ClusterProperties
     {
     public:
         //! Constructor
-        ClusterProperties(const trajectory::Box& box);
+        ClusterProperties(const box::Box& box);
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -107,7 +107,7 @@ class ClusterProperties
 
 
     private:
-        trajectory::Box m_box;                       //!< Simulation box the particles belong in
+        box::Box m_box;                       //!< Simulation box the particles belong in
         unsigned int m_num_clusters;                 //!< Number of clusters found in the last call to computeProperties()
 
         boost::shared_array< vec3<float> > m_cluster_com;   //!< Center of mass computed for each cluster (length: m_num_clusters)
