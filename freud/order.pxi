@@ -46,26 +46,26 @@ cdef class BondOrder:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, refPoints, refOrientations, points, orientations):
+    def accumulate(self, box, ref_points, refOrientations, points, orientations):
         """
         Calculates the correlation function and adds to the current histogram.
 
         :param box: simulation box
-        :param refPoints: reference points to calculate the local density
+        :param ref_points: reference points to calculate the local density
         :param refOrientations: orientations to use in computation
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
         :type box: :py:meth:`freud.box.Box`
-        :type refPoints: np.float32
+        :type ref_points: np.float32
         :type refOrientations: np.float32
         :type points: np.float32
         :type orientations: np.float32
         """
-        if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
+        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
-        if refPoints.ndim != 2 or points.ndim != 2:
+        if ref_points.ndim != 2 or points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
-        if refPoints.shape[1] != 3 or points.shape[1] != 3:
+        if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         if (refOrientations.dtype != np.float32) or (orientations.dtype != np.float32):
             raise ValueError("values must be a numpy float32 array")
@@ -73,15 +73,15 @@ cdef class BondOrder:
             raise ValueError("values must be a 1 dimensional array")
         if refOrientations.shape[1] != 4 or orientations.shape[1] != 4:
             raise ValueError("the 2nd dimension must have 3 values: q0, q1, q2, q3")
-        cdef np.ndarray[float, ndim=2] l_refPoints = refPoints
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=2] l_refOrientations = refOrientations
         cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>l_refPoints.data, <quat[float]*>l_refOrientations.data, nRef, <vec3[float]*>l_points.data, <quat[float]*>l_orientations.data, nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <quat[float]*>l_refOrientations.data, nRef, <vec3[float]*>l_points.data, <quat[float]*>l_orientations.data, nP)
 
     def getBondOrder(self):
         """
@@ -110,23 +110,23 @@ cdef class BondOrder:
         """
         self.thisptr.resetBondOrder()
 
-    def compute(self, box, refPoints, refOrientations, points, orientations):
+    def compute(self, box, ref_points, refOrientations, points, orientations):
         """
         Calculates the bond order histogram. Will overwrite the current histogram.
 
         :param box: simulation box
-        :param refPoints: reference points to calculate the local density
+        :param ref_points: reference points to calculate the local density
         :param refOrientations: orientations to use in computation
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
         :type box: :py:meth:`freud.box.Box`
-        :type refPoints: np.float32
+        :type ref_points: np.float32
         :type refOrientations: np.float32
         :type points: np.float32
         :type orientations: np.float32
         """
         self.thisptr.resetBondOrder()
-        self.accumulate(box, refPoints, refOrientations, points, orientations)
+        self.accumulate(box, ref_points, refOrientations, points, orientations)
 
     def reduceBondOrder(self):
         """
@@ -1751,15 +1751,15 @@ cdef class MatchEnv:
 
         self.thisptr.cluster(<vec3[float]*>l_points.data, nP, threshold, hard_r)
 
-    def matchMotif(self, points, refPoints, threshold, hard_r=False):
-        """Determine clusters of particles that match the motif provided by refPoints.
+    def matchMotif(self, points, ref_points, threshold, hard_r=False):
+        """Determine clusters of particles that match the motif provided by ref_points.
 
         :param points: particle positions
-        :param refPoints: vectors that make up the motif against which we are matching
+        :param ref_points: vectors that make up the motif against which we are matching
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
         :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type ref_points: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
         :type hard_r: bool
         """
@@ -1769,53 +1769,53 @@ cdef class MatchEnv:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
-        if refPoints.dtype != np.float32:
-            raise ValueError("refPoints must be a numpy float32 array")
-        if refPoints.ndim != 2:
-            raise ValueError("refPoints must be a 2 dimensional array")
-        if refPoints.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
+        if ref_points.dtype != np.float32:
+            raise ValueError("ref_points must be a numpy float32 array")
+        if ref_points.ndim != 2:
+            raise ValueError("ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points must have 3 values: x, y, z")
 
         cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_refpoints = refPoints
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
 
-        self.thisptr.matchMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_refPoints.data, nRef, threshold, hard_r)
+        self.thisptr.matchMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_ref_points.data, nRef, threshold, hard_r)
 
-    def isSimilar(self, refPoints1, refPoints2, threshold):
-        """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
+    def isSimilar(self, ref_points1, ref_points2, threshold):
+        """Test if the motif provided by ref_points1 is similar to the motif provided by ref_points2.
 
-        :param refPoints1: vectors that make up motif 1
-        :param refPoints2: vectors that make up motif 2
+        :param ref_points1: vectors that make up motif 1
+        :param ref_points2: vectors that make up motif 2
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
-        :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type ref_points1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type ref_points2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
         """
-        if refPoints1.dtype != np.float32:
-            raise ValueError("refPoints1 must be a numpy float32 array")
-        if refPoints1.ndim != 2:
-            raise ValueError("refPoints1 must be a 2 dimensional array")
-        if refPoints1.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
-        if refPoints2.dtype != np.float32:
-            raise ValueError("refPoints2 must be a numpy float32 array")
-        if refPoints2.ndim != 2:
-            raise ValueError("refPoints2 must be a 2 dimensional array")
-        if refPoints2.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+        if ref_points1.dtype != np.float32:
+            raise ValueError("ref_points1 must be a numpy float32 array")
+        if ref_points1.ndim != 2:
+            raise ValueError("ref_points1 must be a 2 dimensional array")
+        if ref_points1.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points1 must have 3 values: x, y, z")
+        if ref_points2.dtype != np.float32:
+            raise ValueError("ref_points2 must be a numpy float32 array")
+        if ref_points2.ndim != 2:
+            raise ValueError("ref_points2 must be a 2 dimensional array")
+        if ref_points2.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points2 must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_refpoints1 = np.copy(refPoints1)
-        cdef np.ndarray[float, ndim=2] l_refpoints2 = np.copy(refPoints2)
-        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
-        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
+        cdef np.ndarray[float, ndim=2] l_ref_points1 = np.copy(ref_points1)
+        cdef np.ndarray[float, ndim=2] l_ref_points2 = np.copy(ref_points2)
+        cdef unsigned int nRef1 = <unsigned int> ref_points1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> ref_points2.shape[0]
         cdef float threshold_sq = threshold*threshold
 
         if nRef1 != nRef2:
-            raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
+            raise ValueError("the number of vectors in ref_points1 must MATCH the number of vectors in ref_points2")
 
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>l_refPoints1.data, <vec3[float]*>l_refPoints2.data, nRef1, threshold_sq)
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>l_ref_points1.data, <vec3[float]*>l_ref_points2.data, nRef1, threshold_sq)
         return vec_map
 
     def getClusters(self):
