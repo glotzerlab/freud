@@ -12,7 +12,7 @@
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _RDF_H__
@@ -33,7 +33,7 @@ class RDF
         ~RDF();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -42,7 +42,7 @@ class RDF
         void resetRDF();
 
         //! Compute the RDF
-        void accumulate(trajectory::Box& box,
+        void accumulate(box::Box& box,
                         const vec3<float> *ref_points,
                         unsigned int Nref,
                         const vec3<float> *points,
@@ -64,7 +64,7 @@ class RDF
         unsigned int getNBins();
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation

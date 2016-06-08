@@ -14,7 +14,7 @@ using namespace std;
 
 namespace freud { namespace cluster {
 
-ClusterProperties::ClusterProperties(const trajectory::Box& box)
+ClusterProperties::ClusterProperties(const box::Box& box)
     : m_box(box), m_num_clusters(0)
     {
     }
@@ -180,7 +180,7 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
 
 // void export_ClusterProperties()
 //     {
-//     class_<ClusterProperties>("ClusterProperties", init<trajectory::Box&>())
+//     class_<ClusterProperties>("ClusterProperties", init<box::Box&>())
 //         .def("getBox", &ClusterProperties::getBox, return_internal_reference<>())
 //         .def("computeProperties", &ClusterProperties::computePropertiesPy)
 //         .def("getNumClusters", &ClusterProperties::getNumClusters)

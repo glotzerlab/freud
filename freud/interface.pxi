@@ -1,6 +1,6 @@
-
 from freud.util._VectorMath cimport vec3
 cimport freud._interface as interface
+cimport freud._box as _box;
 from cython.operator cimport dereference
 import numpy as np
 cimport numpy as np
@@ -8,13 +8,13 @@ cimport numpy as np
 cdef class InterfaceMeasure:
     """Measures the interface between two sets of points.
 
-    :param box: :py:class:`freud.trajectory.Box` object
+    :param box: :py:class:`freud._box.Box` object
     :param r_cut: Distance to search for particle neighbors
     """
     cdef interface.InterfaceMeasure *thisptr
 
     def __cinit__(self, box, float r_cut):
-        cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new interface.InterfaceMeasure(cBox, r_cut)
 
     def __dealloc__(self):

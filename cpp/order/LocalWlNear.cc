@@ -13,7 +13,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalWlNear::LocalWlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn)
+LocalWlNear::LocalWlNear(const box::Box& box, float rmax, unsigned int l, unsigned int kn)
     :m_box(box), m_rmax(rmax), m_l(l), m_k(kn)
     {
     if (m_rmax < 0.0f)
@@ -405,7 +405,7 @@ void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
 
 // void export_LocalWlNear()
 //     {
-//     class_<LocalWlNear>("LocalWlNear", init<trajectory::Box&, float, unsigned int, optional<unsigned int> >())
+//     class_<LocalWlNear>("LocalWlNear", init<box::Box&, float, unsigned int, optional<unsigned int> >())
 //         .def("getBox", &LocalWlNear::getBox, return_internal_reference<>())
 //         .def("compute", &LocalWlNear::computePy)
 //         .def("computeNorm", &LocalWlNear::computeNormPy)

@@ -8,7 +8,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-SolLiq::SolLiq(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l)
+SolLiq::SolLiq(const box::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l)
     :m_box(box), m_rmax(rmax), m_rmax_cluster(rmax), m_lc(box, rmax), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold), m_l(l)
     {
     m_Np = 0;
@@ -744,7 +744,7 @@ void SolLiq::computeClustersSharedNeighbors(const vec3<float> *points,
 
 // void export_SolLiq()
 //     {
-//     class_<SolLiq>("SolLiq", init<trajectory::Box&, float,float,unsigned int, unsigned int>())
+//     class_<SolLiq>("SolLiq", init<box::Box&, float,float,unsigned int, unsigned int>())
 //         //.def("getBox", &SolLiq::getBox, return_internal_reference<>())
 //         .def("compute", &SolLiq::computePy)
 //         .def("computeSolLiqVariant", &SolLiq::computeSolLiqVariantPy)

@@ -29,7 +29,7 @@ EntropicBonding::EntropicBonding(float xmax,
                                  unsigned int nNeighbors,
                                  unsigned int nBonds,
                                  unsigned int *bond_map)
-    : m_box(trajectory::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
+    : m_box(box::Box()), m_xmax(xmax), m_ymax(ymax), m_nbins_x(nx), m_nbins_y(ny), m_nNeighbors(nNeighbors),
       m_nBonds(nBonds), m_bond_map(bond_map), m_nP(0)
     {
     if (m_nbins_x < 1)
@@ -68,7 +68,7 @@ class ComputeBonds
     {
     private:
         unsigned int* m_bonds;
-        const trajectory::Box& m_box;
+        const box::Box& m_box;
         const float m_xmax;
         const float m_ymax;
         const float m_rmax;
@@ -82,7 +82,7 @@ class ComputeBonds
         const unsigned int m_nBonds;
     public:
         ComputeBonds(unsigned int* bonds,
-                     const trajectory::Box& box,
+                     const box::Box& box,
                      const float xmax,
                      const float ymax,
                      const float rmax,
@@ -175,7 +175,7 @@ boost::shared_array<unsigned int> EntropicBonding::getBonds()
 //     return num_util::makeNum(arr, dims);
 //     }
 
-void EntropicBonding::compute(trajectory::Box& box,
+void EntropicBonding::compute(box::Box& box,
                               vec3<float> *points,
                               float *orientations,
                               unsigned int nP)

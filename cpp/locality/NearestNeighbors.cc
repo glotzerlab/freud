@@ -21,7 +21,7 @@ namespace freud { namespace locality {
 
 // stop using
 NearestNeighbors::NearestNeighbors():
-    m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_Nref(0), m_deficits()
+    m_box(box::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_Nref(0), m_deficits()
     {
     m_lc = new locality::LinkCell();
     m_deficits = 0;
@@ -29,7 +29,7 @@ NearestNeighbors::NearestNeighbors():
 
 NearestNeighbors::NearestNeighbors(float rmax,
                                    unsigned int nNeigh):
-    m_box(trajectory::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_Nref(0), m_deficits()
+    m_box(box::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_Nref(0), m_deficits()
     {
     m_lc = new locality::LinkCell(m_box, m_rmax);
     m_deficits = 0;
@@ -54,7 +54,7 @@ private:
     tbb::atomic<unsigned int> &m_deficits;
     float *m_rsq_array;
     unsigned int *m_neighbor_array;
-    const trajectory::Box& m_box;
+    const box::Box& m_box;
     const unsigned int m_Np;
     const unsigned int m_nNeigh;
     const float m_rmax;
@@ -65,7 +65,7 @@ public:
     ComputeNearestNeighbors(tbb::atomic<unsigned int> &deficits,
                             float *r_array,
                             unsigned int *neighbor_array,
-                            const trajectory::Box& box,
+                            const box::Box& box,
                             const unsigned int Np,
                             const unsigned int nNeigh,
                             const float rmax,
@@ -156,7 +156,7 @@ public:
         }
     };
 
-void NearestNeighbors::compute(const trajectory::Box& box,
+void NearestNeighbors::compute(const box::Box& box,
                                const vec3<float> *ref_pos,
                                unsigned int Nref,
                                const vec3<float> *pos,
@@ -200,7 +200,7 @@ void NearestNeighbors::compute(const trajectory::Box& box,
     m_Np = Np;
     }
 
-// void NearestNeighbors::computePy(trajectory::Box& box,
+// void NearestNeighbors::computePy(box::Box& box,
 //                                  boost::python::numeric::array ref_pos,
 //                                  boost::python::numeric::array pos)
 //     {

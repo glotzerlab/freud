@@ -28,6 +28,7 @@ else(ENABLE_CYTHON)
 endif(ENABLE_CYTHON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/box
                     ${CMAKE_CURRENT_SOURCE_DIR}/trajectory
                     ${CMAKE_CURRENT_SOURCE_DIR}/util
                     ${CMAKE_CURRENT_SOURCE_DIR}/locality

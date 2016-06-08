@@ -353,7 +353,7 @@ class Box
         // that I can just use our new getImage to pass through and make as few as possible
         // changes to the codebase here.
         // Followup: I don't remember why I put this comment here, better refer later to
-        // original trajectory.h
+        // original box.h
 
         vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
             {

@@ -13,7 +13,7 @@
 #include "Cluster.h"
 #include "LinkCell.h"
 
-#include "trajectory.h"
+#include "box.h"
 #include <stdexcept>
 #include <complex>
 #include <map>
@@ -38,16 +38,16 @@ class SolLiq
         @param Sthreshold Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like for clustering. (For l=6, 6-8 generally good for FCC or BCC structures)
         @param l Choose spherical harmonic Ql.  Must be positive and even.
         **/
-        SolLiq(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l);
+        SolLiq(const box::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l);
 
         //! Get the simulation box
-        const trajectory::Box& getBox()
+        const box::Box& getBox()
             {
             return m_box;
             }
 
         //!  Reset the simulation box size
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox;  //Set
             locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );  //Rebuild cell list
@@ -288,7 +288,7 @@ class SolLiq
         void computeClustersQdotNoNorm(const vec3<float> *points,
                               unsigned int Np);
 
-        trajectory::Box m_box;      //!< Simulation box the particles belong in
+        box::Box m_box;      //!< Simulation box the particles belong in
         float m_rmax;               //!< Maximum cutoff radius at which to determine local environment
         float m_rmax_cluster;       //!< Maximum radius at which to cluster solid-like particles;
         locality::LinkCell m_lc;    //!< LinkCell to bin particles for the computation of local environments

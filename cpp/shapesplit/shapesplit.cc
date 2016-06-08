@@ -21,11 +21,11 @@ using namespace tbb;
 namespace freud { namespace shapesplit {
 
 ShapeSplit::ShapeSplit()
-    : m_box(trajectory::Box()), m_Np(0), m_Nsplit(0)
+    : m_box(box::Box()), m_Np(0), m_Nsplit(0)
     {
     }
 
-void ShapeSplit::updateBox(trajectory::Box& box)
+void ShapeSplit::updateBox(box::Box& box)
     {
     // see if it is different than the current box
     if (m_box != box)
@@ -39,7 +39,7 @@ class SplitPoints
     private:
         float *m_split_array;
         float *m_orientation_array;
-        const trajectory::Box m_box;
+        const box::Box m_box;
         const vec3<float> *m_points;
         const unsigned int m_Np;
         const quat<float> *m_orientations;
@@ -48,7 +48,7 @@ class SplitPoints
     public:
         SplitPoints(float *split_array,
                     float *orientation_array,
-                    const trajectory::Box &box,
+                    const box::Box &box,
                     const vec3<float> *points,
                     unsigned int Np,
                     const quat<float> *orientations,
@@ -111,7 +111,7 @@ void ShapeSplit::compute(const vec3<float> *points,
     m_Nsplit = Nsplit;
     }
 
-// void ShapeSplit::computePy(trajectory::Box& box,
+// void ShapeSplit::computePy(box::Box& box,
 //                            boost::python::numeric::array points,
 //                            boost::python::numeric::array orientations,
 //                            boost::python::numeric::array split_points)

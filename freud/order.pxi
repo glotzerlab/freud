@@ -2,7 +2,7 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
-cimport freud._trajectory as _trajectory
+cimport freud._box as _box
 cimport freud._order as order
 from libc.string cimport memcpy
 from libcpp.complex cimport complex
@@ -55,7 +55,7 @@ cdef class BondOrder:
         :param refOrientations: orientations to use in computation
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type refOrientations: np.float32
         :type points: np.float32
@@ -79,7 +79,7 @@ cdef class BondOrder:
         cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <quat[float]*>&l_refOrientations[0], nRef, <vec3[float]*>&l_points[0], <quat[float]*>&l_orientations[0], nP)
 
@@ -100,9 +100,9 @@ cdef class BondOrder:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def resetBondOrder(self):
         """
@@ -119,7 +119,7 @@ cdef class BondOrder:
         :param refOrientations: orientations to use in computation
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type refPoints: np.float32
         :type refOrientations: np.float32
         :type points: np.float32
@@ -226,7 +226,7 @@ cdef class CubaticOrderParameter:
 
         :param box: simulation box
         :param orientations: orientations to calculate the order parameter
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type orientations: np.float32
         """
         if (orientations.dtype != np.float32):
@@ -388,7 +388,7 @@ cdef class EntropicBonding:
         :param box: simulation box
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type orientations: np.ndarray(shape=(N), dtype=np.float32)
         """
@@ -405,7 +405,7 @@ cdef class EntropicBonding:
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], nP)
 
@@ -426,9 +426,9 @@ cdef class EntropicBonding:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def getNBinsX(self):
         """
@@ -488,7 +488,7 @@ cdef class HexOrderParameter:
 
         :param box: simulation box
         :param points: points to calculate the order parameter
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
         if points.dtype != np.float32:
@@ -499,7 +499,7 @@ cdef class HexOrderParameter:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
 
@@ -519,9 +519,9 @@ cdef class HexOrderParameter:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def getNP(self):
         """
@@ -553,7 +553,7 @@ cdef class LocalDescriptors:
     :param lmax: Maximum spherical harmonic l to consider
     :param rmax: Initial guess of the maximum radius to looks for neighbors
     :param negative_m: True if we should also calculate Ylm for negative m
-    :type box: :py:meth:`freud.trajectory.Box()`
+    :type box: :py:meth:`freud.box.Box()`
     :type nNeigh: unsigned int
     :type l: unsigned int
     :type rmax: float
@@ -576,7 +576,7 @@ cdef class LocalDescriptors:
         :param points: points to calculate the order parameter
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -596,7 +596,7 @@ cdef class LocalDescriptors:
         :param points: points to calculate the order parameter
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -691,7 +691,7 @@ cdef class TransOrderParameter:
 
         :param box: simulation box
         :param points: points to calculate the order parameter
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
         if points.dtype != np.float32:
@@ -700,7 +700,7 @@ cdef class TransOrderParameter:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
@@ -724,9 +724,9 @@ cdef class TransOrderParameter:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def getNP(self):
         """
@@ -763,7 +763,7 @@ cdef class LocalQl:
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param rmin: can look at only the second shell or some arbitrary rdf region
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
     :type rmin: float
@@ -773,7 +773,7 @@ cdef class LocalQl:
     cdef order.LocalQl *thisptr
 
     def __cinit__(self, box, rmax, l, rmin=0):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalQl(l_box, rmax, l, rmin)
 
     def __dealloc__(self):
@@ -852,18 +852,18 @@ cdef class LocalQl:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setBox(self, box):
         """
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getQl(self):
@@ -953,7 +953,7 @@ cdef class LocalQlNear:
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param kn: number of nearest neighbors. must be a positive integer
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
     :type kn: unsigned int
@@ -963,7 +963,7 @@ cdef class LocalQlNear:
     cdef order.LocalQlNear *thisptr
 
     def __cinit__(self, box, rmax, l, kn=12):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalQlNear(l_box, rmax, l, kn)
 
     def __dealloc__(self):
@@ -1042,18 +1042,18 @@ cdef class LocalQlNear:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setBox(self, box):
         """
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getQl(self):
@@ -1136,7 +1136,7 @@ cdef class LocalWl:
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
 
@@ -1145,7 +1145,7 @@ cdef class LocalWl:
     cdef order.LocalWl *thisptr
 
     def __cinit__(self, box, rmax, l):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWl(l_box, rmax, l)
 
     def __dealloc__(self):
@@ -1224,18 +1224,18 @@ cdef class LocalWl:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setBox(self, box):
         """
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getQl(self):
@@ -1332,7 +1332,7 @@ cdef class LocalWlNear:
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param kn: Number of nearest neighbors. Must be a positive number
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
     :type kn: unsigned int
@@ -1342,7 +1342,7 @@ cdef class LocalWlNear:
     cdef order.LocalWlNear *thisptr
 
     def __cinit__(self, box, rmax, l, kn=12):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWlNear(l_box, rmax, l, kn)
 
     def __dealloc__(self):
@@ -1421,18 +1421,18 @@ cdef class LocalWlNear:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setBox(self, box):
         """
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getQl(self):
@@ -1520,7 +1520,7 @@ cdef class SolLiq:
     :param Sthreshold: Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like \
     for clustering. (For :math:`l=6`, 6-8 generally good for FCC or BCC structures)
     :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and even.
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type Qthreshold: float
     :type Sthreshold: unsigned int
@@ -1531,7 +1531,7 @@ cdef class SolLiq:
     cdef order.SolLiq *thisptr
 
     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
 
     def __dealloc__(self):
@@ -1590,9 +1590,9 @@ cdef class SolLiq:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setClusteringRadius(self, rcutCluster):
         """
@@ -1608,9 +1608,9 @@ cdef class SolLiq:
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getLargestClusterSize(self):
@@ -1713,7 +1713,7 @@ cdef class MatchEnv:
     cdef order.MatchEnv *thisptr
 
     def __cinit__(self, box, rmax, k):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.MatchEnv(l_box, rmax, k)
 
     def __dealloc__(self):
@@ -1724,9 +1724,9 @@ cdef class MatchEnv:
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def cluster(self, points, threshold, hard_r=False):
@@ -1894,7 +1894,7 @@ cdef class SolLiqNear:
     for clustering. (For :math:`l=6`, 6-8 generally good for FCC or BCC structures)
     :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and even.
     :param kn: Number of nearest neighbors. Must be a positive number
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type Qthreshold: float
     :type Sthreshold: unsigned int
@@ -1906,7 +1906,7 @@ cdef class SolLiqNear:
     cdef order.SolLiqNear *thisptr
 
     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiqNear(l_box, rmax, Qthreshold, Sthreshold, l, kn)
 
     def __dealloc__(self):
@@ -1965,9 +1965,9 @@ cdef class SolLiqNear:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setClusteringRadius(self, rcutCluster):
         """
@@ -1983,9 +1983,9 @@ cdef class SolLiqNear:
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getLargestClusterSize(self):
@@ -2105,7 +2105,7 @@ cdef class Pairing2D:
         :param points: reference points to calculate the local density
         :param orientations: orientations to use in computation
         :param compOrientations: possible orientations to check for bonds
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.float32
         :type orientations: np.float32
         :type compOrientations: np.float32
@@ -2127,7 +2127,7 @@ cdef class Pairing2D:
         cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nO = <unsigned int> compOrientations.shape[1]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], <float*>&l_compOrientations[0], nP, nO)
 
     def getMatch(self):
@@ -2157,6 +2157,6 @@ cdef class Pairing2D:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())

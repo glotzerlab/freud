@@ -7,7 +7,7 @@
 #undef swap
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "wigner3j.h"
 
 #ifndef _LOCAL_WL_NEAR_H__
@@ -46,19 +46,19 @@ class LocalWlNear
         **/
 
         //! Constructor
-        LocalWlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn=12);
+        LocalWlNear(const box::Box& box, float rmax, unsigned int l, unsigned int kn=12);
 
         //! Destructor
         ~LocalWlNear();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Reset the simulation box size
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox; //Set
             delete m_nn;
@@ -194,7 +194,7 @@ class LocalWlNear
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
 
         float m_k;                  //!< Number of neighbors

@@ -3,6 +3,7 @@ from cython.view cimport array as cvarray
 from libcpp.vector cimport vector
 from freud.util._cudaTypes cimport float3
 cimport freud._voronoi as voronoi
+cimport freud._box as _box
 from cython.operator cimport dereference
 import numpy as np
 cimport numpy as np
@@ -11,7 +12,7 @@ cdef class VoronoiBuffer:
     cdef voronoi.VoronoiBuffer *thisptr
 
     def __cinit__(self, box):
-        cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
@@ -24,7 +25,7 @@ cdef class VoronoiBuffer:
         self.thisptr.compute(<float3*> cPoints.data, Np, buffer)
 
     def getBufferParticles(self):
-        cdef trajectory.Box cBox = self.thisptr.getBox()
+        cdef _box.Box cBox = self.thisptr.getBox()
         cdef unsigned int buffer_size = dereference(self.thisptr.getBufferParticles().get()).size()
         cdef float3* buffer_points = &dereference(self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:

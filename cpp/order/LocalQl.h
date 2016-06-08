@@ -6,7 +6,7 @@
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 
 #ifndef _LOCAL_QL_H__
 #define _LOCAL_QL_H__
@@ -45,16 +45,16 @@ class LocalQl
         @param l Spherical harmonic quantum number l.  Must be a positive number.
         @param rmin (optional) can look at only the second shell or some arbitrary rdf region
         **/
-        LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float rmin=0);
+        LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0);
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Reset the simulation box size
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox;  //Set
     	    m_rmax_cluster=0;
@@ -163,7 +163,7 @@ class LocalQl
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmin;                     //!< Minimum r at which to determine neighbors
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;             //!< Maximum radius at which to cluster one crystal

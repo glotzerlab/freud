@@ -23,7 +23,7 @@ using namespace tbb;
 namespace freud { namespace order {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_Np(0),
+    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_Np(0),
       m_frame_counter(0)
     {
     // sanity checks, but this is actually kinda dumb if these values are 1
@@ -144,7 +144,7 @@ class ComputeBondOrder
         tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
         unsigned int m_nbins_t;
         unsigned int m_nbins_p;
-        const trajectory::Box& m_box;
+        const box::Box& m_box;
         const float m_rmax;
         const float m_k;
         const float m_dt;
@@ -160,7 +160,7 @@ class ComputeBondOrder
         ComputeBondOrder(tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
                          unsigned int nbins_t,
                          unsigned int nbins_p,
-                         const trajectory::Box& box,
+                         const box::Box& box,
                          const float rmax,
                          const float k,
                          const float dt,
@@ -292,7 +292,7 @@ void BondOrder::resetBondOrder()
     m_frame_counter = 0;
     }
 
-void BondOrder::accumulate(trajectory::Box& box,
+void BondOrder::accumulate(box::Box& box,
                            vec3<float> *ref_points,
                            quat<float> *ref_orientations,
                            unsigned int Nref,
@@ -329,7 +329,7 @@ void BondOrder::accumulate(trajectory::Box& box,
     m_frame_counter++;
     }
 
-// void BondOrder::accumulatePy(trajectory::Box& box,
+// void BondOrder::accumulatePy(box::Box& box,
 //                              boost::python::numeric::array ref_points,
 //                              boost::python::numeric::array ref_orientations,
 //                              boost::python::numeric::array points,
@@ -380,7 +380,7 @@ void BondOrder::accumulate(trajectory::Box& box,
 // //! \internal
 // /*! \brief Exposed function to python to calculate the PMF
 // */
-// void BondOrder::computePy(trajectory::Box& box,
+// void BondOrder::computePy(box::Box& box,
 //                           boost::python::numeric::array ref_points,
 //                           boost::python::numeric::array ref_orientations,
 //                           boost::python::numeric::array points,

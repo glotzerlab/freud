@@ -21,7 +21,7 @@ namespace freud { namespace order {
 Pairing2D::Pairing2D(const float rmax,
                      const unsigned int k,
                      const float comp_dot_tol)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
+    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
     {
     // create the unsigned int array to store whether or not a particle is paired
     m_match_array = boost::shared_array<unsigned int>(new unsigned int[m_Np]);
@@ -144,7 +144,7 @@ void Pairing2D::ComputePairing2D(const vec3<float> *points,
         } // done looping over reference points
     }
 
-void Pairing2D::compute(trajectory::Box& box,
+void Pairing2D::compute(box::Box& box,
                         const vec3<float>* points,
                         const float* orientations,
                         const float* comp_orientations,
@@ -178,7 +178,7 @@ void Pairing2D::compute(trajectory::Box& box,
     m_No = No;
     }
 
-// void pairing::computePy(trajectory::Box& box,
+// void pairing::computePy(box::Box& box,
 //                         boost::python::numeric::array points,
 //                         boost::python::numeric::array orientations,
 //                         boost::python::numeric::array comp_orientations)

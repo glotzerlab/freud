@@ -2,7 +2,7 @@
 #include <algorithm>
 
 #include "LinkCell.h"
-//#include "../trajectory/trajectory.h"
+//#include "../trajectory/box.h"
 #include "../box/box.h"
 #include "ScopedGILRelease.h"
 

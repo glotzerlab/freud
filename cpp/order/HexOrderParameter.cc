@@ -14,7 +14,7 @@ using namespace tbb;
 namespace freud { namespace order {
 
 HexOrderParameter::HexOrderParameter(float rmax, float k, unsigned int n)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0)
+    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
     m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
     }
@@ -27,7 +27,7 @@ HexOrderParameter::~HexOrderParameter()
 class ComputeHexOrderParameter
     {
     private:
-        const trajectory::Box& m_box;
+        const box::Box& m_box;
         const float m_rmax;
         const float m_k;
         const locality::NearestNeighbors *m_nn;
@@ -35,7 +35,7 @@ class ComputeHexOrderParameter
         std::complex<float> *m_psi_array;
     public:
         ComputeHexOrderParameter(std::complex<float> *psi_array,
-                                 const trajectory::Box& box,
+                                 const box::Box& box,
                                  const float rmax,
                                  const float k,
                                  const locality::NearestNeighbors *nn,
@@ -74,7 +74,7 @@ class ComputeHexOrderParameter
             }
     };
 
-void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points, unsigned int Np)
+void HexOrderParameter::compute(box::Box& box, const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
     m_box = box;

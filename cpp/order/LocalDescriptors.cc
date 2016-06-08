@@ -29,7 +29,7 @@ LocalDescriptors::LocalDescriptors(
 class ComputeLocalDescriptors
     {
 private:
-    const trajectory::Box& m_box;
+    const box::Box& m_box;
     const unsigned int m_nNeigh;
     const unsigned int m_neighmax;
     const unsigned int m_lmax;
@@ -42,7 +42,7 @@ private:
 public:
     ComputeLocalDescriptors(
         complex<float> *sphArray,
-        const trajectory::Box& box,
+        const box::Box& box,
         const unsigned int nNeigh,
         const unsigned int neighmax,
         const unsigned int lmax,
@@ -149,12 +149,12 @@ public:
         }
     };
 
-void LocalDescriptors::computeNList(const trajectory::Box& box, const vec3<float> *r, unsigned int Np)
+void LocalDescriptors::computeNList(const box::Box& box, const vec3<float> *r, unsigned int Np)
     {
     m_nn.compute(box, r, Np, r, Np);
     }
 
-void LocalDescriptors::compute(const trajectory::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np)
+void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np)
     {
     if(m_nn.getNp() != Np)
         throw runtime_error("Must call computeNList() before compute");
@@ -206,7 +206,7 @@ void LocalDescriptors::compute(const trajectory::Box& box, unsigned int nNeigh, 
 
 // void export_LocalDescriptors()
 //     {
-//     class_<LocalDescriptors>("LocalDescriptors", init<trajectory::Box&, unsigned int, unsigned int, float>())
+//     class_<LocalDescriptors>("LocalDescriptors", init<box::Box&, unsigned int, unsigned int, float>())
 //         .def("getBox", &LocalDescriptors::getBox, return_internal_reference<>())
 //         .def("getNNeigh", &LocalDescriptors::getNNeigh)
 //         .def("getLMax", &LocalDescriptors::getLMax)

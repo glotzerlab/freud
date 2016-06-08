@@ -12,7 +12,7 @@
 #include "VectorMath.h"
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _ENTROPIC_BONDING_H__
@@ -43,13 +43,13 @@ class EntropicBonding
         ~EntropicBonding();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Compute the bond order
-        void compute(trajectory::Box& box,
+        void compute(box::Box& box,
                      vec3<float> *points,
                      float *orientations,
                      unsigned int nP);
@@ -73,7 +73,7 @@ class EntropicBonding
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_xmax;                     //!< Maximum r at which to determine neighbors
         float m_ymax;                     //!< Maximum r at which to determine neighbors

@@ -13,7 +13,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float rmin)
+LocalQl::LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin)
     :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_l(l), m_rmin(rmin)
     {
     if (m_rmax < 0.0f or m_rmin < 0.0f)
@@ -381,7 +381,7 @@ void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
 
 // void export_LocalQl()
 //     {
-//     class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int, optional<float> >())
+//     class_<LocalQl>("LocalQl", init<box::Box&, float, unsigned int, optional<float> >())
 //         .def("getBox", &LocalQl::getBox, return_internal_reference<>())
 //         .def("setBox", &LocalQl::setBox)
 //         .def("compute", &LocalQl::computePy)

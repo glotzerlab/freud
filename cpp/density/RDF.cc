@@ -21,7 +21,7 @@ using namespace tbb;
 namespace freud { namespace density {
 
 RDF::RDF(float rmax, float dr)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
+    : m_box(box::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
     {
     if (dr < 0.0f)
         throw invalid_argument("dr must be positive");
@@ -169,7 +169,7 @@ class ComputeRDF
     private:
         unsigned int m_nbins;
         tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
-        const trajectory::Box m_box;
+        const box::Box m_box;
         const float m_rmax;
         const float m_dr;
         const locality::LinkCell *m_lc;
@@ -180,7 +180,7 @@ class ComputeRDF
     public:
         ComputeRDF(unsigned int nbins,
                    tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
-                   const trajectory::Box &box,
+                   const box::Box &box,
                    const float rmax,
                    const float dr,
                    const locality::LinkCell *lc,
@@ -332,7 +332,7 @@ void RDF::resetRDF()
 //! \internal
 /*! \brief Function to accumulate the given points to the histogram in memory
 */
-void RDF::accumulate(trajectory::Box& box,
+void RDF::accumulate(box::Box& box,
                      const vec3<float> *ref_points,
                      unsigned int Nref,
                      const vec3<float> *points,

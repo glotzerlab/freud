@@ -2,15 +2,15 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from libcpp.memory cimport shared_ptr
-cimport freud._trajectory as trajectory
+cimport freud._box as box
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12:
         PMFTR12(float, unsigned int, unsigned int, unsigned int)
 
-        const trajectory.Box& getBox() const
+        const box.Box& getBox() const
         void resetPCF()
-        void accumulate(trajectory.Box&,
+        void accumulate(box.Box&,
                         vec3[float]*,
                         float*,
                         unsigned int,
@@ -32,9 +32,9 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
     cdef cppclass PMFTXYT:
         PMFTXYT(float, float, unsigned int, unsigned int, unsigned int)
 
-        const trajectory.Box& getBox() const
+        const box.Box& getBox() const
         void resetPCF()
-        void accumulate(trajectory.Box&,
+        void accumulate(box.Box&,
                         vec3[float]*,
                         float*,
                         unsigned int,
@@ -56,9 +56,9 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D:
         PMFTXY2D(float, unsigned int, unsigned int, unsigned int)
 
-        const trajectory.Box& getBox() const
+        const box.Box& getBox() const
         void resetPCF()
-        void accumulate(trajectory.Box&,
+        void accumulate(box.Box&,
                         vec3[float]*,
                         float*,
                         unsigned int,
@@ -78,9 +78,9 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFTXYZ:
         PMFTXYZ(float, float, float, unsigned int, unsigned int, unsigned int)
 
-        const trajectory.Box& getBox() const
+        const box.Box& getBox() const
         void resetPCF()
-        void accumulate(trajectory.Box&,
+        void accumulate(box.Box&,
                         vec3[float]*,
                         quat[float]*,
                         unsigned int,
