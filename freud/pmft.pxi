@@ -1,7 +1,6 @@
 
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
 cimport freud._trajectory as _trajectory
 cimport freud._pmft as pmft
 from libc.string cimport memcpy
