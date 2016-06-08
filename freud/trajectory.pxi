@@ -5,8 +5,8 @@ import numpy as np
 cimport numpy as np
 from libcpp.string cimport string
 from libc.string cimport memcpy
-# Numpy must be initialized. When using numpy from C or Cython you must 
-# _always_ do that, or you will have segfaults 
+# Numpy must be initialized. When using numpy from C or Cython you must
+# _always_ do that, or you will have segfaults
 np.import_array()
 
 cdef class tBox:
@@ -304,7 +304,7 @@ cdef class tBox:
             raise ValueError("Invalid dimensions given to box wrap. Wrap requires a 3 element array (3,), or (N,3) array as input");
 
     def _wrap(self, vec):
-        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef np.ndarray[float,ndim=1] l_vec = vec
         cdef vec3[float] result = self.thisptr.wrapMultiple(<vec3[float]&>l_vec[0])
         return (result.x, result.y, result.z)
 
@@ -351,7 +351,7 @@ cdef class tBox:
         :type f: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: A vector inside the box corresponding to f
         """
-        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(f.flatten())
+        cdef np.ndarray[float,ndim=1] l_vec = f
         cdef vec3[float] result = self.thisptr.makeCoordinates(<const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
@@ -363,7 +363,7 @@ cdef class tBox:
         :type vec: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: Fractional vector inside the box corresponding to f
         """
-        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef np.ndarray[float,ndim=1] l_vec = vec
         cdef vec3[float] result = self.thisptr.makeFraction(<const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 

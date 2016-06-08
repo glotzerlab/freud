@@ -73,15 +73,15 @@ cdef class BondOrder:
             raise ValueError("values must be a 1 dimensional array")
         if refOrientations.shape[1] != 4 or orientations.shape[1] != 4:
             raise ValueError("the 2nd dimension must have 3 values: q0, q1, q2, q3")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_refOrientations = np.ascontiguousarray(refOrientations.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
+        cdef np.ndarray[float, ndim=2] l_refPoints = refPoints
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_refOrientations = refOrientations
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <quat[float]*>&l_refOrientations[0], nRef, <vec3[float]*>&l_points[0], <quat[float]*>&l_orientations[0], nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>l_refPoints.data, <quat[float]*>l_refOrientations.data, nRef, <vec3[float]*>l_points.data, <quat[float]*>l_orientations.data, nP)
 
     def getBondOrder(self):
         """
@@ -375,8 +375,8 @@ cdef class EntropicBonding:
 
     def __cinit__(self, xmax, ymax, nx, ny, nNeighbors, nBonds, bondMap):
         # should I extract from the bond map (nx, ny)
-        cdef np.ndarray[unsigned int, ndim=1] l_bondMap = np.ascontiguousarray(bondMap.flatten())
-        self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, nBonds, <unsigned int*>&l_bondMap[0])
+        cdef np.ndarray[unsigned int, ndim=1] l_bondMap = bondMap
+        self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, nBonds, <unsigned int*>l_bondMap.data)
 
     def __dealloc__(self):
         del self.thisptr
@@ -402,12 +402,12 @@ cdef class EntropicBonding:
             raise ValueError("values must be a numpy float32 array")
         if orientations.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], nP)
+            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, <float*>l_orientations.data, nP)
 
     def getBonds(self):
         """
@@ -497,11 +497,11 @@ cdef class HexOrderParameter:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
 
     def getPsi(self):
         """
@@ -583,10 +583,10 @@ cdef class LocalDescriptors:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.computeNList(l_box, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.computeNList(l_box, <vec3[float]*>l_points.data, nP)
 
     def compute(self, box, unsigned int nNeigh, points):
         """
@@ -603,10 +603,10 @@ cdef class LocalDescriptors:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.compute(l_box, nNeigh, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.compute(l_box, nNeigh, <vec3[float]*>l_points.data, nP)
 
     def getSph(self):
         """
@@ -701,10 +701,10 @@ cdef class TransOrderParameter:
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
 
     def getDr(self):
         """
@@ -791,9 +791,9 @@ cdef class LocalQl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -807,10 +807,10 @@ cdef class LocalQl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -824,10 +824,10 @@ cdef class LocalQl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -841,11 +841,11 @@ cdef class LocalQl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAveNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
@@ -981,9 +981,9 @@ cdef class LocalQlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -997,10 +997,10 @@ cdef class LocalQlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1014,10 +1014,10 @@ cdef class LocalQlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1031,11 +1031,11 @@ cdef class LocalQlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAveNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
@@ -1163,9 +1163,9 @@ cdef class LocalWl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1179,10 +1179,10 @@ cdef class LocalWl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1196,10 +1196,10 @@ cdef class LocalWl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1213,11 +1213,11 @@ cdef class LocalWl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAveNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
@@ -1360,9 +1360,9 @@ cdef class LocalWlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1376,10 +1376,10 @@ cdef class LocalWlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1393,10 +1393,10 @@ cdef class LocalWlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1410,11 +1410,11 @@ cdef class LocalWlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAveNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
@@ -1549,9 +1549,9 @@ cdef class SolLiq:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeSolLiqVariant(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1565,9 +1565,9 @@ cdef class SolLiq:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqVariant(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
 
     def computeSolLiqNoNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1581,9 +1581,9 @@ cdef class SolLiq:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
@@ -1746,10 +1746,10 @@ cdef class MatchEnv:
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r)
+        self.thisptr.cluster(<vec3[float]*>l_points.data, nP, threshold, hard_r)
 
     def matchMotif(self, points, refPoints, threshold, hard_r=False):
         """Determine clusters of particles that match the motif provided by refPoints.
@@ -1776,12 +1776,12 @@ cdef class MatchEnv:
         if refPoints.shape[1] != 3:
             raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_refpoints = refPoints
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, hard_r)
+        self.thisptr.matchMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_refPoints.data, nRef, threshold, hard_r)
 
     def isSimilar(self, refPoints1, refPoints2, threshold):
         """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
@@ -1806,8 +1806,8 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
-        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
+        cdef np.ndarray[float, ndim=2] l_refpoints1 = np.copy(refPoints1)
+        cdef np.ndarray[float, ndim=2] l_refpoints2 = np.copy(refPoints2)
         cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
         cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
         cdef float threshold_sq = threshold*threshold
@@ -1815,7 +1815,7 @@ cdef class MatchEnv:
         if nRef1 != nRef2:
             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
 
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>l_refPoints1.data, <vec3[float]*>l_refPoints2.data, nRef1, threshold_sq)
         return vec_map
 
     def getClusters(self):
@@ -1924,9 +1924,9 @@ cdef class SolLiqNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeSolLiqVariant(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1940,9 +1940,9 @@ cdef class SolLiqNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqVariant(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
 
     def computeSolLiqNoNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1956,9 +1956,9 @@ cdef class SolLiqNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
@@ -2122,13 +2122,13 @@ cdef class Pairing2D:
             raise ValueError("values must be a 1 dimensional array")
         if compOrientations.ndim != 2:
             raise ValueError("values must be a 2 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_compOrientations = np.ascontiguousarray(compOrientations.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_compOrientations = compOrientations
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nO = <unsigned int> compOrientations.shape[1]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], <float*>&l_compOrientations[0], nP, nO)
+        self.thisptr.compute(l_box, <vec3[float]*>l_points.data, <float*>l_orientations.data, <float*>l_compOrientations.data, nP, nO)
 
     def getMatch(self):
         """

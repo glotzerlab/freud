@@ -97,7 +97,7 @@ cdef class LinkCell:
         if len(cPoint) != 3:
             raise RuntimeError('Need a 3D point for getCell()')
 
-        return self.thisptr.getCell(dereference(<vec3[float]*>&cPoint[0]))
+        TODO return self.thisptr.getCell(dereference(<vec3[float]*>&cPoint[0]))
 
     def itercell(self, unsigned int cell):
         """Return an iterator over all particles in the given cell
