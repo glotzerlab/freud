@@ -45,6 +45,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     )
 
 set(FREUD_SOURCES
+            box/box.h
+            box/box.cc
             trajectory/trajectory.h
             trajectory/DCDLoader.cc
             trajectory/DCDLoader.h
