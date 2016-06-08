@@ -26,12 +26,12 @@ class TestCluster(unittest.TestCase):
         orientations = gen_quaternions(N, axes, angles)
 
         # # create cubatic object
-        # cubaticOP = cop(5.0, 0.001, 0.95, 10)
-        # cubaticOP.compute(orientations)
+        cubaticOP = cop(5.0, 0.001, 0.95, 10)
+        cubaticOP.compute(orientations)
         # # get the op
-        # op = cubaticOP.get_cubatic_order_parameter()
+        op = cubaticOP.get_cubatic_order_parameter()
 
-        npt.assert_almost_equal(1, 1, decimal=2, err_msg="Cubatic Order is not apprx 1")
+        npt.assert_almost_equal(op, 1, decimal=2, err_msg="Cubatic Order is not apprx 1")
 
     def test_disordered(self):
         # do not need positions, just orientations
@@ -52,12 +52,12 @@ class TestCluster(unittest.TestCase):
         orientations = gen_quaternions(N, axes, angles)
 
         # # create cubatic object
-        # cubaticOP = cop(5.0, 0.001, 0.95, 10)
-        # cubaticOP.compute(orientations)
+        cubaticOP = cop(5.0, 0.001, 0.95, 10)
+        cubaticOP.compute(orientations)
         # # get the op
-        # op = cubaticOP.get_cubatic_order_parameter()
+        op = cubaticOP.get_cubatic_order_parameter()
 
-        npt.assert_array_less(0.3, 0.3, err_msg="Cubatic Order is > 0.3")
+        npt.assert_array_less(op, 0.3, err_msg="Cubatic Order is > 0.3")
 
 
 if __name__ == '__main__':
