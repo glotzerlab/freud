@@ -40,8 +40,11 @@ class Voronoi:
     vbuff = VoronoiBuffer(box)
     vbuff.compute(positions,buff)
     self.buff = buffer_parts = vbuff.getBufferParticles()
-
-    self.expanded_points = np.concatenate((positions,buffer_parts))
+    if self.buff != []:
+      self.expanded_points = np.concatenate((positions,buffer_parts))
+    else:
+      self.expanded_points = positions
+    
     #use qhull to get the points
     self.voronoi = qvoronoi(self.expanded_points)
 
@@ -60,6 +63,17 @@ class Voronoi:
   def getVoronoiPolytopes(self):
     return self.poly_verts
 
+  """Compute the neighbors of each particle based on the voronoi tessalation.
+  One can include neighbors from multiple voronoi shells by specifying 'numShells' variable.
+  An example code to compute neighbors upto two voronoi shells for a 2D mesh
+  
+  vor = voronoi.Voronoi(trajectory.Box(5, 5))
+  pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
+  vor.computeNeighbors(pos)
+  neighbors = vor.getNeighbors(2)
+
+  Returns a list of lists of neighbors
+  """
   def computeNeighbors(self,positions,box=None,buff=None):
     #if box or buff is not specified, revert to object quantities
     if box is None:
@@ -72,31 +86,36 @@ class Voronoi:
     vbuff.compute(positions,buff)
     self.buff = buffer_parts = vbuff.getBufferParticles()
 
-    self.expanded_points = np.concatenate((positions,buffer_parts))
+    if self.buff != []:
+      self.expanded_points = np.concatenate((positions,buffer_parts))
+    else:
+      self.expanded_points = positions
+    
     #use qhull to get the points
     self.voronoi = qvoronoi(self.expanded_points)
     ridge_points = self.voronoi.ridge_points
     self.firstShellNeighborList = [[]]*len(positions)
-    
     for k in range(len(ridge_points)):
       self.firstShellNeighborList[ridge_points[k,0]] = self.firstShellNeighborList[ridge_points[k,0]] + [ridge_points[k,1]]
-      print(ridge_points[k,1])
-      print(len(self.firstShellNeighborList))
       self.firstShellNeighborList[ridge_points[k,1]] = self.firstShellNeighborList[ridge_points[k,1]] + [ridge_points[k,0]]
-
-    
-  def getNeighbors(numShells):
-    neighbor_list = self.firstShellNeighborList
+  
+  #get numShells of neighbors for each particle
+  def getNeighbors(self, numShells):
+    neighbor_list = list.copy(self.firstShellNeighborList)
     for _ in range(numShells-1):
-      dummy_neighbor_list = neighbor_list
+      dummy_neighbor_list = list.copy(neighbor_list)
       for i in range(len(neighbor_list)):
         numNeighbors = len(neighbor_list[i])
         for j in range(numNeighbors):
-          dummy_neighbor_list[i].extend(self.firstShellNeighborList[neighbor_list[i][j]])
+          dummy_neighbor_list[i] = dummy_neighbor_list[i] + self.firstShellNeighborList[neighbor_list[i][j]]
+          
         # remove duplicates
         dummy_neighbor_list[i] = list(set(dummy_neighbor_list[i]))
-      
-      neighbor_list = dummy_neighbor_list 
+        try:
+          dummy_neighbor_list[i].remove(i)
+        except:
+          pass
+      neighbor_list = list.copy(dummy_neighbor_list)
     
     return neighbor_list
 
