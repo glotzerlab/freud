@@ -3,19 +3,25 @@
 #include <math.h>
 #include "SharedArray.hpp"
 
+#ifndef __FSPH_SPHERICAL_HARMONICS__
+#define __FSPH_SPHERICAL_HARMONICS__
+
 namespace fsph{
 
-    inline unsigned int index2d(const unsigned int &w, const unsigned int &i, const int &j)
+    template<typename T>
+    inline T index2d(const T &w, const T &i, const int &j)
     {
         return w*i + j;
     }
 
-    inline unsigned int sphCount(const unsigned int &lmax)
+    template<typename T>
+    inline T sphCount(const T &lmax)
     {
         return (lmax + 1)*(lmax + 2)/2;
     }
 
-    inline unsigned int sphIndex(const unsigned int &l, const unsigned int &m)
+    template<typename T>
+    inline T sphIndex(const T &l, const T &m)
     {
         if(l > 0)
             return sphCount(l - 1) + m;
@@ -113,6 +119,11 @@ namespace fsph{
             return iterator(*this, m_lmax + 1, 0, 0);
         }
 
+        iterator begin_const_l(unsigned int l, unsigned int m, bool full_m) const
+        {
+            return iterator(*this, l, m, full_m);
+        }
+
         void compute(Real phi, Real theta)
         {
             const Real sphi(sin(phi));
@@ -188,7 +199,7 @@ namespace fsph{
                     m_jacobi[index2d(m_lmax + 1, m, 0)] =
                         m_jacobi[index2d(m_lmax + 1, m - 1, 0)]*sqrt(1 + 1.0/2/m);
                 else
-                    m_jacobi[index2d(m_lmax + 1, 0, 0)] = 1/sqrt(2);
+                    m_jacobi[index2d(m_lmax + 1, (unsigned int) 0, 0)] = 1/sqrt(2);
 
                 if(m_lmax > 0)
                     m_jacobi[index2d(m_lmax + 1, m, 1)] =
@@ -234,3 +245,5 @@ namespace fsph{
         }
     }
 }
+
+#endif

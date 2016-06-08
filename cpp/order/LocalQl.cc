@@ -24,7 +24,7 @@ LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float r
         throw invalid_argument("l must be two or greater (and even)!");
     }
 
-void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+/* void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     if(Y.size() != 2*m_l+1)
         Y.resize(2*m_l+1);
@@ -32,7 +32,7 @@ void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<f
     for(int m = -m_l; m <=0; m++)
         //Doc for boost spherical harmonic
         //http://www.boost.org/doc/libs/1_53_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/sph_harm.html
-        // theta = colatitude = 0..Pi
+        // theta = colatitude = -1..Pi
         // Phi = azimuthal (longitudinal) 0..2pi).
         Y[m+m_l]= boost::math::spherical_harmonic(m_l, m, theta, phi);
 
@@ -42,6 +42,29 @@ void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<f
     for(unsigned int i = 1; i <= m_l; i++)
         Y[i+m_l] = Y[-i+m_l];
     }
+*/
+
+// Calculating Ylm using fsph module
+void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+    {
+    if(Y.size() != 2*m_l+1)
+        Y.resize(2*m_l+1);
+
+    fsph::PointSPHEvaluator<float> sph_eval(m_l);
+
+    unsigned int j(0);
+    // old definition in compute (theta: 0...pi, phi: 0...2pi)
+    // in fsph, the definition is flipped
+    sph_eval.compute(theta, phi);
+
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, true));
+        iter != sph_eval.end(); ++iter)
+        {
+        Y[j] = *iter;
+        ++j;
+        }
+    }
+
 
 // void LocalQl::compute(const float3 *points, unsigned int Np)
 void LocalQl::compute(const vec3<float> *points, unsigned int Np)
@@ -116,6 +139,7 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
 
                     std::vector<std::complex<float> > Y;
                     LocalQl::Ylm(theta, phi,Y);  //Fill up Ylm vector
+                    
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
                         m_Qlmi[(2*m_l+1)*i+k]+=Y[k];
