@@ -23,7 +23,7 @@ class TestCluster(unittest.TestCase):
         angles = np.random.uniform(low=0.0, high=0.05, size=N)
 
         # # generate quaternions
-        # orientations = gen_quaternions(N, axes, angles)
+        orientations = gen_quaternions(N, axes, angles)
 
         # # create cubatic object
         # cubaticOP = cop(5.0, 0.001, 0.95, 10)
@@ -49,7 +49,7 @@ class TestCluster(unittest.TestCase):
         angles = np.random.uniform(low=np.pi/4.0, high=np.pi/2.0, size=N)
 
         # # generate quaternions
-        # orientations = gen_quaternions(N, axes, angles)
+        orientations = gen_quaternions(N, axes, angles)
 
         # # create cubatic object
         # cubaticOP = cop(5.0, 0.001, 0.95, 10)
