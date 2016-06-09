@@ -2,6 +2,7 @@
 # cython: embedsignature=True
 
 include "box.pxi"
+include "bond.pxi"
 include "trajectory.pxi"
 include "interface.pxi"
 include "locality.pxi"

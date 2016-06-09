@@ -13,12 +13,6 @@ Bond Order
 .. autoclass:: freud.order.BondOrder(rmax, k, n, nBinsT, nBinsP)
     :members:
 
-Entropic Bonding
-================
-
-.. autoclass:: freud.order.EntropicBondingRT(r_max, bond_map, bond_list)
-    :members:
-
 Order Parameters
 ================
 

@@ -14,6 +14,8 @@ Several modules are available currently. Feel free to contribute your own module
 .. toctree::
    :maxdepth: 3
 
+   bond
+   box
    density
    interface
    locality

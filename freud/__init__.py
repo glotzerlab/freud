@@ -1,6 +1,7 @@
 # __init__.py marks this directory as a python module
 from . import parallel
-from . import box;
+from . import box
+from . import bond
 from . import cluster
 from . import density
 from . import kspace

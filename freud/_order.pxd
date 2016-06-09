@@ -47,35 +47,6 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         float getScale()
         quat[float] getCubaticOrientation()
 
-# cdef extern from "EntropicBonding.h" namespace "freud::order":
-#     cdef cppclass EntropicBonding:
-#         EntropicBonding(float, float, unsigned int, unsigned int, unsigned int, unsigned int *)
-#         const box.Box &getBox() const
-#         void compute(box.Box &,
-#                      vec3[float]*,
-#                      float*,
-#                      unsigned int) nogil
-#         shared_ptr[ map[uint, vector[uint] ] ] getBonds()
-#         # shared_array[map] getBonds()
-#         # vector[map] *getBonds()
-#         unsigned int getNP()
-#         unsigned int getNBonds()
-#         unsigned int getNBinsX()
-#         unsigned int getNBinsY()
-
-cdef extern from "EntropicBondingRT.h" namespace "freud::order":
-    cdef cppclass EntropicBondingRT:
-        EntropicBondingRT(float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
-        const box.Box &getBox() const
-        void compute(box.Box &,
-                     vec3[float]*,
-                     float*,
-                     unsigned int) nogil
-        shared_ptr[ uint ] getBonds()
-        unsigned int getNumParticles()
-        unsigned int getNumBonds()
-        map[ uint, uint] getListMap()
-
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
         HexOrderParameter(float, float, unsigned int)
