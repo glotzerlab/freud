@@ -4,13 +4,11 @@ from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
 cimport freud._box as _box
 cimport freud._order as order
-from libc.string cimport memcpy
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 import numpy as np
 cimport numpy as np
-from cython.view cimport array as cvarray
 import time
 
 # Numpy must be initialized. When using numpy from C or Cython you must

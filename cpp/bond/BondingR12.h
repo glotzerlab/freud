@@ -31,12 +31,12 @@ class BondingR12
     public:
         //! Constructor
         BondingR12(float r_max,
-                          unsigned int n_r,
-                          unsigned int n_t2,
-                          unsigned int n_t1,
-                          unsigned int n_bonds,
-                          unsigned int *bond_map,
-                          unsigned int *bond_list);
+                   unsigned int n_r,
+                   unsigned int n_t2,
+                   unsigned int n_t1,
+                   unsigned int n_bonds,
+                   unsigned int *bond_map,
+                   unsigned int *bond_list);
 
         //! Destructor
         ~BondingR12();
@@ -49,6 +49,9 @@ class BondingR12
 
         //! Compute the bond order
         void compute(box::Box& box,
+                     vec3<float> *ref_points,
+                     float *ref_orientations,
+                     unsigned int n_ref,
                      vec3<float> *points,
                      float *orientations,
                      unsigned int n_p);
@@ -62,7 +65,7 @@ class BondingR12
 
         unsigned int getNumParticles()
             {
-            return m_n_p;
+            return m_n_ref;
             }
 
         unsigned int getNumBonds()
@@ -86,6 +89,7 @@ class BondingR12
         std::map<unsigned int, unsigned int> m_list_map; //! maps bond index to list index
         std::map<unsigned int, unsigned int> m_rev_list_map; //! maps list index to bond index
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
+        unsigned int m_n_ref;                //!< Last number of points computed
         unsigned int m_n_p;                //!< Last number of points computed
 
         std::shared_ptr<unsigned int> m_bonds;

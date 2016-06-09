@@ -30,10 +30,10 @@ BondingR12::BondingR12(float r_max,
                        unsigned int *bond_map,
                        unsigned int *bond_list)
     : m_box(box::Box()), m_r_max(r_max), m_t_max(2.0*M_PI), m_nbins_r(n_r), m_nbins_t2(n_t2), m_nbins_t1(n_t1),
-      m_n_bonds(n_bonds), m_bond_map(bond_map), m_bond_list(bond_list), m_n_p(0)
+      m_n_bonds(n_bonds), m_bond_map(bond_map), m_bond_list(bond_list), m_n_ref(0), m_n_p(0)
     {
     // create the unsigned int array to store whether or not a particle is paired
-    m_bonds = std::shared_ptr<unsigned int>(new unsigned int[m_n_p*m_n_bonds], std::default_delete<unsigned int[]>());
+    m_bonds = std::shared_ptr<unsigned int>(new unsigned int[m_n_ref*m_n_bonds], std::default_delete<unsigned int[]>());
     if (m_nbins_r < 1)
         throw invalid_argument("must be at least 1 bin in r");
     if (m_nbins_t1 < 1)
@@ -92,21 +92,24 @@ std::map<unsigned int, unsigned int> BondingR12::getRevListMap()
     }
 
 void BondingR12::compute(box::Box& box,
-                                vec3<float> *points,
-                                float *orientations,
-                                unsigned int n_p)
+                         vec3<float> *ref_points,
+                         float *ref_orientations,
+                         unsigned int n_ref,
+                         vec3<float> *points,
+                         float *orientations,
+                         unsigned int n_p)
     {
     m_box = box;
     // compute the cell list
     m_lc->computeCellList(m_box,points,n_p);
-    if (n_p != m_n_p)
+    if (n_ref != m_n_ref)
         {
         // make sure to clear this out at some point
-        m_bonds = std::shared_ptr<unsigned int>(new unsigned int[n_p*m_n_bonds], std::default_delete<unsigned int[]>());
+        m_bonds = std::shared_ptr<unsigned int>(new unsigned int[n_ref*m_n_bonds], std::default_delete<unsigned int[]>());
         }
-    memset((void*)m_bonds.get(), 0, sizeof(unsigned int)*n_p*m_n_bonds);
+    memset((void*)m_bonds.get(), 0, sizeof(unsigned int)*n_ref*m_n_bonds);
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,n_p),
+    parallel_for(blocked_range<size_t>(0,n_ref),
         [=] (const blocked_range<size_t>& br)
             {
             float dr_inv = 1.0f / m_dr;
@@ -114,7 +117,7 @@ void BondingR12::compute(box::Box& box,
             float dt2_inv = 1.0f / m_dt2;
             float rmaxsq = m_r_max * m_r_max;
             // indexer for bond list
-            Index2D a_i = Index2D(m_n_bonds, n_p);
+            Index2D a_i = Index2D(m_n_bonds, n_ref);
             // indexer for bond map
             Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
 
@@ -123,10 +126,10 @@ void BondingR12::compute(box::Box& box,
                 // huh?
                 std::map<unsigned int, std::vector<unsigned int> > l_bonds;
                 // get position, orientation of particle i
-                vec3<float> pos = points[i];
-                float angle = orientations[i];
+                vec3<float> ref_pos = ref_points[i];
+                float ref_angle = ref_orientations[i];
                 // get cell for particle i
-                unsigned int ref_cell = m_lc->getCell(pos);
+                unsigned int ref_cell = m_lc->getCell(ref_pos);
 
                 //loop over neighbor cells
                 const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
@@ -140,7 +143,7 @@ void BondingR12::compute(box::Box& box,
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
                         //compute r between the two particles
-                        vec3<float> delta = m_box.wrap(points[j] - pos);
+                        vec3<float> delta = m_box.wrap(points[j] - ref_pos);
 
                         float rsq = dot(delta, delta);
                         // particle cannot pair with itself...i != j is probably better?
@@ -155,7 +158,7 @@ void BondingR12::compute(box::Box& box,
                             float r = sqrtf(rsq);
                             float d_theta1 = atan2(delta.y, delta.x);
                             float d_theta2 = atan2(-delta.y, -delta.x);
-                            float t1 = orientations[i] - d_theta1;
+                            float t1 = ref_angle - d_theta1;
                             float t2 = orientations[j] - d_theta2;
                             // make sure that t1, t2 are bounded between 0 and 2PI
                             t1 = fmod(t1, 2*M_PI);
@@ -202,6 +205,7 @@ void BondingR12::compute(box::Box& box,
                 }
             });
     // save the last computed number of particles
+    m_n_ref = n_ref;
     m_n_p = n_p;
     }
 

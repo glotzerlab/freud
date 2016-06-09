@@ -44,7 +44,7 @@ class TestBond(unittest.TestCase):
         f_box = box.Box(Lx=5.0*rmax, Ly=5.0*rmax, is2D=True)
 
         # run the computation
-        EB.compute(f_box, posList, anglist)
+        EB.compute(f_box, posList, anglist, posList, anglist)
 
         # check to make sure that the point is in the correct bin
 
