@@ -192,7 +192,7 @@ void PMFTR12::accumulate(box::Box& box,
     m_box = box;
     m_lc->computeCellList(m_box, points, n_p);
     parallel_for(blocked_range<size_t>(0, n_ref),
-        [=] (const blocked_range<size_t>& r)
+        [=] (const blocked_range<size_t>& br)
             {
             assert(ref_points);
             assert(points);
@@ -215,7 +215,7 @@ void PMFTR12::accumulate(box::Box& box,
                 }
 
             // for each reference point
-            for (size_t i = r.begin(); i != r.end(); i++)
+            for (size_t i = br.begin(); i != br.end(); i++)
                 {
                 // get the cell the point is in
                 vec3<float> ref = ref_points[i];

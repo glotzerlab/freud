@@ -71,14 +71,10 @@ cdef extern from "EntropicBondingRT.h" namespace "freud::order":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil
-        shared_array[ uint ] getBonds()
-        # shared_array[map] getBonds()
-        # vector[map] *getBonds()
+        shared_ptr[ uint ] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
-        unsigned int getNBinsR()
-        unsigned int getNBinsT1()
-        unsigned int getNBinsT2()
+        map[ uint, uint] getListMap()
 
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:

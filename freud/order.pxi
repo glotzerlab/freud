@@ -455,6 +455,8 @@ cdef class EntropicBondingRT:
 
     .. note:: currently being debugged. not guaranteed to work.
 
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
+
     :param r_max: distance to search for bonds
     :param bond_map: 2D array containing the bond index for each x, y coordinate
     :param bond_list: list containing the bond indices to be tracked bond_list[i] = bond_index
@@ -464,21 +466,21 @@ cdef class EntropicBondingRT:
     """
     cdef order.EntropicBondingRT *thisptr
 
-    def __cinit__(self, r_max, bond_map, bond_list):
+    def __cinit__(self, float r_max, np.ndarray[uint, ndim=3] bond_map, np.ndarray[uint, ndim=1] bond_list):
         # extract nr, nt from the bond_map
         n_r = bond_map.shape[0]
         n_t2 = bond_map.shape[1]
         n_t1 = bond_map.shape[2]
         n_bonds = bond_list.shape[0]
-        cdef np.ndarray l_bond_map = bond_map
-        cdef np.ndarray l_bond_list = bond_list
+        cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
+        cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new order.EntropicBondingRT(r_max, n_r, n_t2, n_t1, n_bonds,
             <unsigned int*>l_bond_map.data, <unsigned int*>l_bond_list.data)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points, orientations):
+    def compute(self, box, np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=1] orientations):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -499,20 +501,19 @@ cdef class EntropicBondingRT:
             raise ValueError("values must be a numpy float32 array")
         if orientations.ndim != 1:
             raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray l_points = points
-        cdef np.ndarray l_orientations = orientations
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*> l_points.data, <float*> l_orientations.data, nP)
+            self.thisptr.compute(l_box, <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
 
     def getBonds(self):
         """
         :return: particle bonds
-        :rtype: list[dict]
+        :rtype: np.ndarray(shape=(n_p, n_bonds), dtype=np.uint32)
         """
-        # this works, but is obviously not copy-free
-        # keep for now, given the unique data structure
         cdef unsigned int *bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
@@ -529,35 +530,16 @@ cdef class EntropicBondingRT:
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
-    def getNBinsR(self):
+    def getListMap(self):
         """
-        Get the number of bins in the :math:`r`-dimension of histogram
+        Get the dict used to map list idx to bond idx
 
-        :return: nr
-        :rtype: unsigned int
-        """
-        cdef unsigned int nr = self.thisptr.getNBinsR()
-        return nr
+        :return: list_map
+        :rtype: dict()
 
-    def getNBinsT1(self):
+        >>> bond_idx = list_map[list_idx]
         """
-        Get the number of bins in the :math:`\\theta_1`-dimension of histogram
-
-        :return: nT1
-        :rtype: unsigned int
-        """
-        cdef unsigned int nT1 = self.thisptr.getNBinsT1()
-        return nT1
-
-    def getNBinsT2(self):
-        """
-        Get the number of bins in the :math:`\\theta_2`-dimension of histogram
-
-        :return: nT2
-        :rtype: unsigned int
-        """
-        cdef unsigned int nT2 = self.thisptr.getNBinsT2()
-        return nT2
+        return self.thisptr.getListMap()
 
 cdef class HexOrderParameter:
     """Calculates the x-atic order parameter for each particle in the system.
