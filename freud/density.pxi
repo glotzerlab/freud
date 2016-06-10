@@ -391,13 +391,13 @@ cdef class GaussianDensity:
         arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
         cdef _box.Box l_box = self.thisptr.getBox()
         if not l_box.is2D():
-            arraySize *= self.thispth.getWidthZ()
+            arraySize *= self.thisptr.getWidthZ()
         nbins[0] = <np.npy_intp>arraySize
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>density)
         if l_box.is2D():
             arrayShape = (self.thisptr.getWidthY(), self.thisptr.getWidthX())
         else:
-            arrayShape = (self.thispth.getWidthZ(), self.thisptr.getWidthY(), self.thisptr.getWidthX())
+            arrayShape = (self.thisptr.getWidthZ(), self.thisptr.getWidthY(), self.thisptr.getWidthX())
         pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
         return pyResult
 
