@@ -17,8 +17,8 @@
 
 #include <map>
 
-#ifndef _BONDING_R12_H__
-#define _BONDING_R12_H__
+#ifndef _BONDING_XYZ_H__
+#define _BONDING_XYZ_H__
 
 /*! \file EntropicBonding.h
     \brief Compute the hexatic order parameter for each particle
@@ -26,20 +26,22 @@
 
 namespace freud { namespace bond {
 
-class BondingR12
+class BondingXYZ
     {
     public:
         //! Constructor
-        BondingR12(float r_max,
-                          unsigned int n_r,
-                          unsigned int n_t2,
-                          unsigned int n_t1,
-                          unsigned int n_bonds,
-                          unsigned int *bond_map,
-                          unsigned int *bond_list);
+        BondingXYZ(float x_max,
+                   float y_max,
+                   float z_max,
+                   unsigned int n_bins_x,
+                   unsigned int n_bins_y,
+                   unsigned int n_bins_z,
+                   unsigned int n_bonds,
+                   unsigned int *bond_map,
+                   unsigned int *bond_list);
 
         //! Destructor
-        ~BondingR12();
+        ~BondingXYZ();
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -49,8 +51,11 @@ class BondingR12
 
         //! Compute the bond order
         void compute(box::Box& box,
+                     vec3<float> *ref_points,
+                     quat<float> *ref_orientations,
+                     unsigned int n_ref,
                      vec3<float> *points,
-                     float *orientations,
+                     quat<float> *orientations,
                      unsigned int n_p);
 
         //! Get a reference to the last computed bond list
@@ -73,19 +78,22 @@ class BondingR12
     private:
         box::Box m_box;            //!< Simulation box the particles belong in
         float m_r_max;                     //!< Maximum r at which to determine neighbors
-        float m_t_max;                     //!< Maximum theta at which to determine neighbors
-        float m_dr;
-        float m_dt1;
-        float m_dt2;
-        unsigned int m_nbins_r;             //!< Number of x bins to compute bonds
-        unsigned int m_nbins_t1;             //!< Number of y bins to compute bonds
-        unsigned int m_nbins_t2;             //!< Number of y bins to compute bonds
+        float m_x_max;                     //!< Maximum r at which to determine neighbors
+        float m_y_max;                     //!< Maximum theta at which to determine neighbors
+        float m_z_max;                     //!< Maximum theta at which to determine neighbors
+        float m_dx;
+        float m_dy;
+        float m_dz;
+        unsigned int m_nbins_x;             //!< Number of x bins to compute bonds
+        unsigned int m_nbins_y;             //!< Number of y bins to compute bonds
+        unsigned int m_nbins_z;             //!< Number of y bins to compute bonds
         unsigned int m_n_bonds;                        //!< number of bonds to track
         unsigned int *m_bond_map;                   //!< pointer to bonding map
         unsigned int *m_bond_list;
         std::map<unsigned int, unsigned int> m_list_map; //! maps bond index to list index
         std::map<unsigned int, unsigned int> m_rev_list_map; //! maps list index to bond index
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
+        unsigned int m_n_ref;                //!< Last number of points computed
         unsigned int m_n_p;                //!< Last number of points computed
 
         std::shared_ptr<unsigned int> m_bonds;
@@ -93,4 +101,4 @@ class BondingR12
 
 }; }; // end namespace freud::bond
 
-#endif // _BONDING_R12_H__
+#endif // _BONDING_XYZ_H__

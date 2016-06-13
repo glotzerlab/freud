@@ -58,6 +58,10 @@ set(FREUD_SOURCES
             bond/BondingR12.cc
             bond/BondingXY2D.h
             bond/BondingXY2D.cc
+            bond/BondingXYT.h
+            bond/BondingXYT.cc
+            bond/BondingXYZ.h
+            bond/BondingXYZ.cc
             trajectory/trajectory.h
             trajectory/DCDLoader.cc
             trajectory/DCDLoader.h

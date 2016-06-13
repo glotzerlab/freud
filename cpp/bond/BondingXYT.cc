@@ -1,4 +1,4 @@
-#include "BondingR12.h"
+#include "BondingXYT.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
@@ -22,38 +22,34 @@ using namespace tbb;
 
 namespace freud { namespace bond {
 
-BondingR12::BondingR12(float r_max,
-                       unsigned int n_r,
-                       unsigned int n_t2,
-                       unsigned int n_t1,
-                       unsigned int n_bonds,
-                       unsigned int *bond_map,
-                       unsigned int *bond_list)
-    : m_box(box::Box()), m_r_max(r_max), m_t_max(2.0*M_PI), m_nbins_r(n_r), m_nbins_t2(n_t2), m_nbins_t1(n_t1),
-      m_n_bonds(n_bonds), m_bond_map(bond_map), m_bond_list(bond_list), m_n_p(0)
+BondingXYT::BondingXYT(float x_max, float y_max, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_t,
+    unsigned int n_bonds, unsigned int *bond_map, unsigned int *bond_list)
+    : m_box(box::Box()), m_x_max(x_max), m_y_max(y_max), m_t_max(2.0*M_PI), m_nbins_x(n_bins_x), m_nbins_y(n_bins_y),
+      m_nbins_t(n_bins_t), m_n_bonds(n_bonds), m_bond_map(bond_map), m_bond_list(bond_list), m_n_ref(0), m_n_p(0)
     {
     // create the unsigned int array to store whether or not a particle is paired
-    m_bonds = std::shared_ptr<unsigned int>(new unsigned int[m_n_p*m_n_bonds], std::default_delete<unsigned int[]>());
-    if (m_nbins_r < 1)
-        throw invalid_argument("must be at least 1 bin in r");
-    if (m_nbins_t1 < 1)
-        throw invalid_argument("must be at least 1 bin in T1");
-    if (m_nbins_t2 < 1)
-        throw invalid_argument("must be at least 1 bin in T2");
-    if (m_r_max < 0.0f)
-        throw invalid_argument("rmax must be positive");
-    if (m_n_bonds < 1)
-        throw invalid_argument("must have at least 1 bond");
+    m_bonds = std::shared_ptr<unsigned int>(new unsigned int[m_n_ref*m_n_bonds], std::default_delete<unsigned int[]>());
+    if (n_bins_x < 1)
+        throw invalid_argument("must be at least 1 bin in x");
+    if (n_bins_y < 1)
+        throw invalid_argument("must be at least 1 bin in y");
+    if (n_bins_t < 1)
+        throw invalid_argument("must be at least 1 bin in t");
+    if (x_max < 0.0f)
+        throw invalid_argument("x_max must be positive");
+    if (y_max < 0.0f)
+        throw invalid_argument("y_max must be positive");
     // calculate dx, dy
-    m_dr = m_r_max / float(m_nbins_r);
-    m_dt1 = m_t_max / float(m_nbins_t1);
-    m_dt2 = m_t_max / float(m_nbins_t2);
-    if (m_dr > m_r_max)
-        throw invalid_argument("rmax must be greater than dr");
-    if (m_dt1 > m_t_max)
-        throw invalid_argument("tmax must be greater than dt1");
-    if (m_dt2 > m_t_max)
-        throw invalid_argument("tmax must be greater than dt2");
+    m_dx = 2.0 * m_x_max / float(m_nbins_x);
+    m_dy = 2.0 * m_y_max / float(m_nbins_y);
+    m_dt = m_t_max / float(m_nbins_t);
+
+    if (m_dx > x_max)
+        throw invalid_argument("x_max must be greater than dx");
+    if (m_dy > y_max)
+        throw invalid_argument("y_max must be greater than dy");
+    if (m_dt > m_t_max)
+        throw invalid_argument("t_max must be greater than dt");
 
     // create mapping between bond index and list index
     for (unsigned int i = 0; i < m_n_bonds; i++)
@@ -67,66 +63,65 @@ BondingR12::BondingR12(float r_max,
         m_rev_list_map[i] = m_bond_list[i];
         }
 
+    m_r_max = sqrtf(m_x_max*m_x_max + m_y_max*m_y_max);
+
     // create cell list
     m_lc = new locality::LinkCell(m_box, m_r_max);
     }
 
-BondingR12::~BondingR12()
+BondingXYT::~BondingXYT()
     {
     delete m_lc;
     }
 
-std::shared_ptr<unsigned int> BondingR12::getBonds()
+std::shared_ptr<unsigned int> BondingXYT::getBonds()
     {
     return m_bonds;
     }
 
-std::map<unsigned int, unsigned int> BondingR12::getListMap()
+std::map<unsigned int, unsigned int> BondingXYT::getListMap()
     {
     return m_list_map;
     }
 
-std::map<unsigned int, unsigned int> BondingR12::getRevListMap()
+std::map<unsigned int, unsigned int> BondingXYT::getRevListMap()
     {
     return m_rev_list_map;
     }
 
-void BondingR12::compute(box::Box& box,
-                                vec3<float> *points,
-                                float *orientations,
-                                unsigned int n_p)
+void BondingXYT::compute(box::Box& box, vec3<float> *ref_points, float *ref_orientations, unsigned int n_ref,
+    vec3<float> *points, float *orientations, unsigned int n_p)
     {
     m_box = box;
     // compute the cell list
     m_lc->computeCellList(m_box,points,n_p);
-    if (n_p != m_n_p)
+    if (n_ref != m_n_ref)
         {
         // make sure to clear this out at some point
-        m_bonds = std::shared_ptr<unsigned int>(new unsigned int[n_p*m_n_bonds], std::default_delete<unsigned int[]>());
+        m_bonds = std::shared_ptr<unsigned int>(new unsigned int[n_ref*m_n_bonds], std::default_delete<unsigned int[]>());
         }
-    memset((void*)m_bonds.get(), 0, sizeof(unsigned int)*n_p*m_n_bonds);
+    memset((void*)m_bonds.get(), UINT_MAX, sizeof(unsigned int)*n_ref*m_n_bonds);
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,n_p),
+    parallel_for(blocked_range<size_t>(0,n_ref),
         [=] (const blocked_range<size_t>& br)
             {
-            float dr_inv = 1.0f / m_dr;
-            float dt1_inv = 1.0f / m_dt1;
-            float dt2_inv = 1.0f / m_dt2;
-            float rmaxsq = m_r_max * m_r_max;
+            float dx_inv = 1.0f / m_dx;
+            float maxxsq = m_x_max * m_x_max;
+            float dy_inv = 1.0f / m_dy;
+            float maxysq = m_y_max * m_y_max;
+            float dt_inv = 1.0f / m_dt;
             // indexer for bond list
-            Index2D a_i = Index2D(m_n_bonds, n_p);
+            Index2D a_i = Index2D(m_n_bonds, n_ref);
             // indexer for bond map
-            Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
+            Index3D b_i = Index3D(m_nbins_x, m_nbins_y, m_nbins_t);
 
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
-                // huh?
-                std::map<unsigned int, std::vector<unsigned int> > l_bonds;
                 // get position, orientation of particle i
-                vec3<float> pos = points[i];
-                float angle = orientations[i];
+                vec3<float> ref_pos = ref_points[i];
+                float ref_angle = ref_orientations[i];
                 // get cell for particle i
-                unsigned int ref_cell = m_lc->getCell(pos);
+                unsigned int ref_cell = m_lc->getCell(ref_pos);
 
                 //loop over neighbor cells
                 const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
@@ -140,7 +135,7 @@ void BondingR12::compute(box::Box& box,
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                         {
                         //compute r between the two particles
-                        vec3<float> delta = m_box.wrap(points[j] - pos);
+                        vec3<float> delta = m_box.wrap(points[j] - ref_pos);
 
                         float rsq = dot(delta, delta);
                         // particle cannot pair with itself...i != j is probably better?
@@ -149,45 +144,42 @@ void BondingR12::compute(box::Box& box,
                             continue;
                             }
                         // if particle is not outside of possible radius
-                        if (rsq < rmaxsq)
+                        if (rsq < m_r_max)
                             {
-                            // determine which histogram bin to look in
-                            float r = sqrtf(rsq);
-                            float d_theta1 = atan2(delta.y, delta.x);
-                            float d_theta2 = atan2(-delta.y, -delta.x);
-                            float t1 = orientations[i] - d_theta1;
-                            float t2 = orientations[j] - d_theta2;
-                            // make sure that t1, t2 are bounded between 0 and 2PI
-                            t1 = fmod(t1, 2*M_PI);
-                            if (t1 < 0)
+                            /// rotate interparticle vector
+                            vec2<float> myVec(delta.x, delta.y);
+                            rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
+                            vec2<float> rotVec = myMat * myVec;
+                            float x = rotVec.x + m_x_max;
+                            float y = rotVec.y + m_y_max;
+                            float d_theta = atan2(-delta.y, -delta.x);
+                            float t = orientations[j] - d_theta;
+                            // make sure that t is bounded between 0 and 2PI
+                            t = fmod(t, 2*M_PI);
+                            if (t < 0)
                                 {
-                                t1 += 2*M_PI;
+                                t += 2*M_PI;
                                 }
-                            t2 = fmod(t2, 2*M_PI);
-                            if (t2 < 0)
-                                {
-                                t2 += 2*M_PI;
-                                }
-                            // bin that point
-                            float bin_r = r * dr_inv;
-                            float bin_t1 = floorf(t1 * dt1_inv);
-                            float bin_t2 = floorf(t2 * dt2_inv);
+                            // find the bin to increment
+                            float binx = floorf(x * dx_inv);
+                            float biny = floorf(y * dy_inv);
+                            float bint = floorf(t * dt_inv);
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
-                            unsigned int ibin_r = _mm_cvtt_ss2si(_mm_load_ss(&bin_r));
-                            unsigned int ibin_t1 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t1));
-                            unsigned int ibin_t2 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t2));
+                            unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+                            unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+                            unsigned int ibint = _mm_cvtt_ss2si(_mm_load_ss(&bint));
                             #else
-                            unsigned int ibin_r = (unsigned int)(bin_r);
-                            unsigned int ibin_t1 = (unsigned int)(bin_t1);
-                            unsigned int ibin_t2 = (unsigned int)(bin_t2);
+                            unsigned int ibinx = (unsigned int)(binx);
+                            unsigned int ibiny = (unsigned int)(biny);
+                            unsigned int ibint = (unsigned int)(bint);
                             #endif
 
                             // log the bond
-                            if ((ibin_r < m_nbins_r) && (ibin_t1 < m_nbins_t1) && (ibin_t2 < m_nbins_t2))
+                            if ((ibinx < m_nbins_x) && (ibiny < m_nbins_y) && (ibint < m_nbins_t))
                                 {
                                 // find the bond that corresponds to this point
-                                unsigned int bond = m_bond_map[b_i(ibin_t1, ibin_t2, ibin_r)];
+                                unsigned int bond = m_bond_map[b_i(ibinx, ibiny, ibint)];
                                 // get the index from the map
                                 auto list_idx = m_list_map.find(bond);
                                 // bin if bond is tracked
@@ -202,6 +194,7 @@ void BondingR12::compute(box::Box& box,
                 }
             });
     // save the last computed number of particles
+    m_n_ref = n_ref;
     m_n_p = n_p;
     }
 

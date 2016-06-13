@@ -105,7 +105,7 @@ void BondingXY2D::compute(box::Box& box,
         // make sure to clear this out at some point
         m_bonds = std::shared_ptr<unsigned int>(new unsigned int[n_ref*m_n_bonds], std::default_delete<unsigned int[]>());
         }
-    memset((void*)m_bonds.get(), 0, sizeof(unsigned int)*n_ref*m_n_bonds);
+    memset((void*)m_bonds.get(), UINT_MAX, sizeof(unsigned int)*n_ref*m_n_bonds);
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,n_ref),
         [=] (const blocked_range<size_t>& br)
@@ -121,8 +121,6 @@ void BondingXY2D::compute(box::Box& box,
 
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
-                // huh?
-                std::map<unsigned int, std::vector<unsigned int> > l_bonds;
                 // get position, orientation of particle i
                 vec3<float> ref_pos = ref_points[i];
                 float ref_angle = ref_orientations[i];

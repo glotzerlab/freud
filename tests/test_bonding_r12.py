@@ -35,6 +35,20 @@ class TestBond(unittest.TestCase):
         binT1 = numpy.floor(theta1 / dt1)
         binT2 = numpy.floor(theta2 / dt2)
         testArray[binR,binT2,binT1] = 5
+        deltaX = posList[0,0] - posList[1,0]
+        deltaY = posList[0,1] - posList[1,1]
+        delta = np.array([deltaX, deltaY], dtype=np.float32)
+        r = np.sqrt(np.dot(delta, delta))
+        theta1 = anglist[0] - np.arctan2(deltaY, deltaX)
+        theta2 = anglist[1] - np.arctan2(-deltaY, -deltaX)
+        theta1 = theta1 if (theta1 > 0) else theta1 + 2.0*np.pi
+        theta1 = theta1 if (theta1 < 2.0*np.pi) else theta1 - 2.0*np.pi
+        theta2 = theta2 if (theta2 > 0) else theta2 + 2.0*np.pi
+        theta2 = theta2 if (theta2 < 2.0*np.pi) else theta2 - 2.0*np.pi
+        binR = numpy.floor(r / dr)
+        binT1 = numpy.floor(theta1 / dt1)
+        binT2 = numpy.floor(theta2 / dt2)
+        testArray[binR,binT2,binT1] = 5
 
         # create object
         bondList = np.array([0, 5], dtype=np.uint32)
@@ -51,6 +65,7 @@ class TestBond(unittest.TestCase):
         bonds = EB.getBonds()
 
         npt.assert_equal(bonds[0,1], 1)
+        npt.assert_equal(bonds[1,1], 0)
 
     def test_mapping(self):
         # generate the bonding map

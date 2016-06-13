@@ -107,7 +107,7 @@ void BondingR12::compute(box::Box& box,
         // make sure to clear this out at some point
         m_bonds = std::shared_ptr<unsigned int>(new unsigned int[n_ref*m_n_bonds], std::default_delete<unsigned int[]>());
         }
-    memset((void*)m_bonds.get(), 0, sizeof(unsigned int)*n_ref*m_n_bonds);
+    memset((void*)m_bonds.get(), UINT_MAX, sizeof(unsigned int)*n_ref*m_n_bonds);
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,n_ref),
         [=] (const blocked_range<size_t>& br)
@@ -147,64 +147,59 @@ void BondingR12::compute(box::Box& box,
 
                         float rsq = dot(delta, delta);
                         // particle cannot pair with itself...i != j is probably better?
-                        if (rsq < 1e-6)
+                        if ((rsq < 1e-6) || (rsq > rmaxsq))
                             {
                             continue;
                             }
-                        // if particle is not outside of possible radius
-                        if (rsq < rmaxsq)
+                        // determine which histogram bin to look in
+                        float r = sqrtf(rsq);
+                        float d_theta1 = atan2(delta.y, delta.x);
+                        float d_theta2 = atan2(-delta.y, -delta.x);
+                        float t1 = ref_angle - d_theta1;
+                        float t2 = orientations[j] - d_theta2;
+                        // make sure that t1, t2 are bounded between 0 and 2PI
+                        t1 = fmod(t1, 2*M_PI);
+                        if (t1 < 0)
                             {
-                            // determine which histogram bin to look in
-                            float r = sqrtf(rsq);
-                            float d_theta1 = atan2(delta.y, delta.x);
-                            float d_theta2 = atan2(-delta.y, -delta.x);
-                            float t1 = ref_angle - d_theta1;
-                            float t2 = orientations[j] - d_theta2;
-                            // make sure that t1, t2 are bounded between 0 and 2PI
-                            t1 = fmod(t1, 2*M_PI);
-                            if (t1 < 0)
-                                {
-                                t1 += 2*M_PI;
-                                }
-                            t2 = fmod(t2, 2*M_PI);
-                            if (t2 < 0)
-                                {
-                                t2 += 2*M_PI;
-                                }
-                            // bin that point
-                            float bin_r = r * dr_inv;
-                            float bin_t1 = floorf(t1 * dt1_inv);
-                            float bin_t2 = floorf(t2 * dt2_inv);
-                            // fast float to int conversion with truncation
-                            #ifdef __SSE2__
-                            unsigned int ibin_r = _mm_cvtt_ss2si(_mm_load_ss(&bin_r));
-                            unsigned int ibin_t1 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t1));
-                            unsigned int ibin_t2 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t2));
-                            #else
-                            unsigned int ibin_r = (unsigned int)(bin_r);
-                            unsigned int ibin_t1 = (unsigned int)(bin_t1);
-                            unsigned int ibin_t2 = (unsigned int)(bin_t2);
-                            #endif
+                            t1 += 2*M_PI;
+                            }
+                        t2 = fmod(t2, 2*M_PI);
+                        if (t2 < 0)
+                            {
+                            t2 += 2*M_PI;
+                            }
+                        // bin that point
+                        float bin_r = r * dr_inv;
+                        float bin_t1 = floorf(t1 * dt1_inv);
+                        float bin_t2 = floorf(t2 * dt2_inv);
+                        // fast float to int conversion with truncation
+                        #ifdef __SSE2__
+                        unsigned int ibin_r = _mm_cvtt_ss2si(_mm_load_ss(&bin_r));
+                        unsigned int ibin_t1 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t1));
+                        unsigned int ibin_t2 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t2));
+                        #else
+                        unsigned int ibin_r = (unsigned int)(bin_r);
+                        unsigned int ibin_t1 = (unsigned int)(bin_t1);
+                        unsigned int ibin_t2 = (unsigned int)(bin_t2);
+                        #endif
 
-                            // log the bond
-                            if ((ibin_r < m_nbins_r) && (ibin_t1 < m_nbins_t1) && (ibin_t2 < m_nbins_t2))
+                        // log the bond
+                        if ((ibin_r < m_nbins_r) && (ibin_t1 < m_nbins_t1) && (ibin_t2 < m_nbins_t2))
+                            {
+                            // find the bond that corresponds to this point
+                            unsigned int bond = m_bond_map[b_i(ibin_t1, ibin_t2, ibin_r)];
+                            // get the index from the map
+                            auto list_idx = m_list_map.find(bond);
+                            // bin if bond is tracked
+                            if (list_idx != m_list_map.end())
                                 {
-                                // find the bond that corresponds to this point
-                                unsigned int bond = m_bond_map[b_i(ibin_t1, ibin_t2, ibin_r)];
-                                // get the index from the map
-                                auto list_idx = m_list_map.find(bond);
-                                // bin if bond is tracked
-                                if (list_idx != m_list_map.end())
-                                    {
-                                    m_bonds.get()[a_i((unsigned int)(list_idx->second), (unsigned int)i)] = j;
-                                    }
+                                m_bonds.get()[a_i((unsigned int)(list_idx->second), (unsigned int)i)] = j;
                                 }
                             }
                         }
                     }
                 }
             });
-    // save the last computed number of particles
     m_n_ref = n_ref;
     m_n_p = n_p;
     }
