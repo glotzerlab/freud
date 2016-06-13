@@ -47,19 +47,6 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         float getScale()
         quat[float] getCubaticOrientation()
 
-cdef extern from "EntropicBonding.h" namespace "freud::order":
-    cdef cppclass EntropicBonding:
-        EntropicBonding(float, float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *)
-        const box.Box &getBox() const
-        void compute(box.Box &,
-                     vec3[float]*,
-                     float*,
-                     unsigned int) nogil
-        shared_array[unsigned int] getBonds()
-        unsigned int getNP()
-        unsigned int getNBinsX()
-        unsigned int getNBinsY()
-
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
         HexOrderParameter(float, float, unsigned int)

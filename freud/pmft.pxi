@@ -129,7 +129,7 @@ cdef class PMFTR12:
         Get the raw bin counts.
 
         :return: Bin Counts
-        :rtype: np.ndarray(shape=(R, T1, T2), dtype=np.float32)
+        :rtype: np.ndarray(shape=(R, T2, T1), dtype=np.float32)
         """
         cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
@@ -144,7 +144,7 @@ cdef class PMFTR12:
         Get the positional correlation function.
 
         :return: PCF
-        :rtype: np.ndarray(shape=(R, T1, T2), dtype=np.float32)
+        :rtype: np.ndarray(shape=(R, T2, T1), dtype=np.float32)
         """
         cdef float* pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[3]
@@ -159,7 +159,7 @@ cdef class PMFTR12:
         Get the Potential of Mean Force and Torque.
 
         :return: PMFT
-        :rtype: np.ndarray(shape=(R, T1, T2), dtype=np.float32)
+        :rtype: np.ndarray(shape=(R, T2, T1), dtype=np.float32)
         """
         return -np.log(np.copy(self.getPCF()))
 
