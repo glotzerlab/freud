@@ -210,7 +210,7 @@ void PMFTXYZ::accumulate(box::Box& box,
             float maxzsq = m_max_z * m_max_z;
 
             Index3D b_i = Index3D(m_n_bins_x, m_n_bins_y, m_n_bins_z);
-            Index2D q_i = Index2D(m_n_faces, m_n_p);
+            Index2D q_i = Index2D(n_faces, n_p);
 
             bool exists;
             m_local_bin_counts.local(exists);
@@ -225,6 +225,8 @@ void PMFTXYZ::accumulate(box::Box& box,
                 {
                 // get the cell the point is in
                 vec3<float> ref = ref_points[i];
+                // create the reference point quaternion
+                quat<float> ref_q(ref_orientations[i]);
                 unsigned int ref_cell = m_lc->getCell(ref);
 
                 // loop over all neighboring cells
@@ -247,20 +249,17 @@ void PMFTXYZ::accumulate(box::Box& box,
                             {
                             continue;
                             }
-                        for (unsigned int k=0; k<m_n_faces; k++)
+                        for (unsigned int k=0; k<n_faces; k++)
                             {
                             // create tmp vector
                             vec3<float> my_vector(delta);
                             // rotate vector
-
-                            // create the reference point quaternion
-                            quat<float> q(ref_orientations[i]);
                             // create the extra quaternion
                             quat<float> qe(face_orientations[q_i(k, i)]);
                             // create point vector
                             vec3<float> v(delta);
                             // rotate the vector
-                            v = rotate(conj(q), v);
+                            v = rotate(conj(ref_q), v);
                             v = rotate(qe, v);
 
                             float x = v.x + m_max_x;
@@ -292,6 +291,9 @@ void PMFTXYZ::accumulate(box::Box& box,
                     }
                 } // done looping over reference points
             });
+    m_n_ref = n_ref;
+    m_n_p = n_p;
+    m_n_faces = n_faces;
     }
 
 }; }; // end namespace freud::pmft

@@ -235,12 +235,10 @@ void PMFTXYT::accumulate(box::Box& box,
                         vec2<float> rotVec = myMat * myVec;
                         float x = rotVec.x + m_max_x;
                         float y = rotVec.y + m_max_y;
-                        // calculate angles
+                        // calculate angle
                         float d_theta = atan2(-delta.y, -delta.x);
                         float t = orientations[j] - d_theta;
-                        // make sure that t1 is bounded between 0 and 2PI
-                        t = (t < 0) ? t+2*M_PI : t;
-                        t = (t > 2*M_PI) ? t-2*M_PI : t;
+                        // make sure that t is bounded between 0 and 2PI
                         t = fmod(t, 2*M_PI);
                         if (t < 0)
                             {
