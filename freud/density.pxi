@@ -34,6 +34,8 @@ cdef class FloatCF:
     for both points and ref_points, we omit accumulating the
     self-correlation value in the first bin.
 
+    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+
     :param r_max: distance over which to calculate
     :param dr: bin size
     :type r_max: float
@@ -186,6 +188,8 @@ cdef class ComplexCF:
     for both points and ref_points, we omit accumulating the
     self-correlation value in the first bin.
 
+    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+
     :param r_max: distance over which to calculate
     :param dr: bin size
     :type r_max: float
@@ -320,6 +324,8 @@ cdef class GaussianDensity:
     distance of the grid cell from the center of the Gaussian. The dimensions of the image (grid) are set in the
     constructor.
 
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
     :param width: number of pixels to make the image
     :param width_x: number of pixels to make the image in x
     :param width_y: number of pixels to make the image in y
@@ -423,6 +429,8 @@ cdef class LocalDensity:
     RDF properly handles 2D boxes. Requires the points to be passed in [x, y, 0]. Failing to z=0 will lead to undefined
     behavior.
 
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
     :param r_cut: maximum distance over which to calculate the density
     :param volume: volume of a single particle
     :param diameter: diameter of particle circumsphere
@@ -507,9 +515,11 @@ cdef class RDF:
     The values of r to compute the rdf are set by the values of rmax, dr in the constructor. rmax sets the maximum
     distance at which to calculate the g(r) while dr determines the step size for each bin.
 
-    2D:
-    RDF properly handles 2D boxes. Requires the points to be passed in [x, y, 0]. Failing to z=0 will lead to undefined
-    behavior.
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
+
+    .. note::
+        2D: RDF properly handles 2D boxes. Requires the points to be passed in [x, y, 0]. Failing to z=0 will lead to \
+        undefined behavior.
 
     :param rmax: maximum distance to calculate
     :param dr: distance between histogram bins

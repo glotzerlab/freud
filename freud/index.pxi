@@ -17,6 +17,8 @@ cdef class Index2D:
     :math:`i^{th}` column and the :math:`j^{th}` row. This is the opposite of what occurs in a numpy array, in which \
     array[i, j] returns the element in the :math:`i^{th}` row and the :math:`j^{th}` column
 
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
     :param w: width of 2D array (number of columns)
     :param h: height of 2D array (number of rows)
     :type w: unsigned int
@@ -68,8 +70,11 @@ cdef class Index3D:
     index is represented as a :math:`1`-dimensional array with :math:`\prod\limits_i n_i` elements.
 
     .. note:: Freud indexes column-first i.e. Index3D(i, j, k) will return the :math:`1`-dimensional index of the \
-    :math:`i^{th}` column, :math:`j^{th}` row, and the :math:`k^{th}` frame. This is the opposite of what occurs in a numpy array, in which \
-    array[i, j, k] returns the element in the :math:`i^{th}` frame, :math:`j^{th}` row, and the :math:`k^{th}` column.
+    :math:`i^{th}` column, :math:`j^{th}` row, and the :math:`k^{th}` frame. This is the opposite of what occurs in a \
+    numpy array, in which array[i, j, k] returns the element in the :math:`i^{th}` frame, :math:`j^{th}` row, and the \
+    :math:`k^{th}` column.
+
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     :param w: width of 2D array (number of columns)
     :param h: height of 2D array (number of rows)

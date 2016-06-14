@@ -18,23 +18,24 @@ np.import_array()
 cdef class BondOrder:
     """Compute the bond order diagram for the system of particles.
 
-    ------------
-    If mode=bod (Bond Order Diagram): Create the 2D histogram containing the number of bonds formed through the surface of a unit sphere based on the
-    azimuthal (Theta) and polar (Phi) angles. This is the default.
+    Available Modues of Calculation:
+    * If mode=bod (Bond Order Diagram): Create the 2D histogram containing the number of bonds formed through the \
+    surface of a unit sphere based on the azimuthal (Theta) and polar (Phi) angles. This is the default.
 
-    If mode=lbod (Local Bond Order Diagram): Create the 2D histogram containing the number of bonds formed, rotated into the local orientation of the central particle,
-    through the surface of a unit sphere based on the azimuthal (Theta) and polar (Phi) angles.
+    * If mode=lbod (Local Bond Order Diagram): Create the 2D histogram containing the number of bonds formed, rotated \
+    into the local orientation of the central particle, through the surface of a unit sphere based on the azimuthal \
+    (:math:`\\theta`) and polar (:math:`\\phi`) angles.
 
-    If mode=obcd (Orientation Bond Correlation Diagram): Create the 2D histogram containing the number of bonds formed, rotated by the rotation
-    that takes the orientation of neighboring particle j to the orientation of each particle i, through
-    the surface of a unit sphere based on the azimuthal (Theta) and polar (Phi) angles.
+    * If mode=obcd (Orientation Bond Correlation Diagram): Create the 2D histogram containing the number of bonds formed, \
+    rotated by the rotation that takes the orientation of neighboring particle j to the orientation of each particle i, \
+    through the surface of a unit sphere based on the azimuthal (:math:`\\theta`) and polar (:math:`\\phi`) angles.
 
-    If mode=oocd (Orientation Orientation Correlation Diagram): Create the 2D histogram containing the directors of neighboring particles (\hat{z} rotated by their quaternion),
-    rotated into the local orientation of the central particle, through the surface of a unit sphere based on the azimuthal (Theta)
-    and polar (Phi) angles.
-    ------------
+    * If mode=oocd (Orientation Orientation Correlation Diagram): Create the 2D histogram containing the directors of \
+    neighboring particles (:math:`\\hat{z}` rotated by their quaternion), rotated into the local orientation of the \
+    central particle, through the surface of a unit sphere based on the azimuthal (:math:`\\theta`) and polar \
+    (:math:`\\phi`) angles.
 
-    .. note:: currently being debugged. not guaranteed to work.
+    .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     :param r_max: distance over which to calculate
     :param k: order parameter i. to be removed
@@ -212,6 +213,8 @@ cdef class BondOrder:
 cdef class CubaticOrderParameter:
     """Compute the Cubatic Order Parameter [Cit1]_ for a system of particles using simulated annealing instead of \
     Newton-Raphson root finding.
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param t_initial: Starting temperature
     :param t_final: Final temperature
@@ -396,6 +399,8 @@ cdef class HexOrderParameter:
     .. note:: 2D: This calculation is defined for 2D systems only. However particle positions are still required to be \
     (x, y, 0)
 
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
+
     :param rmax: +/- r distance to search for neighbors
     :param k: symmetry of order parameter (:math:`k=6` is hexatic)
     :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
@@ -481,6 +486,8 @@ cdef class HexOrderParameter:
 cdef class LocalDescriptors:
     """Compute a set of descriptors (a numerical "fingerprint") of a particle's local environment.
 
+    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+
     :param nNeigh: Maximum number of neighbors to compute descriptors for
     :param lmax: Maximum spherical harmonic l to consider
     :param rmax: Initial guess of the maximum radius to looks for neighbors
@@ -489,7 +496,6 @@ cdef class LocalDescriptors:
     :type nNeigh: unsigned int
     :type l: unsigned int
     :type rmax: float
-
 
     """
     cdef order.LocalDescriptors *thisptr
@@ -601,6 +607,8 @@ cdef class LocalDescriptors:
 cdef class TransOrderParameter:
     """Compute the translational order parameter for each particle
 
+    .. moduleauthor:: Michael Engel <engelmm@umich.edu>
+
     :param rmax: +/- r distance to search for neighbors
     :param k: symmetry of order parameter (:math:`k=6` is hexatic)
     :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
@@ -671,7 +679,7 @@ cdef class TransOrderParameter:
         return np
 
 cdef class LocalQl:
-    """Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points.
+    """Compute the local Steinhardt rotationally invariant Ql [Cit4]_ order parameter for a set of points.
 
     Implements the local rotationally invariant Ql order parameter described by Steinhardt. For a particle i, \
     we calculate the average :math:`Q_l` by summing the spherical harmonics between particle :math:`i` and its \
@@ -689,7 +697,8 @@ cdef class LocalQl:
     * Variation of the Steinhardt Ql order parameter
     * For a particle i, we calculate the average Q_l by summing the spherical harmonics between particle i and its \
     neighbors j and the neighbors k of neighbor j in a local region
-    * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
@@ -861,7 +870,7 @@ cdef class LocalQl:
         return np
 
 cdef class LocalQlNear:
-    """Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points.
+    """Compute the local Steinhardt rotationally invariant Ql order parameter [Cit4]_ for a set of points.
 
     Implements the local rotationally invariant Ql order parameter described by Steinhardt. For a particle i, \
     we calculate the average :math:`Q_l` by summing the spherical harmonics between particle :math:`i` and its \
@@ -879,7 +888,8 @@ cdef class LocalQlNear:
     * Variation of the Steinhardt Ql order parameter
     * For a particle i, we calculate the average Q_l by summing the spherical harmonics between particle i and its \
     neighbors j and the neighbors k of neighbor j in a local region
-    * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
@@ -1051,7 +1061,7 @@ cdef class LocalQlNear:
         return np
 
 cdef class LocalWl:
-    """Compute the local Steinhardt rotationally invariant :math:`W_l` order parameter for a set of points.
+    """Compute the local Steinhardt rotationally invariant :math:`W_l` order parameter [Cit4]_ for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter described by Steinhardt that can aid in distinguishing \
     between FCC, HCP, and BCC.
@@ -1063,7 +1073,8 @@ cdef class LocalWl:
     * Variation of the Steinhardt :math:`W_l` order parameter
     * For a particle i, we calculate the average :math:`W_l` by summing the spherical harmonics between particle i and its \
     neighbors j and the neighbors k of neighbor j in a local region
-    * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
@@ -1246,7 +1257,7 @@ cdef class LocalWl:
         return np
 
 cdef class LocalWlNear:
-    """Compute the local Steinhardt rotationally invariant :math:`W_l` order parameter for a set of points.
+    """Compute the local Steinhardt rotationally invariant :math:`W_l` order parameter [Cit4]_ for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter described by Steinhardt that can aid in distinguishing \
     between FCC, HCP, and BCC.
@@ -1258,7 +1269,8 @@ cdef class LocalWlNear:
     * Variation of the Steinhardt :math:`W_l` order parameter
     * For a particle i, we calculate the average :math:`W_l` by summing the spherical harmonics between particle i and its \
     neighbors j and the neighbors k of neighbor j in a local region
-    * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
@@ -1443,7 +1455,9 @@ cdef class LocalWlNear:
         return np
 
 cdef class SolLiq:
-    """Computes dot products of qlm between particles and uses these for clustering.
+    """Computes dot products of :math:`Q_{lm}` between particles and uses these for clustering.
+
+    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
@@ -1636,187 +1650,10 @@ cdef class SolLiq:
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
-cdef class MatchEnv:
-    """Clusters particles according to whether their local environments match or not, according to various shape matching metrics.
-
-    :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
-    """
-    cdef order.MatchEnv *thisptr
-
-    def __cinit__(self, box, rmax, k):
-        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.MatchEnv(l_box, rmax, k)
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    def setBox(self, box):
-        """
-        Reset the simulation box
-
-        :param box: simulation box
-        :type box: :py:meth:`freud.box.Box`
-        """
-        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.setBox(l_box)
-
-    def cluster(self, points, threshold, hard_r=False):
-        """Determine clusters of particles with matching environments.
-
-        :param points: particle positions
-        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type threshold: np.float32
-        :type hard_r: bool
-        """
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
-
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-
-        self.thisptr.cluster(<vec3[float]*>l_points.data, nP, threshold, hard_r)
-
-    def matchMotif(self, points, ref_points, threshold, hard_r=False):
-        """Determine clusters of particles that match the motif provided by ref_points.
-
-        :param points: particle positions
-        :param ref_points: vectors that make up the motif against which we are matching
-        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type ref_points: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
-        :type threshold: np.float32
-        :type hard_r: bool
-        """
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
-        if ref_points.dtype != np.float32:
-            raise ValueError("ref_points must be a numpy float32 array")
-        if ref_points.ndim != 2:
-            raise ValueError("ref_points must be a 2 dimensional array")
-        if ref_points.shape[1] != 3:
-            raise ValueError("the 2nd dimension of ref_points must have 3 values: x, y, z")
-
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-
-        self.thisptr.matchMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_ref_points.data, nRef, threshold, hard_r)
-
-    def isSimilar(self, ref_points1, ref_points2, threshold):
-        """Test if the motif provided by ref_points1 is similar to the motif provided by ref_points2.
-
-        :param ref_points1: vectors that make up motif 1
-        :param ref_points2: vectors that make up motif 2
-        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :type ref_points1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
-        :type ref_points2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
-        :type threshold: np.float32
-        """
-        if ref_points1.dtype != np.float32:
-            raise ValueError("ref_points1 must be a numpy float32 array")
-        if ref_points1.ndim != 2:
-            raise ValueError("ref_points1 must be a 2 dimensional array")
-        if ref_points1.shape[1] != 3:
-            raise ValueError("the 2nd dimension of ref_points1 must have 3 values: x, y, z")
-        if ref_points2.dtype != np.float32:
-            raise ValueError("ref_points2 must be a numpy float32 array")
-        if ref_points2.ndim != 2:
-            raise ValueError("ref_points2 must be a 2 dimensional array")
-        if ref_points2.shape[1] != 3:
-            raise ValueError("the 2nd dimension of ref_points2 must have 3 values: x, y, z")
-
-        cdef np.ndarray[float, ndim=2] l_ref_points1 = np.copy(ref_points1)
-        cdef np.ndarray[float, ndim=2] l_ref_points2 = np.copy(ref_points2)
-        cdef unsigned int nRef1 = <unsigned int> ref_points1.shape[0]
-        cdef unsigned int nRef2 = <unsigned int> ref_points2.shape[0]
-        cdef float threshold_sq = threshold*threshold
-
-        if nRef1 != nRef2:
-            raise ValueError("the number of vectors in ref_points1 must MATCH the number of vectors in ref_points2")
-
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>l_ref_points1.data, <vec3[float]*>l_ref_points2.data, nRef1, threshold_sq)
-        return vec_map
-
-    def getClusters(self):
-        """
-        Get a reference to the particles, indexed into clusters according to their matching local environments
-
-        :return: clusters
-        :rtype: np.uint32
-        """
-        cdef unsigned int *clusters = self.thisptr.getClusters().get()
-        cdef np.npy_intp nbins[1]
-        # this is the correct number
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
-        return result
-
-    def getEnvironment(self, i):
-        """
-        Returns the set of vectors defining the environment indexed by i
-
-        :param i: environment index
-        :type i: unsigned int
-        :return: the array of vectors
-        :rtype: list[list[float, float, float]]
-        """
-        cdef vec3[float] *environment = self.thisptr.getEnvironment(i).get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
-        nbins[1] = 3
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>environment)
-        return result
-
-    def getTotEnvironment(self):
-        """
-        Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
-
-        :return: the array of vectors
-        :rtype: list[list[list[float, float, float]]]
-        """
-        cdef vec3[float] *tot_environment = self.thisptr.getTotEnvironment().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
-        nbins[2] = 3
-        cdef np.ndarray[float, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>tot_environment)
-        return result
-
-    def getNP(self):
-        """
-        Get the number of particles
-
-        :return: np
-        :rtype: unsigned int
-        """
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
-
-    def getNumClusters(self):
-        """
-        Get the number of clusters
-
-        :return: num_clust
-        :rtype: unsigned int
-        """
-        cdef unsigned int num_clust = self.thisptr.getNumClusters()
-        return num_clust
-
 cdef class SolLiqNear:
-    """Computes dot products of qlm between particles and uses these for clustering.
+    """Computes dot products of :math:`Q_{lm}` between particles and uses these for clustering.
+
+    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
@@ -2011,8 +1848,194 @@ cdef class SolLiqNear:
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+cdef class MatchEnv:
+    """Clusters particles according to whether their local environments match or not, according to various shape \
+    matching metrics.
+
+    .. moduleauthor:: Erin Teich <erteich@umich.edu>
+
+    :param box: simulation box
+    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
+    """
+    cdef order.MatchEnv *thisptr
+
+    def __cinit__(self, box, rmax, k):
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr = new order.MatchEnv(l_box, rmax, k)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def setBox(self, box):
+        """
+        Reset the simulation box
+
+        :param box: simulation box
+        :type box: :py:meth:`freud.box.Box`
+        """
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr.setBox(l_box)
+
+    def cluster(self, points, threshold, hard_r=False):
+        """Determine clusters of particles with matching environments.
+
+        :param points: particle positions
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type threshold: np.float32
+        :type hard_r: bool
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+
+        self.thisptr.cluster(<vec3[float]*>l_points.data, nP, threshold, hard_r)
+
+    def matchMotif(self, points, ref_points, threshold, hard_r=False):
+        """Determine clusters of particles that match the motif provided by ref_points.
+
+        :param points: particle positions
+        :param ref_points: vectors that make up the motif against which we are matching
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type ref_points: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type threshold: np.float32
+        :type hard_r: bool
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
+        if ref_points.dtype != np.float32:
+            raise ValueError("ref_points must be a numpy float32 array")
+        if ref_points.ndim != 2:
+            raise ValueError("ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
+
+        self.thisptr.matchMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_ref_points.data, nRef, threshold, hard_r)
+
+    def isSimilar(self, ref_points1, ref_points2, threshold):
+        """Test if the motif provided by ref_points1 is similar to the motif provided by ref_points2.
+
+        :param ref_points1: vectors that make up motif 1
+        :param ref_points2: vectors that make up motif 2
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :type ref_points1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type ref_points2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type threshold: np.float32
+        """
+        if ref_points1.dtype != np.float32:
+            raise ValueError("ref_points1 must be a numpy float32 array")
+        if ref_points1.ndim != 2:
+            raise ValueError("ref_points1 must be a 2 dimensional array")
+        if ref_points1.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points1 must have 3 values: x, y, z")
+        if ref_points2.dtype != np.float32:
+            raise ValueError("ref_points2 must be a numpy float32 array")
+        if ref_points2.ndim != 2:
+            raise ValueError("ref_points2 must be a 2 dimensional array")
+        if ref_points2.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points2 must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=2] l_ref_points1 = np.copy(ref_points1)
+        cdef np.ndarray[float, ndim=2] l_ref_points2 = np.copy(ref_points2)
+        cdef unsigned int nRef1 = <unsigned int> ref_points1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> ref_points2.shape[0]
+        cdef float threshold_sq = threshold*threshold
+
+        if nRef1 != nRef2:
+            raise ValueError("the number of vectors in ref_points1 must MATCH the number of vectors in ref_points2")
+
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>l_ref_points1.data, <vec3[float]*>l_ref_points2.data, nRef1, threshold_sq)
+        return vec_map
+
+    def getClusters(self):
+        """
+        Get a reference to the particles, indexed into clusters according to their matching local environments
+
+        :return: clusters
+        :rtype: np.uint32
+        """
+        cdef unsigned int *clusters = self.thisptr.getClusters().get()
+        cdef np.npy_intp nbins[1]
+        # this is the correct number
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
+        return result
+
+    def getEnvironment(self, i):
+        """
+        Returns the set of vectors defining the environment indexed by i
+
+        :param i: environment index
+        :type i: unsigned int
+        :return: the array of vectors
+        :rtype: list[list[float, float, float]]
+        """
+        cdef vec3[float] *environment = self.thisptr.getEnvironment(i).get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        nbins[1] = 3
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>environment)
+        return result
+
+    def getTotEnvironment(self):
+        """
+        Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
+
+        :return: the array of vectors
+        :rtype: list[list[list[float, float, float]]]
+        """
+        cdef vec3[float] *tot_environment = self.thisptr.getTotEnvironment().get()
+        cdef np.npy_intp nbins[3]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        nbins[2] = 3
+        cdef np.ndarray[float, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>tot_environment)
+        return result
+
+    def getNP(self):
+        """
+        Get the number of particles
+
+        :return: np
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
+    def getNumClusters(self):
+        """
+        Get the number of clusters
+
+        :return: num_clust
+        :rtype: unsigned int
+        """
+        cdef unsigned int num_clust = self.thisptr.getNumClusters()
+        return num_clust
+
 cdef class Pairing2D:
     """Compute pairs for the system of particles.
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param rmax: distance over which to calculate
     :param k: number of neighbors to search

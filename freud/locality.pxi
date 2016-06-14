@@ -10,6 +10,8 @@ cimport numpy as np
 cdef class IteratorLinkCell:
     """Iterates over the particles in a cell.
 
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
     Example::
 
        # grab particles in cell 0
@@ -47,6 +49,8 @@ cdef class IteratorLinkCell:
 cdef class LinkCell:
     """Supports efficiently finding all points in a set within a certain
     distance from a given point.
+
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     :param box: :py:class:`freud._box.Box` object
     :param cell_width: Maximum distance to find particles within
@@ -141,6 +145,8 @@ cdef class LinkCell:
 cdef class NearestNeighbors:
     """Supports efficiently finding the N nearest neighbors of each point
     in a set for some fixed integer N.
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param rmax: Initial guess of a distance to search within to find N neighbors
     :param n_neigh: Number of neighbors to find for each point

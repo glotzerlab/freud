@@ -9,6 +9,9 @@ import numpy as np
 cimport numpy as np
 
 cdef class VoronoiBuffer:
+    """
+    .. moduleauthor:: Ben Schultz <baschult@umich.edu@umich.edu>
+    """
     cdef voronoi.VoronoiBuffer *thisptr
 
     def __cinit__(self, box):

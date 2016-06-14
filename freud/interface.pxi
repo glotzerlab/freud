@@ -8,6 +8,8 @@ cimport numpy as np
 cdef class InterfaceMeasure:
     """Measures the interface between two sets of points.
 
+    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+
     :param box: :py:class:`freud._box.Box` object
     :param r_cut: Distance to search for particle neighbors
     """

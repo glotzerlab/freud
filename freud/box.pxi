@@ -4,13 +4,15 @@ import numpy as np
 cimport numpy as np
 from libcpp.string cimport string
 from libc.string cimport memcpy
-# Numpy must be initialized. When using numpy from C or Cython you must 
-# _always_ do that, or you will have segfaults 
+# Numpy must be initialized. When using numpy from C or Cython you must
+# _always_ do that, or you will have segfaults
 np.import_array()
 
 cdef class Box:
     """
     Freud box object. Wrapper for the c++ box.Box() class
+
+    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     :param L: Side length of Box
     :param is2D: specify if box is 2D

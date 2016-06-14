@@ -16,8 +16,6 @@ cdef class BondingR12:
 
     For each particle in the system determine which other particles are in which entropic bonding sites.
 
-    .. note:: currently being debugged. not guaranteed to work.
-
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param r_max: distance to search for bonds
@@ -124,8 +122,6 @@ cdef class BondingXY2D:
     """Compute the bonds each particle in the system.
 
     For each particle in the system determine which other particles are in which entropic bonding sites.
-
-    .. note:: currently being debugged. not guaranteed to work.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -236,8 +232,6 @@ cdef class BondingXYT:
 
     For each particle in the system determine which other particles are in which entropic bonding sites.
 
-    .. note:: currently being debugged. not guaranteed to work.
-
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param x_max: maximum x distance at which to search for bonds
@@ -347,8 +341,6 @@ cdef class BondingXYZ:
     """Compute the bonds each particle in the system.
 
     For each particle in the system determine which other particles are in which entropic bonding sites.
-
-    .. note:: currently being debugged. not guaranteed to work.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 

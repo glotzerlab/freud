@@ -11,7 +11,7 @@ cimport numpy as np
 # ctypedef np.float32_t DTYPE_t
 
 cdef class PMFTR12:
-    """Computes the PMFT for a given set of points.
+    """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`r`, :math:`\\theta_1`,
@@ -24,6 +24,8 @@ cdef class PMFTR12:
 
     .. note:: 2D: This calculation is defined for 2D systems only. However particle positions are still required to be \
     (x, y, 0)
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param r_max: maximum distance at which to compute the pmft
     :param n_r: number of bins in r
@@ -243,7 +245,7 @@ cdef class PMFTR12:
         return r_cut
 
 cdef class PMFTXYT:
-    """Computes the PMFT for a given set of points.
+    """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`x`, :math:`y`,
@@ -256,6 +258,8 @@ cdef class PMFTXYT:
 
     .. note:: 2D: This calculation is defined for 2D systems only. However particle positions are still required to be \
     (x, y, 0)
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param x_max: maximum x distance at which to compute the pmft
     :param y_max: maximum y distance at which to compute the pmft
@@ -477,8 +481,7 @@ cdef class PMFTXYT:
         return r_cut
 
 cdef class PMFTXY2D:
-    """
-    Freud PMFTXY2D object. Wrapper for c++ pmft.PMFTXY2D()
+    """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`x`, :math:`y`
@@ -489,6 +492,8 @@ cdef class PMFTXY2D:
     n_x and n_y are the number of bins in x and y.
 
     .. note:: 2D: This calculation is defined for 2D systems only.
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param x_max: maximum x distance at which to compute the pmft
     :param y_max: maximum y distance at which to compute the pmft
@@ -683,8 +688,7 @@ cdef class PMFTXY2D:
         return r_cut
 
 cdef class PMFTXYZ:
-    """
-    Freud PMFTXYZ object. Wrapper for c++ pmft.PMFTXYZ()
+    """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`x`, :math:`y`, :math:`z`,
@@ -695,6 +699,8 @@ cdef class PMFTXYZ:
     n_x, n_y, n_z is the number of bins in x, y, z.
 
     .. note:: 3D: This calculation is defined for 3D systems only.
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param x_max: maximum x distance at which to compute the pmft
     :param y_max: maximum y distance at which to compute the pmft

@@ -26,15 +26,16 @@ cdef class Cluster:
     (i.e. the polymer id), the computeClusterMembership function will process cluster_idx with the key values in mind
     and provide a list of keys that are present in each cluster.
 
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
     :param box: :py:class:`freud._box.Box` object
     :param rcut: Particle distance cutoff
     :type box: :py:meth:`freud._box.Box`
     :type rcut: float
 
     .. note::
-    2D:
-    Cluster properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
-    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
+        2D: Cluster properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as \
+        3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
     """
     cdef cluster.Cluster *thisptr
 
@@ -136,6 +137,8 @@ cdef class ClusterProperties:
     m_cluster_G stores a 3x3 G tensor for each cluster. Index cluster c, element j, i with the following:
     m_cluster_G[c*9 + j*3 + i]. The tensor is symmetric, so the choice of i and j are irrelevant. This is passed
     back to python as a num_clusters x 3 x 3 numpy array.
+
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     :param box: :py:class:`freud._box.Box` object
     """
