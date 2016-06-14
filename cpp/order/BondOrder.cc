@@ -23,7 +23,7 @@ using namespace tbb;
 namespace freud { namespace order {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
-    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_Np(0), m_n_ref(0),
+    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_n_p(0), m_n_ref(0),
       m_frame_counter(0)
     {
     // sanity checks, but this is actually kinda dumb if these values are 1
@@ -44,25 +44,25 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
         throw invalid_argument("PI must be greater than dp");
 
     // precompute the bin center positions for t
-    m_theta_array = boost::shared_array<float>(new float[m_nbins_t]);
+    m_theta_array = std::shared_ptr<float>(new float[m_nbins_t], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins_t; i++)
         {
         float t = float(i) * m_dt;
         float nextt = float(i+1) * m_dt;
-        m_theta_array[i] = ((t + nextt) / 2.0);
+        m_theta_array.get()[i] = ((t + nextt) / 2.0);
         }
 
     // precompute the bin center positions for p
-    m_phi_array = boost::shared_array<float>(new float[m_nbins_p]);
+    m_phi_array = std::shared_ptr<float>(new float[m_nbins_p], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins_p; i++)
         {
         float p = float(i) * m_dp;
         float nextp = float(i+1) * m_dp;
-        m_phi_array[i] = ((p + nextp) / 2.0);
+        m_phi_array.get()[i] = ((p + nextp) / 2.0);
         }
 
     // precompute the surface area array
-    m_sa_array = boost::shared_array<float>(new float[m_nbins_t*m_nbins_p]);
+    m_sa_array = std::shared_ptr<float>(new float[m_nbins_t*m_nbins_p], std::default_delete<float[]>());
     memset((void*)m_sa_array.get(), 0, sizeof(float)*m_nbins_t*m_nbins_p);
     Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
     for (unsigned int i = 0; i < m_nbins_t; i++)
@@ -72,16 +72,17 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
             {
             float phi = (float)j * m_dp;
             float sa = m_dt * (cos(phi) - cos(phi + m_dp));
-            m_sa_array[sa_i((int)i, (int)j)] = sa;
+            m_sa_array.get()[sa_i((int)i, (int)j)] = sa;
             }
         }
 
     // initialize the bin counts
-    m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins_t*m_nbins_p]);
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins_t*m_nbins_p],
+            std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
 
     // initialize the bond order array
-    m_bo_array = boost::shared_array<float>(new float[m_nbins_t*m_nbins_p]);
+    m_bo_array = std::shared_ptr<float>(new float[m_nbins_t*m_nbins_p], std::default_delete<float[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(float)*m_nbins_t*m_nbins_p);
 
     // create NearestNeighbors object
@@ -93,51 +94,13 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
 
 BondOrder::~BondOrder()
     {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin();
+            i != m_local_bin_counts.end(); ++i)
         {
         delete[] (*i);
         }
     delete m_nn;
     }
-
-class CombineBondOrder
-    {
-    private:
-        unsigned int m_nbins_t;
-        unsigned int m_nbins_p;
-        unsigned int *m_bin_counts;
-        float *m_bo_array;
-        float *m_sa_array;
-        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
-    public:
-        CombineBondOrder(unsigned int nbins_t,
-                         unsigned int nbins_p,
-                         unsigned int *bin_counts,
-                         float *bo_array,
-                         float *sa_array,
-                         tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts)
-            : m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_bin_counts(bin_counts), m_bo_array(bo_array), m_sa_array(sa_array),
-              m_local_bin_counts(local_bin_counts)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myBin ) const
-            {
-            Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
-            for (size_t i = myBin.begin(); i != myBin.end(); i++)
-                {
-                for (size_t j = 0; j < m_nbins_p; j++)
-                    {
-                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
-                         local_bins != m_local_bin_counts.end(); ++local_bins)
-                        {
-                        m_bin_counts[sa_i((int)i, (int)j)] += (*local_bins)[sa_i((int)i, (int)j)];
-                        }
-                    m_bo_array[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / m_sa_array[sa_i((int)i, (int)j)];
-                    }
-                }
-            }
-    };
-
 
 void BondOrder::reduceBondOrder()
     {
@@ -153,9 +116,9 @@ void BondOrder::reduceBondOrder()
               for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                    local_bins != m_local_bin_counts.end(); ++local_bins)
                   {
-                  m_bin_counts[sa_i((int)i, (int)j)] += (*local_bins)[sa_i((int)i, (int)j)];
+                  m_bin_counts.get()[sa_i((int)i, (int)j)] += (*local_bins)[sa_i((int)i, (int)j)];
                   }
-              m_bo_array[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / m_sa_array[sa_i((int)i, (int)j)];
+              m_bo_array.get()[sa_i((int)i, (int)j)] = m_bin_counts.get()[sa_i((int)i, (int)j)] / m_sa_array.get()[sa_i((int)i, (int)j)];
               }
           }
       });
@@ -164,13 +127,13 @@ void BondOrder::reduceBondOrder()
         {
         for (unsigned int j=0; j<m_nbins_p; j++)
             {
-            m_bin_counts[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / (float)m_frame_counter;
-            m_bo_array[sa_i((int)i, (int)j)] = m_bo_array[sa_i((int)i, (int)j)] / (float)m_frame_counter;
+            m_bin_counts.get()[sa_i((int)i, (int)j)] = m_bin_counts.get()[sa_i((int)i, (int)j)] / (float)m_frame_counter;
+            m_bo_array.get()[sa_i((int)i, (int)j)] = m_bo_array.get()[sa_i((int)i, (int)j)] / (float)m_frame_counter;
             }
         }
     }
 
-boost::shared_array<float> BondOrder::getBondOrder()
+std::shared_ptr<float> BondOrder::getBondOrder()
     {
     reduceBondOrder();
     return m_bo_array;
@@ -192,16 +155,20 @@ void BondOrder::accumulate(box::Box& box,
                            unsigned int n_ref,
                            vec3<float> *points,
                            quat<float> *orientations,
-                           unsigned int Np)
+                           unsigned int n_p,
+                           unsigned int mode)
     {
+    // transform the mode from an integer to an enumerated type (enumerated in BondOrder.h)
+    BondOrderMode b_mode = static_cast<BondOrderMode>(mode);
+
     m_box = box;
     // compute the cell list
-    m_nn->compute(m_box,ref_points,n_ref,points,Np);
+    m_nn->compute(m_box,ref_points,n_ref,points,n_p);
     m_nn->setRMax(m_rmax);
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,n_ref),
-        [=] (const blocked_range<size_t>& r)
+        [=] (const blocked_range<size_t>& br)
             {
             float dt_inv = 1.0f / m_dt;
             float dp_inv = 1.0f / m_dp;
@@ -211,40 +178,67 @@ void BondOrder::accumulate(box::Box& box,
             bool exists;
             m_local_bin_counts.local(exists);
             if (! exists)
-            {
+                {
                 m_local_bin_counts.local() = new unsigned int [m_nbins_t*m_nbins_p];
                 memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
-            }
+                }
 
-            for(size_t i=r.begin(); i!=r.end(); ++i)
-            {
+            for(size_t i=br.begin(); i!=br.end(); ++i)
+                {
                 vec3<float> ref_pos = ref_points[i];
                 quat<float> ref_q(ref_orientations[i]);
 
                 //loop over neighbors
                 locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
                 for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
-                {
-
+                    {
                     //compute r between the two particles
                     vec3<float> delta = m_box.wrap(points[j] - ref_pos);
 
                     float rsq = dot(delta, delta);
                     if (rsq > 1e-6)
-                    {
-                        //compute psi for neighboring particle(only constructed for 2d)
-                        // get orientation
-                        // I don't think this is needed
-                        // quat<float> orient(m_orientations[j]);
+                        {
+                        quat<float> q(orientations[j]);
                         vec3<float> v(delta);
-                        v = rotate(conj(ref_q), v);
-                        // get theta, phi
-                        float theta = atan2f(v.y, v.x);
-                        theta = (theta < 0) ? theta+2*M_PI : theta;
-                        theta = (theta > 2*M_PI) ? theta-2*M_PI : theta;
-                        float phi = atan2f(sqrt(v.x*v.x + v.y*v.y), v.z);
-                        phi = (phi < 0) ? phi+2*M_PI : phi;
-                        phi = (phi > 2*M_PI) ? phi-2*M_PI : phi;
+                        if (b_mode == obcd)
+                            {
+                            // give bond directions of neighboring particles rotated by the matrix that takes the
+                            // orientation of particle j to the orientation of particle i.
+                            v = rotate(conj(ref_q), v);
+                            v = rotate(q, v);
+                            }
+                        else if (b_mode == lbod)
+                            {
+                            // give bond directions of neighboring particles rotated into the local orientation of the
+                            // central particle.
+                            v = rotate(conj(ref_q), v);
+                            }
+                        else if (b_mode == oocd)
+                            {
+                            // give the directors of neighboring particles rotated into the local orientation of the
+                            // central particle.
+                            // pick a (random vector)
+                            vec3<float> z(0,0,1);
+                            // rotate that vector by the orientation of the neighboring particle
+                            z = rotate(q, z);
+                            // get the direction of this vector with respect to the orientation of the central particle
+                            v = rotate(conj(ref_q), z);
+                            }
+
+                        // NOTE that angles are defined in the "mathematical" way, rather than how most physics
+                        // textbooks do it.
+                        // get theta (azimuthal angle), phi (polar angle)
+                        float theta = atan2f(v.y, v.x); //-Pi..Pi
+
+                        theta = fmod(theta, 2*M_PI);
+                        if (theta < 0)
+                            {
+                            theta += 2*M_PI;
+                            }
+
+                        // NOTE that the below has replaced the commented out expression for phi.
+                        float phi = acos(v.z / sqrt(v.x*v.x + v.y*v.y + v.z*v.z)); //0..Pi
+
                         // bin the point
                         float bint = floorf(theta * dt_inv);
                         float binp = floorf(phi * dp_inv);
@@ -270,7 +264,7 @@ void BondOrder::accumulate(box::Box& box,
 
     // save the last computed number of particles
     m_n_ref = n_ref;
-    m_Np = Np;
+    m_n_p = n_p;
     m_frame_counter++;
     }
 

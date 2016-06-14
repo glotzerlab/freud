@@ -18,46 +18,62 @@ np.import_array()
 cdef class BondOrder:
     """Compute the bond order diagram for the system of particles.
 
-    Create the 2D histogram containing the number of bonds formed through the surface of a unit sphere based on the
-    equatorial (Theta) and azimuthal (Phi) *check on this* angles.
+    ------------
+    If mode=bod (Bond Order Diagram): Create the 2D histogram containing the number of bonds formed through the surface of a unit sphere based on the
+    azimuthal (Theta) and polar (Phi) angles. This is the default.
+
+    If mode=lbod (Local Bond Order Diagram): Create the 2D histogram containing the number of bonds formed, rotated into the local orientation of the central particle,
+    through the surface of a unit sphere based on the azimuthal (Theta) and polar (Phi) angles.
+
+    If mode=obcd (Orientation Bond Correlation Diagram): Create the 2D histogram containing the number of bonds formed, rotated by the rotation
+    that takes the orientation of neighboring particle j to the orientation of each particle i, through
+    the surface of a unit sphere based on the azimuthal (Theta) and polar (Phi) angles.
+
+    If mode=oocd (Orientation Orientation Correlation Diagram): Create the 2D histogram containing the directors of neighboring particles (\hat{z} rotated by their quaternion),
+    rotated into the local orientation of the central particle, through the surface of a unit sphere based on the azimuthal (Theta)
+    and polar (Phi) angles.
+    ------------
 
     .. note:: currently being debugged. not guaranteed to work.
 
     :param r_max: distance over which to calculate
     :param k: order parameter i. to be removed
     :param n: number of neighbors to find
-    :param nBinsT: number of theta bins
-    :param nBinsP: number of phi bins
+    :param n_bins_t: number of theta bins
+    :param n_bins_p: number of phi bins
     :type r_max: float
     :type k: unsigned int
     :type n: unsigned int
-    :type nBinsT: unsigned int
-    :type nBinsP: unsigned int
+    :type n_bins_t: unsigned int
+    :type n_bins_p: unsigned int
 
     .. todo:: remove k, it is not used as such
     """
     cdef order.BondOrder *thisptr
 
-    def __cinit__(self, rmax, k, n, nBinsT, nBinsP):
-        self.thisptr = new order.BondOrder(rmax, k, n, nBinsT, nBinsP)
+    def __cinit__(self, float rmax, float k, unsigned int n, unsigned int n_bins_t, unsigned int n_bins_p):
+        self.thisptr = new order.BondOrder(rmax, k, n, n_bins_t, n_bins_p)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, ref_points, refOrientations, points, orientations):
+    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] ref_orientations,
+            np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=2] orientations, str mode="bod"):
         """
         Calculates the correlation function and adds to the current histogram.
 
         :param box: simulation box
         :param ref_points: reference points to calculate the local density
-        :param refOrientations: orientations to use in computation
+        :param ref_orientations: orientations to use in computation
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
+        :param mode: mode to calc bond order. "bod", "lbod", "obcd", and "oocd"
         :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.float32
-        :type refOrientations: np.float32
+        :type ref_orientations: np.float32
         :type points: np.float32
         :type orientations: np.float32
+        :type mode: str
         """
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
@@ -65,21 +81,36 @@ cdef class BondOrder:
             raise ValueError("points must be a 2 dimensional array")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if (refOrientations.dtype != np.float32) or (orientations.dtype != np.float32):
+        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
             raise ValueError("values must be a numpy float32 array")
-        if refOrientations.ndim != 2 or orientations.ndim != 2:
+        if ref_orientations.ndim != 2 or orientations.ndim != 2:
             raise ValueError("values must be a 1 dimensional array")
-        if refOrientations.shape[1] != 4 or orientations.shape[1] != 4:
-            raise ValueError("the 2nd dimension must have 3 values: q0, q1, q2, q3")
+        if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+
+        cdef unsigned int index = 0
+        if mode == "bod":
+            index = 0
+        elif mode == "lbod":
+            index = 1
+        elif mode == "obcd":
+            index = 2
+        elif mode == "oocd":
+            index = 3
+        else:
+            raise RuntimeError('Unknown BOD mode: {}. Options are: bod, lbod, obcd, oocd.'.format(mode))
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_refOrientations = refOrientations
+        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
         cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <quat[float]*>l_refOrientations.data, nRef, <vec3[float]*>l_points.data, <quat[float]*>l_orientations.data, nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <quat[float]*>l_ref_orientations.data,
+                n_ref, <vec3[float]*>l_points.data, <quat[float]*>l_orientations.data, n_p, index)
 
     def getBondOrder(self):
         """
@@ -108,23 +139,26 @@ cdef class BondOrder:
         """
         self.thisptr.resetBondOrder()
 
-    def compute(self, box, ref_points, refOrientations, points, orientations):
+    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] ref_orientations,
+            np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=2] orientations, str mode="bod"):
         """
         Calculates the bond order histogram. Will overwrite the current histogram.
 
         :param box: simulation box
         :param ref_points: reference points to calculate the local density
-        :param refOrientations: orientations to use in computation
+        :param ref_orientations: orientations to use in computation
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
+        :param mode: mode to calc bond order. "bod", "lbod", "obcd", and "oocd"
         :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.float32
-        :type refOrientations: np.float32
+        :type ref_orientations: np.float32
         :type points: np.float32
         :type orientations: np.float32
+        :type mode: str
         """
         self.thisptr.resetBondOrder()
-        self.accumulate(box, ref_points, refOrientations, points, orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, mode)
 
     def reduceBondOrder(self):
         """
