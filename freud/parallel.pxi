@@ -10,6 +10,8 @@ import freud, freud.parallel
 def setNumThreads(nthreads=None):
     """Set the number of threads for parallel computation.
 
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
     :param nthreads: number of threads to use. If None (default), use all threads available
     :type nthreads: int or None
     """

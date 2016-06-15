@@ -1,8 +1,7 @@
 
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
-cimport freud._trajectory as _trajectory
+cimport freud._box as _box
 cimport freud._pmft as pmft
 from libc.string cimport memcpy
 from cython.operator cimport dereference as deref
@@ -12,7 +11,7 @@ cimport numpy as np
 # ctypedef np.float32_t DTYPE_t
 
 cdef class PMFTR12:
-    """Computes the PMFT for a given set of points.
+    """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`r`, :math:`\\theta_1`,
@@ -25,6 +24,8 @@ cdef class PMFTR12:
 
     .. note:: 2D: This calculation is defined for 2D systems only. However particle positions are still required to be \
     (x, y, 0)
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param r_max: maximum distance at which to compute the pmft
     :param n_r: number of bins in r
@@ -49,7 +50,7 @@ cdef class PMFTR12:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 
@@ -68,7 +69,7 @@ cdef class PMFTR12:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
@@ -90,7 +91,7 @@ cdef class PMFTR12:
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
                                     <vec3[float]*>l_ref_points.data,
@@ -109,7 +110,7 @@ cdef class PMFTR12:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
@@ -130,7 +131,7 @@ cdef class PMFTR12:
         Get the raw bin counts.
 
         :return: Bin Counts
-        :rtype: np.ndarray(shape=(R, T1, T2), dtype=np.float32)
+        :rtype: np.ndarray(shape=(R, T2, T1), dtype=np.float32)
         """
         cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
@@ -145,7 +146,7 @@ cdef class PMFTR12:
         Get the positional correlation function.
 
         :return: PCF
-        :rtype: np.ndarray(shape=(R, T1, T2), dtype=np.float32)
+        :rtype: np.ndarray(shape=(R, T2, T1), dtype=np.float32)
         """
         cdef float* pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[3]
@@ -160,7 +161,7 @@ cdef class PMFTR12:
         Get the Potential of Mean Force and Torque.
 
         :return: PMFT
-        :rtype: np.ndarray(shape=(R, T1, T2), dtype=np.float32)
+        :rtype: np.ndarray(shape=(R, T2, T1), dtype=np.float32)
         """
         return -np.log(np.copy(self.getPCF()))
 
@@ -244,7 +245,7 @@ cdef class PMFTR12:
         return r_cut
 
 cdef class PMFTXYT:
-    """Computes the PMFT for a given set of points.
+    """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`x`, :math:`y`,
@@ -257,6 +258,8 @@ cdef class PMFTXYT:
 
     .. note:: 2D: This calculation is defined for 2D systems only. However particle positions are still required to be \
     (x, y, 0)
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param x_max: maximum x distance at which to compute the pmft
     :param y_max: maximum y distance at which to compute the pmft
@@ -302,7 +305,7 @@ cdef class PMFTXYT:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
@@ -324,7 +327,7 @@ cdef class PMFTXYT:
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
                                     <vec3[float]*>l_ref_points.data,
@@ -343,7 +346,7 @@ cdef class PMFTXYT:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
@@ -478,8 +481,7 @@ cdef class PMFTXYT:
         return r_cut
 
 cdef class PMFTXY2D:
-    """
-    Freud PMFTXY2D object. Wrapper for c++ pmft.PMFTXY2D()
+    """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`x`, :math:`y`
@@ -490,6 +492,8 @@ cdef class PMFTXY2D:
     n_x and n_y are the number of bins in x and y.
 
     .. note:: 2D: This calculation is defined for 2D systems only.
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param x_max: maximum x distance at which to compute the pmft
     :param y_max: maximum y distance at which to compute the pmft
@@ -513,7 +517,7 @@ cdef class PMFTXY2D:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 
@@ -532,7 +536,7 @@ cdef class PMFTXY2D:
         :param ref_orientations: orientations of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
@@ -554,7 +558,7 @@ cdef class PMFTXY2D:
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
                                     <vec3[float]*>l_ref_points.data,
@@ -573,7 +577,7 @@ cdef class PMFTXY2D:
         :param ref_orientations: orientations of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
@@ -684,8 +688,7 @@ cdef class PMFTXY2D:
         return r_cut
 
 cdef class PMFTXYZ:
-    """
-    Freud PMFTXYZ object. Wrapper for c++ pmft.PMFTXYZ()
+    """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`x`, :math:`y`, :math:`z`,
@@ -696,6 +699,8 @@ cdef class PMFTXYZ:
     n_x, n_y, n_z is the number of bins in x, y, z.
 
     .. note:: 3D: This calculation is defined for 3D systems only.
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param x_max: maximum x distance at which to compute the pmft
     :param y_max: maximum y distance at which to compute the pmft
@@ -723,7 +728,7 @@ cdef class PMFTXYZ:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 
@@ -743,7 +748,7 @@ cdef class PMFTXYZ:
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
         :param face_orientations: orientations of particle faces to account for particle symmetry
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
@@ -784,7 +789,7 @@ cdef class PMFTXYZ:
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nFaces = <unsigned int> face_orientations.shape[1]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
                                     <vec3[float]*>l_ref_points.data,
@@ -806,7 +811,7 @@ cdef class PMFTXYZ:
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
         :param face_orientations: orientations of particle faces to account for particle symmetry
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)

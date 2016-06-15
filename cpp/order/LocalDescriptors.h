@@ -3,7 +3,7 @@
 #include "NearestNeighbors.h"
 // hack to keep VectorMath's swap from polluting the global namespace
 #include "VectorMath.h"
-#include "trajectory.h"
+#include "box.h"
 
 #include "tbb/atomic.h"
 
@@ -64,11 +64,11 @@ public:
         }
 
     //! Compute the nearest neighbors for each particle
-    void computeNList(const trajectory::Box& box, const vec3<float> *r, unsigned int Np);
+    void computeNList(const box::Box& box, const vec3<float> *r, unsigned int Np);
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const trajectory::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np);
+    void compute(const box::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np);
 
     // //! Python wrapper for compute
     // void computePy(boost::python::numeric::array r,

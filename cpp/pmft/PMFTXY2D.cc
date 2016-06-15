@@ -24,7 +24,7 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y)
-    : m_box(trajectory::Box()), m_max_x(max_x), m_max_y(max_y), m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y),
+    : m_box(box::Box()), m_max_x(max_x), m_max_y(max_y), m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y),
       m_frame_counter(0), m_n_ref(0), m_n_p(0), m_reduce(true)
     {
     if (n_bins_x < 1)
@@ -161,7 +161,7 @@ void PMFTXY2D::resetPCF()
 /*! \brief Helper functionto direct the calculation to the correct helper class
 */
 
-void PMFTXY2D::accumulate(trajectory::Box& box,
+void PMFTXY2D::accumulate(box::Box& box,
                          vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int n_ref,

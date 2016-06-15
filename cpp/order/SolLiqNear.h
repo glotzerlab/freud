@@ -16,7 +16,7 @@
 #include "NearestNeighbors.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
-#include "trajectory.h"
+#include "box.h"
 #include <stdexcept>
 #include <complex>
 #include <map>
@@ -41,19 +41,19 @@ class SolLiqNear
         @param Sthreshold Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like for clustering. (For l=6, 6-8 generally good for FCC or BCC structures)
         @param l Choose spherical harmonic Ql.  Must be positive and even.
         **/
-        SolLiqNear(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn=12);
+        SolLiqNear(const box::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l, unsigned int kn=12);
 
         //! Destructor
         ~SolLiqNear();
 
         //! Get the simulation box
-        const trajectory::Box& getBox()
+        const box::Box& getBox()
             {
             return m_box;
             }
 
         //!  Reset the simulation box size
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox;  //Set
             delete m_nn;
@@ -285,7 +285,7 @@ class SolLiqNear
         void computeClustersQdotNoNorm(const vec3<float> *points,
                               unsigned int Np);
 
-        trajectory::Box m_box;      //!< Simulation box the particles belong in
+        box::Box m_box;      //!< Simulation box the particles belong in
         float m_rmax;               //!< Maximum cutoff radius at which to determine local environment
         float m_rmax_cluster;       //!< Maximum radius at which to cluster solid-like particles;
         float m_k;                  //!< Number of neighbors

@@ -13,7 +13,7 @@
 #include "VectorMath.h"
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _HEX_ORDER_PARAMTER_H__
@@ -38,13 +38,13 @@ class HexOrderParameter
         ~HexOrderParameter();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Compute the hex order parameter
-        void compute(trajectory::Box& box,
+        void compute(box::Box& box,
                      const vec3<float> *points,
                      unsigned int Np);
 
@@ -65,7 +65,7 @@ class HexOrderParameter
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;                        //!< Multiplier in the exponent
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation

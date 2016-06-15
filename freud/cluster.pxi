@@ -1,6 +1,7 @@
 
 from freud.util._VectorMath cimport vec3
 cimport freud._cluster as cluster
+cimport freud._box as _box
 import numpy as np
 cimport numpy as np
 from libcpp.vector cimport vector
@@ -25,29 +26,30 @@ cdef class Cluster:
     (i.e. the polymer id), the computeClusterMembership function will process cluster_idx with the key values in mind
     and provide a list of keys that are present in each cluster.
 
-    :param box: :py:class:`freud.trajectory.Box` object
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
+    :param box: :py:class:`freud._box.Box` object
     :param rcut: Particle distance cutoff
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud._box.Box`
     :type rcut: float
 
     .. note::
-    2D:
-    Cluster properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
-    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
+        2D: Cluster properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as \
+        3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
     """
     cdef cluster.Cluster *thisptr
 
     def __cinit__(self, box, rcut):
-        cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new cluster.Cluster(cBox, rcut)
 
     def __dealloc__(self):
         del self.thisptr
 
     def getBox(self):
-        """Return the stored :py:class:`freud.trajectory.Box` object
+        """Return the stored :py:class:`freud._box.Box` object
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud._box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 
@@ -136,12 +138,14 @@ cdef class ClusterProperties:
     m_cluster_G[c*9 + j*3 + i]. The tensor is symmetric, so the choice of i and j are irrelevant. This is passed
     back to python as a num_clusters x 3 x 3 numpy array.
 
-    :param box: :py:class:`freud.trajectory.Box` object
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
+    :param box: :py:class:`freud._box.Box` object
     """
     cdef cluster.ClusterProperties *thisptr
 
     def __cinit__(self, box):
-        cdef trajectory.Box cBox = trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new cluster.ClusterProperties(cBox)
 
 
@@ -150,9 +154,9 @@ cdef class ClusterProperties:
 
 
     def getBox(self):
-        """Return the stored :py:class:`freud.trajectory.Box` object
+        """Return the stored :py:class:`freud._box.Box` object
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud._box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 

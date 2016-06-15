@@ -2,15 +2,13 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
-cimport freud._trajectory as _trajectory
+cimport freud._box as _box
 cimport freud._order as order
-from libc.string cimport memcpy
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 import numpy as np
 cimport numpy as np
-from cython.view cimport array as cvarray
 import time
 
 # Numpy must be initialized. When using numpy from C or Cython you must
@@ -20,68 +18,100 @@ np.import_array()
 cdef class BondOrder:
     """Compute the bond order diagram for the system of particles.
 
-    Create the 2D histogram containing the number of bonds formed through the surface of a unit sphere based on the
-    equatorial (Theta) and azimuthal (Phi) *check on this* angles.
+    Available Modues of Calculation:
+    * If mode=bod (Bond Order Diagram): Create the 2D histogram containing the number of bonds formed through the \
+    surface of a unit sphere based on the azimuthal (Theta) and polar (Phi) angles. This is the default.
 
-    .. note:: currently being debugged. not guaranteed to work.
+    * If mode=lbod (Local Bond Order Diagram): Create the 2D histogram containing the number of bonds formed, rotated \
+    into the local orientation of the central particle, through the surface of a unit sphere based on the azimuthal \
+    (:math:`\\theta`) and polar (:math:`\\phi`) angles.
+
+    * If mode=obcd (Orientation Bond Correlation Diagram): Create the 2D histogram containing the number of bonds formed, \
+    rotated by the rotation that takes the orientation of neighboring particle j to the orientation of each particle i, \
+    through the surface of a unit sphere based on the azimuthal (:math:`\\theta`) and polar (:math:`\\phi`) angles.
+
+    * If mode=oocd (Orientation Orientation Correlation Diagram): Create the 2D histogram containing the directors of \
+    neighboring particles (:math:`\\hat{z}` rotated by their quaternion), rotated into the local orientation of the \
+    central particle, through the surface of a unit sphere based on the azimuthal (:math:`\\theta`) and polar \
+    (:math:`\\phi`) angles.
+
+    .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     :param r_max: distance over which to calculate
     :param k: order parameter i. to be removed
     :param n: number of neighbors to find
-    :param nBinsT: number of theta bins
-    :param nBinsP: number of phi bins
+    :param n_bins_t: number of theta bins
+    :param n_bins_p: number of phi bins
     :type r_max: float
     :type k: unsigned int
     :type n: unsigned int
-    :type nBinsT: unsigned int
-    :type nBinsP: unsigned int
+    :type n_bins_t: unsigned int
+    :type n_bins_p: unsigned int
 
     .. todo:: remove k, it is not used as such
     """
     cdef order.BondOrder *thisptr
 
-    def __cinit__(self, rmax, k, n, nBinsT, nBinsP):
-        self.thisptr = new order.BondOrder(rmax, k, n, nBinsT, nBinsP)
+    def __cinit__(self, float rmax, float k, unsigned int n, unsigned int n_bins_t, unsigned int n_bins_p):
+        self.thisptr = new order.BondOrder(rmax, k, n, n_bins_t, n_bins_p)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, refPoints, refOrientations, points, orientations):
+    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] ref_orientations,
+            np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=2] orientations, str mode="bod"):
         """
         Calculates the correlation function and adds to the current histogram.
 
         :param box: simulation box
-        :param refPoints: reference points to calculate the local density
-        :param refOrientations: orientations to use in computation
+        :param ref_points: reference points to calculate the local density
+        :param ref_orientations: orientations to use in computation
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
-        :type refPoints: np.float32
-        :type refOrientations: np.float32
+        :param mode: mode to calc bond order. "bod", "lbod", "obcd", and "oocd"
+        :type box: :py:meth:`freud.box.Box`
+        :type ref_points: np.float32
+        :type ref_orientations: np.float32
         :type points: np.float32
         :type orientations: np.float32
+        :type mode: str
         """
-        if (refPoints.dtype != np.float32) or (points.dtype != np.float32):
+        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
-        if refPoints.ndim != 2 or points.ndim != 2:
+        if ref_points.ndim != 2 or points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
-        if refPoints.shape[1] != 3 or points.shape[1] != 3:
+        if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if (refOrientations.dtype != np.float32) or (orientations.dtype != np.float32):
+        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
             raise ValueError("values must be a numpy float32 array")
-        if refOrientations.ndim != 2 or orientations.ndim != 2:
+        if ref_orientations.ndim != 2 or orientations.ndim != 2:
             raise ValueError("values must be a 1 dimensional array")
-        if refOrientations.shape[1] != 4 or orientations.shape[1] != 4:
-            raise ValueError("the 2nd dimension must have 3 values: q0, q1, q2, q3")
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_refOrientations = np.ascontiguousarray(refOrientations.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
-        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+
+        cdef unsigned int index = 0
+        if mode == "bod":
+            index = 0
+        elif mode == "lbod":
+            index = 1
+        elif mode == "obcd":
+            index = 2
+        elif mode == "oocd":
+            index = 3
+        else:
+            raise RuntimeError('Unknown BOD mode: {}. Options are: bod, lbod, obcd, oocd.'.format(mode))
+
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>&l_refPoints[0], <quat[float]*>&l_refOrientations[0], nRef, <vec3[float]*>&l_points[0], <quat[float]*>&l_orientations[0], nP)
+            self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <quat[float]*>l_ref_orientations.data,
+                n_ref, <vec3[float]*>l_points.data, <quat[float]*>l_orientations.data, n_p, index)
 
     def getBondOrder(self):
         """
@@ -100,9 +130,9 @@ cdef class BondOrder:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def resetBondOrder(self):
         """
@@ -110,23 +140,26 @@ cdef class BondOrder:
         """
         self.thisptr.resetBondOrder()
 
-    def compute(self, box, refPoints, refOrientations, points, orientations):
+    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] ref_orientations,
+            np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=2] orientations, str mode="bod"):
         """
         Calculates the bond order histogram. Will overwrite the current histogram.
 
         :param box: simulation box
-        :param refPoints: reference points to calculate the local density
-        :param refOrientations: orientations to use in computation
+        :param ref_points: reference points to calculate the local density
+        :param ref_orientations: orientations to use in computation
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
-        :type refPoints: np.float32
-        :type refOrientations: np.float32
+        :param mode: mode to calc bond order. "bod", "lbod", "obcd", and "oocd"
+        :type box: :py:meth:`freud.box.Box`
+        :type ref_points: np.float32
+        :type ref_orientations: np.float32
         :type points: np.float32
         :type orientations: np.float32
+        :type mode: str
         """
         self.thisptr.resetBondOrder()
-        self.accumulate(box, refPoints, refOrientations, points, orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, mode)
 
     def reduceBondOrder(self):
         """
@@ -181,6 +214,8 @@ cdef class CubaticOrderParameter:
     """Compute the Cubatic Order Parameter [Cit1]_ for a system of particles using simulated annealing instead of \
     Newton-Raphson root finding.
 
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
+
     :param t_initial: Starting temperature
     :param t_final: Final temperature
     :param scale: Scaling factor to reduce temperature
@@ -226,7 +261,7 @@ cdef class CubaticOrderParameter:
 
         :param box: simulation box
         :param orientations: orientations to calculate the order parameter
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type orientations: np.float32
         """
         if (orientations.dtype != np.float32):
@@ -350,106 +385,6 @@ cdef class CubaticOrderParameter:
         cdef np.ndarray[np.float32_t, ndim=4] result = np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32, <void*>gen_r4_tensor)
         return result
 
-cdef class EntropicBonding:
-    """Compute the entropic bonds each particle in the system.
-
-    For each particle in the system determine which other particles are in which entropic bonding sites.
-
-    .. note:: currently being debugged. not guaranteed to work.
-
-    :param xmax: +/- x distance to search for bonds
-    :param ymax: +/- y distance to search for bonds
-    :param nx: number of bins in x
-    :param ny: number of bins in x
-    :param nNeighbors: number of neighbors to find
-    :param nBonds: number of bonds to populate per particle
-    :param bondMap: 2D array containing the bond index for each x, y coordinate
-    :type xmax: float
-    :type ymax: float
-    :type nx: unsigned int
-    :type ny: unsigned int
-    :type nNeighbors: unsigned int
-    :type nBonds: unsigned int
-    """
-    cdef order.EntropicBonding *thisptr
-
-    def __cinit__(self, xmax, ymax, nx, ny, nNeighbors, nBonds, bondMap):
-        # should I extract from the bond map (nx, ny)
-        cdef np.ndarray[unsigned int, ndim=1] l_bondMap = np.ascontiguousarray(bondMap.flatten())
-        self.thisptr = new order.EntropicBonding(xmax, ymax, nx, ny, nNeighbors, nBonds, <unsigned int*>&l_bondMap[0])
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, box, points, orientations):
-        """
-        Calculates the correlation function and adds to the current histogram.
-
-        :param box: simulation box
-        :param points: points to calculate the bonding
-        :param orientations: orientations as angles to use in computation
-        :type box: :py:meth:`freud.trajectory.Box`
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type orientations: np.ndarray(shape=(N), dtype=np.float32)
-        """
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if orientations.dtype != np.float32:
-            raise ValueError("values must be a numpy float32 array")
-        if orientations.ndim != 1:
-            raise ValueError("values must be a 1 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], nP)
-
-    def getBonds(self):
-        """
-        :return: particle bonds
-        :rtype: np.float32
-        """
-        cdef unsigned int *bonds = self.thisptr.getBonds().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bonds)
-        return result
-
-    def getBox(self):
-        """
-        Get the box used in the calculation
-
-        :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
-        """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
-
-    def getNBinsX(self):
-        """
-        Get the number of bins in the x-dimension of histogram
-
-        :return: nx
-        :rtype: unsigned int
-        """
-        cdef unsigned int nx = self.thisptr.getNBinsX()
-        return nx
-
-    def getNBinsY(self):
-        """
-        Get the number of bins in the y-dimension of histogram
-
-        :return: ny
-        :rtype: unsigned int
-        """
-        cdef unsigned int ny = self.thisptr.getNBinsY()
-        return ny
-
 cdef class HexOrderParameter:
     """Calculates the x-atic order parameter for each particle in the system.
 
@@ -463,6 +398,8 @@ cdef class HexOrderParameter:
 
     .. note:: 2D: This calculation is defined for 2D systems only. However particle positions are still required to be \
     (x, y, 0)
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param rmax: +/- r distance to search for neighbors
     :param k: symmetry of order parameter (:math:`k=6` is hexatic)
@@ -488,7 +425,7 @@ cdef class HexOrderParameter:
 
         :param box: simulation box
         :param points: points to calculate the order parameter
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
         if points.dtype != np.float32:
@@ -497,11 +434,11 @@ cdef class HexOrderParameter:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
 
     def getPsi(self):
         """
@@ -519,9 +456,9 @@ cdef class HexOrderParameter:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def getNP(self):
         """
@@ -549,15 +486,16 @@ cdef class HexOrderParameter:
 cdef class LocalDescriptors:
     """Compute a set of descriptors (a numerical "fingerprint") of a particle's local environment.
 
+    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+
     :param nNeigh: Maximum number of neighbors to compute descriptors for
     :param lmax: Maximum spherical harmonic l to consider
     :param rmax: Initial guess of the maximum radius to looks for neighbors
     :param negative_m: True if we should also calculate Ylm for negative m
-    :type box: :py:meth:`freud.trajectory.Box()`
+    :type box: :py:meth:`freud.box.Box()`
     :type nNeigh: unsigned int
     :type l: unsigned int
     :type rmax: float
-
 
     """
     cdef order.LocalDescriptors *thisptr
@@ -576,17 +514,17 @@ cdef class LocalDescriptors:
         :param points: points to calculate the order parameter
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.computeNList(l_box, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.computeNList(l_box, <vec3[float]*>l_points.data, nP)
 
     def compute(self, box, unsigned int nNeigh, points):
         """
@@ -596,17 +534,17 @@ cdef class LocalDescriptors:
         :param points: points to calculate the order parameter
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.compute(l_box, nNeigh, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.compute(l_box, nNeigh, <vec3[float]*>l_points.data, nP)
 
     def getSph(self):
         """
@@ -669,6 +607,8 @@ cdef class LocalDescriptors:
 cdef class TransOrderParameter:
     """Compute the translational order parameter for each particle
 
+    .. moduleauthor:: Michael Engel <engelmm@umich.edu>
+
     :param rmax: +/- r distance to search for neighbors
     :param k: symmetry of order parameter (:math:`k=6` is hexatic)
     :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
@@ -691,7 +631,7 @@ cdef class TransOrderParameter:
 
         :param box: simulation box
         :param points: points to calculate the order parameter
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         """
         if points.dtype != np.float32:
@@ -700,11 +640,11 @@ cdef class TransOrderParameter:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], nP)
+            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
 
     def getDr(self):
         """
@@ -724,9 +664,9 @@ cdef class TransOrderParameter:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def getNP(self):
         """
@@ -739,7 +679,7 @@ cdef class TransOrderParameter:
         return np
 
 cdef class LocalQl:
-    """Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points.
+    """Compute the local Steinhardt rotationally invariant Ql [Cit4]_ order parameter for a set of points.
 
     Implements the local rotationally invariant Ql order parameter described by Steinhardt. For a particle i, \
     we calculate the average :math:`Q_l` by summing the spherical harmonics between particle :math:`i` and its \
@@ -757,13 +697,14 @@ cdef class LocalQl:
     * Variation of the Steinhardt Ql order parameter
     * For a particle i, we calculate the average Q_l by summing the spherical harmonics between particle i and its \
     neighbors j and the neighbors k of neighbor j in a local region
-    * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param rmin: can look at only the second shell or some arbitrary rdf region
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
     :type rmin: float
@@ -773,7 +714,7 @@ cdef class LocalQl:
     cdef order.LocalQl *thisptr
 
     def __cinit__(self, box, rmax, l, rmin=0):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalQl(l_box, rmax, l, rmin)
 
     def __dealloc__(self):
@@ -791,9 +732,9 @@ cdef class LocalQl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -807,10 +748,10 @@ cdef class LocalQl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -824,10 +765,10 @@ cdef class LocalQl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -841,29 +782,29 @@ cdef class LocalQl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAveNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setBox(self, box):
         """
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getQl(self):
@@ -929,7 +870,7 @@ cdef class LocalQl:
         return np
 
 cdef class LocalQlNear:
-    """Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points.
+    """Compute the local Steinhardt rotationally invariant Ql order parameter [Cit4]_ for a set of points.
 
     Implements the local rotationally invariant Ql order parameter described by Steinhardt. For a particle i, \
     we calculate the average :math:`Q_l` by summing the spherical harmonics between particle :math:`i` and its \
@@ -947,13 +888,14 @@ cdef class LocalQlNear:
     * Variation of the Steinhardt Ql order parameter
     * For a particle i, we calculate the average Q_l by summing the spherical harmonics between particle i and its \
     neighbors j and the neighbors k of neighbor j in a local region
-    * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param kn: number of nearest neighbors. must be a positive integer
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
     :type kn: unsigned int
@@ -963,7 +905,7 @@ cdef class LocalQlNear:
     cdef order.LocalQlNear *thisptr
 
     def __cinit__(self, box, rmax, l, kn=12):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalQlNear(l_box, rmax, l, kn)
 
     def __dealloc__(self):
@@ -981,9 +923,9 @@ cdef class LocalQlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -997,10 +939,10 @@ cdef class LocalQlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1014,10 +956,10 @@ cdef class LocalQlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1031,29 +973,29 @@ cdef class LocalQlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAveNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setBox(self, box):
         """
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getQl(self):
@@ -1119,7 +1061,7 @@ cdef class LocalQlNear:
         return np
 
 cdef class LocalWl:
-    """Compute the local Steinhardt rotationally invariant :math:`W_l` order parameter for a set of points.
+    """Compute the local Steinhardt rotationally invariant :math:`W_l` order parameter [Cit4]_ for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter described by Steinhardt that can aid in distinguishing \
     between FCC, HCP, and BCC.
@@ -1131,12 +1073,13 @@ cdef class LocalWl:
     * Variation of the Steinhardt :math:`W_l` order parameter
     * For a particle i, we calculate the average :math:`W_l` by summing the spherical harmonics between particle i and its \
     neighbors j and the neighbors k of neighbor j in a local region
-    * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
 
@@ -1145,7 +1088,7 @@ cdef class LocalWl:
     cdef order.LocalWl *thisptr
 
     def __cinit__(self, box, rmax, l):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWl(l_box, rmax, l)
 
     def __dealloc__(self):
@@ -1163,9 +1106,9 @@ cdef class LocalWl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1179,10 +1122,10 @@ cdef class LocalWl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1196,10 +1139,10 @@ cdef class LocalWl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1213,29 +1156,29 @@ cdef class LocalWl:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAveNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setBox(self, box):
         """
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getQl(self):
@@ -1314,7 +1257,7 @@ cdef class LocalWl:
         return np
 
 cdef class LocalWlNear:
-    """Compute the local Steinhardt rotationally invariant :math:`W_l` order parameter for a set of points.
+    """Compute the local Steinhardt rotationally invariant :math:`W_l` order parameter [Cit4]_ for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter described by Steinhardt that can aid in distinguishing \
     between FCC, HCP, and BCC.
@@ -1326,13 +1269,14 @@ cdef class LocalWlNear:
     * Variation of the Steinhardt :math:`W_l` order parameter
     * For a particle i, we calculate the average :math:`W_l` by summing the spherical harmonics between particle i and its \
     neighbors j and the neighbors k of neighbor j in a local region
-    * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param kn: Number of nearest neighbors. Must be a positive number
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
     :type kn: unsigned int
@@ -1342,7 +1286,7 @@ cdef class LocalWlNear:
     cdef order.LocalWlNear *thisptr
 
     def __cinit__(self, box, rmax, l, kn=12):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWlNear(l_box, rmax, l, kn)
 
     def __dealloc__(self):
@@ -1360,9 +1304,9 @@ cdef class LocalWlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1376,10 +1320,10 @@ cdef class LocalWlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1393,10 +1337,10 @@ cdef class LocalWlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1410,29 +1354,29 @@ cdef class LocalWlNear:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAve(<vec3[float]*>&l_points[0], nP)
-        self.thisptr.computeAveNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setBox(self, box):
         """
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getQl(self):
@@ -1511,7 +1455,9 @@ cdef class LocalWlNear:
         return np
 
 cdef class SolLiq:
-    """Computes dot products of qlm between particles and uses these for clustering.
+    """Computes dot products of :math:`Q_{lm}` between particles and uses these for clustering.
+
+    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
@@ -1520,7 +1466,7 @@ cdef class SolLiq:
     :param Sthreshold: Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like \
     for clustering. (For :math:`l=6`, 6-8 generally good for FCC or BCC structures)
     :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and even.
-    :type box: :py:meth:`freud.trajectory.Box`
+    :type box: :py:meth:`freud.box.Box`
     :type rmax: float
     :type Qthreshold: float
     :type Sthreshold: unsigned int
@@ -1531,7 +1477,7 @@ cdef class SolLiq:
     cdef order.SolLiq *thisptr
 
     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
 
     def __dealloc__(self):
@@ -1549,9 +1495,9 @@ cdef class SolLiq:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
 
     def computeSolLiqVariant(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1565,9 +1511,9 @@ cdef class SolLiq:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqVariant(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
 
     def computeSolLiqNoNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1581,18 +1527,18 @@ cdef class SolLiq:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>&l_points[0], nP)
+        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
 
     def getBox(self):
         """
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def setClusteringRadius(self, rcutCluster):
         """
@@ -1608,9 +1554,207 @@ cdef class SolLiq:
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr.setBox(l_box)
+
+    def getLargestClusterSize(self):
+        """
+        Returns the largest cluster size. Must compute sol-liq first
+
+        :return: largest cluster size
+        :rtype: unsigned int
+        """
+        cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
+        return clusterSize
+
+    def getClusterSizes(self):
+        """
+        Returns the largest cluster size. Must compute sol-liq first
+
+        :return: largest cluster size
+        :rtype: np.uint32
+
+        .. todo:: unsure of the best way to pass back...as this doesn't do what I want
+        """
+        cdef vector[unsigned int] clusterSizes = self.thisptr.getClusterSizes()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>&clusterSizes)
+        return result
+
+    def getQlmi(self):
+        """
+        Get a reference to the last computed Qlmi for each particle.
+
+        :return: order parameter
+        :rtype: np.complex64
+        """
+        cdef float complex *Qlmi = self.thisptr.getQlmi().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Qlmi)
+        return result
+
+    def getClusters(self):
+        """
+        Get a reference to the last computed set of solid-like cluster indices for each particle
+
+        :return: clusters
+        :rtype: np.uint32
+        """
+        cdef unsigned int *clusters = self.thisptr.getClusters().get()
+        cdef np.npy_intp nbins[1]
+        # this is the correct number
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
+        return result
+
+    def getNumberOfConnections(self):
+        """
+        Get a reference to the number of connections per particle
+
+        :return: clusters
+        :rtype: np.uint32
+        """
+        cdef unsigned int *connections = self.thisptr.getNumberOfConnections().get()
+        cdef np.npy_intp nbins[1]
+        # this is the correct number
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>connections)
+        return result
+
+    def getQldot_ij(self):
+        """
+        Get a reference to the qldot_ij values
+
+        :return: largest cluster size
+        :rtype: np.uint32
+
+        .. todo:: figure out the size of this cause apparently its size is just its size
+        """
+        cdef vector[float complex] Qldot = self.thisptr.getQldot_ij()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>&Qldot)
+        return result
+
+    def getNP(self):
+        """
+        Get the number of particles
+
+        :return: np
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
+cdef class SolLiqNear:
+    """Computes dot products of :math:`Q_{lm}` between particles and uses these for clustering.
+
+    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
+
+    :param box: simulation box
+    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
+    :param Qthreshold: Value of dot product threshold when evaluating :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine \
+    if a neighbor pair is a solid-like bond. (For :math:`l=6`, 0.7 generally good for FCC or BCC structures)
+    :param Sthreshold: Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like \
+    for clustering. (For :math:`l=6`, 6-8 generally good for FCC or BCC structures)
+    :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and even.
+    :param kn: Number of nearest neighbors. Must be a positive number
+    :type box: :py:meth:`freud.box.Box`
+    :type rmax: float
+    :type Qthreshold: float
+    :type Sthreshold: unsigned int
+    :type l: unsigned int
+    :type kn: unsigned int
+
+    .. todo:: move box to compute, this is old API
+    """
+    cdef order.SolLiqNear *thisptr
+
+    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr = new order.SolLiqNear(l_box, rmax, Qthreshold, Sthreshold, l, kn)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, points):
+        """Compute the local rotationally invariant Ql order parameter.
+
+        :param points: points to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+
+    def computeSolLiqVariant(self, points):
+        """Compute the local rotationally invariant Ql order parameter.
+
+        :param points: points to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
+
+    def computeSolLiqNoNorm(self, points):
+        """Compute the local rotationally invariant Ql order parameter.
+
+        :param points: points to calculate the order parameter
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        """
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
+
+    def getBox(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.box.Box()`
+        """
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+    def setClusteringRadius(self, rcutCluster):
+        """
+        Reset the clustering radius
+
+        :param rcutCluster: radius for the cluster finding
+        :type rcutCluster: float
+        """
+        self.thisptr.setClusteringRadius(rcutCluster)
+
+    def setBox(self, box):
+        """
+        Reset the simulation box
+
+        :param box: simulation box
+        :type box: :py:meth:`freud.box.Box`
+        """
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def getLargestClusterSize(self):
@@ -1705,7 +1849,10 @@ cdef class SolLiq:
         return np
 
 cdef class MatchEnv:
-    """Clusters particles according to whether their local environments match or not, according to various shape matching metrics.
+    """Clusters particles according to whether their local environments match or not, according to various shape \
+    matching metrics.
+
+    .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     :param box: simulation box
     :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
@@ -1713,7 +1860,8 @@ cdef class MatchEnv:
     cdef order.MatchEnv *thisptr
 
     def __cinit__(self, box, rmax, k):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.MatchEnv(l_box, rmax, k)
 
     def __dealloc__(self):
@@ -1724,9 +1872,10 @@ cdef class MatchEnv:
         Reset the simulation box
 
         :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
     def cluster(self, points, threshold, hard_r=False):
@@ -1746,20 +1895,20 @@ cdef class MatchEnv:
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r)
+        self.thisptr.cluster(<vec3[float]*>l_points.data, nP, threshold, hard_r)
 
-    def matchMotif(self, points, refPoints, threshold, hard_r=False):
-        """Determine clusters of particles that match the motif provided by refPoints.
+    def matchMotif(self, points, ref_points, threshold, hard_r=False):
+        """Determine clusters of particles that match the motif provided by ref_points.
 
         :param points: particle positions
-        :param refPoints: vectors that make up the motif against which we are matching
+        :param ref_points: vectors that make up the motif against which we are matching
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
         :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type ref_points: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
         :type hard_r: bool
         """
@@ -1769,53 +1918,53 @@ cdef class MatchEnv:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
-        if refPoints.dtype != np.float32:
-            raise ValueError("refPoints must be a numpy float32 array")
-        if refPoints.ndim != 2:
-            raise ValueError("refPoints must be a 2 dimensional array")
-        if refPoints.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
+        if ref_points.dtype != np.float32:
+            raise ValueError("ref_points must be a numpy float32 array")
+        if ref_points.ndim != 2:
+            raise ValueError("ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
 
-        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, hard_r)
+        self.thisptr.matchMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_ref_points.data, nRef, threshold, hard_r)
 
-    def isSimilar(self, refPoints1, refPoints2, threshold):
-        """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
+    def isSimilar(self, ref_points1, ref_points2, threshold):
+        """Test if the motif provided by ref_points1 is similar to the motif provided by ref_points2.
 
-        :param refPoints1: vectors that make up motif 1
-        :param refPoints2: vectors that make up motif 2
+        :param ref_points1: vectors that make up motif 1
+        :param ref_points2: vectors that make up motif 2
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
-        :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type ref_points1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type ref_points2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
         """
-        if refPoints1.dtype != np.float32:
-            raise ValueError("refPoints1 must be a numpy float32 array")
-        if refPoints1.ndim != 2:
-            raise ValueError("refPoints1 must be a 2 dimensional array")
-        if refPoints1.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
-        if refPoints2.dtype != np.float32:
-            raise ValueError("refPoints2 must be a numpy float32 array")
-        if refPoints2.ndim != 2:
-            raise ValueError("refPoints2 must be a 2 dimensional array")
-        if refPoints2.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+        if ref_points1.dtype != np.float32:
+            raise ValueError("ref_points1 must be a numpy float32 array")
+        if ref_points1.ndim != 2:
+            raise ValueError("ref_points1 must be a 2 dimensional array")
+        if ref_points1.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points1 must have 3 values: x, y, z")
+        if ref_points2.dtype != np.float32:
+            raise ValueError("ref_points2 must be a numpy float32 array")
+        if ref_points2.ndim != 2:
+            raise ValueError("ref_points2 must be a 2 dimensional array")
+        if ref_points2.shape[1] != 3:
+            raise ValueError("the 2nd dimension of ref_points2 must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
-        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
-        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
-        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
+        cdef np.ndarray[float, ndim=2] l_ref_points1 = np.copy(ref_points1)
+        cdef np.ndarray[float, ndim=2] l_ref_points2 = np.copy(ref_points2)
+        cdef unsigned int nRef1 = <unsigned int> ref_points1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> ref_points2.shape[0]
         cdef float threshold_sq = threshold*threshold
 
         if nRef1 != nRef2:
-            raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
+            raise ValueError("the number of vectors in ref_points1 must MATCH the number of vectors in ref_points2")
 
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq)
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>l_ref_points1.data, <vec3[float]*>l_ref_points2.data, nRef1, threshold_sq)
         return vec_map
 
     def getClusters(self):
@@ -1883,204 +2032,10 @@ cdef class MatchEnv:
         cdef unsigned int num_clust = self.thisptr.getNumClusters()
         return num_clust
 
-cdef class SolLiqNear:
-    """Computes dot products of qlm between particles and uses these for clustering.
-
-    :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
-    :param Qthreshold: Value of dot product threshold when evaluating :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine \
-    if a neighbor pair is a solid-like bond. (For :math:`l=6`, 0.7 generally good for FCC or BCC structures)
-    :param Sthreshold: Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like \
-    for clustering. (For :math:`l=6`, 6-8 generally good for FCC or BCC structures)
-    :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and even.
-    :param kn: Number of nearest neighbors. Must be a positive number
-    :type box: :py:meth:`freud.trajectory.Box`
-    :type rmax: float
-    :type Qthreshold: float
-    :type Sthreshold: unsigned int
-    :type l: unsigned int
-    :type kn: unsigned int
-
-    .. todo:: move box to compute, this is old API
-    """
-    cdef order.SolLiqNear *thisptr
-
-    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.SolLiqNear(l_box, rmax, Qthreshold, Sthreshold, l, kn)
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, points):
-        """Compute the local rotationally invariant Ql order parameter.
-
-        :param points: points to calculate the order parameter
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        """
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>&l_points[0], nP)
-
-    def computeSolLiqVariant(self, points):
-        """Compute the local rotationally invariant Ql order parameter.
-
-        :param points: points to calculate the order parameter
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        """
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqVariant(<vec3[float]*>&l_points[0], nP)
-
-    def computeSolLiqNoNorm(self, points):
-        """Compute the local rotationally invariant Ql order parameter.
-
-        :param points: points to calculate the order parameter
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        """
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>&l_points[0], nP)
-
-    def getBox(self):
-        """
-        Get the box used in the calculation
-
-        :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
-        """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
-
-    def setClusteringRadius(self, rcutCluster):
-        """
-        Reset the clustering radius
-
-        :param rcutCluster: radius for the cluster finding
-        :type rcutCluster: float
-        """
-        self.thisptr.setClusteringRadius(rcutCluster)
-
-    def setBox(self, box):
-        """
-        Reset the simulation box
-
-        :param box: simulation box
-        :type box: :py:meth:`freud.trajectory.Box`
-        """
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.setBox(l_box)
-
-    def getLargestClusterSize(self):
-        """
-        Returns the largest cluster size. Must compute sol-liq first
-
-        :return: largest cluster size
-        :rtype: unsigned int
-        """
-        cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
-        return clusterSize
-
-    def getClusterSizes(self):
-        """
-        Returns the largest cluster size. Must compute sol-liq first
-
-        :return: largest cluster size
-        :rtype: np.uint32
-
-        .. todo:: unsure of the best way to pass back...as this doesn't do what I want
-        """
-        cdef vector[unsigned int] clusterSizes = self.thisptr.getClusterSizes()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>&clusterSizes)
-        return result
-
-    def getQlmi(self):
-        """
-        Get a reference to the last computed Qlmi for each particle.
-
-        :return: order parameter
-        :rtype: np.complex64
-        """
-        cdef float complex *Qlmi = self.thisptr.getQlmi().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Qlmi)
-        return result
-
-    def getClusters(self):
-        """
-        Get a reference to the last computed set of solid-like cluster indices for each particle
-
-        :return: clusters
-        :rtype: np.uint32
-        """
-        cdef unsigned int *clusters = self.thisptr.getClusters().get()
-        cdef np.npy_intp nbins[1]
-        # this is the correct number
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
-        return result
-
-    def getNumberOfConnections(self):
-        """
-        Get a reference to the number of connections per particle
-
-        :return: clusters
-        :rtype: np.uint32
-        """
-        cdef unsigned int *connections = self.thisptr.getNumberOfConnections().get()
-        cdef np.npy_intp nbins[1]
-        # this is the correct number
-        nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>connections)
-        return result
-
-    def getQldot_ij(self):
-        """
-        Get a reference to the qldot_ij values
-
-        :return: largest cluster size
-        :rtype: np.uint32
-
-        .. todo:: figure out the size of this cause apparently its size is just its size
-        """
-        cdef vector[float complex] Qldot = self.thisptr.getQldot_ij()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>&Qldot)
-        return result
-
-    def getNP(self):
-        """
-        Get the number of particles
-
-        :return: np
-        :rtype: unsigned int
-        """
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
-
 cdef class Pairing2D:
     """Compute pairs for the system of particles.
+
+    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param rmax: distance over which to calculate
     :param k: number of neighbors to search
@@ -2105,7 +2060,7 @@ cdef class Pairing2D:
         :param points: reference points to calculate the local density
         :param orientations: orientations to use in computation
         :param compOrientations: possible orientations to check for bonds
-        :type box: :py:meth:`freud.trajectory.Box`
+        :type box: :py:meth:`freud.box.Box`
         :type points: np.float32
         :type orientations: np.float32
         :type compOrientations: np.float32
@@ -2122,13 +2077,13 @@ cdef class Pairing2D:
             raise ValueError("values must be a 1 dimensional array")
         if compOrientations.ndim != 2:
             raise ValueError("values must be a 2 dimensional array")
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
-        cdef np.ndarray[float, ndim=1] l_compOrientations = np.ascontiguousarray(compOrientations.flatten())
-        cdef np.ndarray[float, ndim=1] l_orientations = np.ascontiguousarray(orientations.flatten())
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_compOrientations = compOrientations
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nO = <unsigned int> compOrientations.shape[1]
-        cdef _trajectory.Box l_box = _trajectory.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.compute(l_box, <vec3[float]*>&l_points[0], <float*>&l_orientations[0], <float*>&l_compOrientations[0], nP, nO)
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.thisptr.compute(l_box, <vec3[float]*>l_points.data, <float*>l_orientations.data, <float*>l_compOrientations.data, nP, nO)
 
     def getMatch(self):
         """
@@ -2157,6 +2112,6 @@ cdef class Pairing2D:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<trajectory.Box> self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())

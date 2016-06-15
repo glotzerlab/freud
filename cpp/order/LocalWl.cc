@@ -14,7 +14,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalWl::LocalWl(const trajectory::Box& box, float rmax, unsigned int l)
+LocalWl::LocalWl(const box::Box& box, float rmax, unsigned int l)
     :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_l(l)
     {
     if (m_rmax < 0.0f)
@@ -467,7 +467,7 @@ void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
 
 // void export_LocalWl()
 //     {
-//     class_<LocalWl>("LocalWl", init<trajectory::Box&, float, unsigned int>())
+//     class_<LocalWl>("LocalWl", init<box::Box&, float, unsigned int>())
 //         .def("getBox", &LocalWl::getBox, return_internal_reference<>())
 //         .def("compute", &LocalWl::computePy)
 //         .def("computeNorm", &LocalWl::computeNormPy)

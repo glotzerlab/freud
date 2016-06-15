@@ -21,7 +21,7 @@ namespace freud { namespace locality {
 
 // stop using
 NearestNeighbors::NearestNeighbors():
-    m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_n_ref(0), m_deficits()
+    m_box(box::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_n_ref(0), m_deficits()
     {
     m_lc = new locality::LinkCell();
     m_deficits = 0;
@@ -29,7 +29,7 @@ NearestNeighbors::NearestNeighbors():
 
 NearestNeighbors::NearestNeighbors(float rmax,
                                    unsigned int nNeigh):
-    m_box(trajectory::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_n_ref(0), m_deficits()
+    m_box(box::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_n_ref(0), m_deficits()
     {
     m_lc = new locality::LinkCell(m_box, m_rmax);
     m_deficits = 0;
@@ -49,7 +49,7 @@ bool compareRsqVectors(const pair<float, unsigned int> &left,
     }
 
 
-void NearestNeighbors::compute(const trajectory::Box& box,
+void NearestNeighbors::compute(const box::Box& box,
                                const vec3<float> *ref_pos,
                                unsigned int n_ref,
                                const vec3<float> *pos,
@@ -160,7 +160,7 @@ void NearestNeighbors::compute(const trajectory::Box& box,
     m_Np = Np;
     }
 
-// void NearestNeighbors::computePy(trajectory::Box& box,
+// void NearestNeighbors::computePy(box::Box& box,
 //                                  boost::python::numeric::array ref_pos,
 //                                  boost::python::numeric::array pos)
 //     {
