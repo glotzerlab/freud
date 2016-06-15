@@ -44,25 +44,25 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
         throw invalid_argument("PI must be greater than dp");
 
     // precompute the bin center positions for t
-    m_theta_array = boost::shared_array<float>(new float[m_nbins_t]);
+    m_theta_array = std::shared_ptr<float>(new float[m_nbins_t], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins_t; i++)
         {
         float t = float(i) * m_dt;
         float nextt = float(i+1) * m_dt;
-        m_theta_array[i] = ((t + nextt) / 2.0);
+        m_theta_array.get()[i] = ((t + nextt) / 2.0);
         }
 
     // precompute the bin center positions for p
-    m_phi_array = boost::shared_array<float>(new float[m_nbins_p]);
+    m_phi_array = std::shared_ptr<float>(new float[m_nbins_p], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins_p; i++)
         {
         float p = float(i) * m_dp;
         float nextp = float(i+1) * m_dp;
-        m_phi_array[i] = ((p + nextp) / 2.0);
+        m_phi_array.get()[i] = ((p + nextp) / 2.0);
         }
 
     // precompute the surface area array
-    m_sa_array = boost::shared_array<float>(new float[m_nbins_t*m_nbins_p]);
+    m_sa_array = std::shared_ptr<float>(new float[m_nbins_t*m_nbins_p], std::default_delete<float[]>());
     memset((void*)m_sa_array.get(), 0, sizeof(float)*m_nbins_t*m_nbins_p);
     Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
     for (unsigned int i = 0; i < m_nbins_t; i++)
@@ -72,16 +72,16 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
             {
             float phi = (float)j * m_dp;
             float sa = m_dt * (cos(phi) - cos(phi + m_dp));
-            m_sa_array[sa_i((int)i, (int)j)] = sa;
+            m_sa_array.get()[sa_i((int)i, (int)j)] = sa;
             }
         }
 
     // initialize the bin counts
-    m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins_t*m_nbins_p]);
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins_t*m_nbins_p], std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
 
     // initialize the bond order array
-    m_bo_array = boost::shared_array<float>(new float[m_nbins_t*m_nbins_p]);
+    m_bo_array = std::shared_ptr<float>(new float[m_nbins_t*m_nbins_p], std::default_delete<float[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(float)*m_nbins_t*m_nbins_p);
 
     // create NearestNeighbors object
@@ -153,9 +153,9 @@ void BondOrder::reduceBondOrder()
               for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                    local_bins != m_local_bin_counts.end(); ++local_bins)
                   {
-                  m_bin_counts[sa_i((int)i, (int)j)] += (*local_bins)[sa_i((int)i, (int)j)];
+                  m_bin_counts.get()[sa_i((int)i, (int)j)] += (*local_bins)[sa_i((int)i, (int)j)];
                   }
-              m_bo_array[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / m_sa_array[sa_i((int)i, (int)j)];
+              m_bo_array.get()[sa_i((int)i, (int)j)] = m_bin_counts.get()[sa_i((int)i, (int)j)] / m_sa_array.get()[sa_i((int)i, (int)j)];
               }
           }
       });
@@ -164,13 +164,13 @@ void BondOrder::reduceBondOrder()
         {
         for (unsigned int j=0; j<m_nbins_p; j++)
             {
-            m_bin_counts[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / (float)m_frame_counter;
-            m_bo_array[sa_i((int)i, (int)j)] = m_bo_array[sa_i((int)i, (int)j)] / (float)m_frame_counter;
+            m_bin_counts.get()[sa_i((int)i, (int)j)] = m_bin_counts.get()[sa_i((int)i, (int)j)] / (float)m_frame_counter;
+            m_bo_array.get()[sa_i((int)i, (int)j)] = m_bo_array.get()[sa_i((int)i, (int)j)] / (float)m_frame_counter;
             }
         }
     }
 
-boost::shared_array<float> BondOrder::getBondOrder()
+std::shared_ptr<float> BondOrder::getBondOrder()
     {
     reduceBondOrder();
     return m_bo_array;

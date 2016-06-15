@@ -21,9 +21,9 @@ cdef extern from "BondOrder.h" namespace "freud::order":
                         quat[float]*,
                         unsigned int) nogil
         void reduceBondOrder()
-        shared_array[float] getBondOrder()
-        shared_array[float] getTheta()
-        shared_array[float] getPhi()
+        shared_ptr[float] getBondOrder()
+        shared_ptr[float] getTheta()
+        shared_ptr[float] getPhi()
         unsigned int getNBinsTheta()
         unsigned int getNBinsPhi()
 

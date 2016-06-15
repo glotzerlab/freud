@@ -60,7 +60,7 @@ EntropicBonding::EntropicBonding(float xmax,
     }
 
 
-boost::shared_array<unsigned int> EntropicBonding::getBonds()
+std::shared_ptr<unsigned int> EntropicBonding::getBonds()
     {
     return m_bonds;
     }
@@ -89,7 +89,7 @@ void EntropicBonding::compute(trajectory::Box& box,
     m_nn->setRMax(m_rmax);
     if (nP != m_nP)
         {
-        m_bonds = boost::shared_array<unsigned int>(new unsigned int[nP * m_nBonds]);
+        m_bonds = std::shared_ptr<unsigned int>(new unsigned int[nP * m_nBonds], std::default_delete<unsigned int[]>());
         }
 
     // compute the order parameter
@@ -148,7 +148,7 @@ void EntropicBonding::compute(trajectory::Box& box,
                         {
                         // get the bond
                         unsigned int bond = m_bond_map[b_i(ibinx, ibiny)];
-                        m_bonds[bonding_i(i, bond)] = j;
+                        m_bonds.get()[bonding_i(i, bond)] = j;
                         }
                     }
                 }

@@ -7,7 +7,6 @@
 #define __APPLE__
 
 #include <memory>
-#include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"

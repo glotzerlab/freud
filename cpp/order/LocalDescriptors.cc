@@ -40,7 +40,7 @@ void LocalDescriptors::compute(const trajectory::Box& box, unsigned int nNeigh, 
     // reallocate the output array if it is not the right size
     if (Np != m_Np || nNeigh != m_nNeigh)
         {
-        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()]);
+        m_sphArray = std::shared_ptr<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()]);
         m_nNeigh = nNeigh;
         }
 
@@ -130,7 +130,7 @@ void LocalDescriptors::compute(const trajectory::Box& box, unsigned int nNeigh, 
 
                 sph_eval.compute(phi, theta);
 
-                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray[sphCount]);
+                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray.get()[sphCount]);
                 sphCount += getSphWidth();
                 }
             }

@@ -6,7 +6,7 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -55,7 +55,7 @@ class EntropicBonding
                      unsigned int nP);
 
         //! Get a reference to the last computed rdf
-        boost::shared_array<unsigned int> getBonds();
+        std::shared_ptr<unsigned int> getBonds();
 
         unsigned int getNP()
             {
@@ -87,7 +87,7 @@ class EntropicBonding
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_nP;                //!< Last number of points computed
 
-        boost::shared_array<unsigned int> m_bonds;         //!< bin counts computed
+        std::shared_ptr<unsigned int> m_bonds;         //!< bin counts computed
         // do I need this? I don't think so...
         // tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };

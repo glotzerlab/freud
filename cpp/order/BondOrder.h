@@ -6,7 +6,7 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -85,16 +85,16 @@ class BondOrder
         void reduceBondOrder();
 
         //! Get a reference to the last computed rdf
-        boost::shared_array<float> getBondOrder();
+        std::shared_ptr<float> getBondOrder();
 
         //! Get a reference to the r array
-        boost::shared_array<float> getTheta()
+        std::shared_ptr<float> getTheta()
             {
             return m_theta_array;
             }
 
         //! Get a reference to the N_r array
-        boost::shared_array<float> getPhi()
+        std::shared_ptr<float> getPhi()
             {
             return m_phi_array;
             }
@@ -139,11 +139,11 @@ class BondOrder
         unsigned int m_nbins_p;           //!< number of bins for phi
         unsigned int m_frame_counter;       //!< number of frames calc'd
 
-        boost::shared_array<unsigned int> m_bin_counts;         //!< bin counts computed
-        boost::shared_array<float> m_bo_array;         //!< bond order array computed
-        boost::shared_array<float> m_sa_array;         //!< bond order array computed
-        boost::shared_array<float> m_theta_array;         //!< theta array computed
-        boost::shared_array<float> m_phi_array;         //!< phi order array computed
+        std::shared_ptr<unsigned int> m_bin_counts;         //!< bin counts computed
+        std::shared_ptr<float> m_bo_array;         //!< bond order array computed
+        std::shared_ptr<float> m_sa_array;         //!< bond order array computed
+        std::shared_ptr<float> m_theta_array;         //!< theta array computed
+        std::shared_ptr<float> m_phi_array;         //!< phi order array computed
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 

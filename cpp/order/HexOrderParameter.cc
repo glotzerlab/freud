@@ -34,7 +34,7 @@ void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points,
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
         {
-        m_psi_array = boost::shared_array<complex<float> >(new complex<float> [Np]);
+        m_psi_array = std::shared_ptr<complex<float> >(new complex<float> [Np]);
         }
 
     // compute the order parameter
@@ -45,7 +45,7 @@ void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points,
 
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {
-            m_psi_array[i] = 0;
+            m_psi_array.get()[i] = 0;
             vec3<float> ref = points[i];
 
             //loop over neighbors
@@ -61,10 +61,10 @@ void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points,
                     {
                     //compute psi for neighboring particle(only constructed for 2d)
                     float psi_ij = atan2f(delta.y, delta.x);
-                    m_psi_array[i] += exp(complex<float>(0,m_k*psi_ij));
+                    m_psi_array.get()[i] += exp(complex<float>(0,m_k*psi_ij));
                     }
                 }
-            m_psi_array[i] /= complex<float>(m_k);
+            m_psi_array.get()[i] /= complex<float>(m_k);
             }
         });
     // save the last computed number of particles
