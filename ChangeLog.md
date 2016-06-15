@@ -1,5 +1,10 @@
 # Change Log
 
+## v0.6.0
+
+* trajectory module removed
+* boost dependence removed
+
 ## v0.5.0
 
 * Replace boost::shared_array with std::shared_ptr (C++ 11)
@@ -9,6 +14,7 @@
 * Fixed Bond Order Diagram and allow for global, local, or orientation correlation
 * Added python-level voronoi calculation
 * Fixed issues with compiling on OS X, including against conda python installs
+* Added code to compute bonds between particles in various coordinate systems
 
 ## v0.4.1
 * PMFT: Fixed issue involving binning of angles correctly
@@ -17,7 +23,7 @@
 * PMFT: Updated pmftXY2D api
 * PMFT: Histograms are properly normalized, allowing for comparison between systems without needing to "zero" the system
 * fsph: Added library to calculate spherical harmonics via cython
-* Local Descriptors: Uses fsph, updates to API  
+* Local Descriptors: Uses fsph, updates to API
 * Parallel: Added default behavior to setNumThreads and added context manager
 
 
