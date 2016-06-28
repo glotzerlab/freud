@@ -92,19 +92,19 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const v
                 {
                 std::swap(eigenvalues[0], eigenvalues[1]);
                 for(size_t ii(0); ii < 3; ++ii)
-                    std::swap(eigenvectors[0][ii], eigenvectors[1][ii]);
+                    std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
                 }
             if(eigenvalues[1] > eigenvalues[2])
                 {
                 std::swap(eigenvalues[1], eigenvalues[2]);
                 for(size_t ii(0); ii < 3; ++ii)
-                    std::swap(eigenvectors[1][ii], eigenvectors[2][ii]);
+                    std::swap(eigenvectors[ii][1], eigenvectors[ii][2]);
                 }
             if(eigenvalues[0] > eigenvalues[1])
                 {
                 std::swap(eigenvalues[0], eigenvalues[1]);
                 for(size_t ii(0); ii < 3; ++ii)
-                    std::swap(eigenvectors[0][ii], eigenvectors[1][ii]);
+                    std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
                 }
 
             const vec3<float> eigenvec0(eigenvectors[0][0], eigenvectors[1][0], eigenvectors[2][0]);
