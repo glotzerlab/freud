@@ -32,37 +32,37 @@ RDF::RDF(float rmax, float dr)
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
-    m_rdf_array = boost::shared_array<float>(new float[m_nbins]);
+    m_rdf_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
-    m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins], std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
-    m_avg_counts = boost::shared_array<float>(new float[m_nbins]);
+    m_avg_counts = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
-    m_N_r_array = boost::shared_array<float>(new float[m_nbins]);
+    m_N_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
 
     // precompute the bin center positions
-    m_r_array = boost::shared_array<float>(new float[m_nbins]);
+    m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins; i++)
         {
         float r = float(i) * m_dr;
         float nextr = float(i+1) * m_dr;
-        m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
+        m_r_array.get()[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
 
     // precompute cell volumes
-    m_vol_array = boost::shared_array<float>(new float[m_nbins]);
+    m_vol_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_vol_array.get(), 0, sizeof(float)*m_nbins);
-    m_vol_array2D = boost::shared_array<float>(new float[m_nbins]);
+    m_vol_array2D = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_vol_array2D.get(), 0, sizeof(float)*m_nbins);
-    m_vol_array3D = boost::shared_array<float>(new float[m_nbins]);
+    m_vol_array3D = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_vol_array3D.get(), 0, sizeof(float)*m_nbins);
     for (unsigned int i = 0; i < m_nbins; i++)
         {
         float r = float(i) * m_dr;
         float nextr = float(i+1) * m_dr;
-        m_vol_array2D[i] = M_PI * (nextr*nextr - r*r);
-        m_vol_array3D[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
+        m_vol_array2D.get()[i] = M_PI * (nextr*nextr - r*r);
+        m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
         }
 
     m_lc = new locality::LinkCell(m_box, m_rmax);
@@ -131,9 +131,9 @@ void RDF::reduceRDF()
     memset((void*)m_avg_counts.get(), 0, sizeof(float)*m_nbins);
     // now compute the rdf
     float ndens = float(m_Np) / m_box.getVolume();
-    m_rdf_array[0] = 0.0f;
-    m_N_r_array[0] = 0.0f;
-    m_N_r_array[1] = 0.0f;
+    m_rdf_array.get()[0] = 0.0f;
+    m_N_r_array.get()[0] = 0.0f;
+    m_N_r_array.get()[1] = 0.0f;
     if (m_box.is2D())
         m_vol_array = m_vol_array2D;
     else
@@ -147,10 +147,10 @@ void RDF::reduceRDF()
           for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                local_bins != m_local_bin_counts.end(); ++local_bins)
               {
-              m_bin_counts[i] += (*local_bins)[i];
+              m_bin_counts.get()[i] += (*local_bins)[i];
               }
-          m_avg_counts[i] = (float)m_bin_counts[i] / m_n_ref;
-          m_rdf_array[i] = m_avg_counts[i] / m_vol_array[i] / ndens;
+          m_avg_counts.get()[i] = (float)m_bin_counts.get()[i] / m_n_ref;
+          m_rdf_array.get()[i] = m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
           }
       });
 
@@ -158,26 +158,26 @@ void RDF::reduceRDF()
     parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
     for (unsigned int i=0; i<m_nbins; i++)
         {
-        m_rdf_array[i] /= m_frame_counter;
-        m_N_r_array[i] /= m_frame_counter;
+        m_rdf_array.get()[i] /= m_frame_counter;
+        m_N_r_array.get()[i] /= m_frame_counter;
         }
     }
 
 //! get a reference to the histogram bin centers array
-boost::shared_array<float> RDF::getR()
+std::shared_ptr<float> RDF::getR()
     {
     return m_r_array;
     }
 
 //! Get a reference to the RDF histogram array
-boost::shared_array<float> RDF::getRDF()
+std::shared_ptr<float> RDF::getRDF()
     {
     reduceRDF();
     return m_rdf_array;
     }
 
 //! Get a reference to the cumulative RDF histogram array
-boost::shared_array<float> RDF::getNr()
+std::shared_ptr<float> RDF::getNr()
     {
     reduceRDF();
     return m_N_r_array;

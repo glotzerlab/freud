@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <vector>
 
 #include "trajectory.h"
@@ -33,7 +33,7 @@ class VoronoiBuffer
                      const unsigned int Np,
                      const float buff);
 
-        boost::shared_ptr< std::vector<float3> > getBufferParticles()
+        std::shared_ptr< std::vector<float3> > getBufferParticles()
             {
             return m_buffer_particles;
             }
@@ -58,7 +58,7 @@ class VoronoiBuffer
     private:
         const trajectory::Box m_box;    //!< Simulation box the particles belong in
         float m_buff;                  //!< Distance from box to duplicate particles
-        boost::shared_ptr< std::vector<float3> > m_buffer_particles;
+        std::shared_ptr< std::vector<float3> > m_buffer_particles;
     };
 
 }; }; // end namespace freud::density

@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <complex>
 
 #include "HOOMDMath.h"
@@ -106,7 +106,7 @@ class LocalQlNear
 
 
         //! Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
-        boost::shared_array< float > getQl()
+        std::shared_ptr< float > getQl()
             {
             return m_Qli;
             }
@@ -119,7 +119,7 @@ class LocalQlNear
         //     }
 
         //! Get a reference to the last computed AveQl for each particle.  Returns NaN instead of AveQl for particles with no neighbors.
-        boost::shared_array< float > getAveQl()
+        std::shared_ptr< float > getAveQl()
             {
             return m_AveQli;
             }
@@ -132,7 +132,7 @@ class LocalQlNear
         //     }
 
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
-        boost::shared_array< float > getQlNorm()
+        std::shared_ptr< float > getQlNorm()
             {
             return m_QliNorm;
             }
@@ -145,7 +145,7 @@ class LocalQlNear
         //     }
 
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
-        boost::shared_array< float > getQlAveNorm()
+        std::shared_ptr< float > getQlAveNorm()
             {
             return m_QliAveNorm;
             }
@@ -173,14 +173,14 @@ class LocalQlNear
         locality::NearestNeighbors *m_nn;          //!< NearestNeighbors to bin particles for the computation
         unsigned int m_l;                 //!< Spherical harmonic l value.
         unsigned int m_Np;                //!< Last number of points computed
-        boost::shared_array< std::complex<float> > m_Qlmi;        //!  Qlm for each particle i
-        boost::shared_array< float > m_Qli;         //!< Ql locally invariant order parameter for each particle i;
-        boost::shared_array< std::complex<float> > m_AveQlmi;     //! AveQlm for each particle i
-        boost::shared_array< float > m_AveQli;     //!< AveQl locally invariant order parameter for each particle i;
-        boost::shared_array< std::complex<float> > m_Qlm;  //! NormQlm for the system
-        boost::shared_array< float > m_QliNorm;   //!< QlNorm order parameter for each particle i
-        boost::shared_array< std::complex<float> > m_AveQlm; //! AveNormQlm for the system
-        boost::shared_array< float > m_QliAveNorm;     //! < QlAveNorm order paramter for each particle i
+        std::shared_ptr< std::complex<float> > m_Qlmi;        //!  Qlm for each particle i
+        std::shared_ptr< float > m_Qli;         //!< Ql locally invariant order parameter for each particle i;
+        std::shared_ptr< std::complex<float> > m_AveQlmi;     //! AveQlm for each particle i
+        std::shared_ptr< float > m_AveQli;     //!< AveQl locally invariant order parameter for each particle i;
+        std::shared_ptr< std::complex<float> > m_Qlm;  //! NormQlm for the system
+        std::shared_ptr< float > m_QliNorm;   //!< QlNorm order parameter for each particle i
+        std::shared_ptr< std::complex<float> > m_AveQlm; //! AveNormQlm for the system
+        std::shared_ptr< float > m_QliAveNorm;     //! < QlAveNorm order paramter for each particle i
     };
 
 }; }; // end namespace freud::order

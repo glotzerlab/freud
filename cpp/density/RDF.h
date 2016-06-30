@@ -6,7 +6,7 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -53,13 +53,13 @@ class RDF
         void reduceRDF();
 
         //! Get a reference to the last computed rdf
-        boost::shared_array<float> getRDF();
+        std::shared_ptr<float> getRDF();
 
         //! Get a reference to the r array
-        boost::shared_array<float> getR();
+        std::shared_ptr<float> getR();
 
         //! Get a reference to the N_r array
-        boost::shared_array<float> getNr();
+        std::shared_ptr<float> getNr();
 
         unsigned int getNBins();
 
@@ -73,14 +73,14 @@ class RDF
         unsigned int m_Np;                  //!< number of check particles
         unsigned int m_frame_counter;       //!< number of frames calc'd
 
-        boost::shared_array<float> m_rdf_array;         //!< rdf array computed
-        boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
-        boost::shared_array<float> m_avg_counts; //!< bin counts that go into computing the rdf array
-        boost::shared_array<float> m_N_r_array;         //!< Cumulative bin sum N(r)
-        boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
-        boost::shared_array<float> m_vol_array;         //!< array of volumes for each slice of r
-        boost::shared_array<float> m_vol_array2D;         //!< array of volumes for each slice of r
-        boost::shared_array<float> m_vol_array3D;         //!< array of volumes for each slice of r
+        std::shared_ptr<float> m_rdf_array;         //!< rdf array computed
+        std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+        std::shared_ptr<float> m_avg_counts; //!< bin counts that go into computing the rdf array
+        std::shared_ptr<float> m_N_r_array;         //!< Cumulative bin sum N(r)
+        std::shared_ptr<float> m_r_array;           //!< array of r values that the rdf is computed at
+        std::shared_ptr<float> m_vol_array;         //!< array of volumes for each slice of r
+        std::shared_ptr<float> m_vol_array2D;         //!< array of volumes for each slice of r
+        std::shared_ptr<float> m_vol_array3D;         //!< array of volumes for each slice of r
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 

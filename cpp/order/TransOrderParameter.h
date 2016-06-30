@@ -7,7 +7,7 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -49,7 +49,7 @@ class TransOrderParameter
                      unsigned int Np);
 
         //! Get a reference to the last computed dr
-        boost::shared_array< std::complex<float> > getDr()
+        std::shared_ptr< std::complex<float> > getDr()
             {
             return m_dr_array;
             }
@@ -66,7 +66,7 @@ class TransOrderParameter
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_Np;                //!< Last number of points computed
 
-        boost::shared_array< std::complex<float> > m_dr_array;         //!< dr array computed
+        std::shared_ptr< std::complex<float> > m_dr_array;         //!< dr array computed
     };
 
 }; }; // end namespace freud::order

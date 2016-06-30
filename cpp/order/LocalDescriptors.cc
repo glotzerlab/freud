@@ -40,7 +40,7 @@ void LocalDescriptors::compute(const trajectory::Box& box, unsigned int nNeigh, 
     // reallocate the output array if it is not the right size
     if (Np != m_Np || nNeigh != m_nNeigh)
         {
-        m_sphArray = std::shared_ptr<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()]);
+        m_sphArray = std::shared_ptr<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()], std::default_delete<complex<float>[]>());
         m_nNeigh = nNeigh;
         }
 

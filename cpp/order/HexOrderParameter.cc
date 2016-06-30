@@ -34,7 +34,7 @@ void HexOrderParameter::compute(trajectory::Box& box, const vec3<float> *points,
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
         {
-        m_psi_array = std::shared_ptr<complex<float> >(new complex<float> [Np]);
+        m_psi_array = std::shared_ptr<complex<float> >(new complex<float> [Np], std::default_delete<complex<float>[]>());
         }
 
     // compute the order parameter

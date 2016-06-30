@@ -88,10 +88,10 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_Qlmi = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
-    m_Qli = boost::shared_array<float>(new float[m_Np]);
-    m_Wli = boost::shared_array<complex<float> >(new complex<float>[m_Np]);
-    m_Qlm = boost::shared_array<complex<float> >(new complex<float>[2*m_l+1]);
+    m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
+    m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+    m_Wli = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
+    m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1], std::default_delete<complex<float>[]>());
     memset((void*)m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
     memset((void*)m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
@@ -139,7 +139,7 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
                         // change to Index later
-                        m_Qlmi[(2*m_l+1)*i+k]+=Y[k];
+                        m_Qlmi.get()[(2*m_l+1)*i+k]+=Y[k];
                         }
                     neighborcount++;
                     }
@@ -148,11 +148,11 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
             //Normalize!
             for(unsigned int k = 0; k < (2*m_l+1); ++k)
                 {
-                m_Qlmi[(2*m_l+1)*i+k]/= neighborcount;
-                m_Qli[i]+=abs( m_Qlmi[(2*m_l+1)*i+k]*conj(m_Qlmi[(2*m_l+1)*i+k]) );
-                m_Qlm[k]+= m_Qlmi[(2*m_l+1)*i+k];
+                m_Qlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
+                m_Qli.get()[i]+=abs( m_Qlmi.get()[(2*m_l+1)*i+k]*conj(m_Qlmi.get()[(2*m_l+1)*i+k]) );
+                m_Qlm.get()[k]+= m_Qlmi.get()[(2*m_l+1)*i+k];
                 } //Ends loop over particles i for Qlmi calcs
-        m_Qli[i]=sqrt(m_Qli[i]);//*sqrt(m_Qli[i])*sqrt(m_Qli[i]);//Normalize factor for Wli
+        m_Qli.get()[i]=sqrt(m_Qli.get()[i]);//*sqrt(m_Qli[i])*sqrt(m_Qli[i]);//Normalize factor for Wli
 
         //Wli calculation
         unsigned int counter = 0;
@@ -161,13 +161,13 @@ void LocalWl::compute(const vec3<float> *points, unsigned int Np)
             for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
                 {
                 unsigned int u3 = 3*m_l-u1-u2;
-                m_Wli[i] += m_wigner3jvalues[counter]*m_Qlmi[(2*m_l+1)*i+u1]*m_Qlmi[(2*m_l+1)*i+u2]*m_Qlmi[(2*m_l+1)*i+u3];
+                m_Wli.get()[i] += m_wigner3jvalues[counter]*m_Qlmi.get()[(2*m_l+1)*i+u1]*m_Qlmi.get()[(2*m_l+1)*i+u2]*m_Qlmi.get()[(2*m_l+1)*i+u3];
                 counter+=1;
                 }
             }//Ends loop for Wli calcs
         if(m_normalizeWl)
             {
-            m_Wli[i]/=(m_Qli[i]*m_Qli[i]*m_Qli[i]);//Normalize
+            m_Wli.get()[i]/=(m_Qli.get()[i]*m_Qli.get()[i]*m_Qli.get()[i]);//Normalize
             }
         m_counter = counter;
         }
@@ -194,9 +194,9 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_AveQlmi = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
-    m_AveQlm = boost::shared_array<complex<float> > (new complex<float> [(2*m_l+1)]);
-    m_AveWli = boost::shared_array<complex<float> >(new complex<float> [m_Np]);
+    m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
+    m_AveQlm = std::shared_ptr<complex<float> > (new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
+    m_AveWli = std::shared_ptr<complex<float> >(new complex<float> [m_Np], std::default_delete<complex<float>[]>());
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
     memset((void*)m_AveWli.get(), 0, sizeof(float)*m_Np);
@@ -268,7 +268,7 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
                                 {
                                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                                     {
-                                    m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*j+k];
+                                    m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*j+k];
                                     }
                                 neighborcount++;
                                 }
@@ -280,9 +280,9 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
          //Normalize!
         for (unsigned int k = 0; k < (2*m_l+1); ++k)
             {
-                m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*i+k];
-                m_AveQlmi[(2*m_l+1)*i+k]/= neighborcount;
-                m_AveQlm[k] += m_AveQlmi[(2*m_l+1)*i+k];
+                m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*i+k];
+                m_AveQlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
+                m_AveQlm.get()[k] += m_AveQlmi.get()[(2*m_l+1)*i+k];
             }
         //Ave Wli calculation
         unsigned int counter = 0;
@@ -291,7 +291,7 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
             for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
                 {
                 unsigned int u3 = 3*m_l-u1-u2;
-                m_AveWli[i]+= m_wigner3jvalues[counter]*m_AveQlmi[(2*m_l+1)*i+u1]*m_AveQlmi[(2*m_l+1)*i+u2]*m_AveQlmi[(2*m_l+1)*i+u3];
+                m_AveWli.get()[i]+= m_wigner3jvalues[counter]*m_AveQlmi.get()[(2*m_l+1)*i+u1]*m_AveQlmi.get()[(2*m_l+1)*i+u2]*m_AveQlmi.get()[(2*m_l+1)*i+u3];
                 counter+=1;
                 }
             }//Ends loop for Norm Wli calcs
@@ -312,13 +312,13 @@ void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
     //Set local data size
     m_Np = Np;
 
-    m_WliNorm = boost::shared_array<complex<float> >(new complex<float>[m_Np]);
+    m_WliNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
     memset((void*)m_WliNorm.get(), 0, sizeof(complex<float>)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
         {
-        m_Qlm[k]/= m_Np;
+        m_Qlm.get()[k]/= m_Np;
         }
 
     for(unsigned int i = 0; i < m_Np; ++i)
@@ -330,7 +330,7 @@ void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
             for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
                 {
                 unsigned int u3 = 3*m_l-u1-u2;
-                m_WliNorm[i]+= m_wigner3jvalues[counter]*m_Qlm[u1]*m_Qlm[u2]*m_Qlm[u3];
+                m_WliNorm.get()[i]+= m_wigner3jvalues[counter]*m_Qlm.get()[u1]*m_Qlm.get()[u2]*m_Qlm.get()[u3];
                 counter+=1;
                 }
             }//Ends loop for Norm Wli calcs
@@ -349,13 +349,13 @@ void LocalWl::computeAveNorm(const vec3<float> *points, unsigned int Np)
     //Set local data size
     m_Np = Np;
 
-    m_WliAveNorm = boost::shared_array<complex<float> >(new complex<float>[m_Np]);
+    m_WliAveNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
     memset((void*)m_WliAveNorm.get(), 0, sizeof(complex<float>)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
         {
-        m_AveQlm[k]/= m_Np;
+        m_AveQlm.get()[k]/= m_Np;
         }
 
     for(unsigned int i = 0; i < m_Np; ++i)
@@ -367,7 +367,7 @@ void LocalWl::computeAveNorm(const vec3<float> *points, unsigned int Np)
             for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
                 {
                 unsigned int u3 = 3*m_l-u1-u2;
-                m_WliAveNorm[i]+= m_wigner3jvalues[counter]*m_AveQlm[u1]*m_AveQlm[u2]*m_AveQlm[u3];
+                m_WliAveNorm.get()[i]+= m_wigner3jvalues[counter]*m_AveQlm.get()[u1]*m_AveQlm.get()[u2]*m_AveQlm.get()[u3];
                 counter+=1;
                 }
             }//Ends loop for Norm Wli calcs

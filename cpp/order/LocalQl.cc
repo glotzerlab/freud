@@ -83,9 +83,9 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
+    m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
-    m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1]);
+    m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1], std::default_delete<complex<float>[]>());
     memset((void*)m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_Qli.get(), 0, sizeof(float)*m_Np);
     memset((void*)m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
@@ -176,9 +176,9 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
+    m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_AveQli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
-    m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)]);
+    m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
     memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));

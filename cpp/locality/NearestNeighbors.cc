@@ -59,8 +59,8 @@ void NearestNeighbors::compute(const trajectory::Box& box,
     // reallocate the output array if it is not the right size
     if (n_ref != m_n_ref)
         {
-        m_rsq_array = boost::shared_array<float>(new float[n_ref * m_nNeigh]);
-        m_neighbor_array = boost::shared_array<unsigned int>(new unsigned int[n_ref * m_nNeigh]);
+        m_rsq_array = std::shared_ptr<float>(new float[n_ref * m_nNeigh], std::default_delete<float[]>());
+        m_neighbor_array = std::shared_ptr<unsigned int>(new unsigned int[n_ref * m_nNeigh], std::default_delete<unsigned int[]>());
         }
     // find the nearest neighbors
     do

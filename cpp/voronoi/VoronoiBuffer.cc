@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 using namespace std;
 
@@ -19,7 +19,7 @@ void VoronoiBuffer::compute(const float3 *points,
     {
     assert(points);
 
-    m_buffer_particles = boost::shared_ptr<std::vector<float3> >(new std::vector<float3>());
+    m_buffer_particles = std::shared_ptr<std::vector<float3> >(new std::vector<float3>());
     std::vector<float3>& buffer_parts = *m_buffer_particles;
     //get the box dimensions
     float lx = m_box.getLx();

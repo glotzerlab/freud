@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <vector>
 
 #include "trajectory.h"
@@ -46,7 +46,7 @@ class IteratorLinkCell
         IteratorLinkCell():
             m_cell_list(NULL), m_Np(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
 
-        IteratorLinkCell(const boost::shared_array<unsigned int>& cell_list,
+        IteratorLinkCell(const std::shared_ptr<unsigned int>& cell_list,
                          unsigned int Np,
                          unsigned int Nc,
                          unsigned int cell)
@@ -290,7 +290,7 @@ class LinkCell
         float m_cell_width;         //!< Minimum necessary cell width cutoff
         vec3<unsigned int> m_celldim; //!< Cell dimensions
 
-        boost::shared_array<unsigned int> m_cell_list;    //!< The cell list last computed
+        std::shared_ptr<unsigned int> m_cell_list;    //!< The cell list last computed
 
         std::vector< std::vector<unsigned int> > m_cell_neighbors;    //!< List of cell neighborts to each cell
 
