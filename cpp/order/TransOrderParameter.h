@@ -13,7 +13,7 @@
 #include "VectorMath.h"
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _TRANS_ORDER_PARAMTER_H__
@@ -38,13 +38,13 @@ class TransOrderParameter
         ~TransOrderParameter();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Compute the translational order parameter
-        void compute(trajectory::Box& box,
+        void compute(box::Box& box,
                      const vec3<float> *points,
                      unsigned int Np);
 
@@ -60,7 +60,7 @@ class TransOrderParameter
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;                        //!< Multiplier in the exponent
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation

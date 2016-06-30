@@ -14,7 +14,7 @@
 #include "saruprng.h"
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _CUBATIC_ORDER_PARAMETER_H__

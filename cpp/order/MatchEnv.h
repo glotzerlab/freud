@@ -13,7 +13,7 @@
 #include "Cluster.h"
 #include "NearestNeighbors.h"
 
-#include "trajectory.h"
+#include "box.h"
 #include <stdexcept>
 #include <complex>
 #include <map>
@@ -87,7 +87,7 @@ class MatchEnv
         @param rmax Cutoff radius for cell list and clustering algorithm.  Values near first minimum of the rdf are recommended.
         @param k Number of nearest neighbors taken to construct the environment of any given particle.
         **/
-        MatchEnv(const trajectory::Box& box, float rmax, unsigned int k=12);
+        MatchEnv(const box::Box& box, float rmax, unsigned int k=12);
 
         //! Destructor
         ~MatchEnv();
@@ -130,7 +130,7 @@ class MatchEnv
             }
 
         //! Reset the simulation box
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox;
             delete m_nn;
@@ -166,7 +166,7 @@ class MatchEnv
             }
 
     private:
-        trajectory::Box m_box;              //!< Simulation box
+        box::Box m_box;              //!< Simulation box
         float m_rmax;                       //!< Maximum cutoff radius at which to determine local environment
         float m_rmaxsq;                     //!< square of m_rmax
         float m_k;                          //!< Number of nearest neighbors used to determine local environment

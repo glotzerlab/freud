@@ -15,7 +15,7 @@ namespace freud { namespace density {
 
 
 GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
-    : m_box(trajectory::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma)
+    : m_box(box::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma)
     {
     if (width <= 0)
             throw invalid_argument("width must be a positive integer");
@@ -25,7 +25,7 @@ GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
 
 GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y,
                                  unsigned int width_z, float r_cut, float sigma)
-    : m_box(trajectory::Box()), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_rcut(r_cut), m_sigma(sigma)
+    : m_box(box::Box()), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_rcut(r_cut), m_sigma(sigma)
     {
     if (width_x <= 0 || width_y <=0 || width_z <=0)
             throw invalid_argument("width must be a positive integer");
@@ -105,7 +105,7 @@ void GaussianDensity::resetDensity()
 //! internal
 /*! \brief Function to compute the density array
 */
-void GaussianDensity::compute(const trajectory::Box &box, const vec3<float> *points, unsigned int Np)
+void GaussianDensity::compute(const box::Box &box, const vec3<float> *points, unsigned int Np)
     {
     resetDensity();
     m_box = box;

@@ -184,6 +184,8 @@ Semicolons should not be used to mark the end of lines in Python
 
 ### Indentation ###
 
+* Spaces, not tabs, must be used for indentation
+* *4 spaces* are required per level of indentation
 * *4 spaces* are *required*, not optional, for continuation lines
 * There should be no whitespace at the end of lines in the file.
 * C++ code should follow [Whitesmith's style](http://en.wikipedia.org/wiki/Indent_style#Whitesmiths_style). An extended set of examples follows:

@@ -12,7 +12,7 @@
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _PMFTXYZ_H__
@@ -45,7 +45,7 @@ class PMFTXYZ
         ~PMFTXYZ();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -56,7 +56,7 @@ class PMFTXYZ
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void accumulate(trajectory::Box& box,
+        void accumulate(box::Box& box,
                         vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int n_ref,
@@ -115,7 +115,7 @@ class PMFTXYZ
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_max_x;                     //!< Maximum x at which to compute pcf
         float m_max_y;                     //!< Maximum y at which to compute pcf
         float m_max_z;                     //!< Maximum z at which to compute pcf

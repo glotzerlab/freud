@@ -24,7 +24,7 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsigned int nbins_t2)
-    : m_box(trajectory::Box()), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
+    : m_box(box::Box()), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
       m_nbins_r(nbins_r), m_nbins_t1(nbins_t1), m_nbins_t2(nbins_t2), m_frame_counter(0),
       m_n_ref(0), m_n_p(0), m_reduce(true)
     {
@@ -181,7 +181,7 @@ void PMFTR12::resetPCF()
     m_reduce = true;
     }
 
-void PMFTR12::accumulate(trajectory::Box& box,
+void PMFTR12::accumulate(box::Box& box,
                          vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int n_ref,
@@ -192,7 +192,7 @@ void PMFTR12::accumulate(trajectory::Box& box,
     m_box = box;
     m_lc->computeCellList(m_box, points, n_p);
     parallel_for(blocked_range<size_t>(0, n_ref),
-        [=] (const blocked_range<size_t>& r)
+        [=] (const blocked_range<size_t>& br)
             {
             assert(ref_points);
             assert(points);
@@ -215,7 +215,7 @@ void PMFTR12::accumulate(trajectory::Box& box,
                 }
 
             // for each reference point
-            for (size_t i = r.begin(); i != r.end(); i++)
+            for (size_t i = br.begin(); i != br.end(); i++)
                 {
                 // get the cell the point is in
                 vec3<float> ref = ref_points[i];

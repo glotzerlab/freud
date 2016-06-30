@@ -23,7 +23,7 @@ using namespace tbb;
 namespace freud { namespace order {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_Np(0), m_n_ref(0),
+    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_n_p(0), m_n_ref(0),
       m_frame_counter(0)
     {
     // sanity checks, but this is actually kinda dumb if these values are 1
@@ -77,7 +77,8 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
         }
 
     // initialize the bin counts
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins_t*m_nbins_p], std::default_delete<unsigned int[]>());
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins_t*m_nbins_p],
+            std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
 
     // initialize the bond order array
@@ -93,51 +94,13 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
 
 BondOrder::~BondOrder()
     {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin();
+            i != m_local_bin_counts.end(); ++i)
         {
         delete[] (*i);
         }
     delete m_nn;
     }
-
-class CombineBondOrder
-    {
-    private:
-        unsigned int m_nbins_t;
-        unsigned int m_nbins_p;
-        unsigned int *m_bin_counts;
-        float *m_bo_array;
-        float *m_sa_array;
-        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
-    public:
-        CombineBondOrder(unsigned int nbins_t,
-                         unsigned int nbins_p,
-                         unsigned int *bin_counts,
-                         float *bo_array,
-                         float *sa_array,
-                         tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts)
-            : m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_bin_counts(bin_counts), m_bo_array(bo_array), m_sa_array(sa_array),
-              m_local_bin_counts(local_bin_counts)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myBin ) const
-            {
-            Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
-            for (size_t i = myBin.begin(); i != myBin.end(); i++)
-                {
-                for (size_t j = 0; j < m_nbins_p; j++)
-                    {
-                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
-                         local_bins != m_local_bin_counts.end(); ++local_bins)
-                        {
-                        m_bin_counts[sa_i((int)i, (int)j)] += (*local_bins)[sa_i((int)i, (int)j)];
-                        }
-                    m_bo_array[sa_i((int)i, (int)j)] = m_bin_counts[sa_i((int)i, (int)j)] / m_sa_array[sa_i((int)i, (int)j)];
-                    }
-                }
-            }
-    };
-
 
 void BondOrder::reduceBondOrder()
     {
@@ -176,16 +139,6 @@ std::shared_ptr<float> BondOrder::getBondOrder()
     return m_bo_array;
     }
 
-// boost::python::numeric::array BondOrder::getBondOrderPy()
-//     {
-//     reduceBondOrder();
-//     float *arr = m_bo_array.get();
-//     std::vector<intp> dims(2);
-//     dims[0] = m_nbins_p;
-//     dims[1] = m_nbins_t;
-//     return num_util::makeNum(arr, dims);
-//     }
-
 void BondOrder::resetBondOrder()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
@@ -196,22 +149,26 @@ void BondOrder::resetBondOrder()
     m_frame_counter = 0;
     }
 
-void BondOrder::accumulate(trajectory::Box& box,
+void BondOrder::accumulate(box::Box& box,
                            vec3<float> *ref_points,
                            quat<float> *ref_orientations,
                            unsigned int n_ref,
                            vec3<float> *points,
                            quat<float> *orientations,
-                           unsigned int Np)
+                           unsigned int n_p,
+                           unsigned int mode)
     {
+    // transform the mode from an integer to an enumerated type (enumerated in BondOrder.h)
+    BondOrderMode b_mode = static_cast<BondOrderMode>(mode);
+
     m_box = box;
     // compute the cell list
-    m_nn->compute(m_box,ref_points,n_ref,points,Np);
+    m_nn->compute(m_box,ref_points,n_ref,points,n_p);
     m_nn->setRMax(m_rmax);
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,n_ref),
-        [=] (const blocked_range<size_t>& r)
+        [=] (const blocked_range<size_t>& br)
             {
             float dt_inv = 1.0f / m_dt;
             float dp_inv = 1.0f / m_dp;
@@ -221,40 +178,67 @@ void BondOrder::accumulate(trajectory::Box& box,
             bool exists;
             m_local_bin_counts.local(exists);
             if (! exists)
-            {
+                {
                 m_local_bin_counts.local() = new unsigned int [m_nbins_t*m_nbins_p];
                 memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
-            }
+                }
 
-            for(size_t i=r.begin(); i!=r.end(); ++i)
-            {
+            for(size_t i=br.begin(); i!=br.end(); ++i)
+                {
                 vec3<float> ref_pos = ref_points[i];
                 quat<float> ref_q(ref_orientations[i]);
 
                 //loop over neighbors
                 locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
                 for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
-                {
-
+                    {
                     //compute r between the two particles
                     vec3<float> delta = m_box.wrap(points[j] - ref_pos);
 
                     float rsq = dot(delta, delta);
                     if (rsq > 1e-6)
-                    {
-                        //compute psi for neighboring particle(only constructed for 2d)
-                        // get orientation
-                        // I don't think this is needed
-                        // quat<float> orient(m_orientations[j]);
+                        {
+                        quat<float> q(orientations[j]);
                         vec3<float> v(delta);
-                        v = rotate(conj(ref_q), v);
-                        // get theta, phi
-                        float theta = atan2f(v.y, v.x);
-                        theta = (theta < 0) ? theta+2*M_PI : theta;
-                        theta = (theta > 2*M_PI) ? theta-2*M_PI : theta;
-                        float phi = atan2f(sqrt(v.x*v.x + v.y*v.y), v.z);
-                        phi = (phi < 0) ? phi+2*M_PI : phi;
-                        phi = (phi > 2*M_PI) ? phi-2*M_PI : phi;
+                        if (b_mode == obcd)
+                            {
+                            // give bond directions of neighboring particles rotated by the matrix that takes the
+                            // orientation of particle j to the orientation of particle i.
+                            v = rotate(conj(ref_q), v);
+                            v = rotate(q, v);
+                            }
+                        else if (b_mode == lbod)
+                            {
+                            // give bond directions of neighboring particles rotated into the local orientation of the
+                            // central particle.
+                            v = rotate(conj(ref_q), v);
+                            }
+                        else if (b_mode == oocd)
+                            {
+                            // give the directors of neighboring particles rotated into the local orientation of the
+                            // central particle.
+                            // pick a (random vector)
+                            vec3<float> z(0,0,1);
+                            // rotate that vector by the orientation of the neighboring particle
+                            z = rotate(q, z);
+                            // get the direction of this vector with respect to the orientation of the central particle
+                            v = rotate(conj(ref_q), z);
+                            }
+
+                        // NOTE that angles are defined in the "mathematical" way, rather than how most physics
+                        // textbooks do it.
+                        // get theta (azimuthal angle), phi (polar angle)
+                        float theta = atan2f(v.y, v.x); //-Pi..Pi
+
+                        theta = fmod(theta, 2*M_PI);
+                        if (theta < 0)
+                            {
+                            theta += 2*M_PI;
+                            }
+
+                        // NOTE that the below has replaced the commented out expression for phi.
+                        float phi = acos(v.z / sqrt(v.x*v.x + v.y*v.y + v.z*v.z)); //0..Pi
+
                         // bin the point
                         float bint = floorf(theta * dt_inv);
                         float binp = floorf(phi * dp_inv);
@@ -280,83 +264,8 @@ void BondOrder::accumulate(trajectory::Box& box,
 
     // save the last computed number of particles
     m_n_ref = n_ref;
-    m_Np = Np;
+    m_n_p = n_p;
     m_frame_counter++;
     }
-
-// void BondOrder::accumulatePy(trajectory::Box& box,
-//                              boost::python::numeric::array ref_points,
-//                              boost::python::numeric::array ref_orientations,
-//                              boost::python::numeric::array points,
-//                              boost::python::numeric::array orientations)
-//     {
-//     //validate input type and rank
-//     m_box = box;
-//     num_util::check_type(ref_points, NPY_FLOAT);
-//     num_util::check_rank(ref_points, 2);
-//     num_util::check_type(ref_orientations, NPY_FLOAT);
-//     num_util::check_rank(ref_orientations, 2);
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-//     num_util::check_type(orientations, NPY_FLOAT);
-//     num_util::check_rank(orientations, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     num_util::check_dim(ref_points, 1, 3);
-//     unsigned int n_ref = num_util::shape(ref_points)[0];
-
-//     // check the size of angles to be correct
-//     num_util::check_dim(ref_orientations, 0, n_ref);
-//     num_util::check_dim(ref_orientations, 1, 4);
-//     num_util::check_dim(orientations, 0, Np);
-//     num_util::check_dim(orientations, 1, 4);
-
-//     // get the raw data pointers and compute order parameter
-//     vec3<float>* ref_points_raw = (vec3<float>*) num_util::data(ref_points);
-//     quat<float>* ref_orientations_raw = (quat<float>*) num_util::data(ref_orientations);
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-//     quat<float>* orientations_raw = (quat<float>*) num_util::data(orientations);
-
-//         // compute the order parameter with the GIL released
-//         {
-//         util::ScopedGILRelease gil;
-//         accumulate(ref_points_raw,
-//                    ref_orientations_raw,
-//                    n_ref,
-//                    points_raw,
-//                    orientations_raw,
-//                    Np);
-//         }
-//     }
-
-// //! \internal
-// /*! \brief Exposed function to python to calculate the PMF
-// */
-// void BondOrder::computePy(trajectory::Box& box,
-//                           boost::python::numeric::array ref_points,
-//                           boost::python::numeric::array ref_orientations,
-//                           boost::python::numeric::array points,
-//                           boost::python::numeric::array orientations)
-//     {
-//     // validate input type and rank
-//     resetBondOrder();
-//     accumulatePy(box, ref_points, ref_orientations, points, orientations);
-//     }
-
-// void export_BondOrder()
-//     {
-//     class_<BondOrder>("BondOrder", init<float, float, unsigned int, unsigned int, unsigned int>())
-//         .def("getBox", &BondOrder::getBox, return_internal_reference<>())
-//         .def("accumulate", &BondOrder::accumulatePy)
-//         .def("compute", &BondOrder::computePy)
-//         .def("getBondOrder", &BondOrder::getBondOrderPy)
-//         .def("getTheta", &BondOrder::getThetaPy)
-//         .def("getPhi", &BondOrder::getPhiPy)
-//         .def("resetBondOrder", &BondOrder::resetBondOrderPy)
-//         ;
-//     }
 
 }; }; // end namespace freud::order

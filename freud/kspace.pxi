@@ -9,7 +9,11 @@ from cython.operator cimport dereference
 
 cdef class FTdelta:
     """Compute the Fourier transform of a set of delta peaks at a list of
-    K points."""
+    K points.
+
+    .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
+
+    """
     cdef kspace.FTdelta *thisptr
     # stored size of the fourier transform
     cdef unsigned int NK
@@ -76,6 +80,9 @@ cdef class FTdelta:
         self.thisptr.set_density(density)
 
 cdef class FTsphere:
+    """
+    .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
+    """
     cdef kspace.FTsphere *thisptr
     # stored size of the fourier transform
     cdef unsigned int NK
@@ -144,6 +151,9 @@ cdef class FTsphere:
         self.thisptr.set_radius(radius)
 
 cdef class FTpolyhedron:
+    """
+    .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
+    """
     cdef kspace.FTpolyhedron *thisptr
     # stored size of the fourier transform
     cdef unsigned int NK

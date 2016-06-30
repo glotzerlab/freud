@@ -12,7 +12,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalQlNear::LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn)
+LocalQlNear::LocalQlNear(const box::Box& box, float rmax, unsigned int l, unsigned int kn)
     :m_box(box), m_rmax(rmax), m_l(l), m_k(kn)
     {
     if (m_rmax < 0.0f)
@@ -348,7 +348,7 @@ void LocalQlNear::computeAveNorm(const vec3<float> *points, unsigned int Np)
 
 // void export_LocalQlNear()
 //     {
-//     class_<LocalQlNear>("LocalQlNear", init<trajectory::Box&, float, unsigned int, optional<unsigned int> >())
+//     class_<LocalQlNear>("LocalQlNear", init<box::Box&, float, unsigned int, optional<unsigned int> >())
 //         .def("getBox", &LocalQlNear::getBox, return_internal_reference<>())
 //         .def("setBox", &LocalQlNear::setBox)
 //         .def("compute", &LocalQlNear::computePy)

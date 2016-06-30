@@ -3,7 +3,13 @@ freud {#mainpage}
 
 # Requirements {#requirements_section}
 
-Numpy is **required** to build freud.
+Numpy is **required** to build freud
+
+Cython >= 0.23 is **required** to compile your own _freud.cpp file. Cython **is not required** to install freud
+
+Boost is **required** to run freud
+
+Intel Thread Building Blocks is **require** to run freud
 
 # Documentation {#documentation_section}
 

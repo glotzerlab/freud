@@ -3,7 +3,7 @@
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
-#include "trajectory.h"
+#include "box.h"
 #include "LinkCell.h"
 
 #ifndef _INTERFACEMEASURE_H_
@@ -27,10 +27,10 @@ class InterfaceMeasure
 {
     public:
         //! Constructor
-        InterfaceMeasure(const trajectory::Box& box, float r_cut);
+        InterfaceMeasure(const box::Box& box, float r_cut);
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
         {
             return m_box;
         }
@@ -50,7 +50,7 @@ class InterfaceMeasure
         // unsigned int computePy(boost::python::numeric::array ref_points,
         //                      boost::python::numeric::array points);
     private:
-        trajectory::Box m_box;          //!< Simulation box the particles belong in
+        box::Box m_box;          //!< Simulation box the particles belong in
         float m_rcut;                   //!< Maximum distance at which a particle is considered to be in an interface
         locality::LinkCell m_lc;        //!< LinkCell to bin particles for the computation
 };
