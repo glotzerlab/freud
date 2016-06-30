@@ -94,6 +94,11 @@ class PMFTXY2D
             return m_y_array;
             }
 
+        float getJacobian()
+            {
+            return m_jacobian;
+            }
+
         float getRCut()
             {
             return m_r_cut;

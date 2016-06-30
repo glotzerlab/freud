@@ -94,6 +94,11 @@ class PMFTXYZ
             return m_z_array;
             }
 
+        float getJacobian()
+            {
+            return m_jacobian;
+            }
+
         float getRCut()
             {
             return m_r_cut;

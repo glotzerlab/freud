@@ -204,6 +204,21 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>T2)
         return result
 
+    def getInverseJacobian(self):
+        """
+        Get the inverse jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: np.ndarray(shape=(R, T2, T1), dtype=np.float32)
+        """
+        cdef float* inv_jac = self.thisptr.getInverseJacobian().get()
+        cdef np.npy_intp nbins[3]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBinsT2()
+        nbins[2] = <np.npy_intp>self.thisptr.getNBinsT1()
+        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>inv_jac)
+        return result
+
     def getNBinsR(self):
         """
         Get the number of bins in the r-dimension of histogram
@@ -439,6 +454,16 @@ cdef class PMFTXYT:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsT()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>t)
         return result
+
+    def getJacobian(self):
+        """
+        Get the jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: float
+        """
+        cdef float j = self.thisptr.getJacobian()
+        return j
 
     def getNBinsX(self):
         """
@@ -676,6 +701,16 @@ cdef class PMFTXY2D:
         """
         cdef unsigned int y = self.thisptr.getNBinsY()
         return y
+
+    def getJacobian(self):
+        """
+        Get the jacobian
+
+        :return: jacobian
+        :rtype: float
+        """
+        cdef float j = self.thisptr.getJacobian()
+        return j
 
     def getRCut(self):
         """
@@ -935,3 +970,13 @@ cdef class PMFTXYZ:
         """
         cdef unsigned int z = self.thisptr.getNBinsZ()
         return z
+
+    def getJacobian(self):
+        """
+        Get the jacobian
+
+        :return: jacobian
+        :rtype: float
+        """
+        cdef float j = self.thisptr.getJacobian()
+        return j

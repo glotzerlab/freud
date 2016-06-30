@@ -80,6 +80,11 @@ class PMFTXYT
             return m_t_array;
             }
 
+        float getJacobian()
+            {
+            return m_jacobian;
+            }
+
         unsigned int getNBinsX()
             {
             return m_n_bins_x;
@@ -124,7 +129,6 @@ class PMFTXYT
         std::shared_ptr<float> m_x_array;           //!< array of x values that the pcf is computed at
         std::shared_ptr<float> m_y_array;           //!< array of y values that the pcf is computed at
         std::shared_ptr<float> m_t_array;           //!< array of T values that the pcf is computed at
-        // std::shared_ptr<float> m_inv_jacobian_array;
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 

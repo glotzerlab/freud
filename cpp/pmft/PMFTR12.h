@@ -90,6 +90,12 @@ class PMFTR12
             return m_t2_array;
             }
 
+        //! Get a reference to the jacobian array
+        std::shared_ptr<float> getInverseJacobian()
+            {
+            return m_inv_jacobian_array;
+            }
+
         unsigned int getNBinsR()
             {
             return m_nbins_r;
