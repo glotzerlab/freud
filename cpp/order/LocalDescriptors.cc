@@ -22,29 +22,29 @@ namespace freud { namespace order {
 LocalDescriptors::LocalDescriptors(
         unsigned int neighmax, unsigned int lmax, float rmax, bool negative_m):
     m_neighmax(neighmax), m_lmax(lmax),
-    m_negative_m(negative_m), m_nn(rmax, neighmax), m_Np(0), m_nNeigh(0)
+    m_negative_m(negative_m), m_nn(rmax, neighmax), m_Nref(0), m_nNeigh(0)
     {
     }
 
 
-void LocalDescriptors::computeNList(const box::Box& box, const vec3<float> *r, unsigned int Np)
+void LocalDescriptors::computeNList(const box::Box& box, const vec3<float> *r_ref, unsigned int Nref, const vec3<float> *r, unsigned int Np)
     {
-    m_nn.compute(box, r, Np, r, Np);
+    m_nn.compute(box, r_ref, Nref, r, Np);
     }
 
-void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np)
+void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const vec3<float> *r_ref, unsigned int Nref, const vec3<float> *r, unsigned int Np)
     {
-    if(m_nn.getNp() != Np)
+    if(m_nn.getNref() != Nref || m_nn.getNp() != Np)
         throw runtime_error("Must call computeNList() before compute");
 
     // reallocate the output array if it is not the right size
-    if (Np != m_Np || nNeigh != m_nNeigh)
+    if (Nref != m_Nref || nNeigh != m_nNeigh)
         {
-        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()]);
+        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[nNeigh*Nref*getSphWidth()]);
         m_nNeigh = nNeigh;
         }
 
-    parallel_for(blocked_range<size_t>(0,Np),
+    parallel_for(blocked_range<size_t>(0,Nref),
         [=] (const blocked_range<size_t>& br)
         {
         fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
@@ -52,7 +52,7 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const v
 
         for(size_t i=br.begin(); i!=br.end(); ++i)
             {
-            const vec3<float> r_i(r[i]);
+            const vec3<float> r_i(r_ref[i]);
 
             float inertiaTensor[3][3];
             for(size_t ii(0); ii < 3; ++ii)
@@ -137,7 +137,7 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const v
         });
 
     // save the last computed number of particles
-    m_Np = Np;
+    m_Nref = Nref;
     }
 
 }; }; // end namespace freud::order

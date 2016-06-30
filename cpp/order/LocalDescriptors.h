@@ -60,15 +60,18 @@ public:
     //! Get the number of particles
     unsigned int getNP() const
         {
-        return m_Np;
+        return m_Nref;
         }
 
     //! Compute the nearest neighbors for each particle
-    void computeNList(const box::Box& box, const vec3<float> *r, unsigned int Np);
+    void computeNList(const box::Box& box, const vec3<float> *r_ref,
+                      unsigned int Nref, const vec3<float> *r, unsigned int Np);
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const box::Box& box, unsigned int nNeigh, const vec3<float> *r, unsigned int Np);
+    void compute(const box::Box& box, unsigned int nNeigh,
+                 const vec3<float> *r_ref, unsigned int Nref, const vec3<float> *r,
+                 unsigned int Np);
 
     // //! Python wrapper for compute
     // void computePy(boost::python::numeric::array r,
@@ -103,7 +106,7 @@ private:
     unsigned int m_lmax;              //!< Maximum spherical harmonic l to calculate
     bool m_negative_m;                //!< true if we should compute Ylm for negative m
     locality::NearestNeighbors m_nn;  //!< NearestNeighbors to find neighbors with
-    unsigned int m_Np;                //!< Last number of points computed
+    unsigned int m_Nref;              //!< Last number of points computed
     unsigned int m_nNeigh;            //!< Last number of neighbors computed
 
     //! Spherical harmonics for each neighbor

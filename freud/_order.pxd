@@ -71,9 +71,10 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         unsigned int getSphWidth() const
         float getRMax() const
         unsigned int getNP()
-        void computeNList(const box.Box&, const vec3[float]*, unsigned int) nogil
+        void computeNList(const box.Box&, const vec3[float]*, unsigned int,
+                          const vec3[float]*, unsigned int) nogil except +
         void compute(const box.Box&, unsigned int, const vec3[float]*,
-                     unsigned int) nogil except +
+                     unsigned int, const vec3[float]*, unsigned int) nogil except +
         shared_array[float complex] getSph()
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
