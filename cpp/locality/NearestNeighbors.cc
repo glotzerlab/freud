@@ -69,14 +69,14 @@ void NearestNeighbors::compute(const box::Box& box,
         m_lc->computeCellList(m_box, pos, Np);
 
         m_deficits = 0;
-        parallel_for(blocked_range<size_t>(0,Np),
+        parallel_for(blocked_range<size_t>(0,n_ref),
           [=] (const blocked_range<size_t>& r)
           {
           float rmaxsq = m_rmax * m_rmax;
           // tuple<> is c++11, so for now just make a pair with pairs inside
           // this data structure holds rsq, idx
           vector< pair<float, unsigned int> > neighbors;
-          Index2D b_i = Index2D(m_nNeigh, m_Np);
+          Index2D b_i = Index2D(m_nNeigh, n_ref);
           for(size_t i=r.begin(); i!=r.end(); ++i)
               {
               // If we have found an incomplete set of neighbors, end now and rebuild
