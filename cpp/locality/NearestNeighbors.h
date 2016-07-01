@@ -144,6 +144,12 @@ class NearestNeighbors
             return m_nNeigh;
             }
 
+        //! Get the number of reference points we've computed for
+        unsigned int getNref() const
+            {
+            return m_n_ref;
+            }
+
         //! Get the number of particles we've computed for
         unsigned int getNp() const
             {

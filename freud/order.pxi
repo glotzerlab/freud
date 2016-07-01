@@ -506,45 +506,79 @@ cdef class LocalDescriptors:
     def __dealloc__(self):
         del self.thisptr
 
-    def computeNList(self, box, points):
-        """
-        Calculates the local descriptors.
+    def computeNList(self, box, points_ref, points=None):
+        """Compute the neighbor list for bonds from a set of source points to
+        a set of destination points.
 
         :param nNeigh: Number of neighbors to compute with
-        :param points: points to calculate the order parameter
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :param points_ref: source points to calculate the order parameter
+        :param points: destination points to calculate the order parameter
+        :type points_ref: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32) or None
+
         """
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        if points_ref.dtype != np.float32:
+            raise ValueError("points_ref must be a numpy float32 array")
+        if points_ref.ndim != 2:
+            raise ValueError("points_ref must be a 2 dimensional array")
+        if points_ref.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+
+        if points is None:
+            points = points_ref
+
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
+        cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.computeNList(l_box, <vec3[float]*>l_points.data, nP)
+            self.thisptr.computeNList(l_box, <vec3[float]*>l_points_ref.data,
+                                      nRef, <vec3[float]*>l_points.data, nP)
 
-    def compute(self, box, unsigned int nNeigh, points):
-        """
-        Calculates the local descriptors.
+    def compute(self, box, unsigned int nNeigh, points_ref, points=None):
+        """Calculates the local descriptors of bonds from a set of source
+        points to a set of destination points.
 
         :param nNeigh: Number of neighbors to compute with
-        :param points: points to calculate the order parameter
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :param points_ref: source points to calculate the order parameter
+        :param points: destination points to calculate the order parameter
+        :type points_ref: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32) or None
+
         """
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        if points_ref.dtype != np.float32:
+            raise ValueError("points_ref must be a numpy float32 array")
+        if points_ref.ndim != 2:
+            raise ValueError("points_ref must be a 2 dimensional array")
+        if points_ref.shape[1] != 3:
+            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+
+        if points is None:
+            points = points_ref
+
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+
+        cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
+        cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.compute(l_box, nNeigh, <vec3[float]*>l_points.data, nP)
+            self.thisptr.compute(l_box, nNeigh, <vec3[float]*>l_points_ref.data,
+                                 nRef, <vec3[float]*>l_points.data, nP)
 
     def getSph(self):
         """
