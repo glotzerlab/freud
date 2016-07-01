@@ -196,16 +196,16 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 
 // Get the vectors corresponding to environment head index m. Vectors are averaged over all members of the environment cluster.
 // If environment m doesn't exist as a HEAD in the set, throw an error.
-boost::shared_array<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
+std::shared_ptr<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
     {
     assert(s.size() > 0);
     bool invalid_ind = true;
     bool single_particle = true;
 
-    boost::shared_array<vec3<float> > env(new vec3<float> [m_num_neigh] );
+    std::shared_ptr<vec3<float> > env(new vec3<float> [m_num_neigh], std::default_delete<vec3<float>[]>());
     for (unsigned int n = 0; n < m_num_neigh; n++)
         {
-        env[n] = vec3<float>(0.0,0.0,0.0);
+        env.get()[n] = vec3<float>(0.0,0.0,0.0);
         }
     float N = float(0);
 
@@ -230,7 +230,7 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m
                 for (unsigned int j = 0; j < s[i].vecs.size(); j++)
                     {
                     unsigned int proper_ind = s[i].vec_ind[j];
-                    env[j] += s[i].vecs[proper_ind];
+                    env.get()[j] += s[i].vecs[proper_ind];
                     }
                 N += float(1);
                 single_particle=false;
@@ -250,8 +250,8 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m
         // loop through the vectors in env now, dividing by the total number of contributing particle environments to make an average
         for (unsigned int n = 0; n < m_num_neigh; n++)
             {
-            vec3<float> normed = env[n]/N;
-            env[n] = normed;
+            vec3<float> normed = env.get()[n]/N;
+            env.get()[n] = normed;
             }
         }
     return env;
@@ -313,13 +313,13 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
 
     // get the neighbors
     vec3<float> p = points[i];
-    boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+    std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
 
     // loop over the neighbors
     for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
         {
         // compute vec{r} between the two particles
-        unsigned int j = neighbors[neigh_idx];
+        unsigned int j = neighbors.get()[neigh_idx];
         vec3<float> delta = m_box.wrap(points[j]-p);
 
         // if hard_r is true, only add the particle to the environment if it falls within the threshold of m_rmaxsq
@@ -444,10 +444,10 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     assert(threshold > 0);
 
     // reallocate the m_env_index array for safety
-    m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    m_env_index = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
     // also reallocate the m_tot_env array
     unsigned int array_size = Np*m_k;
-    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
+    m_tot_env = std::shared_ptr<vec3<float> >(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -473,12 +473,12 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
 
         // 1. Get all the neighbors
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+        std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
 
         // loop over the neighbors
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            unsigned int j = neighbors[neigh_idx];
+            unsigned int j = neighbors.get()[neigh_idx];
 
             if (i != j)
                 {
@@ -511,10 +511,10 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     assert(threshold > 0);
 
     // reallocate the m_env_index array for safety
-    m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    m_env_index = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
     // also reallocate the m_tot_env array
     unsigned int array_size = Np*m_k;
-    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
+    m_tot_env = std::shared_ptr<vec3<float> >(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -592,7 +592,7 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
             if (label_map.count(c) == 0)
                 {
                 label_map[c] = cur_set;
-                boost::shared_array<vec3<float> > vecs = dj.getAvgEnv(c);
+                std::shared_ptr<vec3<float> > vecs = dj.getAvgEnv(c);
 
                 if (reLabel == true) { label_ind = label_map[c]; }
                 else { label_ind = c; }
@@ -606,7 +606,7 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
             else { label_ind = c; }
 
             // label this particle in m_env_index
-            m_env_index[particle_ind] = label_ind;
+            m_env_index.get()[particle_ind] = label_ind;
             // add the particle environment to m_tot_env
             // get a pointer to the start of m_tot_env
             vec3<float> *start = m_tot_env.get();

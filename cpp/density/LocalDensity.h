@@ -6,7 +6,7 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -52,10 +52,10 @@ class LocalDensity
         unsigned int getNRef();
 
         //! Get a reference to the last computed density
-        boost::shared_array< float > getDensity();
+        std::shared_ptr< float > getDensity();
 
         //! Get a reference to the last computed number of neighbors
-        boost::shared_array< float > getNumNeighbors();
+        std::shared_ptr< float > getNumNeighbors();
 
     private:
         box::Box m_box;            //!< Simulation box the particles belong in
@@ -65,8 +65,8 @@ class LocalDensity
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_n_ref;                //!< Last number of points computed
 
-        boost::shared_array< float > m_density_array;         //!< density array computed
-        boost::shared_array< float > m_num_neighbors_array;   //!< number of neighbors array computed
+        std::shared_ptr< float > m_density_array;         //!< density array computed
+        std::shared_ptr< float > m_num_neighbors_array;   //!< number of neighbors array computed
     };
 
 }; }; // end namespace freud::density

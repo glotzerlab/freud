@@ -53,14 +53,14 @@ void GaussianDensity::reduceDensity()
           for (tbb::enumerable_thread_specific<float *>::const_iterator local_bins = m_local_bin_counts.begin();
                local_bins != m_local_bin_counts.end(); ++local_bins)
               {
-              m_Density_array[i] += (*local_bins)[i];
+              m_Density_array.get()[i] += (*local_bins)[i];
               }
           }
       });
     }
 
 //!Get a reference to the last computed Density
-boost::shared_array<float> GaussianDensity::getDensity()
+std::shared_ptr<float> GaussianDensity::getDensity()
     {
     reduceDensity();
     return m_Density_array;
@@ -118,7 +118,7 @@ void GaussianDensity::compute(const box::Box &box, const vec3<float> *points, un
         m_bi = Index3D(m_width_x, m_width_y, m_width_z);
         }
     // this does not agree with rest of freud
-    m_Density_array = boost::shared_array<float>(new float[m_bi.getNumElements()]);
+    m_Density_array = std::shared_ptr<float>(new float[m_bi.getNumElements()], std::default_delete<float[]>());
     parallel_for(blocked_range<size_t>(0,Np),
       [=] (const blocked_range<size_t>& r)
       {

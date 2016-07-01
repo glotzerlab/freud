@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <complex>
 #include <vector>
 
@@ -33,7 +33,7 @@ class FTdelta
             std::copy(K, K+NK, m_K.begin());
 
             // initialize output array
-            m_arr = boost::shared_array< std::complex<float> >(new std::complex<float>[m_NK]);
+            m_arr = std::shared_ptr< std::complex<float> >(new std::complex<float>[m_NK], std::default_delete<std::complex<float>[]>());
             }
 
         // /*! Python wrapper to set_K
@@ -110,11 +110,11 @@ class FTdelta
         virtual void computePy();
 
         //! C++ interface to return the FT values
-        boost::shared_array< std::complex<float> > getFT()
+        std::shared_ptr< std::complex<float> > getFT()
             {
             for(unsigned int i = 0; i < m_NK; i++)
                 {
-                m_arr[i] = std::complex<float>(m_S_Re[i], m_S_Im[i]);
+                m_arr.get()[i] = std::complex<float>(m_S_Re.get()[i], m_S_Im.get()[i]);
                 }
             return m_arr;
             }
@@ -131,9 +131,9 @@ class FTdelta
         //     }
 
     protected:
-        boost::shared_array< std::complex<float> > m_arr;
-        boost::shared_array<float> m_S_Re;  //!< Real component of structure factor
-        boost::shared_array<float> m_S_Im;  //!< Imaginary component of structure factor
+        std::shared_ptr< std::complex<float> > m_arr;
+        std::shared_ptr<float> m_S_Re;  //!< Real component of structure factor
+        std::shared_ptr<float> m_S_Im;  //!< Imaginary component of structure factor
         unsigned int m_NK;                  //!< number of K points evaluated
         unsigned int m_Np;                  //!< number of particles (length of r and q arrays)
         std::vector<vec3<float> > m_K;      //!< array of K points

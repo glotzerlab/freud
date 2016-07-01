@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -80,16 +80,16 @@ class CorrelationFunction
         void reduceCorrelationFunction();
 
         //! Get a reference to the last computed rdf
-        boost::shared_array<T> getRDF();
+        std::shared_ptr<T> getRDF();
 
         //! Get a reference to the bin counts array
-        boost::shared_array<unsigned int> getCounts()
+        std::shared_ptr<unsigned int> getCounts()
             {
             return m_bin_counts;
             }
 
         //! Get a reference to the r array
-        boost::shared_array<float> getR()
+        std::shared_ptr<float> getR()
             {
             return m_r_array;
             }
@@ -109,9 +109,9 @@ class CorrelationFunction
         unsigned int m_Np;                  //!< number of check particles
         unsigned int m_frame_counter;       //!< number of frames calc'd
 
-        boost::shared_array<T> m_rdf_array;         //!< rdf array computed
-        boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
-        boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
+        std::shared_ptr<T> m_rdf_array;         //!< rdf array computed
+        std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+        std::shared_ptr<float> m_r_array;           //!< array of r values that the rdf is computed at
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
         tbb::enumerable_thread_specific<T *> m_local_rdf_array;
     };

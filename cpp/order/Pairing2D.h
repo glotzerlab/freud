@@ -6,7 +6,7 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "NearestNeighbors.h"
 #include "VectorMath.h"
@@ -47,13 +47,13 @@ class Pairing2D
             }
 
         //! Get a reference to the last computed match array
-        boost::shared_array<unsigned int> getMatch()
+        std::shared_ptr<unsigned int> getMatch()
             {
             return m_match_array;
             }
 
         //! Get a reference to the last computed pair array
-        boost::shared_array<unsigned int> getPair()
+        std::shared_ptr<unsigned int> getPair()
             {
             return m_pair_array;
             }
@@ -96,8 +96,8 @@ class Pairing2D
         float m_rmax;                     //!< Maximum r to check for nearest neighbors
         float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
         locality::NearestNeighbors* m_nn;          //!< Nearest Neighbors for the computation
-        boost::shared_array<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
-        boost::shared_array<unsigned int> m_pair_array;         //!< array of pairs for particle i
+        std::shared_ptr<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
+        std::shared_ptr<unsigned int> m_pair_array;         //!< array of pairs for particle i
         unsigned int m_nmatch;             //!< Number of matches
         unsigned int m_k;             //!< Number of nearest neighbors to check
         unsigned int m_Np;                //!< Last number of points computed

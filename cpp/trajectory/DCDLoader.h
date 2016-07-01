@@ -1,7 +1,7 @@
 #ifndef __DCDLOADER__H__
 #define __DCDLOADER__H__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "molfile/molfile_plugins.h"
 #include "trajectory.h"
@@ -58,7 +58,7 @@ class DCDLoader
         //     }
 
         // //! Access the points read by the last step
-        boost::shared_array<float> getPoints() const
+        std::shared_ptr<float> getPoints() const
             {
             // allocate the memory for the points
             // std::vector<intp> dims(2);
@@ -114,7 +114,7 @@ class DCDLoader
     private:
         std::string m_fname;                        //!< File name of the DCD file
         Box m_box;                                  //!< The box read from the last readNextStep()
-        boost::shared_array<float> m_points;        //!< Points read during the last readNextStep()
+        std::shared_ptr<float> m_points;        //!< Points read during the last readNextStep()
         unsigned int m_time_step;                   //!< Time step value read
 
         //! Keep track of the dcd file

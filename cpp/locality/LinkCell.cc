@@ -211,7 +211,7 @@ void LinkCell::computeCellList(box::Box& box,
     assert(Nc > 0);
     if ((m_Np != Np) || (m_Nc != Nc))
         {
-        m_cell_list = boost::shared_array<unsigned int>(new unsigned int[Np + Nc]);
+        m_cell_list = std::shared_ptr<unsigned int>(new unsigned int[Np + Nc], std::default_delete<unsigned int[]>());
         }
     m_Np = Np;
     m_Nc = Nc;
@@ -219,7 +219,7 @@ void LinkCell::computeCellList(box::Box& box,
     // initialize memory
     for (unsigned int cell = 0; cell < Nc; cell++)
         {
-        m_cell_list[Np + cell] = LINK_CELL_TERMINATOR;
+        m_cell_list.get()[Np + cell] = LINK_CELL_TERMINATOR;
         }
 
     // generate the cell list
@@ -228,8 +228,8 @@ void LinkCell::computeCellList(box::Box& box,
     for (int i = Np-1; i >= 0; i--)
         {
         unsigned int cell = getCell(points[i]);
-        m_cell_list[i] = m_cell_list[Np+cell];
-        m_cell_list[Np+cell] = i;
+        m_cell_list.get()[i] = m_cell_list.get()[Np+cell];
+        m_cell_list.get()[Np+cell] = i;
         }
     }
 

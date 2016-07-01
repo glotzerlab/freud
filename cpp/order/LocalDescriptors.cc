@@ -40,7 +40,7 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const v
     // reallocate the output array if it is not the right size
     if (Nref != m_Nref || nNeigh != m_nNeigh)
         {
-        m_sphArray = boost::shared_array<complex<float> >(new complex<float>[nNeigh*Nref*getSphWidth()]);
+        m_sphArray = std::shared_ptr<complex<float> >(new complex<float>[nNeigh*Np*getSphWidth()], std::default_delete<complex<float>[]>());
         m_nNeigh = nNeigh;
         }
 
@@ -130,7 +130,7 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const v
 
                 sph_eval.compute(phi, theta);
 
-                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray[sphCount]);
+                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray.get()[sphCount]);
                 sphCount += getSphWidth();
                 }
             }

@@ -183,8 +183,8 @@ void SolLiqNear::computeClustersQ(const vec3<float> *points, unsigned int Np)
     float rmaxsq = m_rmax * m_rmax;
     if (m_Np != Np)
         {
-        m_Qlmi_array = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*Np]);
-        m_number_of_neighbors = boost::shared_array<unsigned int>(new unsigned int[Np]);
+        m_Qlmi_array = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
+        m_number_of_neighbors = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
         }
     memset((void*)m_Qlmi_array.get(), 0, sizeof(complex<float>)*(2*m_l+1)*Np);
     memset((void*)m_number_of_neighbors.get(), 0, sizeof(unsigned int)*Np);
@@ -197,14 +197,14 @@ void SolLiqNear::computeClustersQ(const vec3<float> *points, unsigned int Np)
         //get cell point is in
         // float3 ref = points[i];
         vec3<float> ref = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+        std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int ref_cell = m_lc.getCell(ref);
 
         //loop over neighboring cells
         //const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            unsigned int j = neighbors[neigh_idx];
+            unsigned int j = neighbors.get()[neigh_idx];
 
             vec3<float> delta = m_box.wrap(points[j] - ref);
             float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
@@ -219,13 +219,13 @@ void SolLiqNear::computeClustersQ(const vec3<float> *points, unsigned int Np)
                 else if (m_l == 4)
                     SolLiqNear::Y4m(theta,phi,Y);
                 else
-                */    
+                */
                 SolLiqNear::Ylm(theta,phi,Y);
 
                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                     {
-                    m_Qlmi_array[(2*m_l+1)*i+k]+=Y[k];
-                    m_number_of_neighbors[i]++;
+                    m_Qlmi_array.get()[(2*m_l+1)*i+k]+=Y[k];
+                    m_number_of_neighbors.get()[i]++;
                     }
                 }//End loop over a particular neighbor cell
             }  //End loops of neighboring cells
@@ -252,7 +252,7 @@ void SolLiqNear::computeClustersQdot(const vec3<float> *points,
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (m_Np != Np)
         {
-        m_number_of_connections = boost::shared_array<unsigned int>(new unsigned int[Np]);
+        m_number_of_connections = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
         }
 
     memset((void*)m_number_of_connections.get(), 0, sizeof(unsigned int)*Np);
@@ -264,14 +264,14 @@ void SolLiqNear::computeClustersQdot(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+      std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
         //const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            unsigned int j = neighbors[neigh_idx];
+            unsigned int j = neighbors.get()[neigh_idx];
 
             if (i < j)
                 {
@@ -290,9 +290,9 @@ void SolLiqNear::computeClustersQdot(const vec3<float> *points,
                 std::complex<float> Qlmjnorm(0.0,0.0);
                 for (unsigned int k = 0; k < (elements); ++k)  // loop over m
                     {
-                    Qdot += m_Qlmi_array[(elements)*i+k] * conj(m_Qlmi_array[(elements)*j+k]);
-                    Qlminorm += m_Qlmi_array[(elements)*i+k]*conj(m_Qlmi_array[(elements)*i+k]);
-                    Qlmjnorm += m_Qlmi_array[(elements)*j+k]*conj(m_Qlmi_array[(elements)*j+k]);
+                    Qdot += m_Qlmi_array.get()[(elements)*i+k] * conj(m_Qlmi_array.get()[(elements)*j+k]);
+                    Qlminorm += m_Qlmi_array.get()[(elements)*i+k]*conj(m_Qlmi_array.get()[(elements)*i+k]);
+                    Qlmjnorm += m_Qlmi_array.get()[(elements)*j+k]*conj(m_Qlmi_array.get()[(elements)*j+k]);
                     }
                 Qlminorm = sqrt(Qlminorm);
                 Qlmjnorm = sqrt(Qlmjnorm);
@@ -302,8 +302,8 @@ void SolLiqNear::computeClustersQdot(const vec3<float> *points,
                 if( real(Qdot) > m_Qthreshold)
                     {
                     //Tick up counts of number of connections these particles have
-                    m_number_of_connections[i]++;
-                    m_number_of_connections[j]++;
+                    m_number_of_connections.get()[i]++;
+                    m_number_of_connections.get()[j]++;
                     }
                 }
             }
@@ -321,7 +321,7 @@ void SolLiqNear::computeClustersQdotNoNorm(const vec3<float> *points,
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (m_Np != Np)
         {
-        m_number_of_connections = boost::shared_array<unsigned int>(new unsigned int[Np]);
+        m_number_of_connections = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
         }
 
     memset((void*)m_number_of_connections.get(), 0, sizeof(unsigned int)*Np);
@@ -333,14 +333,14 @@ void SolLiqNear::computeClustersQdotNoNorm(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+        std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
         //const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            unsigned int j = neighbors[neigh_idx];
+            unsigned int j = neighbors.get()[neigh_idx];
 
             if (i < j)
                 {
@@ -358,15 +358,15 @@ void SolLiqNear::computeClustersQdotNoNorm(const vec3<float> *points,
                 for (unsigned int k = 0; k < (elements); ++k)  // loop over m
                     {
                     // Index here?
-                    Qdot += m_Qlmi_array[(elements)*i+k] * conj(m_Qlmi_array[(elements)*j+k]);
+                    Qdot += m_Qlmi_array.get()[(elements)*i+k] * conj(m_Qlmi_array.get()[(elements)*j+k]);
                     }
                 m_qldot_ij.push_back(Qdot);  // Only i < j, other pairs not added.
                 //Check if we're bonded via the threshold criterion
                 if( real(Qdot) > m_Qthreshold)
                     {
                     //Tick up counts of number of connections these particles have
-                    m_number_of_connections[i]++;
-                    m_number_of_connections[j]++;
+                    m_number_of_connections.get()[i]++;
+                    m_number_of_connections.get()[j]++;
                     }
                 }
             }
@@ -380,7 +380,7 @@ void SolLiqNear::computeClustersQS(const vec3<float> *points, unsigned int Np)
     {
     if (m_Np != Np)
         {
-        m_cluster_idx = boost::shared_array<unsigned int>(new unsigned int[Np]);
+        m_cluster_idx = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
         }
 
     float rmaxcluster_sq = m_rmax_cluster * m_rmax_cluster;
@@ -392,14 +392,14 @@ void SolLiqNear::computeClustersQS(const vec3<float> *points, unsigned int Np)
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+      std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
         //const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            unsigned int j = neighbors[neigh_idx];
+            unsigned int j = neighbors.get()[neigh_idx];
 
             // iterate over the particles in that cell
             if (i != j)
@@ -408,7 +408,7 @@ void SolLiqNear::computeClustersQS(const vec3<float> *points, unsigned int Np)
                 float rsq = dot(delta, delta);
                 if (rsq < rmaxcluster_sq && rsq > 1e-6)  //Check distance for candidate i,j
                     {
-                    if ( (m_number_of_connections[i] >= m_Sthreshold) && (m_number_of_connections[j] >= m_Sthreshold) )
+                    if ( (m_number_of_connections.get()[i] >= m_Sthreshold) && (m_number_of_connections.get()[j] >= m_Sthreshold) )
                         {
                         // merge the two sets using the disjoint set
                         uint32_t a = dj.find(i);
@@ -438,7 +438,7 @@ void SolLiqNear::computeClustersQS(const vec3<float> *points, unsigned int Np)
             }
 
         // label this point in cluster_idx
-        m_cluster_idx[i] = label_map[s];
+        m_cluster_idx.get()[i] = label_map[s];
         }
 
     // cur_set is now the number of clusters
@@ -452,9 +452,9 @@ unsigned int SolLiqNear::getLargestClusterSize()
     // Only add if solid like!
     for(unsigned int i = 0; i < m_Np; i++)
         {
-        if(m_number_of_connections[i] >= m_Sthreshold)
+        if(m_number_of_connections.get()[i] >= m_Sthreshold)
             {
-            freqcount[m_cluster_idx[i]]++;
+            freqcount[m_cluster_idx.get()[i]]++;
             }
         }
     //Traverse map looking for largest cluster size
@@ -475,13 +475,13 @@ std::vector<unsigned int> SolLiqNear::getClusterSizes()
     //m_cluster_idx stores the cluster ID for each particle.  Count by adding to map.
     for(unsigned int i = 0; i < m_Np; i++)
         {
-        if(m_number_of_connections[i] >= m_Sthreshold)
+        if(m_number_of_connections.get()[i] >= m_Sthreshold)
             {
-            freqcount[m_cluster_idx[i]]++;
+            freqcount[m_cluster_idx.get()[i]]++;
             }
         else
             {
-            freqcount[m_cluster_idx[i]]=0;
+            freqcount[m_cluster_idx.get()[i]]=0;
             }
         }
     //Loop over counting map and shove all cluster sizes into an array
@@ -508,8 +508,8 @@ void SolLiqNear::computeListOfSolidLikeNeighbors(const vec3<float> *points,
     // reallocate the cluster_idx array if the size doesn't match the last one
 
     //These probably don't need allocation each time.
-    m_cluster_idx = boost::shared_array<unsigned int>(new unsigned int[Np]);
-    m_number_of_connections = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    m_cluster_idx = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
+    m_number_of_connections = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
     memset((void*)m_number_of_connections.get(), 0, sizeof(unsigned int)*Np);
 
     float rmaxsq = m_rmax * m_rmax;
@@ -520,7 +520,7 @@ void SolLiqNear::computeListOfSolidLikeNeighbors(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+        std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         //Empty list
@@ -530,7 +530,7 @@ void SolLiqNear::computeListOfSolidLikeNeighbors(const vec3<float> *points,
         //const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            unsigned int j = neighbors[neigh_idx];
+            unsigned int j = neighbors.get()[neigh_idx];
 
             if (i != j)
                 {
@@ -549,9 +549,9 @@ void SolLiqNear::computeListOfSolidLikeNeighbors(const vec3<float> *points,
                         //Symmmetry - Could compute Qdot *twice* as fast! (I.e. m=-l and m=+l equivalent so some of these calcs redundant)
                         //std::complex<float> temp =  m_Qlmi_array[(2*m_l+1)*i+k] * conj(m_Qlmi_array[(2*m_l+1)*j+k]);
                         //printf("For component k=%d, real=%f, imag=%f\n",k,real(temp),imag(temp));
-                        Qdot += m_Qlmi_array[(2*m_l+1)*i+k] * conj(m_Qlmi_array[(2*m_l+1)*j+k]);
-                        Qlminorm += m_Qlmi_array[(2*m_l+1)*i+k]*conj(m_Qlmi_array[(2*m_l+1)*i+k]);
-                        Qlmjnorm += m_Qlmi_array[(2*m_l+1)*j+k]*conj(m_Qlmi_array[(2*m_l+1)*j+k]);
+                        Qdot += m_Qlmi_array.get()[(2*m_l+1)*i+k] * conj(m_Qlmi_array.get()[(2*m_l+1)*j+k]);
+                        Qlminorm += m_Qlmi_array.get()[(2*m_l+1)*i+k]*conj(m_Qlmi_array.get()[(2*m_l+1)*i+k]);
+                        Qlmjnorm += m_Qlmi_array.get()[(2*m_l+1)*j+k]*conj(m_Qlmi_array.get()[(2*m_l+1)*j+k]);
                         }
                     Qlminorm = sqrt(Qlminorm);
                     Qlmjnorm = sqrt(Qlmjnorm);
@@ -564,7 +564,7 @@ void SolLiqNear::computeListOfSolidLikeNeighbors(const vec3<float> *points,
                     //Check if we're bonded via the threshold criterion
                     if( real(Qdot) > m_Qthreshold)
                         {
-                        m_number_of_connections[i]++;
+                        m_number_of_connections.get()[i]++;
                         SolidlikeNeighborlist[i].push_back(j);
                         }
                     }
@@ -579,7 +579,7 @@ void SolLiqNear::computeClustersSharedNeighbors(const vec3<float> *points,
     unsigned int Np, const vector< vector<unsigned int> > &SolidlikeNeighborlist)
     {
 
-    m_cluster_idx = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    m_cluster_idx = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
     m_number_of_shared_connections.clear();  //Reset.
 
     float rmaxcluster_sq = m_rmax_cluster * m_rmax_cluster;
@@ -591,14 +591,14 @@ void SolLiqNear::computeClustersSharedNeighbors(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+        std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
         //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
         //const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
-            unsigned int j = neighbors[neigh_idx];
+            unsigned int j = neighbors.get()[neigh_idx];
 
             if (i < j)
                 {
@@ -656,7 +656,7 @@ void SolLiqNear::computeClustersSharedNeighbors(const vec3<float> *points,
             }
 
         // label this point in cluster_idx
-        m_cluster_idx[i] = label_map[s];
+        m_cluster_idx.get()[i] = label_map[s];
         }
 
     // cur_set is now the number of clusters

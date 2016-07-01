@@ -5,7 +5,7 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -60,7 +60,7 @@ class GaussianDensity
         void compute(const box::Box& box, const vec3<float> *points, unsigned int Np);
 
         //!Get a reference to the last computed Density
-        boost::shared_array<float> getDensity();
+        std::shared_ptr<float> getDensity();
 
         unsigned int getWidthX();
 
@@ -76,7 +76,7 @@ class GaussianDensity
         Index3D m_bi;                   //!< Bin indexer
         unsigned int m_frame_counter;       //!< number of frames calc'd
 
-        boost::shared_array<float> m_Density_array;            //! computed density array
+        std::shared_ptr<float> m_Density_array;            //! computed density array
         tbb::enumerable_thread_specific<float *> m_local_bin_counts;
     };
 

@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <vector>
 #include <set>
 #include <stdint.h>
@@ -94,7 +94,7 @@ class Cluster
             }
 
         //! Get a reference to the last computed cluster_idx
-        boost::shared_array<unsigned int> getClusterIdx()
+        std::shared_ptr<unsigned int> getClusterIdx()
             {
             return m_cluster_idx;
             }
@@ -121,7 +121,7 @@ class Cluster
         unsigned int m_num_particles;             //!< Number of particles processed in the last call to compute()
         unsigned int m_num_clusters;              //!< Number of clusters found inthe last call to compute()
 
-        boost::shared_array<unsigned int> m_cluster_idx;         //!< Cluster index determined for each particle
+        std::shared_ptr<unsigned int> m_cluster_idx;         //!< Cluster index determined for each particle
         std::vector< std::set<unsigned int> > m_cluster_keys;    //!< List of keys in each cluster
 
     };

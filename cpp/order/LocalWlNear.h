@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <complex>
 
 #include "HOOMDMath.h"
@@ -104,25 +104,25 @@ class LocalWlNear
        //  void setWigner3jPy(boost::python::numeric::array wigner3jvalues);
 
         //! Get a reference to the last computed Wl/WlNorm for each particle.  Returns NaN instead of Ql for particles with no neighbors.
-        boost::shared_array<std::complex<float> > getWl()
+        std::shared_ptr<std::complex<float> > getWl()
             {
             return m_Wli;
             }
-        boost::shared_array<std::complex<float> > getWlNorm()
+        std::shared_ptr<std::complex<float> > getWlNorm()
             {
             return m_WliNorm;
             }
-        boost::shared_array<std::complex<float> > getAveWl()
+        std::shared_ptr<std::complex<float> > getAveWl()
             {
             return m_AveWli;
             }
-        boost::shared_array<std::complex<float> > getWlAveNorm()
+        std::shared_ptr<std::complex<float> > getWlAveNorm()
             {
             return m_WliAveNorm;
             }
 
         //! Get a reference to last computed Ql for each particle.
-        boost::shared_array< float > getQl()
+        std::shared_ptr< float > getQl()
             {
             return m_Qli;
             }
@@ -206,16 +206,16 @@ class LocalWlNear
         //unsigned int num_wigner3jcoefs;
         bool m_normalizeWl;               //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.
 
-        boost::shared_array< std::complex<float> > m_Qlm;         //!< Normalized Qlm for the whole system
-        boost::shared_array< std::complex<float> > m_Qlmi;        //!< Qlm for each particle i
-        boost::shared_array< std::complex<float> > m_AveQlmi;     //!< AveQlm for each particle i
-        boost::shared_array< std::complex<float> > m_AveQlm;      //!< Normalized AveQlm for the whole system
-        boost::shared_array< std::complex<float> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
-        boost::shared_array< std::complex<float> > m_AveWli;      //!< AveWl order parameter for each particle i
-        boost::shared_array< std::complex<float> > m_WliNorm;     //!< WlNorm order parameter for each particle i
-        boost::shared_array< std::complex<float> > m_WliAveNorm;  //!< WlAveNorm order parameter for each particle i
-        boost::shared_array< float > m_Qli; //!<  Need copy of Qli for normalization
-        boost::shared_array< float > m_wigner3jvalues;  //!<Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
+        std::shared_ptr< std::complex<float> > m_Qlm;         //!< Normalized Qlm for the whole system
+        std::shared_ptr< std::complex<float> > m_Qlmi;        //!< Qlm for each particle i
+        std::shared_ptr< std::complex<float> > m_AveQlmi;     //!< AveQlm for each particle i
+        std::shared_ptr< std::complex<float> > m_AveQlm;      //!< Normalized AveQlm for the whole system
+        std::shared_ptr< std::complex<float> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
+        std::shared_ptr< std::complex<float> > m_AveWli;      //!< AveWl order parameter for each particle i
+        std::shared_ptr< std::complex<float> > m_WliNorm;     //!< WlNorm order parameter for each particle i
+        std::shared_ptr< std::complex<float> > m_WliAveNorm;  //!< WlAveNorm order parameter for each particle i
+        std::shared_ptr< float > m_Qli; //!<  Need copy of Qli for normalization
+        std::shared_ptr< float > m_wigner3jvalues;  //!<Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
     };
 
 }; }; // end namespace

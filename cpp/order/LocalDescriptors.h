@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "NearestNeighbors.h"
 // hack to keep VectorMath's swap from polluting the global namespace
@@ -78,7 +78,7 @@ public:
     //     boost::python::numeric::array q);
 
     //! Get a reference to the last computed spherical harmonic array
-    boost::shared_array<std::complex<float> > getSph()
+    std::shared_ptr<std::complex<float> > getSph()
         {
         return m_sphArray;
         }
@@ -110,7 +110,7 @@ private:
     unsigned int m_nNeigh;            //!< Last number of neighbors computed
 
     //! Spherical harmonics for each neighbor
-    boost::shared_array<std::complex<float> > m_sphArray;
+    std::shared_ptr<std::complex<float> > m_sphArray;
     };
 
 }; }; // end namespace freud::order

@@ -43,8 +43,8 @@ void ShapeSplit::compute(const vec3<float> *points,
     // reallocate the output array if it is not the right size
     if (Np != m_Np || Nsplit != m_Nsplit)
         {
-        m_split_array = boost::shared_array<float>(new float[Np*Nsplit*3]);
-        m_orientation_array = boost::shared_array<float>(new float[Np*Nsplit*4]);
+        m_split_array = std::shared_ptr<float>(new float[Np*Nsplit*3], std::default_delete<float[]>());
+        m_orientation_array = std::shared_ptr<float>(new float[Np*Nsplit*4], std::default_delete<float[]>());
         }
     parallel_for(blocked_range<size_t>(0,Np),
       [=] (const blocked_range<size_t>& r)
@@ -62,14 +62,14 @@ void ShapeSplit::compute(const vec3<float> *points,
 
               split_point = m_box.wrap(split_point);
 
-              m_split_array[b_i(0, j, i)] = split_point.x;
-              m_split_array[b_i(1, j, i)] = split_point.y;
-              m_split_array[b_i(2, j, i)] = split_point.z;
+              m_split_array.get()[b_i(0, j, i)] = split_point.x;
+              m_split_array.get()[b_i(1, j, i)] = split_point.y;
+              m_split_array.get()[b_i(2, j, i)] = split_point.z;
 
-              m_orientation_array[q_i(0, j, i)] = orientations[i].s;
-              m_orientation_array[q_i(1, j, i)] = orientations[i].v.x;
-              m_orientation_array[q_i(2, j, i)] = orientations[i].v.z;
-              m_orientation_array[q_i(3, j, i)] = orientations[i].v.z;
+              m_orientation_array.get()[q_i(0, j, i)] = orientations[i].s;
+              m_orientation_array.get()[q_i(1, j, i)] = orientations[i].v.x;
+              m_orientation_array.get()[q_i(2, j, i)] = orientations[i].v.z;
+              m_orientation_array.get()[q_i(3, j, i)] = orientations[i].v.z;
 
               }
           } // done looping over reference points

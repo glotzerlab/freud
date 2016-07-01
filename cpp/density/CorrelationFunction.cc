@@ -33,20 +33,20 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
-    m_rdf_array = boost::shared_array<T>(new T[m_nbins]);
+    m_rdf_array = std::shared_ptr<T>(new T[m_nbins], std::default_delete<T[]>());
     // Less efficient: initialize each bin sequentially using default ctor
     for(size_t i(0); i < m_nbins; ++i)
-        m_rdf_array[i] = T();
-    m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
+        m_rdf_array.get()[i] = T();
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins], std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
 
     // precompute the bin center positions
-    m_r_array = boost::shared_array<float>(new float[m_nbins]);
+    m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins; i++)
         {
         float r = float(i) * m_dr;
         float nextr = float(i+1) * m_dr;
-        m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
+        m_r_array.get()[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
     m_lc = new locality::LinkCell(m_box, m_rmax);
     }
@@ -227,7 +227,7 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     for(size_t i(0); i < m_nbins; ++i)
-        m_rdf_array[i] = T();
+        m_rdf_array.get()[i] = T();
     // now compute the rdf
     parallel_for(tbb::blocked_range<size_t>(0,m_nbins), CombineOCF<T>(m_nbins,
                                                               m_bin_counts.get(),
@@ -239,7 +239,7 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
 
 //! Get a reference to the RDF array
 template<typename T>
-boost::shared_array<T> CorrelationFunction<T>::getRDF()
+std::shared_ptr<T> CorrelationFunction<T>::getRDF()
     {
     reduceCorrelationFunction();
     return m_rdf_array;
