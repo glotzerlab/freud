@@ -27,6 +27,7 @@ SOFTWARE.
 #include <iostream>
 #include <vector>
 #include <random>
+#include <chrono>
 // boost include
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>

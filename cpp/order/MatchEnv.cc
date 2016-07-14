@@ -433,7 +433,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
     // the Fit operation CHANGES v2.
     if (registration == true)
         {
-        registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
+        registration::RegisterBruteForce r = registration::RegisterBruteForce(v1);
         bool good_fit = r.Fit(v2);
         // get the optimal rotation to take v2 to v1
         std::vector<vec3<float> > rot = r.getRotation();
@@ -577,7 +577,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::m
         }
 
     // call RegisterBruteForce::Fit and update min_rmsd accordingly
-    registration::RegisterBruteForce r = registration::RegisterBruteForce::RegisterBruteForce(v1);
+    registration::RegisterBruteForce r = registration::RegisterBruteForce(v1);
     // if we have to register, first find the rotated set of v2 that best maps to v1
     // the Fit operation CHANGES v2.
     if (registration == true)
