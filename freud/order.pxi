@@ -1934,10 +1934,12 @@ cdef class MatchEnv:
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_points = points
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        self.thisptr.cluster(<vec3[float]*>l_points.data, nP, threshold, hard_r, registration, global_search)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r, registration, global_search)
 
     def matchMotif(self, points, refPoints, threshold, registration=False):
         """Determine clusters of particles that match the motif provided by refPoints.
@@ -1964,12 +1966,14 @@ cdef class MatchEnv:
         if refPoints.shape[1] != 3:
             raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_refPoints = refPoints
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        self.thisptr.matchMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_refPoints.data, nRef, threshold, registration)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, registration)
 
     def minRMSDMotif(self, points, refPoints, registration=False):
         """Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt the motif provided by refPoints.
@@ -1998,12 +2002,14 @@ cdef class MatchEnv:
         if refPoints.shape[1] != 3:
             raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_refPoints = refPoints
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_refPoints.data, nRef, registration)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, registration)
 
         return min_rmsd_vec
 
@@ -2034,8 +2040,9 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_refPoints1 = np.copy(refPoints1)
-        cdef np.ndarray[float, ndim=2] l_refPoints2 = np.copy(refPoints2)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
         cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
         cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
         cdef float threshold_sq = threshold*threshold
@@ -2043,7 +2050,8 @@ cdef class MatchEnv:
         if nRef1 != nRef2:
             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
 
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>l_refPoints1.data, <vec3[float]*>l_refPoints2.data, nRef1, threshold_sq, registration)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq, registration)
         cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(l_refPoints2, (nRef2, 3))
         return [rot_refPoints2, vec_map]
 
@@ -2072,8 +2080,9 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_refPoints1 = np.copy(refPoints1)
-        cdef np.ndarray[float, ndim=2] l_refPoints2 = np.copy(refPoints2)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
         cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
         cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
 
@@ -2081,7 +2090,8 @@ cdef class MatchEnv:
             raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
 
         cdef float min_rmsd = -1
-        cdef map[unsigned int, unsigned int] results_map = self.thisptr.minimizeRMSD(<vec3[float]*>l_refPoints1.data, <vec3[float]*>l_refPoints2.data, nRef1, min_rmsd, registration)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef map[unsigned int, unsigned int] results_map = self.thisptr.minimizeRMSD(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, min_rmsd, registration)
         cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(l_refPoints2, (nRef2, 3))
         return [min_rmsd, rot_refPoints2, results_map]
 

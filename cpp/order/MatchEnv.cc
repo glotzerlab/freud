@@ -194,7 +194,7 @@ std::shared_ptr<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
     assert(s.size() > 0);
     bool invalid_ind = true;
 
-    std::shared_ptr<vec3<float> > env(new vec3<float> [m_num_neigh], std::default_delete<vec3<float>[]>());
+    std::shared_ptr<vec3<float> > env(new vec3<float> [m_max_num_neigh], std::default_delete<vec3<float>[]>());
     for (unsigned int n = 0; n < m_max_num_neigh; n++)
         {
         env.get()[n] = vec3<float>(0.0,0.0,0.0);
@@ -312,7 +312,7 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             // compute vec{r} between the two particles
-            unsigned int j = neighbors[neigh_idx];
+            unsigned int j = neighbors.get()[neigh_idx];
             if (i != j)
                 {
                 vec3<float> delta = m_box.wrap(points[j]-p);
@@ -656,10 +656,10 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
         if (global == false)
             {
             // loop over the neighbors
-            boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+            std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
             for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
                 {
-                unsigned int j = neighbors[neigh_idx];
+                unsigned int j = neighbors.get()[neigh_idx];
                 if (i != j)
                     {
                     std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);

@@ -1,10 +1,10 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 
 #include <tbb/tbb.h>
 
@@ -52,7 +52,7 @@ class CorrelationFunction
         ~CorrelationFunction();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -67,10 +67,10 @@ class CorrelationFunction
             }
 
         //! accumulate the correlation function
-        void accumulate(const trajectory::Box &box,
+        void accumulate(const box::Box &box,
                         const vec3<float> *ref_points,
                         const T *ref_values,
-                        unsigned int Nref,
+                        unsigned int n_ref,
                         const vec3<float> *points,
                         const T *point_values,
                         unsigned int Np);
@@ -80,16 +80,16 @@ class CorrelationFunction
         void reduceCorrelationFunction();
 
         //! Get a reference to the last computed rdf
-        boost::shared_array<T> getRDF();
+        std::shared_ptr<T> getRDF();
 
         //! Get a reference to the bin counts array
-        boost::shared_array<unsigned int> getCounts()
+        std::shared_ptr<unsigned int> getCounts()
             {
             return m_bin_counts;
             }
 
         //! Get a reference to the r array
-        boost::shared_array<float> getR()
+        std::shared_ptr<float> getR()
             {
             return m_r_array;
             }
@@ -100,18 +100,18 @@ class CorrelationFunction
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
-        unsigned int m_Nref;                  //!< number of reference particles
+        unsigned int m_n_ref;                  //!< number of reference particles
         unsigned int m_Np;                  //!< number of check particles
         unsigned int m_frame_counter;       //!< number of frames calc'd
 
-        boost::shared_array<T> m_rdf_array;         //!< rdf array computed
-        boost::shared_array<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
-        boost::shared_array<float> m_r_array;           //!< array of r values that the rdf is computed at
+        std::shared_ptr<T> m_rdf_array;         //!< rdf array computed
+        std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+        std::shared_ptr<float> m_r_array;           //!< array of r values that the rdf is computed at
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
         tbb::enumerable_thread_specific<T *> m_local_rdf_array;
     };
@@ -125,16 +125,16 @@ class CombineOCF
         tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
         T *m_rdf_array;
         tbb::enumerable_thread_specific<T *>& m_local_rdf_array;
-        float m_Nref;
+        float m_n_ref;
     public:
         CombineOCF(unsigned int nbins,
                    unsigned int *bin_counts,
                    tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
                    T *rdf_array,
                    tbb::enumerable_thread_specific<T *>& local_rdf_array,
-                   float Nref)
+                   float n_ref)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
-              m_local_rdf_array(local_rdf_array), m_Nref(Nref)
+              m_local_rdf_array(local_rdf_array), m_n_ref(n_ref)
         {
         }
         void operator()( const tbb::blocked_range<size_t> &myBin ) const;
@@ -147,13 +147,13 @@ class ComputeOCF
         const unsigned int m_nbins;
         tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
         tbb::enumerable_thread_specific<T *>& m_rdf_array;
-        const trajectory::Box m_box;
+        const box::Box m_box;
         const float m_rmax;
         const float m_dr;
         const locality::LinkCell *m_lc;
         const vec3<float> *m_ref_points;
         const T *m_ref_values;
-        const unsigned int m_Nref;
+        const unsigned int m_n_ref;
         const vec3<float> *m_points;
         const T *m_point_values;
         unsigned int m_Np;
@@ -161,18 +161,18 @@ class ComputeOCF
         ComputeOCF(const unsigned int nbins,
                    tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
                    tbb::enumerable_thread_specific<T *>& rdf_array,
-                   const trajectory::Box &box,
+                   const box::Box &box,
                    const float rmax,
                    const float dr,
                    const locality::LinkCell *lc,
                    const vec3<float> *ref_points,
                    const T *ref_values,
-                   unsigned int Nref,
+                   unsigned int n_ref,
                    const vec3<float> *points,
                    const T *point_values,
                    unsigned int Np)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_rmax(rmax), m_dr(dr),
-              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_Nref(Nref), m_points(points),
+              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_n_ref(n_ref), m_points(points),
               m_point_values(point_values), m_Np(Np)
         {
         }
