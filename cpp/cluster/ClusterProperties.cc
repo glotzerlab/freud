@@ -14,7 +14,7 @@ using namespace std;
 
 namespace freud { namespace cluster {
 
-ClusterProperties::ClusterProperties(const trajectory::Box& box)
+ClusterProperties::ClusterProperties(const box::Box& box)
     : m_box(box), m_num_clusters(0)
     {
     }
@@ -45,11 +45,11 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
     // initialize them to 0 also
     // m_cluster_com = boost::shared_array<float3>(new float3[m_num_clusters]);
     // memset(m_cluster_com.get(), 0, sizeof(float3)*m_num_clusters);
-    m_cluster_com = boost::shared_array< vec3<float> >(new vec3<float>[m_num_clusters]);
+    m_cluster_com = std::shared_ptr< vec3<float> >(new vec3<float>[m_num_clusters], std::default_delete< vec3<float>[]>());
     memset(m_cluster_com.get(), 0, sizeof(vec3<float>)*m_num_clusters);
-    m_cluster_G = boost::shared_array<float>(new float[m_num_clusters*3*3]);
+    m_cluster_G = std::shared_ptr<float>(new float[m_num_clusters*3*3], std::default_delete<float[]>());
     memset(m_cluster_G.get(), 0, sizeof(float)*m_num_clusters*3*3);
-    m_cluster_size = boost::shared_array<unsigned int>(new unsigned int[m_num_clusters]);
+    m_cluster_size = std::shared_ptr<unsigned int>(new unsigned int[m_num_clusters], std::default_delete<unsigned int[]>());
     memset(m_cluster_size.get(), 0, sizeof(unsigned int)*m_num_clusters);
 
     // ref_particle is the virst particle found in a cluster, it is used as a refernce to compute the COM in relation to
@@ -87,22 +87,22 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
         // m_cluster_com[c].x += dr_wrapped.x;
         // m_cluster_com[c].y += dr_wrapped.y;
         // m_cluster_com[c].z += dr_wrapped.z;
-        m_cluster_com[c] += delta;
+        m_cluster_com.get()[c] += delta;
 
-        m_cluster_size[c]++;
+        m_cluster_size.get()[c]++;
         }
 
     // now that we have totalled all of the cluster vectors, compute the COM position by averaging and then
     // shifting by ref_pos
     for (unsigned int c = 0; c < m_num_clusters; c++)
         {
-        float s = float(m_cluster_size[c]);
-        vec3<float> v = m_cluster_com[c] / s + ref_pos[c];
+        float s = float(m_cluster_size.get()[c]);
+        vec3<float> v = m_cluster_com.get()[c] / s + ref_pos[c];
         // float3 v = make_float3(m_cluster_com[c].x / s + ref_pos[c].x,
         //                        m_cluster_com[c].y / s + ref_pos[c].y,
         //                        m_cluster_com[c].z / s + ref_pos[c].z);
 
-        m_cluster_com[c] = m_box.wrap(v);
+        m_cluster_com.get()[c] = m_box.wrap(v);
         }
 
     // now that we have determined the centers of mass for each cluster, tally up the G tensor
@@ -112,7 +112,7 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
         unsigned int c = cluster_idx[i];
         // float3 pos = points[i];
         vec3<float> pos = points[i];
-        vec3<float> delta = m_box.wrap(pos - m_cluster_com[c]);
+        vec3<float> delta = m_box.wrap(pos - m_cluster_com.get()[c]);
         // float3 dr = m_box.wrap(make_float3(pos.x - m_cluster_com[c].x,
         //                                    pos.y - m_cluster_com[c].y,
         //                                    pos.z - m_cluster_com[c].z));
@@ -134,7 +134,7 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
     for (unsigned int c = 0; c < m_num_clusters; c++)
         {
         float *G = m_cluster_G.get() + c*9;
-        float s = float(m_cluster_size[c]);
+        float s = float(m_cluster_size.get()[c]);
         G[0*3+0] /= s;
         G[0*3+1] /= s;
         G[0*3+2] /= s;
@@ -180,7 +180,7 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
 
 // void export_ClusterProperties()
 //     {
-//     class_<ClusterProperties>("ClusterProperties", init<trajectory::Box&>())
+//     class_<ClusterProperties>("ClusterProperties", init<box::Box&>())
 //         .def("getBox", &ClusterProperties::getBox, return_internal_reference<>())
 //         .def("computeProperties", &ClusterProperties::computePropertiesPy)
 //         .def("getNumClusters", &ClusterProperties::getNumClusters)

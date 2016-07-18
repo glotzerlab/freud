@@ -13,7 +13,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float rmin)
+LocalQl::LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin)
     :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_l(l), m_rmin(rmin)
     {
     if (m_rmax < 0.0f or m_rmin < 0.0f)
@@ -24,7 +24,7 @@ LocalQl::LocalQl(const trajectory::Box& box, float rmax, unsigned int l, float r
         throw invalid_argument("l must be two or greater!");
     }
 
-void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+/* void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     if(Y.size() != 2*m_l+1)
         Y.resize(2*m_l+1);
@@ -32,7 +32,7 @@ void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<f
     for(int m = -m_l; m <=0; m++)
         //Doc for boost spherical harmonic
         //http://www.boost.org/doc/libs/1_53_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/sph_harm.html
-        // theta = colatitude = 0..Pi
+        // theta = colatitude = -1..Pi
         // Phi = azimuthal (longitudinal) 0..2pi).
         Y[m+m_l]= boost::math::spherical_harmonic(m_l, m, theta, phi);
 
@@ -42,6 +42,29 @@ void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<f
     for(unsigned int i = 1; i <= m_l; i++)
         Y[i+m_l] = Y[-i+m_l];
     }
+*/
+
+// Calculating Ylm using fsph module
+void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+    {
+    if(Y.size() != 2*m_l+1)
+        Y.resize(2*m_l+1);
+
+    fsph::PointSPHEvaluator<float> sph_eval(m_l);
+
+    unsigned int j(0);
+    // old definition in compute (theta: 0...pi, phi: 0...2pi)
+    // in fsph, the definition is flipped
+    sph_eval.compute(theta, phi);
+
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, true));
+        iter != sph_eval.end(); ++iter)
+        {
+        Y[j] = *iter;
+        ++j;
+        }
+    }
+
 
 // void LocalQl::compute(const float3 *points, unsigned int Np)
 void LocalQl::compute(const vec3<float> *points, unsigned int Np)
@@ -60,9 +83,9 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_Qlmi = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
-    m_Qli = boost::shared_array<float>(new float[m_Np]);
-    m_Qlm = boost::shared_array<complex<float> >(new complex<float>[2*m_l+1]);
+    m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
+    m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+    m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1], std::default_delete<complex<float>[]>());
     memset((void*)m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_Qli.get(), 0, sizeof(float)*m_Np);
     memset((void*)m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
@@ -116,9 +139,10 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
 
                     std::vector<std::complex<float> > Y;
                     LocalQl::Ylm(theta, phi,Y);  //Fill up Ylm vector
+
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
-                        m_Qlmi[(2*m_l+1)*i+k]+=Y[k];
+                        m_Qlmi.get()[(2*m_l+1)*i+k]+=Y[k];
                         }
                     neighborcount++;
                     }
@@ -127,12 +151,12 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
             //Normalize!
             for(unsigned int k = 0; k < (2*m_l+1); ++k)
                 {
-                m_Qlmi[(2*m_l+1)*i+k]/= neighborcount;
-                m_Qli[i]+= abs( m_Qlmi[(2*m_l+1)*i+k]*conj(m_Qlmi[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
-                m_Qlm[k]+= m_Qlmi[(2*m_l+1)*i+k];
+                m_Qlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
+                m_Qli.get()[i]+= abs( m_Qlmi.get()[(2*m_l+1)*i+k]*conj(m_Qlmi.get()[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
+                m_Qlm.get()[k]+= m_Qlmi.get()[(2*m_l+1)*i+k];
                 }
-        m_Qli[i]*=normalizationfactor;
-        m_Qli[i]=sqrt(m_Qli[i]);
+        m_Qli.get()[i]*=normalizationfactor;
+        m_Qli.get()[i]=sqrt(m_Qli.get()[i]);
         } //Ends loop over particles i for Qlmi calcs
     }
 
@@ -152,9 +176,9 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
-    m_AveQlmi = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)*m_Np]);
-    m_AveQli = boost::shared_array<float>(new float[m_Np]);
-    m_AveQlm = boost::shared_array<complex<float> >(new complex<float> [(2*m_l+1)]);
+    m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
+    m_AveQli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+    m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
     memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
@@ -231,7 +255,7 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
                                     // change to Index?
                                     // Seg fault is here
                                     // m_Qlmi is not instantiated in this loop method, compute must be called first?
-                                    m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*j+k];
+                                    m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*j+k];
                                     }
                                 neighborcount++;
                                 }
@@ -244,13 +268,13 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
         for (unsigned int k = 0; k < (2*m_l+1); ++k)
             {
                 //adding the Qlm of the particle i itself
-                m_AveQlmi[(2*m_l+1)*i+k] += m_Qlmi[(2*m_l+1)*i+k];
-                m_AveQlmi[(2*m_l+1)*i+k]/= neighborcount;
-                m_AveQlm[k]+= m_AveQlmi[(2*m_l+1)*i+k];
-                m_AveQli[i]+= abs( m_AveQlmi[(2*m_l+1)*i+k]*conj(m_AveQlmi[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
+                m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*i+k];
+                m_AveQlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
+                m_AveQlm.get()[k]+= m_AveQlmi.get()[(2*m_l+1)*i+k];
+                m_AveQli.get()[i]+= abs( m_AveQlmi.get()[(2*m_l+1)*i+k]*conj(m_AveQlmi.get()[(2*m_l+1)*i+k]) ); //Square by multiplying self w/ complex conj, then take real comp
             }
-        m_AveQli[i]*=normalizationfactor;
-        m_AveQli[i]=sqrt(m_AveQli[i]);
+        m_AveQli.get()[i]*=normalizationfactor;
+        m_AveQli.get()[i]=sqrt(m_AveQli.get()[i]);
         } //Ends loop over particles i for Qlmi calcs
     }
 
@@ -262,23 +286,23 @@ void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    m_QliNorm = boost::shared_array<float>(new float[m_Np]);
+    m_QliNorm = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
     memset((void*)m_QliNorm.get(), 0, sizeof(float)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
         {
-        m_Qlm[k]/= m_Np;
+        m_Qlm.get()[k]/= m_Np;
         }
 
     for(unsigned int i = 0; i < m_Np; ++i)
         {
         for(unsigned int k = 0; k < (2*m_l+1); ++k)
             {
-            m_QliNorm[i]+= abs( m_Qlm[k]*conj(m_Qlm[k]) ); //Square by multiplying self w/ complex conj, then take real comp
+            m_QliNorm.get()[i]+= abs( m_Qlm.get()[k]*conj(m_Qlm.get()[k]) ); //Square by multiplying self w/ complex conj, then take real comp
             }
-            m_QliNorm[i]*=normalizationfactor;
-            m_QliNorm[i]=sqrt(m_QliNorm[i]);
+            m_QliNorm.get()[i]*=normalizationfactor;
+            m_QliNorm.get()[i]=sqrt(m_QliNorm.get()[i]);
         }
     }
 
@@ -290,23 +314,23 @@ void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
     m_Np = Np;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    m_QliAveNorm = boost::shared_array<float>(new float[m_Np]);
+    m_QliAveNorm = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
     memset((void*)m_QliAveNorm.get(), 0, sizeof(float)*m_Np);
 
     //Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
         {
-        m_AveQlm[k]/= m_Np;
+        m_AveQlm.get()[k]/= m_Np;
         }
 
     for(unsigned int i = 0; i < m_Np; ++i)
         {
         for(unsigned int k = 0; k < (2*m_l+1); ++k)
             {
-            m_QliAveNorm[i]+= abs( m_AveQlm[k]*conj(m_AveQlm[k]) ); //Square by multiplying self w/ complex conj, then take real comp
+            m_QliAveNorm.get()[i]+= abs( m_AveQlm.get()[k]*conj(m_AveQlm.get()[k]) ); //Square by multiplying self w/ complex conj, then take real comp
             }
-            m_QliAveNorm[i]*=normalizationfactor;
-            m_QliAveNorm[i]=sqrt(m_QliAveNorm[i]);
+            m_QliAveNorm.get()[i]*=normalizationfactor;
+            m_QliAveNorm.get()[i]=sqrt(m_QliAveNorm.get()[i]);
         }
     }
 
@@ -381,7 +405,7 @@ void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
 
 // void export_LocalQl()
 //     {
-//     class_<LocalQl>("LocalQl", init<trajectory::Box&, float, unsigned int, optional<float> >())
+//     class_<LocalQl>("LocalQl", init<box::Box&, float, unsigned int, optional<float> >())
 //         .def("getBox", &LocalQl::getBox, return_internal_reference<>())
 //         .def("setBox", &LocalQl::setBox)
 //         .def("compute", &LocalQl::computePy)

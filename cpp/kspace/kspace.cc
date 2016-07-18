@@ -39,8 +39,8 @@ void FTdelta::compute()
     quat<float>* q = &m_q.front();
     float density_Im = m_density_Im;
     float density_Re = m_density_Re;
-    m_S_Re = boost::shared_array<float>(new float[NK]);
-    m_S_Im = boost::shared_array<float>(new float[NK]);
+    m_S_Re = std::shared_ptr<float>(new float[NK], std::default_delete<float[]>());
+    m_S_Im = std::shared_ptr<float>(new float[NK], std::default_delete<float[]>());
     memset((void*)m_S_Re.get(), 0, sizeof(float) * NK);
     memset((void*)m_S_Im.get(), 0, sizeof(float) * NK);
     for(unsigned int i=0; i < NK; i++)
@@ -53,8 +53,8 @@ void FTdelta::compute()
             CosKr = cos(d);
             negSinKr = sin(d);
             // S += rho * exp(-i K r)
-            m_S_Re[i] += CosKr * density_Re + negSinKr * density_Im;
-            m_S_Im[i] += CosKr * density_Im - negSinKr * density_Re;
+            m_S_Re.get()[i] += CosKr * density_Re + negSinKr * density_Im;
+            m_S_Im.get()[i] += CosKr * density_Im - negSinKr * density_Re;
             }
         }
     }
@@ -89,8 +89,8 @@ void FTsphere::compute()
        -> S_Re += cos(dot(K, r))
        -> S_Im += - sin(dot(K, r))
     */
-    m_S_Re = boost::shared_array<float>(new float[NK]);
-    m_S_Im = boost::shared_array<float>(new float[NK]);
+    m_S_Re = std::shared_ptr<float>(new float[NK], std::default_delete<float[]>());
+    m_S_Im = std::shared_ptr<float>(new float[NK], std::default_delete<float[]>());
     memset((void*)m_S_Re.get(), 0, sizeof(float) * NK);
     memset((void*)m_S_Im.get(), 0, sizeof(float) * NK);
     for(unsigned int i=0; i < NK; i++)
@@ -128,8 +128,8 @@ void FTsphere::compute()
             negSinKr = sin(d);
 
             // S += rho * f * exp(-i K r)
-            m_S_Re[i] += CosKr * f_Re + negSinKr * f_Im;
-            m_S_Im[i] += CosKr * f_Im - negSinKr * f_Re;
+            m_S_Re.get()[i] += CosKr * f_Re + negSinKr * f_Im;
+            m_S_Im.get()[i] += CosKr * f_Im - negSinKr * f_Re;
             }
         }
     }
@@ -155,8 +155,8 @@ void FTpolyhedron::compute()
        -> S_Re += cos(dot(K, r))
        -> S_Im += - sin(dot(K, r))
     */
-    m_S_Re = boost::shared_array<float>(new float[NK]);
-    m_S_Im = boost::shared_array<float>(new float[NK]);
+    m_S_Re = std::shared_ptr<float>(new float[NK], std::default_delete<float[]>());
+    m_S_Im = std::shared_ptr<float>(new float[NK], std::default_delete<float[]>());
     memset((void*)m_S_Re.get(), 0, sizeof(float) * NK);
     memset((void*)m_S_Im.get(), 0, sizeof(float) * NK);
     // For each K point
@@ -270,8 +270,8 @@ void FTpolyhedron::compute()
             S_Im += CosKr * f_Im - negSinKr * f_Re;
             } // end for each ptl
 
-        m_S_Re[K_idx] = S_Re * rho_Re - S_Im * rho_Im;
-        m_S_Im[K_idx] = S_Re * rho_Im + S_Im * rho_Re;
+        m_S_Re.get()[K_idx] = S_Re * rho_Re - S_Im * rho_Im;
+        m_S_Im.get()[K_idx] = S_Re * rho_Im + S_Im * rho_Re;
         } // end foreach K
     }
 

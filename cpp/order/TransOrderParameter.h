@@ -7,13 +7,13 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _TRANS_ORDER_PARAMTER_H__
@@ -38,18 +38,18 @@ class TransOrderParameter
         ~TransOrderParameter();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Compute the translational order parameter
-        void compute(trajectory::Box& box,
+        void compute(box::Box& box,
                      const vec3<float> *points,
                      unsigned int Np);
 
         //! Get a reference to the last computed dr
-        boost::shared_array< std::complex<float> > getDr()
+        std::shared_ptr< std::complex<float> > getDr()
             {
             return m_dr_array;
             }
@@ -60,13 +60,13 @@ class TransOrderParameter
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;                        //!< Multiplier in the exponent
         locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_Np;                //!< Last number of points computed
 
-        boost::shared_array< std::complex<float> > m_dr_array;         //!< dr array computed
+        std::shared_ptr< std::complex<float> > m_dr_array;         //!< dr array computed
     };
 
 }; }; // end namespace freud::order

@@ -169,7 +169,7 @@ void DCDLoader::loadDCD()
     if (m_dcd == NULL)
         throw runtime_error("Error loading dcd file");
 
-    m_points = boost::shared_array<float>(new float[natoms*3]);
+    m_points = std::shared_ptr<float>(new float[natoms*3], std::default_delete<float[]>());
     }
 
 // void export_dcdloader()

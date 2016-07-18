@@ -20,22 +20,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
     assert(s[a].vecs.size() == s[b].vecs.size());
     assert(vec_map.size() == s[a].vecs.size());
 
-    // //////////////// TEST
-    // std::cout<<"old properly registered "<<a<<" vecs:"<<std::endl;;
-    // for (unsigned int k=0;k<s[a].vecs.size();k++)
-    //     {
-    //     vec3<float> dummy = s[a].proper_rot*s[a].vecs[s[a].vec_ind[k]];
-    //     std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-    //     }
-    //
-    // std::cout<<"old properly registered "<<b<<" vecs:"<<std::endl;;
-    // for (unsigned int k=0;k<s[b].vecs.size();k++)
-    //     {
-    //     vec3<float> dummy = s[b].proper_rot*s[b].vecs[s[b].vec_ind[k]];
-    //     std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-    //     }
-    // ////////////////
-
     // if tree heights are equal, merge b to a
     if (rank[s[a].env_ind] == rank[s[b].env_ind])
         {
@@ -70,18 +54,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
 
             // we've added another leaf to the tree or whatever the lingo is.
             rank[s[a].env_ind]++;
-
-            // //////////////// TEST
-            // if (node == b)
-            //     {
-            //     std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
-            //     for (unsigned int k=0;k<s[node].vecs.size();k++)
-            //         {
-            //         vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
-            //         std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-            //         }
-            //     }
-            // ///////////////
 
             }
         }
@@ -120,18 +92,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
 
                 // we've added another leaf to the tree or whatever the lingo is.
                 rank[s[a].env_ind]++;
-
-                // //////////////// TEST
-                // if (node == b)
-                //     {
-                //     std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
-                //     for (unsigned int k=0;k<s[node].vecs.size();k++)
-                //         {
-                //         vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
-                //         std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-                //         }
-                //     }
-                // ///////////////
                 }
             }
         else
@@ -169,18 +129,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
 
                 // we've added another leaf to the tree or whatever the lingo is.
                 rank[s[b].env_ind]++;
-
-                // //////////////// TEST
-                // if (node == a)
-                //     {
-                //     std::cout<<"new properly registered "<<node<<" vecs:"<<std::endl;
-                //     for (unsigned int k=0;k<s[node].vecs.size();k++)
-                //         {
-                //         vec3<float> dummy = s[node].proper_rot*s[node].vecs[s[node].vec_ind[k]];
-                //         std::cout<<dummy.x<<" "<<dummy.y<<" "<<dummy.z<<std::endl;
-                //         }
-                //     }
-                // ///////////////
                 }
             }
         }
@@ -241,15 +189,15 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 
 // Get the vectors corresponding to environment head index m. Vectors are averaged over all members of the environment cluster.
 // If environment m doesn't exist as a HEAD in the set, throw an error.
-boost::shared_array<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
+std::shared_ptr<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
     {
     assert(s.size() > 0);
     bool invalid_ind = true;
 
-    boost::shared_array<vec3<float> > env(new vec3<float> [m_max_num_neigh] );
+    std::shared_ptr<vec3<float> > env(new vec3<float> [m_num_neigh], std::default_delete<vec3<float>[]>());
     for (unsigned int n = 0; n < m_max_num_neigh; n++)
         {
-        env[n] = vec3<float>(0.0,0.0,0.0);
+        env.get()[n] = vec3<float>(0.0,0.0,0.0);
         }
     float N = float(0);
 
@@ -272,7 +220,7 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m
                 for (unsigned int proper_ind = 0; proper_ind < s[i].vecs.size(); proper_ind++)
                     {
                     unsigned int relative_ind = s[i].vec_ind[proper_ind];
-                    env[proper_ind] += s[i].proper_rot*s[i].vecs[relative_ind];
+                    env.get()[proper_ind] += s[i].proper_rot*s[i].vecs[relative_ind];
                     }
                 N += float(1);
                 invalid_ind = false;
@@ -291,8 +239,8 @@ boost::shared_array<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m
         // loop through the vectors in env now, dividing by the total number of contributing particle environments to make an average
         for (unsigned int n = 0; n < m_max_num_neigh; n++)
             {
-            vec3<float> normed = env[n]/N;
-            env[n] = normed;
+            vec3<float> normed = env.get()[n]/N;
+            env.get()[n] = normed;
             }
         }
     return env;
@@ -327,7 +275,7 @@ std::vector<vec3<float> > EnvDisjointSet::getIndividualEnv(const unsigned int m)
     }
 
 // Constructor
-MatchEnv::MatchEnv(const trajectory::Box& box, float rmax, unsigned int k)
+MatchEnv::MatchEnv(const box::Box& box, float rmax, unsigned int k)
     :m_box(box), m_rmax(rmax), m_k(k)
     {
     m_Np = 0;
@@ -359,7 +307,7 @@ Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsign
     if (hard_r == false)
         {
         // get the neighbors
-        boost::shared_array<unsigned int> neighbors = m_nn->getNeighbors(i);
+        std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
         // loop over the neighbors
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
@@ -672,7 +620,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     assert(threshold > 0);
 
     // reallocate the m_env_index array for safety
-    m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    m_env_index = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -698,7 +646,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
 
     // reallocate the m_tot_env array
     unsigned int array_size = Np*m_maxk;
-    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
+    m_tot_env = std::shared_ptr<vec3<float> >(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
 
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
@@ -766,7 +714,7 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     assert(threshold > 0);
 
     // reallocate the m_env_index array for safety
-    m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    m_env_index = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
 
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
@@ -784,7 +732,7 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
 
     // reallocate the m_tot_env array
     unsigned int array_size = Np*m_maxk;
-    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
+    m_tot_env = std::shared_ptr<vec3<float> >(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
 
     // create the environment characterized by refPoints. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have actually encountered in the simulation.
@@ -843,7 +791,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const vec3<float> *points, unsigned in
     assert(Np > 0);
 
     // reallocate the m_env_index array for safety
-    m_env_index = boost::shared_array<unsigned int>(new unsigned int[Np]);
+    m_env_index = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
 
     m_Np = Np;
     std::vector<float> min_rmsd_vec(m_Np);
@@ -861,7 +809,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const vec3<float> *points, unsigned in
 
     // reallocate the m_tot_env array
     unsigned int array_size = Np*m_maxk;
-    m_tot_env = boost::shared_array<vec3<float> >(new vec3<float>[array_size]);
+    m_tot_env = std::shared_ptr<vec3<float> >(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
 
     // create the environment characterized by refPoints. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have actually encountered in the simulation.
@@ -937,7 +885,7 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
             if (label_map.count(c) == 0)
                 {
                 label_map[c] = cur_set;
-                boost::shared_array<vec3<float> > vecs = dj.getAvgEnv(c);
+                std::shared_ptr<vec3<float> > vecs = dj.getAvgEnv(c);
 
                 if (reLabel == true) { label_ind = label_map[c]; }
                 else { label_ind = c; }
@@ -951,7 +899,7 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
             else { label_ind = c; }
 
             // label this particle in m_env_index
-            m_env_index[particle_ind] = label_ind;
+            m_env_index.get()[particle_ind] = label_ind;
             // add the particle environment to m_tot_env
             // get a pointer to the start of m_tot_env
             vec3<float> *start = m_tot_env.get();

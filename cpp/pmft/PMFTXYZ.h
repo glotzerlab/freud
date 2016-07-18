@@ -6,20 +6,20 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #include "LinkCell.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
-#ifndef _PMFXYZ_H__
-#define _PMFXYZ_H__
+#ifndef _PMFTXYZ_H__
+#define _PMFTXYZ_H__
 
 /*! \internal
-    \file PMFXYZ.h
+    \file PMFTXYZ.h
     \brief Routines for computing anisotropic potential of mean force in 3D
 */
 
@@ -29,23 +29,23 @@ namespace freud { namespace pmft {
 /*! A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
     Computing the PCF results in a pcf array listing the value of the PCF at each given x, y, z listed in the x, y, and z arrays.
 
-    The values of x, y, z to compute the pcf at are controlled by the xmax, ymax, zmax and nbins_x, nbins_y, nbins_z parameters to the constructor.
-    xmax, ymax, zmax determines the minimum/maximum x, y, z at which to compute the pcf and nbins_x, nbins_y, nbins_z is the number of bins in x, y, z.
+    The values of x, y, z to compute the pcf at are controlled by the xmax, ymax, zmax and n_bins_x, n_bins_y, n_bins_z parameters to the constructor.
+    xmax, ymax, zmax determines the minimum/maximum x, y, z at which to compute the pcf and n_bins_x, n_bins_y, n_bins_z is the number of bins in x, y, z.
 
     <b>2D:</b><br>
     This PCF works for 3D boxes (while it will work for 2D boxes, you should use the 2D version).
 */
-class PMFXYZ
+class PMFTXYZ
     {
     public:
         //! Constructor
-        PMFXYZ(float max_x, float max_y, float max_z, unsigned int nbins_x, unsigned int nbins_y, unsigned int nbins_z);
+        PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z);
 
         //! Destructor
-        ~PMFXYZ();
+        ~PMFTXYZ();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -56,58 +56,71 @@ class PMFXYZ
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
         */
-        void accumulate(trajectory::Box& box,
+        void accumulate(box::Box& box,
                         vec3<float> *ref_points,
                         quat<float> *ref_orientations,
-                        unsigned int Nref,
+                        unsigned int n_ref,
                         vec3<float> *points,
                         quat<float> *orientations,
-                        unsigned int Np,
+                        unsigned int n_p,
                         quat<float> *face_orientations,
-                        unsigned int Nfaces);
+                        unsigned int n_faces);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
         void reducePCF();
 
         //! Get a reference to the PCF array
-        boost::shared_array<unsigned int> getPCF();
+        std::shared_ptr<float> getPCF();
+
+        //! Get a reference to the bin counts array
+        std::shared_ptr<unsigned int> getBinCounts();
 
         //! Get a reference to the x array
-        boost::shared_array<float> getX()
+        std::shared_ptr<float> getX()
             {
             return m_x_array;
             }
 
         //! Get a reference to the y array
-        boost::shared_array<float> getY()
+        std::shared_ptr<float> getY()
             {
             return m_y_array;
             }
 
         //! Get a reference to the z array
-        boost::shared_array<float> getZ()
+        std::shared_ptr<float> getZ()
             {
             return m_z_array;
             }
 
+        float getJacobian()
+            {
+            return m_jacobian;
+            }
+
+        float getRCut()
+            {
+            return m_r_cut;
+            }
+
         unsigned int getNBinsX()
             {
-            return m_nbins_x;
+            return m_n_bins_x;
             }
 
         unsigned int getNBinsY()
             {
-            return m_nbins_y;
+            return m_n_bins_y;
             }
 
         unsigned int getNBinsZ()
             {
-            return m_nbins_z;
+            return m_n_bins_z;
             }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_max_x;                     //!< Maximum x at which to compute pcf
         float m_max_y;                     //!< Maximum y at which to compute pcf
         float m_max_z;                     //!< Maximum z at which to compute pcf
@@ -115,17 +128,25 @@ class PMFXYZ
         float m_dy;                       //!< Step size for y in the computation
         float m_dz;                       //!< Step size for z in the computation
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
-        unsigned int m_nbins_x;             //!< Number of x bins to compute pcf over
-        unsigned int m_nbins_y;             //!< Number of y bins to compute pcf over
-        unsigned int m_nbins_z;             //!< Number of z bins to compute pcf over
+        unsigned int m_n_bins_x;             //!< Number of x bins to compute pcf over
+        unsigned int m_n_bins_y;             //!< Number of y bins to compute pcf over
+        unsigned int m_n_bins_z;             //!< Number of z bins to compute pcf over
+        float m_r_cut;                      //!< r_cut used in cell list construction
+        unsigned int m_frame_counter;       //!< number of frames calc'd
+        unsigned int m_n_ref;
+        unsigned int m_n_p;
+        unsigned int m_n_faces;
+        float m_jacobian;
+        bool m_reduce;
 
-        boost::shared_array<unsigned int> m_pcf_array;         //!< array of pcf computed
-        boost::shared_array<float> m_x_array;           //!< array of x values that the pcf is computed at
-        boost::shared_array<float> m_y_array;           //!< array of y values that the pcf is computed at
-        boost::shared_array<float> m_z_array;           //!< array of z values that the pcf is computed at
-        tbb::enumerable_thread_specific<unsigned int *> m_local_pcf_array;
+        std::shared_ptr<float> m_pcf_array;         //!< array of pcf computed
+        std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed
+        std::shared_ptr<float> m_x_array;           //!< array of x values that the pcf is computed at
+        std::shared_ptr<float> m_y_array;           //!< array of y values that the pcf is computed at
+        std::shared_ptr<float> m_z_array;           //!< array of z values that the pcf is computed at
+        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFXYZ_H__
+#endif // _PMFTXYZ_H__

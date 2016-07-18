@@ -32,6 +32,8 @@ cdef extern from "trajectory.h" namespace "freud::trajectory":
         vec3[float] makeFraction(const vec3[float]&) const
         vec3[float] getLatticeVector(unsigned int i) const
         vec3[float] wrap(vec3[float]&)
+        vec3[float] wrapMultiple(vec3[float]& v) const
+        vec3[float] unwrap(vec3[float]&, vec3[int]&)
 
 cdef extern from "DCDLoader.h" namespace "freud::trajectory":
     cdef cppclass DCDLoader:

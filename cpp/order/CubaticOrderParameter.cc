@@ -12,7 +12,6 @@
 
 #include <stdexcept>
 #include <complex>
-#include <random>
 
 using namespace std;
 using namespace tbb;
@@ -43,12 +42,7 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     memset((void*)m_particle_order_parameter.get(), 0, sizeof(float)*m_n);
     // required to not have memory overwritten
     memcpy((void*)&m_gen_r4_tensor.data, r4_tensor, sizeof(float)*81);
-    // create random number generators. will be moved to thread specific versions
-    m_gen = std::mt19937(m_rd());
-    m_theta_dist = std::uniform_real_distribution<float>(0,2.0*M_PI);
-    m_phi_dist = std::uniform_real_distribution<float>(0,1.0);
-    m_angle_dist = std::uniform_real_distribution<float>(0,2.0*M_PI);
-    // test saru
+    // create random number generator.
     Saru m_saru(m_seed, 0, 0xffaabb);
     }
 

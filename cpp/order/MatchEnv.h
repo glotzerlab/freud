@@ -1,7 +1,7 @@
 #ifndef _MATCH_ENV_H__
 #define _MATCH_ENV_H__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <boost/bimap.hpp>
 
 #include "HOOMDMath.h"
@@ -13,7 +13,7 @@
 #include "Cluster.h"
 #include "NearestNeighbors.h"
 #include "brute_force.h"
-#include "trajectory.h"
+#include "box.h"
 
 #include <stdexcept>
 #include <complex>
@@ -65,7 +65,7 @@ class EnvDisjointSet
         //! Return ALL nodes in the tree that correspond to the head index m
         std::vector<unsigned int> findSet(const unsigned int m);
         //! Get the vectors corresponding to environment head index m. Vectors are averaged over all members of the environment cluster.
-        boost::shared_array<vec3<float> > getAvgEnv(const unsigned int m);
+        std::shared_ptr<vec3<float> > getAvgEnv(const unsigned int m);
         //! Get the vectors corresponding to index m in the dj set
         std::vector<vec3<float> > getIndividualEnv(const unsigned int m);
 
@@ -83,7 +83,7 @@ class MatchEnv
         @param rmax Cutoff radius for cell list and clustering algorithm.  Values near first minimum of the rdf are recommended.
         @param k Number of nearest neighbors taken to define the local environment of any given particle.
         **/
-        MatchEnv(const trajectory::Box& box, float rmax, unsigned int k=12);
+        MatchEnv(const box::Box& box, float rmax, unsigned int k=12);
 
         //! Destructor
         ~MatchEnv();
@@ -154,13 +154,13 @@ class MatchEnv
         std::map<unsigned int, unsigned int> minimizeRMSD(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration);
 
         //! Get a reference to the particles, indexed into clusters according to their matching local environments
-        boost::shared_array<unsigned int> getClusters()
+        std::shared_ptr<unsigned int> getClusters()
             {
             return m_env_index;
             }
 
         //! Reset the simulation box
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox;
             delete m_nn;
@@ -170,15 +170,15 @@ class MatchEnv
             }
 
         //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
-        boost::shared_array< vec3<float> > getEnvironment(unsigned int i)
+        std::shared_ptr< vec3<float> > getEnvironment(unsigned int i)
             {
-            std::map<unsigned int, boost::shared_array<vec3<float> > >::iterator it = m_env.find(i);
-            boost::shared_array<vec3<float> > vecs = it->second;
+            std::map<unsigned int, std::shared_ptr<vec3<float> > >::iterator it = m_env.find(i);
+            std::shared_ptr<vec3<float> > vecs = it->second;
             return vecs;
             }
 
         //! Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
-        boost::shared_array<vec3<float> > getTotEnvironment()
+        std::shared_ptr<vec3<float> > getTotEnvironment()
             {
             return m_tot_env;
             }
@@ -202,7 +202,7 @@ class MatchEnv
             }
 
     private:
-        trajectory::Box m_box;              //!< Simulation box
+        box::Box m_box;              //!< Simulation box
         float m_rmax;                       //!< Maximum cutoff radius at which to determine local environment
         float m_rmaxsq;                     //!< Square of m_rmax
         float m_k;                          //!< Number of nearest neighbors used to determine which environments are compared during local environment clustering. If hard_r=false, this is also the number of neighbors in each local environment.
@@ -212,9 +212,9 @@ class MatchEnv
         unsigned int m_Np;                  //!< Last number of points computed
         unsigned int m_num_clusters;        //!< Last number of local environments computed
 
-        boost::shared_array<unsigned int> m_env_index;                          //!< Cluster index determined for each particle
-        std::map<unsigned int, boost::shared_array<vec3<float> > > m_env;       //!< Dictionary of (cluster id, vectors) pairs
-        boost::shared_array<vec3<float> > m_tot_env;                            //!< m_NP by m_maxk by 3 matrix of all environments for all particles
+        std::shared_ptr<unsigned int> m_env_index;                              //!< Cluster index determined for each particle
+        std::map<unsigned int, std::shared_ptr<vec3<float> > > m_env;           //!< Dictionary of (cluster id, vectors) pairs
+        std::shared_ptr<vec3<float> > m_tot_env;                                //!< m_NP by m_maxk by 3 matrix of all environments for all particles
     };
 
 }; }; // end namespace freud::match_env

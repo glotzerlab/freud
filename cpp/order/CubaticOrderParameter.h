@@ -7,8 +7,6 @@
 #define __APPLE__
 
 #include <memory>
-#include <random>
-#include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -16,7 +14,7 @@
 #include "saruprng.h"
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _CUBATIC_ORDER_PARAMETER_H__
@@ -98,12 +96,7 @@ class CubaticOrderParameter
         tensor4<float> m_cubatic_tensor;
         std::shared_ptr<float> m_particle_tensor;
 
-        // serial rng
-        std::random_device m_rd;
-        std::mt19937 m_gen;
-        std::uniform_real_distribution<float> m_theta_dist;
-        std::uniform_real_distribution<float> m_phi_dist;
-        std::uniform_real_distribution<float> m_angle_dist;
+        // saru rng
         Saru m_saru;
         unsigned int m_seed;
     };

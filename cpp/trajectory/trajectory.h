@@ -5,6 +5,8 @@
 
 #include "VectorMath.h"
 
+#include <math.h>
+
 #ifndef _TRAJECTORY_H__
 #define _TRAJECTORY_H__
 
@@ -269,6 +271,30 @@ class Box
             return img;
             }
 
+        //! wrap a vector back into the box. This function is specifically designed to be
+        // called from python and wrap vectors which are greater than one image away
+        vec3<float> wrapMultiple(vec3<float>& v) const
+            {
+            vec3<float> tmp = makeFraction(v);
+            tmp.x = fmod(tmp.x,(float)1);
+            tmp.y = fmod(tmp.y,(float)1);
+            tmp.z = fmod(tmp.z,(float)1);
+            // handle negative mod
+            if (tmp.x < 0)
+                {
+                tmp.x += 1;
+                }
+            if (tmp.y < 0)
+                {
+                tmp.y += 1;
+                }
+            if (tmp.z < 0)
+                {
+                tmp.z += 1;
+                }
+            return makeCoordinates(tmp);
+            }
+
         //! Wrap a vector back into the box
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
             \param img Image of the vector, updated to reflect the new image
@@ -425,6 +451,17 @@ class Box
             \returns The unwrapped coordinates
         */
         vec3<float> unwrap(const vec3<float>& p, const int3& image) const
+            {
+            vec3<float> newp = p;
+
+            newp += getLatticeVector(0) * float(image.x);
+            newp += getLatticeVector(1) * float(image.y);
+            if(!m_2d)
+                newp += getLatticeVector(2) * float(image.z);
+            return newp;
+            }
+
+        vec3<float> unwrap(const vec3<float>& p, const vec3<int>& image) const
             {
             vec3<float> newp = p;
 

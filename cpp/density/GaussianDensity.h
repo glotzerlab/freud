@@ -5,12 +5,12 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _GaussianDensity_H__
@@ -44,7 +44,7 @@ class GaussianDensity
         ~GaussianDensity();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
                 {
                 return m_box;
                 }
@@ -57,10 +57,10 @@ class GaussianDensity
         void reduceDensity();
 
         //! Compute the Density
-        void compute(const trajectory::Box& box, const vec3<float> *points, unsigned int Np);
+        void compute(const box::Box& box, const vec3<float> *points, unsigned int Np);
 
         //!Get a reference to the last computed Density
-        boost::shared_array<float> getDensity();
+        std::shared_ptr<float> getDensity();
 
         unsigned int getWidthX();
 
@@ -69,14 +69,14 @@ class GaussianDensity
         unsigned int getWidthZ();
 
     private:
-        trajectory::Box m_box;    //!< Simulation box the particles belong in
+        box::Box m_box;    //!< Simulation box the particles belong in
         unsigned int m_width_x,m_width_y,m_width_z;           //!< Num of bins on one side of the cube
         float m_rcut;                  //!< Max r at which to compute density
         float m_sigma;                  //!< Variance
         Index3D m_bi;                   //!< Bin indexer
         unsigned int m_frame_counter;       //!< number of frames calc'd
 
-        boost::shared_array<float> m_Density_array;            //! computed density array
+        std::shared_ptr<float> m_Density_array;            //! computed density array
         tbb::enumerable_thread_specific<float *> m_local_bin_counts;
     };
 

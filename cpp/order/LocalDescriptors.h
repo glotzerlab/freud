@@ -1,11 +1,13 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 
-#include "LinkCell.h"
+#include "NearestNeighbors.h"
 // hack to keep VectorMath's swap from polluting the global namespace
 #include "VectorMath.h"
-#include "trajectory.h"
+#include "box.h"
 
 #include "tbb/atomic.h"
+
+#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_DESCRIPTORS_H__
 #define _LOCAL_DESCRIPTORS_H__
@@ -24,20 +26,20 @@ class LocalDescriptors
 public:
     //! Constructor
     //!
-    //! \param box This frame's box
-    //! \param nNeigh Number of neighbors to compute descriptors for
+    //! \param neighmax Maximum number of neighbors to compute descriptors for
     //! \param lmax Maximum spherical harmonic l to consider
     //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
-    LocalDescriptors(const trajectory::Box& box, unsigned int nNeigh,
-        unsigned int lmax, float rmax);
+    //! \param negative_m whether to calculate Ylm for negative m
+    LocalDescriptors(unsigned int neighmax,
+                     unsigned int lmax, float rmax, bool negative_m);
 
-    //! Get the simulation box
-    const trajectory::Box& getBox() const
+    //! Get the maximum number of neighbors
+    unsigned int getNeighmax() const
         {
-        return m_box;
+        return m_neighmax;
         }
 
-    //! Get the number of neighbors
+    //! Get the last number of neighbors
     unsigned int getNNeigh() const
         {
         return m_nNeigh;
@@ -49,61 +51,43 @@ public:
         return m_lmax;
         }
 
-    //! Get the current cutoff radius used
-    float getRMax() const
+    //! Get the maximum neighbor distance
+    unsigned int getRMax() const
         {
-        return m_rmax;
+        return m_nn.getRMax();
         }
 
     //! Get the number of particles
     unsigned int getNP() const
         {
-        return m_Np;
+        return m_Nref;
         }
 
+    //! Compute the nearest neighbors for each particle
+    void computeNList(const box::Box& box, const vec3<float> *r_ref,
+                      unsigned int Nref, const vec3<float> *r, unsigned int Np);
+
     //! Compute the local neighborhood descriptors given some
-    //! positions, orientations, and the number of particles
-    void compute(const vec3<float> *r, const quat<float> *q, unsigned int Np);
+    //! positions and the number of particles
+    void compute(const box::Box& box, unsigned int nNeigh,
+                 const vec3<float> *r_ref, unsigned int Nref, const vec3<float> *r,
+                 unsigned int Np);
 
     // //! Python wrapper for compute
     // void computePy(boost::python::numeric::array r,
     //     boost::python::numeric::array q);
 
-    //! Get a reference to the last computed radius magnitude array
-    boost::shared_array<float> getMagR()
-        {
-        return m_magrArray;
-        }
-
-    //! Get a reference to the last computed relative orientation array
-    boost::shared_array<quat<float> > getQij()
-        {
-        return m_qijArray;
-        }
-
     //! Get a reference to the last computed spherical harmonic array
-    boost::shared_array<std::complex<float> > getSph()
+    std::shared_ptr<std::complex<float> > getSph()
         {
         return m_sphArray;
         }
 
-    // //! Python wrapper for getMagR() (returns a copy)
-    // boost::python::numeric::array getMagRPy()
-    //     {
-    //     const intp cshape[] = {m_Np, m_nNeigh};
-    //     const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
-    //     float *arr = m_magrArray.get();
-    //     return num_util::makeNum(arr, shape);
-    //     }
-
-    // //! Python wrapper for getQij() (returns a copy)
-    // boost::python::numeric::array getQijPy()
-    //     {
-    //     const intp cshape[] = {m_Np, m_nNeigh, 4};
-    //     const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
-    //     float *arr = (float*) m_qijArray.get();
-    //     return num_util::makeNum(arr, shape);
-    //     }
+    unsigned int getSphWidth() const
+        {
+        return fsph::sphCount(m_lmax) +
+            (m_lmax > 0 && m_negative_m ? fsph::sphCount(m_lmax - 1): 0);
+        }
 
     // //! Python wrapper for getSph() (returns a copy)
     // boost::python::numeric::array getSphPy()
@@ -118,20 +102,15 @@ public:
     //     }
 
 private:
-    trajectory::Box m_box;            //!< Simulation box the particles belong in
-    unsigned int m_nNeigh;            //!< Number of neighbors to calculate
+    unsigned int m_neighmax;          //!< Maximum number of neighbors to calculate
     unsigned int m_lmax;              //!< Maximum spherical harmonic l to calculate
-    float m_rmax;                     //!< Maximum r at which to determine neighbors
-    locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
-    unsigned int m_Np;                //!< Last number of points computed
-    tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
+    bool m_negative_m;                //!< true if we should compute Ylm for negative m
+    locality::NearestNeighbors m_nn;  //!< NearestNeighbors to find neighbors with
+    unsigned int m_Nref;              //!< Last number of points computed
+    unsigned int m_nNeigh;            //!< Last number of neighbors computed
 
-    //! Magnitude of the radius vector for each neighbor
-    boost::shared_array<float> m_magrArray;
-    //! Quaternion to rotate into each neighbor's orientation
-    boost::shared_array<quat<float> > m_qijArray;
     //! Spherical harmonics for each neighbor
-    boost::shared_array<std::complex<float> > m_sphArray;
+    std::shared_ptr<std::complex<float> > m_sphArray;
     };
 
 }; }; // end namespace freud::order
