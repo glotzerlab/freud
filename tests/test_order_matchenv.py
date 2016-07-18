@@ -140,7 +140,6 @@ class TestCluster(unittest.TestCase):
         npt.assert_almost_equal(sorted_env_cluster, sorted_bcc_env, decimal=5, err_msg="BCC Cluster Environment fail")
 
 
-
     #test MatchEnv.cluster function, hard_r=false, registration=true
     def test_cluster_registration(self):
         xyz = np.load("bcc.N_1024.npy")
@@ -181,6 +180,87 @@ class TestCluster(unittest.TestCase):
         returnResult = match.isSimilar(tot_env[1], tot_env[5], 0.1, registration=True)
         unittestObj = unittest.TestCase()
         unittestObj.assertNotEqual(len(returnResult[1]), 0, msg="two environments are not similar")
+
+    #test MatchEnv.minimizeRMSD and registration functionality. overkill? maybe.
+    def test_minimizeRMSD(self):
+        env_vec = np.array([[1,0,0],
+                            [0,1,0],
+                            [0,0,1],
+                            [0,0,2]])
+        threshold = 0.1
+
+        # https://en.wikipedia.org/wiki/Rotation_matrix
+        norm = np.array([1,1,1])
+        norm = norm/np.sqrt(np.dot(norm, norm))
+
+        theta = np.pi/10
+
+        # r_cut and num_neigh are meaningless here
+        r_cut = 2
+        num_neigh = len(env_vec)
+
+        ux = norm[0]
+        uy = norm[1]
+        uz = norm[2]
+        c=np.cos(theta)
+        s=np.sin(theta)
+
+        R = np.array([[c+pow(ux, 2.)*(1-c), ux*uy*(1-c)-uz*s, ux*uz*(1-c)+uy*s],
+                      [uy*ux*(1-c)+uz*s, c+pow(uy, 2.)*(1-c), uy*uz*(1-c)-ux*s],
+                      [uz*ux*(1-c)-uy*s, uz*uy*(1-c)+ux*s, c+pow(uz, 2.)*(1-c)]])
+
+        ## 1. Grab the environment vectors.
+        e0 = np.array(env_vec, dtype=np.single)
+        # 1b. Set up a large enough box
+        scale = 1.5
+        rsq_arr = [np.dot(vec,vec) for vec in e0]
+        rsq_max = max(rsq_arr)
+        L = 2.*np.sqrt(rsq_max)*scale
+        fbox = trajectory.Box(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0)
+        ## 2. Re-index the environment randomly to create a second environment.
+        e1 = np.copy(e0)
+        np.random.shuffle(e1)
+        ## 3. Verify that OUR method isSimilar gives that these two environments are similar.
+        match = MatchEnv(fbox, r_cut, num_neigh)
+        [refPoints2, isSim_vec_map] = match.isSimilar(e0, e1, threshold, registration=False)
+        npt.assert_almost_equal(e0, refPoints2[np.asarray(list(isSim_vec_map.values()))])
+        ## 4. Calculate the minimal RMSD.
+        [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(e0, e1, registration=False)
+        ## 5. Verify that the minimizeRMSD method finds 0 minimal RMSD (with no registration.)
+        npt.assert_equal(0.0, min_rmsd)
+        ## 6. Verify that it gives the same vector mapping that isSimilar gave.
+        npt.assert_equal(np.asarray(list(isSim_vec_map.values())), np.asarray(list(minRMSD_vec_map.values())))
+        npt.assert_almost_equal(e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+        ## 7. Rotate the motif by a known rotation matrix. this matrix MUST be s.t. the minimal rmsd is the rmsd of the 1-1 mapping between the
+        # vectors of the pre-rotated environment and the post-rotated environment (with no index-mixing).
+        # This isn't guaranteed for any matrix, whatsoever. Work only with environments and rotations for which you know exactly what's going on here.
+        # Be careful here : R rotates the position matrix where positions are COLUMN vectors
+        e0_rot = np.array(np.transpose(np.dot(R, np.transpose(e0))), dtype=np.single)
+        ## 8. Calculate the minimal RMSD assuming the 1-1 relationship.
+        delta = e0_rot - e0
+        deltasq = np.array([np.dot(vec,vec) for vec in delta])
+        deltasum = np.sum(deltasq)
+        deltasum /= len(deltasq)
+        analy_rmsd = np.sqrt(deltasum)
+        ## 9. Verify that minimizeRMSD gives this minimal RMSD (with no registration).
+        [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(e0, e0_rot, registration=False)
+        npt.assert_almost_equal(analy_rmsd, min_rmsd)
+        npt.assert_almost_equal(e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+        ## 10. Re-index the second environment randomly again.
+        e1_rot = np.copy(e0_rot)
+        np.random.shuffle(e1_rot)
+        ## 11. Verify that minimizeRMSD gives this minimal RMSD again (with no registration).
+        [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(e0, e1_rot, registration=False)
+        npt.assert_almost_equal(analy_rmsd, min_rmsd)
+        npt.assert_almost_equal(e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+        ## 12. Now use minimizeRMSD with registration turned ON.
+        [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(e0, e1_rot, registration=True)
+        ## 13. This should get us back to 0 minimal rmsd.
+        npt.assert_almost_equal(0., min_rmsd)
+        npt.assert_almost_equal(e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+        ## 14. Finally use isSimilar with registration turned ON.
+        [refPoints2, isSim_vec_map] = match.isSimilar(e0, e1_rot, threshold, registration=True)
+        npt.assert_almost_equal(e0, refPoints2[np.asarray(list(isSim_vec_map.values()))])
 
 
 if __name__ == '__main__':
