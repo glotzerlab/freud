@@ -1,7 +1,7 @@
 #ifndef _SOL_LIQ_H__
 #define _SOL_LIQ_H__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 //#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "HOOMDMath.h"
@@ -12,8 +12,9 @@
 
 #include "Cluster.h"
 #include "LinkCell.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
-#include "trajectory.h"
+#include "box.h"
 #include <stdexcept>
 #include <complex>
 #include <map>
@@ -38,16 +39,16 @@ class SolLiq
         @param Sthreshold Minimum required number of adjacent solid-link bonds for a particle to be considered solid-like for clustering. (For l=6, 6-8 generally good for FCC or BCC structures)
         @param l Choose spherical harmonic Ql.  Must be positive and even.
         **/
-        SolLiq(const trajectory::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l);
+        SolLiq(const box::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l);
 
         //! Get the simulation box
-        const trajectory::Box& getBox()
+        const box::Box& getBox()
             {
             return m_box;
             }
 
         //!  Reset the simulation box size
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox;  //Set
             locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );  //Rebuild cell list
@@ -119,7 +120,7 @@ class SolLiq
         //     }
 
         //! Get a reference to the last computed Qlmi
-        boost::shared_array< std::complex<float> > getQlmi()
+        std::shared_ptr< std::complex<float> > getQlmi()
             {
             return m_Qlmi_array;
             }
@@ -142,7 +143,7 @@ class SolLiq
         // void computeNoNormVectorInputPy(boost::python::api::object &pyobj);
 
         //! Get a reference to the last computed set of solid-like cluster indices for each particle
-        boost::shared_array<unsigned int > getClusters()
+        std::shared_ptr<unsigned int > getClusters()
             {
             return m_cluster_idx;
             }
@@ -154,7 +155,7 @@ class SolLiq
         //     }
 
         //! Get a reference to the number of connections per particle
-        boost::shared_array<unsigned int> getNumberOfConnections()
+        std::shared_ptr<unsigned int> getNumberOfConnections()
             {
             return m_number_of_connections;
             }
@@ -288,13 +289,13 @@ class SolLiq
         void computeClustersQdotNoNorm(const vec3<float> *points,
                               unsigned int Np);
 
-        trajectory::Box m_box;      //!< Simulation box the particles belong in
+        box::Box m_box;      //!< Simulation box the particles belong in
         float m_rmax;               //!< Maximum cutoff radius at which to determine local environment
         float m_rmax_cluster;       //!< Maximum radius at which to cluster solid-like particles;
         locality::LinkCell m_lc;    //!< LinkCell to bin particles for the computation of local environments
 
         unsigned int m_Np;          //!< Last number of points computed
-        boost::shared_array< std::complex<float> > m_Qlmi_array; //!< Stores Qlm for each particle i
+        std::shared_ptr< std::complex<float> > m_Qlmi_array; //!< Stores Qlm for each particle i
         //boost::shared_array<float> m_Qli_array;  //!< Stores Ql rotationally invariant local order for each particle
         float m_Qthreshold;          //!< Dotproduct cutoff
         unsigned int m_Sthreshold;    //!< Solid-like num connections cutoff
@@ -303,11 +304,11 @@ class SolLiq
 
         //Pull cluster data into these
         unsigned int m_num_clusters;                                //!< Number of clusters found inthe last call to compute()
-        boost::shared_array<unsigned int> m_cluster_idx;            //!< Cluster index determined for each particle
+        std::shared_ptr<unsigned int> m_cluster_idx;            //!< Cluster index determined for each particle
         std::vector< std::complex<float> > m_qldot_ij;     //!< All of the Qlmi dot Qlmj's computed
  //       unsigned int m_num_dotproducts;                             //!< size of M_qlmdot_ij;
-        boost::shared_array<unsigned int> m_number_of_connections;  //!< Number of connections for each particle with dot product above Qthreshold
-        boost::shared_array<unsigned int> m_number_of_neighbors;    //!< Number of neighbors for each particle (used for normalizing spherical harmonics);
+        std::shared_ptr<unsigned int> m_number_of_connections;  //!< Number of connections for each particle with dot product above Qthreshold
+        std::shared_ptr<unsigned int> m_number_of_neighbors;    //!< Number of neighbors for each particle (used for normalizing spherical harmonics);
         std::vector<unsigned int> m_number_of_shared_connections;  //!Stores number of shared neighbors for all ij pairs considered
     };
 

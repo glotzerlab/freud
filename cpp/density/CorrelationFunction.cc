@@ -22,7 +22,7 @@ using namespace tbb;
 
 template<typename T>
 CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
+    : m_box(box::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
     {
     if (dr < 0.0f)
         throw invalid_argument("dr must be positive");
@@ -33,20 +33,20 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
-    m_rdf_array = boost::shared_array<T>(new T[m_nbins]);
+    m_rdf_array = std::shared_ptr<T>(new T[m_nbins], std::default_delete<T[]>());
     // Less efficient: initialize each bin sequentially using default ctor
     for(size_t i(0); i < m_nbins; ++i)
-        m_rdf_array[i] = T();
-    m_bin_counts = boost::shared_array<unsigned int>(new unsigned int[m_nbins]);
+        m_rdf_array.get()[i] = T();
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins], std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
 
     // precompute the bin center positions
-    m_r_array = boost::shared_array<float>(new float[m_nbins]);
+    m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins; i++)
         {
         float r = float(i) * m_dr;
         float nextr = float(i+1) * m_dr;
-        m_r_array[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
+        m_r_array.get()[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
     m_lc = new locality::LinkCell(m_box, m_rmax);
     }
@@ -74,16 +74,16 @@ class CombineOCF
         tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
         T *m_rdf_array;
         tbb::enumerable_thread_specific<T *>& m_local_rdf_array;
-        float m_Nref;
+        float m_n_ref;
     public:
         CombineOCF(unsigned int nbins,
                    unsigned int *bin_counts,
                    tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
                    T *rdf_array,
                    tbb::enumerable_thread_specific<T *>& local_rdf_array,
-                   float Nref)
+                   float n_ref)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
-              m_local_rdf_array(local_rdf_array), m_Nref(Nref)
+              m_local_rdf_array(local_rdf_array), m_n_ref(n_ref)
         {
         }
         void operator()( const tbb::blocked_range<size_t> &myBin ) const
@@ -115,13 +115,13 @@ class ComputeOCF
         const unsigned int m_nbins;
         tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
         tbb::enumerable_thread_specific<T *>& m_rdf_array;
-        const trajectory::Box m_box;
+        const box::Box m_box;
         const float m_rmax;
         const float m_dr;
         const locality::LinkCell *m_lc;
         const vec3<float> *m_ref_points;
         const T *m_ref_values;
-        const unsigned int m_Nref;
+        const unsigned int m_n_ref;
         const vec3<float> *m_points;
         const T *m_point_values;
         unsigned int m_Np;
@@ -129,18 +129,18 @@ class ComputeOCF
         ComputeOCF(const unsigned int nbins,
                    tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
                    tbb::enumerable_thread_specific<T *>& rdf_array,
-                   const trajectory::Box &box,
+                   const box::Box &box,
                    const float rmax,
                    const float dr,
                    const locality::LinkCell *lc,
                    const vec3<float> *ref_points,
                    const T *ref_values,
-                   unsigned int Nref,
+                   unsigned int n_ref,
                    const vec3<float> *points,
                    const T *point_values,
                    unsigned int Np)
             : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_rmax(rmax), m_dr(dr),
-              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_Nref(Nref), m_points(points),
+              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_n_ref(n_ref), m_points(points),
               m_point_values(point_values), m_Np(Np)
         {
         }
@@ -150,7 +150,7 @@ class ComputeOCF
             assert(m_ref_values);
             assert(m_points);
             assert(m_point_values);
-            assert(m_Nref > 0);
+            assert(m_n_ref > 0);
             assert(m_Np > 0);
 
             float dr_inv = 1.0f / m_dr;
@@ -227,19 +227,19 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);
     for(size_t i(0); i < m_nbins; ++i)
-        m_rdf_array[i] = T();
+        m_rdf_array.get()[i] = T();
     // now compute the rdf
     parallel_for(tbb::blocked_range<size_t>(0,m_nbins), CombineOCF<T>(m_nbins,
                                                               m_bin_counts.get(),
                                                               m_local_bin_counts,
                                                               m_rdf_array.get(),
                                                               m_local_rdf_array,
-                                                              (float)m_Nref));
+                                                              (float)m_n_ref));
     }
 
 //! Get a reference to the RDF array
 template<typename T>
-boost::shared_array<T> CorrelationFunction<T>::getRDF()
+std::shared_ptr<T> CorrelationFunction<T>::getRDF()
     {
     reduceCorrelationFunction();
     return m_rdf_array;
@@ -265,17 +265,17 @@ void CorrelationFunction<T>::resetCorrelationFunction()
     }
 
 template<typename T>
-void CorrelationFunction<T>::accumulate(const trajectory::Box &box,
+void CorrelationFunction<T>::accumulate(const box::Box &box,
                              const vec3<float> *ref_points,
                              const T *ref_values,
-                             unsigned int Nref,
+                             unsigned int n_ref,
                              const vec3<float> *points,
                              const T *point_values,
                              unsigned int Np)
     {
     m_box = box;
     m_lc->computeCellList(m_box, points, Np);
-    parallel_for(tbb::blocked_range<size_t>(0, Nref), ComputeOCF<T>(m_nbins,
+    parallel_for(tbb::blocked_range<size_t>(0, n_ref), ComputeOCF<T>(m_nbins,
                                                                     m_local_bin_counts,
                                                                     m_local_rdf_array,
                                                                     m_box,
@@ -284,7 +284,7 @@ void CorrelationFunction<T>::accumulate(const trajectory::Box &box,
                                                                     m_lc,
                                                                     ref_points,
                                                                     ref_values,
-                                                                    Nref,
+                                                                    n_ref,
                                                                     points,
                                                                     point_values,
                                                                     Np));

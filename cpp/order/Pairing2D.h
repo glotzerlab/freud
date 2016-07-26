@@ -6,11 +6,11 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "NearestNeighbors.h"
 #include "VectorMath.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _Pairing2D_H__
@@ -41,19 +41,19 @@ class Pairing2D
         ~Pairing2D();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Get a reference to the last computed match array
-        boost::shared_array<unsigned int> getMatch()
+        std::shared_ptr<unsigned int> getMatch()
             {
             return m_match_array;
             }
 
         //! Get a reference to the last computed pair array
-        boost::shared_array<unsigned int> getPair()
+        std::shared_ptr<unsigned int> getPair()
             {
             return m_pair_array;
             }
@@ -73,7 +73,7 @@ class Pairing2D
         //     }
 
         //! Compute the pairing function
-        void compute(trajectory::Box& box,
+        void compute(box::Box& box,
                      const vec3<float>* points,
                      const float* orientations,
                      const float* comp_orientations,
@@ -92,12 +92,12 @@ class Pairing2D
                               const unsigned int Np,
                               const unsigned int No);
 
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r to check for nearest neighbors
         float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
         locality::NearestNeighbors* m_nn;          //!< Nearest Neighbors for the computation
-        boost::shared_array<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
-        boost::shared_array<unsigned int> m_pair_array;         //!< array of pairs for particle i
+        std::shared_ptr<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
+        std::shared_ptr<unsigned int> m_pair_array;         //!< array of pairs for particle i
         unsigned int m_nmatch;             //!< Number of matches
         unsigned int m_k;             //!< Number of nearest neighbors to check
         unsigned int m_Np;                //!< Last number of points computed

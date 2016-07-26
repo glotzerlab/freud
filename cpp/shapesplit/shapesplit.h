@@ -6,10 +6,10 @@
 #include <Python.h>
 #define __APPLE__
 
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "VectorMath.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _SHAPESPLIT_H__
@@ -31,10 +31,10 @@ class ShapeSplit
         ShapeSplit();
 
         //! Update the simulation box
-        void updateBox(trajectory::Box& box);
+        void updateBox(box::Box& box);
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -47,13 +47,13 @@ class ShapeSplit
                      unsigned int Nsplit);
 
         // //! Python wrapper for compute
-        // void computePy(trajectory::Box& box,
+        // void computePy(box::Box& box,
         //                boost::python::numeric::array points,
         //                boost::python::numeric::array orientations,
         //                boost::python::numeric::array split_points);
 
         //! Get a reference to the last computed split shape
-        boost::shared_array<float> getShapeSplit()
+        std::shared_ptr<float> getShapeSplit()
             {
             return m_split_array;
             }
@@ -70,7 +70,7 @@ class ShapeSplit
         //     }
 
         //! Get a reference to the last computed split orientations
-        boost::shared_array<float> getShapeOrientations()
+        std::shared_ptr<float> getShapeOrientations()
             {
             return m_orientation_array;
             }
@@ -87,12 +87,12 @@ class ShapeSplit
         //     }
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         unsigned int m_Np;
         unsigned int m_Nsplit;
 
-        boost::shared_array<float> m_split_array;
-        boost::shared_array<float> m_orientation_array;
+        std::shared_ptr<float> m_split_array;
+        std::shared_ptr<float> m_orientation_array;
     };
 
 }; }; // end namespace freud::shapesplit

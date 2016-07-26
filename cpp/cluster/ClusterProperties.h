@@ -1,7 +1,7 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include "HOOMDMath.h"
-#include "trajectory.h"
+#include "box.h"
 
 #ifndef _CLUSTER_PROPERTIES_H__
 #define _CLUSTER_PROPERTIES_H__
@@ -30,10 +30,10 @@ class ClusterProperties
     {
     public:
         //! Constructor
-        ClusterProperties(const trajectory::Box& box);
+        ClusterProperties(const box::Box& box);
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
@@ -58,7 +58,7 @@ class ClusterProperties
 
         //! Get a reference to the last computed cluster_com
         // boost::shared_array<float3> getClusterCOM()
-        boost::shared_array< vec3<float> > getClusterCOM()
+        std::shared_ptr< vec3<float> > getClusterCOM()
             {
             return m_cluster_com;
             }
@@ -74,7 +74,7 @@ class ClusterProperties
         //     }
 
         //! Get a reference to the last computed cluster_G
-        boost::shared_array<float> getClusterG()
+        std::shared_ptr<float> getClusterG()
             {
             return m_cluster_G;
             }
@@ -91,7 +91,7 @@ class ClusterProperties
         //     }
 
         //! Get a reference to the last computed cluster size
-        boost::shared_array<unsigned int> getClusterSize()
+        std::shared_ptr<unsigned int> getClusterSize()
             {
             return m_cluster_size;
             }
@@ -107,12 +107,12 @@ class ClusterProperties
 
 
     private:
-        trajectory::Box m_box;                       //!< Simulation box the particles belong in
+        box::Box m_box;                       //!< Simulation box the particles belong in
         unsigned int m_num_clusters;                 //!< Number of clusters found in the last call to computeProperties()
 
-        boost::shared_array< vec3<float> > m_cluster_com;   //!< Center of mass computed for each cluster (length: m_num_clusters)
-        boost::shared_array<float> m_cluster_G;      //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
-        boost::shared_array<unsigned int> m_cluster_size;    //!< Size per cluster
+        std::shared_ptr< vec3<float> > m_cluster_com;   //!< Center of mass computed for each cluster (length: m_num_clusters)
+        std::shared_ptr<float> m_cluster_G;      //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
+        std::shared_ptr<unsigned int> m_cluster_size;    //!< Size per cluster
     };
 
 }; }; // end namespace freud::cluster

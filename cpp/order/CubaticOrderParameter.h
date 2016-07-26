@@ -7,7 +7,6 @@
 #define __APPLE__
 
 #include <memory>
-#include <boost/shared_array.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -15,7 +14,7 @@
 #include "saruprng.h"
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
 #include "Index1D.h"
 
 #ifndef _CUBATIC_ORDER_PARAMETER_H__

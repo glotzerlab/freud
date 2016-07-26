@@ -1,4 +1,4 @@
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <complex>
 
 #include "HOOMDMath.h"
@@ -7,7 +7,8 @@
 #undef swap
 
 #include "NearestNeighbors.h"
-#include "trajectory.h"
+#include "box.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_QL_NEAR_H__
 #define _LOCAL_QL_NEAR_H__
@@ -47,19 +48,19 @@ class LocalQlNear
         @param kn Number of nearest neighbors.  Must be a positive integer.
         **/
         //! Constructor
-        LocalQlNear(const trajectory::Box& box, float rmax, unsigned int l, unsigned int kn=12);
+        LocalQlNear(const box::Box& box, float rmax, unsigned int l, unsigned int kn=12);
 
         //! Destructor
         ~LocalQlNear();
 
         //! Get the simulation box
-        const trajectory::Box& getBox() const
+        const box::Box& getBox() const
             {
             return m_box;
             }
 
         //! Reset the simulation box size
-        void setBox(const trajectory::Box newbox)
+        void setBox(const box::Box newbox)
             {
             m_box = newbox;  //Set
             delete m_nn;
@@ -105,7 +106,7 @@ class LocalQlNear
 
 
         //! Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
-        boost::shared_array< float > getQl()
+        std::shared_ptr< float > getQl()
             {
             return m_Qli;
             }
@@ -118,7 +119,7 @@ class LocalQlNear
         //     }
 
         //! Get a reference to the last computed AveQl for each particle.  Returns NaN instead of AveQl for particles with no neighbors.
-        boost::shared_array< float > getAveQl()
+        std::shared_ptr< float > getAveQl()
             {
             return m_AveQli;
             }
@@ -131,7 +132,7 @@ class LocalQlNear
         //     }
 
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
-        boost::shared_array< float > getQlNorm()
+        std::shared_ptr< float > getQlNorm()
             {
             return m_QliNorm;
             }
@@ -144,7 +145,7 @@ class LocalQlNear
         //     }
 
         //! Get a reference to the last computed QlNorm for each particle.  Returns NaN instead of QlNorm for particles with no neighbors.
-        boost::shared_array< float > getQlAveNorm()
+        std::shared_ptr< float > getQlAveNorm()
             {
             return m_QliAveNorm;
             }
@@ -165,21 +166,21 @@ class LocalQlNear
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        trajectory::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmin;                     //!< Minimum r at which to determine neighbors
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;             //!< Number of neighbors
         locality::NearestNeighbors *m_nn;          //!< NearestNeighbors to bin particles for the computation
         unsigned int m_l;                 //!< Spherical harmonic l value.
         unsigned int m_Np;                //!< Last number of points computed
-        boost::shared_array< std::complex<float> > m_Qlmi;        //!  Qlm for each particle i
-        boost::shared_array< float > m_Qli;         //!< Ql locally invariant order parameter for each particle i;
-        boost::shared_array< std::complex<float> > m_AveQlmi;     //! AveQlm for each particle i
-        boost::shared_array< float > m_AveQli;     //!< AveQl locally invariant order parameter for each particle i;
-        boost::shared_array< std::complex<float> > m_Qlm;  //! NormQlm for the system
-        boost::shared_array< float > m_QliNorm;   //!< QlNorm order parameter for each particle i
-        boost::shared_array< std::complex<float> > m_AveQlm; //! AveNormQlm for the system
-        boost::shared_array< float > m_QliAveNorm;     //! < QlAveNorm order paramter for each particle i
+        std::shared_ptr< std::complex<float> > m_Qlmi;        //!  Qlm for each particle i
+        std::shared_ptr< float > m_Qli;         //!< Ql locally invariant order parameter for each particle i;
+        std::shared_ptr< std::complex<float> > m_AveQlmi;     //! AveQlm for each particle i
+        std::shared_ptr< float > m_AveQli;     //!< AveQl locally invariant order parameter for each particle i;
+        std::shared_ptr< std::complex<float> > m_Qlm;  //! NormQlm for the system
+        std::shared_ptr< float > m_QliNorm;   //!< QlNorm order parameter for each particle i
+        std::shared_ptr< std::complex<float> > m_AveQlm; //! AveNormQlm for the system
+        std::shared_ptr< float > m_QliAveNorm;     //! < QlAveNorm order paramter for each particle i
     };
 
 }; }; // end namespace freud::order

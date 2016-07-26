@@ -68,7 +68,7 @@ uint32_t DisjointSet::find(const uint32_t c)
     return r;
     }
 
-Cluster::Cluster(const trajectory::Box& box, float rcut)
+Cluster::Cluster(const box::Box& box, float rcut)
     : m_box(box), m_rcut(rcut), m_lc(box, rcut), m_num_particles(0)
     {
     if (m_rcut < 0.0f)
@@ -85,7 +85,7 @@ void Cluster::computeClusters(const vec3<float> *points,
 
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (Np != m_num_particles)
-        m_cluster_idx = boost::shared_array<unsigned int>(new unsigned int[Np]);
+        m_cluster_idx = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
 
     m_num_particles = Np;
     float rmaxsq = m_rcut * m_rcut;
@@ -152,7 +152,7 @@ void Cluster::computeClusters(const vec3<float> *points,
             }
 
         // label this point in cluster_idx
-        m_cluster_idx[i] = label_map[s];
+        m_cluster_idx.get()[i] = label_map[s];
         }
 
     // cur_set is now the number of clusters
@@ -197,7 +197,7 @@ void Cluster::computeClusterMembership(const unsigned int *keys)
     for (unsigned int i = 0; i < m_num_particles; i++)
         {
         unsigned int key = keys[i];
-        unsigned int cluster = m_cluster_idx[i];
+        unsigned int cluster = m_cluster_idx.get()[i];
         m_cluster_keys[cluster].insert(key);
         }
     }
@@ -244,7 +244,7 @@ void Cluster::computeClusterMembership(const unsigned int *keys)
 
 // void export_Cluster()
 //     {
-//     class_<Cluster>("Cluster", init<trajectory::Box&, float>())
+//     class_<Cluster>("Cluster", init<box::Box&, float>())
 //         .def("getBox", &Cluster::getBox, return_internal_reference<>())
 //         .def("computeClusters", &Cluster::computeClustersPy)
 //         .def("getNumClusters", &Cluster::getNumClusters)

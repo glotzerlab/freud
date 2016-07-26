@@ -21,7 +21,7 @@ namespace freud { namespace locality {
 
 // stop using
 NearestNeighbors::NearestNeighbors():
-    m_box(trajectory::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_Nref(0), m_deficits()
+    m_box(box::Box()), m_rmax(0), m_nNeigh(0), m_Np(0), m_n_ref(0), m_deficits()
     {
     m_lc = new locality::LinkCell();
     m_deficits = 0;
@@ -29,7 +29,7 @@ NearestNeighbors::NearestNeighbors():
 
 NearestNeighbors::NearestNeighbors(float rmax,
                                    unsigned int nNeigh):
-    m_box(trajectory::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_Nref(0), m_deficits()
+    m_box(box::Box()), m_rmax(rmax), m_nNeigh(nNeigh), m_Np(0), m_n_ref(0), m_deficits()
     {
     m_lc = new locality::LinkCell(m_box, m_rmax);
     m_deficits = 0;
@@ -48,126 +48,19 @@ bool compareRsqVectors(const pair<float, unsigned int> &left,
     return left.first < right.first;
     }
 
-class ComputeNearestNeighbors
-    {
-private:
-    tbb::atomic<unsigned int> &m_deficits;
-    float *m_rsq_array;
-    unsigned int *m_neighbor_array;
-    const trajectory::Box& m_box;
-    const unsigned int m_Np;
-    const unsigned int m_nNeigh;
-    const float m_rmax;
-    const locality::LinkCell* m_lc;
-    const vec3<float> *m_ref_pos;
-    const vec3<float> *m_pos;
-public:
-    ComputeNearestNeighbors(tbb::atomic<unsigned int> &deficits,
-                            float *r_array,
-                            unsigned int *neighbor_array,
-                            const trajectory::Box& box,
-                            const unsigned int Np,
-                            const unsigned int nNeigh,
-                            const float rmax,
-                            const locality::LinkCell* lc,
-                            const vec3<float> *ref_pos,
-                            const vec3<float> *pos):
-        m_deficits(deficits), m_rsq_array(r_array), m_neighbor_array(neighbor_array), m_box(box), m_Np(Np), m_nNeigh(nNeigh), m_rmax(rmax), m_lc(lc),
-        m_ref_pos(ref_pos), m_pos(pos)
-        {
-        }
 
-    void operator()( const blocked_range<size_t>& r ) const
-        {
-        float rmaxsq = m_rmax * m_rmax;
-        // tuple<> is c++11, so for now just make a pair with pairs inside
-        // this data structure holds rsq, idx
-        vector< pair<float, unsigned int> > neighbors;
-        Index2D b_i = Index2D(m_nNeigh, m_Np);
-        for(size_t i=r.begin(); i!=r.end(); ++i)
-            {
-            // If we have found an incomplete set of neighbors, end now and rebuild
-            if(m_deficits > 0)
-                break;
-            neighbors.clear();
-
-            //get cell point is in
-            vec3<float> posi = m_ref_pos[i];
-            unsigned int ref_cell = m_lc->getCell(posi);
-            unsigned int num_adjacent = 0;
-
-            //loop over neighboring cells
-            const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-            for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-                {
-                unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                //iterate over particles in cell
-                locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-                for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
-                    {
-
-                    //compute r between the two particles
-                    vec3<float>rij = m_box.wrap(m_pos[j] - posi);
-                    const float rsq = dot(rij, rij);
-
-                    // adds all neighbors within rsq to list of possible neighbors
-                    if ((rsq < rmaxsq) && (i != j))
-                        {
-                        neighbors.push_back(pair<float, unsigned int>(rsq, j));
-                        num_adjacent++;
-                        }
-                    }
-                }
-
-            // Add to the deficit count if necessary
-            if(num_adjacent < m_nNeigh)
-                m_deficits += (m_nNeigh - num_adjacent);
-            else
-                {
-                // sort based on rsq
-                sort(neighbors.begin(), neighbors.end(), compareRsqVectors);
-                // vector< pair<float, unsigned int> > new_neighbors;
-                // new_neighbors.resize(m_nNeigh);
-                // float local_min = FLT_MAX;
-                // int local_idx = INT_MAX;
-                // for (unsigned int k = 0; k < m_nNeigh; k++)
-                //     {
-                //     for (unsigned int m = 0; m < num_adjacent; m++)
-                //         {
-                //         if (neighbors[m].first < local_min)
-                //             {
-                //             local_min = neighbors[m].first;
-                //             local_idx = neighbors[m].second;
-                //             }
-                //         }
-                //         new_neighbors[k].first = local_min;
-                //         new_neighbors[k].second = local_idx;
-                //     }
-                for (unsigned int k = 0; k < m_nNeigh; k++)
-                    {
-                    // put the idx into the neighbor array
-                    m_rsq_array[i*m_nNeigh + k] = neighbors[k].first;
-                    m_rsq_array[b_i(k, i)] = neighbors[k].first;
-                    m_neighbor_array[b_i(k, i)] = neighbors[k].second;
-                    }
-                }
-            }
-        }
-    };
-
-void NearestNeighbors::compute(const trajectory::Box& box,
+void NearestNeighbors::compute(const box::Box& box,
                                const vec3<float> *ref_pos,
-                               unsigned int Nref,
+                               unsigned int n_ref,
                                const vec3<float> *pos,
                                unsigned int Np)
     {
     m_box = box;
     // reallocate the output array if it is not the right size
-    if (Nref != m_Nref)
+    if (n_ref != m_n_ref)
         {
-        m_rsq_array = boost::shared_array<float>(new float[Nref * m_nNeigh]);
-        m_neighbor_array = boost::shared_array<unsigned int>(new unsigned int[Nref * m_nNeigh]);
+        m_rsq_array = std::shared_ptr<float>(new float[n_ref * m_nNeigh], std::default_delete<float[]>());
+        m_neighbor_array = std::shared_ptr<unsigned int>(new unsigned int[n_ref * m_nNeigh], std::default_delete<unsigned int[]>());
         }
     // find the nearest neighbors
     do
@@ -176,17 +69,84 @@ void NearestNeighbors::compute(const trajectory::Box& box,
         m_lc->computeCellList(m_box, pos, Np);
 
         m_deficits = 0;
-        parallel_for(blocked_range<size_t>(0,Np),
-            ComputeNearestNeighbors(m_deficits,
-                                    (float*)m_rsq_array.get(),
-                                    (unsigned int*)m_neighbor_array.get(),
-                                    m_box,
-                                    m_Np,
-                                    m_nNeigh,
-                                    m_rmax,
-                                    m_lc,
-                                    ref_pos,
-                                    pos));
+        parallel_for(blocked_range<size_t>(0,n_ref),
+          [=] (const blocked_range<size_t>& r)
+          {
+          float rmaxsq = m_rmax * m_rmax;
+          // tuple<> is c++11, so for now just make a pair with pairs inside
+          // this data structure holds rsq, idx
+          vector< pair<float, unsigned int> > neighbors;
+          Index2D b_i = Index2D(m_nNeigh, n_ref);
+          for(size_t i=r.begin(); i!=r.end(); ++i)
+              {
+              // If we have found an incomplete set of neighbors, end now and rebuild
+              if(m_deficits > 0)
+                  break;
+              neighbors.clear();
+
+              //get cell point is in
+              vec3<float> posi = ref_pos[i];
+              unsigned int ref_cell = m_lc->getCell(posi);
+              unsigned int num_adjacent = 0;
+
+              //loop over neighboring cells
+              const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
+              for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                  {
+                  unsigned int neigh_cell = neigh_cells[neigh_idx];
+
+                  //iterate over particles in cell
+                  locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
+                  for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
+                      {
+
+                      //compute r between the two particles
+                      vec3<float>rij = m_box.wrap(pos[j] - posi);
+                      const float rsq = dot(rij, rij);
+
+                      // adds all neighbors within rsq to list of possible neighbors
+                      if ((rsq < rmaxsq) && (i != j))
+                          {
+                          neighbors.push_back(pair<float, unsigned int>(rsq, j));
+                          num_adjacent++;
+                          }
+                      }
+                  }
+
+              // Add to the deficit count if necessary
+              if(num_adjacent < m_nNeigh)
+                  m_deficits += (m_nNeigh - num_adjacent);
+              else
+                  {
+                  // sort based on rsq
+                  sort(neighbors.begin(), neighbors.end(), compareRsqVectors);
+                  // vector< pair<float, unsigned int> > new_neighbors;
+                  // new_neighbors.resize(m_nNeigh);
+                  // float local_min = FLT_MAX;
+                  // int local_idx = INT_MAX;
+                  // for (unsigned int k = 0; k < m_nNeigh; k++)
+                  //     {
+                  //     for (unsigned int m = 0; m < num_adjacent; m++)
+                  //         {
+                  //         if (neighbors[m].first < local_min)
+                  //             {
+                  //             local_min = neighbors[m].first;
+                  //             local_idx = neighbors[m].second;
+                  //             }
+                  //         }
+                  //         new_neighbors[k].first = local_min;
+                  //         new_neighbors[k].second = local_idx;
+                  //     }
+                  for (unsigned int k = 0; k < m_nNeigh; k++)
+                      {
+                      // put the idx into the neighbor array
+                      m_rsq_array.get()[i*m_nNeigh + k] = neighbors[k].first;
+                      m_rsq_array.get()[b_i(k, i)] = neighbors[k].first;
+                      m_neighbor_array.get()[b_i(k, i)] = neighbors[k].second;
+                      }
+                  }
+              }
+          });
 
         // Increase m_rmax
         if(m_deficits > 0)
@@ -196,11 +156,11 @@ void NearestNeighbors::compute(const trajectory::Box& box,
             }
         } while(m_deficits > 0);
     // save the last computed number of particles
-    m_Nref = Nref;
+    m_n_ref = n_ref;
     m_Np = Np;
     }
 
-// void NearestNeighbors::computePy(trajectory::Box& box,
+// void NearestNeighbors::computePy(box::Box& box,
 //                                  boost::python::numeric::array ref_pos,
 //                                  boost::python::numeric::array pos)
 //     {
@@ -212,7 +172,7 @@ void NearestNeighbors::compute(const trajectory::Box& box,
 
 //     // validate that the 2nd dimension is only 3 for r and 4 for q
 //     num_util::check_dim(ref_pos, 1, 3);
-//     unsigned int Nref = num_util::shape(ref_pos)[0];
+//     unsigned int n_ref = num_util::shape(ref_pos)[0];
 //     num_util::check_dim(pos, 1, 3);
 //     unsigned int Np = num_util::shape(pos)[0];
 
@@ -223,7 +183,7 @@ void NearestNeighbors::compute(const trajectory::Box& box,
 //     // compute the order parameter with the GIL released
 //         {
 //         util::ScopedGILRelease gil;
-//         compute(box, ref_pos_raw, Nref, pos_raw, Np);
+//         compute(box, ref_pos_raw, n_ref, pos_raw, Np);
 //         }
 //     }
 

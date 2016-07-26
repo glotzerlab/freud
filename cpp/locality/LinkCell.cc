@@ -2,7 +2,8 @@
 #include <algorithm>
 
 #include "LinkCell.h"
-#include "../trajectory/trajectory.h"
+//#include "../trajectory/box.h"
+#include "../box/box.h"
 #include "ScopedGILRelease.h"
 
 using namespace std;
@@ -16,18 +17,18 @@ namespace freud { namespace locality {
 // This is only used to initialize a pointer for the new triclinic setup
 // this shouldn't be needed any longer, but will be left for now
 // but until then, enjoy this mediocre hack
-LinkCell::LinkCell() : m_box(trajectory::Box()), m_Np(0), m_cell_width(0)
+LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0)
     {
     m_celldim = vec3<unsigned int>(0,0,0);
     }
 
-LinkCell::LinkCell(const trajectory::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width)
+LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width)
     {
     // check if the cell width is too wide for the box
     m_celldim  = computeDimensions(m_box, m_cell_width);
     //Check if box is too small!
     // will only check if the box is not null
-    if (box != trajectory::Box())
+    if (box != box::Box())
         {
         vec3<float> L = m_box.getNearestPlaneDistance();
         bool too_wide =  m_cell_width > L.x/2.0 || m_cell_width > L.y/2.0;
@@ -85,7 +86,7 @@ void LinkCell::setCellWidth(float cell_width)
         }
     }
 
-void LinkCell::updateBox(const trajectory::Box& box)
+void LinkCell::updateBox(const box::Box& box)
     {
     // check if the cell width is too wide for the box
     vec3<float> L = box.getNearestPlaneDistance();
@@ -126,7 +127,7 @@ unsigned int LinkCell::roundDown(unsigned int v, unsigned int m)
     return d*m;
     }
 
-const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box, float cell_width) const
+const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_width) const
     {
     vec3<unsigned int> dim;
 
@@ -158,7 +159,7 @@ const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box,
     return dim;
     }
 
-// void LinkCell::computeCellListPy(trajectory::Box& box,
+// void LinkCell::computeCellListPy(box::Box& box,
 //                                  boost::python::numeric::array points)
 //     {
 //     // validate input type and rank
@@ -180,7 +181,7 @@ const vec3<unsigned int> LinkCell::computeDimensions(const trajectory::Box& box,
 //     }
 
 //Deprecated.  Users should use the modern vec3<float> interfaces
-void LinkCell::computeCellList(trajectory::Box& box,
+void LinkCell::computeCellList(box::Box& box,
                                const float3 *points,
                                unsigned int Np)
     {
@@ -195,7 +196,7 @@ void LinkCell::computeCellList(trajectory::Box& box,
         delete[] pointscopy;
     }
 
-void LinkCell::computeCellList(trajectory::Box& box,
+void LinkCell::computeCellList(box::Box& box,
                                const vec3<float> *points,
                                unsigned int Np)
     {
@@ -210,7 +211,7 @@ void LinkCell::computeCellList(trajectory::Box& box,
     assert(Nc > 0);
     if ((m_Np != Np) || (m_Nc != Nc))
         {
-        m_cell_list = boost::shared_array<unsigned int>(new unsigned int[Np + Nc]);
+        m_cell_list = std::shared_ptr<unsigned int>(new unsigned int[Np + Nc], std::default_delete<unsigned int[]>());
         }
     m_Np = Np;
     m_Nc = Nc;
@@ -218,7 +219,7 @@ void LinkCell::computeCellList(trajectory::Box& box,
     // initialize memory
     for (unsigned int cell = 0; cell < Nc; cell++)
         {
-        m_cell_list[Np + cell] = LINK_CELL_TERMINATOR;
+        m_cell_list.get()[Np + cell] = LINK_CELL_TERMINATOR;
         }
 
     // generate the cell list
@@ -227,8 +228,8 @@ void LinkCell::computeCellList(trajectory::Box& box,
     for (int i = Np-1; i >= 0; i--)
         {
         unsigned int cell = getCell(points[i]);
-        m_cell_list[i] = m_cell_list[Np+cell];
-        m_cell_list[Np+cell] = i;
+        m_cell_list.get()[i] = m_cell_list.get()[Np+cell];
+        m_cell_list.get()[Np+cell] = i;
         }
     }
 
@@ -323,7 +324,7 @@ void LinkCell::computeCellNeighbors()
 
 // void export_LinkCell()
 //     {
-//     class_<LinkCell>("LinkCell", init<trajectory::Box&, float>())
+//     class_<LinkCell>("LinkCell", init<box::Box&, float>())
 //         .def("getBox", &LinkCell::getBox, return_internal_reference<>())
 //         .def("getCellIndexer", &LinkCell::getCellIndexer, return_internal_reference<>())
 //         .def("getNumCells", &LinkCell::getNumCells)

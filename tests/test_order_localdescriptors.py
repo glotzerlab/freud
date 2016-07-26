@@ -23,6 +23,24 @@ class TestLocalDescriptors(unittest.TestCase):
         assert sphs.shape[0] == N
         assert sphs.shape[1] == Nneigh
 
+    def test_shape_twosets(self):
+        N = 1000
+        Nneigh = 4
+        lmax = 8
+
+        box = freud.trajectory.Box(10)
+        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
+        positions2 = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N//3, 3)).astype(np.float32)
+
+        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp.computeNList(box, positions, positions2)
+        comp.compute(box, Nneigh, positions, positions2)
+
+        sphs = comp.getSph()
+
+        assert sphs.shape[0] == N
+        assert sphs.shape[1] == Nneigh
+
     def test_no_nlist(self):
         N = 1000
         Nneigh = 4

@@ -13,8 +13,8 @@ except ImportError:
     h5py = None
 
 import warnings
-warnings.warn("trajectory is slated for deprecation in v0.6.0. Please plan to use an external tool to load simulation \
- trajectories. Box will be its own module in v0.6.0.",
+warnings.warn("trajectory is deprecated. Please use an external tool to load simulation trajectories.\
+    please use box.Box for creating and using simulation boxes",
  PendingDeprecationWarning)
 
 from ._freud import Box

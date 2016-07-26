@@ -21,21 +21,21 @@ namespace freud { namespace order {
 Pairing2D::Pairing2D(const float rmax,
                      const unsigned int k,
                      const float comp_dot_tol)
-    : m_box(trajectory::Box()), m_rmax(rmax), m_k(k), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
+    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
     {
     // create the unsigned int array to store whether or not a particle is paired
-    m_match_array = boost::shared_array<unsigned int>(new unsigned int[m_Np]);
+    m_match_array = std::shared_ptr<unsigned int>(new unsigned int[m_Np], std::default_delete<unsigned int[]>());
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        m_match_array[i] = 0;
+        m_match_array.get()[i] = 0;
         }
     // create the pairing array to store particle pairs
     // m_pair_array[i] will have the pair of particle i stored at idx=i
     // if there is no pairing, it will store itself
-    m_pair_array = boost::shared_array<unsigned int>(new unsigned int[m_Np]);
+    m_pair_array = std::shared_ptr<unsigned int>(new unsigned int[m_Np], std::default_delete<unsigned int[]>());
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        m_pair_array[i] = i;
+        m_pair_array.get()[i] = i;
         }
     m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
@@ -63,7 +63,7 @@ void Pairing2D::ComputePairing2D(const vec3<float> *points,
         for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
             {
             // once a particle is paired we can stop
-            if (m_match_array[i] != 0)
+            if (m_match_array.get()[i] != 0)
                 {
                 break;
                 }
@@ -133,8 +133,8 @@ void Pairing2D::ComputePairing2D(const vec3<float> *points,
                         // to check again
                         if ((d_ij < m_comp_dot_tol) && (d_ji < m_comp_dot_tol) && (is_paired==false) && (rsq < (m_rmax * m_rmax)))
                             {
-                            m_match_array[i] = 1;
-                            m_pair_array[i] = j;
+                            m_match_array.get()[i] = 1;
+                            m_pair_array.get()[i] = j;
                             is_paired = true;
                             } // done pairing particle
                         } // done checking all orientations of j
@@ -144,7 +144,7 @@ void Pairing2D::ComputePairing2D(const vec3<float> *points,
         } // done looping over reference points
     }
 
-void Pairing2D::compute(trajectory::Box& box,
+void Pairing2D::compute(box::Box& box,
                         const vec3<float>* points,
                         const float* orientations,
                         const float* comp_orientations,
@@ -157,17 +157,17 @@ void Pairing2D::compute(trajectory::Box& box,
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
         {
-        m_match_array = boost::shared_array<unsigned int>(new unsigned int[Np]);
-        m_pair_array = boost::shared_array<unsigned int>(new unsigned int[Np]);
+        m_match_array = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
+        m_pair_array = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
         }
     // reset the arrays
     for (unsigned int i = 0; i < Np; i++)
         {
-        m_match_array[i] = 0;
+        m_match_array.get()[i] = 0;
         }
     for (unsigned int i = 0; i < Np; i++)
         {
-        m_pair_array[i] = i;
+        m_pair_array.get()[i] = i;
         }
      ComputePairing2D(points,
                       orientations,
@@ -178,7 +178,7 @@ void Pairing2D::compute(trajectory::Box& box,
     m_No = No;
     }
 
-// void pairing::computePy(trajectory::Box& box,
+// void pairing::computePy(box::Box& box,
 //                         boost::python::numeric::array points,
 //                         boost::python::numeric::array orientations,
 //                         boost::python::numeric::array comp_orientations)

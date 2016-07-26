@@ -4,6 +4,9 @@
 Trajectory Module
 =================
 
+..note::
+    This module is deprecated and will be removed in v0.6.0
+
 Contains data structures for simulation boxes, as well as providing methods and data structures for
 reading MD/MC trajectories into numpy arrays for use in Freud modules. It is not required to use a
 Freud trajectory reader to load in your data; any data appropriately formatted as a numpy array is

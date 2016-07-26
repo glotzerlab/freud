@@ -2,7 +2,12 @@
 # Perform setup to make a target into a functional python module
 macro(setup_pymodule target)
 set_target_properties(${target} PROPERTIES PREFIX "")
+if (APPLE)
+    set_target_properties(${target} PROPERTIES SUFFIX ".so")
+endif(APPLE)
 target_link_libraries(${target} ${PYTHON_LIBRARIES} ${TBB_LIBRARY})
+fix_tbb_rpath(${target})
+fix_conda_python(${target})
 endmacro(setup_pymodule)
 #####################
 
@@ -28,6 +33,8 @@ else(ENABLE_CYTHON)
 endif(ENABLE_CYTHON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/box
+                    ${CMAKE_CURRENT_SOURCE_DIR}/bond
                     ${CMAKE_CURRENT_SOURCE_DIR}/trajectory
                     ${CMAKE_CURRENT_SOURCE_DIR}/util
                     ${CMAKE_CURRENT_SOURCE_DIR}/locality
@@ -45,6 +52,16 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     )
 
 set(FREUD_SOURCES
+            box/box.h
+            box/box.cc
+            bond/BondingR12.h
+            bond/BondingR12.cc
+            bond/BondingXY2D.h
+            bond/BondingXY2D.cc
+            bond/BondingXYT.h
+            bond/BondingXYT.cc
+            bond/BondingXYZ.h
+            bond/BondingXYZ.cc
             trajectory/trajectory.h
             trajectory/DCDLoader.cc
             trajectory/DCDLoader.h
@@ -74,8 +91,6 @@ set(FREUD_SOURCES
             order/CubaticOrderParameter.cc
             order/BondOrder.h
             order/BondOrder.cc
-            order/EntropicBonding.h
-            order/EntropicBonding.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
             util/Index1D.h
@@ -137,7 +152,6 @@ endforeach(src IN LISTS FREUD_SOURCES)
 
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_DEFINITIONS NO_IMPORT_ARRAY)
 add_library(_freud MODULE ${SOURCES} ${CYTHON_SOURCES})
-#target_compile_features(_freud PRIVATE cxx_range_for)
 setup_pymodule(_freud)
 
 INSTALL(TARGETS _freud
