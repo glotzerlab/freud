@@ -129,7 +129,7 @@ void PMFTXYZ::reducePCF()
                 }
             });
     float inv_num_dens = m_box.getVolume() / (float)m_n_p;
-    float inv_jacobian = (float) 1.0 / m_jacobian;
+    float inv_jacobian = (float) 1.0 / (float) m_jacobian;
     float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref * (float) m_n_faces);
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0,m_n_bins_x*m_n_bins_y*m_n_bins_z),
@@ -291,9 +291,12 @@ void PMFTXYZ::accumulate(box::Box& box,
                     }
                 } // done looping over reference points
             });
+    m_frame_counter++;
     m_n_ref = n_ref;
     m_n_p = n_p;
     m_n_faces = n_faces;
+    // flag to reduce
+    m_reduce = true;
     }
 
 }; }; // end namespace freud::pmft
