@@ -122,7 +122,7 @@ void PMFTXYZ::reducePCF()
                         for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                              local_bins != m_local_bin_counts.end(); ++local_bins)
                             {
-                            m_pcf_array.get()[b_i((int)i, (int)j, (int)k)] += (*local_bins)[b_i((int)i, (int)j, (int)k)];
+                            m_bin_counts.get()[b_i((int)i, (int)j, (int)k)] += (*local_bins)[b_i((int)i, (int)j, (int)k)];
                             }
                         }
                     }
