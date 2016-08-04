@@ -10,15 +10,18 @@
 #endif
 
 #include <tbb/tbb.h>
+#include <complex>
+#include "CorrelationFunction.h"
 
 using namespace std;
-using namespace freud;
+// using namespace freud;
 
 using namespace tbb;
 
 /*! \file CorrelationFunction.cc
     \brief Generic pairwise correlation functions
 */
+namespace freud { namespace density {
 
 template<typename T>
 CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
@@ -64,161 +67,6 @@ CorrelationFunction<T>::~CorrelationFunction()
         }
     delete m_lc;
     }
-
-template<typename T>
-class CombineOCF
-    {
-    private:
-        unsigned int m_nbins;
-        unsigned int *m_bin_counts;
-        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
-        T *m_rdf_array;
-        tbb::enumerable_thread_specific<T *>& m_local_rdf_array;
-        float m_n_ref;
-    public:
-        CombineOCF(unsigned int nbins,
-                   unsigned int *bin_counts,
-                   tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
-                   T *rdf_array,
-                   tbb::enumerable_thread_specific<T *>& local_rdf_array,
-                   float n_ref)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
-              m_local_rdf_array(local_rdf_array), m_n_ref(n_ref)
-        {
-        }
-        void operator()( const tbb::blocked_range<size_t> &myBin ) const
-            {
-            for (size_t i = myBin.begin(); i != myBin.end(); i++)
-                {
-                for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
-                     local_bins != m_local_bin_counts.end(); ++local_bins)
-                    {
-                    m_bin_counts[i] += (*local_bins)[i];
-                    }
-                for (typename tbb::enumerable_thread_specific<T *>::const_iterator local_rdf = m_local_rdf_array.begin();
-                     local_rdf != m_local_rdf_array.end(); ++local_rdf)
-                    {
-                    m_rdf_array[i] += (*local_rdf)[i];
-                    }
-                if (m_bin_counts[i])
-                    {
-                    m_rdf_array[i] /= m_bin_counts[i];
-                    }
-                }
-            }
-    };
-
-template<typename T>
-class ComputeOCF
-    {
-    private:
-        const unsigned int m_nbins;
-        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
-        tbb::enumerable_thread_specific<T *>& m_rdf_array;
-        const box::Box m_box;
-        const float m_rmax;
-        const float m_dr;
-        const locality::LinkCell *m_lc;
-        const vec3<float> *m_ref_points;
-        const T *m_ref_values;
-        const unsigned int m_n_ref;
-        const vec3<float> *m_points;
-        const T *m_point_values;
-        unsigned int m_Np;
-    public:
-        ComputeOCF(const unsigned int nbins,
-                   tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
-                   tbb::enumerable_thread_specific<T *>& rdf_array,
-                   const box::Box &box,
-                   const float rmax,
-                   const float dr,
-                   const locality::LinkCell *lc,
-                   const vec3<float> *ref_points,
-                   const T *ref_values,
-                   unsigned int n_ref,
-                   const vec3<float> *points,
-                   const T *point_values,
-                   unsigned int Np)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_rmax(rmax), m_dr(dr),
-              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_n_ref(n_ref), m_points(points),
-              m_point_values(point_values), m_Np(Np)
-        {
-        }
-        void operator()( const blocked_range<size_t> &myR ) const
-            {
-            assert(m_ref_points);
-            assert(m_ref_values);
-            assert(m_points);
-            assert(m_point_values);
-            assert(m_n_ref > 0);
-            assert(m_Np > 0);
-
-            float dr_inv = 1.0f / m_dr;
-            float rmaxsq = m_rmax * m_rmax;
-
-            bool bin_exists;
-            m_bin_counts.local(bin_exists);
-            if (! bin_exists)
-                {
-                m_bin_counts.local() = new unsigned int [m_nbins];
-                memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
-                }
-
-            bool rdf_exists;
-            m_rdf_array.local(rdf_exists);
-            if (! rdf_exists)
-                {
-                m_rdf_array.local() = new T [m_nbins];
-                memset((void*)m_rdf_array.local(), 0, sizeof(T)*m_nbins);
-                }
-
-            // for each reference point
-            for (size_t i = myR.begin(); i != myR.end(); i++)
-                {
-                // get the cell the point is in
-                vec3<float> ref = m_ref_points[i];
-                unsigned int ref_cell = m_lc->getCell(ref);
-
-                // loop over all neighboring cells
-                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-                    {
-                    unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                    // iterate over the particles in that cell
-                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
-                        {
-                        // compute r between the two particles
-                        vec3<float> delta = m_box.wrap(m_points[j] - ref);
-
-                        float rsq = dot(delta, delta);
-
-                        // check that the particle is not checking itself, if it is the same list
-                        if ((i != j || m_points != m_ref_points) && rsq < rmaxsq)
-                            {
-                            float r = sqrtf(rsq);
-
-                            // bin that r
-                            float binr = r * dr_inv;
-                            // fast float to int conversion with truncation
-                            #ifdef __SSE2__
-                            unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                            #else
-                            unsigned int bin = (unsigned int)(binr);
-                            #endif
-
-                            if (bin < m_nbins)
-                                {
-                                ++m_bin_counts.local()[bin];
-                                m_rdf_array.local()[bin] += m_ref_values[i]*m_point_values[j];
-                                }
-                            }
-                        }
-                    }
-                } // done looping over reference points
-            }
-    };
 
 //! \internal
 //! helper function to reduce the thread specific arrays into the boost array
@@ -290,6 +138,109 @@ void CorrelationFunction<T>::accumulate(const box::Box &box,
                                                                     Np));
     m_frame_counter += 1;
     }
+
+template<typename T>
+void CombineOCF<T>::operator()( const tbb::blocked_range<size_t> &myBin ) const
+        {
+        for (size_t i = myBin.begin(); i != myBin.end(); i++)
+            {
+            for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+                 local_bins != m_local_bin_counts.end(); ++local_bins)
+                {
+                m_bin_counts[i] += (*local_bins)[i];
+                }
+            for (typename tbb::enumerable_thread_specific<T *>::const_iterator local_rdf = m_local_rdf_array.begin();
+                 local_rdf != m_local_rdf_array.end(); ++local_rdf)
+                {
+                m_rdf_array[i] += (*local_rdf)[i];
+                }
+            if (m_bin_counts[i])
+                {
+                m_rdf_array[i] /= m_bin_counts[i];
+                }
+            }
+        }
+
+template<typename T>
+void ComputeOCF<T>::operator()( const blocked_range<size_t> &myR ) const
+    {
+    assert(m_ref_points);
+    assert(m_ref_values);
+    assert(m_points);
+    assert(m_point_values);
+    assert(m_n_ref > 0);
+    assert(m_Np > 0);
+
+    float dr_inv = 1.0f / m_dr;
+    float rmaxsq = m_rmax * m_rmax;
+
+    bool bin_exists;
+    m_bin_counts.local(bin_exists);
+    if (! bin_exists)
+        {
+        m_bin_counts.local() = new unsigned int [m_nbins];
+        memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
+        }
+
+    bool rdf_exists;
+    m_rdf_array.local(rdf_exists);
+    if (! rdf_exists)
+        {
+        m_rdf_array.local() = new T [m_nbins];
+        memset((void*)m_rdf_array.local(), 0, sizeof(T)*m_nbins);
+        }
+
+    // for each reference point
+    for (size_t i = myR.begin(); i != myR.end(); i++)
+        {
+        // get the cell the point is in
+        vec3<float> ref = m_ref_points[i];
+        unsigned int ref_cell = m_lc->getCell(ref);
+
+        // loop over all neighboring cells
+        const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
+        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+            {
+            unsigned int neigh_cell = neigh_cells[neigh_idx];
+
+            // iterate over the particles in that cell
+            locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
+            for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                {
+                // compute r between the two particles
+                vec3<float> delta = m_box.wrap(m_points[j] - ref);
+
+                float rsq = dot(delta, delta);
+
+                // check that the particle is not checking itself, if it is the same list
+                if ((i != j || m_points != m_ref_points) && rsq < rmaxsq)
+                    {
+                    float r = sqrtf(rsq);
+
+                    // bin that r
+                    float binr = r * dr_inv;
+                    // fast float to int conversion with truncation
+                    #ifdef __SSE2__
+                    unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+                    #else
+                    unsigned int bin = (unsigned int)(binr);
+                    #endif
+
+                    if (bin < m_nbins)
+                        {
+                        ++m_bin_counts.local()[bin];
+                        m_rdf_array.local()[bin] += m_ref_values[i]*m_point_values[j];
+                        }
+                    }
+                }
+            }
+        } // done looping over reference points
+    }
+
+template class CorrelationFunction< complex<double> >;
+template class CorrelationFunction< double >;
+
+}} // end namespace freud::density
 
 // // Default implementation: assume we're dealing with floats
 // template<typename T>
