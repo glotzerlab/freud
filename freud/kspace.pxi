@@ -1,4 +1,3 @@
-
 from freud.util._Boost cimport shared_array
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.complex cimport complex
@@ -48,7 +47,8 @@ cdef class FTdelta:
         if K.ndim != 2 or K.shape[1] != 3:
             raise TypeError('K should be an Nx3 array')
         self.NK = K.shape[0]
-        cdef np.ndarray[float] cK = K
+        #cdef unsigned int NK = <unsigned int> K.shape[0]
+        cdef np.ndarray[float, ndim=2] cK = K
         self.thisptr.set_K(<vec3[float]*>cK.data, self.NK)
 
     def set_rq(self, position, orientation):
@@ -65,12 +65,13 @@ cdef class FTdelta:
             raise TypeError('orientation should be an Nx4 array')
         if position.shape[0] != orientation.shape[0]:
             raise TypeError('position and orientation should have the same length')
-        self.Np = position.shape[0]
-        cdef np.ndarray[float] cr = position
-        self.position = position
-        cdef np.ndarray[float] cq = orientation
-        self.orientation = orientation
-        self.thisptr.set_rq(self.Np, <vec3[float]*>cr.data, <quat[float]*> cq.data)
+        #self.Np = position.shape[0]
+        cdef unsigned int Np = <unsigned int> position.shape[0]
+        cdef np.ndarray[float, ndim=2] cr = position
+        #self.position = position
+        cdef np.ndarray[float, ndim=2] cq = orientation
+        #self.orientation = orientation
+        self.thisptr.set_rq(Np, <vec3[float]*>cr.data, <quat[float]*> cq.data)
 
     def set_density(self, float complex density):
         """Set scattering density

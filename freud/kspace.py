@@ -105,7 +105,7 @@ class SFactor3DPoints:
 
 ## Analyze the peaks in a 3D structure factor
 #
-# Given a structure factor S(q) computed by classes such as SFactor3DPoints, AnalyzeSFactor3D
+# Given a structure factor S(q ) computed by classes such as SFactor3DPoints, AnalyzeSFactor3D
 # performs a variety of analysis tasks.
 #  - It identifies peaks
 #  - Provides a list of peaks and the vector q positions at which they occur

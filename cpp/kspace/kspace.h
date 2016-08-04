@@ -4,7 +4,6 @@
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
-
 #ifndef _KSPACE_H__
 #define _KSPACE_H__
 
@@ -12,7 +11,6 @@
 /*! For analyzing periodicity or simulating diffraction patterns
 */
 namespace freud { namespace kspace {
-
 /*! Compute the Fourier transform of a set of delta peaks at a list of K points.
 Also serves as the base class for Fourier transform calculators of non-delta form factors
 */

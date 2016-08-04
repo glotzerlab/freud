@@ -5,6 +5,7 @@
 #include <cmath>
 #include <complex>
 
+
 using namespace std;
 
 namespace freud { namespace kspace {
