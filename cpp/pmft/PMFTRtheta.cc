@@ -1,0 +1,281 @@
+#include "PMFTRtheta.h"
+#include "ScopedGILRelease.h"
+
+#include <stdexcept>
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
+
+#ifdef ENABLE_OPENMP
+#include <omp.h>
+#endif
+
+#include "VectorMath.h"
+
+using namespace std;
+
+using namespace tbb;
+
+/*! \internal
+    \file PMFTRtheta.cc
+    \brief Routines for computing 3D anisotropic potential of mean force
+*/
+
+namespace freud { namespace pmft {
+
+PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsigned int n_bins_theta)
+    : m_box(box::Box()), m_max_R(max_R), m_max_theta(max_theta),
+      m_n_bins_R(n_bins_R), m_n_bins_theta(n_bins_theta), m_frame_counter(0),
+      m_n_ref(0), m_n_p(0), m_n_faces(0), m_reduce(true)
+    {
+    if (n_bins_R < 1)
+        throw invalid_argument("must be at least 1 bin in x");
+    if (n_bins_theta < 1)
+        throw invalid_argument("must be at least 1 bin in y");
+    if (max_R < 0.0f)
+        throw invalid_argument("max_R must be positive");
+    if (max_theta < 0.0f)
+        throw invalid_argument("max_theta must be positive");
+
+    // calculate dR, dtheta
+    m_dR = m_max_R / float(m_n_bins_R);
+    m_d_theta = m_max_theta / float(m_n_bins_theta);
+
+    if (m_dR > max_R)
+        throw invalid_argument("max_R must be greater than dx");
+    if (m_d_theta > max_theta)
+        throw invalid_argument("max_theta must be greater than d_theta");
+
+    m_jacobian = m_dR * m_d_theta;
+
+    // precompute the bin center positions for R
+    m_R_array = std::shared_ptr<float>(new float[m_n_bins_R], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_bins_R; i++)
+        {
+        float R = float(i) * m_dR;
+        float nextR = float(i+1) * m_dR;
+        m_R_array.get()[i] = ((R + nextR) / 2.0);
+        }
+
+    // precompute the bin center positions for theta
+    m_theta_array = std::shared_ptr<float>(new float[m_n_bins_theta], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_bins_theta; i++)
+        {
+        float theta = float(i) * m_d_theta;
+        float next_theta = float(i+1) * m_d_theta;
+        m_theta_array.get()[i] = ((theta + next_theta) / 2.0);
+        }
+
+
+    m_lc = new locality::LinkCell(m_box, m_max_R);
+    // create and populate the pcf_array
+    m_pcf_array = std::shared_ptr<float>(new float[m_n_bins_R*m_n_bins_theta], std::default_delete<float[]>());
+    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_R*m_n_bins_theta);
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_bins_R*m_n_bins_theta], std::default_delete<unsigned int[]>());
+    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta);
+
+    m_r_cut = m_max_R;
+
+    m_lc = new locality::LinkCell(m_box, m_r_cut);
+    }
+
+PMFTRtheta::~PMFTRtheta()
+    {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        delete[] (*i);
+        }
+    delete m_lc;
+    }
+
+//! \internal
+//! helper function to reduce the thread specific arrays into the boost array
+void PMFTRtheta::reducePCF()
+    {
+    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta);
+    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_R*m_n_bins_theta);
+    parallel_for(blocked_range<size_t>(0,m_n_bins_R),
+        [=] (const blocked_range<size_t>& r)
+            {
+            Index2D b_i = Index3D(m_n_bins_R, m_n_bins_theta);
+            for (size_t i = r.begin(); i != r.end(); i++)
+                {
+                for (size_t j = 0; j < m_n_bins_theta; j++)
+                    {
+
+                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+                         local_bins != m_local_bin_counts.end(); ++local_bins)
+                        {
+                        m_bin_counts.get()[b_i((int)i, (int)j] += (*local_bins)[b_i((int)i, (int)j];
+                        }
+
+                    }
+                }
+            });
+    float inv_num_dens = m_box.getVolume() / (float)m_n_p;
+    float inv_jacobian = (float) 1.0 / (float) m_jacobian;
+    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref * (float) m_n_faces);
+    // normalize pcf_array
+    parallel_for(blocked_range<size_t>(0,m_n_bins_R*m_n_bins_theta),
+        [=] (const blocked_range<size_t>& r)
+            {
+            for (size_t i = r.begin(); i != r.end(); i++)
+                {
+                m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
+                }
+            });
+    }
+
+//! Get a reference to the PCF array
+std::shared_ptr<unsigned int> PMFTRtheta::getBinCounts()
+    {
+    if (m_reduce == true)
+        {
+        reducePCF();
+        }
+    m_reduce = false;
+    return m_bin_counts;
+    }
+
+//! Get a reference to the PCF array
+std::shared_ptr<float> PMFTRtheta::getPCF()
+    {
+    if (m_reduce == true)
+        {
+        reducePCF();
+        }
+    m_reduce = false;
+    return m_pcf_array;
+    }
+
+//! \internal
+/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
+*/
+void PMFTRtheta::resetPCF()
+    {
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+        {
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta*m_n_bins_z);
+        }
+    m_frame_counter = 0;
+    m_reduce = true;
+    }
+
+//! \internal
+/*! \brief Helper function to direct the calculation to the correct helper class
+*/
+void PMFTRtheta::accumulate(box::Box& box,
+                        vec3<float> *ref_points,
+                        quat<float> *ref_orientations,
+                        unsigned int n_ref,
+                        vec3<float> *points,
+                        quat<float> *orientations,
+                        unsigned int n_p,
+                        quat<float> *face_orientations,
+                        unsigned int n_faces)
+    {
+    m_box = box;
+    m_lc->computeCellList(m_box, points, n_p);
+    parallel_for(blocked_range<size_t>(0,n_ref),
+        [=] (const blocked_range<size_t>& r)
+            {
+            assert(ref_points);
+            assert(points);
+            assert(n_ref > 0);
+            assert(n_p > 0);
+            assert(n_faces > 0);
+
+            // precalc some values for faster computation within the loop
+            float dR_inv = 1.0f / m_dR;
+            float d_theta_inv = 1.0f / m_d_theta;
+            float maxRsq = m_max_R * m_max_R;
+            //Don't need a max theta sq
+
+            Index2D b_i = Index3D(m_n_bins_R, m_n_bins_theta);
+            Index2D q_i = Index2D(n_faces, n_p);
+
+            bool exists;
+            m_local_bin_counts.local(exists);
+            if (! exists)
+                {
+                m_local_bin_counts.local() = new unsigned int [m_n_bins_R*m_n_bins_theta];
+                memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta);
+                }
+
+            // for each reference point
+            for (size_t i = r.begin(); i != r.end(); i++)
+                {
+                // get the cell the point is in
+                vec3<float> ref = ref_points[i];
+                // create the reference point quaternion
+                quat<float> ref_q(ref_orientations[i]);
+                unsigned int ref_cell = m_lc->getCell(ref);
+
+                // loop over all neighboring cells
+                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
+                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                    {
+                    unsigned int neigh_cell = neigh_cells[neigh_idx];
+
+                    // iterate over the particles in that cell
+                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
+                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                        {
+                        // make sure that the particles are wrapped into the box
+                        vec3<float> delta = m_box.wrap(points[j] - ref);
+                        float rsq = dot(delta, delta);
+
+                        // check that the particle is not checking itself
+                        // 1e-6 is an arbitrary value that could be set differently if needed
+                        if (rsq < 1e-6)
+                            {
+                            continue;
+                            }
+                        for (unsigned int k=0; k<n_faces; k++)
+                            {
+                            // create tmp vector
+                            vec3<float> my_vector(delta);
+                            // rotate vector
+                            // create the extra quaternion
+                            quat<float> qe(face_orientations[q_i(k, i)]);
+                            // create point vector
+                            vec3<float> v(delta);
+                            // rotate the vector
+                            v = rotate(conj(ref_q), v);
+                            v = rotate(qe, v);
+
+                            float x = v.x + m_max_x;
+                            float y = v.y + m_max_y;
+                            float z = v.z + m_max_z;
+
+                            // bin that point
+                            float binR = floorf(x * dx_inv);
+                            float bin_theta = floorf(y * dy_inv);
+                            // fast float to int conversion with truncation
+                            #ifdef __SSE2__
+                            unsigned int ibinR = _mm_cvtt_ss2si(_mm_load_ss(&binR));
+                            unsigned int ibin_theta = _mm_cvtt_ss2si(_mm_load_ss(&bin_theta));
+                            #else
+                            unsigned int ibinR = (unsigned int)(binR);
+                            unsigned int ibin_theta = (unsigned int)(bin_theta);
+                            #endif
+
+                            // increment the bin
+                            if ((ibinR < m_n_bins_R) && (ibin_theta < m_n_bins_theta))
+                                {
+                                ++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
+                                }
+                            }
+                        }
+                    }
+                } // done looping over reference points
+            });
+    m_frame_counter++;
+    m_n_ref = n_ref;
+    m_n_p = n_p;
+    m_n_faces = n_faces;
+    // flag to reduce
+    m_reduce = true;
+    }
+
+}; }; // end namespace freud::pmft
