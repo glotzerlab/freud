@@ -65,8 +65,8 @@ class PMFTRtheta
                         vec3<float> *points,
                         quat<float> *orientations,
                         unsigned int n_p,
-                        quat<float> *face_orientations,
-                        unsigned int n_faces);
+                        quat<float> *equivalent_orientations,
+                        unsigned int n_q);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
@@ -125,7 +125,7 @@ class PMFTRtheta
         unsigned int m_frame_counter;       //!< number of frames calc'd
         unsigned int m_n_ref;
         unsigned int m_n_p;
-        unsigned int m_n_faces;
+        unsigned int m_n_q;
         float m_jacobian;
         bool m_reduce;
 

@@ -11,6 +11,7 @@
 #endif
 
 #include "VectorMath.h"
+#include <math.h> //For acos
 
 using namespace std;
 
@@ -26,12 +27,12 @@ namespace freud { namespace pmft {
 PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsigned int n_bins_theta)
     : m_box(box::Box()), m_max_R(max_R), m_max_theta(max_theta),
       m_n_bins_R(n_bins_R), m_n_bins_theta(n_bins_theta), m_frame_counter(0),
-      m_n_ref(0), m_n_p(0), m_n_faces(0), m_reduce(true)
+      m_n_ref(0), m_n_p(0), m_n_q(0), m_reduce(true)
     {
     if (n_bins_R < 1)
-        throw invalid_argument("must be at least 1 bin in x");
+        throw invalid_argument("must be at least 1 bin in R");
     if (n_bins_theta < 1)
-        throw invalid_argument("must be at least 1 bin in y");
+        throw invalid_argument("must be at least 1 bin in theta");
     if (max_R < 0.0f)
         throw invalid_argument("max_R must be positive");
     if (max_theta < 0.0f)
@@ -47,6 +48,39 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
         throw invalid_argument("max_theta must be greater than d_theta");
 
     m_jacobian = m_dR * m_d_theta;
+
+    // Define a function that calculates the magnitude of the shortest angle between two quaternions
+    float separation_angle( quat<float> q1, quat<float> q2)
+    {
+        quat Qt = conj(q1) * q;
+        float sep_angle = acos(Qt.s);
+
+        return sep_angle;
+    }
+
+    // Function that can find an equivalent quaternion for qn that minimizes the separation angle between it and qref.
+    // equivalent_orientations should be a list of quaternions that correspond to equivalent orientations of your particle
+    quat <float> find_min_quat( quat<float> qref, quat<float> qn, quat<float> *equivalent_orientations, unsigned int n_q)
+    {
+        //Use the first quaternion in equivalent_orientations as a reference. This is q0
+        quat <float> q0 = equivalent_orientations[0];
+        float min_angle = 360.0;
+        //For each quaternion in the list, undo the q0 rotation, then apply the rotation in equivalent_orientations[i]
+        //If your particle has mirror symmetry, be sure that's accounted for in the supplied equivalent_orientations
+        for (unsigned int i=0; i < n_q; i++)
+        {
+            quat <float> tq = qn * conj(q0); //Create a temporary quaternion that undoes the first rotation
+            quat <float> q_test = tq*equivalent_orientations[i];
+
+            sep_angle = separation_angle(qref, q_test);
+            if (sep_angle < min_angle)
+            {
+                min_angle = sep_angle;
+                quat <float> min_quat = q_test;
+            }
+        }
+        return min_quat;
+    }
 
     // precompute the bin center positions for R
     m_R_array = std::shared_ptr<float>(new float[m_n_bins_R], std::default_delete<float[]>());
@@ -97,7 +131,7 @@ void PMFTRtheta::reducePCF()
     parallel_for(blocked_range<size_t>(0,m_n_bins_R),
         [=] (const blocked_range<size_t>& r)
             {
-            Index2D b_i = Index3D(m_n_bins_R, m_n_bins_theta);
+            Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 for (size_t j = 0; j < m_n_bins_theta; j++)
@@ -114,7 +148,7 @@ void PMFTRtheta::reducePCF()
             });
     float inv_num_dens = m_box.getVolume() / (float)m_n_p;
     float inv_jacobian = (float) 1.0 / (float) m_jacobian;
-    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref * (float) m_n_faces);
+    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0,m_n_bins_R*m_n_bins_theta),
         [=] (const blocked_range<size_t>& r)
@@ -171,8 +205,8 @@ void PMFTRtheta::accumulate(box::Box& box,
                         vec3<float> *points,
                         quat<float> *orientations,
                         unsigned int n_p,
-                        quat<float> *face_orientations,
-                        unsigned int n_faces)
+                        quat<float> *equivalent_orientations,
+                        unsigned int n_q)   // quat<float> *equivalent_orientations, unsigned int n_q)
     {
     m_box = box;
     m_lc->computeCellList(m_box, points, n_p);
@@ -183,16 +217,16 @@ void PMFTRtheta::accumulate(box::Box& box,
             assert(points);
             assert(n_ref > 0);
             assert(n_p > 0);
-            assert(n_faces > 0);
+            assert(n_q > 0);
 
             // precalc some values for faster computation within the loop
             float dR_inv = 1.0f / m_dR;
             float d_theta_inv = 1.0f / m_d_theta;
-            float maxRsq = m_max_R * m_max_R;
+            float maxrsq = m_max_R * m_max_R;
             //Don't need a max theta sq
 
-            Index2D b_i = Index3D(m_n_bins_R, m_n_bins_theta);
-            Index2D q_i = Index2D(n_faces, n_p);
+            Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
+            //Index2D q_i = Index2D(n_faces, n_p);
 
             bool exists;
             m_local_bin_counts.local(exists);
@@ -231,26 +265,56 @@ void PMFTRtheta::accumulate(box::Box& box,
                             {
                             continue;
                             }
-                        for (unsigned int k=0; k<n_faces; k++)
+                        //Blocking out a big chunk of original code from the PMFTXYZ version. Not going to use n_faces for this
+//                        for (unsigned int k=0; k<n_faces; k++)
+//                            {
+//                            // create tmp vector
+//                            vec3<float> my_vector(delta);
+//                            // rotate vector
+//                            // create the extra quaternion
+//                            quat<float> qe(face_orientations[q_i(k, i)]);
+//                            // create point vector
+//                            vec3<float> v(delta);
+//                            // rotate the vector
+//                            v = rotate(conj(ref_q), v);
+//                            v = rotate(qe, v);
+//
+    //                        //Find the orientation of the neighbor that minimizes
+//
+    //                        float x = v.x + m_max_x;
+//                            float y = v.y + m_max_y;
+//                            float z = v.z + m_max_z;
+//
+    //                        // bin that point
+//                            float binR = floorf(x * dx_inv);
+//                            float bin_theta = floorf(y * dy_inv);
+//                            // fast float to int conversion with truncation
+//                            #ifdef __SSE2__
+//                            unsigned int ibinR = _mm_cvtt_ss2si(_mm_load_ss(&binR));
+//                            unsigned int ibin_theta = _mm_cvtt_ss2si(_mm_load_ss(&bin_theta));
+//                            #else
+//                            unsigned int ibinR = (unsigned int)(binR);
+//                            unsigned int ibin_theta = (unsigned int)(bin_theta);
+//                            #endif
+//
+    //                        // increment the bin
+//                            if ((ibinR < m_n_bins_R) && (ibin_theta < m_n_bins_theta))
+//                                {
+//                                ++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
+//                                }
+//                            }
+//
+
+                        //Need the orientation of the reference particle,
+                        //the orientation of the neighbor particle, and the separation R between reference and neighbor
+                        if (rsq < maxrsq)
                             {
-                            // create tmp vector
-                            vec3<float> my_vector(delta);
-                            // rotate vector
-                            // create the extra quaternion
-                            quat<float> qe(face_orientations[q_i(k, i)]);
-                            // create point vector
-                            vec3<float> v(delta);
-                            // rotate the vector
-                            v = rotate(conj(ref_q), v);
-                            v = rotate(qe, v);
+                            minimizing_quat = find_min_quat(ref_orientations[i], orientations[j], equivalent_orientations, nq);
+                            sep_angle = separation_angle(ref_orientations[i], minimizing_quat);
 
-                            float x = v.x + m_max_x;
-                            float y = v.y + m_max_y;
-                            float z = v.z + m_max_z;
+                            float binR = sqrtf(rsq);
+                            float bin_theta = sep_angle;
 
-                            // bin that point
-                            float binR = floorf(x * dx_inv);
-                            float bin_theta = floorf(y * dy_inv);
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
                             unsigned int ibinR = _mm_cvtt_ss2si(_mm_load_ss(&binR));
@@ -273,7 +337,8 @@ void PMFTRtheta::accumulate(box::Box& box,
     m_frame_counter++;
     m_n_ref = n_ref;
     m_n_p = n_p;
-    m_n_faces = n_faces;
+    m_n_q = n_q;
+    //m_n_faces = n_faces;
     // flag to reduce
     m_reduce = true;
     }
