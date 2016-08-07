@@ -103,3 +103,28 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
         unsigned int getNBinsY()
         unsigned int getNBinsZ()
         float getRCut()
+
+cdef extern from "PMFTRtheta.h" namespace "freud::pmft":
+    cdef cppclass PMFTRtheta:
+        PMFTRtheta(float, float, float, unsigned int, unsigned int, unsigned int)
+
+        const box.Box& getBox() const
+        void resetPCF()
+        void accumulate(box.Box&,
+                        vec3[float]*,
+                        quat[float]*,
+                        unsigned int,
+                        vec3[float]*,
+                        quat[float]*,
+                        unsigned int,
+                        quat[float]*,
+                        unsigned int) nogil
+        void reducePCF()
+        shared_ptr[float] getPCF()
+        shared_ptr[unsigned int] getBinCounts()
+        shared_ptr[float] getR()
+        shared_ptr[float] get_theta()
+        float getJacobian()
+        unsigned int getNBinsR()
+        unsigned int getNBins_theta()
+        float getRCut()

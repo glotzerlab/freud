@@ -18,3 +18,4 @@ from ._freud import PMFTR12
 from ._freud import PMFTXYT
 from ._freud import PMFTXY2D
 from ._freud import PMFTXYZ
+from ._freud import PMFTRtheta

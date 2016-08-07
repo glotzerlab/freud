@@ -980,3 +980,225 @@ cdef class PMFTXYZ:
         """
         cdef float j = self.thisptr.getJacobian()
         return j
+
+
+cdef class PMFTRtheta:
+    """Computes the PMFT [Cit2]_ for a given set of points.
+
+    A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
+    Computing the PCF results in a pcf array listing the value of the PCF at each given :math:`R`, :math:`theta`,
+    listed in the R and theta arrays. Theta is the magnitude of the smallest angle separating two particles.
+
+    The values of R, theta to compute the pcf at are controlled by R_max, theta_max, n_R, n_theta parameters
+    to the constructor. R_max, and theta_max determine the minimum/maximum distance at which to compute the pcf and
+    n_R and n_theta is the number of bins in R and theta.
+
+    .. note:: 3D: This calculation is defined for 3D systems only.
+
+    .. moduleauthor:: Andrew Karas <askaras@umich.edu>
+
+    :param R_max: maximum R distance at which to compute the pmft
+    :param theta_max: maximum angle theta at which to compute the pmft
+    :param n_R: number of bins in R
+    :param n_theta: number of bins in theta
+    :type R_max: float
+    :type theta_max: float
+    :type n_R: unsigned int
+    :type n_theta: unsigned int
+    """
+    cdef pmft.PMFTRtheta *thisptr
+
+    def __cinit__(self, R_max, theta_max, n_R, n_theta):
+        self.thisptr = new pmft.PMFTRtheta(R_max, theta_max, n_R, n_theta)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def getBox(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.box.Box()`
+        """
+        return BoxFromCPP(self.thisptr.getBox())
+
+    def resetPCF(self):
+        """
+        Resets the values of the pcf histograms in memory
+        """
+        self.thisptr.resetPCF()
+
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, equivalent_orientations):
+        """
+        Calculates the positional correlation function and adds to the current histogram.
+
+        :param box: simulation box
+        :param ref_points: reference points to calculate the local density
+        :param ref_orientations: orientations of reference points to use in calculation
+        :param points: points to calculate the local density
+        :param orientations: orientations of particles to use in calculation
+        :param equivalent_orientations: A set of quaternions that puts the particle into all symmetrically equivalent orientations
+        :type box: :py:meth:`freud.box.Box`
+        :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type ref_orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
+        :type equivalent_orientations: np.ndarray(shape=((Nf, 4), dtype=np.float32)
+        """
+        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
+            raise ValueError("points must be a numpy float32 array")
+        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
+            raise ValueError("orientations must be a numpy float32 array")
+        if (face_orientations.dtype != np.float32):
+            raise ValueError("face_orientations must be a numpy float32 array")
+        if len(ref_points.shape) != 2 or len(points.shape) != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if len(ref_orientations.shape) != 2 or len(orientations.shape) != 2:
+            raise ValueError("orientations must be a 2 dimensional array")
+        # handle multiple ways to input
+        if equivalent_orientations.shape[0] != 4:
+            raise ValueError("2nd dimension for equivalent_orientations must have 4 values: s, x, y, z")
+        if ref_points.shape[1] != 3 or points.shape[1] != 3:
+            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
+            raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        cdef np.ndarray[float, ndim=2] l_equivalent_orientations = equivalent_orientations
+        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nQ = <unsigned int> equivalent_orientations.shape[0]
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        with nogil:
+            self.thisptr.accumulate(l_box,
+                                    <vec3[float]*>l_ref_points.data,
+                                    <quat[float]*>l_ref_orientations.data,
+                                    nRef,
+                                    <vec3[float]*>l_points.data,
+                                    <quat[float]*>l_orientations.data,
+                                    nP,
+                                    <quat[float]*>l_equivalent_orientations.data,
+                                    nQ)
+
+    def compute(self, box, ref_points, ref_orientations, points, orientations, equivalent_orientations):
+        """
+        Calculates the positional correlation function for the given points. Will overwrite the current histogram.
+
+        :param box: simulation box
+        :param ref_points: reference points to calculate the local density
+        :param ref_orientations: orientations of reference points to use in calculation
+        :param points: points to calculate the local density
+        :param orientations: orientations of particles to use in calculation
+        :param equivalent_orientations: A set of quaternions that puts the particle into all symmetrically equivalent orientations
+        :type box: :py:meth:`freud.box.Box`
+        :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type ref_orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
+        :type equivalent_orientations: np.ndarray(shape=((Nf, 4), dtype=np.float32)
+        """
+        self.thisptr.resetPCF()
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, equivalent_orientations)
+
+    def reducePCF(self):
+        """
+        Reduces the histogram in the values over N processors to a single histogram. This is called automatically by
+        :py:meth:`freud.pmft.PMFTRtheta.getPCF()`.
+        """
+        self.thisptr.reducePCF()
+
+    def getBinCounts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: np.ndarray(shape=(Nr, Ntheta), dtype=np.float32)
+        """
+        cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBins_theta()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bin_counts)
+        return result
+
+    def getPCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: np.ndarray(shape=(Nr, Ntheta), dtype=np.float32)
+        """
+        cdef float* pcf = self.thisptr.getPCF().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBins_theta()
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>pcf)
+        return result
+
+    def getPMFT(self):
+        """
+        Get the Potential of Mean Force and Torque.
+
+        :return: PMFT
+        :rtype: np.ndarray(shape=(Nr, Ntheta), dtype=np.float32)
+        """
+        return -np.log(np.copy(self.getPCF()))
+
+    def getR(self):
+        """
+        Get the array of R-values for the PCF histogram
+
+        :return: bin centers of R-dimension of histogram
+        :rtype: np.ndarray(shape=nR, dtype=np.float32)
+        """
+        cdef float* R = self.thisptr.getR().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>R)
+        return result
+
+    def getY(self):
+        """
+        Get the array of theta-values for the PCF histogram
+
+        :return: bin centers of theta-dimension of histogram
+        :rtype: np.ndarray(shape=n_theta, dtype=np.float32)
+        """
+        cdef float* theta = self.thisptr.get_theta().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBins_theta()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>theta)
+        return result
+
+    def getNBinsR(self):
+        """
+        Get the number of bins in the R-dimension of histogram
+
+        :return: nR
+        :rtype: unsigned int
+        """
+        cdef unsigned int R = self.thisptr.getNBinsR()
+        return R
+
+    def getNBins_theta(self):
+        """
+        Get the number of bins in the theta-dimension of histogram
+
+        :return: ntheta
+        :rtype: unsigned int
+        """
+        cdef unsigned int theta = self.thisptr.getNBins_theta()
+        return theta
+
+    def getJacobian(self):
+        """
+        Get the jacobian
+
+        :return: jacobian
+        :rtype: float
+        """
+        cdef float j = self.thisptr.getJacobian()
+        return j
