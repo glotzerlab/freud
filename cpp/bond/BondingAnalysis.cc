@@ -187,8 +187,8 @@ unsigned int BondingAnalysis::getNumBonds()
     return m_num_particles;
     }
 
-void BondingAnalysis::compute(float* frame0,
-                              float* frame1)
+void BondingAnalysis::compute(unsigned int* frame0,
+                              unsigned int* frame1)
     {
     // track bonds throgh the system
     parallel_for(blocked_range<size_t>(0,m_num_particles),
@@ -275,7 +275,7 @@ void BondingAnalysis::compute(float* frame0,
                     else if ((pjdx0 == UINT_MAX) && (pjdx1 != UINT_MAX))
                         {
                         // create and increment
-                        m_local_bond_increment_array.local()[j].push_back(std::pair<unsigned int, unsigned int>(pjdx1, 0));
+                        m_local_bond_increment_array.local()[i].push_back(std::pair<unsigned int, unsigned int>(pjdx1, 0));
                         // I don't think this is right
                         // unsigned int bond_0 = m_num_bonds;
                         // unsigned int bond_1 = j;
@@ -285,14 +285,14 @@ void BondingAnalysis::compute(float* frame0,
                         {
                         // look up, add to global array, and delete
                         unsigned int current_count;
-                        it = std::find_if(m_local_bond_increment_array.local()[j].begin(),
-                            m_local_bond_increment_array.local()[j].end(), FindParticleIndex(pjdx0));
-                        if (it != m_local_bond_increment_array.local()[j].end())
+                        it = std::find_if(m_local_bond_increment_array.local()[i].begin(),
+                            m_local_bond_increment_array.local()[i].end(), FindParticleIndex(pjdx0));
+                        if (it != m_local_bond_increment_array.local()[i].end())
                             {
                             // found it, exists, get value
                             current_count = (*it).second;
                             // delete old pjdx
-                            m_local_bond_increment_array.local()[j].erase(it);
+                            m_local_bond_increment_array.local()[i].erase(it);
                             }
                         else
                             {
@@ -310,9 +310,9 @@ void BondingAnalysis::compute(float* frame0,
                             {
                             // increment bond lifetime counter
                             // search to find in vector
-                            it = std::find_if(m_local_bond_increment_array.local()[j].begin(),
-                                m_local_bond_increment_array.local()[j].end(), FindParticleIndex(pjdx0));
-                            if (it != m_local_bond_increment_array.local()[j].end())
+                            it = std::find_if(m_local_bond_increment_array.local()[i].begin(),
+                                m_local_bond_increment_array.local()[i].end(), FindParticleIndex(pjdx0));
+                            if (it != m_local_bond_increment_array.local()[i].end())
                                 {
                                 // found it, exists, increment
                                 (*it).second++;
@@ -320,21 +320,21 @@ void BondingAnalysis::compute(float* frame0,
                             else
                                 {
                                 // found it, doesn't exist, so create; this should only be for first frame(?)
-                                m_local_bond_increment_array.local()[j].push_back(std::pair<unsigned int, unsigned int>(pjdx1, 1));
+                                m_local_bond_increment_array.local()[i].push_back(std::pair<unsigned int, unsigned int>(pjdx1, 1));
                                 }
                             }
                         else if (pjdx0 != pjdx1)
                             {
                             // get current count
                             unsigned int current_count;
-                            it = std::find_if(m_local_bond_increment_array.local()[j].begin(),
-                                m_local_bond_increment_array.local()[j].end(), FindParticleIndex(pjdx0));
-                            if (it != m_local_bond_increment_array.local()[j].end())
+                            it = std::find_if(m_local_bond_increment_array.local()[i].begin(),
+                                m_local_bond_increment_array.local()[i].end(), FindParticleIndex(pjdx0));
+                            if (it != m_local_bond_increment_array.local()[i].end())
                                 {
                                 // found it, exists, get value
                                 current_count = (*it).second;
                                 // delete old pjdx
-                                m_local_bond_increment_array.local()[j].erase(it);
+                                m_local_bond_increment_array.local()[i].erase(it);
                                 }
                             else
                                 {
@@ -344,18 +344,15 @@ void BondingAnalysis::compute(float* frame0,
                             // add to array
                             m_local_bond_lifetime_array.local()[i].push_back(current_count);
                             // add new bond to track
-                            m_local_bond_increment_array.local()[j].push_back(std::pair<unsigned int, unsigned int>(pjdx1, 0));
+                            m_local_bond_increment_array.local()[i].push_back(std::pair<unsigned int, unsigned int>(pjdx1, 0));
                             }
                         }
                     }
-                // find and iterate overall bond lifetimes
-                // find all pjdx in frame 0 not currently being tracked
-                // is this frame 0 only
-                // then, for all pjdx being tracked, find which ones aren't present in the next frame
-                // I should be able to do the transition matrix at the same time
+                // create vectors to track bound to bound, bound to unbound, and unbound to bound particles
                 std::vector<unsigned int> b2b;
                 std::vector<unsigned int> b2u;
                 std::vector<unsigned int> u2b;
+                // use intersections and differences to determine these
                 std::set_intersection(s_bonds_0.begin(), s_bonds_0.end(), s_bonds_1.begin(), s_bonds_1.end(), std::back_inserter(b2b));
                 std::set_difference(s_bonds_0.begin(), s_bonds_0.end(), s_bonds_1.begin(), s_bonds_1.end(), std::back_inserter(b2u));
                 std::set_difference(s_bonds_1.begin(), s_bonds_1.end(), s_bonds_0.begin(), s_bonds_0.end(), std::back_inserter(u2b));
