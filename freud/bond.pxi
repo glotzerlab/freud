@@ -18,97 +18,101 @@ cdef class BondingAnalysis:
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param r_max: distance to search for bonds
-    :param bond_map: 3D array containing the bond index for each r, t2, t1 coordinate
-    :param bond_list: list containing the bond indices to be tracked bond_list[i] = bond_index
-    :type r_max: float
-    :type bond_map: np.ndarray(shape=(n_r, n_t2, n_t1), dtype=np.uint32)
-    :type bond_list: np.ndarray(shape=(n_bonds), dtype=np.uint32)
+    :param num_particles: number of particles over which to calculate bonds
+    :param num_bonds: number of bonds to track
+    :type num_particles: unsigned int
+    :type num bonds: unsigned int
     """
     cdef bond.BondingAnalysis *thisptr
+    cdef unsigned int num_particles
+    cdef unsigned int num_bonds
 
     def __cinit__(self, num_particles, num_bonds):
+        self.num_particles = num_particles
+        self.num_bonds = num_bonds
         self.thisptr = new bond.BondingAnalysis(num_particles, num_bonds)
 
     def __dealloc__(self):
         del self.thisptr
 
-    # def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=1] ref_orientations,
-    #     np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=1] orientations):
-    #     """
-    #     Calculates the correlation function and adds to the current histogram.
+    def compute(self, np.ndarray[unsigned int, ndim=2] frame_0, np.ndarray[unsigned int, ndim=2] frame_1):
+        """
+        Calculates the changes in bonding states from one frame to the next.
 
-    #     :param box: simulation box
-    #     :param points: points to calculate the bonding
-    #     :param orientations: orientations as angles to use in computation
-    #     :type box: :py:meth:`freud.box.Box`
-    #     :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-    #     :type orientations: np.ndarray(shape=(N), dtype=np.float32)
-    #     """
-    #     if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
-    #         raise ValueError("points must be a numpy float32 array")
-    #     if ((points.ndim != 2) or (ref_points.ndim != 2)):
-    #         raise ValueError("points must be a 2 dimensional array")
-    #     if ((points.shape[1] != 3) or (ref_points.shape[1] != 3)):
-    #         raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-    #     if ((orientations.dtype != np.float32) or (ref_orientations.dtype != np.float32)):
-    #         raise ValueError("values must be a numpy float32 array")
-    #     if ((orientations.ndim != 1) or (ref_orientations.ndim != 1)):
-    #         raise ValueError("values must be a 1 dimensional array")
-    #     cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-    #     cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-    #     cdef np.ndarray[float, ndim=2] l_points = points
-    #     cdef np.ndarray[float, ndim=1] l_orientations = orientations
-    #     cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-    #     cdef unsigned int n_p = <unsigned int> points.shape[0]
-    #     cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-    #         box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-    #     with nogil:
-    #         self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
-    #             <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
+        :param frame_0: current/previous bonding frame (as output from :py:meth:`freud.bond` modules)
+        :param frame_1: next/current bonding frame (as output from :py:meth:`freud.bond` modules)
+        :type frame_0: np.ndarray(shape=(num_particles, num_bonds), dtype=np.uint32)
+        :type frame_1: np.ndarray(shape=(num_particles, num_bonds), dtype=np.uint32)
+        """
+        if ((frame_0.dtype != np.uint32) or (frame_1.dtype != np.uint32)):
+            raise ValueError("frame data must be a numpy float32 array")
+        if ((frame_0.ndim != 2) or (frame_1.ndim != 2)):
+            raise ValueError("frame data must be a 2 dimensional array")
+        if ((frame_0.shape[0] != self.num_particles) or (frame_1.shape[0] != self.num_particles)):
+            raise ValueError("the 1st dimension must match num_particles: {}".format(self.num_particles))
+        if ((frame_0.shape[1] != self.num_bonds) or (frame_1.shape[1] != self.num_bonds)):
+            raise ValueError("the 2nd dimension must match num_bonds: {}".format(self.num_bonds))
+        cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
+        cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1
+        with nogil:
+            self.thisptr.compute(<unsigned int*> l_frame_0.data, <unsigned int*> l_frame_0.data)
 
-    # def getBonds(self):
-    #     """
-    #     :return: particle bonds
-    #     :rtype: np.ndarray(shape=(n_p, n_bonds), dtype=np.uint32)
-    #     """
-    #     cdef unsigned int *bonds = self.thisptr.getBonds().get()
-    #     cdef np.npy_intp nbins[2]
-    #     nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
-    #     nbins[1] = <np.npy_intp>self.thisptr.getNumBonds()
-    #     cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>bonds)
-    #     return result
+    def getBondLifetimes(self):
+        """
+        :return: lifetime of bonds
+        :rtype: np.ndobject(shape=(num_particles, varying), dtype=np.uint32)
+        """
+        bonds = self.thisptr.getBondLifetimes()
+        ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
+        return ret_bonds
 
-    # def getBox(self):
-    #     """
-    #     Get the box used in the calculation
+    def getOverallLifetimes(self):
+        """
+        :return: lifetime of bonds
+        :rtype: np.ndobject(shape=(num_particles, varying), dtype=np.uint32)
+        """
+        bonds = self.thisptr.getOverallLifetimes()
+        ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
+        return ret_bonds
 
-    #     :return: Freud Box
-    #     :rtype: :py:meth:`freud.box.Box()`
-    #     """
-    #     return BoxFromCPP(<box.Box> self.thisptr.getBox())
+    def getTransitionMatrix(self):
+        """
+        :return: transition matrix
+        :rtype: np.ndarray(shape=(num_bonds+1, num_bonds+1), dtype=np.uint32)
+        """
+        cdef unsigned int *trans_matrix = self.thisptr.getTransitionMatrix().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.num_bonds
+        nbins[1] = <np.npy_intp>self.num_bonds
+        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>trans_matrix)
+        return result
 
-    # def getListMap(self):
-    #     """
-    #     Get the dict used to map list idx to bond idx
+    def getNumFrames(self):
+        """
+        Get number of frames calculated
 
-    #     :return: list_map
-    #     :rtype: dict()
+        :return: number of frames
+        :rtype: unsigned int
+        """
+        return self.thisptr.getNumFrames()
 
-    #     >>> list_idx = list_map[bond_idx]
-    #     """
-    #     return self.thisptr.getListMap()
+    def getNumParticles(self):
+        """
+        Get number of particles being tracked
 
-    # def getRevListMap(self):
-    #     """
-    #     Get the dict used to map list idx to bond idx
+        :return: number of particles
+        :rtype: unsigned int
+        """
+        return self.thisptr.getNumParticles()
 
-    #     :return: list_map
-    #     :rtype: dict()
+    def getNumBonds(self):
+        """
+        Get number of bonds tracked
 
-    #     >>> bond_idx = list_map[list_idx]
-    #     """
-    #     return self.thisptr.getRevListMap()
+        :return: number of bonds
+        :rtype: unsigned int
+        """
+        return self.thisptr.getNumBonds()
 
 cdef class BondingR12:
     """Compute the bonds each particle in the system.

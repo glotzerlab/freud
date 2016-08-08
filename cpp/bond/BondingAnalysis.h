@@ -41,8 +41,8 @@ class BondingAnalysis
         //! Reduce the arrays for export to python
         void reduceArrays();
         //! Compute the bond order
-        void compute(float* frame0,
-                     float* frame1);
+        void compute(unsigned int* frame0,
+                     unsigned int* frame1);
 
         std::vector< std::vector< unsigned int> > getBondLifetimes();
         std::vector< std::vector< unsigned int> > getOverallLifetimes();

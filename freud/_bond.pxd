@@ -10,19 +10,14 @@ cimport freud._box as box
 cdef extern from "BondingAnalysis.h" namespace "freud::bond":
     cdef cppclass BondingAnalysis:
         BondingAnalysis(unsigned int, unsigned int)
-        # const box.Box &getBox() const
-        # void compute(box.Box &,
-        #              vec3[float]*,
-        #              float*,
-        #              unsigned int,
-        #              vec3[float]*,
-        #              float*,
-        #              unsigned int) nogil
-        # shared_ptr[ uint ] getBonds()
-        # unsigned int getNumParticles()
-        # unsigned int getNumBonds()
-        # map[ uint, uint] getListMap()
-        # map[ uint, uint] getRevListMap()
+        void reduceArrays()
+        void compute(unsigned int*, unsigned int*) nogil
+        vector[vector[uint]] getBondLifetimes()
+        vector[vector[uint]] getOverallLifetimes()
+        shared_ptr[uint] getTransitionMatrix()
+        unsigned int getNumFrames()
+        unsigned int getNumParticles()
+        unsigned int getNumBonds()
 
 cdef extern from "BondingR12.h" namespace "freud::bond":
     cdef cppclass BondingR12:
