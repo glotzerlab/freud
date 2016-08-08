@@ -54,7 +54,7 @@ struct FindBondIndex
 
 BondingAnalysis::BondingAnalysis(unsigned int num_particles,
                                  unsigned int num_bonds)
-    : m_num_particles(num_particles), m_num_bonds(num_bonds), m_frame_counter(0)
+    : m_num_particles(num_particles), m_num_bonds(num_bonds), m_frame_counter(0), m_reduce(true)
     {
     if (m_num_particles < 2)
         throw invalid_argument("must be at least 2 particles to track");
@@ -62,6 +62,8 @@ BondingAnalysis::BondingAnalysis(unsigned int num_particles,
         throw invalid_argument("must be at least 1 bond to track");
     // create arrays to store transition information
     m_transition_matrix = std::shared_ptr<unsigned int>(new unsigned int[(m_num_bonds+1) * (m_num_bonds+1)], std::default_delete<unsigned int[]>());
+    m_bond_lifetime_array.resize(m_num_particles);
+    m_overall_lifetime_array.resize(m_num_particles);
     memset((void*)m_transition_matrix.get(), 0, sizeof(unsigned int)*(m_num_bonds+1)*(m_num_bonds+1));
     }
 
@@ -104,10 +106,20 @@ void BondingAnalysis::reduceArrays()
                 for (std::vector< unsigned int >::const_iterator inner_it = (*outer_it).begin();
                     inner_it != (*outer_it).end(); ++inner_it)
                     {
+                    printf("%d ", (*inner_it));
                     m_bond_lifetime_array[i].push_back((*inner_it));
                     }
                 }
             }
+        }
+    for (unsigned int i = 0; i < m_num_particles; i++)
+        {
+        std::vector< unsigned int >::iterator it;
+        for (it = m_bond_lifetime_array[i].begin(); it != m_bond_lifetime_array[i].end(); ++it)
+            {
+            // printf("%d ", (*it));
+            }
+        // printf("\n");
         }
     // transfer data into overall_lifetime array
     // for each pidx
@@ -207,30 +219,17 @@ void BondingAnalysis::compute(unsigned int* frame0,
                 memset((void*)m_local_transition_matrix.local(), 0, sizeof(unsigned int)*(m_num_bonds+1)*(m_num_bonds+1));
                 }
             // I'm not sure if these will be reached, may need to change to if size == 0
-            bool local_bond_lifetime;
-            m_local_bond_lifetime_array.local(local_bond_lifetime);
-            if (! local_bond_lifetime)
-                {
-                m_local_bond_lifetime_array.local().resize(m_num_bonds);
-                }
-            bool local_overall_lifetime;
-            m_local_overall_lifetime_array.local(local_overall_lifetime);
-            if (! local_overall_lifetime)
-                {
-                m_local_overall_lifetime_array.local().resize(m_num_bonds);
-                }
-            bool local_bond_increment;
-            m_local_bond_increment_array.local(local_bond_increment);
-            if (! local_bond_increment)
-                {
-                m_local_bond_increment_array.local().resize(m_num_particles);
-                }
-            bool local_overall_increment;
-            m_local_overall_increment_array.local(local_overall_increment);
-            if (! local_overall_increment)
-                {
-                m_local_overall_increment_array.local().resize(m_num_particles);
-                }
+            // bool local_bond_lifetime;
+            // m_local_bond_lifetime_array.local(local_bond_lifetime);
+            m_local_bond_lifetime_array.local().resize(m_num_bonds);
+            // bool local_overall_lifetime;
+            // m_local_overall_lifetime_array.local(local_overall_lifetime);
+            m_local_overall_lifetime_array.local().resize(m_num_bonds);
+            // bool local_bond_increment;
+            // m_local_bond_increment_array.local(local_bond_increment);
+            m_local_bond_increment_array.local().resize(m_num_particles);
+            m_local_overall_increment_array.local().resize(m_num_particles);
+            // printf("local size: %d", m_local_bond_lifetime_array.local().size());
 
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
@@ -348,6 +347,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                             }
                         }
                     }
+                printf("local array size = %d\n", m_local_bond_lifetime_array.local()[5].size());
                 // create vectors to track bound to bound, bound to unbound, and unbound to bound particles
                 std::vector<unsigned int> b2b;
                 std::vector<unsigned int> b2u;
