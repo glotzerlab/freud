@@ -7,6 +7,23 @@ from libcpp.vector cimport vector
 from libcpp.map cimport map
 cimport freud._box as box
 
+cdef extern from "BondingAnalysis.h" namespace "freud::bond":
+    cdef cppclass BondingAnalysis:
+        BondingAnalysis(unsigned int, unsigned int)
+        # const box.Box &getBox() const
+        # void compute(box.Box &,
+        #              vec3[float]*,
+        #              float*,
+        #              unsigned int,
+        #              vec3[float]*,
+        #              float*,
+        #              unsigned int) nogil
+        # shared_ptr[ uint ] getBonds()
+        # unsigned int getNumParticles()
+        # unsigned int getNumBonds()
+        # map[ uint, uint] getListMap()
+        # map[ uint, uint] getRevListMap()
+
 cdef extern from "BondingR12.h" namespace "freud::bond":
     cdef cppclass BondingR12:
         BondingR12(float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
