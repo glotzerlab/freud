@@ -41,7 +41,7 @@ class PMFTRtheta
     {
     public:
         //! Constructor
-        PMFTXYZ(float max_R, float max_theta, unsigned int n_bins_R, unsigned int n_bins_theta);
+        PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsigned int n_bins_theta);
 
         //! Destructor
         ~PMFTRtheta();

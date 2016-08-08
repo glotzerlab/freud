@@ -1050,14 +1050,14 @@ cdef class PMFTRtheta:
             raise ValueError("points must be a numpy float32 array")
         if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
             raise ValueError("orientations must be a numpy float32 array")
-        if (face_orientations.dtype != np.float32):
-            raise ValueError("face_orientations must be a numpy float32 array")
+        if (equivalent_orientations.dtype != np.float32):
+            raise ValueError("equivalent_orientations must be a numpy float32 array")
         if len(ref_points.shape) != 2 or len(points.shape) != 2:
             raise ValueError("points must be a 2 dimensional array")
         if len(ref_orientations.shape) != 2 or len(orientations.shape) != 2:
             raise ValueError("orientations must be a 2 dimensional array")
         # handle multiple ways to input
-        if equivalent_orientations.shape[0] != 4:
+        if equivalent_orientations.shape[1] != 4:
             raise ValueError("2nd dimension for equivalent_orientations must have 4 values: s, x, y, z")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("2nd dimension for points must have 3 values: x, y, z")
@@ -1160,7 +1160,7 @@ cdef class PMFTRtheta:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>R)
         return result
 
-    def getY(self):
+    def get_theta(self):
         """
         Get the array of theta-values for the PCF histogram
 

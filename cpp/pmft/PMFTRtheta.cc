@@ -48,39 +48,39 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
         throw invalid_argument("max_theta must be greater than d_theta");
 
     m_jacobian = m_dR * m_d_theta;
-
-    // Define a function that calculates the magnitude of the shortest angle between two quaternions
-    float separation_angle( quat<float> q1, quat<float> q2)
-    {
-        quat Qt = conj(q1) * q;
-        float sep_angle = acos(Qt.s);
-
-        return sep_angle;
-    }
-
-    // Function that can find an equivalent quaternion for qn that minimizes the separation angle between it and qref.
-    // equivalent_orientations should be a list of quaternions that correspond to equivalent orientations of your particle
-    quat <float> find_min_quat( quat<float> qref, quat<float> qn, quat<float> *equivalent_orientations, unsigned int n_q)
-    {
-        //Use the first quaternion in equivalent_orientations as a reference. This is q0
-        quat <float> q0 = equivalent_orientations[0];
-        float min_angle = 360.0;
-        //For each quaternion in the list, undo the q0 rotation, then apply the rotation in equivalent_orientations[i]
-        //If your particle has mirror symmetry, be sure that's accounted for in the supplied equivalent_orientations
-        for (unsigned int i=0; i < n_q; i++)
-        {
-            quat <float> tq = qn * conj(q0); //Create a temporary quaternion that undoes the first rotation
-            quat <float> q_test = tq*equivalent_orientations[i];
-
-            sep_angle = separation_angle(qref, q_test);
-            if (sep_angle < min_angle)
-            {
-                min_angle = sep_angle;
-                quat <float> min_quat = q_test;
-            }
-        }
-        return min_quat;
-    }
+//
+//    // Define a function that calculates the magnitude of the shortest angle between two quaternions
+//    float separation_angle( quat<float> q1, quat<float> q2)
+//    {
+//        quat<float> Qt = conj(q1) * q2;
+//        float sep_angle = acos(Qt.s);
+//
+//        return sep_angle;
+//    }
+//
+//    // Function that can find an equivalent quaternion for qn that minimizes the separation angle between it and qref.
+//    // equivalent_orientations should be a list of quaternions that correspond to equivalent orientations of your particle
+//    quat <float> find_min_quat( quat<float> qref, quat<float> qn, quat<float> *equivalent_orientations, unsigned int n_q)
+//    {
+//        //Use the first quaternion in equivalent_orientations as a reference. This is q0
+//        quat <float> q0 = equivalent_orientations[0];
+//        float min_angle = 360.0;
+//        //For each quaternion in the list, undo the q0 rotation, then apply the rotation in equivalent_orientations[i]
+//        //If your particle has mirror symmetry, be sure that's accounted for in the supplied equivalent_orientations
+//        for (unsigned int i=0; i < n_q; i++)
+//        {
+//            quat <float> tq = qn * conj(q0); //Create a temporary quaternion that undoes the first rotation
+//            quat <float> q_test = tq*equivalent_orientations[i];
+//
+//            sep_angle = separation_angle(qref, q_test);
+//            if (sep_angle < min_angle)
+//            {
+//                min_angle = sep_angle;
+//                quat <float> min_quat = q_test;
+//            }
+//        }
+//        return min_quat;
+//    }
 
     // precompute the bin center positions for R
     m_R_array = std::shared_ptr<float>(new float[m_n_bins_R], std::default_delete<float[]>());
@@ -113,6 +113,41 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
     m_lc = new locality::LinkCell(m_box, m_r_cut);
     }
 
+// Define a function that calculates the magnitude of the shortest angle between two quaternions
+float separation_angle( quat<float> q1, quat<float> q2)
+{
+    quat<float> Qt = conj(q1) * q2;
+    float sep_angle = acos(Qt.s);
+
+    return sep_angle;
+}
+
+// Function that can find an equivalent quaternion for qn that minimizes the separation angle between it and qref.
+// equivalent_orientations should be a list of quaternions that correspond to equivalent orientations of your particle
+quat <float> find_min_quat( quat<float> qref, quat<float> qn, quat<float> *equivalent_orientations, unsigned int n_q)
+{
+    //Use the first quaternion in equivalent_orientations as a reference. This is q0
+    quat <float> q0 = equivalent_orientations[0];
+    float min_angle = 360.0;
+    quat <float> min_quat = qn;
+    //For each quaternion in the list, undo the q0 rotation, then apply the rotation in equivalent_orientations[i]
+    //If your particle has mirror symmetry, be sure that's accounted for in the supplied equivalent_orientations
+    for (unsigned int i=0; i < n_q; i++)
+    {
+        quat <float> tq = qn * conj(q0); //Create a temporary quaternion that undoes the first rotation
+        quat <float> q_test = tq*equivalent_orientations[i];
+
+        float sep_angle = separation_angle(qref, q_test);
+        if (sep_angle < min_angle)
+        {
+            min_angle = sep_angle;
+            quat <float> min_quat = q_test;
+        }
+    }
+    return min_quat;
+}
+
+
 PMFTRtheta::~PMFTRtheta()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
@@ -136,13 +171,11 @@ void PMFTRtheta::reducePCF()
                 {
                 for (size_t j = 0; j < m_n_bins_theta; j++)
                     {
-
                     for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                          local_bins != m_local_bin_counts.end(); ++local_bins)
                         {
-                        m_bin_counts.get()[b_i((int)i, (int)j] += (*local_bins)[b_i((int)i, (int)j];
+                        m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
                         }
-
                     }
                 }
             });
@@ -189,7 +222,7 @@ void PMFTRtheta::resetPCF()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta*m_n_bins_z);
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta);
         }
     m_frame_counter = 0;
     m_reduce = true;
@@ -309,8 +342,8 @@ void PMFTRtheta::accumulate(box::Box& box,
                         //the orientation of the neighbor particle, and the separation R between reference and neighbor
                         if (rsq < maxrsq)
                             {
-                            minimizing_quat = find_min_quat(ref_orientations[i], orientations[j], equivalent_orientations, nq);
-                            sep_angle = separation_angle(ref_orientations[i], minimizing_quat);
+                            quat <float> minimizing_quat = find_min_quat(ref_orientations[i], orientations[j], equivalent_orientations, n_q);
+                            float sep_angle = separation_angle(ref_orientations[i], minimizing_quat);
 
                             float binR = sqrtf(rsq);
                             float bin_theta = sep_angle;
