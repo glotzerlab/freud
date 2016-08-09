@@ -36,7 +36,7 @@ class BondingAnalysis
                         unsigned int num_bonds);
 
         //! Destructor
-        // ~BondingAnalysis();
+        ~BondingAnalysis();
 
         //! Reduce the arrays for export to python
         void reduceArrays();
@@ -67,11 +67,13 @@ class BondingAnalysis
         std::vector< std::vector<unsigned int> > m_overall_lifetime_array;
         std::shared_ptr<unsigned int> m_transition_matrix;
 
-        tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > > m_local_bond_lifetime_array;
-        tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > > m_local_overall_lifetime_array;
+        // tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > > m_local_bond_lifetime_array;
+        // tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > > m_local_overall_lifetime_array;
         // tbb::enumerable_thread_specific< std::vector< std::vector< std::pair< unsigned int, unsigned int > > > > m_local_bond_increment_array;
-        tbb::enumerable_thread_specific< std::vector< std::vector< std::pair< unsigned int, unsigned int > > > > m_local_overall_increment_array;
-        tbb::enumerable_thread_specific< std::pair< unsigned int, unsigned int > *> m_local_bond_increment_array;
+        std::pair<unsigned int, unsigned int> *m_bond_increment_array;
+        std::vector< std::vector< std::pair< unsigned int, unsigned int > > > m_overall_increment_array;
+        // tbb::enumerable_thread_specific< std::vector< std::vector< std::pair< unsigned int, unsigned int > > > > m_local_overall_increment_array;
+        // tbb::enumerable_thread_specific< std::pair< unsigned int, unsigned int > *> m_local_bond_increment_array;
         // tbb::enumerable_thread_specific< std::pair< unsigned int, unsigned int > *> m_local_overall_increment_array;
         tbb::enumerable_thread_specific<unsigned int *> m_local_transition_matrix;
     };
