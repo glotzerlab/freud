@@ -213,6 +213,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
 
     for(unsigned int pidx=0; pidx<m_num_particles; pidx++)
         {
+        printf("starting pidx = %u\n", pidx);
         // create local vectors to store bonding information
         // specifically which particles pjdx are in which bonds with particles pidx
         std::vector<unsigned int> l_bonds_0;
@@ -224,27 +225,31 @@ void BondingAnalysis::compute(unsigned int* frame0,
         s_bonds_0.resize(m_num_bonds);
         s_bonds_1.resize(m_num_bonds);
         // populate bond vector
+        printf("loading bonds into memory\n");
         for(unsigned int bidx=0; bidx<m_num_bonds; bidx++)
             {
+            unsigned int flat_idx = m_frame_indexer(bidx, pidx);
             unsigned int pjdx0 = frame0[m_frame_indexer(bidx, pidx)];
             unsigned int pjdx1 = frame1[m_frame_indexer(bidx, pidx)];
             l_bonds_0[bidx] = pjdx0;
-            l_bonds_1[pidx] = pjdx1;
-            if (pjdx0 != UINT_MAX)
+            l_bonds_1[bidx] = pjdx1;
+            if (pjdx0 < m_num_particles)
                 s_bonds_0[bidx] = frame0[m_frame_indexer(bidx, pidx)];
-            if (pjdx1 != UINT_MAX)
+            if (pjdx1 < m_num_particles)
                 s_bonds_1[bidx] = frame1[m_frame_indexer(bidx, pidx)];
             }
+        printf("bonds loaded into memory\n");
         // sort bonds for later
         std::sort(s_bonds_0.begin(), s_bonds_0.end());
         std::sort(s_bonds_1.begin(), s_bonds_1.end());
         // iterate through bonds and increment bond lifetime array
+        printf("iterating through bonds\n");
         for(unsigned int bidx=0; bidx<m_num_bonds; bidx++)
             {
             unsigned int pjdx0 = l_bonds_0[bidx];
             unsigned int pjdx1 = l_bonds_1[bidx];
             // skip if this is an unbound to unbound transition
-            if ((pjdx0 == UINT_MAX) && (pjdx1 == UINT_MAX))
+            if ((pjdx0 >= m_num_particles) && (pjdx1 >= m_num_particles))
                 {
                 continue;
                 }
@@ -256,9 +261,9 @@ void BondingAnalysis::compute(unsigned int* frame0,
             printf("current jdx = %u; current count = %u\n", current_jdx, current_count);
             printf("pjdx0 = %u, pjdx1 = %u\n", pjdx0, pjdx1);
             // compare, increment as necessary
-            if ((pjdx0 == UINT_MAX) && (pjdx1 != UINT_MAX))
+            if ((pjdx0 >= m_num_particles) && (pjdx1 < m_num_particles))
                 {
-                if (current_jdx == UINT_MAX)
+                if (current_jdx >= m_num_particles)
                     {
                     // add and proceed as usual
                     m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(pjdx1, 0);
@@ -269,7 +274,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                     printf("local array indicates that a particle is being tracked that should not be tracked\n");
                     }
                 }
-            else if ((pjdx0 != UINT_MAX) && (pjdx1 == UINT_MAX))
+            else if ((pjdx0 < m_num_particles) && (pjdx1 >= m_num_particles))
                 {
                 // look up, add to global array, and delete
                 if (current_jdx != pjdx0)
@@ -292,7 +297,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                 if (pjdx0 == pjdx1)
                     {
                     // increment bond lifetime counter
-                    if (current_jdx == UINT_MAX)
+                    if (current_jdx >= m_num_particles)
                         {
                         // data must not have been initialized, so it's the first frame?
                         m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(pjdx0, 1);
@@ -323,7 +328,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
             }
         for (unsigned int bond_idx = 0; bond_idx < m_num_bonds; bond_idx++)
             {
-            printf("local array size = %lu\n", m_bond_lifetime_array[bond_idx].size());
+            printf("bond %u array size = %lu\n", bond_idx, m_bond_lifetime_array[bond_idx].size());
             }
         // create vectors to track bound to bound, bound to unbound, and unbound to bound particles
         std::vector<unsigned int> b2b;
@@ -338,6 +343,8 @@ void BondingAnalysis::compute(unsigned int* frame0,
         std::vector<std::pair< unsigned int, unsigned int> >::iterator it_pair;
         unsigned int bond_0;
         unsigned int bond_1;
+        printf("starting to log overall stuff\n");
+        printf("logging b2b\n");
         for (std::vector<unsigned int>::iterator it_bond = b2b.begin(); it_bond != b2b.end(); ++it_bond)
             {
             // first increment in the overall bond lifetime array
@@ -378,6 +385,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                 }
             m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
             }
+        printf("logging b2u\n");
         for (std::vector<unsigned int>::iterator it_bond = b2u.begin(); it_bond != b2u.end(); ++it_bond)
             {
             unsigned int current_count;
@@ -413,25 +421,35 @@ void BondingAnalysis::compute(unsigned int* frame0,
             bond_1 = m_num_bonds;
             m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
             }
-        for (std::vector<unsigned int>::iterator it_bond = u2b.begin(); it_bond != u2b.end(); ++it_bond)
+        printf("logging u2b\n");
+        printf("size of u2b = %lu\n", u2b.size());
+        if (u2b.size() > 0)
             {
-            // add to the tracking array
-            m_overall_increment_array[pidx].push_back(std::pair<unsigned int, unsigned int>(*it_bond, 0));
-            // increment the transition array
-            it_pidx = std::find_if(l_bonds_1.begin(), l_bonds_1.end(), FindBondIndex(*it_bond));
-            if (it_pidx != l_bonds_1.end())
+            printf("logging u2b\n");
+            for (std::vector<unsigned int>::iterator it_bond = u2b.begin(); it_bond != u2b.end(); ++it_bond)
                 {
-                // the position of pjdx is the bond idx
-                bond_1 = it_pidx-l_bonds_1.begin();
+                // add to the tracking array
+                printf("pidx = %u", pidx);
+                printf("overall_increment_array.size() = %lu", m_overall_increment_array.size());
+                m_overall_increment_array[pidx].push_back(std::pair<unsigned int, unsigned int>(*it_bond, 0));
+                // increment the transition array
+                it_pidx = std::find_if(l_bonds_1.begin(), l_bonds_1.end(), FindBondIndex(*it_bond));
+                if (it_pidx != l_bonds_1.end())
+                    {
+                    // the position of pjdx is the bond idx
+                    bond_1 = it_pidx-l_bonds_1.begin();
+                    }
+                else
+                    {
+                    // this shouldn't happen
+                    continue;
+                    }
+                bond_0 = m_num_bonds;
+                printf("bond_0 = %u, bond_1 = %u", bond_0, bond_1);
+                m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
                 }
-            else
-                {
-                // this shouldn't happen
-                continue;
-                }
-            bond_0 = m_num_bonds;
-            m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
             }
+        printf("done with pidx = %u\n", pidx);
         }
     // parallel_for(blocked_range<size_t>(0,m_num_particles),
     //     [=] (const blocked_range<size_t>& br)
@@ -686,6 +704,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
     //         });
     m_frame_counter++;
     m_reduce = true;
+    printf("n frames = %u\n", m_frame_counter);
     }
 
 }; }; // end namespace freud::bond
