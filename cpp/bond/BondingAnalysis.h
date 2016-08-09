@@ -69,8 +69,10 @@ class BondingAnalysis
 
         tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > > m_local_bond_lifetime_array;
         tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > > m_local_overall_lifetime_array;
-        tbb::enumerable_thread_specific< std::vector< std::vector< std::pair< unsigned int, unsigned int > > > > m_local_bond_increment_array;
+        // tbb::enumerable_thread_specific< std::vector< std::vector< std::pair< unsigned int, unsigned int > > > > m_local_bond_increment_array;
         tbb::enumerable_thread_specific< std::vector< std::vector< std::pair< unsigned int, unsigned int > > > > m_local_overall_increment_array;
+        tbb::enumerable_thread_specific< std::pair< unsigned int, unsigned int > *> m_local_bond_increment_array;
+        // tbb::enumerable_thread_specific< std::pair< unsigned int, unsigned int > *> m_local_overall_increment_array;
         tbb::enumerable_thread_specific<unsigned int *> m_local_transition_matrix;
     };
 
