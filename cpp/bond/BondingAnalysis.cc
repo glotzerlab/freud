@@ -106,7 +106,7 @@ void BondingAnalysis::reduceArrays()
                 for (std::vector< unsigned int >::const_iterator inner_it = (*outer_it).begin();
                     inner_it != (*outer_it).end(); ++inner_it)
                     {
-                    printf("%d ", (*inner_it));
+                    printf("%u ", (*inner_it));
                     m_bond_lifetime_array[i].push_back((*inner_it));
                     }
                 }
@@ -117,7 +117,7 @@ void BondingAnalysis::reduceArrays()
         std::vector< unsigned int >::iterator it;
         for (it = m_bond_lifetime_array[i].begin(); it != m_bond_lifetime_array[i].end(); ++it)
             {
-            printf("%d ", (*it));
+            printf("%u ", (*it));
             }
         printf("\n");
         }
@@ -264,18 +264,20 @@ void BondingAnalysis::compute(unsigned int* frame0,
                     {
                     unsigned int pjdx0 = l_bonds_0[j];
                     unsigned int pjdx1 = l_bonds_1[j];
-                    // create iterator to find things
-                    std::vector< std::pair<unsigned int, unsigned int> >::iterator it;
-                    // get values currently in array
-                    unsigned int current_jdx = m_local_bond_increment_array.local()[transition_indexer(j,i)].first;
-                    unsigned int current_count = m_local_bond_increment_array.local()[transition_indexer(j,i)].second;
-                    // compare, increment as necessary
                     // skip if this is an unbound to unbound transition
                     if ((pjdx0 == UINT_MAX) && (pjdx1 == UINT_MAX))
                         {
                         continue;
                         }
-                    else if ((pjdx0 == UINT_MAX) && (pjdx1 != UINT_MAX))
+                    // create iterator to find things
+                    std::vector< std::pair<unsigned int, unsigned int> >::iterator it;
+                    // get values currently in array
+                    unsigned int current_jdx = m_local_bond_increment_array.local()[transition_indexer(j,i)].first;
+                    unsigned int current_count = m_local_bond_increment_array.local()[transition_indexer(j,i)].second;
+                    printf("current jdx = %u; current count = %u\n", current_jdx, current_count);
+                    printf("pjdx0 = %u, pjdx1 = %u\n", pjdx0, pjdx1);
+                    // compare, increment as necessary
+                    if ((pjdx0 == UINT_MAX) && (pjdx1 != UINT_MAX))
                         {
                         if (current_jdx == UINT_MAX)
                             {
@@ -321,6 +323,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                                 if (current_jdx != pjdx0)
                                     {
                                     printf("wrong particle jdx in local array\n");
+                                    printf("%u vs %u\n", current_jdx, pjdx0);
                                     }
                                 else if (current_count == UINT_MAX)
                                     {
@@ -338,7 +341,10 @@ void BondingAnalysis::compute(unsigned int* frame0,
                             }
                         }
                     }
-                printf("local array size = %d\n", m_local_bond_lifetime_array.local()[5].size());
+                for (unsigned int bond_idx = 0; bond_idx < m_num_bonds; bond_idx++)
+                {
+                printf("local array size = %lu\n", m_local_bond_lifetime_array.local()[bond_idx].size());
+                }
                 // create vectors to track bound to bound, bound to unbound, and unbound to bound particles
                 std::vector<unsigned int> b2b;
                 std::vector<unsigned int> b2u;
