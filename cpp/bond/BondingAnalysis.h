@@ -45,7 +45,7 @@ class BondingAnalysis
                      unsigned int* frame1);
 
         std::vector< std::vector< unsigned int> > getBondLifetimes();
-        std::vector< std::vector< unsigned int> > getOverallLifetimes();
+        std::vector< unsigned int> getOverallLifetimes();
         std::shared_ptr< unsigned int> getTransitionMatrix();
         unsigned int getNumFrames();
         unsigned int getNumParticles();
@@ -64,7 +64,7 @@ class BondingAnalysis
         // tbb::atomic< std::vector< std::pair<unsigned int, unsigned int> > > m_bond_increment_array;
         // tbb::atomic< std::vector< std::pair<unsigned int, unsigned int> > > m_overall_increment_array;
         std::vector< std::vector<unsigned int> > m_bond_lifetime_array;
-        std::vector< std::vector<unsigned int> > m_overall_lifetime_array;
+        std::vector<unsigned int> m_overall_lifetime_array;
         std::shared_ptr<unsigned int> m_transition_matrix;
 
         // tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > > m_local_bond_lifetime_array;
