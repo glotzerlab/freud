@@ -364,6 +364,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
         unsigned int bond_0;
         unsigned int bond_1;
         // if there are bound to bound transitions
+        bool dirty_flag = false;
         if (b2b.size() > 0)
             {
             // for each bound to bound transition
@@ -479,6 +480,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                     unsigned int current_count = m_bond_increment_array[m_frame_indexer(bond_0,pidx)].second;
                     if (current_count == UINT_MAX)
                         {
+                        dirty_flag = true;
                         printf("UINT_MAX encountered in current count\n");
                         printf("bond idx: %u\n", bond_0);
                         printf("pjdx: %u\n", (*it_bond));
@@ -520,6 +522,28 @@ void BondingAnalysis::compute(unsigned int* frame0,
                 // bond formed; create start tracking
                 m_bond_increment_array[m_frame_indexer(bond_1,pidx)] = std::pair<unsigned int, unsigned int>(pjdx1, 0);
                 }
+            }
+        if (dirty_flag == true)
+            {
+            printf("pidx: %u\n", pidx);
+            printf("b2b: ");
+            for (std::vector<unsigned int>::iterator v=b2b.begin(); v!=b2b.end(); ++v)
+                {
+                printf("%u ", (*v));
+                }
+            printf("\n");
+            printf("b2u: ");
+            for (std::vector<unsigned int>::iterator v=b2u.begin(); v!=b2u.end(); ++v)
+                {
+                printf("%u ", (*v));
+                }
+            printf("\n");
+            printf("u2b: ");
+            for (std::vector<unsigned int>::iterator v=u2b.begin(); v!=u2b.end(); ++v)
+                {
+                printf("%u ", (*v));
+                }
+            printf("\n");
             }
         }
     m_frame_counter++;
