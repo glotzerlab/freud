@@ -63,8 +63,10 @@ cdef class BondingAnalysis:
         :rtype: np.ndobject(shape=(num_particles, varying), dtype=np.uint32)
         """
         bonds = self.thisptr.getBondLifetimes()
-        ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
-        return ret_bonds
+        return bonds
+        # print(bonds)
+        # ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
+        # return ret_bonds
 
     def getOverallLifetimes(self):
         """
