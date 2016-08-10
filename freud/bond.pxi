@@ -55,7 +55,7 @@ cdef class BondingAnalysis:
         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
         cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1
         with nogil:
-            self.thisptr.compute(<unsigned int*> l_frame_0.data, <unsigned int*> l_frame_0.data)
+            self.thisptr.compute(<unsigned int*> l_frame_0.data, <unsigned int*> l_frame_1.data)
 
     def getBondLifetimes(self):
         """

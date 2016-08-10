@@ -13,7 +13,8 @@ cdef extern from "BondingAnalysis.h" namespace "freud::bond":
         void reduceArrays()
         void compute(unsigned int*, unsigned int*) nogil
         vector[vector[uint]] getBondLifetimes()
-        vector[vector[uint]] getOverallLifetimes()
+        # vector[vector[uint]] getOverallLifetimes()
+        vector[uint] getOverallLifetimes()
         shared_ptr[uint] getTransitionMatrix()
         unsigned int getNumFrames()
         unsigned int getNumParticles()
