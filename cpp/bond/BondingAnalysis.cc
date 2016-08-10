@@ -213,19 +213,20 @@ void BondingAnalysis::compute(unsigned int* frame0,
 
     for(unsigned int pidx=0; pidx<m_num_particles; pidx++)
         {
-        printf("starting pidx = %u\n", pidx);
+        // printf("starting pidx = %u\n", pidx);
         // create local vectors to store bonding information
         // specifically which particles pjdx are in which bonds with particles pidx
         std::vector<unsigned int> l_bonds_0;
         std::vector<unsigned int> l_bonds_1;
         l_bonds_0.resize(m_num_bonds);
         l_bonds_1.resize(m_num_bonds);
+        // hmmm maybe I should change how this works...store as a pair...I would have to change how find works, maybe
         std::vector<unsigned int> s_bonds_0;
         std::vector<unsigned int> s_bonds_1;
         s_bonds_0.resize(m_num_bonds);
         s_bonds_1.resize(m_num_bonds);
         // populate bond vector
-        printf("loading bonds into memory\n");
+        // printf("loading bonds into memory\n");
         for(unsigned int bidx=0; bidx<m_num_bonds; bidx++)
             {
             unsigned int flat_idx = m_frame_indexer(bidx, pidx);
@@ -233,103 +234,109 @@ void BondingAnalysis::compute(unsigned int* frame0,
             unsigned int pjdx1 = frame1[m_frame_indexer(bidx, pidx)];
             l_bonds_0[bidx] = pjdx0;
             l_bonds_1[bidx] = pjdx1;
-            if (pjdx0 < m_num_particles)
+            if (pjdx0 == UINT_MAX)
                 s_bonds_0[bidx] = frame0[m_frame_indexer(bidx, pidx)];
-            if (pjdx1 < m_num_particles)
+            if (pjdx1 == UINT_MAX)
                 s_bonds_1[bidx] = frame1[m_frame_indexer(bidx, pidx)];
             }
-        printf("bonds loaded into memory\n");
+        // printf("bonds loaded into memory\n");
         // sort bonds for later
         std::sort(s_bonds_0.begin(), s_bonds_0.end());
         std::sort(s_bonds_1.begin(), s_bonds_1.end());
         // iterate through bonds and increment bond lifetime array
-        printf("iterating through bonds\n");
-        for(unsigned int bidx=0; bidx<m_num_bonds; bidx++)
-            {
-            unsigned int pjdx0 = l_bonds_0[bidx];
-            unsigned int pjdx1 = l_bonds_1[bidx];
-            // skip if this is an unbound to unbound transition
-            if ((pjdx0 >= m_num_particles) && (pjdx1 >= m_num_particles))
-                {
-                continue;
-                }
-            // create iterator to find things
-            std::vector< std::pair<unsigned int, unsigned int> >::iterator it;
-            // get values currently in array
-            unsigned int current_jdx = m_bond_increment_array[transition_indexer(bidx, pidx)].first;
-            unsigned int current_count = m_bond_increment_array[transition_indexer(bidx, pidx)].second;
-            printf("current jdx = %u; current count = %u\n", current_jdx, current_count);
-            printf("pjdx0 = %u, pjdx1 = %u\n", pjdx0, pjdx1);
-            // compare, increment as necessary
-            if ((pjdx0 >= m_num_particles) && (pjdx1 < m_num_particles))
-                {
-                if (current_jdx >= m_num_particles)
-                    {
-                    // add and proceed as usual
-                    m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(pjdx1, 0);
-                    }
-                else
-                    {
-                    // this shouldn't happen, but let's put an error out for now
-                    printf("local array indicates that a particle is being tracked that should not be tracked\n");
-                    }
-                }
-            else if ((pjdx0 < m_num_particles) && (pjdx1 >= m_num_particles))
-                {
-                // look up, add to global array, and delete
-                if (current_jdx != pjdx0)
-                    {
-                    // this is an error
-                    printf("local array indicated a different particle is in this bond\n");
-                    }
-                else if (current_count == UINT_MAX)
-                    {
-                    printf("count is out of bounds, and indicates that no values were actually counted\n");
-                    }
-                // increment count array
-                m_bond_lifetime_array[bidx].push_back(current_count);
-                // reset values in the increment array
-                m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(UINT_MAX, UINT_MAX);
-                }
-            else
-                {
-                // has to be from one particle to another
-                if (pjdx0 == pjdx1)
-                    {
-                    // increment bond lifetime counter
-                    if (current_jdx >= m_num_particles)
-                        {
-                        // data must not have been initialized, so it's the first frame?
-                        m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(pjdx0, 1);
-                        }
-                    else
-                        {
-                        if (current_jdx != pjdx0)
-                            {
-                            printf("wrong particle jdx in local array\n");
-                            printf("%u vs %u\n", current_jdx, pjdx0);
-                            printf("UINT_MAX = %u\n", UINT_MAX);
-                            }
-                        else if (current_count == UINT_MAX)
-                            {
-                            printf("current count is int max, so either the bond lasted too long, or you are incrementing an empty cell\n");
-                            }
-                        m_bond_increment_array[transition_indexer(bidx, pidx)].second++;
-                        }
-                    }
-                else if (pjdx0 != pjdx1)
-                    {
-                    // increment count array
-                    m_bond_lifetime_array[bidx].push_back(current_count);
-                    // reset values in the increment array
-                    m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(pjdx1, 0);
-                    }
-                }
-            }
-        for (unsigned int bond_idx = 0; bond_idx < m_num_bonds; bond_idx++)
-            {
-            printf("bond %u array size = %lu\n", bond_idx, m_bond_lifetime_array[bond_idx].size());
-            }
+        // printf("iterating through bonds\n");
+        // // I don't like how I'm handling this...I should do this in the same way I do the over bonding...let's think
+        // // that out
+        // for(unsigned int bidx=0; bidx<m_num_bonds; bidx++)
+        //     {
+        //     unsigned int pjdx0 = l_bonds_0[bidx];
+        //     unsigned int pjdx1 = l_bonds_1[bidx];
+        //     // skip if this is an unbound to unbound transition
+        //     if ((pjdx0 == UINT_MAX) && (pjdx1 == UINT_MAX))
+        //         {
+        //         continue;
+        //         }
+        //     // create iterator to find things
+        //     std::vector< std::pair<unsigned int, unsigned int> >::iterator it;
+        //     // get values currently in array
+        //     unsigned int current_jdx = m_bond_increment_array[transition_indexer(bidx, pidx)].first;
+        //     unsigned int current_count = m_bond_increment_array[transition_indexer(bidx, pidx)].second;
+        //     printf("current jdx = %u; current count = %u\n", current_jdx, current_count);
+        //     printf("pjdx0 = %u, pjdx1 = %u\n", pjdx0, pjdx1);
+        //     // compare, increment as necessary
+        //     if ((pjdx0 == UINT_MAX) && (pjdx1 != UINT_MAX))
+        //         {
+        //         if (current_jdx == UINT_MAX)
+        //             {
+        //             // add and proceed as usual
+        //             m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(pjdx1, 0);
+        //             }
+        //         else
+        //             {
+        //             // this shouldn't happen, but let's put an error out for now
+        //             printf("local array indicates that a particle is being tracked that should not be tracked\n");
+        //             }
+        //         }
+        //     else if ((pjdx0 != UINT_MAX) && (pjdx1 == UINT_MAX))
+        //         {
+        //         // look up, add to global array, and delete
+        //         if (current_jdx != pjdx0)
+        //             {
+        //             // this is an error
+        //             printf("local array indicated a different particle is in this bond\n");
+        //             printf("current_jdx = %u\n", current_jdx);
+        //             printf("pjdx0 = %u; pjdx1 = %u\n", pjdx0, pjdx1);
+        //             }
+        //         else if (current_count == UINT_MAX)
+        //             {
+        //             printf("count is out of bounds, and indicates that no values were actually counted\n");
+        //             }
+        //         // increment count array
+        //         m_bond_lifetime_array[bidx].push_back(current_count);
+        //         // reset values in the increment array
+        //         m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(UINT_MAX, UINT_MAX);
+        //         }
+        //     else
+        //         {
+        //         // has to be from one particle to another
+        //         if (pjdx0 == pjdx1)
+        //             {
+        //             // increment bond lifetime counter
+        //             if (current_jdx >= m_num_particles)
+        //                 {
+        //                 // data must not have been initialized, so it's the first frame?
+        //                 m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(pjdx0, 1);
+        //                 }
+        //             else
+        //                 {
+        //                 if (current_jdx != pjdx0)
+        //                     {
+        //                     printf("wrong particle jdx in local array\n");
+        //                     printf("%u vs %u\n", current_jdx, pjdx0);
+        //                     printf("UINT_MAX = %u\n", UINT_MAX);
+        //                     }
+        //                 else if (current_count == UINT_MAX)
+        //                     {
+        //                     printf("current count is int max, so either the bond lasted too long, or you are incrementing an empty cell\n");
+        //                     }
+        //                 m_bond_increment_array[transition_indexer(bidx, pidx)].second++;
+        //                 }
+        //             }
+        //         else if (pjdx0 != pjdx1)
+        //             {
+        //             printf("I should be incrementing...but apparently I am not\n");
+        //             // increment count array
+        //             m_bond_lifetime_array[bidx].push_back(current_count);
+        //             // reset values in the increment array
+        //             m_bond_increment_array[transition_indexer(bidx, pidx)] = std::pair<unsigned int, unsigned int>(pjdx1, 0);
+        //             }
+        //         }
+        //     }
+        // hmm, now I'm not getting any values to come out of this...or at least that's what it seems
+        // for (unsigned int bond_idx = 0; bond_idx < m_num_bonds; bond_idx++)
+        //     {
+        //     printf("bond %u array size = %lu\n", bond_idx, m_bond_lifetime_array[bond_idx].size());
+        //     }
         // create vectors to track bound to bound, bound to unbound, and unbound to bound particles
         std::vector<unsigned int> b2b;
         std::vector<unsigned int> b2u;
@@ -343,8 +350,8 @@ void BondingAnalysis::compute(unsigned int* frame0,
         std::vector<std::pair< unsigned int, unsigned int> >::iterator it_pair;
         unsigned int bond_0;
         unsigned int bond_1;
-        printf("starting to log overall stuff\n");
-        printf("logging b2b\n");
+        // printf("starting to log overall stuff\n");
+        // printf("logging b2b\n");
         for (std::vector<unsigned int>::iterator it_bond = b2b.begin(); it_bond != b2b.end(); ++it_bond)
             {
             // first increment in the overall bond lifetime array
@@ -353,6 +360,9 @@ void BondingAnalysis::compute(unsigned int* frame0,
             if (it_pair != m_overall_increment_array[pidx].end())
                 {
                 // found it, exists, increment
+                // this is reached, this does work...I need a way to dump the count when called...that's the problem
+                // there are still bound bonds that aren't logged
+                printf("I am incrementing the count\n");
                 (*it_pair).second++;
                 }
             else
@@ -385,7 +395,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                 }
             m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
             }
-        printf("logging b2u\n");
+        // printf("logging b2u\n");
         for (std::vector<unsigned int>::iterator it_bond = b2u.begin(); it_bond != b2u.end(); ++it_bond)
             {
             unsigned int current_count;
@@ -405,6 +415,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                 ;
                 }
             // increment
+            printf("I am incrementing the %u element of the overall array\n", (it_pair-m_overall_increment_array[pidx].begin()));
             m_overall_lifetime_array[it_pair-m_overall_increment_array[pidx].begin()].push_back(current_count);
             // find increment the transition matrix
             it_pidx = std::find_if(l_bonds_0.begin(), l_bonds_0.end(), FindBondIndex(*it_bond));
@@ -421,16 +432,16 @@ void BondingAnalysis::compute(unsigned int* frame0,
             bond_1 = m_num_bonds;
             m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
             }
-        printf("logging u2b\n");
-        printf("size of u2b = %lu\n", u2b.size());
+        // printf("logging u2b\n");
+        // printf("size of u2b = %lu\n", u2b.size());
         if (u2b.size() > 0)
             {
-            printf("logging u2b\n");
+            // printf("logging u2b\n");
             for (std::vector<unsigned int>::iterator it_bond = u2b.begin(); it_bond != u2b.end(); ++it_bond)
                 {
                 // add to the tracking array
-                printf("pidx = %u", pidx);
-                printf("overall_increment_array.size() = %lu", m_overall_increment_array.size());
+                // printf("pidx = %u", pidx);
+                // printf("overall_increment_array.size() = %lu", m_overall_increment_array.size());
                 m_overall_increment_array[pidx].push_back(std::pair<unsigned int, unsigned int>(*it_bond, 0));
                 // increment the transition array
                 it_pidx = std::find_if(l_bonds_1.begin(), l_bonds_1.end(), FindBondIndex(*it_bond));
@@ -445,11 +456,15 @@ void BondingAnalysis::compute(unsigned int* frame0,
                     continue;
                     }
                 bond_0 = m_num_bonds;
-                printf("bond_0 = %u, bond_1 = %u", bond_0, bond_1);
+                // printf("bond_0 = %u, bond_1 = %u", bond_0, bond_1);
                 m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
                 }
             }
-        printf("done with pidx = %u\n", pidx);
+        // for (unsigned int bond_idx = 0; bond_idx < m_num_bonds; bond_idx++)
+        //     {
+        //     printf("bond %u array size = %lu\n", bond_idx, m_overall_lifetime_array[bond_idx].size());
+        //     }
+        // printf("done with pidx = %u\n", pidx);
         }
     // parallel_for(blocked_range<size_t>(0,m_num_particles),
     //     [=] (const blocked_range<size_t>& br)
@@ -702,6 +717,8 @@ void BondingAnalysis::compute(unsigned int* frame0,
     //                 }
     //             }
     //         });
+    printf("overall_array_size = %lu\n", m_overall_lifetime_array.size());
+    printf("overall_array_size[5] = %lu\n", m_overall_lifetime_array[5].size());
     m_frame_counter++;
     m_reduce = true;
     printf("n frames = %u\n", m_frame_counter);
