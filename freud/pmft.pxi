@@ -1124,6 +1124,7 @@ cdef class PMFTRtheta:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
+
     def getPCF(self):
         """
         Get the positional correlation function.
@@ -1182,6 +1183,7 @@ cdef class PMFTRtheta:
         """
         cdef unsigned int R = self.thisptr.getNBinsR()
         return R
+
 
     def getNBins_theta(self):
         """
