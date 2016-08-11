@@ -6,6 +6,8 @@
 #include <emmintrin.h>
 #endif
 
+#include <iostream>
+
 #ifdef ENABLE_OPENMP
 #include <omp.h>
 #endif
@@ -163,22 +165,38 @@ void PMFTRtheta::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta);
     memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_R*m_n_bins_theta);
-    parallel_for(blocked_range<size_t>(0,m_n_bins_R),
+    parallel_for(blocked_range<size_t>(0,m_n_bins_theta),
         [=] (const blocked_range<size_t>& r)
+        {
+        Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
+        for (size_t i = r.begin(); i != r.end(); i++)
             {
-            Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
-            for (size_t i = r.begin(); i != r.end(); i++)
+            for (size_t j = 0; j < m_n_bins_R; j++)
                 {
-                for (size_t j = 0; j < m_n_bins_theta; j++)
+                for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+                     local_bins != m_local_bin_counts.end(); ++local_bins)
                     {
-                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
-                         local_bins != m_local_bin_counts.end(); ++local_bins)
-                        {
-                        m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
-                        }
+                    //m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
+                    m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
                     }
                 }
-            });
+            }
+        });
+//Old way which I think was screwing me up
+//            {
+//            Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
+//            for (size_t i = r.begin(); i != r.end(); i++)
+//                {
+//                for (size_t j = 0; j < m_n_bins_theta; j++)
+//                    {
+//                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+//                         local_bins != m_local_bin_counts.end(); ++local_bins)
+//                        {
+//                        m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
+//                        }
+//                    }
+//                }
+//            });
     float inv_num_dens = m_box.getVolume() / (float)m_n_p;
     float inv_jacobian = (float) 1.0 / (float) m_jacobian;
     float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
@@ -298,45 +316,6 @@ void PMFTRtheta::accumulate(box::Box& box,
                             {
                             continue;
                             }
-                        //Blocking out a big chunk of original code from the PMFTXYZ version. Not going to use n_faces for this
-//                        for (unsigned int k=0; k<n_faces; k++)
-//                            {
-//                            // create tmp vector
-//                            vec3<float> my_vector(delta);
-//                            // rotate vector
-//                            // create the extra quaternion
-//                            quat<float> qe(face_orientations[q_i(k, i)]);
-//                            // create point vector
-//                            vec3<float> v(delta);
-//                            // rotate the vector
-//                            v = rotate(conj(ref_q), v);
-//                            v = rotate(qe, v);
-//
-    //                        //Find the orientation of the neighbor that minimizes
-//
-    //                        float x = v.x + m_max_x;
-//                            float y = v.y + m_max_y;
-//                            float z = v.z + m_max_z;
-//
-    //                        // bin that point
-//                            float binR = floorf(x * dx_inv);
-//                            float bin_theta = floorf(y * dy_inv);
-//                            // fast float to int conversion with truncation
-//                            #ifdef __SSE2__
-//                            unsigned int ibinR = _mm_cvtt_ss2si(_mm_load_ss(&binR));
-//                            unsigned int ibin_theta = _mm_cvtt_ss2si(_mm_load_ss(&bin_theta));
-//                            #else
-//                            unsigned int ibinR = (unsigned int)(binR);
-//                            unsigned int ibin_theta = (unsigned int)(bin_theta);
-//                            #endif
-//
-    //                        // increment the bin
-//                            if ((ibinR < m_n_bins_R) && (ibin_theta < m_n_bins_theta))
-//                                {
-//                                ++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
-//                                }
-//                            }
-//
 
                         //Need the orientation of the reference particle,
                         //the orientation of the neighbor particle, and the separation R between reference and neighbor
@@ -345,8 +324,10 @@ void PMFTRtheta::accumulate(box::Box& box,
                             quat <float> minimizing_quat = find_min_quat(ref_orientations[i], orientations[j], equivalent_orientations, n_q);
                             float sep_angle = separation_angle(ref_orientations[i], minimizing_quat);
 
-                            float binR = sqrtf(rsq);
-                            float bin_theta = sep_angle;
+                            float r = sqrtf(rsq);
+                            float binR = r * dR_inv;
+                            //float bin_theta = sep_angle * d_theta_inv;
+                            float bin_theta = 0;
 
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
@@ -356,17 +337,22 @@ void PMFTRtheta::accumulate(box::Box& box,
                             unsigned int ibinR = (unsigned int)(binR);
                             unsigned int ibin_theta = (unsigned int)(bin_theta);
                             #endif
+                            //cout << 'Distance: ' << r << ' Bin: ' << ibinR << '    ';
+                            //cout << '\nDistance: ' << ibinR;
+
 
                             // increment the bin
                             if ((ibinR < m_n_bins_R) && (ibin_theta < m_n_bins_theta))
                                 {
-                                ++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
+                                //++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
+                                ++m_local_bin_counts.local()[b_i(ibin_theta, ibinR)];
                                 }
                             }
                         }
                     }
                 } // done looping over reference points
             });
+    //cout << m_bin_counts;
     m_frame_counter++;
     m_n_ref = n_ref;
     m_n_p = n_p;

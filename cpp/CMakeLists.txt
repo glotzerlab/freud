@@ -119,6 +119,8 @@ set(FREUD_SOURCES
             pmft/PMFTR12.h
             pmft/PMFTXYT.cc
             pmft/PMFTXYT.h
+            pmft/PMFTRtheta.cc
+            pmft/PMFTRtheta.h
             shapesplit/shapesplit.cc
             shapesplit/shapesplit.h
             interface/InterfaceMeasure.h
