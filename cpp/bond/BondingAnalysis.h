@@ -38,6 +38,8 @@ class BondingAnalysis
         //! Destructor
         ~BondingAnalysis();
 
+        void initialize(unsigned int* frame0);
+
         //! Reduce the arrays for export to python
         void reduceArrays();
         //! Compute the bond order

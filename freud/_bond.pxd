@@ -11,6 +11,7 @@ cdef extern from "BondingAnalysis.h" namespace "freud::bond":
     cdef cppclass BondingAnalysis:
         BondingAnalysis(unsigned int, unsigned int)
         void reduceArrays()
+        void initialize(unsigned int*) nogil
         void compute(unsigned int*, unsigned int*) nogil
         vector[vector[uint]] getBondLifetimes()
         # vector[vector[uint]] getOverallLifetimes()

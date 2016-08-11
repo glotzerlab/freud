@@ -35,6 +35,25 @@ cdef class BondingAnalysis:
     def __dealloc__(self):
         del self.thisptr
 
+    def initialize(self, np.ndarray[unsigned int, ndim=2] frame_0):
+        """
+        Calculates the changes in bonding states from one frame to the next.
+
+        :param frame_0: first bonding frame (as output from :py:meth:`freud.bond` modules)
+        :type frame_0: np.ndarray(shape=(num_particles, num_bonds), dtype=np.uint32)
+        """
+        if (frame_0.dtype != np.uint32):
+            raise ValueError("frame data must be a numpy float32 array")
+        if (frame_0.ndim != 2):
+            raise ValueError("frame data must be a 2 dimensional array")
+        if (frame_0.shape[0] != self.num_particles):
+            raise ValueError("the 1st dimension must match num_particles: {}".format(self.num_particles))
+        if (frame_0.shape[1] != self.num_bonds):
+            raise ValueError("the 2nd dimension must match num_bonds: {}".format(self.num_bonds))
+        cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
+        with nogil:
+            self.thisptr.initialize(<unsigned int*> l_frame_0.data)
+
     def compute(self, np.ndarray[unsigned int, ndim=2] frame_0, np.ndarray[unsigned int, ndim=2] frame_1):
         """
         Calculates the changes in bonding states from one frame to the next.
