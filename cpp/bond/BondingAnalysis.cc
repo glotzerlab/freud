@@ -159,31 +159,16 @@ BondingAnalysis::~BondingAnalysis()
 
 std::vector< std::vector< unsigned int> > BondingAnalysis::getBondLifetimes()
     {
-    // if (m_reduce == true)
-    //     {
-    //     reduceArrays();
-    //     }
-    // m_reduce = false;
     return m_bond_lifetime_array;
     }
 
 std::vector<unsigned int> BondingAnalysis::getOverallLifetimes()
     {
-    // if (m_reduce == true)
-    //     {
-    //     reduceArrays();
-    //     }
-    // m_reduce = false;
     return m_overall_lifetime_array;
     }
 
 std::shared_ptr< unsigned int> BondingAnalysis::getTransitionMatrix()
     {
-    // if (m_reduce == true)
-    //     {
-    //     reduceArrays();
-    //     }
-    // m_reduce = false;
     return m_transition_matrix;
     }
 
@@ -204,7 +189,6 @@ unsigned int BondingAnalysis::getNumBonds()
 
 void BondingAnalysis::initialize(unsigned int* frame0)
     {
-    Index2D transition_indexer = Index2D((m_num_bonds+1), (m_num_bonds+1));
     Index2D m_frame_indexer = Index2D(m_num_bonds, m_num_particles);
 
     // reset all values
@@ -303,15 +287,13 @@ void BondingAnalysis::compute(unsigned int* frame0,
         std::set_intersection(s_bonds_0.begin(), s_bonds_0.end(), s_bonds_1.begin(), s_bonds_1.end(), std::back_inserter(b2b));
         std::set_difference(s_bonds_0.begin(), s_bonds_0.end(), s_bonds_1.begin(), s_bonds_1.end(), std::back_inserter(b2u));
         std::set_difference(s_bonds_1.begin(), s_bonds_1.end(), s_bonds_0.begin(), s_bonds_0.end(), std::back_inserter(u2b));
-        // if there are bound to bound transitions
-        bool dirty_flag = false;
         // bound to unbound transition
         if (b2u.size() > 0)
             {
             for (std::vector<unsigned int>::iterator it_pjdx = b2u.begin(); it_pjdx != b2u.end(); ++it_pjdx)
                 {
                 unsigned int bond_0 = UINT_MAX;
-                unsigned int bond_1 = UINT_MAX;
+                unsigned int bond_1 = m_num_bonds;
                 unsigned int current_count;
                 // find, increment, delete
                 std::vector<std::pair< unsigned int, unsigned int> >::iterator it_pair;
@@ -328,68 +310,17 @@ void BondingAnalysis::compute(unsigned int* frame0,
                     // increment
                     m_overall_lifetime_array.push_back(current_count);
                     // find increment the transition matrix
-                    // is this superfluous?
                     it_bond = std::find_if(l_bonds_0.begin(), l_bonds_0.end(), FindBondIndex(*it_pjdx));
                     if (it_bond != l_bonds_0.end())
-                        {
-                        // the position of pjdx is the bond idx
                         bond_0 = it_bond-l_bonds_0.begin();
-                        }
-                    else
-                        {
-                        // happens on first frame?
-                        // this shouldn't happen
-                        printf("inner b2u detected, but bond could not be found\n");
-                        }
-                    bond_1 = m_num_bonds;
                     m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
                     // the bond changed; extract count and stop tracking
                     unsigned int current_count = m_bond_increment_array[m_frame_indexer(bond_0,pidx)].second;
                     m_bond_lifetime_array[bond_0].push_back(current_count);
                     // let's check to make sure the increment array matches
-                    // now it looks like...there's an issue where it's finding a whack ton of UINTMAX...
-                    // what does that mean??
-                    if (m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first != (*it_bond))
-                        {
-                        // this line is still being reached
-                        printf("hmmm looks like the bond is storing a different value...i better not change it\n");
-                        printf("stored pjdx: %u, found pjdx: %u\n", m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first, (*it_bond));
-                        printf("stored pjdx: %u, found bond: %u\n", m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first, (*it_pjdx));
-                        }
-                    m_bond_increment_array[m_frame_indexer(bond_0,pidx)] = std::pair<unsigned int, unsigned int>(UINT_MAX, UINT_MAX);
+                    if (m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first == (*it_bond))
+                        m_bond_increment_array[m_frame_indexer(bond_0,pidx)] = std::pair<unsigned int, unsigned int>(UINT_MAX, UINT_MAX);
                     }
-                else
-                    {
-                    // happens on first frame only
-                    // was this happening before?
-                    printf("outer b2u detected, but bond could not be found\n");
-                    }
-                }
-            }
-        if (u2b.size() > 0)
-            {
-            for (std::vector<unsigned int>::iterator it_pjdx = u2b.begin(); it_pjdx != u2b.end(); ++it_pjdx)
-                {
-                unsigned int bond_0 = UINT_MAX;
-                unsigned int bond_1 = UINT_MAX;
-                // add to the tracking array
-                m_overall_increment_array[pidx].push_back(std::pair<unsigned int, unsigned int>((*it_pjdx), 0));
-                // increment the transition array
-                std::vector<unsigned int>::iterator it_bond;
-                it_bond = std::find_if(l_bonds_1.begin(), l_bonds_1.end(), FindBondIndex(*it_pjdx));
-                if (it_bond != l_bonds_1.end())
-                    {
-                    // the position of pjdx is the bond idx
-                    bond_1 = it_bond-l_bonds_1.begin();
-                    }
-                else
-                    {
-                    printf("u2b detected, but bond could not be found\n");
-                    }
-                bond_0 = m_num_bonds;
-                m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
-                // bond formed; create start tracking
-                m_bond_increment_array[m_frame_indexer(bond_1,pidx)] = std::pair<unsigned int, unsigned int>((*it_pjdx), 0);
                 }
             }
         if (b2b.size() > 0)
@@ -399,47 +330,21 @@ void BondingAnalysis::compute(unsigned int* frame0,
                 {
                 unsigned int bond_0 = UINT_MAX;
                 unsigned int bond_1 = UINT_MAX;
-                unsigned int current_count;
                 // find, increment, delete
                 std::vector<std::pair< unsigned int, unsigned int> >::iterator it_pair;
                 // first increment in the overall bond lifetime array
                 it_pair = std::find_if(m_overall_increment_array[pidx].begin(),
                     m_overall_increment_array[pidx].end(), FindParticleIndex(*it_pjdx));
                 if (it_pair != m_overall_increment_array[pidx].end())
-                    {
-                    // found it, exists, increment
                     (*it_pair).second++;
-                    }
-                else
-                    {
-                    // found it, doesn't exist, so create; this should only be for first frame(?)
-                    printf("this line should never be reached\n");
-                    m_overall_increment_array[pidx].push_back(std::pair<unsigned int, unsigned int>((*it_pjdx), 1));
-                    }
                 // now increment the transition array
                 std::vector<unsigned int>::iterator it_bond;
                 it_bond = std::find_if(l_bonds_0.begin(), l_bonds_0.end(), FindBondIndex(*it_pjdx));
                 if (it_bond != l_bonds_0.end())
-                    {
-                    // the position of pjdx is the bond idx
                     bond_0 = it_bond-l_bonds_0.begin();
-                    }
-                else
-                    {
-                    // this shouldn't happen
-                    printf("b2b detected, but bond could not be found\n");
-                    }
                 it_bond = std::find_if(l_bonds_1.begin(), l_bonds_1.end(), FindBondIndex(*it_pjdx));
                 if (it_bond != l_bonds_1.end())
-                    {
-                    // the position of pjdx is the bond idx
                     bond_1 = it_bond-l_bonds_1.begin();
-                    }
-                else
-                    {
-                    // this shouldn't happen
-                    printf("b2b detected, but bond could not be found\n");
-                    }
                 if ((bond_0 != UINT_MAX) && (bond_1 != UINT_MAX))
                     m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
                 // use these bonds to increment bond-specific increment array
@@ -451,34 +356,59 @@ void BondingAnalysis::compute(unsigned int* frame0,
                         // check to make sure that the values are correct
                         if ((m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first != (*it_pjdx)) || (m_bond_increment_array[m_frame_indexer(bond_1,pidx)].first != (*it_pjdx)))
                             {
+                            // looks like this line is never reached, leaving in for now
+                            printf("huh?\n");
                             // sounds like a first frame kind of thing
                             if ((m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first == UINT_MAX) &&
-                                (m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first == UINT_MAX))
+                                (m_bond_increment_array[m_frame_indexer(bond_1,pidx)].first == UINT_MAX))
                                 {
                                 // this line is being reached
-                                printf("this line also should never be reached\n");
-                                // this might be it, pjdx1 may not be init'd correctly
+                                printf("uninitialized memory detected\n");
                                 m_bond_increment_array[m_frame_indexer(bond_1,pidx)] = std::pair<unsigned int, unsigned int>((*it_pjdx), 1);
-                                }
-                            else
-                                {
-                                printf("something went wrong\n");
-                                printf("val: (%u, %u) \n", m_bond_increment_array[m_frame_indexer(bond_1,pidx)].first, m_bond_increment_array[m_frame_indexer(bond_1,pidx)].second);
                                 }
                             }
                         else
-                            {
                             m_bond_increment_array[m_frame_indexer(bond_1,pidx)].second++;
-                            }
                         }
                     else
                         {
-                        // the bond changed; extract count, delete, and create new count
+                        // the bond changed; extract count
                         unsigned int current_count = m_bond_increment_array[m_frame_indexer(bond_0,pidx)].second;
+                        // add count to the lifetime array
                         m_bond_lifetime_array[bond_0].push_back(current_count);
-                        m_bond_increment_array[m_frame_indexer(bond_0,pidx)] = std::pair<unsigned int, unsigned int>(UINT_MAX, UINT_MAX);
+                        // delete from array only if pjdx matches
+                        if (m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first == (*it_pjdx))
+                            m_bond_increment_array[m_frame_indexer(bond_0,pidx)] = std::pair<unsigned int, unsigned int>(UINT_MAX, UINT_MAX);
+                        // ensure we do not overwrite other data
+                        if (m_bond_increment_array[m_frame_indexer(bond_1,pidx)].first != (*it_pjdx))
+                            {
+                            // there is particle data that needs to be saved
+                            current_count = m_bond_increment_array[m_frame_indexer(bond_1,pidx)].second;
+                            m_bond_lifetime_array[bond_1].push_back(current_count);
+                            }
                         m_bond_increment_array[m_frame_indexer(bond_1,pidx)] = std::pair<unsigned int, unsigned int>((*it_pjdx), 0);
                         }
+                    }
+                }
+            }
+        if (u2b.size() > 0)
+            {
+            for (std::vector<unsigned int>::iterator it_pjdx = u2b.begin(); it_pjdx != u2b.end(); ++it_pjdx)
+                {
+                unsigned int bond_0 = m_num_bonds;
+                unsigned int bond_1 = UINT_MAX;
+                // add to the tracking array
+                m_overall_increment_array[pidx].push_back(std::pair<unsigned int, unsigned int>((*it_pjdx), 0));
+                // increment the transition array
+                std::vector<unsigned int>::iterator it_bond;
+                it_bond = std::find_if(l_bonds_1.begin(), l_bonds_1.end(), FindBondIndex(*it_pjdx));
+                if (it_bond != l_bonds_1.end())
+                    {
+                    // the position of pjdx is the bond idx
+                    bond_1 = it_bond-l_bonds_1.begin();
+                    m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
+                    // bond formed; create start tracking
+                    m_bond_increment_array[m_frame_indexer(bond_1,pidx)] = std::pair<unsigned int, unsigned int>((*it_pjdx), 0);
                     }
                 }
             }

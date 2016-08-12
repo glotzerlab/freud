@@ -83,9 +83,6 @@ cdef class BondingAnalysis:
         """
         bonds = self.thisptr.getBondLifetimes()
         return bonds
-        # print(bonds)
-        # ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
-        # return ret_bonds
 
     def getOverallLifetimes(self):
         """
