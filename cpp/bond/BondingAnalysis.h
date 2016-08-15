@@ -54,9 +54,9 @@ class BondingAnalysis
         unsigned int getNumBonds();
 
     private:
-        unsigned int m_frame_counter;       //!< number of frames calc'd
         unsigned int m_num_particles;       //!< number of frames calc'd
         unsigned int m_num_bonds;           //!< number of frames calc'd
+        unsigned int m_frame_counter;       //!< number of frames calc'd
         bool m_reduce;                      //!< boolean to trigger reduction as needed
         // Index2D m_transition_indexer;       //!< Indexer to access transition matrix
         // Index2D m_frame_indexer;            //!< Indexer to access frame matrix
