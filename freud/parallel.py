@@ -5,7 +5,8 @@
 import multiprocessing
 import platform
 import re
-from . import _freud;
+from . import _freud
+from ._freud import setNumThreads
 
 if (re.match("flux*", platform.node()) is not None) or (re.match("nyx*", platform.node()) is not None):
     _freud.setNumThreads(1);
