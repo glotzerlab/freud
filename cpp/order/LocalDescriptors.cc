@@ -62,63 +62,62 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh,
 
             if(orientation == LocalNeighborhood)
                 {
-
-            float inertiaTensor[3][3];
-            for(size_t ii(0); ii < 3; ++ii)
-                for(size_t jj(0); jj < 3; ++jj)
-                    inertiaTensor[ii][jj] = 0;
-
-            for(size_t k(0); k < nNeigh; ++k)
-                {
-                const float rsq(m_nn.getRsqList().get()[idx_nlist(k, i)]);
-                const vec3<float> r_j(r[m_nn.getNeighborList().get()[idx_nlist(k, i)]]);
-                const vec3<float> rvec(box.wrap(r_j - r_i));
-
+                float inertiaTensor[3][3];
                 for(size_t ii(0); ii < 3; ++ii)
-                    inertiaTensor[ii][ii] += rsq;
+                    for(size_t jj(0); jj < 3; ++jj)
+                        inertiaTensor[ii][jj] = 0;
 
-                inertiaTensor[0][0] -= rvec.x*rvec.x;
-                inertiaTensor[0][1] -= rvec.x*rvec.y;
-                inertiaTensor[0][2] -= rvec.x*rvec.z;
-                inertiaTensor[1][0] -= rvec.x*rvec.y;
-                inertiaTensor[1][1] -= rvec.y*rvec.y;
-                inertiaTensor[1][2] -= rvec.y*rvec.z;
-                inertiaTensor[2][0] -= rvec.x*rvec.z;
-                inertiaTensor[2][1] -= rvec.y*rvec.z;
-                inertiaTensor[2][2] -= rvec.z*rvec.z;
-                }
+                for(size_t k(0); k < nNeigh; ++k)
+                    {
+                    const float rsq(m_nn.getRsqList().get()[idx_nlist(k, i)]);
+                    const vec3<float> r_j(r[m_nn.getNeighborList().get()[idx_nlist(k, i)]]);
+                    const vec3<float> rvec(box.wrap(r_j - r_i));
 
-            float eigenvalues[3];
-            float eigenvectors[3][3];
+                    for(size_t ii(0); ii < 3; ++ii)
+                        inertiaTensor[ii][ii] += rsq;
 
-            diagonalize(inertiaTensor, eigenvalues, eigenvectors);
+                    inertiaTensor[0][0] -= rvec.x*rvec.x;
+                    inertiaTensor[0][1] -= rvec.x*rvec.y;
+                    inertiaTensor[0][2] -= rvec.x*rvec.z;
+                    inertiaTensor[1][0] -= rvec.x*rvec.y;
+                    inertiaTensor[1][1] -= rvec.y*rvec.y;
+                    inertiaTensor[1][2] -= rvec.y*rvec.z;
+                    inertiaTensor[2][0] -= rvec.x*rvec.z;
+                    inertiaTensor[2][1] -= rvec.y*rvec.z;
+                    inertiaTensor[2][2] -= rvec.z*rvec.z;
+                    }
 
-            // Sort eigenvalues and eigenvectors so that
-            // eigenvalues is in ascending order. This is
-            // a kind of gross way to do it, but it gets
-            // the job done.
-            if(eigenvalues[0] > eigenvalues[1])
-                {
-                std::swap(eigenvalues[0], eigenvalues[1]);
-                for(size_t ii(0); ii < 3; ++ii)
-                    std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
-                }
-            if(eigenvalues[1] > eigenvalues[2])
-                {
-                std::swap(eigenvalues[1], eigenvalues[2]);
-                for(size_t ii(0); ii < 3; ++ii)
-                    std::swap(eigenvectors[ii][1], eigenvectors[ii][2]);
-                }
-            if(eigenvalues[0] > eigenvalues[1])
-                {
-                std::swap(eigenvalues[0], eigenvalues[1]);
-                for(size_t ii(0); ii < 3; ++ii)
-                    std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
-                }
+                float eigenvalues[3];
+                float eigenvectors[3][3];
 
-            rotation_0 = vec3<float>(eigenvectors[0][0], eigenvectors[1][0], eigenvectors[2][0]);
-            rotation_1 = vec3<float>(eigenvectors[0][1], eigenvectors[1][1], eigenvectors[2][1]);
-            rotation_2 = vec3<float>(eigenvectors[0][2], eigenvectors[1][2], eigenvectors[2][2]);
+                diagonalize(inertiaTensor, eigenvalues, eigenvectors);
+
+                // Sort eigenvalues and eigenvectors so that
+                // eigenvalues is in ascending order. This is
+                // a kind of gross way to do it, but it gets
+                // the job done.
+                if(eigenvalues[0] > eigenvalues[1])
+                    {
+                    std::swap(eigenvalues[0], eigenvalues[1]);
+                    for(size_t ii(0); ii < 3; ++ii)
+                        std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
+                    }
+                if(eigenvalues[1] > eigenvalues[2])
+                    {
+                    std::swap(eigenvalues[1], eigenvalues[2]);
+                    for(size_t ii(0); ii < 3; ++ii)
+                        std::swap(eigenvectors[ii][1], eigenvectors[ii][2]);
+                    }
+                if(eigenvalues[0] > eigenvalues[1])
+                    {
+                    std::swap(eigenvalues[0], eigenvalues[1]);
+                    for(size_t ii(0); ii < 3; ++ii)
+                        std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
+                    }
+
+                rotation_0 = vec3<float>(eigenvectors[0][0], eigenvectors[1][0], eigenvectors[2][0]);
+                rotation_1 = vec3<float>(eigenvectors[0][1], eigenvectors[1][1], eigenvectors[2][1]);
+                rotation_2 = vec3<float>(eigenvectors[0][2], eigenvectors[1][2], eigenvectors[2][2]);
                 }
             else if(orientation == ParticleLocal)
                 {
