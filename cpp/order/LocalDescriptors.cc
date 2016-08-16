@@ -32,7 +32,11 @@ void LocalDescriptors::computeNList(const box::Box& box, const vec3<float> *r_re
     m_nn.compute(box, r_ref, Nref, r, Np);
     }
 
-void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const vec3<float> *r_ref, unsigned int Nref, const vec3<float> *r, unsigned int Np)
+void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh,
+                               const vec3<float> *r_ref, unsigned int Nref,
+                               const vec3<float> *r, unsigned int Np,
+                               const quat<float> *q_ref,
+                               LocalDescriptorOrientation orientation)
     {
     if(m_nn.getNref() != Nref || m_nn.getNp() != Np)
         throw runtime_error("Must call computeNList() before compute");
@@ -53,6 +57,11 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const v
         for(size_t i=br.begin(); i!=br.end(); ++i)
             {
             const vec3<float> r_i(r_ref[i]);
+
+            vec3<float> rotation_0, rotation_1, rotation_2;
+
+            if(orientation == LocalNeighborhood)
+                {
 
             float inertiaTensor[3][3];
             for(size_t ii(0); ii < 3; ++ii)
@@ -107,9 +116,27 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const v
                     std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
                 }
 
-            const vec3<float> eigenvec0(eigenvectors[0][0], eigenvectors[1][0], eigenvectors[2][0]);
-            const vec3<float> eigenvec1(eigenvectors[0][1], eigenvectors[1][1], eigenvectors[2][1]);
-            const vec3<float> eigenvec2(eigenvectors[0][2], eigenvectors[1][2], eigenvectors[2][2]);
+            rotation_0 = vec3<float>(eigenvectors[0][0], eigenvectors[1][0], eigenvectors[2][0]);
+            rotation_1 = vec3<float>(eigenvectors[0][1], eigenvectors[1][1], eigenvectors[2][1]);
+            rotation_2 = vec3<float>(eigenvectors[0][2], eigenvectors[1][2], eigenvectors[2][2]);
+                }
+            else if(orientation == ParticleLocal)
+                {
+                const rotmat3<float> rotmat(conj(q_ref[i]));
+                rotation_0 = rotmat.row0;
+                rotation_1 = rotmat.row1;
+                rotation_2 = rotmat.row2;
+                }
+            else if (orientation == Global)
+                {
+                rotation_0 = vec3<float>(1, 0, 0);
+                rotation_1 = vec3<float>(0, 1, 0);
+                rotation_2 = vec3<float>(0, 0, 1);
+                }
+            else
+                {
+                throw std::runtime_error("Uncaught orientation mode in LocalDescriptors::compute");
+                }
 
             unsigned int sphCount(i*nNeigh*getSphWidth());
 
@@ -118,9 +145,9 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh, const v
                 const float rsq(m_nn.getRsqList().get()[idx_nlist(k, i)]);
                 const vec3<float> r_j(r[m_nn.getNeighborList().get()[idx_nlist(k, i)]]);
                 const vec3<float> rij(box.wrap(r_j - r_i));
-                const vec3<float> bond(dot(eigenvec0, rij),
-                                       dot(eigenvec1, rij),
-                                       dot(eigenvec2, rij));
+                const vec3<float> bond(dot(rotation_0, rij),
+                                       dot(rotation_1, rij),
+                                       dot(rotation_2, rij));
 
                 const float magR(sqrt(rsq));
                 float theta(atan2(bond.y, bond.x)); // theta in [-pi..pi] initially

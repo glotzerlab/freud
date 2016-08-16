@@ -2,7 +2,6 @@ import numpy as np
 import numpy.testing as npt
 import freud
 from freud.order import LocalDescriptors
-import freud.parallel;freud.parallel.setNumThreads(1)
 import unittest
 
 class TestLocalDescriptors(unittest.TestCase):
@@ -22,6 +21,60 @@ class TestLocalDescriptors(unittest.TestCase):
 
         assert sphs.shape[0] == N
         assert sphs.shape[1] == Nneigh
+
+    def test_global(self):
+        N = 1000
+        Nneigh = 4
+        lmax = 8
+
+        box = freud.trajectory.Box(10)
+        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
+
+        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp.computeNList(box, positions)
+        comp.compute(box, Nneigh, positions, mode='global')
+
+        sphs = comp.getSph()
+
+        assert sphs.shape[0] == N
+        assert sphs.shape[1] == Nneigh
+
+    def test_particle_local(self):
+        N = 1000
+        Nneigh = 4
+        lmax = 8
+
+        box = freud.trajectory.Box(10)
+        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
+        orientations = np.random.uniform(-1, 1, size=(N, 4)).astype(np.float32)
+        orientations /= np.sqrt(np.sum(orientations**2, axis=-1))[:, np.newaxis]
+
+        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp.computeNList(box, positions)
+
+        with self.assertRaises(RuntimeError):
+            comp.compute(box, Nneigh, positions, mode='particle_local')
+
+        comp.compute(box, Nneigh, positions, orientations=orientations, mode='particle_local')
+
+        sphs = comp.getSph()
+
+        assert sphs.shape[0] == N
+        assert sphs.shape[1] == Nneigh
+
+    def test_unknown_modes(self):
+        N = 1000
+        Nneigh = 4
+        lmax = 8
+
+        box = freud.trajectory.Box(10)
+        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
+
+        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp.computeNList(box, positions)
+
+        with self.assertRaises(RuntimeError):
+            comp.compute(box, Nneigh, positions, mode='particle_local_wrong')
 
     def test_shape_twosets(self):
         N = 1000
