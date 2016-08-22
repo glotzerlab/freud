@@ -316,7 +316,8 @@ void BondingAnalysis::compute(unsigned int* frame0,
                     m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
                     // the bond changed; extract count and stop tracking
                     unsigned int current_count = m_bond_increment_array[m_frame_indexer(bond_0,pidx)].second;
-                    m_bond_lifetime_array[bond_0].push_back(current_count);
+                    if ((current_count != 0) && (current_count != UINT_MAX))
+                        m_bond_lifetime_array[bond_0].push_back(current_count);
                     // let's check to make sure the increment array matches
                     if (m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first == (*it_bond))
                         m_bond_increment_array[m_frame_indexer(bond_0,pidx)] = std::pair<unsigned int, unsigned int>(UINT_MAX, UINT_MAX);
@@ -375,7 +376,8 @@ void BondingAnalysis::compute(unsigned int* frame0,
                         // the bond changed; extract count
                         unsigned int current_count = m_bond_increment_array[m_frame_indexer(bond_0,pidx)].second;
                         // add count to the lifetime array
-                        m_bond_lifetime_array[bond_0].push_back(current_count);
+                        if ((current_count != 0) && (current_count != UINT_MAX))
+                            m_bond_lifetime_array[bond_0].push_back(current_count);
                         // delete from array only if pjdx matches
                         if (m_bond_increment_array[m_frame_indexer(bond_0,pidx)].first == (*it_pjdx))
                             m_bond_increment_array[m_frame_indexer(bond_0,pidx)] = std::pair<unsigned int, unsigned int>(UINT_MAX, UINT_MAX);
@@ -384,7 +386,8 @@ void BondingAnalysis::compute(unsigned int* frame0,
                             {
                             // there is particle data that needs to be saved
                             current_count = m_bond_increment_array[m_frame_indexer(bond_1,pidx)].second;
-                            m_bond_lifetime_array[bond_1].push_back(current_count);
+                            if ((current_count != 0) && (current_count != UINT_MAX))
+                                m_bond_lifetime_array[bond_1].push_back(current_count);
                             }
                         m_bond_increment_array[m_frame_indexer(bond_1,pidx)] = std::pair<unsigned int, unsigned int>((*it_pjdx), 0);
                         }
