@@ -1115,12 +1115,12 @@ cdef class PMFTRtheta:
         Get the raw bin counts.
 
         :return: Bin Counts
-        :rtype: np.ndarray(shape=(Nr, Ntheta), dtype=np.float32)
+        :rtype: np.ndarray(shape=(Ntheta, Nr), dtype=np.float32)
         """
         cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBins_theta()
+        nbins[0] = <np.npy_intp>self.thisptr.getNBins_theta()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBinsR()
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
@@ -1130,12 +1130,12 @@ cdef class PMFTRtheta:
         Get the positional correlation function.
 
         :return: PCF
-        :rtype: np.ndarray(shape=(Nr, Ntheta), dtype=np.float32)
+        :rtype: np.ndarray(shape=(Ntheta, Nr), dtype=np.float32)
         """
         cdef float* pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBins_theta()
+        nbins[0] = <np.npy_intp>self.thisptr.getNBins_theta()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBinsR()
         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
@@ -1144,7 +1144,7 @@ cdef class PMFTRtheta:
         Get the Potential of Mean Force and Torque.
 
         :return: PMFT
-        :rtype: np.ndarray(shape=(Nr, Ntheta), dtype=np.float32)
+        :rtype: np.ndarray(shape=(Ntheta, Nr), dtype=np.float32)
         """
         return -np.log(np.copy(self.getPCF()))
 
