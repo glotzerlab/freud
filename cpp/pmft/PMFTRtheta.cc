@@ -344,8 +344,8 @@ void PMFTRtheta::accumulate(box::Box& box,
                             // increment the bin
                             if ((ibinR < m_n_bins_R) && (ibin_theta < m_n_bins_theta))
                                 {
-                                //++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
-                                ++m_local_bin_counts.local()[b_i(ibin_theta, ibinR)];
+                                ++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
+                                //++m_local_bin_counts.local()[b_i(ibin_theta, ibinR)];
                                 }
                             }
                         }

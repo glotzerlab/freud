@@ -226,11 +226,11 @@ std::shared_ptr<float> PMFTXYZ::getPCF()
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
-void PMFTXYZ::resetPCF()
+void PMFTScalarInvariants::resetPCF()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
+        memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_S*m_n_bins_U*m_n_bins_RW*m_n_bins_RV*m_n_bins_WT);
         }
     m_frame_counter = 0;
     m_reduce = true;
@@ -239,15 +239,15 @@ void PMFTXYZ::resetPCF()
 //! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
 */
-void PMFTXYZ::accumulate(box::Box& box,
+void PMFTScalarInvariants::accumulate(box::Box& box,
                         vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int n_ref,
                         vec3<float> *points,
                         quat<float> *orientations,
-                        unsigned int n_p,
-                        quat<float> *face_orientations,
-                        unsigned int n_faces)
+                        unsigned int n_p);
+                        //quat<float> *face_orientations,
+                        //unsigned int n_faces)
     {
     m_box = box;
     m_lc->computeCellList(m_box, points, n_p);
@@ -261,22 +261,29 @@ void PMFTXYZ::accumulate(box::Box& box,
             assert(n_faces > 0);
 
             // precalc some values for faster computation within the loop
-            float dx_inv = 1.0f / m_dx;
-            float maxxsq = m_max_x * m_max_x;
-            float dy_inv = 1.0f / m_dy;
-            float maxysq = m_max_y * m_max_y;
-            float dz_inv = 1.0f / m_dz;
-            float maxzsq = m_max_z * m_max_z;
+            float dR_inv = 1.0f / m_dR;
+            float maxRsq = m_max_R * m_max_R;
+            float dS_inv = 1.0f / m_dS;
+            float maxSsq = m_max_S * m_max_S;
+            float dU_inv = 1.0f / m_dU;
+            float maxUsq = m_max_U * m_max_U;
+            float dRW_inv = 1.0f / m_dRW;
+            float maxRWsq = m_max_RW * m_max_RW;
+            float dRV_inv = 1.0f / m_dRV;
+            float maxRVsq = m_max_RV * m_max_RV;
+            float dWT_inv = 1.0f / m_dWT;
+            float maxWTsq = m_max_WT * m_max_WT;
 
-            Index3D b_i = Index3D(m_n_bins_x, m_n_bins_y, m_n_bins_z);
-            Index2D q_i = Index2D(n_faces, n_p);
+
+            Index6D b_i = Index6D(m_n_bins_R, m_n_bins_S, m_n_bins_U, m_n_bins_RW, m_n_bins_RV, m_n_bins_WT);
+            //Index1D q_i = Index1D(n_p);
 
             bool exists;
             m_local_bin_counts.local(exists);
             if (! exists)
                 {
-                m_local_bin_counts.local() = new unsigned int [m_n_bins_x*m_n_bins_y*m_n_bins_z];
-                memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
+                m_local_bin_counts.local() = new unsigned int [m_n_bins_R*m_n_bins_S*m_n_bins_U*m_n_bins_RW*m_n_bins_RV*m_n_bins_WT];
+                memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_S*m_n_bins_U*m_n_bins_RW*m_n_bins_RV*m_n_bins_WT);
                 }
 
             // for each reference point
