@@ -74,7 +74,7 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
     //The jacobian array should be reflective of the probability of finding configurations in a particular state if all particles were totally randomly distributed
     m_inv_jacobian_array = std::shared_ptr<float>(new float[m_n_bins_R*m_n_bins_theta], std::default_delete<float[]>());
     Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
-    for (unsigned int i = 0; i < m_nbins_theta; i++)
+    for (unsigned int i = 0; i < m_n_bins_theta; i++)
         {
         for (unsigned int j = 0; j < m_n_bins_R; j++)
             {
