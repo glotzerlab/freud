@@ -292,8 +292,8 @@ void PMFTRtheta::accumulate(box::Box& box,
 
                             float r = sqrtf(rsq);
                             float binR = r * dR_inv;
-                            //float bin_theta = sep_angle * d_theta_inv;
-                            float bin_theta = 0;
+                            float bin_theta = sep_angle * d_theta_inv;
+                            //float bin_theta = 0;
 
                             // fast float to int conversion with truncation
                             #ifdef __SSE2__
