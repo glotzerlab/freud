@@ -96,6 +96,12 @@ class PMFTRtheta
             return m_jacobian;
             }
 
+        //! Get a reference to the jacobian array
+        std::shared_ptr<float> getInverseJacobian()
+            {
+            return m_inv_jacobian_array;
+            }
+
         float getRCut()
             {
             return m_r_cut;
@@ -133,6 +139,7 @@ class PMFTRtheta
         std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed
         std::shared_ptr<float> m_R_array;           //!< array of R values that the pcf is computed at
         std::shared_ptr<float> m_theta_array;           //!< array of theta values that the pcf is computed at
+        std::shared_ptr<float> m_inv_jacobian_array;
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
