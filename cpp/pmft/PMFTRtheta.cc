@@ -49,40 +49,7 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
     if (m_d_theta > max_theta)
         throw invalid_argument("max_theta must be greater than d_theta");
 
-    m_jacobian = m_dR * m_d_theta;
-//
-//    // Define a function that calculates the magnitude of the shortest angle between two quaternions
-//    float separation_angle( quat<float> q1, quat<float> q2)
-//    {
-//        quat<float> Qt = conj(q1) * q2;
-//        float sep_angle = acos(Qt.s);
-//
-//        return sep_angle;
-//    }
-//
-//    // Function that can find an equivalent quaternion for qn that minimizes the separation angle between it and qref.
-//    // equivalent_orientations should be a list of quaternions that correspond to equivalent orientations of your particle
-//    quat <float> find_min_quat( quat<float> qref, quat<float> qn, quat<float> *equivalent_orientations, unsigned int n_q)
-//    {
-//        //Use the first quaternion in equivalent_orientations as a reference. This is q0
-//        quat <float> q0 = equivalent_orientations[0];
-//        float min_angle = 360.0;
-//        //For each quaternion in the list, undo the q0 rotation, then apply the rotation in equivalent_orientations[i]
-//        //If your particle has mirror symmetry, be sure that's accounted for in the supplied equivalent_orientations
-//        for (unsigned int i=0; i < n_q; i++)
-//        {
-//            quat <float> tq = qn * conj(q0); //Create a temporary quaternion that undoes the first rotation
-//            quat <float> q_test = tq*equivalent_orientations[i];
-//
-//            sep_angle = separation_angle(qref, q_test);
-//            if (sep_angle < min_angle)
-//            {
-//                min_angle = sep_angle;
-//                quat <float> min_quat = q_test;
-//            }
-//        }
-//        return min_quat;
-//    }
+    //m_jacobian = m_dR * m_d_theta;
 
     // precompute the bin center positions for R
     m_R_array = std::shared_ptr<float>(new float[m_n_bins_R], std::default_delete<float[]>());
@@ -102,6 +69,19 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
         m_theta_array.get()[i] = ((theta + next_theta) / 2.0);
         }
 
+    // calculate the jacobian array; calc'd as the inv for faster use later
+    //If This jacobian array is not fully correct
+    //The jacobian array should be reflective of the probability of finding configurations in a particular state if all particles were totally randomly distributed
+    m_inv_jacobian_array = std::shared_ptr<float>(new float[m_n_bins_R*m_n_bins_theta], std::default_delete<float[]>());
+    Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
+    for (unsigned int i = 0; i < m_nbins_theta; i++)
+        {
+        for (unsigned int j = 0; j < m_n_bins_R; j++)
+            {
+            float r = m_R_array.get()[j];
+            m_inv_jacobian_array.get()[b_i((int)i, (int)j)] = (float)1.0 / (r * m_dR * m_d_theta);
+            }
+        }
 
     m_lc = new locality::LinkCell(m_box, m_max_R);
     // create and populate the pcf_array
@@ -182,23 +162,9 @@ void PMFTRtheta::reducePCF()
                 }
             }
         });
-//Old way which I think was screwing me up
-//            {
-//            Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
-//            for (size_t i = r.begin(); i != r.end(); i++)
-//                {
-//                for (size_t j = 0; j < m_n_bins_theta; j++)
-//                    {
-//                    for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
-//                         local_bins != m_local_bin_counts.end(); ++local_bins)
-//                        {
-//                        m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
-//                        }
-//                    }
-//                }
-//            });
+
     float inv_num_dens = m_box.getVolume() / (float)m_n_p;
-    float inv_jacobian = (float) 1.0 / (float) m_jacobian;
+    //float inv_jacobian = (float) 1.0 / (float) m_jacobian;
     float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0,m_n_bins_R*m_n_bins_theta),
@@ -206,7 +172,7 @@ void PMFTRtheta::reducePCF()
             {
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
+                m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * m_inv_jacobian_array.get()[i] * inv_num_dens;
                 }
             });
     }
