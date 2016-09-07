@@ -501,6 +501,10 @@ cdef class LocalDescriptors:
     """
     cdef order.LocalDescriptors *thisptr
 
+    known_modes = {'neighborhood': order.LocalNeighborhood,
+                   'global': order.Global,
+                   'particle_local': order.ParticleLocal}
+
     def __cinit__(self, nNeigh, lmax, rmax, negative_m=True):
         self.thisptr = new order.LocalDescriptors(nNeigh, lmax, rmax, negative_m)
 
@@ -544,18 +548,26 @@ cdef class LocalDescriptors:
             self.thisptr.computeNList(l_box, <vec3[float]*>l_points_ref.data,
                                       nRef, <vec3[float]*>l_points.data, nP)
 
-    def compute(self, box, unsigned int nNeigh, points_ref, points=None):
+    def compute(self, box, unsigned int nNeigh, points_ref, points=None,
+        orientations=None, mode='neighborhood'):
         """Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
         :param nNeigh: Number of neighbors to compute with
         :param points_ref: source points to calculate the order parameter
         :param points: destination points to calculate the order parameter
+        :param orientations: Orientation of each reference point
+        :param mode: Orientation mode to use for environments, either 'neighborhood' to use the orientation of the local neighborhood, 'particle_local' to use the given particle orientations, or 'global' to not rotate environments
         :type points_ref: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32) or None
+        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32) or None
+        :type mode: str
 
         """
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        if mode not in self.known_modes:
+           raise RuntimeError('Unknown LocalDescriptors orientation mode: {}'.format(mode))
+
         if points_ref.dtype != np.float32:
             raise ValueError("points_ref must be a numpy float32 array")
         if points_ref.ndim != 2:
@@ -573,13 +585,34 @@ cdef class LocalDescriptors:
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
 
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        if mode == 'particle_local':
+            if orientations is None:
+                raise RuntimeError('Orientations must be given to orient LocalDescriptors with particles\' orientations')
+
+            if orientations.dtype != np.float32:
+                raise ValueError("orientations must be a numpy float32 array")
+            if orientations.ndim != 2:
+                raise ValueError("orientations must be a 2 dimensional array")
+            if orientations.shape[0] != points_ref.shape[0]:
+                raise ValueError("orientations must have the same size as points_ref")
+            if orientations.shape[1] != 4:
+                raise ValueError("the 2nd dimension must have 3 values: r, x, y, z")
+
+            l_orientations = orientations
+
         cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
         cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef order.LocalDescriptorOrientation l_mode
+
+        l_mode = self.known_modes[mode]
+
         with nogil:
             self.thisptr.compute(l_box, nNeigh, <vec3[float]*>l_points_ref.data,
-                                 nRef, <vec3[float]*>l_points.data, nP)
+                                 nRef, <vec3[float]*>l_points.data, nP,
+                                 <quat[float]*>l_orientations.data, l_mode)
 
     def getSph(self):
         """
