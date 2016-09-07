@@ -242,7 +242,7 @@ void PMFTRtheta::accumulate(box::Box& box,
             float maxrsq = m_max_R * m_max_R;
             //Don't need a max theta sq
 
-            Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
+            Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
             //Index2D q_i = Index2D(n_faces, n_p);
 
             bool exists;
@@ -310,8 +310,8 @@ void PMFTRtheta::accumulate(box::Box& box,
                             // increment the bin
                             if ((ibinR < m_n_bins_R) && (ibin_theta < m_n_bins_theta))
                                 {
-                                ++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
-                                //++m_local_bin_counts.local()[b_i(ibin_theta, ibinR)];
+                                //++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
+                                ++m_local_bin_counts.local()[b_i(ibin_theta, ibinR)];
                                 }
                             }
                         }
