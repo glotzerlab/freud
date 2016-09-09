@@ -70,15 +70,15 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
         }
 
     // calculate the jacobian array; calc'd as the inv for faster use later
-    //If This jacobian array is not fully correct
+    // This jacobian array is still not fully correct
     //The jacobian array should be reflective of the probability of finding configurations in a particular state if all particles were totally randomly distributed
     m_inv_jacobian_array = std::shared_ptr<float>(new float[m_n_bins_R*m_n_bins_theta], std::default_delete<float[]>());
-    Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
-    for (unsigned int i = 0; i < m_n_bins_theta; i++)
+    Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
+    for (unsigned int i = 0; i < m_n_bins_R; i++)
         {
-        for (unsigned int j = 0; j < m_n_bins_R; j++)
+        for (unsigned int j = 0; j < m_n_bins_theta; j++)
             {
-            float r = m_R_array.get()[j];
+            float r = m_R_array.get()[i];
             m_inv_jacobian_array.get()[b_i((int)i, (int)j)] = (float)1.0 / (r * m_dR * m_d_theta);
             }
         }
@@ -99,7 +99,7 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
 float separation_angle( quat<float> q1, quat<float> q2)
 {
     quat<float> Qt = conj(q1) * q2;
-    float sep_angle = acos(Qt.s);
+    float sep_angle = 2*acos(Qt.s);
 
     return sep_angle;
 }
@@ -145,18 +145,19 @@ void PMFTRtheta::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta);
     memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_R*m_n_bins_theta);
-    parallel_for(blocked_range<size_t>(0,m_n_bins_theta),
+    //parallel_for(blocked_range<size_t>(0,m_n_bins_theta),
+    parallel_for(blocked_range<size_t>(0,m_n_bins_R),
         [=] (const blocked_range<size_t>& r)
         {
-        Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
+        //Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
+        Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
         for (size_t i = r.begin(); i != r.end(); i++)
             {
-            for (size_t j = 0; j < m_n_bins_R; j++)
+            for (size_t j = 0; j < m_n_bins_theta; j++)
                 {
                 for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                      local_bins != m_local_bin_counts.end(); ++local_bins)
                     {
-                    //m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
                     m_bin_counts.get()[b_i((int)i, (int)j)] += (*local_bins)[b_i((int)i, (int)j)];
                     }
                 }
@@ -164,7 +165,7 @@ void PMFTRtheta::reducePCF()
         });
 
     float inv_num_dens = m_box.getVolume() / (float)m_n_p;
-    //float inv_jacobian = (float) 1.0 / (float) m_jacobian;
+    float inv_jacobian = (float) 1.0 / (float) m_jacobian;
     float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0,m_n_bins_R*m_n_bins_theta),
@@ -172,6 +173,7 @@ void PMFTRtheta::reducePCF()
             {
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
+                //m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
                 m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * m_inv_jacobian_array.get()[i] * inv_num_dens;
                 }
             });
@@ -242,7 +244,8 @@ void PMFTRtheta::accumulate(box::Box& box,
             float maxrsq = m_max_R * m_max_R;
             //Don't need a max theta sq
 
-            Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
+            Index2D b_i = Index2D(m_n_bins_R, m_n_bins_theta);
+            //Index2D b_i = Index2D(m_n_bins_theta, m_n_bins_R);
             //Index2D q_i = Index2D(n_faces, n_p);
 
             bool exists;
@@ -310,8 +313,8 @@ void PMFTRtheta::accumulate(box::Box& box,
                             // increment the bin
                             if ((ibinR < m_n_bins_R) && (ibin_theta < m_n_bins_theta))
                                 {
-                                //++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
-                                ++m_local_bin_counts.local()[b_i(ibin_theta, ibinR)];
+                                ++m_local_bin_counts.local()[b_i(ibinR, ibin_theta)];
+                                //++m_local_bin_counts.local()[b_i(ibin_theta, ibinR)];
                                 }
                             }
                         }

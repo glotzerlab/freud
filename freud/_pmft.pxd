@@ -125,6 +125,7 @@ cdef extern from "PMFTRtheta.h" namespace "freud::pmft":
         shared_ptr[float] getR()
         shared_ptr[float] get_theta()
         float getJacobian()
+        shared_ptr[float] getInverseJacobian()
         unsigned int getNBinsR()
         unsigned int getNBins_theta()
         float getRCut()

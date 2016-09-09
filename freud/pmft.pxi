@@ -1204,3 +1204,18 @@ cdef class PMFTRtheta:
         """
         cdef float j = self.thisptr.getJacobian()
         return j
+
+    def getInverseJacobian(self):
+        """
+        Get the inverse jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: np.ndarray(shape=(theta, R), dtype=np.float32)
+        """
+        cdef float* inv_jac = self.thisptr.getInverseJacobian().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNBins_theta()
+        nbins[1] = <np.npy_intp>self.thisptr.getNBinsR()
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>inv_jac)
+        return result
+
