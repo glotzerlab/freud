@@ -115,3 +115,21 @@ class Box(_Box):
         if dimensions is None:
             dimensions = 2 if Lz == 0 else 3
         return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=dimensions==2)
+
+    @classmethod
+    def cube(cls, L):
+        """Construct a cubic box.
+
+        :param L: The edge length
+        :type L: float
+        """
+        return cls(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0, is2D=False)
+
+    @classmethod
+    def square(cls, L):
+        """Construct a 2-dimensional box with equal lengths.
+
+        :param L: The edge length
+        :type L: float
+        """
+        return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)

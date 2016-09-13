@@ -96,6 +96,29 @@ class TestBox(unittest.TestCase):
         box2 = box.from_matrix(box.to_matrix())
         self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
 
+    def test_cube(self):
+        L = 10.0
+        cube = bx.Box.cube(L=L)
+        self.assertEqual(cube.Lx, L)
+        self.assertEqual(cube.Ly, L)
+        self.assertEqual(cube.Lz, L)
+        self.assertEqual(cube.xy, 0)
+        self.assertEqual(cube.xz, 0)
+        self.assertEqual(cube.yz, 0)
+        self.assertEqual(cube.dimensions, 3)
+
+    def test_square(self):
+        L = 10.0
+        square = bx.Box.square(L=L)
+        self.assertEqual(square.Lx, L)
+        self.assertEqual(square.Ly, L)
+        self.assertEqual(square.Lz, 0)
+        self.assertEqual(square.xy, 0)
+        self.assertEqual(square.xz, 0)
+        self.assertEqual(square.yz, 0)
+        self.assertEqual(square.dimensions, 2)
+
+
 
 if __name__ == '__main__':
     unittest.main()
