@@ -66,5 +66,36 @@ class TestBox(unittest.TestCase):
 
         npt.assert_almost_equal(testpoints[0,0], 2, decimal=2, err_msg="WrapFail")
 
+    def test_equal(self):
+        box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+        box2 = bx.Box(2, 2, 2, 1, 0, 0)
+        self.assertEqual(box, box)
+        self.assertNotEqual(box, box2)
+
+    def test_dict(self):
+        box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+        box.to_dict()
+
+    def test_str(self):
+        box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+        box2 = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+        self.assertEqual(str(box), str(box2))
+
+    def test_tuple(self):
+        box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+        box2 = bx.Box.from_box(box.to_tuple())
+        self.assertEqual(box, box)
+
+    def test_from_box(self):
+        box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+        box2 = bx.Box.from_box(box)
+        self.assertEqual(box, box)
+
+    def test_matrix(self):
+        box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+        box2 = box.from_matrix(box.to_matrix())
+        self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
+
+
 if __name__ == '__main__':
     unittest.main()
