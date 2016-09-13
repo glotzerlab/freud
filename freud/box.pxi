@@ -1,3 +1,4 @@
+import warnings
 from freud.util._VectorMath cimport vec3
 cimport freud._box as box
 import numpy as np
@@ -144,6 +145,8 @@ cdef class Box:
             if yz is None:
                 yz = 0.0
         # create the box
+        if is2D and (Lz != 0 or xz != 0 or yz!= 0):
+            warnings.warn("Specifying z-dimensions in a 2-dimensional box has no effect!")
         self.thisptr = new box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     def __dealloc__(self):
@@ -164,6 +167,8 @@ cdef class Box:
         if len(L) != 3:
             raise TypeError('Could not setL({})'.format(L))
 
+        if self.is2D() and L[2] != 0:
+            warnings.warn("Specifying z-dimensions in a 2-dimensional box has no effect!")
         self.thisptr.setL(L[0], L[1], L[2])
 
     def set2D(self, val):
