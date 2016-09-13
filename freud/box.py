@@ -12,13 +12,28 @@ class Box(_Box):
     def Lx(self):
         return self.getLx()
 
+    @Lx.setter
+    def Lx(self, value):
+        self.setL([value, self.Ly, self.Lz])
+        return value
+
     @property
     def Ly(self):
         return self.getLy()
 
+    @Ly.setter
+    def Ly(self, value):
+        self.setL([self.Lx, value, self.Lz])
+        return value
+
     @property
     def Lz(self):
         return self.getLz()
+
+    @Lz.setter
+    def Lz(self, value):
+        self.setL([self.Lx, self.Ly, value])
+        return value
 
     @property
     def xy(self):
@@ -35,6 +50,11 @@ class Box(_Box):
     @property
     def dimensions(self):
         return 2 if self.is2D() else 3
+
+    @dimensions.setter
+    def dimensions(self, value):
+        assert value == 2 or value == 3
+        self.set2D(value == 2)
 
     def to_dict(self):
         return {
