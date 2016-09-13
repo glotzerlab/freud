@@ -72,14 +72,19 @@ class TestBox(unittest.TestCase):
         self.assertEqual(box, box)
         self.assertNotEqual(box, box2)
 
-    def test_dict(self):
-        box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
-        box.to_dict()
-
     def test_str(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = bx.Box(2, 2, 2, 1, 0.5, 0.1)
         self.assertEqual(str(box), str(box2))
+
+    def test_dict(self):
+        box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+
+        class BoxTuple(object):
+            def __init__(self, box_dict):
+                self.__dict__.update(box_dict)
+        box2 = bx.Box.from_box(BoxTuple(box.to_dict()))
+        self.assertEqual(box, box2)
 
     def test_tuple(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
@@ -95,6 +100,15 @@ class TestBox(unittest.TestCase):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = box.from_matrix(box.to_matrix())
         self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
+
+    def test_2_dimensional(self):
+        box = bx.Box.square(L=1)
+        box.Lz = 1.0
+        self.assertEqual(box.Lz, 0.0)
+        box.dimensions = 3
+        self.assertEqual(box.Lz, 0.0)
+        box.Lz = 1.0
+        self.assertEqual(box.Lz, 1.0)
 
     def test_cube(self):
         L = 10.0
