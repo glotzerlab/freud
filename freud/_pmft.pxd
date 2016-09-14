@@ -110,6 +110,7 @@ cdef extern from "PMFTRtheta.h" namespace "freud::pmft":
 
         const box.Box& getBox() const
         void resetPCF()
+        void computeJacobian(quat[float]*, unsigned int)
         void accumulate(box.Box&,
                         vec3[float]*,
                         quat[float]*,

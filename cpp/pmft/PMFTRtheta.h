@@ -68,6 +68,9 @@ class PMFTRtheta
                         quat<float> *equivalent_orientations,
                         unsigned int n_q);
 
+        void computeJacobian(quat<float> *equivalent_orientations, unsigned int n_q);
+
+
         //! \internal
         //! helper function to reduce the thread specific arrays into the boost array
         void reducePCF();
@@ -134,12 +137,15 @@ class PMFTRtheta
         unsigned int m_n_q;
         float m_jacobian;
         bool m_reduce;
+        unsigned int m_jacobian_counter;
 
         std::shared_ptr<float> m_pcf_array;         //!< array of pcf computed
         std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed
         std::shared_ptr<float> m_R_array;           //!< array of R values that the pcf is computed at
         std::shared_ptr<float> m_theta_array;           //!< array of theta values that the pcf is computed at
         std::shared_ptr<float> m_inv_jacobian_array;
+        //std::shared_ptr<unsigned int> m_rand_jacobian_array;
+        tbb::enumerable_thread_specific<unsigned int *> m_local_rand_jacobian_array;
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 

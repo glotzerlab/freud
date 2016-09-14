@@ -1029,6 +1029,18 @@ cdef class PMFTRtheta:
         """
         self.thisptr.resetPCF()
 
+    def computeJacobianArray(self, equivalent_orientations):
+        """
+        Computes the Jacobian array via a numerical method.
+        """ 
+        if (equivalent_orientations.dtype != np.float32):
+            raise ValueError("equivalent_orientations must be a numpy float32 array")
+        cdef np.ndarray[float, ndim=2] l_equivalent_orientations = equivalent_orientations
+        cdef unsigned int nQ = <unsigned int> equivalent_orientations.shape[0]
+
+        self.thisptr.computeJacobian(<quat[float]*>l_equivalent_orientations.data, nQ)
+
+
     def accumulate(self, box, ref_points, ref_orientations, points, orientations, equivalent_orientations):
         """
         Calculates the positional correlation function and adds to the current histogram.
