@@ -48,6 +48,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
                     ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
+                    ${CMAKE_CURRENT_SOURCE_DIR}/registration
+                    ${CMAKE_CURRENT_SOURCE_DIR}/extern
                     ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
@@ -69,6 +71,8 @@ set(FREUD_SOURCES
             locality/LinkCell.h
             locality/NearestNeighbors.h
             locality/NearestNeighbors.cc
+            density/CorrelationFunction.h
+            density/CorrelationFunction.cc
             density/RDF.cc
             density/RDF.h
             density/GaussianDensity.cc
@@ -144,6 +148,7 @@ set(FREUD_SOURCES
             viz/split.cc
             parallel/tbb_config.h
             parallel/tbb_config.cc
+            registration/brute_force.h
             )
 
 foreach(src IN LISTS FREUD_SOURCES)

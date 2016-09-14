@@ -61,6 +61,11 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
         float getK()
 
 cdef extern from "LocalDescriptors.h" namespace "freud::order":
+    ctypedef enum LocalDescriptorOrientation:
+        LocalNeighborhood
+        Global
+        ParticleLocal
+
     cdef cppclass LocalDescriptors:
         LocalDescriptors(unsigned int,
                          unsigned int,
@@ -74,7 +79,8 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         void computeNList(const box.Box&, const vec3[float]*, unsigned int,
                           const vec3[float]*, unsigned int) nogil except +
         void compute(const box.Box&, unsigned int, const vec3[float]*,
-                     unsigned int, const vec3[float]*, unsigned int) nogil except +
+                     unsigned int, const vec3[float]*, unsigned int,
+                     const quat[float]*, LocalDescriptorOrientation) nogil except +
         shared_array[float complex] getSph()
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
@@ -198,6 +204,8 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         void cluster(const vec3[float]*,
                      unsigned int,
                      float,
+                     bool,
+                     bool,
                      bool)
         void matchMotif(const vec3[float]*,
                         unsigned int,
@@ -205,16 +213,28 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
                         unsigned int,
                         float,
                         bool)
+        vector[float] minRMSDMotif(const vec3[float]*,
+                        unsigned int,
+                        const vec3[float]*,
+                        unsigned int,
+                        bool)
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
-                                        const vec3[float]*,
+                                        vec3[float]*,
                                         unsigned int,
-                                        float)
+                                        float,
+                                        bool)
+        map[unsigned int, unsigned int] minimizeRMSD(const vec3[float]*,
+                                        vec3[float]*,
+                                        unsigned int,
+                                        float&,
+                                        bool)
         shared_array[unsigned int] getClusters()
         shared_array[vec3[float]] getEnvironment(unsigned int)
         shared_array[vec3[float]] getTotEnvironment()
         unsigned int getNP()
         unsigned int getNumClusters()
         unsigned int getNumNeighbors()
+        unsigned int getMaxNumNeighbors()
 
 cdef extern from "SolLiqNear.h" namespace "freud::order":
     cdef cppclass SolLiqNear:

@@ -7,6 +7,7 @@ cimport freud._order as order
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
+from libcpp.pair cimport pair
 import numpy as np
 cimport numpy as np
 import time
@@ -500,6 +501,10 @@ cdef class LocalDescriptors:
     """
     cdef order.LocalDescriptors *thisptr
 
+    known_modes = {'neighborhood': order.LocalNeighborhood,
+                   'global': order.Global,
+                   'particle_local': order.ParticleLocal}
+
     def __cinit__(self, nNeigh, lmax, rmax, negative_m=True):
         self.thisptr = new order.LocalDescriptors(nNeigh, lmax, rmax, negative_m)
 
@@ -543,18 +548,26 @@ cdef class LocalDescriptors:
             self.thisptr.computeNList(l_box, <vec3[float]*>l_points_ref.data,
                                       nRef, <vec3[float]*>l_points.data, nP)
 
-    def compute(self, box, unsigned int nNeigh, points_ref, points=None):
+    def compute(self, box, unsigned int nNeigh, points_ref, points=None,
+        orientations=None, mode='neighborhood'):
         """Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
         :param nNeigh: Number of neighbors to compute with
         :param points_ref: source points to calculate the order parameter
         :param points: destination points to calculate the order parameter
+        :param orientations: Orientation of each reference point
+        :param mode: Orientation mode to use for environments, either 'neighborhood' to use the orientation of the local neighborhood, 'particle_local' to use the given particle orientations, or 'global' to not rotate environments
         :type points_ref: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32) or None
+        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32) or None
+        :type mode: str
 
         """
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        if mode not in self.known_modes:
+           raise RuntimeError('Unknown LocalDescriptors orientation mode: {}'.format(mode))
+
         if points_ref.dtype != np.float32:
             raise ValueError("points_ref must be a numpy float32 array")
         if points_ref.ndim != 2:
@@ -572,13 +585,34 @@ cdef class LocalDescriptors:
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
 
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        if mode == 'particle_local':
+            if orientations is None:
+                raise RuntimeError('Orientations must be given to orient LocalDescriptors with particles\' orientations')
+
+            if orientations.dtype != np.float32:
+                raise ValueError("orientations must be a numpy float32 array")
+            if orientations.ndim != 2:
+                raise ValueError("orientations must be a 2 dimensional array")
+            if orientations.shape[0] != points_ref.shape[0]:
+                raise ValueError("orientations must have the same size as points_ref")
+            if orientations.shape[1] != 4:
+                raise ValueError("the 2nd dimension must have 3 values: r, x, y, z")
+
+            l_orientations = orientations
+
         cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
         cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef order.LocalDescriptorOrientation l_mode
+
+        l_mode = self.known_modes[mode]
+
         with nogil:
             self.thisptr.compute(l_box, nNeigh, <vec3[float]*>l_points_ref.data,
-                                 nRef, <vec3[float]*>l_points.data, nP)
+                                 nRef, <vec3[float]*>l_points.data, nP,
+                                 <quat[float]*>l_orientations.data, l_mode)
 
     def getSph(self):
         """
@@ -1888,8 +1922,9 @@ cdef class MatchEnv:
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
-    :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first minima of the rdf are recommended
+    :param box: Simulation box
+    :param rmax: Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.
+    :param k: Number of nearest neighbors taken to define the local environment of any given particle.
     """
     cdef order.MatchEnv *thisptr
 
@@ -1912,15 +1947,18 @@ cdef class MatchEnv:
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
-    def cluster(self, points, threshold, hard_r=False):
+    def cluster(self, points, threshold, hard_r=False, registration=False, global_search=False):
         """Determine clusters of particles with matching environments.
 
         :param points: particle positions
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :param hard_r: if true, add all particles that fall within the threshold of m_rmaxsq to the environment
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :param global_search: if true, do an exhaustive search wherein you compare the environments of every single pair of particles in the simulation. If false, only compare the environments of neighboring particles.
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type threshold: np.float32
         :type hard_r: bool
+        :type registration: bool
         """
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
@@ -1929,22 +1967,24 @@ cdef class MatchEnv:
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_points = points
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        self.thisptr.cluster(<vec3[float]*>l_points.data, nP, threshold, hard_r)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        self.thisptr.cluster(<vec3[float]*>&l_points[0], nP, threshold, hard_r, registration, global_search)
 
-    def matchMotif(self, points, ref_points, threshold, hard_r=False):
-        """Determine clusters of particles that match the motif provided by ref_points.
+    def matchMotif(self, points, refPoints, threshold, registration=False):
+        """Determine clusters of particles that match the motif provided by refPoints.
 
         :param points: particle positions
-        :param ref_points: vectors that make up the motif against which we are matching
+        :param refPoints: vectors that make up the motif against which we are matching
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :param hard_r: if true, only add the neighbor particles to each particle's environment if they fall within the threshold of m_rmaxsq
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
         :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type ref_points: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
-        :type hard_r: bool
+        :type registration: bool
         """
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
@@ -1952,54 +1992,141 @@ cdef class MatchEnv:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
-        if ref_points.dtype != np.float32:
-            raise ValueError("ref_points must be a numpy float32 array")
-        if ref_points.ndim != 2:
-            raise ValueError("ref_points must be a 2 dimensional array")
-        if ref_points.shape[1] != 3:
-            raise ValueError("the 2nd dimension of ref_points must have 3 values: x, y, z")
+        if refPoints.dtype != np.float32:
+            raise ValueError("refPoints must be a numpy float32 array")
+        if refPoints.ndim != 2:
+            raise ValueError("refPoints must be a 2 dimensional array")
+        if refPoints.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        self.thisptr.matchMotif(<vec3[float]*>l_points.data, nP, <vec3[float]*>l_ref_points.data, nRef, threshold, hard_r)
+        # keeping the below syntax seems to be crucial for passing unit tests
+        self.thisptr.matchMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, registration)
 
-    def isSimilar(self, ref_points1, ref_points2, threshold):
-        """Test if the motif provided by ref_points1 is similar to the motif provided by ref_points2.
+    def minRMSDMotif(self, points, refPoints, registration=False):
+        """Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt the motif provided by refPoints.
 
-        :param ref_points1: vectors that make up motif 1
-        :param ref_points2: vectors that make up motif 2
-        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
-        :type ref_points1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
-        :type ref_points2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :param points: particle positions
+        :param refPoints: vectors that make up the motif against which we are matching
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
+        :type refPoints: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
         :type threshold: np.float32
+        :type hard_r: bool
+        :type registration: bool
+        :return: vector of minimal RMSD values, one value per particle.
+        :rtype: np.ndarray(shape=(num_particles, 1), dtype=np.float32)
         """
-        if ref_points1.dtype != np.float32:
-            raise ValueError("ref_points1 must be a numpy float32 array")
-        if ref_points1.ndim != 2:
-            raise ValueError("ref_points1 must be a 2 dimensional array")
-        if ref_points1.shape[1] != 3:
-            raise ValueError("the 2nd dimension of ref_points1 must have 3 values: x, y, z")
-        if ref_points2.dtype != np.float32:
-            raise ValueError("ref_points2 must be a numpy float32 array")
-        if ref_points2.ndim != 2:
-            raise ValueError("ref_points2 must be a 2 dimensional array")
-        if ref_points2.shape[1] != 3:
-            raise ValueError("the 2nd dimension of ref_points2 must have 3 values: x, y, z")
+        if points.dtype != np.float32:
+            raise ValueError("points must be a numpy float32 array")
+        if points.ndim != 2:
+            raise ValueError("points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
+        if refPoints.dtype != np.float32:
+            raise ValueError("refPoints must be a numpy float32 array")
+        if refPoints.ndim != 2:
+            raise ValueError("refPoints must be a 2 dimensional array")
+        if refPoints.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
 
-        cdef np.ndarray[float, ndim=2] l_ref_points1 = np.copy(ref_points1)
-        cdef np.ndarray[float, ndim=2] l_ref_points2 = np.copy(ref_points2)
-        cdef unsigned int nRef1 = <unsigned int> ref_points1.shape[0]
-        cdef unsigned int nRef2 = <unsigned int> ref_points2.shape[0]
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(refPoints.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(<vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, registration)
+
+        return min_rmsd_vec
+
+    def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):
+        """Test if the motif provided by refPoints1 is similar to the motif provided by refPoints2.
+
+        :param refPoints1: vectors that make up motif 1
+        :param refPoints2: vectors that make up motif 2
+        :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type threshold: np.float32
+        :type registration: bool
+        :return: a doublet that gives the rotated (or not) set of refPoints2, and the mapping between the vectors of refPoints1 and refPoints2 that will make them correspond to each other. empty if they do not correspond to each other.
+        :rtype: tuple[np.ndarray(shape=(num_neigh, 3), dtype=np.float32), map[int, int]]
+        """
+        if refPoints1.dtype != np.float32:
+            raise ValueError("refPoints1 must be a numpy float32 array")
+        if refPoints1.ndim != 2:
+            raise ValueError("refPoints1 must be a 2 dimensional array")
+        if refPoints1.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
+        if refPoints2.dtype != np.float32:
+            raise ValueError("refPoints2 must be a numpy float32 array")
+        if refPoints2.ndim != 2:
+            raise ValueError("refPoints2 must be a 2 dimensional array")
+        if refPoints2.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
+        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
         cdef float threshold_sq = threshold*threshold
 
         if nRef1 != nRef2:
-            raise ValueError("the number of vectors in ref_points1 must MATCH the number of vectors in ref_points2")
+            raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
 
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>l_ref_points1.data, <vec3[float]*>l_ref_points2.data, nRef1, threshold_sq)
-        return vec_map
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, threshold_sq, registration)
+        cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(l_refPoints2, (nRef2, 3))
+        return [rot_refPoints2, vec_map]
+
+    def minimizeRMSD(self, refPoints1, refPoints2, registration=False):
+        """Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
+
+        :param refPoints1: vectors that make up motif 1
+        :param refPoints2: vectors that make up motif 2
+        :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :type refPoints1: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type refPoints2: np.ndarray(shape=(num_neigh, 3), dtype=np.float32)
+        :type registration: bool
+        :return: a triplet that gives the associated min_rmsd, rotated (or not) set of refPoints2, and the mapping between the vectors of refPoints1 and refPoints2 that somewhat minimizes the RMSD.
+        :rtype: tuple[float, np.ndarray(shape=(num_neigh, 3), dtype=np.float32), map[int, int]]
+        """
+        if refPoints1.dtype != np.float32:
+            raise ValueError("refPoints1 must be a numpy float32 array")
+        if refPoints1.ndim != 2:
+            raise ValueError("refPoints1 must be a 2 dimensional array")
+        if refPoints1.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
+        if refPoints2.dtype != np.float32:
+            raise ValueError("refPoints2 must be a numpy float32 array")
+        if refPoints2.ndim != 2:
+            raise ValueError("refPoints2 must be a 2 dimensional array")
+        if refPoints2.shape[1] != 3:
+            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(np.ascontiguousarray(refPoints2.flatten()))
+        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
+
+        if nRef1 != nRef2:
+            raise ValueError("the number of vectors in refPoints1 must MATCH the number of vectors in refPoints2")
+
+        cdef float min_rmsd = -1
+        # keeping the below syntax seems to be crucial for passing unit tests
+        cdef map[unsigned int, unsigned int] results_map = self.thisptr.minimizeRMSD(<vec3[float]*>&l_refPoints1[0], <vec3[float]*>&l_refPoints2[0], nRef1, min_rmsd, registration)
+        cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(l_refPoints2, (nRef2, 3))
+        return [min_rmsd, rot_refPoints2, results_map]
 
     def getClusters(self):
         """
@@ -2026,14 +2153,14 @@ cdef class MatchEnv:
         """
         cdef vec3[float] *environment = self.thisptr.getEnvironment(i).get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        nbins[0] = <np.npy_intp>self.thisptr.getMaxNumNeighbors()
         nbins[1] = 3
         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>environment)
         return result
 
     def getTotEnvironment(self):
         """
-        Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
+        Returns the entire m_Np by m_maxk by 3 matrix of all environments for all particles
 
         :return: the array of vectors
         :rtype: list[list[list[float, float, float]]]
@@ -2041,7 +2168,7 @@ cdef class MatchEnv:
         cdef vec3[float] *tot_environment = self.thisptr.getTotEnvironment().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
-        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        nbins[1] = <np.npy_intp>self.thisptr.getMaxNumNeighbors()
         nbins[2] = 3
         cdef np.ndarray[float, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>tot_environment)
         return result

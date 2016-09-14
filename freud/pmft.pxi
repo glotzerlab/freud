@@ -890,7 +890,7 @@ cdef class PMFTXYZ:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsZ()
         nbins[1] = <np.npy_intp>self.thisptr.getNBinsY()
         nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
+        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
     def getPMFT(self):
