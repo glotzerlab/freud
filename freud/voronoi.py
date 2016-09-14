@@ -68,7 +68,7 @@ class Voronoi:
     One can include neighbors from multiple voronoi shells by specifying 'numShells' variable.
     An example code to compute neighbors upto two voronoi shells for a 2D mesh
 
-    vor = voronoi.Voronoi(trajectory.Box(5, 5))
+    vor = voronoi.Voronoi(box.Box(5, 5))
     pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
     vor.computeNeighbors(pos)
     neighbors = vor.getNeighbors(2)
