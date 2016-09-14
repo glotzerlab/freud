@@ -18,6 +18,11 @@
 
 namespace freud { namespace order {
 
+enum LocalDescriptorOrientation {
+    LocalNeighborhood,
+    Global,
+    ParticleLocal};
+
 /*! Compute a set of descriptors (a numerical "fingerprint") of a
 *  particle's local environment.
 */
@@ -70,8 +75,10 @@ public:
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
     void compute(const box::Box& box, unsigned int nNeigh,
-                 const vec3<float> *r_ref, unsigned int Nref, const vec3<float> *r,
-                 unsigned int Np);
+                 const vec3<float> *r_ref, unsigned int Nref,
+                 const vec3<float> *r, unsigned int Np,
+                 const quat<float> *q_ref,
+                 LocalDescriptorOrientation orientation);
 
     // //! Python wrapper for compute
     // void computePy(boost::python::numeric::array r,
