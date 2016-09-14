@@ -1,3 +1,4 @@
+import warnings
 from freud.util._VectorMath cimport vec3
 cimport freud._box as box
 import numpy as np
@@ -59,91 +60,37 @@ cdef class Box:
     cdef box.Box *thisptr
 
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None, is2D=None):
-
-        # this is a work in progress
-        # to support old API, allow for positional arguments, and determine how many there are
-        argList = [Lx, Ly, Lz, xy, xz, yz, is2D]
-        try:
-            firstNone = argList.index(None)
-            # if there are nones, need to determine if the rest are Nones
-            # do not check is2D
-            remainingArgs = argList[firstNone:-1]
-            allNones = True
-            for i in remainingArgs:
-                if i is not None:
-                    allNones = False
-        except ValueError:
-            # there are no nones
-            allNones = False
-        # old api
-        if allNones == True:
-            argList = argList[:firstNone]
-            if len(argList) == 0:
-                Lx = Ly = Lz = 0
-                xy = xz = yz = 0
-                is2D = False
-            elif len(argList) == 1:
-                Lx = Ly = Lz = argList[0]
-                xy = xz = yz = 0
-                is2D = False
-            elif len(argList) == 2:
-                Lx = Ly = Lz = argList[0]
-                xy = xz = yz = 0
-                is2D = argList[1]
-            elif len(argList) == 3:
-                # this assumes Lx, Ly, Lz; Lx, Ly, xy require kwargs
-                Lx = argList[0]
-                Ly = argList[1]
-                Lz = argList[2]
-                xy = xz = yz = 0
-                is2D = False
-            elif len(argList) == 4:
-                # redundant for previous
-                Lx = argList[0]
-                Ly = argList[1]
-                Lz = argList[2]
-                xy = xz = yz = 0
-                is2D = argList[3]
-            elif len(argList) == 6:
-                Lx = argList[0]
-                Ly = argList[1]
-                Lz = argList[2]
-                xy = argList[3]
-                xz = argList[4]
-                yz = argList[5]
-                is2D = False
-            elif len(argList) == 7:
-                Lx = argList[0]
-                Ly = argList[1]
-                Lz = argList[2]
-                xy = argList[3]
-                xz = argList[4]
-                yz = argList[5]
-                is2D = False
-            else:
-                raise TypeError('Could not create a Box with the given arguments: {}'.format(*argList))
-        # new api
-        else:
-            # set is2D to bool
-            if is2D is None:
-                is2D = False
-            # Lx must be spec'd
-            if Lx is None:
-                raise ValueError("Lx must be specified")
-            if Ly is None:
-                Ly = Lx
-            if Lz is None:
-                if is2D == True:
-                    Lz = 0.0
-                else:
-                    Lz = Lx
-            if xy is None:
-                xy = 0.0
-            if xz is None:
-                xz = 0.0
-            if yz is None:
-                yz = 0.0
-        # create the box
+        # BEGIN Check for and warn about possible use of deprecated API
+        # Should be removed in version version 0.7!
+        args = (Lx, Ly, Lz, xy, xz, yz, is2D)
+        if None in args:
+            nargs = args.index(None)
+            if nargs == 1:
+                warnings.warn(
+                    "You may be using a deprecated Box constructor API! Did you mean Box.cube()?",
+                    DeprecationWarning)
+            elif nargs == 2 and isinstance(Ly, bool):
+                raise ValueError(
+                  "You are using a deprecated Box constructor API! Did you mean Box.square()?")
+            elif isinstance(Lz, bool) or isinstance(xy, bool) or isinstance(xz, bool) or isinstance(yz, bool):
+                raise ValueError("You are using a deprecated Box constructor API!")
+        # END Check for and warn about possible use of deprecated API
+        if Lx is None:
+            Lx = 0
+        if Ly is None:
+            Ly = 0
+        if Lz is None:
+            Lz = 0
+        if xy is None:
+            xy = 0
+        if xz is None:
+            xz = 0
+        if yz is None:
+            yz = 0
+        if is2D is None:
+            is2D = False
+        if is2D and (Lz != 0 or xz != 0 or yz!= 0):
+            warnings.warn("Specifying z-dimensions in a 2-dimensional box has no effect!")
         self.thisptr = new box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     def __dealloc__(self):
@@ -164,6 +111,8 @@ cdef class Box:
         if len(L) != 3:
             raise TypeError('Could not setL({})'.format(L))
 
+        if self.is2D() and L[2] != 0:
+            warnings.warn("Specifying z-dimensions in a 2-dimensional box has no effect!")
         self.thisptr.setL(L[0], L[1], L[2])
 
     def set2D(self, val):
