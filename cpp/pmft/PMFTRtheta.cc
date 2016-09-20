@@ -58,7 +58,9 @@ PMFTRtheta::PMFTRtheta(float max_R, float max_theta, unsigned int n_bins_R, unsi
         {
         float R = float(i) * m_dR;
         float nextR = float(i+1) * m_dR;
-        m_R_array.get()[i] = ((R + nextR) / 2.0);
+        //m_R_array.get()[i] = ((R + nextR) / 2.0);
+        m_R_array.get()[i] = 2.0f / 3.0f * (nextR*nextR*nextR - R*R*R) / (nextR*nextR - R*R);
+        //TKTK: Ask Harper why it's done this way specifically and not the naive averaging
         }
 
     // precompute the bin center positions for theta
@@ -169,7 +171,7 @@ void PMFTRtheta::computeJacobian(quat<float> *equivalent_orientations, unsigned 
     //m_local_bin_counts.local() = new unsigned int [m_n_bins_R*m_n_bins_theta];
     m_local_rand_jacobian_array.local() = new unsigned int [m_n_bins_R*m_n_bins_theta];
     memset((void*)m_local_rand_jacobian_array.local(), 0, sizeof(unsigned int)*m_n_bins_R*m_n_bins_theta);
-    unsigned int num_rand_quats = m_n_bins_R * m_n_bins_theta * 100000;
+    unsigned int num_rand_quats = m_n_bins_R * m_n_bins_theta * 10000;
     unsigned int m_jacobian_counter = 0;
 
     parallel_for(blocked_range<size_t>(0,num_rand_quats),
@@ -192,7 +194,7 @@ void PMFTRtheta::computeJacobian(quat<float> *equivalent_orientations, unsigned 
                     float sep_angle = separation_angle(Qr, min_quat);
 
                     float rand_n = saru.s<float>(0, 1);
-                    cout << "Random number is " << rand_n << endl;
+                    //cout << "Random number is " << rand_n << endl;
                     float rand_r = rand_n * m_max_R;
 
                     float binR = rand_r * dR_inv;
@@ -236,7 +238,9 @@ void PMFTRtheta::computeJacobian(quat<float> *equivalent_orientations, unsigned 
                     {
                     //TKTK: Check that this is the proper value for the inverse jacobian.
                     //m_inv_jacobian_array.get()[b_i((int)i, (int)j)] += (float)(*local_bins)[b_i((int)i, (int)j)] / (float)m_jacobian_counter;
-                    m_inv_jacobian_array.get()[b_i((int)i, (int)j)] += (float)(*local_bins)[b_i((int)i, (int)j)] / (float) num_rand_quats;
+                    float R = m_R_array.get()[i];
+                    float rsqed = R*R;
+                    m_inv_jacobian_array.get()[b_i((int)i, (int)j)] += float((*local_bins)[b_i((int)i, (int)j)]) / (float(num_rand_quats) * rsqed);
                     }
                 }
             }
@@ -270,7 +274,7 @@ void PMFTRtheta::reducePCF()
         });
 
     float inv_num_dens = m_box.getVolume() / (float)m_n_p;
-    float inv_jacobian = (float) 1.0 / (float) m_jacobian;
+    //float inv_jacobian = (float) 1.0 / (float) m_jacobian;
     float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0,m_n_bins_R*m_n_bins_theta),
