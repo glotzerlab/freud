@@ -33,14 +33,15 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
     cdef cppclass NearestNeighbors:
         NearestNeighbors()
-        NearestNeighbors(float, unsigned int)
+        NearestNeighbors(float, unsigned int, float, bool)
 
         void setRMax(float)
         const box.Box &getBox() const
-        unsigned int getNNeigh() const
+        unsigned int getNumNeighbors() const
         float getRMax() const
         shared_array[unsigned int] getNeighbors(unsigned int) const
         shared_array[unsigned int] getNeighborList() const
         shared_array[float] getRsq(unsigned int) const
         shared_array[float] getRsqList() const
+        void setCutMode(const bool)
         void compute(const box.Box&, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int) nogil except +
