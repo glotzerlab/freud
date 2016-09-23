@@ -146,15 +146,29 @@ cdef class NearestNeighbors:
     """Supports efficiently finding the N nearest neighbors of each point
     in a set for some fixed integer N.
 
+    - strict_cut = True: rmax will be strictly obeyed, and any particle which has fewer than N neighbors will have \
+        values of UINT_MAX assigned
+    - strict_cut = False: rmax will be expanded to find requested number of neighbors. If rmax increases to the \
+        point that a cell list cannot be constructed, a warning will be raised and neighbors found will be returned
+
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param rmax: Initial guess of a distance to search within to find N neighbors
     :param n_neigh: Number of neighbors to find for each point
+    :param scale: multiplier by which to automatically increase rmax value by if requested number of neighbors is not \
+        found. Only utilized if strict_cut is False. Scale must be greater than 1
+    :param strict_cut: whether to use a strict rmax or allow for automatic expansion
+    :type rmax: float
+    :type n_neigh: int
+    :type scale: float
+    :type strict_cut: bool
     """
     cdef locality.NearestNeighbors *thisptr
 
-    def __cinit__(self, rmax, n_neigh):
-        self.thisptr = new locality.NearestNeighbors(float(rmax), int(n_neigh))
+    def __cinit__(self, rmax, n_neigh, scale=1.1, strict_cut=False):
+        if scale < 1:
+            raise RuntimeError("scale must be greater than 1")
+        self.thisptr = new locality.NearestNeighbors(float(rmax), int(n_neigh), float(scale), bool(strict_cut))
 
     def __dealloc__(self):
         del self.thisptr
@@ -163,13 +177,27 @@ cdef class NearestNeighbors:
         """Return the stored :py:class:`freud._box.Box` object"""
         return BoxFromCPP(self.thisptr.getBox())
 
-    def getNNeigh(self):
+    def getNumNeighbors(self):
         """Return the number of neighbors this object will find"""
-        return self.thisptr.getNNeigh()
+        return self.thisptr.getNumNeighbors()
 
     def setRMax(self, float rmax):
         """Update the neighbor search distance guess"""
         self.thisptr.setRMax(rmax)
+
+    def setCutMode(self, strict_cut):
+        """
+        Set mode to handle rmax by Nearest Neighbors.
+
+        - strict_cut = True: rmax will be strictly obeyed, and any particle which has fewer than N neighbors will have \
+            values of UINT_MAX assigned
+        - strict_cut = False: rmax will be expanded to find requested number of neighbors. If rmax increases to the \
+            point that a cell list cannot be constructed, a warning will be raised and neighbors found will be returned
+
+        :param strict_cut: whether to use a strict rmax or allow for automatic expansion
+        :type strict_cut: bool
+        """
+        self.thisptr.setCutMode(strict_cut)
 
     def getRMax(self):
         """Return the current neighbor search distance guess"""
@@ -180,7 +208,7 @@ cdef class NearestNeighbors:
 
         :param i: index of the reference point to fetch the neighboring points of
         """
-        cdef unsigned int nNeigh = self.thisptr.getNNeigh()
+        cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
         result = np.zeros(nNeigh, dtype=np.uint32)
         cdef unsigned int start_idx = i*nNeigh
         cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
@@ -188,6 +216,21 @@ cdef class NearestNeighbors:
             result[j] = neighbors[start_idx + j]
 
         return result
+
+    def getRsq(self, unsigned int i):
+        """
+        Return the Rsq values for the N nearest neighbors of the reference point with index i
+
+        :param i: index of the reference point of which to fetch the neighboring point distances
+        :type i: unisigned int
+        :return: squared distances of the N nearest neighbors
+        :rtype: np.ndarray(shape=N, dtype=np.float32)
+        """
+        pass
+
+    def getRsqList(self):
+        """
+        """
 
     def compute(self, box, ref_points, points):
         """Update the data structure for the given set of points

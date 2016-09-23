@@ -72,20 +72,6 @@ class IteratorNeighborList
             return m_neighbor_list[m_idx*m_k + m_cur_idx];
             }
 
-        // //! Get the next particle index in the list with python StopIteration
-        // unsigned int nextPy()
-        //     {
-        //     m_cur_idx++;
-
-        //     if (atEnd())
-        //         {
-        //         PyErr_SetNone(PyExc_StopIteration);
-        //         boost::python::throw_error_already_set();
-        //         }
-
-        //     return m_neighbor_list[m_idx*m_k + m_cur_idx];
-        //     }
-
     private:
         const unsigned int *m_neighbor_list;                  //!< The neighbor list
         unsigned int m_k;                                //!< Number of neighbors in list
@@ -104,12 +90,10 @@ class NearestNeighbors
         // Null constructor for use in triclinic; will be removed when cell list is fixed
         NearestNeighbors();
         //! Constructor
-        //!
-        //! \param box This frame's box
-        //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
-        //! \param nNeigh Number of neighbors to find
         NearestNeighbors(float rmax,
-                         unsigned int nNeigh);
+                         unsigned int num_neighbors,
+                         float scale=1.1,
+                         bool strict_cut=false);
 
         ~NearestNeighbors();
 
@@ -117,7 +101,7 @@ class NearestNeighbors
         iteratorneighbor iterneighbor(unsigned int idx) const
             {
             assert(m_neighbor_array.get() != NULL);
-            return iteratorneighbor(m_neighbor_array, m_n_ref, m_nNeigh, idx);
+            return iteratorneighbor(m_neighbor_array, m_num_ref, m_num_neighbors, idx);
             }
 
         void setRMax(float rmax)
@@ -139,21 +123,21 @@ class NearestNeighbors
             }
 
         //! Get the number of neighbors
-        unsigned int getNNeigh() const
+        unsigned int getNumNeighbors() const
             {
-            return m_nNeigh;
+            return m_num_neighbors;
             }
 
         //! Get the number of reference points we've computed for
         unsigned int getNref() const
             {
-            return m_n_ref;
+            return m_num_ref;
             }
 
         //! Get the number of particles we've computed for
         unsigned int getNp() const
             {
-            return m_Np;
+            return m_num_points;
             }
 
         //! Get the current cutoff radius used
@@ -172,30 +156,15 @@ class NearestNeighbors
         std::shared_ptr<unsigned int> getNeighbors(unsigned int i) const
             {
             // create the array
-            std::shared_ptr<unsigned int> requested_neighbors = std::shared_ptr<unsigned int>(new unsigned int[m_nNeigh], std::default_delete<unsigned int[]>());
+            std::shared_ptr<unsigned int> requested_neighbors = std::shared_ptr<unsigned int>(new unsigned int[m_num_neighbors], std::default_delete<unsigned int[]>());
             // find the position from which to read neighbors
-            unsigned int start_idx = i*m_nNeigh;
-            for (unsigned int j=0; j<m_nNeigh; j++)
+            unsigned int start_idx = i*m_num_neighbors;
+            for (unsigned int j=0; j<m_num_neighbors; j++)
                 {
                 requested_neighbors.get()[j] = m_neighbor_array.get()[start_idx + j];
                 }
             return requested_neighbors;
             }
-
-        // //! Python wrapper for getNeighbors() (returns a copy)
-        // boost::python::numeric::array getNeighborsPy(unsigned int i)
-        //     {
-        //     // create the array
-        //     boost::shared_array<unsigned int> requested_neighbors = boost::shared_array<unsigned int>(new unsigned int[m_nNeigh]);
-        //     // find the position from which to read neighbors
-        //     unsigned int start_idx = i*m_nNeigh;
-        //     for (unsigned int j=0; j<m_nNeigh; j++)
-        //         {
-        //         requested_neighbors[j] = m_neighbor_array[start_idx + j];
-        //         }
-        //     unsigned int *arr = requested_neighbors.get();
-        //     return num_util::makeNum(arr, m_nNeigh);
-        //     }
 
         //! Get a reference to the neighborlist array
         std::shared_ptr<unsigned int> getNeighborList() const
@@ -203,44 +172,19 @@ class NearestNeighbors
             return m_neighbor_array;
             }
 
-        // //! Python wrapper for getNeighbors() (returns a copy)
-        // boost::python::numeric::array getNeighborListPy()
-        //     {
-        //     unsigned int *arr = m_neighbor_array.get();
-        //     std::vector<intp> dims(2);
-        //     dims[0] = m_n_ref;
-        //     dims[1] = m_nNeigh;
-        //     return num_util::makeNum(arr, dims);
-        //     }
-
         //! Get a reference to the distance array
         std::shared_ptr<float> getRsq(float i) const
             {
             // create the array
-            std::shared_ptr<float> requested_rsq = std::shared_ptr<float>(new float[m_nNeigh], std::default_delete<float[]>());
+            std::shared_ptr<float> requested_rsq = std::shared_ptr<float>(new float[m_num_neighbors], std::default_delete<float[]>());
             // find the position from which to read neighbors
-            unsigned int start_idx = i*m_nNeigh;
-            for (unsigned int j=0; j<m_nNeigh; j++)
+            unsigned int start_idx = i*m_num_neighbors;
+            for (unsigned int j=0; j<m_num_neighbors; j++)
                 {
                 requested_rsq.get()[j] = m_rsq_array.get()[start_idx + j];
                 }
             return requested_rsq;
             }
-
-        // //! Python wrapper for getR() (returns a copy)
-        // boost::python::numeric::array getRsqPy(float i)
-        //     {
-        //     // create the array
-        //     boost::shared_array<float> requested_rsq = boost::shared_array<float>(new float[m_nNeigh]);
-        //     // find the position from which to read neighbors
-        //     unsigned int start_idx = i*m_nNeigh;
-        //     for (unsigned int j=0; j<m_nNeigh; j++)
-        //         {
-        //         requested_rsq[j] = m_rsq_array[start_idx + j];
-        //         }
-        //     float *arr = requested_rsq.get();
-        //     return num_util::makeNum(arr, m_nNeigh);
-        //     }
 
         //! Get a reference to the distanceList array
         std::shared_ptr<float> getRsqList() const
@@ -248,25 +192,19 @@ class NearestNeighbors
             return m_rsq_array;
             }
 
-        // //! Python wrapper for getRList() (returns a copy)
-        // boost::python::numeric::array getRsqListPy()
-        //     {
-        //     float *arr = m_rsq_array.get();
-        //     return num_util::makeNum(arr, m_nNeigh*m_Np);
-        //     }
+        void setCutMode(const bool strict_cut);
 
         //! find the requested nearest neighbors
         void compute(const box::Box& box, const vec3<float> *ref_pos, unsigned int n_ref, const vec3<float> *pos, unsigned int Np);
 
-        // //! Python wrapper for compute
-        // void computePy(box::Box& box, boost::python::numeric::array ref_pos, boost::python::numeric::array pos);
-
     private:
         box::Box m_box;            //!< Simulation box the particles belong in
-        unsigned int m_nNeigh;            //!< Number of neighbors to calculate
         float m_rmax;                     //!< Maximum r at which to determine neighbors
-        unsigned int m_Np;                //!< Number of particles for which nearest neighbors checks
-        unsigned int m_n_ref;                //!< Number of particles for which nearest neighbors calcs
+        unsigned int m_num_neighbors;            //!< Number of neighbors to calculate
+        float m_scale;                    //!< scale by which to increase neighbor search radius
+        bool m_strict_cut;                  //!< use a strict r_cut, or allow freud to expand the r_cut as needed
+        unsigned int m_num_points;                //!< Number of particles for which nearest neighbors checks
+        unsigned int m_num_ref;                //!< Number of particles for which nearest neighbors calcs
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
         std::shared_ptr<unsigned int> m_neighbor_array;         //!< array of nearest neighbors computed
