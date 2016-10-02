@@ -17,7 +17,7 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
                      unsigned int,
                      vec3[float]*,
                      float*,
-                     unsigned int) nogil
+                     unsigned int) nogil except +
         shared_ptr[ uint ] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
@@ -34,7 +34,7 @@ cdef extern from "BondingXY2D.h" namespace "freud::bond":
                      unsigned int,
                      vec3[float]*,
                      float*,
-                     unsigned int) nogil
+                     unsigned int) nogil except +
         shared_ptr[ uint ] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
@@ -51,7 +51,7 @@ cdef extern from "BondingXYT.h" namespace "freud::bond":
                      unsigned int,
                      vec3[float]*,
                      float*,
-                     unsigned int) nogil
+                     unsigned int) nogil except +
         shared_ptr[ uint ] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
@@ -69,7 +69,7 @@ cdef extern from "BondingXYZ.h" namespace "freud::bond":
                      unsigned int,
                      vec3[float]*,
                      quat[float]*,
-                     unsigned int) nogil
+                     unsigned int) nogil except +
         shared_ptr[ uint ] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
