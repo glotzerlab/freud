@@ -16,7 +16,7 @@ from ._freud import FTpolyhedron as _FTpolyhedron
 # source: http://stackoverflow.com/questions/1827489/numpy-meshgrid-in-3d
 def meshgrid2(*arrs):
     arrs = tuple(reversed(arrs))
-    lens = map(len, arrs)
+    lens = list(map(len, arrs))
     dim = len(arrs)
 
     sz = 1
