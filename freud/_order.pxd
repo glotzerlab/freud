@@ -199,35 +199,35 @@ cdef extern from "SolLiq.h" namespace "freud::order":
 
 cdef extern from "MatchEnv.h" namespace "freud::order":
     cdef cppclass MatchEnv:
-        MatchEnv(const box.Box&, float, unsigned int)
+        MatchEnv(const box.Box&, float, unsigned int) nogil except +
         void setBox(const box.Box)
         void cluster(const vec3[float]*,
                      unsigned int,
                      float,
                      bool,
                      bool,
-                     bool)
+                     bool) nogil except +
         void matchMotif(const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
                         unsigned int,
                         float,
-                        bool)
+                        bool) nogil except +
         vector[float] minRMSDMotif(const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
                         unsigned int,
-                        bool)
+                        bool) nogil except +
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
                                         vec3[float]*,
                                         unsigned int,
                                         float,
-                                        bool)
+                                        bool) nogil except +
         map[unsigned int, unsigned int] minimizeRMSD(const vec3[float]*,
                                         vec3[float]*,
                                         unsigned int,
                                         float&,
-                                        bool)
+                                        bool) nogil except +
         shared_array[unsigned int] getClusters()
         shared_array[vec3[float]] getEnvironment(unsigned int)
         shared_array[vec3[float]] getTotEnvironment()
