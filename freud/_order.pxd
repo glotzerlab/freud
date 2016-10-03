@@ -34,7 +34,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         void resetCubaticOrderParameter()
         void compute(quat[float]*,
                      unsigned int,
-                     unsigned int) nogil
+                     unsigned int) nogil except +
         void reduceCubaticOrderParameter()
         unsigned int getNumParticles()
         float getCubaticOrderParameter()
@@ -54,7 +54,7 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
         const box.Box &getBox() const
         void compute(box.Box &,
                      const vec3[float]*,
-                     unsigned int) nogil
+                     unsigned int) nogil except +
         # unsure how to pass back the std::complex, but this seems to compile...
         shared_array[float complex] getPsi()
         unsigned int getNP()
@@ -89,7 +89,7 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
         const box.Box &getBox() const,
         void compute(box.Box &,
                      const vec3[float]*,
-                     unsigned int) nogil
+                     unsigned int) nogil except +
         shared_array[float complex] getDr()
         unsigned int getNP()
 
@@ -99,13 +99,13 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         const box.Box& getBox() const
         void setBox(const box.Box)
         void compute(const vec3[float]*,
-                     unsigned int)
+                     unsigned int) nogil except +
         void computeAve(const vec3[float]*,
-                        unsigned int)
+                        unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
-                         unsigned int)
+                         unsigned int) nogil except +
         void computeAveNorm(const vec3[float]*,
-                            unsigned int)
+                            unsigned int) nogil except +
         shared_array[float] getQl()
         shared_array[float] getAveQl()
         shared_array[float] getQlNorm()
@@ -119,13 +119,13 @@ cdef extern from "LocalQlNear.h" namespace "freud::order":
         const box.Box& getBox() const
         void setBox(const box.Box)
         void compute(const vec3[float]*,
-                     unsigned int)
+                     unsigned int) nogil except +
         void computeAve(const vec3[float]*,
-                        unsigned int)
+                        unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
-                         unsigned int)
+                         unsigned int) nogil except +
         void computeAveNorm(const vec3[float]*,
-                            unsigned int)
+                            unsigned int) nogil except +
         shared_array[float] getQl()
         shared_array[float] getAveQl()
         shared_array[float] getQlNorm()
@@ -138,13 +138,13 @@ cdef extern from "LocalWl.h" namespace "freud::order":
         const box.Box& getBox() const
         void setBox(const box.Box)
         void compute(const vec3[float]*,
-                     unsigned int)
+                     unsigned int) nogil except +
         void computeAve(const vec3[float]*,
-                        unsigned int)
+                        unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
-                         unsigned int)
+                         unsigned int) nogil except +
         void computeAveNorm(const vec3[float]*,
-                            unsigned int)
+                            unsigned int) nogil except +
         shared_array[float] getQl()
         shared_array[float complex] getWl()
         shared_array[float complex] getAveWl()
@@ -160,13 +160,13 @@ cdef extern from "LocalWlNear.h" namespace "freud::order":
         const box.Box& getBox() const
         void setBox(const box.Box)
         void compute(const vec3[float]*,
-                     unsigned int)
+                     unsigned int) nogil except +
         void computeAve(const vec3[float]*,
-                        unsigned int)
+                        unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
-                         unsigned int)
+                         unsigned int) nogil except +
         void computeAveNorm(const vec3[float]*,
-                            unsigned int)
+                            unsigned int) nogil except +
         shared_array[float] getQl()
         shared_array[float complex] getWl()
         shared_array[float complex] getWlNorm()
@@ -183,11 +183,11 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         void setBox(const box.Box)
         void setClusteringRadius(float)
         void compute(const vec3[float]*,
-                     unsigned int)
+                     unsigned int) nogil except +
         void computeSolLiqVariant(const vec3[float]*,
-                                  unsigned int)
+                                  unsigned int) nogil except +
         void computeSolLiqNoNorm(const vec3[float]*,
-                                 unsigned int)
+                                 unsigned int) nogil except +
         unsigned int getLargestClusterSize()
         vector[unsigned int] getClusterSizes()
         shared_array[float complex] getQlmi()
@@ -199,35 +199,35 @@ cdef extern from "SolLiq.h" namespace "freud::order":
 
 cdef extern from "MatchEnv.h" namespace "freud::order":
     cdef cppclass MatchEnv:
-        MatchEnv(const box.Box&, float, unsigned int)
+        MatchEnv(const box.Box&, float, unsigned int) nogil except +
         void setBox(const box.Box)
         void cluster(const vec3[float]*,
                      unsigned int,
                      float,
                      bool,
                      bool,
-                     bool)
+                     bool) nogil except +
         void matchMotif(const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
                         unsigned int,
                         float,
-                        bool)
+                        bool) nogil except +
         vector[float] minRMSDMotif(const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
                         unsigned int,
-                        bool)
+                        bool) nogil except +
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
                                         vec3[float]*,
                                         unsigned int,
                                         float,
-                                        bool)
+                                        bool) nogil except +
         map[unsigned int, unsigned int] minimizeRMSD(const vec3[float]*,
                                         vec3[float]*,
                                         unsigned int,
                                         float&,
-                                        bool)
+                                        bool) nogil except +
         shared_array[unsigned int] getClusters()
         shared_array[vec3[float]] getEnvironment(unsigned int)
         shared_array[vec3[float]] getTotEnvironment()
@@ -243,11 +243,11 @@ cdef extern from "SolLiqNear.h" namespace "freud::order":
         void setBox(const box.Box)
         void setClusteringRadius(float)
         void compute(const vec3[float]*,
-                     unsigned int)
+                     unsigned int) nogil except +
         void computeSolLiqVariant(const vec3[float]*,
-                                  unsigned int)
+                                  unsigned int) nogil except +
         void computeSolLiqNoNorm(const vec3[float]*,
-                                 unsigned int)
+                                 unsigned int) nogil except +
         unsigned int getLargestClusterSize()
         vector[unsigned int] getClusterSizes()
         shared_array[float complex] getQlmi()
@@ -267,7 +267,7 @@ cdef extern from "Pairing2D.h" namespace "freud::order":
                      float*,
                      float*,
                      unsigned int,
-                     unsigned int)
+                     unsigned int) nogil except +
         shared_array[unsigned int] getMatch()
         shared_array[unsigned int] getPair()
         unsigned int getNumParticles()

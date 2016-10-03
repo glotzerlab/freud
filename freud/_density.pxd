@@ -9,7 +9,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
         const box.Box &getBox() const
         void resetCorrelationFunction()
         void accumulate(const box.Box &, const vec3[float]*, const T*,
-            unsigned int, const vec3[float]*, const T*, unsigned int) nogil
+            unsigned int, const vec3[float]*, const T*, unsigned int) nogil except +
         void reduceCorrelationFunction()
         shared_array[T] getRDF()
         shared_array[unsigned int] getCounts()
@@ -23,7 +23,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
         const box.Box &getBox() const
         void resetDensity()
         void reduceDensity()
-        void compute(const box.Box &, const vec3[float]*, unsigned int) nogil
+        void compute(const box.Box &, const vec3[float]*, unsigned int) nogil except +
         shared_array[float] getDensity()
         unsigned int getWidthX()
         unsigned int getWidthY()
@@ -33,7 +33,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
         LocalDensity(float, float, float)
         const box.Box &getBox() const
-        void compute(const box.Box &, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int) nogil
+        void compute(const box.Box &, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int) nogil except +
         unsigned int getNRef()
         shared_array[float] getDensity()
         shared_array[float] getNumNeighbors()
@@ -47,7 +47,7 @@ cdef extern from "RDF.h" namespace "freud::density":
                         const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
-                        unsigned int) nogil
+                        unsigned int) nogil except +
         void reduceRDF()
         shared_array[float] getRDF()
         shared_array[float] getR()
