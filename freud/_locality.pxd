@@ -45,5 +45,6 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         shared_array[unsigned int] getNeighborList() const
         shared_array[float] getRsq(unsigned int) const
         shared_array[float] getRsqList() const
+        shared_array[vec3[float]] getWrappedVectors() const
         void setCutMode(const bool)
         void compute(const box.Box&, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int) nogil except +
