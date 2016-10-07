@@ -198,6 +198,12 @@ class NearestNeighbors
             return m_rsq_array;
             }
 
+        //! Get a reference to the wrapped vector array
+        std::shared_ptr<vec3<float> > getWrappedVectors() const
+            {
+            return m_wvec_array;
+            }
+
         void setCutMode(const bool strict_cut);
 
         //! find the requested nearest neighbors
@@ -215,6 +221,7 @@ class NearestNeighbors
         tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
         std::shared_ptr<unsigned int> m_neighbor_array;         //!< array of nearest neighbors computed
         std::shared_ptr<float> m_rsq_array;         //!< array of distances to neighbors
+        std::shared_ptr<vec3<float> > m_wvec_array;         //!< array of distances to neighbors
         };
 
 }; }; // end namespace freud::locality

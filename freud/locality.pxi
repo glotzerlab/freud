@@ -262,7 +262,27 @@ cdef class NearestNeighbors:
         :return: squared distances of the N nearest neighbors
         :rtype: np.ndarray(shape=N, dtype=np.float32)
         """
-        pass
+        cdef float *rsq = self.thisptr.getRsq(i).get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rsq)
+
+        return result
+
+    def getWrappedVectors(self):
+        """
+        Return the wrapped vectors for computed neighbors. Array padded with -1 for empty neighbors
+
+        :return: wrapped vectors
+        :rtype: np.ndarray(shape=N, dtype=np.float32)
+        """
+        cdef vec3[float] *wvec = self.thisptr.getWrappedVectors().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNref()
+        nbins[1] = 3
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>wvec)
+
+        return result
 
     def getRsqList(self):
         """
