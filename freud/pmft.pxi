@@ -773,7 +773,7 @@ cdef class PMFTXYZ:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations, face_orientations):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, face_orientations=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -782,7 +782,10 @@ cdef class PMFTXYZ:
         :param ref_orientations: orientations of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
-        :param face_orientations: orientations of particle faces to account for particle symmetry
+        :param face_orientations: Optional - orientations of particle faces to account for particle symmetry.
+            * If not supplied by user, unit quaternions will be supplied.
+            * If a 2D array of shape (:math:`N_f`, :math:`4`) is supplied, the supplied quaternions will be broadcast\
+                for all particles
         :type box: :py:meth:`freud.box.Box`
         :type ref_points: np.ndarray(shape=(N, 3), dtype=np.float32)
         :type ref_orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
@@ -794,27 +797,33 @@ cdef class PMFTXYZ:
             raise ValueError("points must be a numpy float32 array")
         if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
             raise ValueError("orientations must be a numpy float32 array")
-        if (face_orientations.dtype != np.float32):
-            raise ValueError("face_orientations must be a numpy float32 array")
+        if face_orientations is not None:
+            if (face_orientations.dtype != np.float32):
+                raise ValueError("face_orientations must be a numpy float32 array")
         if len(ref_points.shape) != 2 or len(points.shape) != 2:
             raise ValueError("points must be a 2 dimensional array")
         if len(ref_orientations.shape) != 2 or len(orientations.shape) != 2:
             raise ValueError("orientations must be a 2 dimensional array")
         # handle multiple ways to input
-        if (len(face_orientations.shape) < 2) or (len(face_orientations.shape) > 3):
-            raise ValueError("points must be a 2 or 3 dimensional array")
+        if face_orientations is None:
+            # set to unit quaternion q = [1,0,0,0]
+            face_orientations = np.zeros(shape=(ref_points.shape[0], 1, 4), dtype=np.float32)
+            face_orientations[:,:,0] = 1.0
+        else:
+            if (len(face_orientations.shape) < 2) or (len(face_orientations.shape) > 3):
+                raise ValueError("points must be a 2 or 3 dimensional array")
+            if len(face_orientations) == 2:
+                if face_orientations.shape[1] != 4:
+                    raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+                # need to broadcast into new array
+                tmp_face_orientations = np.zeros(shape=(ref_points.shape[0], face_orientations.shape[0], face_orientations.shape[1]), dtype=np.float32)
+                tmp_face_orientations[:] = face_orientations
+                face_orientations = tmp_face_orientations
+            elif face_orientations.shape[2] == 3:
+                raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("2nd dimension for points must have 3 values: x, y, z")
         if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
-            raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
-        if len(face_orientations) == 2:
-            if face_orientations.shape[1] != 4:
-                raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
-            # need to broadcast into new array
-            tmp_face_orientations = np.zeros(shape=(ref_points.shape[0], face_orientations.shape[0], face_orientations.shape[1]), dtype=np.float32)
-            tmp_face_orientations[:] = face_orientations
-            face_orientations = tmp_face_orientations
-        elif face_orientations.shape[2] == 3:
             raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
