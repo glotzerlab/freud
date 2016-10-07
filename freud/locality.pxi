@@ -173,6 +173,10 @@ cdef class NearestNeighbors:
     def __dealloc__(self):
         del self.thisptr
 
+    def getUINTMAX(self):
+        """Return C++ UINTMAX used to pad the arrays"""
+        return self.thisptr.getUINTMAX()
+
     def getBox(self):
         """Return the stored :py:class:`freud._box.Box` object"""
         return BoxFromCPP(self.thisptr.getBox())
@@ -180,6 +184,10 @@ cdef class NearestNeighbors:
     def getNumNeighbors(self):
         """Return the number of neighbors this object will find"""
         return self.thisptr.getNumNeighbors()
+
+    def getNRef(self):
+        """Return number of particles for which neighbors are computed"""
+        return self.thisptr.getNref()
 
     def setRMax(self, float rmax):
         """Update the neighbor search distance guess"""
@@ -208,12 +216,40 @@ cdef class NearestNeighbors:
 
         :param i: index of the reference point to fetch the neighboring points of
         """
-        cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
-        result = np.zeros(nNeigh, dtype=np.uint32)
-        cdef unsigned int start_idx = i*nNeigh
+        # cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
+        # result = np.zeros(nNeigh, dtype=np.uint32)
+        # cdef unsigned int start_idx = i*nNeigh
+        # cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
+        # for j in range(nNeigh):
+        #     result[j] = neighbors[start_idx + j]
+        # remove above
+        # replacing with C++ code, because that exists and should be used...
+        cdef unsigned int *neighbors = self.thisptr.getNeighbors(i).get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>neighbors)
+
+        return result
+
+    def getNeighborList(self):
+        """Return the entire neighbors list
+
+        :return: Neighbor List
+        :rtype: np.ndarray(shape=(N, k), dtype=np.float32)
+        """
+        # cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
+        # result = np.zeros(nNeigh, dtype=np.uint32)
+        # cdef unsigned int start_idx = i*nNeigh
+        # cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
+        # for j in range(nNeigh):
+        #     result[j] = neighbors[start_idx + j]
+        # remove above
+        # replacing with C++ code, because that exists and should be used...
         cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
-        for j in range(nNeigh):
-            result[j] = neighbors[start_idx + j]
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNref()
+        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>neighbors)
 
         return result
 

@@ -122,6 +122,12 @@ class NearestNeighbors
             return m_box;
             }
 
+        //! Get the val for UINTMAX
+        unsigned int getUINTMAX() const
+            {
+            return UINT_MAX;
+            }
+
         //! Get the number of neighbors
         unsigned int getNumNeighbors() const
             {
