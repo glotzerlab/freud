@@ -39,6 +39,8 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         const box.Box &getBox() const
         unsigned int getNumNeighbors() const
         float getRMax() const
+        unsigned int getUINTMAX() const
+        unsigned int getNref() const
         shared_array[unsigned int] getNeighbors(unsigned int) const
         shared_array[unsigned int] getNeighborList() const
         shared_array[float] getRsq(unsigned int) const
