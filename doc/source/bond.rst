@@ -23,6 +23,12 @@ The bonding module is designed to take in arrays using the same coordinate syste
 
     * 3D particle coordinates -> X, Y, Z
 
+Bonding Analysis
+================
+
+.. autoclass:: freud.bond.BondingAnalysis(num_particles, num_bonds)
+    :members:
+
 Coordinate System: :math:`x`, :math:`y`
 =======================================
 
