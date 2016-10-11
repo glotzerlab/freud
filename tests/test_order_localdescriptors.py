@@ -10,7 +10,7 @@ class TestLocalDescriptors(unittest.TestCase):
         Nneigh = 4
         lmax = 8
 
-        box = freud.trajectory.Box(10)
+        box = freud.box.Box.cube(10)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
@@ -27,7 +27,7 @@ class TestLocalDescriptors(unittest.TestCase):
         Nneigh = 4
         lmax = 8
 
-        box = freud.trajectory.Box(10)
+        box = freud.box.Box.cube(10)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
@@ -44,7 +44,7 @@ class TestLocalDescriptors(unittest.TestCase):
         Nneigh = 4
         lmax = 8
 
-        box = freud.trajectory.Box(10)
+        box = freud.box.Box.cube(10)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
         orientations = np.random.uniform(-1, 1, size=(N, 4)).astype(np.float32)
         orientations /= np.sqrt(np.sum(orientations**2, axis=-1))[:, np.newaxis]
@@ -67,7 +67,7 @@ class TestLocalDescriptors(unittest.TestCase):
         Nneigh = 4
         lmax = 8
 
-        box = freud.trajectory.Box(10)
+        box = freud.box.Box.cube(10)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
@@ -81,7 +81,7 @@ class TestLocalDescriptors(unittest.TestCase):
         Nneigh = 4
         lmax = 8
 
-        box = freud.trajectory.Box(10)
+        box = freud.box.Box.cube(10)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
         positions2 = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N//3, 3)).astype(np.float32)
 
@@ -99,7 +99,7 @@ class TestLocalDescriptors(unittest.TestCase):
         Nneigh = 4
         lmax = 8
 
-        box = freud.trajectory.Box(10)
+        box = freud.box.Box.cube(10)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)

@@ -1,4 +1,4 @@
-from freud import trajectory, density
+from freud import box, density
 import numpy
 import math
 from nose.tools import assert_equal, assert_almost_equal, assert_less, raises
@@ -9,7 +9,7 @@ class TestLD:
     def setup(self):
         """ Initialize a box with randomly placed particles"""
 
-        self.box = trajectory.Box(10);
+        self.box = box.Box.cube(10);
         self.pos = numpy.array(numpy.random.random(size=(10000,3)), dtype=numpy.float32)*10 - 5
         self.ld = density.LocalDensity(3, 1, 1);
 

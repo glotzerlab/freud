@@ -107,6 +107,7 @@ class TestBox(unittest.TestCase):
         self.assertEqual(box.Lz, 0.0)
         box.dimensions = 3
         self.assertEqual(box.Lz, 0.0)
+        # This results in a user warning
         box.Lz = 1.0
         self.assertEqual(box.Lz, 1.0)
 

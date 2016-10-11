@@ -9,7 +9,7 @@ class TestHexOrderParameter(unittest.TestCase):
         N = 500
         rmax = 3
 
-        box = freud.trajectory.Box(boxlen, is2D=True)
+        box = freud.box.Box.square(boxlen)
 
         hop = freud.order.HexOrderParameter(rmax)
         npt.assert_equal(hop.getK(), 6.0)
@@ -20,7 +20,7 @@ class TestHexOrderParameter(unittest.TestCase):
         rmax = 3
         k=3.0
 
-        box = freud.trajectory.Box(boxlen, is2D=True)
+        box = freud.box.Box.square(boxlen)
         hop = freud.order.HexOrderParameter(rmax, k)
         npt.assert_equal(hop.getK(), 3.0)
 
@@ -29,7 +29,7 @@ class TestHexOrderParameter(unittest.TestCase):
         N = 500
         rmax = 3
 
-        box = freud.trajectory.Box(boxlen, is2D=True)
+        box = freud.box.Box.square(boxlen)
 
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
@@ -43,7 +43,7 @@ class TestHexOrderParameter(unittest.TestCase):
         N = 500
         rmax = 3
 
-        box = freud.trajectory.Box(boxlen,  is2D=True)
+        box = freud.box.Box.square(boxlen)
 
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
@@ -57,7 +57,7 @@ class TestHexOrderParameter(unittest.TestCase):
         N = 7
         rmax = 3
 
-        box = freud.trajectory.Box(boxlen,  is2D=True)
+        box = freud.box.Box.square(boxlen)
 
         points = [[0.0, 0.0, 0.0]]
 

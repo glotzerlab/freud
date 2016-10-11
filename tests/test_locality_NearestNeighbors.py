@@ -1,4 +1,4 @@
-from freud import locality, trajectory
+from freud import locality, box
 import numpy as np
 import numpy.testing as npt
 import unittest
@@ -8,16 +8,16 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        NNeigh = 6;
+        num_neighbors = 6;
 
-        box = trajectory.Box(L)#Initialize Box
-        cl = locality.NearestNeighbors(rcut, NNeigh)#Initialize cell list
+        fbox = box.Box.cube(L)#Initialize Box
+        cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
         points = np.random.uniform(-L/2, L/2, (N, 3))
-        cl.compute(box, points, points)
+        cl.compute(fbox, points, points)
 
-        self.assertEqual(cl.getNNeigh(), NNeigh)
-        self.assertEqual(len(cl.getNeighbors(0)), NNeigh)
+        self.assertEqual(cl.getNumNeighbors(), num_neighbors)
+        self.assertEqual(len(cl.getNeighbors(0)), num_neighbors)
 
 if __name__ == '__main__':
     unittest.main()

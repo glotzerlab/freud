@@ -31,9 +31,9 @@ class TestBond(unittest.TestCase):
         theta1 = theta1 if (theta1 < 2.0*np.pi) else theta1 - 2.0*np.pi
         theta2 = theta2 if (theta2 > 0) else theta2 + 2.0*np.pi
         theta2 = theta2 if (theta2 < 2.0*np.pi) else theta2 - 2.0*np.pi
-        binR = numpy.floor(r / dr)
-        binT1 = numpy.floor(theta1 / dt1)
-        binT2 = numpy.floor(theta2 / dt2)
+        binR = int(numpy.floor(r / dr))
+        binT1 = int(numpy.floor(theta1 / dt1))
+        binT2 = int(numpy.floor(theta2 / dt2))
         testArray[binR,binT2,binT1] = 5
         deltaX = posList[0,0] - posList[1,0]
         deltaY = posList[0,1] - posList[1,1]
@@ -45,9 +45,9 @@ class TestBond(unittest.TestCase):
         theta1 = theta1 if (theta1 < 2.0*np.pi) else theta1 - 2.0*np.pi
         theta2 = theta2 if (theta2 > 0) else theta2 + 2.0*np.pi
         theta2 = theta2 if (theta2 < 2.0*np.pi) else theta2 - 2.0*np.pi
-        binR = numpy.floor(r / dr)
-        binT1 = numpy.floor(theta1 / dt1)
-        binT2 = numpy.floor(theta2 / dt2)
+        binR = int(numpy.floor(r / dr))
+        binT1 = int(numpy.floor(theta1 / dt1))
+        binT2 = int(numpy.floor(theta2 / dt2))
         testArray[binR,binT2,binT1] = 5
 
         # create object
