@@ -56,6 +56,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 set(FREUD_SOURCES
             box/box.h
             box/box.cc
+            bond/BondingAnalysis.h
+            bond/BondingAnalysis.cc
             bond/BondingR12.h
             bond/BondingR12.cc
             bond/BondingXY2D.h
