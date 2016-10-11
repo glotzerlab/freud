@@ -20,14 +20,14 @@ cdef class BondingAnalysis:
 
     :param num_particles: number of particles over which to calculate bonds
     :param num_bonds: number of bonds to track
-    :type num_particles: unsigned int
-    :type num bonds: unsigned int
+    :type num_particles: int
+    :type num bonds: int
     """
     cdef bond.BondingAnalysis *thisptr
     cdef unsigned int num_particles
     cdef unsigned int num_bonds
 
-    def __cinit__(self, num_particles, num_bonds):
+    def __cinit__(self, int num_particles, int num_bonds):
         self.num_particles = num_particles
         self.num_bonds = num_bonds
         self.thisptr = new bond.BondingAnalysis(num_particles, num_bonds)
@@ -39,8 +39,8 @@ cdef class BondingAnalysis:
         """
         Calculates the changes in bonding states from one frame to the next.
 
-        :param frame_0: first bonding frame (as output from :py:meth:`freud.bond` modules)
-        :type frame_0: np.ndarray(shape=(num_particles, num_bonds), dtype=np.uint32)
+        :param frame_0: first bonding frame (as output from :py:class:`.BondingR12` modules)
+        :type frame_0: numpy.ndarray, shape=(:math:`N_{particles}`, :math:`N_{bonds}`), type=numpy.float32
         """
         if (frame_0.dtype != np.uint32):
             raise ValueError("frame data must be a numpy float32 array")
@@ -58,10 +58,10 @@ cdef class BondingAnalysis:
         """
         Calculates the changes in bonding states from one frame to the next.
 
-        :param frame_0: current/previous bonding frame (as output from :py:meth:`freud.bond` modules)
-        :param frame_1: next/current bonding frame (as output from :py:meth:`freud.bond` modules)
-        :type frame_0: np.ndarray(shape=(num_particles, num_bonds), dtype=np.uint32)
-        :type frame_1: np.ndarray(shape=(num_particles, num_bonds), dtype=np.uint32)
+        :param frame_0: current/previous bonding frame (as output from :py:class:`.BondingR12` modules)
+        :param frame_1: next/current bonding frame (as output from :py:class:`.BondingR12` modules)
+        :type frame_0: numpy.ndarray shape=(:math:`N_{particles}`, :math:`N_{bonds}`), type=numpy.uint32
+        :type frame_1: numpy.ndarray shape=(:math:`N_{particles}`, :math:`N_{bonds}`), type=numpy.uint32
         """
         if ((frame_0.dtype != np.uint32) or (frame_1.dtype != np.uint32)):
             raise ValueError("frame data must be a numpy float32 array")
@@ -79,7 +79,7 @@ cdef class BondingAnalysis:
     def getBondLifetimes(self):
         """
         :return: lifetime of bonds
-        :rtype: np.ndobject(shape=(num_particles, varying), dtype=np.uint32)
+        :rtype: numpy.ndobject, shape=(:math:`N_{particles}`, varying), type=numpy.uint32
         """
         bonds = self.thisptr.getBondLifetimes()
         return bonds
@@ -87,7 +87,7 @@ cdef class BondingAnalysis:
     def getOverallLifetimes(self):
         """
         :return: lifetime of bonds
-        :rtype: np.ndobject(shape=(num_particles, varying), dtype=np.uint32)
+        :rtype: numpy.ndobject, shape=(:math:`N_{particles}`, varying), type=numpy.uint32
         """
         bonds = self.thisptr.getOverallLifetimes()
         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
@@ -96,7 +96,7 @@ cdef class BondingAnalysis:
     def getTransitionMatrix(self):
         """
         :return: transition matrix
-        :rtype: np.ndarray(shape=(num_bonds+1, num_bonds+1), dtype=np.uint32)
+        :rtype: numpy.ndarray
         """
         cdef unsigned int *trans_matrix = self.thisptr.getTransitionMatrix().get()
         cdef np.npy_intp nbins[2]
@@ -110,7 +110,7 @@ cdef class BondingAnalysis:
         Get number of frames calculated
 
         :return: number of frames
-        :rtype: unsigned int
+        :rtype: int
         """
         return self.thisptr.getNumFrames()
 
@@ -119,7 +119,7 @@ cdef class BondingAnalysis:
         Get number of particles being tracked
 
         :return: number of particles
-        :rtype: unsigned int
+        :rtype: int
         """
         return self.thisptr.getNumParticles()
 
@@ -128,7 +128,7 @@ cdef class BondingAnalysis:
         Get number of bonds tracked
 
         :return: number of bonds
-        :rtype: unsigned int
+        :rtype: int
         """
         return self.thisptr.getNumBonds()
 
@@ -143,8 +143,8 @@ cdef class BondingR12:
     :param bond_map: 3D array containing the bond index for each r, t2, t1 coordinate
     :param bond_list: list containing the bond indices to be tracked bond_list[i] = bond_index
     :type r_max: float
-    :type bond_map: np.ndarray(shape=(n_r, n_t2, n_t1), dtype=np.uint32)
-    :type bond_list: np.ndarray(shape=(n_bonds), dtype=np.uint32)
+    :type bond_map: numpy.ndarray
+    :type bond_list: numpy.ndarray
     """
     cdef bond.BondingR12 *thisptr
 
@@ -171,8 +171,8 @@ cdef class BondingR12:
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
         :type box: :py:meth:`freud.box.Box`
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type orientations: np.ndarray(shape=(N), dtype=np.float32)
+        :type points: numpy.ndarray
+        :type orientations: numpy.ndarray
         """
         if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
             raise ValueError("points must be a numpy float32 array")
@@ -199,7 +199,7 @@ cdef class BondingR12:
     def getBonds(self):
         """
         :return: particle bonds
-        :rtype: np.ndarray(shape=(n_p, n_bonds), dtype=np.uint32)
+        :rtype: numpy.ndarray
         """
         cdef unsigned int *bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
@@ -222,7 +222,7 @@ cdef class BondingR12:
         Get the dict used to map list idx to bond idx
 
         :return: list_map
-        :rtype: dict()
+        :rtype: dict
 
         >>> list_idx = list_map[bond_idx]
         """
@@ -233,7 +233,7 @@ cdef class BondingR12:
         Get the dict used to map list idx to bond idx
 
         :return: list_map
-        :rtype: dict()
+        :rtype: dict
 
         >>> bond_idx = list_map[list_idx]
         """
@@ -252,8 +252,8 @@ cdef class BondingXY2D:
     :param bond_list: list containing the bond indices to be tracked bond_list[i] = bond_index
     :type x_max: float
     :type y_max: float
-    :type bond_map: np.ndarray(shape=(n_y, n_x), dtype=np.uint32)
-    :type bond_list: np.ndarray(shape=(n_bonds), dtype=np.uint32)
+    :type bond_map: numpy.ndarray
+    :type bond_list: numpy.ndarray
     """
     cdef bond.BondingXY2D *thisptr
 
@@ -280,8 +280,8 @@ cdef class BondingXY2D:
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
         :type box: :py:meth:`freud.box.Box`
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type orientations: np.ndarray(shape=(N), dtype=np.float32)
+        :type points: numpy.ndarray
+        :type orientations: numpy.ndarray
         """
         if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
             raise ValueError("points must be a numpy float32 array")
@@ -308,7 +308,7 @@ cdef class BondingXY2D:
     def getBonds(self):
         """
         :return: particle bonds
-        :rtype: np.ndarray(shape=(n_p, n_bonds), dtype=np.uint32)
+        :rtype: numpy.ndarray
         """
         cdef unsigned int *bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
@@ -331,7 +331,7 @@ cdef class BondingXY2D:
         Get the dict used to map list idx to bond idx
 
         :return: list_map
-        :rtype: dict()
+        :rtype: dict
 
         >>> list_idx = list_map[bond_idx]
         """
@@ -342,7 +342,7 @@ cdef class BondingXY2D:
         Get the dict used to map list idx to bond idx
 
         :return: list_map
-        :rtype: dict()
+        :rtype: dict
 
         >>> bond_idx = list_map[list_idx]
         """
@@ -361,8 +361,8 @@ cdef class BondingXYT:
     :param bond_list: list containing the bond indices to be tracked bond_list[i] = bond_index
     :type x_max: float
     :type y_max: float
-    :type bond_map: np.ndarray(shape=(n_t, n_y, n_x), dtype=np.uint32)
-    :type bond_list: np.ndarray(shape=(n_bonds), dtype=np.uint32)
+    :type bond_map: numpy.ndarray
+    :type bond_list: numpy.ndarray
     """
     cdef bond.BondingXYT *thisptr
 
@@ -390,8 +390,8 @@ cdef class BondingXYT:
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
         :type box: :py:meth:`freud.box.Box`
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type orientations: np.ndarray(shape=(N), dtype=np.float32)
+        :type points: numpy.ndarray
+        :type orientations: numpy.ndarray
         """
         if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
             raise ValueError("points must be a numpy float32 array")
@@ -418,7 +418,7 @@ cdef class BondingXYT:
     def getBonds(self):
         """
         :return: particle bonds
-        :rtype: np.ndarray(shape=(n_p, n_bonds), dtype=np.uint32)
+        :rtype: numpy.ndarray
         """
         cdef unsigned int *bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
@@ -441,7 +441,7 @@ cdef class BondingXYT:
         Get the dict used to map list idx to bond idx
 
         :return: list_map
-        :rtype: dict()
+        :rtype: dict
 
         >>> list_idx = list_map[bond_idx]
         """
@@ -452,7 +452,7 @@ cdef class BondingXYT:
         Get the dict used to map list idx to bond idx
 
         :return: list_map
-        :rtype: dict()
+        :rtype: dict
 
         >>> bond_idx = list_map[list_idx]
         """
@@ -473,8 +473,8 @@ cdef class BondingXYZ:
     :type x_max: float
     :type y_max: float
     :type z_max: float
-    :type bond_map: np.ndarray(shape=(n_z, n_y, n_x), dtype=np.uint32)
-    :type bond_list: np.ndarray(shape=(n_bonds), dtype=np.uint32)
+    :type bond_map: numpy.ndarray
+    :type bond_list: numpy.ndarray
     """
     cdef bond.BondingXYZ *thisptr
 
@@ -502,8 +502,8 @@ cdef class BondingXYZ:
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
         :type box: :py:meth:`freud.box.Box`
-        :type points: np.ndarray(shape=(N, 3), dtype=np.float32)
-        :type orientations: np.ndarray(shape=(N, 4), dtype=np.float32)
+        :type points: numpy.ndarray
+        :type orientations: numpy.ndarray
         """
         if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
             raise ValueError("points must be a numpy float32 array")
@@ -532,7 +532,7 @@ cdef class BondingXYZ:
     def getBonds(self):
         """
         :return: particle bonds
-        :rtype: np.ndarray(shape=(n_p, n_bonds), dtype=np.uint32)
+        :rtype: numpy.ndarray
         """
         cdef unsigned int *bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
@@ -555,7 +555,7 @@ cdef class BondingXYZ:
         Get the dict used to map list idx to bond idx
 
         :return: list_map
-        :rtype: dict()
+        :rtype: dict
 
         >>> list_idx = list_map[bond_idx]
         """
@@ -566,7 +566,7 @@ cdef class BondingXYZ:
         Get the dict used to map list idx to bond idx
 
         :return: list_map
-        :rtype: dict()
+        :rtype: dict
 
         >>> bond_idx = list_map[list_idx]
         """
