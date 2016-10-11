@@ -259,16 +259,6 @@ cdef class BondingXY2D:
 
     def __cinit__(self, float x_max, float y_max, np.ndarray[uint, ndim=2] bond_map,
         np.ndarray[uint, ndim=1] bond_list):
-        """
-        :param x_max: maximum x distance at which to search for bonds
-        :param y_max: maximum y distance at which to search for bonds
-        :param bond_map: 3D array containing the bond index for each x, y coordinate
-        :param bond_list: list containing the bond indices to be tracked bond_list[i] = bond_index
-        :type x_max: float
-        :type y_max: float
-        :type bond_map: np.ndarray(shape=(n_y, n_x), dtype=np.uint32)
-        :type bond_list: np.ndarray(shape=(n_bonds), dtype=np.uint32)
-        """
         # extract nr, nt from the bond_map
         n_y = bond_map.shape[0]
         n_x = bond_map.shape[1]
