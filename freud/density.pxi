@@ -61,10 +61,10 @@ cdef class FloatCF:
         :param points: points to calculate the local density
         :param values: values to use in computation
         :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.float64
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.float64
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
         """
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
@@ -99,7 +99,7 @@ cdef class FloatCF:
     def getRDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), type=numpy.float64
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
         """
         cdef double *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
@@ -133,10 +133,10 @@ cdef class FloatCF:
         :param points: points to calculate the local density
         :param values: values to use in computation
         :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.float64
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.float64
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
         """
         self.thisptr.resetCorrelationFunction()
         self.accumulate(box, ref_points, refValues, points, values)
@@ -151,7 +151,7 @@ cdef class FloatCF:
     def getCounts(self):
         """
         :return: counts of each histogram bin
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), type=numpy.uint32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.int32`
         """
         cdef unsigned int *counts = self.thisptr.getCounts().get()
         cdef np.npy_intp nbins[1]
@@ -162,7 +162,7 @@ cdef class FloatCF:
     def getR(self):
         """
         :return: values of bin centers
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), type=numpy.float32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
         """
         cdef float *r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
@@ -220,10 +220,10 @@ cdef class ComplexCF:
         :param points: points to calculate the local density
         :param values: values to use in computation
         :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.complex128
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.complex128
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
         """
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise TypeError("points must be a numpy float32 array")
@@ -258,7 +258,7 @@ cdef class ComplexCF:
     def getRDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), type=numpy.complex128
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.complex128`
         """
         cdef np.complex128_t *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
@@ -290,10 +290,10 @@ cdef class ComplexCF:
         :param points: points to calculate the local density
         :param values: values to use in computation
         :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.complex128
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.complex128
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
         """
         self.thisptr.resetCorrelationFunction()
         self.accumulate(box, ref_points, refValues, points, values)
@@ -308,7 +308,7 @@ cdef class ComplexCF:
     def getCounts(self):
         """
         :return: counts of each histogram bin
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), type=numpy.uint32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.int32`
         """
         cdef unsigned int *counts = self.thisptr.getCounts().get()
         cdef np.npy_intp nbins[1]
@@ -319,7 +319,7 @@ cdef class ComplexCF:
     def getR(self):
         """
         :return: values of bin centers
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), type=numpy.float32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
         """
         cdef float *r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
@@ -384,7 +384,7 @@ cdef class GaussianDensity:
         :param box: simulation box
         :param points: points to calculate the local density
         :type box: :py:class:`freud.box.Box`
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         points = np.ascontiguousarray(points, dtype=np.float32)
         if points.ndim != 2:
@@ -401,7 +401,7 @@ cdef class GaussianDensity:
     def getGaussianDensity(self):
         """
         :return: Image (grid) with values of gaussian
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`w_x`, :math:`w_y`, :math:`w_z`), type=numpy.float32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`w_x`, :math:`w_y`, :math:`w_z`), dtype= :class:`numpy.float32`
         """
         cdef float *density = self.thisptr.getDensity().get()
         cdef np.npy_intp nbins[1]
@@ -469,8 +469,8 @@ cdef class LocalDensity:
         :param ref_points: reference points to calculate the local density
         :param points: (optional) points to calculate the local density
         :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         box = args[0]
         ref_points = args[1]
@@ -498,7 +498,7 @@ cdef class LocalDensity:
     def getDensity(self):
         """
         :return: Density array for each particle
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.float32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         """
         cdef float *density = self.thisptr.getDensity().get()
         cdef np.npy_intp nref[1]
@@ -509,7 +509,7 @@ cdef class LocalDensity:
     def getNumNeighbors(self):
         """
         :return: Number of neighbors for each particle
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), type=numpy.float32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         """
         cdef float *neighbors = self.thisptr.getNumNeighbors().get()
         cdef np.npy_intp nref[1]
@@ -561,8 +561,8 @@ cdef class RDF:
         :param ref_points: reference points to calculate the local density
         :param points: points to calculate the local density
         :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
@@ -587,8 +587,8 @@ cdef class RDF:
         :param ref_points: reference points to calculate the local density
         :param points: points to calculate the local density
         :type box: :py:meth:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), type=numpy.float32
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         self.thisptr.resetRDF()
         self.accumulate(box, ref_points, points)
@@ -609,7 +609,7 @@ cdef class RDF:
     def getRDF(self):
         """
         :return: histogram of rdf values
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), type=numpy.float32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
         cdef float *rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
@@ -620,7 +620,7 @@ cdef class RDF:
     def getR(self):
         """
         :return: values of the histogram bin centers
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), type=numpy.float32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
         cdef float *r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
@@ -631,7 +631,7 @@ cdef class RDF:
     def getNr(self):
         """
         :return: histogram of cumulative rdf values
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), type=numpy.float32
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
         cdef float *Nr = self.thisptr.getNr().get()
         cdef np.npy_intp nbins[1]

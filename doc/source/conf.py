@@ -17,6 +17,8 @@ import sys
 import os
 import shlex
 
+sys.path.insert(0, os.path.abspath("../../.."))
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -42,9 +44,10 @@ extensions = [
 templates_path = ['_templates']
 
 intersphinx_mapping = {'python': ('http://docs.python.org/3.5', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy/', None),
-                       'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
-                       'matplotlib': ('http://matplotlib.sourceforge.net/', None)}
+                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
+# intersphinx_mapping = {'python': ('http://docs.python.org/3.5', None)}
+
+autodoc_mock_import = ["numpy", "numpy.core", "numpy.core.numeric"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
