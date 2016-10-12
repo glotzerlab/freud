@@ -43,12 +43,6 @@ extensions = [
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
-intersphinx_mapping = {'python': ('http://docs.python.org/3.5', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
-# intersphinx_mapping = {'python': ('http://docs.python.org/3.5', None)}
-
-autodoc_mock_import = ["numpy", "numpy.core", "numpy.core.numeric"]
-
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 # source_suffix = ['.rst', '.md']
@@ -299,4 +293,17 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
-nitpick_ignore = [('py:class', 'type')]
+intersphinx_mapping = {'python': ('http://docs.python.org/3.5', None),
+                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
+# intersphinx_mapping = {'python': ('http://docs.python.org/3.5', None)}
+
+autodoc_mock_import = ["numpy"]
+
+nitpick_ignore = [("py:obj", "numpy.dtype"),
+                  ("py:class", "numpy.ndarray"),
+                  ("py:class", "numpy.uint32"),
+                  ("py:class", "numpy.int32"),
+                  ("py:class", "numpy.float32"),
+                  ("py:class", "numpy.float64"),
+                  ("py:class", "numpy.complex64"),
+                  ("py:class", "numpy.complex128")]

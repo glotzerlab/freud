@@ -39,7 +39,7 @@ cdef class BondingAnalysis:
         """
         Calculates the changes in bonding states from one frame to the next.
 
-        :param frame_0: first bonding frame (as output from :py:class:`.BondingR12` modules)
+        :param frame_0: first bonding frame (as output from :py:class:`~.BondingR12` modules)
         :type frame_0: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.float32`
         """
         if (frame_0.dtype != np.uint32):
@@ -60,8 +60,8 @@ cdef class BondingAnalysis:
 
         :param frame_0: current/previous bonding frame (as output from :py:class:`.BondingR12` modules)
         :param frame_1: next/current bonding frame (as output from :py:class:`.BondingR12` modules)
-        :type frame_0: :class:`numpy.ndarray` shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.int32`
-        :type frame_1: :class:`numpy.ndarray` shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.int32`
+        :type frame_0: :class:`numpy.ndarray` shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.uint32`
+        :type frame_1: :class:`numpy.ndarray` shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.uint32`
         """
         if ((frame_0.dtype != np.uint32) or (frame_1.dtype != np.uint32)):
             raise ValueError("frame data must be a numpy float32 array")
@@ -79,7 +79,7 @@ cdef class BondingAnalysis:
     def getBondLifetimes(self):
         """
         :return: lifetime of bonds
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.int32`
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.uint32`
         """
         bonds = self.thisptr.getBondLifetimes()
         return bonds
@@ -87,7 +87,7 @@ cdef class BondingAnalysis:
     def getOverallLifetimes(self):
         """
         :return: lifetime of bonds
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.int32`
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.uint32`
         """
         bonds = self.thisptr.getOverallLifetimes()
         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
