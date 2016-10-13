@@ -9,7 +9,7 @@ class TestCorrelationFunction(unittest.TestCase):
         N = 500
         rmax, dr = 3, 0.1
 
-        box = freud.trajectory.Box(boxlen, boxlen, boxlen)
+        box = freud.box.Box.cube(boxlen)
 
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)

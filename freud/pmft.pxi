@@ -301,7 +301,7 @@ cdef class PMFTXYT:
         Get the box used in the calculation
 
         :return: Freud Box
-        :rtype: :py:meth:`freud.trajectory.Box()`
+        :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
 

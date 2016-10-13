@@ -1,4 +1,4 @@
-from freud import locality, trajectory
+from freud import locality, box
 from freud import order as shop
 import numpy as np
 import numpy.testing as npt
@@ -267,7 +267,7 @@ class TestLocalQl(unittest.TestCase):
     def test_Qlfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661);
+        box = box.Box.cube(17.661);
 
         localq4 = shop.LocalQl(box, rcut, 4);
         localq4.compute(testpoints);
@@ -301,7 +301,7 @@ class TestLocalAveQl(unittest.TestCase):
     def test_AveQlfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661);
+        box = box.Box.cube(17.661);
 
         localq4 = shop.LocalQl(box, rcut, 4);
         localq4.computeAve(testpoints);
@@ -335,7 +335,7 @@ class TestLocalQlNorm(unittest.TestCase):
     def test_QlNormfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661);
+        box = box.Box.cube(17.661);
 
         localq4 = shop.LocalQl(box, rcut, 4);
         localq4.computeNorm(testpoints);
@@ -369,7 +369,7 @@ class TestLocalAveNormQl(unittest.TestCase):
     def test_AveNormQlfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661);
+        box = box.Box.cube(17.661);
 
         localq4 = shop.LocalQl(box, rcut, 4);
         localq4.computeAveNorm(testpoints);
@@ -403,7 +403,7 @@ class TestLocalQlNear(unittest.TestCase):
     def test_QlNearfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661);
+        box = box.Box.cube(17.661);
 
         localq4 = shop.LocalQlNear(box, rcut, 4, 12);
         localq4.compute(testpoints);
@@ -437,7 +437,7 @@ class TestLocalAveQlNear(unittest.TestCase):
     def test_AveQlNearfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661);
+        box = box.Box.cube(17.661);
 
         localq4 = shop.LocalQlNear(box, rcut, 4, 12);
         localq4.computeAve(testpoints);
@@ -471,7 +471,7 @@ class TestLocalQlNormNear(unittest.TestCase):
     def test_QlNormNearfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661);
+        box = box.Box.cube(17.661);
 
         localq4 = shop.LocalQlNear(box, rcut, 4, 12);
         localq4.computeNorm(testpoints);
@@ -505,7 +505,7 @@ class TestLocalAveNormQlNear(unittest.TestCase):
     def test_AveNormQlNearfcc(self):
         rcut = 3.7;
         testpoints = FCC256();
-        box = trajectory.Box(17.661,17.661,17.661);
+        box = box.Box.cube(17.661);
 
         localq4 = shop.LocalQlNear(box, rcut, 4, 12);
         localq4.computeAveNorm(testpoints);
