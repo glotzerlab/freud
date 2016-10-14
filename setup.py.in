@@ -49,7 +49,7 @@ else:
                          extra_link_args=extra_args, include_dirs=include_dirs)]
 
 setup(name='freud',
-      version='0.3',
+      version='0.6',
       description='Glotzer group analysis software',
       author='Glotzer group',
       author_email='glotzerlab-admins@umich.edu',

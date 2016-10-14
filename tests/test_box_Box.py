@@ -1,6 +1,7 @@
 from freud import box as bx;
 import numpy as np
 import numpy.testing as npt
+import warnings
 import unittest
 
 class TestBox(unittest.TestCase):
@@ -107,7 +108,9 @@ class TestBox(unittest.TestCase):
         self.assertEqual(box.Lz, 0.0)
         box.dimensions = 3
         self.assertEqual(box.Lz, 0.0)
-        # This results in a user warning
+        # This results in a user warning, tried to catch, didn't work
+        # with warnings.catch_warnings():
+        #     warnings.simplefilter("ignore")
         box.Lz = 1.0
         self.assertEqual(box.Lz, 1.0)
 

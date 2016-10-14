@@ -50,8 +50,8 @@ cdef class FloatCF:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=1] refValues,
-        np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=1] values):
+    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[double, ndim=1] refValues,
+        np.ndarray[float, ndim=2] points, np.ndarray[double, ndim=1] values):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -122,8 +122,8 @@ cdef class FloatCF:
         """
         self.thisptr.resetCorrelationFunction()
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=1] refValues,
-        np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=1] values):
+    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[double, ndim=1] refValues,
+        np.ndarray[float, ndim=2] points, np.ndarray[double, ndim=1] values):
         """
         Calculates the correlation function for the given points. Will overwrite the current histogram.
 
@@ -209,8 +209,8 @@ cdef class ComplexCF:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[complex, ndim=1] refValues,
-        np.ndarray[float, ndim=2] points, np.ndarray[complex, ndim=1] values):
+    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[np.complex128_t, ndim=1] refValues,
+        np.ndarray[float, ndim=2] points, np.ndarray[np.complex128_t, ndim=1] values):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -279,8 +279,8 @@ cdef class ComplexCF:
         """
         self.thisptr.resetCorrelationFunction()
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[complex, ndim=1] refValues,
-        np.ndarray[float, ndim=2] points, np.ndarray[complex, ndim=1] values):
+    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[np.complex128_t, ndim=1] refValues,
+        np.ndarray[float, ndim=2] points, np.ndarray[np.complex128_t, ndim=1] values):
         """
         Calculates the correlation function for the given points. Will overwrite the current histogram.
 

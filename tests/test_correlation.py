@@ -20,7 +20,7 @@ class TestCorrelationFunction(unittest.TestCase):
             values = np.asarray(values, dtype=np.complex64)
             corrfun.compute(box, points, values, points, values.conj())
             assert False # should have thrown an exception
-        except TypeError:
+        except (TypeError, ValueError):
             assert True
 
         values = np.asarray(values, dtype=np.complex128)
