@@ -20,8 +20,8 @@ cdef class BondingAnalysis:
 
     :param num_particles: number of particles over which to calculate bonds
     :param num_bonds: number of bonds to track
-    :type num_particles: int
-    :type num bonds: int
+    :type num_particles: unsigned int
+    :type num bonds: unsigned int
     """
     cdef bond.BondingAnalysis *thisptr
     cdef unsigned int num_particles
@@ -110,7 +110,7 @@ cdef class BondingAnalysis:
         Get number of frames calculated
 
         :return: number of frames
-        :rtype: int
+        :rtype: unsigned int
         """
         return self.thisptr.getNumFrames()
 
@@ -119,7 +119,7 @@ cdef class BondingAnalysis:
         Get number of particles being tracked
 
         :return: number of particles
-        :rtype: int
+        :rtype: unsigned int
         """
         return self.thisptr.getNumParticles()
 
@@ -128,7 +128,7 @@ cdef class BondingAnalysis:
         Get number of bonds tracked
 
         :return: number of bonds
-        :rtype: int
+        :rtype: unsigned int
         """
         return self.thisptr.getNumBonds()
 

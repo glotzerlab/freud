@@ -10,8 +10,10 @@ cdef class InterfaceMeasure:
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
-    :param box: :py:class:`freud._box.Box` object
+    :param box: simulation box
     :param r_cut: Distance to search for particle neighbors
+    :type box: :py:class:`freud.box.Box`
+    :type r_cut: float
     """
     cdef interface.InterfaceMeasure *thisptr
 
@@ -26,8 +28,10 @@ cdef class InterfaceMeasure:
         """Compute and return the number of particles at the interface between
         the two given sets of points.
 
-        :param ref_points: Nx3 array-like object of one set of points
-        :param points: Nx3 array-like object of the other set of points
+        :param ref_points: one set of particle positions
+        :param points: other set of particle positions
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
 
         ref_points = np.ascontiguousarray(ref_points, dtype=np.float32)

@@ -52,8 +52,10 @@ cdef class LinkCell:
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
-    :param box: :py:class:`freud._box.Box` object
+    :param box: simulation box
     :param cell_width: Maximum distance to find particles within
+    :type box: :py:class:`freud.box.Box`
+    :type cell_width: float
 
     .. note::
 
@@ -85,17 +87,26 @@ cdef class LinkCell:
         del self.thisptr
 
     def getBox(self):
-        """Return the stored :py:class:`freud._box.Box` object"""
+        """
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
         return BoxFromCPP(self.thisptr.getBox())
 
     def getNumCells(self):
-        """Return the total number of cells for the current box."""
+        """
+        :return: the number of cells in this box
+        :rtype: unsigned int
+        """
         return self.thisptr.getNumCells()
 
     def getCell(self, point):
         """Returns the index of the cell containing the given point
 
-        :param point: array-like object of length 3 specifying the point coordinates
+        :param point: point coordinates :math:`\\left(x,y,z\\right)`
+        :type point: :class:`numpy.ndarray`, shape= :math:`\\left(3\\right)`, dtype= :class:`numpy.float32`
+        :return: cell index
+        :rtype: unsigned int
         """
         cdef float[:] cPoint = np.ascontiguousarray(point, dtype=np.float32)
         if len(cPoint) != 3:
@@ -107,6 +118,9 @@ cdef class LinkCell:
         """Return an iterator over all particles in the given cell
 
         :param cell: Cell index
+        :type cell: unsigned int
+        :return: iterator to particle indices in specified cell
+        :rtype: iter
         """
         current_version = sys.version_info
         if current_version.major < 3:
@@ -120,6 +134,9 @@ cdef class LinkCell:
         """Returns the neighboring cell indices of the given cell
 
         :param cell: Cell index
+        :type cell: unsigned int
+        :return: array of cell neighbors
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{neighbors}\\right)`, dtype= :class:`numpy.uint32`
         """
         neighbors = self.thisptr.getCellNeighbors(int(cell))
         result = np.zeros(neighbors.size(), dtype=np.uint32)
@@ -130,13 +147,16 @@ cdef class LinkCell:
     def computeCellList(self, box, points):
         """Update the data structure for the given set of points
 
-        :param box: :py:class:`freud._box.Box` object
-        :param points: Nx3 array-like object specifying coordinates
+        :param box: simulation box
+        :param points: point coordinates
+        :type box: :py:class:`freud.box.Box`
+        :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{points}, 3\\right)`, dtype= :class:`numpy.float32`
         """
         points = np.ascontiguousarray(points, dtype=np.float32)
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeCellList()')
-        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
@@ -159,13 +179,13 @@ cdef class NearestNeighbors:
         found. Only utilized if strict_cut is False. Scale must be greater than 1
     :param strict_cut: whether to use a strict rmax or allow for automatic expansion
     :type rmax: float
-    :type n_neigh: int
+    :type n_neigh: unsigned int
     :type scale: float
     :type strict_cut: bool
     """
     cdef locality.NearestNeighbors *thisptr
 
-    def __cinit__(self, rmax, n_neigh, scale=1.1, strict_cut=False):
+    def __cinit__(self, float rmax, unsigned int n_neigh, float scale=1.1, strict_cut=False):
         if scale < 1:
             raise RuntimeError("scale must be greater than 1")
         self.thisptr = new locality.NearestNeighbors(float(rmax), int(n_neigh), float(scale), bool(strict_cut))
@@ -174,23 +194,38 @@ cdef class NearestNeighbors:
         del self.thisptr
 
     def getUINTMAX(self):
-        """Return C++ UINTMAX used to pad the arrays"""
+        """
+        :return: value of C++ UINTMAX used to pad the arrays
+        :rtype: unsigned int
+        """
         return self.thisptr.getUINTMAX()
 
     def getBox(self):
-        """Return the stored :py:class:`freud._box.Box` object"""
+        """
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
         return BoxFromCPP(self.thisptr.getBox())
 
     def getNumNeighbors(self):
-        """Return the number of neighbors this object will find"""
+        """
+        :return: the number of neighbors this object will find
+        :rtype: unsigned int
+        """
         return self.thisptr.getNumNeighbors()
 
     def getNRef(self):
-        """Return number of particles for which neighbors are computed"""
+        """
+        :return: the number of particles this object found neighbors of
+        :rtype: unsigned int
+        """
         return self.thisptr.getNref()
 
     def setRMax(self, float rmax):
-        """Update the neighbor search distance guess"""
+        """Update the neighbor search distance guess
+        :param rmax: nearest neighbors search radius
+        :type rmax: float
+        """
         self.thisptr.setRMax(rmax)
 
     def setCutMode(self, strict_cut):
@@ -208,13 +243,17 @@ cdef class NearestNeighbors:
         self.thisptr.setCutMode(strict_cut)
 
     def getRMax(self):
-        """Return the current neighbor search distance guess"""
+        """Return the current neighbor search distance guess
+        :return: nearest neighbors search radius
+        :rtype: float
+        """
         return self.thisptr.getRMax()
 
     def getNeighbors(self, unsigned int i):
         """Return the N nearest neighbors of the reference point with index i
 
         :param i: index of the reference point to fetch the neighboring points of
+        :type i: unsigned int
         """
         # cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
         # result = np.zeros(nNeigh, dtype=np.uint32)
@@ -235,7 +274,7 @@ cdef class NearestNeighbors:
         """Return the entire neighbors list
 
         :return: Neighbor List
-        :rtype: np.ndarray(shape=(N, k), dtype=np.float32)
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`, dtype= :class:`numpy.uint32`
         """
         # cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
         # result = np.zeros(nNeigh, dtype=np.uint32)
@@ -258,9 +297,10 @@ cdef class NearestNeighbors:
         Return the Rsq values for the N nearest neighbors of the reference point with index i
 
         :param i: index of the reference point of which to fetch the neighboring point distances
-        :type i: unisigned int
+        :type i: unsigned int
         :return: squared distances of the N nearest neighbors
-        :rtype: np.ndarray(shape=N, dtype=np.float32)
+        :return: Neighbor List
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         cdef float *rsq = self.thisptr.getRsq(i).get()
         cdef np.npy_intp nbins[1]
@@ -274,7 +314,8 @@ cdef class NearestNeighbors:
         Return the wrapped vectors for computed neighbors. Array padded with -1 for empty neighbors
 
         :return: wrapped vectors
-        :rtype: np.ndarray(shape=N, dtype=np.float32)
+        :return: Neighbor List
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         cdef vec3[float] *wvec = self.thisptr.getWrappedVectors().get()
         cdef np.npy_intp nbins[2]
@@ -286,14 +327,27 @@ cdef class NearestNeighbors:
 
     def getRsqList(self):
         """
+        Return the entire Rsq values list
+
+        :return: Rsq list
+        :return: Neighbor List
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`, dtype= :class:`numpy.float32`
         """
+        cdef float *rsq = self.thisptr.getRsqList().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNref()
+        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>rsq)
 
     def compute(self, box, ref_points, points):
         """Update the data structure for the given set of points
 
-        :param box: :py:class:`freud._box.Box` object
-        :param ref_points: Reference points to find neighbors of
-        :param points: Points to find as neighbors
+        :param box: simulation box
+        :param ref_points: coordinated of reference points
+        :param points: coordinates of points
+        :type box: :py:class:`freud.box.Box`
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         ref_points = np.ascontiguousarray(ref_points, dtype=np.float32)
         if ref_points.ndim != 2 or ref_points.shape[1] != 3:

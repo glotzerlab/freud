@@ -342,10 +342,10 @@ cdef class GaussianDensity:
     :param width_z: number of pixels to make the image in z
     :param r_cut: distance over which to blur
     :param sigma: sigma parameter for gaussian
-    :type width: int
-    :type width_x: int
-    :type width_y: int
-    :type width_z: int
+    :type width: unsigned int
+    :type width_x: unsigned int
+    :type width_y: unsigned int
+    :type width_z: unsigned int
     :type r_cut: float
     :type sigma: float
 
