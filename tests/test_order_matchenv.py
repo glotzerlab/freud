@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 from freud.order import MatchEnv
-from freud import trajectory
+from freud import box
 import unittest
 
 
@@ -11,13 +11,13 @@ class TestCluster(unittest.TestCase):
         xyz = np.load("bcc.npy")
         xyz = np.array(xyz, dtype=np.float32)
         L = np.max(xyz)*2
-        box = trajectory.Box(L, L, L, 0, 0, 0)
+        fbox = box.Box.cube(L)
 
         rcut = 3.1
         kn = 14
         threshold = 0.1
 
-        match = MatchEnv(box, rcut, kn)
+        match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold)
         clusters = match.getClusters()
 
@@ -43,13 +43,13 @@ class TestCluster(unittest.TestCase):
     def test_multi_cluster(self):
         xyz = np.load("sc.npy")
         xyz = np.array(xyz, dtype=np.float32)
-        box = trajectory.Box(21, 21, 21, 0, 0, 0)
+        fbox = box.Box.cube(21)
 
         rcut = 4
         kn = 6
         threshold = 0.1
 
-        match = MatchEnv(box, rcut, kn)
+        match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold)
         clusters = match.getClusters()
 
@@ -78,13 +78,13 @@ class TestCluster(unittest.TestCase):
         xyz = np.load("bcc.npy")
         xyz = np.array(xyz, dtype=np.float32)
         L = np.max(xyz)*2
-        box = trajectory.Box(L, L, L, 0, 0, 0)
+        fbox = box.Box.cube(L)
 
         rcut = 3.1
         kn = 14
         threshold = 0.1
 
-        match = MatchEnv(box, rcut, kn)
+        match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold, hard_r=False, registration=False)
         clusters = match.getClusters()
 
@@ -111,13 +111,13 @@ class TestCluster(unittest.TestCase):
         xyz = np.load("bcc.npy")
         xyz = np.array(xyz, dtype=np.float32)
         L = np.max(xyz)*2
-        box = trajectory.Box(L, L, L, 0, 0, 0)
+        fbox = box.Box.cube(L)
 
         rcut = 3.1
         kn = 14
         threshold = 0.1
 
-        match = MatchEnv(box, rcut, kn)
+        match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold, hard_r=True, registration=False)
         clusters = match.getClusters()
 
@@ -154,7 +154,7 @@ class TestCluster(unittest.TestCase):
 
 
     #     L = np.max(xyz)*2
-    #     box = trajectory.Box(L, L, L, 0, 0, 0)
+    #     box = box.Box(L, L, L, 0, 0, 0)
 
     #     rcut = 3.1
     #     kn = 14
@@ -216,7 +216,7 @@ class TestCluster(unittest.TestCase):
         rsq_arr = [np.dot(vec,vec) for vec in e0]
         rsq_max = max(rsq_arr)
         L = 2.*np.sqrt(rsq_max)*scale
-        fbox = trajectory.Box(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0)
+        fbox = box.Box.cube(L)
         ## 2. Re-index the environment randomly to create a second environment.
         e1 = np.copy(e0)
         np.random.shuffle(e1)

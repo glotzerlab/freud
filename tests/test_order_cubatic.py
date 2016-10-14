@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 from freud.order import CubaticOrderParameter as cop
-from freud import trajectory
+from freud import box
 import unittest
 
 def gen_quaternions(n, axes, angles):

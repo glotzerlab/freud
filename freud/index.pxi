@@ -67,7 +67,7 @@ cdef class Index3D:
     """Freud-style indexer for flat arrays.
 
     Freud utilizes "flat" arrays at the C++ level i.e. an :math:`n`-dimensional array with :math:`n_i` elements in each \
-    index is represented as a :math:`1`-dimensional array with :math:`\prod\limits_i n_i` elements.
+    index is represented as a :math:`1`-dimensional array with :math:`\\prod\\limits_i n_i` elements.
 
     .. note:: Freud indexes column-first i.e. Index3D(i, j, k) will return the :math:`1`-dimensional index of the \
     :math:`i^{th}` column, :math:`j^{th}` row, and the :math:`k^{th}` frame. This is the opposite of what occurs in a \
@@ -111,7 +111,7 @@ cdef class Index3D:
         :param k: frame index
         :type i: unsigned int
         :type j: unsigned int
-        :type k: frame index
+        :type k: unsigned int
         :return: :math:`1`-dimensional index in flat array
         :rtype: unsigned int
         """

@@ -16,10 +16,10 @@ Several modules are available currently. Feel free to contribute your own module
 
    bond
    box
+   cluster
    density
+   indexer
    interface
    locality
-   trajectory
    pmft
    order
-   indexer
