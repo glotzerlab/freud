@@ -50,6 +50,7 @@ cdef class Cluster:
 
     def getBox(self):
         """Return the stored Freud Box
+
         :return: Freud Box
         :rtype: :py:class:`freud.box.Box`
         """
@@ -90,6 +91,7 @@ cdef class Cluster:
 
     def getNumClusters(self):
         """Returns the number of clusters
+
         :return: number of clusters
         :rtype: int
         """
@@ -103,7 +105,9 @@ cdef class Cluster:
         return self.thisptr.getNumParticles()
 
     def getClusterIdx(self):
-        """Returns 1D array of Cluster idx for each particle
+        """
+        Returns 1D array of Cluster idx for each particle
+
         :return: 1D array of cluster idx
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
@@ -115,6 +119,7 @@ cdef class Cluster:
 
     def getClusterKeys(self):
         """Returns the keys containted in each cluster
+
         :return: list of lists of each key containted in clusters
         :rtype: list
 
@@ -159,6 +164,7 @@ cdef class ClusterProperties:
 
     def getBox(self):
         """Return the stored :py:class:`freud.box.Box` object
+
         :return: Freud Box
         :rtype: :py:class:`freud.box.Box`
         """
@@ -189,7 +195,8 @@ cdef class ClusterProperties:
             self.thisptr.computeProperties(<vec3[float]*> cPoints.data, <unsigned int *> cCluster_idx.data, Np)
 
     def getNumClusters(self):
-        """Count the number of clusters found in the last call to computeProperties()
+        """Count the number of clusters found in the last call to :meth:`~.computeProperties()`
+
         :return: number of clusters
         :rtype: int
         """
@@ -197,6 +204,7 @@ cdef class ClusterProperties:
 
     def getClusterCOM(self):
         """Returns the cluster center of mass the last computed cluster_com
+
         :return: numpy array of cluster center of mass coordinates :math:`\\left(x,y,z\\right)`
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`, 3), dtype= :class:`numpy.float32`
         """
@@ -209,6 +217,7 @@ cdef class ClusterProperties:
 
     def getClusterG(self):
         """Returns the cluster G tensors computed by the last call to computeProperties
+
         :return: numpy array of cluster center of mass coordinates :math:`\\left(x,y,z\\right)`
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`, 3, 3), dtype= :class:`numpy.float32`
         """
@@ -222,6 +231,7 @@ cdef class ClusterProperties:
 
     def getClusterSizes(self):
         """Returns the cluster sizes computed by the last call to computeProperties
+
         :return: numpy array of sizes of each cluster
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`), dtype= :class:`numpy.uint32`
         """

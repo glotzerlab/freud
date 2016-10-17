@@ -6,20 +6,20 @@
 Welcome to freud's documentation!
 =================================
 
-Freud is an analysis package written in Python/C++ for efficient analysis of Molecular Dynamics/Monte Carlo simulations. Freud works with NumPy arrays and returns NumPy arrays.
+*"Neurosis is the inability to tolerate ambiguity" - Sigmund Freud*
 
-Installation
-============
-
-Freud is currently installed via CMake. CCMake is recommended to set various environment variables.
+Freud is an analysis analysis software package meant for the analysis of molecular dynamics and Monte Carlo \
+simulation trajectories. Freud works with and returns `NumPy <http://www.numpy.org/>`_ arrays.
 
 Contents:
 =========
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
+   installation
    modules
+   design
    citations
 
 
