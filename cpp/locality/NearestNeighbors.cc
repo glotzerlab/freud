@@ -72,9 +72,8 @@ void NearestNeighbors::compute(const box::Box& box,
         m_wvec_array = std::shared_ptr<vec3<float> >(new vec3<float> [num_ref * m_num_neighbors], std::default_delete<vec3<float> []>());
         }
     // fill with padded values; rsq set to -1, neighbors set to UINT_MAX
-    memset((void*)m_rsq_array.get(), -1, sizeof(float)*num_ref*m_num_neighbors);
-    memset((void*)m_neighbor_array.get(), UINT_MAX, sizeof(unsigned int)*num_ref*m_num_neighbors);
-    // memset((void*)m_wvec_array.get(), vec3<float>(-1,-1,-1), sizeof(vec3<float>)*num_ref*m_num_neighbors);
+    std::fill(m_rsq_array.get(), m_rsq_array.get()+int(num_ref*m_num_neighbors), -1);
+    std::fill(m_neighbor_array.get(), m_neighbor_array.get()+int(num_ref*m_num_neighbors), UINT_MAX);
     for (unsigned int i=0; i<(num_ref*m_num_neighbors); i++)
         {
         m_wvec_array.get()[i] = vec3<float>(-1,-1,-1);

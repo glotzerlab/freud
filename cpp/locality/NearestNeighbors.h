@@ -1,5 +1,6 @@
 #include <memory>
 
+#include <algorithm>
 #include "LinkCell.h"
 // hack to keep VectorMath's swap from polluting the global namespace
 // if this is a problem, we need to solve it

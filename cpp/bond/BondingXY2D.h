@@ -6,6 +6,7 @@
 #include <Python.h>
 #define __APPLE__
 
+#include <algorithm>
 #include <memory>
 
 #include "HOOMDMath.h"
