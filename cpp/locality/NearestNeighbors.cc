@@ -72,9 +72,8 @@ void NearestNeighbors::compute(const box::Box& box,
         m_wvec_array = std::shared_ptr<vec3<float> >(new vec3<float> [num_ref * m_num_neighbors], std::default_delete<vec3<float> []>());
         }
     // fill with padded values; rsq set to -1, neighbors set to UINT_MAX
-    memset((void*)m_rsq_array.get(), -1, sizeof(float)*num_ref*m_num_neighbors);
-    memset((void*)m_neighbor_array.get(), UINT_MAX, sizeof(unsigned int)*num_ref*m_num_neighbors);
-    // memset((void*)m_wvec_array.get(), vec3<float>(-1,-1,-1), sizeof(vec3<float>)*num_ref*m_num_neighbors);
+    std::fill(m_rsq_array.get(), m_rsq_array.get()+int(num_ref*m_num_neighbors), -1);
+    std::fill(m_neighbor_array.get(), m_neighbor_array.get()+int(num_ref*m_num_neighbors), UINT_MAX);
     for (unsigned int i=0; i<(num_ref*m_num_neighbors); i++)
         {
         m_wvec_array.get()[i] = vec3<float>(-1,-1,-1);
@@ -98,7 +97,7 @@ void NearestNeighbors::compute(const box::Box& box,
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
                 // If we have found an incomplete set of neighbors, end now and rebuild
-                if(m_deficits > 0)
+                if((m_deficits > 0) && !(m_strict_cut))
                     break;
                 neighbors.clear();
 
@@ -135,13 +134,14 @@ void NearestNeighbors::compute(const box::Box& box,
                     }
 
                 // Add to the deficit count if necessary
-                if(num_adjacent < m_num_neighbors)
+                if((num_adjacent < m_num_neighbors) && !(m_strict_cut))
                     m_deficits += (m_num_neighbors - num_adjacent);
                 else
                     {
                     // sort based on rsq
                     sort(neighbors.begin(), neighbors.end(), compareRsqVectors);
-                    for (unsigned int k = 0; k < m_num_neighbors; k++)
+                    unsigned int k_max = (neighbors.size() < m_num_neighbors) ? neighbors.size() : m_num_neighbors;
+                    for (unsigned int k = 0; k < k_max; k++)
                         {
                         // put the idx into the neighbor array
                         m_rsq_array.get()[b_i(k, i)] = neighbors[k].first;

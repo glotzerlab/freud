@@ -63,7 +63,7 @@ class TestBond(unittest.TestCase):
         testArray[binZ,binY,binX] = 5
         deltaX = posList[0,0] - posList[1,0]
         deltaY = posList[0,1] - posList[1,1]
-        deltaX = posList[0,2] - posList[1,2]
+        deltaZ = posList[0,2] - posList[1,2]
         delta = np.array([deltaX, deltaY, deltaZ], dtype=np.float32)
         v_rot = quatRot(delta, qlist[1])
         x = v_rot[0] + xmax

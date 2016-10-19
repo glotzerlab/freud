@@ -102,7 +102,7 @@ void BondingXYZ::compute(box::Box& box, vec3<float> *ref_points, quat<float> *re
         // make sure to clear this out at some point
         m_bonds = std::shared_ptr<unsigned int>(new unsigned int[n_ref*m_n_bonds], std::default_delete<unsigned int[]>());
         }
-    memset((void*)m_bonds.get(), 0, sizeof(unsigned int)*n_ref*m_n_bonds);
+    std::fill(m_bonds.get(), m_bonds.get()+int(n_ref*m_n_bonds), UINT_MAX);
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,n_ref),
         [=] (const blocked_range<size_t>& br)

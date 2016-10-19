@@ -255,18 +255,12 @@ cdef class NearestNeighbors:
         :param i: index of the reference point to fetch the neighboring points of
         :type i: unsigned int
         """
-        # cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
-        # result = np.zeros(nNeigh, dtype=np.uint32)
-        # cdef unsigned int start_idx = i*nNeigh
-        # cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
-        # for j in range(nNeigh):
-        #     result[j] = neighbors[start_idx + j]
-        # remove above
-        # replacing with C++ code, because that exists and should be used...
-        cdef unsigned int *neighbors = self.thisptr.getNeighbors(i).get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>neighbors)
+        cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
+        result = np.zeros(nNeigh, dtype=np.uint32)
+        cdef unsigned int start_idx = i*nNeigh
+        cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
+        for j in range(nNeigh):
+            result[j] = neighbors[start_idx + j]
 
         return result
 
@@ -276,14 +270,6 @@ cdef class NearestNeighbors:
         :return: Neighbor List
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`, dtype= :class:`numpy.uint32`
         """
-        # cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
-        # result = np.zeros(nNeigh, dtype=np.uint32)
-        # cdef unsigned int start_idx = i*nNeigh
-        # cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
-        # for j in range(nNeigh):
-        #     result[j] = neighbors[start_idx + j]
-        # remove above
-        # replacing with C++ code, because that exists and should be used...
         cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp>self.thisptr.getNref()
@@ -302,10 +288,12 @@ cdef class NearestNeighbors:
         :return: Neighbor List
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float *rsq = self.thisptr.getRsq(i).get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumNeighbors()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rsq)
+        cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
+        result = np.zeros(nNeigh, dtype=np.float32)
+        cdef unsigned int start_idx = i*nNeigh
+        cdef float *neighbors = self.thisptr.getRsqList().get()
+        for j in range(nNeigh):
+            result[j] = neighbors[start_idx + j]
 
         return result
 
@@ -330,7 +318,6 @@ cdef class NearestNeighbors:
         Return the entire Rsq values list
 
         :return: Rsq list
-        :return: Neighbor List
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`, dtype= :class:`numpy.float32`
         """
         cdef float *rsq = self.thisptr.getRsqList().get()
@@ -338,6 +325,8 @@ cdef class NearestNeighbors:
         nbins[0] = <np.npy_intp>self.thisptr.getNref()
         nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>rsq)
+
+        return result
 
     def compute(self, box, ref_points, points):
         """Update the data structure for the given set of points
