@@ -1,5 +1,3 @@
-.. contents:: Freud order
-
 ==============
 Order Module
 ==============

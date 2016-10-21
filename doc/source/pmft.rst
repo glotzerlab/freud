@@ -1,5 +1,3 @@
-.. contents:: Freud pmft
-
 ===========
 PMFT Module
 ===========

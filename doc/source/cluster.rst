@@ -1,5 +1,3 @@
-.. contents:: Freud cluster
-
 ==============
 Cluster Module
 ==============
