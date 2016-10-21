@@ -1,5 +1,3 @@
-.. contents:: Freud modules
-
 =============
 Freud modules
 =============

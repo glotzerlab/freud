@@ -1,5 +1,3 @@
-.. contents:: Freud locality
-
 ===============
 Locality Module
 ===============

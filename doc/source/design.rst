@@ -1,5 +1,4 @@
-.. contents:: Freud design
-
+======
 Design
 ======
 

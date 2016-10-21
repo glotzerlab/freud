@@ -1,5 +1,3 @@
-.. contents:: Freud bond
-
 ===========
 Bond Module
 ===========
