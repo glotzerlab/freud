@@ -97,7 +97,7 @@ void NearestNeighbors::compute(const box::Box& box,
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
                 // If we have found an incomplete set of neighbors, end now and rebuild
-                if(m_deficits > 0)
+                if((m_deficits > 0) && !(m_strict_cut))
                     break;
                 neighbors.clear();
 
@@ -134,13 +134,14 @@ void NearestNeighbors::compute(const box::Box& box,
                     }
 
                 // Add to the deficit count if necessary
-                if(num_adjacent < m_num_neighbors)
+                if((num_adjacent < m_num_neighbors) && !(m_strict_cut))
                     m_deficits += (m_num_neighbors - num_adjacent);
                 else
                     {
                     // sort based on rsq
                     sort(neighbors.begin(), neighbors.end(), compareRsqVectors);
-                    for (unsigned int k = 0; k < m_num_neighbors; k++)
+                    unsigned int k_max = (neighbors.size() < m_num_neighbors) ? neighbors.size() : m_num_neighbors;
+                    for (unsigned int k = 0; k < k_max; k++)
                         {
                         // put the idx into the neighbor array
                         m_rsq_array.get()[b_i(k, i)] = neighbors[k].first;
