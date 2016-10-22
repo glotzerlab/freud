@@ -203,11 +203,8 @@ void PMFTXYZ::accumulate(box::Box& box,
 
             // precalc some values for faster computation within the loop
             float dx_inv = 1.0f / m_dx;
-            float maxxsq = m_max_x * m_max_x;
             float dy_inv = 1.0f / m_dy;
-            float maxysq = m_max_y * m_max_y;
             float dz_inv = 1.0f / m_dz;
-            float maxzsq = m_max_z * m_max_z;
 
             Index3D b_i = Index3D(m_n_bins_x, m_n_bins_y, m_n_bins_z);
             Index2D q_i = Index2D(n_faces, n_p);

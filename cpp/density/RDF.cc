@@ -252,7 +252,6 @@ void RDF::accumulate(box::Box& box,
               for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                   {
                   // compute r between the two particles
-                  vec3<float> point = points[j];
                   vec3<float> delta = m_box.wrap(points[j] - ref);
 
                   float rsq = dot(delta, delta);

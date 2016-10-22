@@ -67,7 +67,6 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
     Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
     for (unsigned int i = 0; i < m_nbins_t; i++)
         {
-        float theta = (float)i * m_dt;
         for (unsigned int j = 0; j < m_nbins_p; j++)
             {
             float phi = (float)j * m_dp;
@@ -172,7 +171,6 @@ void BondOrder::accumulate(box::Box& box,
             {
             float dt_inv = 1.0f / m_dt;
             float dp_inv = 1.0f / m_dp;
-            float rmaxsq = m_rmax * m_rmax;
             Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
 
             bool exists;
