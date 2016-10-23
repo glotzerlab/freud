@@ -1,14 +1,14 @@
-from freud import trajectory, voronoi
+from freud import box, voronoi
 import numpy as np
 import numpy.testing as npt
-import unittest   
+import unittest
 
 class TestVoronoi(unittest.TestCase):
     def test_basic(self):
         L = 10 #Box Dimensions
 
-        box = trajectory.Box(L, L, is2D=True)#Initialize Box
-        vor = voronoi.Voronoi(box)
+        fbox = box.Box.square(L)#Initialize Box
+        vor = voronoi.Voronoi(fbox)
         positions = np.random.uniform(-L/2, L/2, size=(50, 2))
         vor.compute(positions, buff=L/2)
 
@@ -17,13 +17,13 @@ class TestVoronoi(unittest.TestCase):
         self.assertEqual(len(result), len(positions))
 
     def test_voronoi_tess(self):
-        vor = voronoi.Voronoi(trajectory.Box(10, 10))
+        vor = voronoi.Voronoi(box.Box.square(10))
         pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
         vor.compute(pos)
         npt.assert_equal(vor.getVoronoiPolytopes(), [np.array([[ 1.5,  1.5], [ 0.5,  1.5], [ 0.5,  0.5], [ 1.5,  0.5]])])
 
     def test_voronoi_neighbors(self):
-        vor = voronoi.Voronoi(trajectory.Box(10, 10))
+        vor = voronoi.Voronoi(box.Box.square(10))
         pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
         vor.computeNeighbors(pos)
         npt.assert_equal(vor.getNeighbors(1), [[1, 3], [0, 2, 4], [5, 1], [0, 6, 4], [3, 5, 1, 7], [8, 2, 4], [3, 7], [6, 8, 4], [5, 7]])

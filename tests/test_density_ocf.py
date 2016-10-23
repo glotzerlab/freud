@@ -1,7 +1,7 @@
 import numpy
 import numpy as np
 import numpy.testing as npt
-from freud import trajectory, density, parallel
+from freud import box, density, parallel
 import unittest
 
 class TestR(unittest.TestCase):
@@ -32,7 +32,7 @@ class TestOCF(unittest.TestCase):
         comp = np.cos(ang) + 1j * np.sin(ang)
         conj = np.cos(ang) - 1j * np.sin(ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
+        ocf.accumulate(box.Box.square(box_size),points, comp, points, conj)
 
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
@@ -49,7 +49,7 @@ class TestOCF(unittest.TestCase):
         comp = np.cos(ang) + 1j * np.sin(ang)
         conj = np.cos(ang) - 1j * np.sin(ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
+        ocf.accumulate(box.Box.square(box_size),points, comp, points, conj)
 
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
@@ -66,7 +66,7 @@ class TestOCF(unittest.TestCase):
         comp = np.cos(ang) + 1j * np.sin(ang)
         conj = np.cos(ang) - 1j * np.sin(ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
+        ocf.accumulate(box.Box.square(box_size),points, comp, points, conj)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
@@ -82,7 +82,7 @@ class TestOCF(unittest.TestCase):
         comp = np.cos(ang) + 1j * np.sin(ang)
         conj = np.cos(ang) - 1j * np.sin(ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(trajectory.Box(box_size),points, comp, points, conj)
+        ocf.accumulate(box.Box.square(box_size),points, comp, points, conj)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
@@ -98,19 +98,19 @@ def test_summation():
     phi[:] = numpy.random.rand(N)
     pos2d = numpy.array(numpy.random.random(size=(N,3)), dtype=numpy.float32)*1000 - 500
     pos2d[:,2] = 0
-    box = trajectory.Box(1000, True)
+    fbox = box.Box.square(1000)
 
     # With a small number of particles, we won't get the average exactly right, so we need to check for
     # different behavior with different numbers of threads
     parallel.setNumThreads(1);
     # A very large bin size exacerbates the problem
     cf = density.ComplexCF(500, 40)
-    cf.compute(box, pos2d, phi, pos2d, phi)
+    cf.compute(fbox, pos2d, phi, pos2d, phi)
     c1 = cf.getCounts();
     f1 = numpy.real(cf.getRDF());
 
     parallel.setNumThreads(20);
-    cf.compute(box, pos2d, phi, pos2d, phi)
+    cf.compute(fbox, pos2d, phi, pos2d, phi)
     c2 = cf.getCounts();
     f2 = numpy.real(cf.getRDF());
 

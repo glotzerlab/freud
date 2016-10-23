@@ -1,6 +1,6 @@
 
 import sys
-from freud import locality, trajectory
+from freud import locality, box
 import numpy as np
 import numpy.testing as npt
 import unittest
@@ -10,9 +10,9 @@ class TestLinkCell(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
 
-        box = trajectory.Box(L)#Initialize Box
-        cl = locality.LinkCell(box, rcut)#Initialize cell list
-        cl.computeCellList(box,np.zeros((1,3), dtype=np.float32))#Compute cell list
+        fbox = box.Box.cube(L)#Initialize Box
+        cl = locality.LinkCell(fbox, rcut)#Initialize cell list
+        cl.computeCellList(fbox,np.zeros((1,3), dtype=np.float32))#Compute cell list
 
         # 27 is the total number of cells
         for i in range(27):
@@ -26,9 +26,9 @@ class TestLinkCell(unittest.TestCase):
 
         #Initialize test points across periodic BC
         testpoints = np.array([[-5.0,0,0],[2.05,0,0]], dtype=np.float32);
-        box = trajectory.Box(L);#Initialize Box
-        cl = locality.LinkCell(box,rcut);#Initialize cell list
-        cl.computeCellList(box,testpoints);#Compute cell list
+        fbox = box.Box.cube(L);#Initialize Box
+        cl = locality.LinkCell(fbox,rcut);#Initialize cell list
+        cl.computeCellList(fbox,testpoints);#Compute cell list
 
         #Get cell index
         cell_index0 = cl.getCell(testpoints[0])
@@ -54,9 +54,9 @@ class TestLinkCell(unittest.TestCase):
 
             #Initialize test points randomly
             points = np.random.uniform(-L/2, L/2, (N, 3))
-            box = trajectory.Box(L);#Initialize Box
-            cl = locality.LinkCell(box,rcut);#Initialize cell list
-            cl.computeCellList(box, points);#Compute cell list
+            fbox = box.Box.cube(L);#Initialize Box
+            cl = locality.LinkCell(fbox,rcut);#Initialize cell list
+            cl.computeCellList(fbox, points);#Compute cell list
 
             neighbors_ij = set()
             for i in range(N):

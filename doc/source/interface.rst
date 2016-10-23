@@ -1,5 +1,3 @@
-.. contents:: Freud interface
-
 ================
 Interface Module
 ================

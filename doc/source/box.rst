@@ -1,5 +1,3 @@
-.. contents:: Freud box
-
 ==========
 Box Module
 ==========

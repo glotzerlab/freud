@@ -1,12 +1,3 @@
-# Freud #
-
-## Introduction ##
-
-*"One day, in retrospect, the years of struggle will strike you as the most beautiful" - Sigmund Freud*
-*"Neurosis is the inability to tolerate ambiguity" - Sigmund Freud*
-
-Freud is an analysis analysis software package meant for the analysis of molecular dynamics and Monte Carlo simulation trajectories.
-
 # Design #
 
 ## Vision ##

@@ -35,7 +35,6 @@ endif(ENABLE_CYTHON)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/box
                     ${CMAKE_CURRENT_SOURCE_DIR}/bond
-                    ${CMAKE_CURRENT_SOURCE_DIR}/trajectory
                     ${CMAKE_CURRENT_SOURCE_DIR}/util
                     ${CMAKE_CURRENT_SOURCE_DIR}/locality
                     ${CMAKE_CURRENT_SOURCE_DIR}/cluster
@@ -56,6 +55,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 set(FREUD_SOURCES
             box/box.h
             box/box.cc
+            bond/BondingAnalysis.h
+            bond/BondingAnalysis.cc
             bond/BondingR12.h
             bond/BondingR12.cc
             bond/BondingXY2D.h
@@ -64,9 +65,6 @@ set(FREUD_SOURCES
             bond/BondingXYT.cc
             bond/BondingXYZ.h
             bond/BondingXYZ.cc
-            trajectory/trajectory.h
-            trajectory/DCDLoader.cc
-            trajectory/DCDLoader.h
             locality/LinkCell.cc
             locality/LinkCell.h
             locality/NearestNeighbors.h

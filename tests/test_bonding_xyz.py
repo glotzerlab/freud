@@ -57,21 +57,21 @@ class TestBond(unittest.TestCase):
         x = v_rot[0] + xmax
         y = v_rot[1] + ymax
         z = v_rot[2] + zmax
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
-        binZ = numpy.floor(z / dz)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
+        binZ = int(numpy.floor(z / dz))
         testArray[binZ,binY,binX] = 5
         deltaX = posList[0,0] - posList[1,0]
         deltaY = posList[0,1] - posList[1,1]
-        deltaX = posList[0,2] - posList[1,2]
+        deltaZ = posList[0,2] - posList[1,2]
         delta = np.array([deltaX, deltaY, deltaZ], dtype=np.float32)
         v_rot = quatRot(delta, qlist[1])
         x = v_rot[0] + xmax
         y = v_rot[1] + ymax
         z = v_rot[2] + zmax
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
-        binZ = numpy.floor(z / dz)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
+        binZ = int(numpy.floor(z / dz))
         testArray[binZ,binY,binX] = 5
 
         # create object
@@ -80,7 +80,7 @@ class TestBond(unittest.TestCase):
 
         # create the box
         rmax = np.sqrt(xmax**2 + ymax**2 + zmax**2)
-        f_box = box.Box(Lx=5.0*rmax, Ly=5.0*rmax, is2D=True)
+        f_box = box.Box.cube(5.0*rmax)
 
         # run the computation
         EB.compute(f_box, posList, qlist, posList, qlist)

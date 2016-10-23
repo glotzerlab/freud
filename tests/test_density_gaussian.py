@@ -4,7 +4,7 @@ from scipy.fftpack import fft, fftshift
 # need this if run from root. If run in tests you're fine. Not sure how this will impact jenkins
 # import sys
 # sys.path = sys.path[::-1]
-from freud import trajectory, density
+from freud import box, density
 import unittest
 
 class TestDensity(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestDensity(unittest.TestCase):
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         points[:,2] = 0
         diff = density.GaussianDensity(width, rcut, sigma)
-        testBox = trajectory.Box(box_size, True)
+        testBox = box.Box.square(box_size)
         diff.compute(testBox, points)
         myDiff = diff.getGaussianDensity()
         myFFT = fft(fft(myDiff[:,:], axis=1), axis=0)

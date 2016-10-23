@@ -25,15 +25,15 @@ class TestBond(unittest.TestCase):
         deltaY = posList[0][1] - posList[1][1]
         x = deltaX + xmax
         y = deltaY + ymax
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         testArray[binY,binX] = 5
         deltaX = posList[1][0] - posList[0][0]
         deltaY = posList[1][1] - posList[0][1]
         x = deltaX + xmax
         y = deltaY + ymax
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         testArray[binY,binX] = 5
 
         # create object
@@ -41,7 +41,7 @@ class TestBond(unittest.TestCase):
         EB = bond.BondingXY2D(xmax, ymax, testArray, bondList)
 
         # create the box
-        f_box = box.Box(Lx=5.0*rmax, Ly=5.0*rmax, is2D=True)
+        f_box = box.Box.square(5.0*rmax)
 
         # run the computation
         EB.compute(f_box, posList, anglist, posList, anglist)

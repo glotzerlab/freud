@@ -1,5 +1,3 @@
-.. contents:: Freud density
-
 ==============
 Density Module
 ==============

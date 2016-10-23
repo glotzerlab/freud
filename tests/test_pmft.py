@@ -1,6 +1,6 @@
 import numpy
 import numpy.testing as npt
-from freud import trajectory, pmft
+from freud import box, pmft
 import unittest
 
 class TestBins(unittest.TestCase):
@@ -112,7 +112,7 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         dx = (2.0 * maxX / float(nbinsX))
         dy = (2.0 * maxY / float(nbinsY))
         myPMFT = pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        myPMFT.accumulate(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
+        myPMFT.accumulate(box.Box.square(boxSize), points, angles, points, angles)
 
         correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.int32)
         # calculation for array idxs
@@ -121,15 +121,15 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         deltaY = points[0][1] - points[1][1]
         x = deltaX + maxX
         y = deltaY + maxY
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         correct[binY,binX] = 1
         deltaX = points[1][0] - points[0][0]
         deltaY = points[1][1] - points[0][1]
         x = deltaX + maxX
         y = deltaY + maxY
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         correct[binY,binX] = 1
         absoluteTolerance = 0.1
         pcfArray = myPMFT.getBinCounts()
@@ -146,7 +146,7 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         dx = (2.0 * maxX / float(nbinsX))
         dy = (2.0 * maxY / float(nbinsY))
         myPMFT = pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        myPMFT.accumulate(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
+        myPMFT.accumulate(box.Box.square(boxSize), points, angles, points, angles)
 
         correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.int32)
         # calculation for array idxs
@@ -155,15 +155,15 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         deltaY = points[0][1] - points[1][1]
         x = deltaX + maxX
         y = deltaY + maxY
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         correct[binY,binX] = 1
         deltaX = points[1][0] - points[0][0]
         deltaY = points[1][1] - points[0][1]
         x = deltaX + maxX
         y = deltaY + maxY
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         correct[binY,binX] = 1
         absoluteTolerance = 0.1
         pcfArray = myPMFT.getBinCounts()
@@ -178,10 +178,10 @@ class TestPMFXY2DCompute(unittest.TestCase):
         maxY = 3.0
         dx = 0.1
         dy = 0.1
-        nbinsX = int(2 * numpy.floor(maxX / dx))
-        nbinsY = int(2 * numpy.floor(maxY / dy))
+        nbinsX = int(2 * int(numpy.floor(maxX / dx)))
+        nbinsY = int(2 * int(numpy.floor(maxY / dy)))
         myPMFT = pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        myPMFT.compute(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
+        myPMFT.compute(box.Box.square(boxSize), points, angles, points, angles)
 
         correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.int32)
         # calculation for array idxs
@@ -190,15 +190,15 @@ class TestPMFXY2DCompute(unittest.TestCase):
         deltaY = points[0][1] - points[1][1]
         x = deltaX + maxX
         y = deltaY + maxY
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         correct[binY,binX] = 1
         deltaX = points[1][0] - points[0][0]
         deltaY = points[1][1] - points[0][1]
         x = deltaX + maxX
         y = deltaY + maxY
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         correct[binY,binX] = 1
         absoluteTolerance = 0.1
         pcfArray = myPMFT.getBinCounts()
@@ -212,10 +212,10 @@ class TestPMFXY2DCompute(unittest.TestCase):
         maxY = 3.0
         dx = 0.1
         dy = 0.1
-        nbinsX = int(2 * numpy.floor(maxX / dx))
-        nbinsY = int(2 * numpy.floor(maxY / dy))
+        nbinsX = int(2 * int(numpy.floor(maxX / dx)))
+        nbinsY = int(2 * int(numpy.floor(maxY / dy)))
         myPMFT = pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        myPMFT.compute(trajectory.Box(boxSize, boxSize, 0, True), points, angles, points, angles)
+        myPMFT.compute(box.Box.square(boxSize), points, angles, points, angles)
 
         correct = numpy.zeros(shape=(len(myPMFT.getY()), len(myPMFT.getX())), dtype=numpy.int32)
         # calculation for array idxs
@@ -224,15 +224,15 @@ class TestPMFXY2DCompute(unittest.TestCase):
         deltaY = points[0][1] - points[1][1]
         x = deltaX + maxX
         y = deltaY + maxY
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         correct[binY,binX] = 1
         deltaX = points[1][0] - points[0][0]
         deltaY = points[1][1] - points[0][1]
         x = deltaX + maxX
         y = deltaY + maxY
-        binX = numpy.floor(x / dx)
-        binY = numpy.floor(y / dy)
+        binX = int(numpy.floor(x / dx))
+        binY = int(numpy.floor(y / dy))
         correct[binY,binX] = 1
         absoluteTolerance = 0.1
         pcfArray = myPMFT.getBinCounts()
