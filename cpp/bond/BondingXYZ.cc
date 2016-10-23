@@ -108,11 +108,8 @@ void BondingXYZ::compute(box::Box& box, vec3<float> *ref_points, quat<float> *re
         [=] (const blocked_range<size_t>& br)
             {
             float dx_inv = 1.0f / m_dx;
-            float maxxsq = m_x_max * m_x_max;
             float dy_inv = 1.0f / m_dy;
-            float maxysq = m_y_max * m_y_max;
             float dz_inv = 1.0f / m_dz;
-            float maxzsq = m_z_max * m_z_max;
             // indexer for bond list
             Index2D a_i = Index2D(m_n_bonds, n_ref);
             // indexer for bond map
