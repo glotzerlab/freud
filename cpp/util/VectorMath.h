@@ -1188,6 +1188,7 @@ DEVICE inline vec3<Real> operator*(const rotmat3<Real>& A, const vec3<Real>& b)
 template < class Real >
 DEVICE inline rotmat3<Real> operator*(const rotmat3<Real>& A, const rotmat3<Real>& B)
     {
+    rotmat3<Real> Btrans = transpose(B);
     return rotmat3<Real>(vec3<Real>(dot(A.row0, B.row0), dot(A.row0, B.row1), dot(A.row0, B.row2)),
                          vec3<Real>(dot(A.row1, B.row0), dot(A.row1, B.row1), dot(A.row1, B.row2)),
                          vec3<Real>(dot(A.row2, B.row0), dot(A.row2, B.row1), dot(A.row2, B.row2)));

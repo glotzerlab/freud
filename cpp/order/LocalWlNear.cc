@@ -88,6 +88,10 @@ void LocalWlNear::compute(const vec3<float> *points, unsigned int Np)
     //Initialize neighbor list
     m_nn->compute(m_box,points,m_Np,points,m_Np);
 
+    float rmaxsq = m_rmax * m_rmax;
+
+    //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
+    // for safety and debugging laziness, reallocate each time
     m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
     m_Wli = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
@@ -169,7 +173,12 @@ void LocalWlNear::computeAve(const vec3<float> *points, unsigned int Np)
     //Initialize neighbor list
     m_nn->compute(m_box,points,m_Np,points,m_Np);
 
-    //Consider checking length and not reallocating?
+    float rmaxsq = m_rmax * m_rmax;
+    float normalizationfactor = 4*M_PI/(2*m_l+1);
+
+
+    //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
+    // for safety and debugging laziness, reallocate each time
     m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
     m_AveWli = std::shared_ptr<complex<float> >(new complex<float> [m_Np], std::default_delete<complex<float>[]>());

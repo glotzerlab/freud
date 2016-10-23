@@ -202,6 +202,12 @@ void SolLiq::computeClustersQ(const vec3<float> *points, unsigned int Np)
             locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
             for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                 {
+                // rij = rj - ri, from i pointing to j.
+                // float dx = float(points[j].x - ref.x);
+                // float dy = float(points[j].y - ref.y);
+                // float dz = float(points[j].z - ref.z);
+
+                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 vec3<float> delta = m_box.wrap(points[j] - ref);
                 float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
 
@@ -275,7 +281,13 @@ void SolLiq::computeClustersQdot(const vec3<float> *points,
                 {
                 if (i < j)
                     {
+                    // compute r between the two particles
+                    // float dx = float(p.x - points[j].x);
+                    // float dy = float(p.y - points[j].y);
+                    // float dz = float(p.z - points[j].z);
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                     vec3<float> delta = m_box.wrap(p - points[j]);
+                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                     float rsq = dot(delta, delta);
 
                     if (rsq < rmaxsq)  //Check distance for candidate i,j
@@ -346,7 +358,12 @@ void SolLiq::computeClustersQdotNoNorm(const vec3<float> *points,
                 if (i < j)
                     {
                     // compute r between the two particles
+                    float dx = float(p.x - points[j].x);
+                    float dy = float(p.y - points[j].y);
+                    float dz = float(p.z - points[j].z);
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                     vec3<float> delta = m_box.wrap(p - points[j]);
+                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                     float rsq = dot(delta, delta);
 
                     if (rsq < rmaxsq)  //Check distance for candidate i,j

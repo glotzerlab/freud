@@ -189,8 +189,11 @@ void LocalWl::computeAve(const vec3<float> *points, unsigned int Np)
     m_lc.computeCellList(m_box,points,m_Np);
 
     float rmaxsq = m_rmax * m_rmax;
+    float normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    //Maybe consider if Np != m_Np, we could not reallocate these
+
+    //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
+    // for safety and debugging laziness, reallocate each time
     m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_AveQlm = std::shared_ptr<complex<float> > (new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
     m_AveWli = std::shared_ptr<complex<float> >(new complex<float> [m_Np], std::default_delete<complex<float>[]>());

@@ -41,6 +41,7 @@ void HexOrderParameter::compute(box::Box& box, const vec3<float> *points, unsign
     parallel_for(blocked_range<size_t>(0,Np),
         [=] (const blocked_range<size_t>& r)
         {
+        float rmaxsq = m_rmax * m_rmax;
 
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {

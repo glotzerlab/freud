@@ -264,16 +264,25 @@ void SolLiqNear::computeClustersQdot(const vec3<float> *points,
         // get the cell the point is in
         // float3 p = points[i];
         vec3<float> p = points[i];
-        std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
+      std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
+        //unsigned int cell = m_lc.getCell(p);
 
         // loop over all neighboring cells
+        //const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
         for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
             {
             unsigned int j = neighbors.get()[neigh_idx];
 
             if (i < j)
                 {
+                    // compute r between the two particles
+                    // float dx = float(p.x - points[j].x);
+                    // float dy = float(p.y - points[j].y);
+                    // float dz = float(p.z - points[j].z);
+                    // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 vec3<float> delta = m_box.wrap(p - points[j]);
+                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                float rsq = dot(delta, delta);
 
                 //Calc Q dotproduct.
                 std::complex<float> Qdot(0.0,0.0);
@@ -316,6 +325,7 @@ void SolLiqNear::computeClustersQdotNoNorm(const vec3<float> *points,
         }
 
     memset((void*)m_number_of_connections.get(), 0, sizeof(unsigned int)*Np);
+    float rmaxsq = m_rmax * m_rmax;
     uint elements = 2*m_l+1;
     // for each point
     for (unsigned int i = 0; i < Np; i++)
@@ -334,7 +344,14 @@ void SolLiqNear::computeClustersQdotNoNorm(const vec3<float> *points,
 
             if (i < j)
                 {
+                // compute r between the two particles
+                float dx = float(p.x - points[j].x);
+                float dy = float(p.y - points[j].y);
+                float dz = float(p.z - points[j].z);
+                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 vec3<float> delta = m_box.wrap(p - points[j]);
+                // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+                float rsq = dot(delta, delta);
 
                 //Calc Q dotproduct.
                 std::complex<float> Qdot(0.0,0.0);
@@ -489,10 +506,13 @@ void SolLiqNear::computeListOfSolidLikeNeighbors(const vec3<float> *points,
     SolidlikeNeighborlist.resize(Np);
 
     // reallocate the cluster_idx array if the size doesn't match the last one
+
     //These probably don't need allocation each time.
     m_cluster_idx = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
     m_number_of_connections = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
     memset((void*)m_number_of_connections.get(), 0, sizeof(unsigned int)*Np);
+
+    float rmaxsq = m_rmax * m_rmax;
 
     // for each point
     for (unsigned int i = 0; i < Np; i++)

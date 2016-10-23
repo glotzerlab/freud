@@ -84,6 +84,7 @@ void LocalQlNear::compute(const vec3<float> *points, unsigned int Np)
     //Initialize neighbor list
     m_nn->compute(m_box,points,Np,points,Np);
 
+    float rmaxsq = m_rmax * m_rmax;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
 
 
@@ -156,6 +157,7 @@ void LocalQlNear::computeAve(const vec3<float> *points, unsigned int Np)
     // compute the neighbor list
     m_nn->compute(m_box,points,Np,points,Np);
 
+    float rmaxsq = m_rmax * m_rmax;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
 
 
