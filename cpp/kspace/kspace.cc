@@ -37,7 +37,6 @@ void FTdelta::compute()
     vec3<float>* K = &m_K.front();
     vec3<float>* r = &m_r.front();
     // float4* q = m_q;
-    quat<float>* q = &m_q.front();
     float density_Im = m_density_Im;
     float density_Re = m_density_Re;
     m_S_Re = std::shared_ptr<float>(new float[NK], std::default_delete<float[]>());
@@ -83,7 +82,6 @@ void FTsphere::compute()
     vec3<float>* K = &m_K.front();
     vec3<float>* r = &m_r.front();
     // float4* q = m_q;
-    quat<float>* q = &m_q.front();
     float radius = m_radius;
 
     /* S += e**(-i * dot(K, r))
@@ -150,7 +148,6 @@ void FTpolyhedron::compute()
     //float4* q = m_q;
 
     unsigned int N_facet = m_params.facet.size();
-    unsigned int N_vert = m_params.vert.size();
 
     /* S += e**(-i * dot(K, r))
        -> S_Re += cos(dot(K, r))
