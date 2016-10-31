@@ -60,15 +60,6 @@ if(NOT PASSED_FIRST_CONFIGURE)
 SET(PASSED_FIRST_CONFIGURE ON CACHE INTERNAL "First configure has run: CXX_FLAGS have had their defaults changed" FORCE)
 endif(NOT PASSED_FIRST_CONFIGURE)
 
-# add openmp compile option to the flags
-find_package(OpenMP)
-if (ENABLE_OPENMP)
-    # these changes unfortunately don't make it into the cache, but the user doesn't really need to see it, they can control it with the ENABLE_OPENMP option
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif (ENABLE_OPENMP)
-
 # adding C++11 Flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "DARWIN")
     set(CMAKE_CXX_FLAGS "-std=c++11" CACHE STRING "Flag used to specify C++11." FORCE)
