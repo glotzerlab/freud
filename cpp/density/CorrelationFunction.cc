@@ -23,9 +23,9 @@ template<typename T>
 CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
     : m_box(box::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
     {
-    if (dr < 0.0f)
+    if (dr <= 0.0f)
         throw invalid_argument("dr must be positive");
-    if (rmax < 0.0f)
+    if (rmax <= 0.0f)
         throw invalid_argument("rmax must be positive");
     if (dr > rmax)
         throw invalid_argument("rmax must be greater than dr");

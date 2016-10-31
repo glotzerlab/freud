@@ -45,6 +45,8 @@ cdef class FloatCF:
     cdef density.CorrelationFunction[double] *thisptr
 
     def __cinit__(self, float rmax, float dr):
+        if dr <= 0.0:
+            raise ValueError("dr must be > 0")
         self.thisptr = new density.CorrelationFunction[double](rmax, dr)
 
     def __dealloc__(self):
@@ -204,6 +206,8 @@ cdef class ComplexCF:
     cdef density.CorrelationFunction[np.complex128_t] *thisptr
 
     def __cinit__(self, float rmax, float dr):
+        if dr <= 0.0:
+            raise ValueError("dr must be > 0")
         self.thisptr = new density.CorrelationFunction[np.complex128_t](rmax, dr)
 
     def __dealloc__(self):
@@ -541,6 +545,8 @@ cdef class RDF:
     cdef density.RDF *thisptr
 
     def __cinit__(self, float rmax, float dr):
+        if dr <= 0.0:
+            raise ValueError("dr must be > 0")
         self.thisptr = new density.RDF(rmax, dr)
 
     def __dealloc__(self):
