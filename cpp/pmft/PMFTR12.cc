@@ -6,10 +6,6 @@
 #include <emmintrin.h>
 #endif
 
-#ifdef ENABLE_OPENMP
-#include <omp.h>
-#endif
-
 #include "VectorMath.h"
 
 using namespace std;
