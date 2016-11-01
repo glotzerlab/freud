@@ -1,4 +1,4 @@
-from freud import trajectory
+from freud import box
 from freud import density
 import random
 import numpy
@@ -9,7 +9,7 @@ L = 55.0;
 
 points = numpy.zeros(shape=(N,3), dtype=numpy.float32)
 
-box = trajectory.Box(L);
+box = box.Box.cube(L);
 
 for i in range(0,N):
     points[i,0] = (random.random() - 0.5) * L
