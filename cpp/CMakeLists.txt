@@ -98,13 +98,6 @@ set(FREUD_SOURCES
             util/Index1D.h
             util/HOOMDMath.h
             util/HOOMDMatrix.cc
-            molfile/dcdplugin.cc
-            molfile/vmdplugin.h
-            molfile/endianswap.h
-            molfile/fastio.h
-            molfile/largefiles.h
-            molfile/molfile_plugins.h
-            molfile/molfile_plugin.h
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
             order/Pairing2D.cc
