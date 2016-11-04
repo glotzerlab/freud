@@ -21,12 +21,15 @@ existing code.
 
 ## Add dependencies only if absolutely necessary
 
-In order to make Freud as widely available as possible, we try to keep the number of dependencies to a minimum. Please
-consider
+In order to make Freud as widely available as possible, we try to keep the number of dependencies to a minimum. If you
+need a feature present in an external library, follow the following steps:
 
-## Connect GPU kernels to autotuners
-
-Autotuning kernel launch parameters boosts performance significantly. Use autotuners on all new GPU kernels.
+1. Add to Freud itself if it's simple or if other modules would benefit:
+    * Example: Added simple tensor math for CubaticOrderParameter
+2. Add via submodule if the code exists externally
+    * Example: fsph
+3. Contact Freud developers to inquire if the library you'd like as a dependency fits in with the overall design/goals
+of freud
 
 # Version control
 
@@ -56,9 +59,11 @@ All contributors must agree to the Contributor Agreement ([ContributorAgreement.
 ## Use a consistent style
 
 It is important to have a consistent style throughout the source code. See [SourceConventions.md](SourceConventions.md)
-for the defined style guidelines for hoomd code.
+for the defined style guidelines for Freud code.
 
 ## Document code with comments
+
+TODO?
 
 Use doxygen header comments for classes, functions, etc... Also comment complex sections of code so that other
 developers can understand them.
@@ -71,13 +76,14 @@ Your changes should compile without warnings.
 
 ## Write unit tests
 
-All new functionality in hoomd should be tested with automatic unit tests that execute in a few seconds. High level
-features should be tested from python, and the python tests should attempt to cover all options that the user can
-select.
+All new functionality in Freud should be tested with automatic unit tests that execute in a few seconds (if your
+specific test requires a long amount of time, please alert the Freud developers as to why this is required so that
+your test can be opted-out of for "regular" unit-testing). High level features should be tested from python, and the
+python tests should attempt to cover all options that the user can select.
 
 ## Validity tests
 
-In addition to the unit tests, the developer should run research-scale simulations using the new functionality and
+In addition to the unit tests, the developer should run research-scale analysis using the new functionality and
 ensure that it behaves as intended.
 
 # User documentation
@@ -95,7 +101,7 @@ The master command index needs a reference to new script commands so they are ea
 
 Each user-facing python class, method, etc... with a docstring should have [versionadded, versionchanged, and
 deprecated sphinx paragraphs](www.sphinx-doc.org/en/stable/markup/para.html) so that users will be aware of
-how functionality changes from version to version (post-2.0).
+how functionality changes from version to version (post-0.6).
 
 ## Add developer to the credits
 

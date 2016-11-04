@@ -66,7 +66,7 @@ void LocalQlNear::Ylm(const float theta, const float phi, std::vector<std::compl
     // in fsph, the definition is flipped
     sph_eval.compute(theta, phi);
 
-    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, true));
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
         iter != sph_eval.end(); ++iter)
         {
         Y[j] = *iter;
