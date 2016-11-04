@@ -1,0 +1,3 @@
+[submodule "freud/extern/fsph"]
+    path = freud/extern/fsph
+    url = https://harperic@bitbucket.org/glotzer/fsph.git
