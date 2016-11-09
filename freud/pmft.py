@@ -1,3 +1,6 @@
+# Copyright (c) 2010-2016 The Regents of the University of Michigan
+# This file is part of the Freud project, released under the BSD 3-Clause License.
+
 ## \package freud.pmft
 #
 # Methods to compute pair correlation function and pmft from point distributions.
@@ -5,14 +8,6 @@
 
 # import numpy
 # import time
-
-# from _freud import PMFXYZ
-# from _freud import PMFXY2D
-# from _freud import PMFTXYT2D
-# from _freud import PMFTXYTP2D
-# from _freud import PMFTXYTM2D
-# from _freud import PMFTRPM
-# from _freud import PMFTR12
 
 from ._freud import PMFTR12
 from ._freud import PMFTXYT

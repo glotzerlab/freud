@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2016 The Regents of the University of Michigan
+// This file is part of the Freud project, released under the BSD 3-Clause License.
+
 #include <memory>
 //#include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <complex>
