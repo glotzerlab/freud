@@ -45,7 +45,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/pmft
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
-                    ${CMAKE_CURRENT_SOURCE_DIR}/viz
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_SOURCE_DIR}/registration
                     ${CMAKE_CURRENT_SOURCE_DIR}/extern
@@ -129,14 +128,6 @@ set(FREUD_SOURCES
             order/SolLiqNear.cc
             order/wigner3j.cc
             order/wigner3j.h
-            viz/colormap.h
-            viz/colormap.cc
-            viz/colorutil.h
-            viz/colorutil.cc
-            viz/triangles.h
-            viz/triangles.cc
-            viz/split.h
-            viz/split.cc
             parallel/tbb_config.h
             parallel/tbb_config.cc
             registration/brute_force.h
