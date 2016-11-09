@@ -13,11 +13,15 @@ from ._freud import FTpolyhedron as _FTpolyhedron
 #
 # Analyses that are compute quantities in kspace
 #
-
-## Computes an n-dimensional meshgrid
-# \param arrs Arrays to grid
-# source: http://stackoverflow.com/questions/1827489/numpy-meshgrid-in-3d
 def meshgrid2(*arrs):
+    """Computes an n-dimensional meshgrid
+
+    source: http://stackoverflow.com/questions/1827489/numpy-meshgrid-in-3d
+
+    :param arrs: Arrays to meshgrid
+    :return: tuple of arrays
+    :rtype: :class:`tuple`
+    """
     arrs = tuple(reversed(arrs))
     lens = list(map(len, arrs))
     dim = len(arrs)
@@ -38,27 +42,32 @@ def meshgrid2(*arrs):
 
     return tuple(ans[::-1])
 
-
-## Compute the full 3D structure factor of a given set of points
-#
-# Given a set of points \f$ \vec{r}_i \f$ SFactor3DPoints computes the static structure factor
-# \f[ S(\vec{q}) = C_0 \left| \sum_{m=1}^{N} \exp(\mathit{i}\vec{q}\cdot\vec{r_i}) \right|^2 \f] where \f$ C_0 \f$ is a
-# scaling constatnt chosen so that \f$ S(0) = 1 \f$, \f$ N \f$ is the number of particles. S is evaluated on a
-# grid of q-values \f$ \vec{q} = h \frac{2\pi}{L_x} \hat{i} + k \frac{2\pi}{L_y} \hat{j} + l \frac{2\pi}{L_z} \hat{k} \f$
-# for integer h,k,l ranging from -\a g to +\a g (inclusive) and \f$L_x, L_y, L_z \f$ are the box lengths
-# in each direction.
-#
-# After calling compute(), access the used q values with getQ(), the static structure factor with getS(), and
-# (if needed) the un-squared complex version of S with getSComplex(). All values are stored in 3D numpy arrays.
-# They are indexed by a,b,c where a=h+g, b=k+g, and c=l+g.
-#
-# Note that due to the way that numpy arrays are indexed, access the returned S array as
-# S[c,b,a] to get the value at q = (qx[a], qy[b], qz[c]).
 class SFactor3DPoints:
-    ## Initalize SFactor3DPoints:
-    # \param box The simulation box
-    # \param g The number of grid points for q in each direction is 2*g+1.
+    """Compute the full 3D structure factor of a given set of points
+
+    Given a set of points :math:`\\vec{r}_i` SFactor3DPoints computes the static structure factor
+    :math:`S \\left( \\vec{q} \\right) = C_0 \\left| {\\sum_{m=1}^{N} \\exp{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`
+    where :math:`C_0` is a scaling constant chosen so that :math:`S\\left(0\\right) = 1`, :math:`N` is the number of
+    particles. :math:`S` is evaluated on a grid of q-values :math:`\\vec{q} = h \\frac{2\\pi}{L_x} \\hat{i} + k \\frac{2\\pi}{L_y}
+    \\hat{j} + l \\frac{2\\pi}{L_z} \\hat{k}` for integer :math:`h,k,l` ranging from -\a g to +\a g (inclusive) and
+    :math:`L_x, L_y, L_z` are the box lengths in each direction.
+
+    After calling :py:meth:`~.SFactor3DPoints.compute()`, access the used q values with :py:meth:`~.SFactor3DPoints.getQ()`,
+    the static structure factor with :py:meth:`~.SFactor3DPoints.getS()`, and (if needed) the un-squared complex version
+    of S with :py:meth:`~.SFactor3DPoints.getSComplex()`. All values are stored in 3D numpy arrays. They are indexed by
+    :math:`a,b,c` where :math:`a=h+g, b=k+g, c=l+g`.
+
+    Note that due to the way that numpy arrays are indexed, access the returned S array as
+    S[c,b,a] to get the value at :math:`q = \\left(qx\\left[a\\right], qy\\left[b\\right], qz\\left[c\\right]\\right)`.
+    """
     def __init__(self, box, g):
+        """Initalize SFactor3DPoints
+
+        :param box: The simulation box
+        :param g: The number of grid points for q in each direction is 2*g+1
+        :type box: :py:meth:`freud.box.Box`
+        :type g: int
+        """
         if box.is2D():
             raise ValueError("SFactor3DPoints does not support 2D boxes")
 
@@ -73,11 +82,15 @@ class SFactor3DPoints:
         # initialize a 0 S
         self.s_complex = numpy.zeros(shape=(self.grid,self.grid,self.grid), dtype=numpy.complex64);
 
-    ## Compute the static structure factor of a given set of points
-    # \param points Poits used to compute the static structure factor
-    #
-    # After calling compute(), you can access the results with getS(), getSComplex(), and the grid with getQ()
     def compute(self, points):
+        """Compute the static structure factor of a given set of points
+
+        After calling :py:meth:`~.SFactor3DPoints.compute()`, you can access the results with :py:meth:`~.SFactor3DPoints.getS()`,
+        :py:meth:`~.SFactor3DPoints.getSComplex()`, and the grid with :py:meth:`~.SFactor3DPoints.getQ()`.
+
+        :param points: points used to compute the static structure factor
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        """
         # clear s_complex to zero
         self.s_complex[:,:,:] = 0;
 
@@ -90,49 +103,69 @@ class SFactor3DPoints:
         cinv = numpy.absolute(self.s_complex[mid,mid,mid]);
         self.s_complex /= cinv;
 
-    ## Get the computed static structure factor
-    # \returns The computed static structure factor as a copy
     def getS(self):
+        """Get the computed static structure factor
+
+        :return: The computed static structure factor as a copy
+        :rtype: :class:`numpy.ndarray`, shape=(X,Y), dtype= :class:`numpy.float32`
+        """
         return (self.s_complex * numpy.conj(self.s_complex)).astype(numpy.float32);
 
-    ## Get the computed complex structure factor (if you need the phase information)
-    # \returns The computed static structure factor, as a copy, without taking the magnitude squared
     def getSComplex(self):
+        """Get the computed complex structure factor (if you need the phase information)
+
+        :return: The computed static structure factor, as a copy, without taking the magnitude squared
+        :rtype: :class:`numpy.ndarray`, shape=(X,Y), dtype= :class:`numpy.complex64`
+        """
         return copy.cpy(self.s_complex)
 
-    ## Get the q values at each point
-    # \returns qx, qy, qx
-    # The structure factor S[c,b,c] is evaluated at the vector q = (qx[a], qy[b], qz[c])
     def getQ(self):
+        """Get the q values at each point
+
+        The structure factor S[c,b,c] is evaluated at the vector q = (qx[a], qy[b], qz[c])
+
+        :return: (qx, qy, qz)
+        :rtype: :class:`tuple`
+        """
         return (self.qx, self.qy, self.qz);
 
-## Analyze the peaks in a 3D structure factor
-#
-# Given a structure factor S(q ) computed by classes such as SFactor3DPoints, AnalyzeSFactor3D
-# performs a variety of analysis tasks.
-#  - It identifies peaks
-#  - Provides a list of peaks and the vector q positions at which they occur
-#  - Provides a list of peaks grouped by q^2
-#  - Provides a full list of S(|q|) values vs q^2 suitable for plotting the 1D analog of the structure factor
-#  - Scans through the full 3d peaks and reconstructs the Bravais lattice
-#
-# Note that all of these operations work in an indexed integer q-space h,k,l. Any peak position values returned
-# must be multiplied by 2*pi/L to to real q values in simulation units. (umm, need to think if this actually
-# will work with non-cubic boxes....)
 class AnalyzeSFactor3D:
-    ## Initialize the analyzer
-    # \param S Static structure factor to analyze
-    #
+    """ Analyze the peaks in a 3D structure factor
+
+    Given a structure factor :math:`S\\left(q\\right)` computed by classes such as :py:class:`~.SFactor3DPoints`,
+    :py:class:`~.AnalyzeSFactor3D` performs a variety of analysis tasks.
+
+        * Identifies peaks
+        * Provides a list of peaks and the vector :math:`\\vec{q}` positions at which they occur
+        * Provides a list of peaks grouped by :math:`q^2`
+        * Provides a full list of :math:`S\\left(\\left|q\\right|\\right)` values vs :math:`q^2` suitable for plotting
+          the 1D analog of the structure factor
+        * Scans through the full 3d peaks and reconstructs the Bravais lattice
+
+    .. note::
+        All of these operations work in an indexed integer q-space :math:`h,k,l`. Any peak position values returned
+        must be multiplied by :math:`2*\\pi/L` to to real q values in simulation units.
+
+    .. todo::
+        need to think if this actually will work with non-cubic boxes...
+    """
     def __init__(self, S):
+        """Initialize the analyzer
+
+        :param S: Static structure factor to analyze
+        :type S: :class:`numpy.ndarray`
+        """
         self.S = S;
         self.grid = S.shape[0];
         self.g = self.grid/2;
 
-    ## Get a list of peaks in the structure factor
-    # \param cut All S(q) values greater than \a cut will be counted as peaks
-    # \returns peaks, q as lists
-    #
     def getPeakList(self, cut):
+        """Get a list of peaks in the structure factor
+
+        :param cut: All :math:`S\\left(q\\right)` values greater than \a cut will be counted as peaks
+        :return: peaks, q as lists
+        :rtype: :class:`list`
+        """
         clist,blist,alist = (self.S > cut).nonzero()
         clist -= self.g;
         blist -= self.g;
@@ -142,11 +175,14 @@ class AnalyzeSFactor3D:
         peak_list = [self.S[(q[0]+self.g, q[1]+self.g, q[2]+self.g)] for q in q_list];
         return (q_list, peak_list);
 
-    ## Get a dictionary of peaks indexed by q^2
-    # \param cut All S(q) values greater than \a cut will be counted as peaks
-    # \returns a dictionary with key q^2 and each element being a list of peaks
-    #
     def getPeakDegeneracy(self, cut):
+        """Get a dictionary of peaks indexed by :math:`q^2`
+
+        :param cut: All :math:`S\\left(q\\right)` values greater than \a cut will be counted as peaks
+        :type cut: :class:`numpy.ndarray`
+        :return: a dictionary with key :math:`q^2` and each element being a list of peaks
+        :rtype: :class:`dict`
+        """
         q_list, peak_list = self.getPeakList(cut);
 
         retval = {}
@@ -159,10 +195,12 @@ class AnalyzeSFactor3D:
 
         return retval;
 
-    # Get a list of all S(|q|) values vs q^2
-    # \returns S, qsquared
-    #
     def getSvsQ(self):
+        """Get a list of all :math:`S\\left(\\left|q\\right|\\right)` values vs :math:`q^2`
+
+        :return: S, qsquared
+        :rtype: :class:`numpy.ndarray`
+        """
         hx = range(-self.g, self.g+1);
 
         qsq_list = [];
@@ -174,27 +212,36 @@ class AnalyzeSFactor3D:
 
         return (self.S.flatten(), qsq_list)
 
-## SingleCell3D objects manage data structures necessary to call the Fourier Transform functions that evaluate FTs for
-# given form factors at a list of K points. SingleCell3D provides an interface to helper functions to calculate
-# K points for a desired grid from the reciprocal lattice vectors calculated from an input boxMatrix.
-# State is maintained as set_ and update_ functions invalidate internal data structures and as fresh data
-# is restored with update_ function calls. This should facilitate management with a higher-level UI such as a GUI
-# with an event queue.
-#
-# I'm not sure what sort of error checking would be most useful, so I'm mostly allowing ValueErrors and such exceptions
-# to just occur and then propagate up through the calling functions to be dealt with by the user.
 class SingleCell3D:
-    ## Initialize the single-cell data structure for FT calculation
-    # \param ndiv The resolution of the diffraction image grid
-    # \param k The angular wave number of the plane wave probe. (Currently unused.)
-    # \param dK The k-space unit associated with the diffraction image grid spacing
-    # \param boxMatrix The unit cell lattice vectors as columns in a 3x3 matrix
-    # \param scale nm per unit length (default 1.0)
-    # The set_ functions take a single parameeter and cause other internal data structures to become invalid.
-    # The update_ and calculate functions restore the validity of these structures using internal data.
-    # The functions are separate to make it easier to avoid unnecessary computation such as when changing
-    # multiple parameters before seeking output or when wrapping the code with an interface with an event queue.
+    """SingleCell3D objects manage data structures necessary to call the Fourier Transform functions that evaluate FTs for
+    given form factors at a list of K points. SingleCell3D provides an interface to helper functions to calculate
+    K points for a desired grid from the reciprocal lattice vectors calculated from an input boxMatrix.
+    State is maintained as `set_` and `update_` functions invalidate internal data structures and as fresh data
+    is restored with `update_` function calls. This should facilitate management with a higher-level UI such as a GUI
+    with an event queue.
+
+    I'm not sure what sort of error checking would be most useful, so I'm mostly allowing ValueErrors and such exceptions
+    to just occur and then propagate up through the calling functions to be dealt with by the user.
+    """
     def __init__(self, k=1800, ndiv=16, dK=0.01, boxMatrix=None, *args, **kwargs):
+        """Initialize the single-cell data structure for FT calculation
+        :param ndiv: The resolution of the diffraction image grid
+        :param k: The angular wave number of the plane wave probe. (Currently unused.)
+        :param dK: The k-space unit associated with the diffraction image grid spacing
+        :param boxMatrix: The unit cell lattice vectors as columns in a 3x3 matrix
+        :param scale: nm per unit length (default 1.0)
+        :type ndiv: int
+        :type k: float
+        :type dK: int
+        :type boxMatrix: :class:`numpy.ndarray`, shape=(3, 3), dtype= :class:`numpy.float32`
+        :type scale: float
+
+        .. note::
+            * The `set_` functions take a single parameeter and cause other internal data structures to become invalid.
+            * The `update_` and calculate functions restore the validity of these structures using internal data.
+            * The functions are separate to make it easier to avoid unnecessary computation such as when changing
+              multiple parameters before seeking output or when wrapping the code with an interface with an event queue.
+        """
         # Initialize some state
         self.Kpoints_valid = False
         self.FT_valid = False
@@ -245,10 +292,14 @@ class SingleCell3D:
         self.fffactory = FTfactory()
         #self.fffactory.addFT('Sphere', FTsphere)
 
-    ## Create internal data structures for new particle type by name
-    # Particle type is inactive when added because parameters must be set before FT can be performed.
-    # \param name particle name string
     def add_ptype(self, name):
+        """Create internal data structures for new particle type by name
+
+        Particle type is inactive when added because parameters must be set before FT can be performed.
+
+        :param name: particle name
+        :type name: str
+        """
         if name in self.ptype_name:
             raise Warning('{name} already exists'.format(name=name))
             return
@@ -259,11 +310,16 @@ class SingleCell3D:
         for param in self.ptype_param:
             self.ptype_param[param].append(None)
 
-    ## Remove internal data structures associated with ptype <name>
-    # Note that this shouldn't usually be necessary, since particle types
-    # may be set inactive or have any of their properties updated through set_ methods
-    # \param name particle name string
     def remove_ptype(self, name):
+        """Remove internal data structures associated with ptype <name>
+
+        :param name: particle name
+        :type name: str
+
+        .. note::
+            this shouldn't usually be necessary, since particle types may be set inactive or have any of their
+            properties updated through `set_` methods
+        """
         i = self.ptype_name.index(name)
         if i in self.active_types:
             self.active_types.remove(i)
@@ -277,33 +333,52 @@ class SingleCell3D:
         if i in self.active_types:
             self.FT_valid = False
 
-    ## Set particle type active
-    # \param name particle name
     def set_active(self, name):
+        """Set particle type active
+
+        :param name: particle name
+        :type name: str
+        """
         i = self.ptype_name.index(name)
         if not i in self.active_types:
             self.active_types.add(i)
             self.FT_valid = False
 
-    ## Set particle type inactive
-    # \param name particle name
     def set_inactive(self, name):
+        """Set particle type inactive
+
+        :param name: particle name
+        :type name: str
+        """
         i = self.ptype_name.index(name)
         if i in self.active_types:
             self.active_types.remove(i)
             self.FT_valid = False
 
-    ## Get ordered list of particle names
     def get_ptypes(self):
+        """Get ordered list of particle names
+
+        :return: list of particle names
+        :rtype: :class:`list`
+        """
         return self.ptype_name
-    ## Get form factor names and indices
+
     def get_form_factors(self):
+        """Get form factor names and indices
+
+        :return: list of factor names and indices
+        :rtype: :class:`list`
+        """
         return self.fffactory.getFTlist()
 
-    ## Set scattering form factor
-    # \param name particle type name
-    # \param ff scattering form factor named in self.get_form_factors()
     def set_form_factor(self, name, ff):
+        """Set scattering form factor
+
+        :param name: particle type name
+        :param ff: scattering form factor named in :py:meth:`~.SingleCell3D.get_form_factors()`
+        :type name: str
+        :type ff: :class:`list`
+        """
         i = self.ptype_name.index(name)
         j = self.fffactory.getFTlist().index(ff)
         FTobj = self.fffactory.getFTobject(j)
@@ -319,11 +394,16 @@ class SingleCell3D:
         if i in self.active_types:
             self.FT_valid = False
 
-    ## Set named parameter for named particle
-    # \param particle particle name
-    # \param param parameter name
-    # \param value parameter value
     def set_param(self, particle, param, value):
+        """Set named parameter for named particle
+
+        :param particle: particle name
+        :param param: parameter name
+        :param value: parameter value
+        :type particle: str
+        :type param: str
+        :type value: float
+        """
         i = self.ptype_name.index(particle)
         FTobj = self.ptype_ff[i]
         if not param in self.ptype_param:
@@ -336,26 +416,40 @@ class SingleCell3D:
             FTobj.set_parambyname(param, value)
             if i in self.active_types:
                 self.FT_valid = False
-    ## Set scale factor. Store global value and set for each particle type
-    # \param scale nm per unit for input file coordinates
+
     def set_scale(self, scale):
+        """Set scale factor. Store global value and set for each particle type
+
+        :param scale: nm per unit for input file coordinates
+        :type scale: float
+        """
         self.scale = numpy.float32(scale)
         for i in range(len(self.ptype_ff)):
             self.ptype_ff[i].set_scale(scale)
         self.bases_valid = False
-    ## Set box matrix
-    # \param 3x3 array of unit cell box matrix
+
     def set_box(self, boxMatrix):
+        """Set box matrix
+
+        :param boxMatrix: unit cell box matrix
+        :type boxMatrix: :class:`numpy.ndarray`, shape=(3, 3), dtype= :class:`numpy.float32`
+        """
         self.boxMatrix = numpy.array(boxMatrix)
         self.bases_valid = False
 
-    ## Set positions and orientations for a particle type
-    # To best maintain valid state in the event of changing numbers of particles, position and orienation are updated
-    # in a single method.
-    # \param name particle type name
-    # \param position (N,3) array of particle positions
-    # \param orientation (N,4) array of particle quaternions
     def set_rq(self, name, position, orientation):
+        """Set positions and orientations for a particle type
+
+        To best maintain valid state in the event of changing numbers of particles, position and orientation are
+        updated in a single method.
+
+        :param name: particle type name
+        :param position: (N,3) array of particle positions
+        :param orientation: (N,4) array of particle quaternions
+        :type name: str
+        :type position: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type orientation: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
+        """
         i = self.ptype_name.index(name)
         r = numpy.asarray(position, dtype=numpy.float32)
         q = numpy.asarray(orientation, dtype=numpy.float32)
@@ -373,24 +467,42 @@ class SingleCell3D:
         if i in self.active_types:
             self.FT_valid = False
 
-    ## Set number of grid divisions in diffraction image
-    # \param ndiv define diffraction image as ndiv x ndiv grid
     def set_ndiv(self, ndiv):
+        """Set number of grid divisions in diffraction image
+
+        :param ndiv: define diffraction image as ndiv x ndiv grid
+        :type ndiv: int
+        """
         self.ndiv = int(ndiv)
         self.K_constraint_valid = False
-    ## Set grid spacing in diffraction image
-    # \param dK difference in K vector between two adjacent diffraction image grid points
+
     def set_dK(self, dK):
+        """Set grid spacing in diffraction image
+
+        :param dK: difference in K vector between two adjacent diffraction image grid points
+        :type dK: float
+        """
         self.dK = numpy.float32(dK)
         self.K_constraint_valid = False
-    ## Set angular wave number of plane wave probe
-    # \param k = |k_0|
+
     def set_k(self, k):
+        """Set angular wave number of plane wave probe
+
+        :param k: = :math:`\\left|k_0\\right|`
+        :type k: float
+        """
         self.k = numpy.float32(k)
         #self.K_points_valid = False
-    ## Update the direct and reciprocal space lattice vectors
-    # If scale or boxMatrix is updated, the lattice vectors in direct and reciprocal space need to be recalculated.
+
     def update_bases(self):
+        """Update the direct and reciprocal space lattice vectors
+
+        .. note::
+            If scale or boxMatrix is updated, the lattice vectors in direct and reciprocal space need to be recalculated.
+
+        .. todo::
+            call automatically if scale, boxMatrix updated
+        """
         self.bases_valid = True
         # Calculate scaled lattice vectors
         vectors = self.boxMatrix.transpose() * self.scale
@@ -398,10 +510,13 @@ class SingleCell3D:
         # Calculate reciprocal lattice vectors
         self.g1, self.g2, self.g3 = numpy.float32(reciprocalLattice3D(self.a1, self.a2, self.a3))
         self.K_constraint_valid = False
-    ## Recalculate constraint used to select K values
-    # The constraint used is a slab of epsilon thickness in a plane perpendicular to the k0 propagation,
-    # intended to provide easy emulation of TEM or relatively high-energy scattering.
+
     def update_K_constraint(self):
+        """Recalculate constraint used to select K values
+
+        The constraint used is a slab of epsilon thickness in a plane perpendicular to the :math:`k_0` propagation,
+        intended to provide easy emulation of TEM or relatively high-energy scattering.
+        """
         self.K_constraint_valid = True
         self.Kmax = numpy.float32(self.dK * self.ndiv)
         K = self.Kmax
@@ -410,24 +525,34 @@ class SingleCell3D:
         self.K_extent = [-K, K, -K, K, -epsilon, epsilon]
         self.K_constraint = AlignedBoxConstraint(R, *self.K_extent)
         self.Kpoints_valid = False
-    ## Update K points at which to evaluate FT
-    # If the diffraction image dimensions change relative to the reciprocal lattice,
-    # the K points need to be recalculated.
+
     def update_Kpoints(self):
+        """Update K points at which to evaluate FT
+
+        .. note::
+            If the diffraction image dimensions change relative to the reciprocal lattice, the K points need to be
+            recalculated.
+        """
         self.Kpoints_valid = True
         self.Kpoints = numpy.float32(constrainedLatticePoints(self.g1, self.g2, self.g3, self.K_constraint))
         for i in range(len(self.ptype_ff)):
             self.ptype_ff[i].set_K(self.Kpoints)
         self.FT_valid = False
-    ## Calculate FT. The details and arguments will vary depending on the form factor chosen for the particles.
-    # For any particle type-dependent parameters passed as keyword arguments, the parameter must be passed as a list
-    # of length max(p_type)+1 with indices corresponding to the particle types defined. In other words, type-dependent
-    # parameters are optional (depending on the set of form factors being calculated), but if included must be defined
-    # for all particle types.
-    # \param position (N,3) ndarray of particle positions in nm
-    # \param orientation (N,4) ndarray of orientation quaternions
-    # \param kwargs additional keyword arguments passed on to form-factor-specific FT calculator
+
     def calculate(self, *args, **kwargs):
+        """## Calculate FT. The details and arguments will vary depending on the form factor chosen for the particles.
+
+        For any particle type-dependent parameters passed as keyword arguments, the parameter must be passed as a list
+        of length max(p_type)+1 with indices corresponding to the particle types defined. In other words, type-dependent
+        parameters are optional (depending on the set of form factors being calculated), but if included must be defined
+        for all particle types.
+
+        :param position: array of particle positions in nm
+        :param orientation: array of orientation quaternions
+        :param kwargs: additional keyword arguments passed on to form-factor-specific FT calculator
+        :type position: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type orientation: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
+        """
         self.FT_valid = True
         shape = (len(self.Kpoints),)
         self.FT = numpy.zeros(shape, dtype=numpy.complex64)
@@ -437,28 +562,47 @@ class SingleCell3D:
             self.FT += calculator.getFT()
         return self.FT
 
-## Factory to return an FT object of the requested type
 class FTfactory:
+    """Factory to return an FT object of the requested type
+    """
     def __init__(self):
+        """Constructor
+        """
         self.name_list = ['Delta']
         self.constructor_list = [FTdelta]
         self.args_list = [None]
-    ## Get an ordered list of named FT types
+
     def getFTlist(self):
+        """Get an ordered list of named FT types
+
+        :return: list of FT names
+        :rtype: :class:`list`
+        """
         return self.name_list
-    ## Get a new instance of an FT type from list returned by getFTlist()
-    # \param i index into list returned by getFTlist()
-    # \param args argument object used to initialize FT, overriding default set at addFT()
+
     def getFTobject(self, i, args=None):
+        """Get a new instance of an FT type from list returned by :py:meth:`~.FTfactory.getFTlist()`
+
+        :param i: index into list returned by :py:meth:`~.FTfactory.getFTlist()`
+        :param args: argument object used to initialize FT, overriding default set at :py:meth:`~.FTfactory.addFT()`
+        :type i: int
+        :type args: :class:`list`
+        """
         constructor = self.constructor_list[i]
         if args is None:
             args = self.args_list[i]
         return constructor(args)
-    ## Add an FT class to the factory
-    # \param name identifying string to be returned by getFTlist()
-    # \param constructor class / function name to be used to create new FT objects
-    # \param args set default argument object to be used to construct FT objects
+
     def addFT(self, name, constructor, args=None):
+        """Add an FT class to the factory
+
+        :param name: identifying string to be returned by getFTlist()
+        :param constructor: class / function name to be used to create new FT objects
+        :param args: set default argument object to be used to construct FT objects
+        :type name: str
+        :type constructor: :class:`class`
+        :type args: :class:`list`
+        """
         if name in self.name_list:
             raise Warning('{name} already in factory'.format(name=name))
         else:
@@ -466,8 +610,9 @@ class FTfactory:
             self.constructor_list.append(constructor)
             self.args_list.append(args)
 
-## Base class for FT calculation classes
 class FTbase:
+    """Base class for FT calculation classes
+    """
     def __init__(self, *args, **kwargs):
         self.scale = numpy.float32(1.0)
         self.density = numpy.complex64(1.0)
