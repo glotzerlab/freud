@@ -1,3 +1,6 @@
+# Copyright (c) 2010-2016 The Regents of the University of Michigan
+# This file is part of the Freud project, released under the BSD 3-Clause License.
+
 cimport freud._parallel as parallel
 
 # override TBB's default autoselection. This is necessary because once the automatic selection runs, the user cannot

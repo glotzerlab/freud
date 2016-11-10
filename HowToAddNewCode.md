@@ -2,6 +2,15 @@
 
 This how to details the process of adding new code into freud
 
+## Does my code belong in freud?
+
+* Does this code simply wrap or augment an external python library?
+
+If you answered "yes" to any of the above questions, your code *probably* does not belong in Freud. A good rule of thumb
+is *if the code I plan to write does not require C++, it does not belong in Freud*.
+
+There are, of course, exceptions.
+
 ## Create a new branch
 
 You should branch your code off master into a new branch. Do not add new code directly into master

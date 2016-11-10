@@ -1,3 +1,5 @@
+# Copyright (c) 2010-2016 The Regents of the University of Michigan
+# This file is part of the Freud project, released under the BSD 3-Clause License.
 
 from freud.util._Boost cimport shared_array
 from freud.util._VectorMath cimport vec3, quat

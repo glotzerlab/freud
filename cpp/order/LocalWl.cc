@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2016 The Regents of the University of Michigan
+// This file is part of the Freud project, released under the BSD 3-Clause License.
+
 #include "LocalWl.h"
 #include "wigner3j.h"
 #include <stdexcept>
@@ -60,7 +63,7 @@ void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<f
     // in fsph, the definition is flipped
     sph_eval.compute(theta, phi);
 
-    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_const_l(m_l, 0, false));
+    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
         iter != sph_eval.end(); ++iter)
         {
         Y[(j+m_l) % (2*m_l+1)] = *iter;

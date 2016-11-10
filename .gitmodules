@@ -1,0 +1,3 @@
+[submodule "extern/fsph"]
+	path = extern/fsph
+	url = git@bitbucket.org:glotzer/fsph.git
