@@ -24,10 +24,6 @@
 #ifndef _BONDING_XYT_H__
 #define _BONDING_XYT_H__
 
-/*! \file EntropicBonding.h
-    \brief Compute the hexatic order parameter for each particle
-*/
-
 namespace freud { namespace bond {
 
 class BondingXYT

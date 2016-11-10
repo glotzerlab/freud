@@ -2,7 +2,8 @@
 KSpace Module
 ==============
 
-Lorem Ipsum
+Modules for calculating quantities in reciprocal space, including fourier transforms of shapes and diffraction pattern
+generation.
 
 Meshgrid
 ========
@@ -14,6 +15,8 @@ Meshgrid
 Structure Factor
 ================
 
+Methods for calculating the structure factor of different systems
+
 .. autoclass:: freud.kspace.SFactor3DPoints(box, g)
     :members:
 
@@ -24,4 +27,47 @@ Structure Factor
     :members:
 
 .. autoclass:: freud.kspace.FTfactory()
+    :members:
+
+.. autoclass:: freud.kspace.FTbase()
+    :members:
+
+.. autoclass:: freud.kspace.FTdelta()
+    :members:
+
+.. autoclass:: freud.kspace.FTsphere()
+    :members:
+
+.. autoclass:: freud.kspace.FTpolyhedron()
+    :members:
+
+.. autoclass:: freud.kspace.FTconvexPolyhedron()
+    :members:
+
+Diffraction Patterns
+====================
+
+Methods for calculating diffraction patterns of various systems
+
+.. autoclass:: freud.kspace.DeltaSpot()
+    :members:
+
+.. autoclass:: freud.kspace.GaussianSpot()
+    :members:
+
+Utilities
+=========
+
+Classes and methods used by other kspace modules
+
+.. autoclass:: freud.kspace.Constraint()
+    :members:
+
+.. autoclass:: freud.kspace.AlignedBoxConstraint()
+    :members:
+
+.. autoclass:: freud.kspace.constrainedLatticePoints()
+    :members:
+
+.. autoclass:: freud.kspace.reciprocalLattice3D()
     :members:

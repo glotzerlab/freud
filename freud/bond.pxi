@@ -137,7 +137,7 @@ cdef class BondingAnalysis:
 cdef class BondingR12:
     """Compute the bonds each particle in the system.
 
-    For each particle in the system determine which other particles are in which entropic bonding sites.
+    For each particle in the system determine which other particles are in which bonding sites.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -244,7 +244,7 @@ cdef class BondingR12:
 cdef class BondingXY2D:
     """Compute the bonds each particle in the system.
 
-    For each particle in the system determine which other particles are in which entropic bonding sites.
+    For each particle in the system determine which other particles are in which bonding sites.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -353,7 +353,7 @@ cdef class BondingXY2D:
 cdef class BondingXYT:
     """Compute the bonds each particle in the system.
 
-    For each particle in the system determine which other particles are in which entropic bonding sites.
+    For each particle in the system determine which other particles are in which bonding sites.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -463,7 +463,7 @@ cdef class BondingXYT:
 cdef class BondingXYZ:
     """Compute the bonds each particle in the system.
 
-    For each particle in the system determine which other particles are in which entropic bonding sites.
+    For each particle in the system determine which other particles are in which bonding sites.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
