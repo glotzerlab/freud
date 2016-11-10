@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2016 The Regents of the University of Michigan
+// This file is part of the Freud project, released under the BSD 3-Clause License.
+
 #include <tbb/tbb.h>
 #include <ostream>
 
@@ -20,10 +23,6 @@
 
 #ifndef _BONDING_XYT_H__
 #define _BONDING_XYT_H__
-
-/*! \file EntropicBonding.h
-    \brief Compute the hexatic order parameter for each particle
-*/
 
 namespace freud { namespace bond {
 

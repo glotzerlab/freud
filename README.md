@@ -1,23 +1,100 @@
-freud {#mainpage}
-===============================================
+# Freud
 
-# Requirements {#requirements_section}
+Welcome to Freud! Freud provides users the ability to analyze generic data from a variety of sources including
+simulation and experimental data for advanced metrics such as the radial distribution function and various order parameters.
 
-Numpy is **required** to build freud
+## Mailing List
 
-Cython >= 0.23 is **required** to compile your own _freud.cpp file. Cython **is not required** to install freud
+If you have a question, please consider posting to the [Freud-Users mailing list](https://groups.google.com/forum/#!forum/freud-users).
 
-Boost is **required** to run freud
+## Examples
 
-Intel Thread Building Blocks is **require** to run freud
+Example Jupyter notebooks can be found in a [separate repository](https://bitbucket.org/glotzer/freud-examples). These
+examples will be available on [nbviewer](https://nbviewer.jupyter.org/) and [mybinder](http://mybinder.org/) in the
+near future.
 
-# Documentation {#documentation_section}
+## Installing Freud
 
-You may download the documentation in the [downloads section](https://bitbucket.org/glotzer/freud/downloads), or you may build the documentation yourself:
+Official binaries of Freud are available via [conda](http://conda.pydata.org/docs/) through
+the [glotzer channel](https://anaconda.org/glotzer).
+To install Freud, first download and install
+[miniconda](http://conda.pydata.org/miniconda.html) following [conda's instructions](http://conda.pydata.org/docs/install/quick.html).
+Then add the `glotzer` channel and install Freud:
 
-## Building the documentation
+```bash
+$ conda config --add channels glotzer
+$ conda install freud
+```
 
-Documentation written in sphinx, not doxygen. Please install sphinx:
+## Compiling Freud
+
+Use cmake to configure an out of source build and make to build freud.
+
+```bash
+mkdir build
+cd build
+cmake ../
+make -j20
+```
+
+By default, freud installs to the [USER_SITE](https://docs.python.org/2/install/index.html) directory. Which is in
+`~/.local` on linux and in `~/Library` on mac. `USER_SITE` is on the python search path by default, there is no need to
+modify `PYTHONPATH`.
+
+To run out of the build directory, add the build directory to your `PYTHONPATH`:
+
+~~~
+bash
+export PYTHONPATH=`pwd`:$PYTHONPATH
+~~~
+
+For more detailed instructions, [see the documentation](http://freud.readthedocs.io/en/stable/compiling.html).
+
+### Requirements
+
+* Required:
+    * Python >= 2.7 (3.x recommended)
+    * Numpy >=1.7
+    * Boost (headers only)
+    * CMake >= 2.8.0 (to compile freud)
+    * C++ 11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
+    * Intel Thread Building Blocks
+* Optional:
+    * Cython >= 0.23 (to compile your own _freud.cpp)
+
+## Job scripts
+
+Freud analysis scripts are python scripts.
+
+Here is a simple example.
+
+```python
+import freud
+
+# create a freud compute object (rdf is the canonical example)
+rdf = freud.density.rdf(rmax=5, dr=0.1)
+# load in your data (freud does not provide a data reader)
+box_data = np.load("pth/to/box_data.npy")
+pos_data = np.load("pth/to/pos_data.npy")
+
+# create freud box
+box = freud.box.Box(Lx=box_data[0]["Lx"], Ly=box_data[0]["Ly"], is2D=True)
+# compute RDF
+rdf.compute(box, pos_data[0], pos_data[0])
+# get bin centers, rdf data
+r = rdf.getR()
+y = rdf.getRDF()
+```
+
+## Documentation
+
+You may [read the documentation online](http://freud.readthedocs.io/en/stable/compiling.html), download the
+documentation in the [downloads section](https://bitbucket.org/glotzer/freud/downloads), or you may build the
+documentation yourself:
+
+### Building the documentation
+
+Documentation written in sphinx. Please install sphinx:
 
 	conda install sphinx
 
@@ -27,11 +104,11 @@ OR
 
 To view the full documentation run the following commands in the source directory:
 
-~~~
+~~~bash
 # Linux
 cd doc
 make html
-firefox build/html/index.html
+xdg-open build/html/index.html
 
 # Mac
 cd doc
@@ -41,7 +118,7 @@ open build/html/index.html
 
 If you have latex and/or pdflatex, you may also build a pdf of the documentation:
 
-~~~
+~~~bash
 # Linux
 cd doc
 make latexpdf
@@ -53,73 +130,7 @@ make latexpdf
 open build/latex/freud.pdf
 ~~~
 
-# Installation
-
-Freud may be installed via Conda, glotzpkgs, or compiled from source
-
-## Conda install {#conda_section}
-
-To install freud with conda, make sure you have the glotzer channel and conda-private channels installed:
-
-~~~
-$: conda config --add channels glotzer
-$: conda config --add channels file:///nfs/glotzer/software/conda-private
-~~~
-
-Now, install freud
-
-~~~
-conda install freud
-# you may also install into a new environment
-conda create -n my_env python=3.5 freud
-~~~
-
-## glotzpkgs install {#glotzpkgs_section}
-
-*Please refer to the official glotzpkgs documentation*
-
-*Make sure you have a working glotzpkgs env.*
-
-~~~
-# install from provided binary
-$: gpacman -S freud
-# installing your own version
-$: cd /pth/to/glotzpkgs/freud
-$: gmakepkg
-# tab completion is your friend here
-$: gpacman -U freud-<version>-flux.pkg.tar.gz
-# now you can load the binary
-$: module load freud
-~~~
-
-## Compile from source {#build_section}
-
-It's easiest to install freud with a working conda install of the required packages:
-
-* python (2.7, 3.3, 3.4, 3.5)
-* numpy
-* boost (2.7, 3.3 provided on flux, 3.4, 3.5)
-* cython (not required, but a correct _freud.cpp file must be present to compile)
-* tbb
-* cmake
-* icu (because of boost for now)
-
-You may either make a build directory *inside* the freud source directory, or create a separate build directory somewhere on your system:
-
-~~~
-mkdir /pth/to/build
-cd /pth/to/build
-ccmake /pth/to/freud
-# adjust settings as needed, esp. ENABLE_CYTHON=ON
-make install -j6
-# enjoy
-~~~
-
-By default, freud installs to the [USER_SITE](https://docs.python.org/2/install/index.html) directory. Which is in
-`~/.local` on linux and in `~/Library` on mac. `USER_SITE` is on the python search path by default, there is no need to
-modify `PYTHONPATH`.
-
-# Tests {#tests_section}
+## Unit Tests
 
 Run all unit tests with nosetests in the source directory. To add a test, simply add a file to the `tests` directory,
 and nosetests will automatically discover it. See http://pythontesting.net/framework/nose/nose-introduction/ for

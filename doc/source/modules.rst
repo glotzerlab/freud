@@ -15,6 +15,7 @@ Several modules are available currently. Feel free to contribute your own module
    density
    indexer
    interface
+   kspace
    locality
    pmft
    order

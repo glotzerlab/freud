@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import division
 
-from freud import density, trajectory
+from freud import density, box
 from benchmark import benchmark
 import numpy
 import math
@@ -16,10 +16,11 @@ class benchmark_local_density(benchmark):
         box_size = math.sqrt(N*self.nu);
         self.pos = numpy.random.random_sample((N,3)).astype(numpy.float32)*box_size - box_size/2
         self.pos[:,2] = 0;
-        self.ld = density.LocalDensity(trajectory.Box(box_size, True), self.r_cut, 1);
+        self.ld = density.LocalDensity(self.r_cut, 1, 1);
     
     def run(self, N):
-        self.ld.compute(self.pos);
+        box_size = math.sqrt(N*self.nu);
+        self.ld.compute(box.Box.square(box_size), self.pos);
 
 
 if __name__ == '__main__':
