@@ -614,6 +614,8 @@ class FTbase:
     """Base class for FT calculation classes
     """
     def __init__(self, *args, **kwargs):
+        """Constructor
+        """
         self.scale = numpy.float32(1.0)
         self.density = numpy.complex64(1.0)
         self.S = None
@@ -633,40 +635,97 @@ class FTbase:
     ## Compute FT
     #def compute(self, *args, **kwargs):
     def getFT(self):
+        """Return Fourier Transform
+
+        :return: Fourier Transform
+        :rtype: :class:`numpy.ndarray`
+        """
         return self.S
-    ## Get the parameter names accessible with set_parambyname()
+
     def get_params(self):
+        """Get the parameter names accessible with set_parambyname()
+
+        :return: parameter names
+        :rtype: :class:`list`
+        """
         return self.set_param_map.keys()
-    ## Set named parameter for object
-    # \param name parameter name. Must exist in list returned by get_params()
-    # \param value parameter value to set
+
     def set_parambyname(self, name, value):
+        """Set named parameter for object
+
+        :param name: parameter name. Must exist in list returned by :py:meth:`~.FTbase.get_params()`
+        :param value: parameter value to set
+        :type name: str
+        :type value: float
+        """
         if not name in self.set_param_map.keys():
             msg = 'Object {type} does not have parameter {param}'.format(type=self.__class__, param=name)
             raise KeyError(msg)
         else:
             self.set_param_map[name](value)
-    ## Get named parameter for object
-    # \param name parameter name. Must exist in list returned by get_params()
+
     def get_parambyname(self, name):
+        """Get named parameter for object
+
+        :param name: parameter name. Must exist in list returned by :py:meth:`~.FTbase.get_params()`
+        :type name: str
+        :return: parameter value
+        :rtype: float
+        """
         if not name in self.get_param_map.keys():
             msg = 'Object {type} does not have parameter {param}'.format(type=self.__class__, param=name)
             raise KeyError(msg)
         else:
             return self.get_param_map[name]()
-    ## Set K points to be evaluated
-    # \param K list of K vectors at which to evaluate FT
+
     def set_K(self, K):
+        """Set K points to be evaluated
+
+        :param K: list of K vectors at which to evaluate FT
+        :type K: :class:`numpy.ndarray`
+        """
         self.K = numpy.asarray(K, dtype=numpy.float32)
+
     def set_scale(self, scale):
+        """Set scale
+
+        :param scale: scale
+        :type scale: float
+        """
         self.scale = numpy.float32(scale)
+
     def get_scale(self):
+        """Get scale
+
+        :return: scale
+        :rtype: float
+        """
         return self.scale
+
     def set_density(self, density):
+        """set density
+
+        :param density: density
+        :type density: :class:`numpy.complex64`
+        """
         self.density = numpy.complex64(density)
+
     def get_density(self, density):
+        """Get density
+
+        :return: density
+        :rtype: :class:`numpy.complex64`
+        """
         return self.density
+
     def set_rq(self, r, q):
+        """Set r, q values
+
+        :param r: r
+        :param q: q
+        :type r: :class:`numpy.ndarray`
+        :type q: :class:`numpy.ndarray`
+        """
         self.position = numpy.asarray(r, dtype=numpy.float32)
         self.orientation = numpy.asarray(q, dtype=numpy.float32)
         if len(self.position.shape) == 1:
@@ -680,95 +739,200 @@ class FTbase:
             print('Error: can not make an array of 4D vectors from input orientation.')
             return None
 
-## Fourier transform a list of delta functions
 class FTdelta(FTbase):
+    """Fourier transform a list of delta functions
+    """
     def __init__(self, *args, **kwargs):
+        """Constructor
+        """
         FTbase.__init__(self)
         self.FTobj = _FTdelta()
+
     def set_K(self, K):
+        """Set K points to be evaluated
+
+        :param K: list of K vectors at which to evaluate FT
+        :type K: :class:`numpy.ndarray`
+        """
         FTbase.set_K(self, K)
         self.FTobj.set_K(self.K * self.scale)
-    # Note that for a scale factor, lambda, affecting the scattering density rho(r),
-    # S_lambda(k) == lambda**3 * S(lambda * k)
+
     def set_scale(self, scale):
+        """Set scale
+
+        :param scale: scale
+        :type scale: float
+
+        .. note::
+            For a scale factor, :math:`\\lambda`, affecting the scattering density :math:`\\rho\\left(r\\right)`,
+            :math:`S_{lambda}\\left(k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`
+        """
         FTbase.set_scale(self, scale)
         #self.FTobj.set_scale(float(self.scale))
         self.FTobj.set_K(self.K * self.scale)
+
     def set_density(self, density):
+        """set density
+
+        :param density: density
+        :type density: :class:`numpy.complex64`
+        """
         FTbase.set_density(self, density)
         self.FTobj.set_density(complex(self.density))
+
     def set_rq(self, r, q):
+        """Set r, q values
+
+        :param r: r
+        :param q: q
+        :type r: :class:`numpy.ndarray`
+        :type q: :class:`numpy.ndarray`
+        """
         FTbase.set_rq(self, r, q)
         self.FTobj.set_rq(self.position, self.orientation)
-    ## Compute FT
-    # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
+
     def compute(self, *args, **kwargs):
+        """Compute FT
+
+        Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
+        """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
 
-# Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
 class FTsphere(FTdelta):
+    """Fourier transform for sphere
+
+    Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
+    """
     def __init__(self, *args, **kwargs):
+        """Constructor
+        """
         FTbase.__init__(self, *args, **kwargs)
         self.FTobj = _FTsphere()
         self.set_param_map['radius'] = self.set_radius
         self.get_param_map['radius'] = self.get_radius
         self.set_radius(0.5)
-    ## Set radius parameter
-    # \param radius sphere radius will be stored as given, but scaled by scale parameter when used by methods
+
     def set_radius(self, radius):
+        """Set radius parameter
+
+        :param radius: sphere radius will be stored as given, but scaled by scale parameter when used by methods
+        :type radius: float
+        """
         self.radius = float(radius)
         self.FTobj.set_radius(self.radius)
-    ## Get radius parameter
-    # If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
-    # \returns unscaled radius
+
     def get_radius(self):
+        """Get radius parameter
+
+        If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+
+        :return: unscaled radius
+        :rtype: float
+        """
         self.radius = self.FTobj.get_radius()
         return self.radius
 
 class FTpolyhedron(FTbase):
+    """Fourier Transform for polyhedra
+    """
     def __init__(self, *args, **kwargs):
+        """Constructor
+        """
         FTbase.__init__(self, *args, **kwargs)
         self.FTobj = _FTpolyhedron()
         self.set_param_map['radius'] = self.set_radius
         self.get_param_map['radius'] = self.get_radius
+
     def set_K(self, K):
+        """Set K points to be evaluated
+
+        :param K: list of K vectors at which to evaluate FT
+        :type K: :class:`numpy.ndarray`
+        """
         FTbase.set_K(self, K)
         self.FTobj.set_K(self.K * self.scale)
+
     def set_rq(self, r, q):
+        """Set r, q values
+
+        :param r: r
+        :param q: q
+        :type r: :class:`numpy.ndarray`
+        :type q: :class:`numpy.ndarray`
+        """
         FTbase.set_rq(self, r, q)
         self.FTobj.set_rq(self.position, self.orientation)
+
     def set_density(self, density):
+        """set density
+
+        :param density: density
+        :type density: :class:`numpy.complex64`
+        """
         FTbase.set_density(self, density)
         self.FTobj.set_density(complex(self.density))
+
     def set_params(self, verts, facets, norms, d, areas, volume):
-        # construct list of facet offsets
+        """construct list of facet offsets
+
+        :param verts: list of vertices
+        :param facets: list of facets
+        :param norms: list of norms
+        :param d: list of d values
+        :param areas: list of areas
+        :param volumes: list of volumes
+        :type verts: :class:`numpy.ndarray`, shape=(:math:`N_{verts}`, 3), dtype= :class:`numpy.float32`
+        :type facets: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`, :math:`N_{verts}`), dtype= :class:`numpy.float32`
+        :type norms: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`, 3), dtype= :class:`numpy.float32`
+        :type d: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`), dtype= :class:`numpy.float32`
+        :type areas: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`), dtype= :class:`numpy.float32`
+        :type volumes: :class:`numpy.ndarray`
+        """
         facet_offs = numpy.zeros((len(facets)+1))
         for i,f in enumerate(facets):
             facet_offs[i+1] = facet_offs[i] + len(f)
         self.FTobj.set_params(verts, facet_offs, [vi for f in facets for vi in f], norms, d, areas, volume)
 
-    ## Set radius of in-sphere
-    # \param radius inscribed sphere radius without scale applied
     def set_radius(self, radius):
+        """Set radius of in-sphere
+
+        :param radius: radius inscribed sphere radius without scale applied
+        :type radius: float
+        """
         # Find original in-sphere radius, determine necessary scale factor, and scale vertices and surface distances
         radius = float(radius)
         self.hull.setInsphereRadius(radius)
-    ## Get radius of in-sphere
-    # If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+
     def get_radius(self):
+        """Get radius parameter
+
+        If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+
+        :return: unscaled radius
+        :rtype: float
+        """
         # Find current in-sphere radius
         inradius = self.hull.getInsphereRadius()
         return inradius
-    ## Compute FT
-    # Calculate S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
+
     def compute(self, *args, **kwargs):
+        """Compute FT
+
+        Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
+        """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
 
 class FTconvexPolyhedron(FTpolyhedron):
-    #! \param hull convex hull object as returned by freud.shape.ConvexPolyhedron(points)
+    """Fourier Transform for convex polyhedra
+    """
     def __init__(self, hull, *args, **kwargs):
+        """Constructor
+
+        :param hull: convex hull object
+        :type hull: :class:`numpy.ndarray`, shape=(:math:`N_{verts}`, 3), dtype= :class:`numpy.float32`
+        """
         FTpolyhedron.__init__(self, *args, **kwargs)
         self.set_param_map['radius'] = self.set_radius
         self.get_param_map['radius'] = self.get_radius
@@ -783,23 +947,35 @@ class FTconvexPolyhedron(FTpolyhedron):
         volume = self.hull.getVolume() * self.scale**3.0
         self.set_params(verts,facets,norms,d,area,volume)
 
-    ## Set radius of in-sphere
-    # \param radius inscribed sphere radius without scale applied
     def set_radius(self, radius):
+        """Set radius of in-sphere
+
+        :param radius: radius inscribed sphere radius without scale applied
+        :type radius: float
+        """
         # Find original in-sphere radius, determine necessary scale factor, and scale vertices and surface distances
         radius = float(radius)
         self.hull.setInsphereRadius(radius)
-    ## Get radius of in-sphere
-    # If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+
     def get_radius(self):
+        """Get radius parameter
+
+        If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+
+        :return: unscaled radius
+        :rtype: float
+        """
         # Find current in-sphere radius
         inradius = self.hull.getInsphereRadius()
         return inradius
-    ## Compute FT
-    # Calculate P = F * S
-    # S = \sum_{\alpha} \exp^{-i \mathbf{K} \cdot \mathbf{r}_{\alpha}}
-    # F is the analytical form factor for a polyhedron, computed with Spoly3D
+
     def compute_py(self, *args, **kwargs):
+        """Compute FT
+
+        Calculate :math:`P = F * S`:
+        * :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
+        * F is the analytical form factor for a polyhedron, computed with Spoly3D
+        """
         # Return FT of delta function at one or more locations
         position = self.scale * self.position
         orientation = self.orientation
@@ -814,10 +990,15 @@ class FTconvexPolyhedron(FTpolyhedron):
                 K = quatrot(q * numpy.array([1,-1,-1,-1]), self.K[i])
                 self.S[i] += numpy.exp(numpy.dot(K, r) * -1.j) * self.Spoly3D(K)
         self.S *= self.density
-    ## Calculate Fourier transform of polygon
-    # \param i face index into self.hull simplex list
-    # \param k angular wave vector at which to calcular S(i)
+
     def Spoly2D(self, i, k):
+        """Calculate Fourier transform of polygon
+
+        :param i: face index into self.hull simplex list
+        :param k: angular wave vector at which to calcular :math:`S\\left(i\\right)`
+        :type i: int
+        :type k: int
+        """
         if numpy.dot(k, k) == 0.0:
             S = self.hull.getArea(i) * self.scale**2
         else:
@@ -839,9 +1020,13 @@ class FTconvexPolyhedron(FTpolyhedron):
                 S += numpy.dot(n, cpedgek) * numpy.exp(-1.j * numpy.dot(k, centrum)) * numpy.sinc(x)
             S *= (-1.j / numpy.dot(k, k))
         return S
-    ## Calculate Fourier transform of polyhedron
-    # \param k angular wave vector at which to calculate FT.
+
     def Spoly3D(self, k):
+        """Calculate Fourier transform of polyhedron
+
+        :param k: angular wave vector at which to calcular :math:`S\\left(i\\right)`
+        :type k: int
+        """
         if numpy.dot(k, k) == 0.0:
             S = self.hull.getVolume() * self.scale**3
         else:
@@ -857,6 +1042,7 @@ class FTconvexPolyhedron(FTpolyhedron):
             S *= 1.j/(numpy.dot(k,k))
         return S
 
+# The below are currently undocumented...need to determine if these belong or should be removed
 def mkSCcoords(nx, ny, nz):
     coords = list()
     for i in range(-int(nx/2), -int(nx/2) + nx):
@@ -883,6 +1069,7 @@ def mkFCCcoords(nx, ny, nz):
                     coords.append([i, j, k])
     return numpy.array(coords, dtype=float)
 
+# Given that these are potentially used elsewhere, they should be added to the new freud.common (v0.7.0)
 ## Axis angle rotation
 # \param v vector to be rotated
 # \param u rotation axis
@@ -916,29 +1103,50 @@ def quatrot(a, b):
     v = a[1:4]
     return (s*s - numpy.dot(v,v))*b + 2*s*numpy.cross(v,b) + 2*numpy.dot(v,b)*v
 
-## Constraint base class
-# Base class for constraints on vectors to define the API. All constraints should have a
-# 'radius' defining a bounding sphere and a 'satisfies' method to determine whether an
-# input vector satisfies the constraint.
 class Constraint:
-    ## Constructor
-    # \param R required parameter describes the circumsphere of influence of the constraint for quick tests
+    """Constraint base class
+
+    Base class for constraints on vectors to define the API. All constraints should have a 'radius' defining a bounding
+    sphere and a 'satisfies' method to determine whether an input vector satisfies the constraint.
+    """
     def __init__(self, R, *args, **kwargs):
+        """Constructor
+
+        :param R: required parameter describes the circumsphere of influence of the constraint for quick tests
+        :type R: float
+        """
         self.radius = R
-    ## Constraint test
-    # \param v vector to test against constraint
+
     def satisfies(self, v):
+        """Constraint test
+
+        :param v: vector to test against constraint
+        :type v: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+        """
         return True
 
-## Axis-aligned Box constraint
-# Tetragonal box aligned with the coordinate system. Consider using a small z dimension
-# to serve as a plane plus or minus some epsilon. Set R < L for a cylinder
 class AlignedBoxConstraint(Constraint):
+    """Axis-aligned Box constraint
+
+    Tetragonal box aligned with the coordinate system. Consider using a small z dimension to serve as a plane plus or
+    minus some epsilon. Set R < L for a cylinder
+    """
     def __init__(self, R, *args, **kwargs):
+        """Constructor
+
+        :param R: required parameter describes the circumsphere of influence of the constraint for quick tests
+        :type R: float
+        """
         self.radius = R
         self.R2 = R*R
         [self.xneg, self.xpos, self.yneg, self.ypos, self.zneg, self.zpos] = args
+
     def satisfies(self, v):
+        """Constraint test
+
+        :param v: vector to test against constraint
+        :type v: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+        """
         satisfied = False
         if numpy.dot(v,v) <= self.R2:
             if v[0] >= self.xneg and v[0] <= self.xpos:
@@ -947,10 +1155,18 @@ class AlignedBoxConstraint(Constraint):
                         satisfied = True
         return satisfied
 
-## Generate a list of points satisfying a constraint
-# \param v1,v2,v3 lattice vectors along which to test points
-# \param constraint constraint object to test lattice points against
 def constrainedLatticePoints(v1, v2, v3, constraint):
+    """Generate a list of points satisfying a constraint
+
+    :param v1: lattice vector 1 along which to test points
+    :param v2: lattice vector 2 along which to test points
+    :param v3: lattice vector 3 along which to test points
+    :param constraint: constraint object to test lattice points against
+    :type v1: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+    :type v2: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+    :type v3: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+    :type constraint: :py:class:`~.Constraint`
+    """
     # Find shortest distance, G, possible with lattice vectors
     # See how many G, nmax, fit in bounding box radius R
     # Limit indices h, k, l to [-nmax, nmax]
@@ -989,11 +1205,23 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
         vec_array[...] = vec_list
     return vec_array
 
-## Calculate reciprocal lattice vectors
-# 3D reciprocal lattice vectors with magnitude equal to angular wave number
-# \param a1,a2,a3 real space lattice vectors
-# \returns list of reciprocal lattice vectors
 def reciprocalLattice3D(a1, a2, a3):
+    """Calculate reciprocal lattice vectors
+
+    3D reciprocal lattice vectors with magnitude equal to angular wave number
+
+    :param a1: real space lattice vector 1
+    :param a2: real space lattice vector 2
+    :param a3: real space lattice vector 3
+    :type a1: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+    :type a2: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+    :type a3: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+    :return: list of reciprocal lattice vectors
+    :rtype: :class:`list`
+
+    .. note::
+        For unit test, `dot(g[i], a[j]) = 2 * pi * diracDelta(i, j)`
+    """
     a1 = numpy.asarray(a1)
     a2 = numpy.asarray(a2)
     a3 = numpy.asarray(a3)
@@ -1004,54 +1232,84 @@ def reciprocalLattice3D(a1, a2, a3):
     a1xa2 = numpy.cross(a1, a2)
     g3 = (2 * numpy.pi / numpy.dot(a3, a1xa2)) * a1xa2
     return g1, g2, g3
-# For unit test, note dot(g[i], a[j]) = 2 * pi * diracDelta(i, j)
 
-## Base class for drawing diffraction spots on a 2D grid.
-# Based on the dimensions of a grid, determines which grid points need to be modified to represent a diffraction spot
-# and generates the values in that subgrid.
-# Spot is a single pixel at the closest grid point
 class DeltaSpot:
-    ## Constructor
-    # \param shape number of grid points in each dimension
-    # \param extent range of x,y values associated with grid points
+    """Base class for drawing diffraction spots on a 2D grid.
+
+    Based on the dimensions of a grid, determines which grid points need to be modified to represent a diffraction spot
+    and generates the values in that subgrid. Spot is a single pixel at the closest grid point
+    """
     def __init__(self, shape, extent, *args, **kwargs):
+        """Constructor
+
+        :param shape: number of grid points in each dimension
+        :param extent: range of x,y values associated with grid points
+        :type shape: :class:`numpy.ndarray`, shape=(2), dtype= :class:`numpy.int32`
+        :type extent: :class:`numpy.ndarray`, shape=(2), dtype= :class:`numpy.float32`
+        """
         self.shape = shape
         self.extent = extent
         self.dx = numpy.float32(extent[1] - extent[0]) / (shape[0] - 1)
         self.dy = numpy.float32(extent[3] - extent[2]) / (shape[1] - 1)
         self.x, self.y = numpy.float32(0), numpy.float32(0)
-    ## Set x,y values of spot center
-    # \param x x value of spot center
-    # \param y y value of spot center
+
     def set_xy(self, x, y):
+        """Set x,y values of spot center
+
+        :param x: x value of spot center
+        :param y: y value of spot center
+        :type x: float
+        :type y: float
+        """
         self.x, self.y = numpy.float32(x), numpy.float32(y)
         # round to nearest grid point
         i = int(numpy.round((self.x - self.extent[0]) / self.dx))
         j = int(numpy.round((self.y - self.extent[2]) / self.dy))
         self.gridPoints = i, j
-    ## Get indices of sub-grid
-    # Based on the type of spot and its center, return the grid mask of points containing the spot
+
     def get_gridPoints(self):
+        """Get indices of sub-grid
+
+        Based on the type of spot and its center, return the grid mask of points containing the spot
+        """
         return self.gridPoints
-    ## Generate intensity value(s) at sub-grid points
-    # \param cval complex valued amplitude used to generate spot intensity
+
     def makeSpot(self, cval):
+        """Generate intensity value(s) at sub-grid points
+
+        :param cval: complex valued amplitude used to generate spot intensity
+        :type cval: :class:`np.complex`
+        """
         return (numpy.conj(cval) * cval).real
 
-## Draw diffraction spot as a Gaussian blur
-# grid points filled according to gaussian at spot center
 class GaussianSpot(DeltaSpot):
+    """Draw diffraction spot as a Gaussian blur
+
+    grid points filled according to gaussian at spot center
+    """
     def __init__(self, shape, extent, *args, **kwargs):
+        """Constructor
+
+        :param shape: number of grid points in each dimension
+        :param extent: range of x,y values associated with grid points
+        :type shape: :class:`numpy.ndarray`, shape=(2), dtype= :class:`numpy.int32`
+        :type extent: :class:`numpy.ndarray`, shape=(2), dtype= :class:`numpy.float32`
+        """
         DeltaSpot.__init__(self, shape, extent, *args, **kwargs)
         if 'sigma' in kwargs:
             self.set_sigma(kwargs['sigma'])
         else:
             self.set_sigma(self.dx)
         self.set_xy(0,0)
-    ## Set x,y values of spot center
-    # \param x x value of spot center
-    # \param y y value of spot center
+
     def set_xy(self, x, y):
+        """Set x,y values of spot center
+
+        :param x: x value of spot center
+        :param y: y value of spot center
+        :type x: float
+        :type y: float
+        """
         self.x, self.y = numpy.float32(x), numpy.float32(y)
         # set grid: two index matrices of i and j values
         nx = int((3. * self.sigma / self.dx) + 1)
@@ -1074,9 +1332,13 @@ class GaussianSpot(DeltaSpot):
         self.gridPoints = numpy.array([gridx[mask], gridy[mask]])
         self.xvals = self.xvals[mask]
         self.yvals = self.yvals[mask]
-    ## Generate intensity value(s) at sub-grid points
-    # \param cval complex valued amplitude used to generate spot intensity
+
     def makeSpot(self, cval):
+        """Generate intensity value(s) at sub-grid points
+
+        :param cval: complex valued amplitude used to generate spot intensity
+        :type cval: :class:`np.complex`
+        """
         val = (numpy.conj(cval) * cval).real
         # calculate gaussian at grid points and multiply by val
         # currently assume "circular" gaussian: sigma_x = sigma_y
@@ -1085,9 +1347,13 @@ class GaussianSpot(DeltaSpot):
         y = self.yvals - self.y
         gaussian = numpy.exp((-x * x - y * y) / (self.ss2))
         return val * gaussian
-    ## Define Gaussian
-    # \param sigma width of the Guassian spot
+
     def set_sigma(self, sigma):
+        """Define Gaussian
+
+        :param sigma: width of the Guassian spot
+        :type sigma: float
+        """
         self.sigma = numpy.float32(sigma)
         self.ss2 = numpy.float32(sigma * sigma * 2)
 
