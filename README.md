@@ -1,6 +1,17 @@
 # Freud
 
-Lorem Ipsum
+Welcome to Freud! Freud provides users the ability to analyze generic data from a variety of sources including
+simulation and experimental data for advanced metrics such as the radial distribution function and various order parameters.
+
+## Mailing List
+
+If you have a question, please consider posting to the [Freud-Users mailing list](https://groups.google.com/forum/#!forum/freud-users).
+
+## Examples
+
+Example Jupyter notebooks can be found in a [separate repository](https://bitbucket.org/glotzer/freud-examples). These
+examples will be available on [nbviewer](https://nbviewer.jupyter.org/) and [mybinder](http://mybinder.org/) in the
+near future.
 
 ## Installing Freud
 
