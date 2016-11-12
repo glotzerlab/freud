@@ -48,7 +48,7 @@ bash
 export PYTHONPATH=`pwd`:$PYTHONPATH
 ~~~
 
-For more detailed instructions, [see the documentation](http://freud.readthedocs.io/en/stable/compiling.html).
+For more detailed instructions, [see the documentation](http://glotzerlab.engin.umich.edu/freud/).
 
 ### Requirements
 
