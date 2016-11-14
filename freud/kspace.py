@@ -49,7 +49,7 @@ class SFactor3DPoints:
     :math:`S \\left( \\vec{q} \\right) = C_0 \\left| {\\sum_{m=1}^{N} \\exp{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`
     where :math:`C_0` is a scaling constant chosen so that :math:`S\\left(0\\right) = 1`, :math:`N` is the number of
     particles. :math:`S` is evaluated on a grid of q-values :math:`\\vec{q} = h \\frac{2\\pi}{L_x} \\hat{i} + k \\frac{2\\pi}{L_y}
-    \\hat{j} + l \\frac{2\\pi}{L_z} \\hat{k}` for integer :math:`h,k,l` ranging from -\a g to +\a g (inclusive) and
+    \\hat{j} + l \\frac{2\\pi}{L_z} \\hat{k}` for integer :math:`h,k,l: \left[-g,g\right]` and
     :math:`L_x, L_y, L_z` are the box lengths in each direction.
 
     After calling :py:meth:`~.SFactor3DPoints.compute()`, access the used q values with :py:meth:`~.SFactor3DPoints.getQ()`,
@@ -162,7 +162,7 @@ class AnalyzeSFactor3D:
     def getPeakList(self, cut):
         """Get a list of peaks in the structure factor
 
-        :param cut: All :math:`S\\left(q\\right)` values greater than \a cut will be counted as peaks
+        :param cut: All :math:`S\\left(q\\right)` values greater than cut will be counted as peaks
         :return: peaks, q as lists
         :rtype: :class:`list`
         """
@@ -178,7 +178,7 @@ class AnalyzeSFactor3D:
     def getPeakDegeneracy(self, cut):
         """Get a dictionary of peaks indexed by :math:`q^2`
 
-        :param cut: All :math:`S\\left(q\\right)` values greater than \a cut will be counted as peaks
+        :param cut: All :math:`S\\left(q\\right)` values greater than cut will be counted as peaks
         :type cut: :class:`numpy.ndarray`
         :return: a dictionary with key :math:`q^2` and each element being a list of peaks
         :rtype: :class:`dict`
