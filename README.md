@@ -92,7 +92,7 @@ y = rdf.getRDF()
 
 ## Documentation
 
-You may [read the documentation online](http://freud.readthedocs.io/en/stable/compiling.html), download the
+You may [read the documentation online](http://glotzerlab.engin.umich.edu/freud/), download the
 documentation in the [downloads section](https://bitbucket.org/glotzer/freud/downloads), or you may build the
 documentation yourself:
 
