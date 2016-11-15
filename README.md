@@ -1,5 +1,9 @@
 # Freud
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg)](https://doi.org/10.5281/zenodo.166564)
+
+Please use the above citation when using Freud.
+
 Welcome to Freud! Freud provides users the ability to analyze generic data from a variety of sources including
 simulation and experimental data for advanced metrics such as the radial distribution function and various order parameters.
 
