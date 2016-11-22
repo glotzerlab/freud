@@ -54,6 +54,15 @@ export PYTHONPATH=`pwd`:$PYTHONPATH
 
 For more detailed instructions, [see the documentation](http://glotzerlab.engin.umich.edu/freud/).
 
+#### Note
+
+Freud makes use of submodules. CMAKE has been configured to automatically init and update submodules. However, if
+this does not work, or you would like to do this yourself, please execute:
+
+```bash
+git submodule init
+```
+
 ### Requirements
 
 * Required:
