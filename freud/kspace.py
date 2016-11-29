@@ -48,8 +48,9 @@ class SFactor3DPoints:
     Given a set of points :math:`\\vec{r}_i` SFactor3DPoints computes the static structure factor
     :math:`S \\left( \\vec{q} \\right) = C_0 \\left| {\\sum_{m=1}^{N} \\exp{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`
     where :math:`C_0` is a scaling constant chosen so that :math:`S\\left(0\\right) = 1`, :math:`N` is the number of
-    particles. :math:`S` is evaluated on a grid of q-values :math:`\\vec{q} = h \\frac{2\\pi}{L_x} \\hat{i} + k \\frac{2\\pi}{L_y}
-    \\hat{j} + l \\frac{2\\pi}{L_z} \\hat{k}` for integer :math:`h,k,l: \left[-g,g\right]` and
+    particles. :math:`S` is evaluated on a grid of q-values
+    :math:`\\vec{q} = h \\frac{2\\pi}{L_x} \\hat{i} + k \\frac{2\\pi}{L_y} \\hat{j} + l \\frac{2\\pi}{L_z} \\hat{k}`
+    for integer :math:`h,k,l: \\left[-g,g\\right]` and
     :math:`L_x, L_y, L_z` are the box lengths in each direction.
 
     After calling :py:meth:`~.SFactor3DPoints.compute()`, access the used q values with :py:meth:`~.SFactor3DPoints.getQ()`,
