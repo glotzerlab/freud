@@ -141,45 +141,45 @@ class TestCluster(unittest.TestCase):
 
 
     #test MatchEnv.cluster function, hard_r=false, registration=true
-    # def test_cluster_registration(self):
-    #     xyz = np.load("bcc.N_1024.npy")
-    #     xyz = np.array(xyz, dtype=np.float32)
-    #     #define rotation matrix, rotate along z axis by pi/24 degree
-    #     rotationAngle = np.pi/24.0
-    #     R = np.array([[np.cos(rotationAngle), -np.sin(rotationAngle), 0], [np.sin(rotationAngle), np.cos(rotationAngle),0],[0,0,1 ]], float)
-    #     #rotate particles that y>0, introduce grain boundary
-    #     for i in range(len(xyz)):
-    #         if xyz[i,1] < 0.0:
-    #             xyz[i] = R.dot(xyz[i])
+    def test_cluster_registration(self):
+        xyz = np.load("bcc.N_1024.npy")
+        xyz = np.array(xyz, dtype=np.float32)
+        #define rotation matrix, rotate along z axis by pi/24 degree
+        rotationAngle = np.pi/24.0
+        R = np.array([[np.cos(rotationAngle), -np.sin(rotationAngle), 0], [np.sin(rotationAngle), np.cos(rotationAngle),0],[0,0,1 ]], float)
+        #rotate particles that y>0, introduce grain boundary
+        for i in range(len(xyz)):
+            if xyz[i,1] < 0.0:
+                xyz[i] = R.dot(xyz[i])
 
 
-    #     L = np.max(xyz)*2
-    #     box = box.Box(L, L, L, 0, 0, 0)
+        L = np.max(xyz)*2
+        box = box.Box(L, L, L, 0, 0, 0)
 
-    #     rcut = 3.1
-    #     kn = 14
-    #     threshold = 0.08
+        rcut = 3.1
+        kn = 14
+        threshold = 0.08
 
-    #     match = MatchEnv(box, rcut, kn)
-    #     match.cluster(xyz, threshold, hard_r=False, registration=True)
-    #     clusters = match.getClusters()
+        match = MatchEnv(box, rcut, kn)
+        match.cluster(xyz, threshold, hard_r=False, registration=True)
+        clusters = match.getClusters()
 
-    #     cluster_env = {}
-    #     for cluster_ind in clusters:
-    #         if cluster_ind not in cluster_env:
-    #             cluster_env[cluster_ind] = np.copy(np.array(match.getEnvironment(cluster_ind)))
+        cluster_env = {}
+        for cluster_ind in clusters:
+            if cluster_ind not in cluster_env:
+                cluster_env[cluster_ind] = np.copy(np.array(match.getEnvironment(cluster_ind)))
 
 
-    #     #get environment for each particle
-    #     tot_env = match.getTotEnvironment()
+        #get environment for each particle
+        tot_env = match.getTotEnvironment()
 
-    #     #particle with index 1 and 5 has opposite y position, they should have same local environment
-    #     npt.assert_equal(clusters[1], clusters[5], err_msg="two points do not have similar environment")
+        #particle with index 1 and 5 has opposite y position, they should have same local environment
+        npt.assert_equal(clusters[1], clusters[5], err_msg="two points do not have similar environment")
 
-    #     #particle 1 and particle5's local environment should match
-    #     returnResult = match.isSimilar(tot_env[1], tot_env[5], 0.1, registration=True)
-    #     unittestObj = unittest.TestCase()
-    #     unittestObj.assertNotEqual(len(returnResult[1]), 0, msg="two environments are not similar")
+        #particle 1 and particle5's local environment should match
+        returnResult = match.isSimilar(tot_env[1], tot_env[5], 0.1, registration=True)
+        unittestObj = unittest.TestCase()
+        unittestObj.assertNotEqual(len(returnResult[1]), 0, msg="two environments are not similar")
 
     #test MatchEnv.minimizeRMSD and registration functionality. overkill? maybe.
     def test_minimizeRMSD(self):
@@ -265,4 +265,3 @@ class TestCluster(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
