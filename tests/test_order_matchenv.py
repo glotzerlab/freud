@@ -172,8 +172,7 @@ class TestCluster(unittest.TestCase):
 
         #particle 22 and particle 31's local environments should match
         returnResult = match.isSimilar(tot_env[22], tot_env[31], 0.005, registration=True)
-        unittestObj = unittest.TestCase()
-        unittestObj.assertNotEqual(len(returnResult[1]), 0, msg="two environments are not similar")
+        npt.assert_equal(len(returnResult[1]), kn, err_msg="two environments are not similar")
 
     #test MatchEnv.minimizeRMSD and registration functionality. overkill? maybe.
     def test_minimizeRMSD(self):
