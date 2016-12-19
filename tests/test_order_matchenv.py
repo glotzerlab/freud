@@ -140,14 +140,14 @@ class TestCluster(unittest.TestCase):
         npt.assert_almost_equal(sorted_env_cluster, sorted_bcc_env, decimal=5, err_msg="BCC Cluster Environment fail")
 
 
-    #test MatchEnv.cluster function, hard_r=false, registration=true
+    #test MatchEnv.cluster function, hard_r=false, registration=true, global=true
     def test_cluster_registration(self):
-        xyz = np.load("sc_N64.npy")
+        xyz = np.load("sc_N54.npy")
         xyz = np.array(xyz, dtype=np.float32)
 
         rcut = 4
         kn = 6
-        threshold = 0.1
+        threshold = 0.005
 
         #define rotation matrix, rotate along z axis by pi/24 degree
         rotationAngle = np.pi/24.0
@@ -157,25 +157,21 @@ class TestCluster(unittest.TestCase):
             if xyz[i,1] < 0.0:
                 xyz[i] = R.dot(xyz[i])
 
-        L = np.max(xyz)*2.2
-        print(L)
+        L = np.max(xyz)*3.0
         fbox = box.Box(L, L, L, 0, 0, 0)
 
         match = MatchEnv(fbox, rcut, kn)
-        match.cluster(xyz, threshold, hard_r=False, registration=True)
+        match.cluster(xyz, threshold, hard_r=False, registration=True, global_search=True)
         clusters = match.getClusters()
 
         #get environment for each particle
         tot_env = match.getTotEnvironment()
-        print(clusters)
-        print(xyz[:,1])
-        #print(tot_env[54],tot_env[62])
 
-        #particle with index 1 and 5 has opposite y position, they should have same local environment
-        npt.assert_equal(clusters[1], clusters[5], err_msg="two points do not have similar environment")
+        #particles with index 22 and 31 have opposite y positions, they should have the same local environment
+        npt.assert_equal(clusters[22], clusters[31], err_msg="two points do not have similar environment")
 
-        #particle 1 and particle5's local environment should match
-        returnResult = match.isSimilar(tot_env[1], tot_env[5], 0.1, registration=True)
+        #particle 22 and particle 31's local environments should match
+        returnResult = match.isSimilar(tot_env[22], tot_env[31], 0.005, registration=True)
         unittestObj = unittest.TestCase()
         unittestObj.assertNotEqual(len(returnResult[1]), 0, msg="two environments are not similar")
 
