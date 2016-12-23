@@ -1,6 +1,8 @@
 // Copyright (c) 2010-2016 The Regents of the University of Michigan
 // This file is part of the Freud project, released under the BSD 3-Clause License.
 
+#include <iostream>
+#include <sstream>
 #include <boost/shared_array.hpp>
 #include <stdexcept>
 #include "HOOMDMath.h"
@@ -187,7 +189,13 @@ class Box
             vec3<float> delta = v - m_lo;
             delta.x -= (m_xz-m_yz*m_xy)*v.z+m_xy*v.y;
             delta.y -= m_yz * v.z;
-            return (delta + ghost_width)/(m_L + float(2.0)*ghost_width);
+            delta = (delta + ghost_width)/(m_L + float(2.0)*ghost_width);
+
+            if (m_2d)
+                {
+                delta.z = 0.0f;
+                }
+            return delta;
             }
 
         //! Convert fractional coordinates into real coordinates
@@ -245,7 +253,7 @@ class Box
 
         //! wrap a vector back into the box. This function is specifically designed to be
         // called from python and wrap vectors which are greater than one image away
-        vec3<float> wrapMultiple(vec3<float>& v) const
+        vec3<float> wrapMultiple(const vec3<float>& v) const
             {
             vec3<float> tmp = makeFraction(v);
             tmp.x = fmod(tmp.x,(float)1);
@@ -344,6 +352,58 @@ class Box
                 w.x = tempcopy.x; w.y = tempcopy.y; w.z=tempcopy.z;
             }
 
+
+
+        void minimalwrap(vec3<float>& w) const
+            {
+            vec3<float> L = getL();
+
+            if (m_periodic.x)
+                {
+                float tilt_x = (m_xz - m_xy*m_yz) * w.z + m_xy * w.y;
+                if (w.x >= m_hi.x + tilt_x)
+                    {
+                    w.x -= L.x;
+                    }
+                else if (w.x < m_lo.x + tilt_x)
+                    {
+                    w.x += L.x;
+                    }
+                }
+
+            if (m_periodic.y)
+                {
+                float tilt_y = m_yz * w.z;
+                if (w.y >= m_hi.y + tilt_y)
+                    {
+                    w.y -= L.y;
+                    w.x -= L.y * m_xy;
+                    }
+                else if (w.y < m_lo.y + tilt_y)
+                    {
+                    w.y += L.y;
+                    w.x += L.y * m_xy;
+                    }
+                }
+
+            if (m_periodic.z)
+                {
+                if (w.z >= m_hi.z)
+                    {
+                    w.z -= L.z;
+                    w.y -= L.z * m_yz;
+                    w.x -= L.z * m_xz;
+                    }
+                else if (w.z < m_lo.z)
+                    {
+                    w.z += L.z;
+                    w.y += L.z * m_yz;
+                    w.x += L.z * m_xz;
+                    }
+                }
+           }
+
+
         //! Wrap a vector back into the box
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
             \param img Image of the vector, updated to reflect the new image
@@ -360,11 +420,48 @@ class Box
 
         vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
             {
-            vec3<float> wcopy = w;
-            int3 img = getImage(w);
-            wrap(wcopy, img, flags);
-            return wcopy;
+            vec3<float> tempcopy = w;
+            minimalwrap(tempcopy);
+            return tempcopy;
             }
+            /*
+            vec3<float> f = makeFraction(w);
+            if (m_periodic.x)
+                {
+                if (f.x >= 1.0f)
+                    {
+                    f.x-=1.0f;
+                    }
+                else if (f.x < 0.0f)
+                    {
+                    f.x+=1.0f;
+                    }
+                }
+            if (m_periodic.y)
+                {
+                if (f.y >= 1.0f)
+                    {
+                    f.y-=1.0f;
+                    }
+                else if (f.y < 0.0f)
+                    {
+                    f.y+=1.0f;
+                    }
+                }
+            if (!m_2d and m_periodic.z)
+                {
+                if (f.z >= 1.0f)
+                    {
+                    f.z-=1.0f;
+                    }
+                else if (f.z < 0.0f)
+                    {
+                    f.z+=1.0f;
+                    }
+                }
+            return makeCoordinates(f);
+            }
+            */
 
         float3 wrap(const float3& w, const char3 flags = make_char3(0,0,0)) const
             {
