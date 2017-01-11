@@ -11,7 +11,7 @@
 
 #include "NearestNeighbors.h"
 #include "box.h"
-#include "../../extern/fsph/src/spherical_harmonics.hpp"
+#include <../../extern/fsph/src/spherical_harmonics.hpp>
 
 #ifndef _LOCAL_QL_NEAR_H__
 #define _LOCAL_QL_NEAR_H__

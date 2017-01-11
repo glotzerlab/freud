@@ -17,7 +17,7 @@
 
 #include "Cluster.h"
 #include "NearestNeighbors.h"
-#include "../../extern/fsph/src/spherical_harmonics.hpp"
+#include <../../extern/fsph/src/spherical_harmonics.hpp>
 
 #include "box.h"
 #include <stdexcept>
