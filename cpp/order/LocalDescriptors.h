@@ -10,7 +10,7 @@
 
 #include "tbb/atomic.h"
 
-#include "fsph/src/spherical_harmonics.hpp"
+#include "../../extern/fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_DESCRIPTORS_H__
 #define _LOCAL_DESCRIPTORS_H__
