@@ -424,44 +424,6 @@ class Box
             minimalwrap(tempcopy);
             return tempcopy;
             }
-            /*
-            vec3<float> f = makeFraction(w);
-            if (m_periodic.x)
-                {
-                if (f.x >= 1.0f)
-                    {
-                    f.x-=1.0f;
-                    }
-                else if (f.x < 0.0f)
-                    {
-                    f.x+=1.0f;
-                    }
-                }
-            if (m_periodic.y)
-                {
-                if (f.y >= 1.0f)
-                    {
-                    f.y-=1.0f;
-                    }
-                else if (f.y < 0.0f)
-                    {
-                    f.y+=1.0f;
-                    }
-                }
-            if (!m_2d and m_periodic.z)
-                {
-                if (f.z >= 1.0f)
-                    {
-                    f.z-=1.0f;
-                    }
-                else if (f.z < 0.0f)
-                    {
-                    f.z+=1.0f;
-                    }
-                }
-            return makeCoordinates(f);
-            }
-            */
 
         float3 wrap(const float3& w, const char3 flags = make_char3(0,0,0)) const
             {
