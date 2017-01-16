@@ -23,3 +23,9 @@ Code which cannot be maintained is destined for obscurity. In order to be mainta
 ## Language choices ##
 
 Freud is written in two languages: Python and C++. C++ allows for powerful, fast code execution while Python allows for easy, flexible use. Intel Thread Building Blocks parallelism provides further power to C++ code. The C++ code is wrapped with Cython, allowing for user interaction in Python. NumPy provides the basic data structures in Freud, which are commonly used in other Python plotting libraries and packages.
+
+## Unit Tests ##
+
+All modules should include a set of unit tests which test the correct behavior of the module. These tests should be
+simple and short, testing a single function each, and completing as quickly as possible (ideally < 10 sec, but times
+up to a minute are acceptable if justified, documented, and by default skipped, functionality current TBD).

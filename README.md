@@ -13,6 +13,8 @@ If you have a question, please consider posting to the [Freud-Users mailing list
 
 ## Examples
 
+[![Binder](http://mybinder.org/badge.svg)](http://mybinder.org:/repo/harperic/freud-examples)
+
 Example Jupyter notebooks can be found in a [separate repository](https://bitbucket.org/glotzer/freud-examples). These
 examples are available as a static notebook on [nbviewer](http://nbviewer.jupyter.org/github/harperic/freud-examples/blob/master/index.ipynb)
 and as an interactive version on [mybinder](http://mybinder.org:/repo/harperic/freud-examples) in the near future.
