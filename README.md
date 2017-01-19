@@ -1,5 +1,9 @@
 # Freud
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg)](https://doi.org/10.5281/zenodo.166564)
+
+Please use the above citation when using Freud.
+
 Welcome to Freud! Freud provides users the ability to analyze generic data from a variety of sources including
 simulation and experimental data for advanced metrics such as the radial distribution function and various order parameters.
 
@@ -48,7 +52,16 @@ bash
 export PYTHONPATH=`pwd`:$PYTHONPATH
 ~~~
 
-For more detailed instructions, [see the documentation](http://freud.readthedocs.io/en/stable/compiling.html).
+For more detailed instructions, [see the documentation](http://glotzerlab.engin.umich.edu/freud/).
+
+#### Note
+
+Freud makes use of submodules. CMAKE has been configured to automatically init and update submodules. However, if
+this does not work, or you would like to do this yourself, please execute:
+
+```bash
+git submodule init
+```
 
 ### Requirements
 
@@ -88,7 +101,7 @@ y = rdf.getRDF()
 
 ## Documentation
 
-You may [read the documentation online](http://freud.readthedocs.io/en/stable/compiling.html), download the
+You may [read the documentation online](http://glotzerlab.engin.umich.edu/freud/), download the
 documentation in the [downloads section](https://bitbucket.org/glotzer/freud/downloads), or you may build the
 documentation yourself:
 

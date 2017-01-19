@@ -59,6 +59,16 @@ include (FREUDMacros)
 # include external source projects
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extern)
 
+set (UPDATE_SUBMODULES 1 CACHE BOOL "Update git submodules for dependency projects")
+
+if (UPDATE_SUBMODULES)
+  message(STATUS "Updating git submodules")
+  execute_process(COMMAND git submodule update --init
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+else (UPDATE_SUBMODULES)
+  message(STATUS "Not updating git submodules")
+endif (UPDATE_SUBMODULES)
+
 # set the default install prefix
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     SET(CMAKE_INSTALL_PREFIX ${PYTHON_USER_SITE} CACHE PATH "Python site installation directory (defaults to USER_SITE)" FORCE)

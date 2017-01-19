@@ -15,7 +15,7 @@
 
 #include "Cluster.h"
 #include "LinkCell.h"
-#include "fsph/src/spherical_harmonics.hpp"
+#include "../../extern/fsph/src/spherical_harmonics.hpp"
 
 #include "box.h"
 #include <stdexcept>

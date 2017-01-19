@@ -143,6 +143,15 @@ By default, freud installs to the `USER_SITE <https://docs.python.org/2/install/
 `~/.local` on linux and in `~/Library` on mac. `USER_SITE` is on the python search path by default, there is no need \
 to modify `PYTHONPATH`.
 
+.. note::
+
+    Freud makes use of submodules. CMAKE has been configured to automatically init and update submodules. However, if
+    this does not work, or you would like to do this yourself, please execute:
+
+    .. code-block:: bash
+
+        git submodule init
+
 Unit Tests
 ==========
 
