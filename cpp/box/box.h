@@ -207,6 +207,10 @@ class Box
             vec3<float> v = m_lo + f*m_L;
             v.x += m_xy*v.y+m_xz*v.z;
             v.y += m_yz*v.z;
+            if (m_2d)
+                {
+                v.z = 0.0f;
+                }
             return v;
             }
 
