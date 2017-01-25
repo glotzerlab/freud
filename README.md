@@ -17,7 +17,7 @@ If you have a question, please consider posting to the [Freud-Users mailing list
 
 Example Jupyter notebooks can be found in a [separate repository](https://bitbucket.org/glotzer/freud-examples). These
 examples are available as a static notebook on [nbviewer](http://nbviewer.jupyter.org/github/harperic/freud-examples/blob/master/index.ipynb)
-and as an interactive version on [mybinder](http://mybinder.org:/repo/harperic/freud-examples) in the near future.
+and as an interactive version on [mybinder](http://mybinder.org:/repo/harperic/freud-examples).
 
 ## Installing Freud
 
