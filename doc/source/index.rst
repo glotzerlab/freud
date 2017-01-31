@@ -11,6 +11,10 @@ Welcome to freud's documentation!
 Freud is an analysis analysis software package meant for the analysis of molecular dynamics and Monte Carlo \
 simulation trajectories. Freud works with and returns `NumPy <http://www.numpy.org/>`_ arrays.
 
+Please visit our repository on `bitbucket <https://bitbucket.org/glotzer/freud>`_ or
+`github <https://github.com/harperic/freud>`_ to view/clone the source. Please post issues or bugs to our
+`issue tracker <https://bitbucket.org/glotzer/freud/issues?status=new&status=open>`_.
+
 Contents:
 =========
 
