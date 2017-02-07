@@ -6,6 +6,7 @@ cimport freud._cluster as cluster
 cimport freud._box as _box
 import numpy as np
 cimport numpy as np
+import freud.common
 from libcpp.vector cimport vector
 
 # Numpy must be initialized. When using numpy from C or Cython you must
@@ -64,11 +65,9 @@ cdef class Cluster:
         :param points: particle coordinates
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.ndim != 2 or points.shape[1] != 3:
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True)
+        if points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeClusters()')
-        if points.dtype != np.float32:
-            raise RuntimeError('points must be a numpy.float32 array')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
@@ -85,13 +84,11 @@ cdef class Cluster:
         :param keys: Membership keys, one for each particle
         :type keys: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
-        keys = np.require(keys, requirements=["C"])
+        keys = freud.common.convert_array(keys, 1, dtype=np.uint32, contiguous=True)
         N = self.getNumParticles()
-        if keys.ndim !=1 or keys.shape[0] != N:
+        if keys.shape[0] != N:
             raise RuntimeError('keys must be a 1D array of length NumParticles')
-        if keys.dtype != np.uint32:
-            raise RuntimeError('keys must be a numpy.uint32 array')
-        cdef np.ndarray cKeys= keys
+        cdef np.ndarray cKeys = keys
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int *>cKeys.data)
 
@@ -160,7 +157,8 @@ cdef class ClusterProperties:
     cdef cluster.ClusterProperties *thisptr
 
     def __cinit__(self, box):
-        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(),
+            box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new cluster.ClusterProperties(cBox)
 
 
@@ -188,15 +186,11 @@ cdef class ClusterProperties:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type cluster_idx: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise RuntimeError('points must be a numpy.float32 array')
-        if points.ndim != 2 or points.shape[1] != 3:
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True)
+        if points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeClusterProperties()')
-        cluster_idx = np.require(cluster_idx, requirements=["C"])
-        if cluster_idx.dtype != np.uint32:
-            raise RuntimeError('cluster_idx must be a numpy.uint32 array')
-        if cluster_idx.ndim !=1 or cluster_idx.shape[0] != points.shape[0]:
+        cluster_idx = freud.common.convert_array(cluster_idx, 1, dtype=np.uint32, contiguous=True)
+        if cluster_idx.shape[0] != points.shape[0]:
             raise RuntimeError('cluster_idx must be a 1D array of matching length/number of particles to points')
         cdef np.ndarray cPoints = points
         cdef np.ndarray cCluster_idx= cluster_idx
