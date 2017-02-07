@@ -110,7 +110,10 @@ cdef class LinkCell:
         :return: cell index
         :rtype: unsigned int
         """
-        cdef float[:] cPoint = np.ascontiguousarray(point, dtype=np.float32)
+        point = np.require(point, requirements=["C"])
+        if point.dtype != np.float32:
+            raise RuntimeError("point must be a numpy.float32 array")
+        cdef float[:] cPoint = point
         if len(cPoint) != 3:
             raise RuntimeError('Need a 3D point for getCell()')
 
@@ -154,7 +157,9 @@ cdef class LinkCell:
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{points}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.ascontiguousarray(points, dtype=np.float32)
+        points = np.require(points, requirements=["C"])
+        if points.dtype != np.float32:
+            raise RuntimeError("points must be a numpy.float32 array")
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeCellList()')
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
@@ -340,10 +345,14 @@ cdef class NearestNeighbors:
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-        ref_points = np.ascontiguousarray(ref_points, dtype=np.float32)
+        ref_points = np.require(ref_points, requirements=["C"])
+        if ref_points.dtype != np.float32:
+            raise RuntimeError("ref_points must be a numpy.float32 array")
         if ref_points.ndim != 2 or ref_points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D reference points for computeCellList()')
-        points = np.ascontiguousarray(points, dtype=np.float32)
+        points = np.require(points, requirements=["C"])
+        if points.dtype != np.float32:
+            raise RuntimeError("points must be a numpy.float32 array")
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeCellList()')
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())

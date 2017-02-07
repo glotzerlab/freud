@@ -64,9 +64,11 @@ cdef class Cluster:
         :param points: particle coordinates
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-        points = np.ascontiguousarray(points, dtype=np.float32)
+        points = np.require(points, requirements=["C"])
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeClusters()')
+        if points.dtype != np.float32:
+            raise RuntimeError('points must be a numpy.float32 array')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
@@ -83,10 +85,12 @@ cdef class Cluster:
         :param keys: Membership keys, one for each particle
         :type keys: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
-        keys = np.ascontiguousarray(keys, dtype=np.uint32)
+        keys = np.require(keys, requirements=["C"])
         N = self.getNumParticles()
         if keys.ndim !=1 or keys.shape[0] != N:
             raise RuntimeError('keys must be a 1D array of length NumParticles')
+        if keys.dtype != np.uint32:
+            raise RuntimeError('keys must be a numpy.uint32 array')
         cdef np.ndarray cKeys= keys
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int *>cKeys.data)
@@ -172,7 +176,7 @@ cdef class ClusterProperties:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def computeProperties(self, np.ndarray[float, ndim=2] points, np.ndarray[unsigned int, ndim=1] cluster_idx):
+    def computeProperties(self, points, cluster_idx):
         """Compute properties of the point clusters
 
         Loops over all points in the given array and determines the center of mass of the cluster
@@ -184,10 +188,14 @@ cdef class ClusterProperties:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type cluster_idx: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
-        points = np.ascontiguousarray(points, dtype=np.float32)
+        points = np.require(points, requirements=["C"])
+        if points.dtype != np.float32:
+            raise RuntimeError('points must be a numpy.float32 array')
         if points.ndim != 2 or points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeClusterProperties()')
-        cluster_idx = np.ascontiguousarray(cluster_idx, dtype=np.uint32)
+        cluster_idx = np.require(cluster_idx, requirements=["C"])
+        if cluster_idx.dtype != np.uint32:
+            raise RuntimeError('cluster_idx must be a numpy.uint32 array')
         if cluster_idx.ndim !=1 or cluster_idx.shape[0] != points.shape[0]:
             raise RuntimeError('cluster_idx must be a 1D array of matching length/number of particles to points')
         cdef np.ndarray cPoints = points

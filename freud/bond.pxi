@@ -37,13 +37,14 @@ cdef class BondingAnalysis:
     def __dealloc__(self):
         del self.thisptr
 
-    def initialize(self, np.ndarray[unsigned int, ndim=2] frame_0):
+    def initialize(self, frame_0):
         """
         Calculates the changes in bonding states from one frame to the next.
 
         :param frame_0: first bonding frame (as output from :py:class:`~.BondingR12` modules)
         :type frame_0: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.float32`
         """
+        frame_0 = np.require(frame_0, requirements=["C"])
         if (frame_0.dtype != np.uint32):
             raise ValueError("frame data must be a numpy float32 array")
         if (frame_0.ndim != 2):
@@ -65,6 +66,8 @@ cdef class BondingAnalysis:
         :type frame_0: :class:`numpy.ndarray` shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.uint32`
         :type frame_1: :class:`numpy.ndarray` shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.uint32`
         """
+        frame_0 = np.require(frame_0, requirements=["C"])
+        frame_1 = np.require(frame_1, requirements=["C"])
         if ((frame_0.dtype != np.uint32) or (frame_1.dtype != np.uint32)):
             raise ValueError("frame data must be a numpy float32 array")
         if ((frame_0.ndim != 2) or (frame_1.ndim != 2)):
@@ -150,7 +153,7 @@ cdef class BondingR12:
     """
     cdef bond.BondingR12 *thisptr
 
-    def __cinit__(self, float r_max, np.ndarray[uint, ndim=3] bond_map, np.ndarray[uint, ndim=1] bond_list):
+    def __cinit__(self, float r_max, bond_map, bond_list):
         # extract nr, nt from the bond_map
         n_r = bond_map.shape[0]
         n_t2 = bond_map.shape[1]
@@ -164,8 +167,7 @@ cdef class BondingR12:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=1] ref_orientations,
-        np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=1] orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -176,6 +178,10 @@ cdef class BondingR12:
         :type points: :class:`numpy.ndarray`
         :type orientations: :class:`numpy.ndarray`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
             raise ValueError("points must be a numpy float32 array")
         if ((points.ndim != 2) or (ref_points.ndim != 2)):
@@ -259,12 +265,13 @@ cdef class BondingXY2D:
     """
     cdef bond.BondingXY2D *thisptr
 
-    def __cinit__(self, float x_max, float y_max, np.ndarray[uint, ndim=2] bond_map,
-        np.ndarray[uint, ndim=1] bond_list):
+    def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
         # extract nr, nt from the bond_map
         n_y = bond_map.shape[0]
         n_x = bond_map.shape[1]
         n_bonds = bond_list.shape[0]
+        bond_map = np.require(bond_map, requirements=["C"])
+        bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXY2D(x_max, y_max, n_x, n_y, n_bonds,
@@ -273,8 +280,7 @@ cdef class BondingXY2D:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=1] ref_orientations,
-        np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=1] orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -285,6 +291,10 @@ cdef class BondingXY2D:
         :type points: :class:`numpy.ndarray`
         :type orientations: :class:`numpy.ndarray`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
             raise ValueError("points must be a numpy float32 array")
         if ((points.ndim != 2) or (ref_points.ndim != 2)):
@@ -368,13 +378,14 @@ cdef class BondingXYT:
     """
     cdef bond.BondingXYT *thisptr
 
-    def __cinit__(self, float x_max, float y_max, np.ndarray[uint, ndim=3] bond_map,
-        np.ndarray[uint, ndim=1] bond_list):
+    def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
         # extract nr, nt from the bond_map
         n_t = bond_map.shape[0]
         n_y = bond_map.shape[1]
         n_x = bond_map.shape[2]
         n_bonds = bond_list.shape[0]
+        bond_map = np.require(bond_map, requirements=["C"])
+        bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXYT(x_max, y_max, n_x, n_y, n_t, n_bonds, <unsigned int*>l_bond_map.data,
@@ -383,8 +394,7 @@ cdef class BondingXYT:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=1] ref_orientations,
-        np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=1] orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -395,6 +405,10 @@ cdef class BondingXYT:
         :type points: :class:`numpy.ndarray`
         :type orientations: :class:`numpy.ndarray`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
             raise ValueError("points must be a numpy float32 array")
         if ((points.ndim != 2) or (ref_points.ndim != 2)):
@@ -480,13 +494,14 @@ cdef class BondingXYZ:
     """
     cdef bond.BondingXYZ *thisptr
 
-    def __cinit__(self, float x_max, float y_max, float z_max, np.ndarray[uint, ndim=3] bond_map,
-        np.ndarray[uint, ndim=1] bond_list):
+    def __cinit__(self, float x_max, float y_max, float z_max, bond_map, bond_list):
         # extract nr, nt from the bond_map
         n_z = bond_map.shape[0]
         n_y = bond_map.shape[1]
         n_x = bond_map.shape[2]
         n_bonds = bond_list.shape[0]
+        bond_map = np.require(bond_map, requirements=["C"])
+        bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXYZ(x_max, y_max, z_max, n_x, n_y, n_z, n_bonds, <unsigned int*>l_bond_map.data,
@@ -495,8 +510,7 @@ cdef class BondingXYZ:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] ref_orientations,
-        np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=2] orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -507,6 +521,10 @@ cdef class BondingXYZ:
         :type points: :class:`numpy.ndarray`
         :type orientations: :class:`numpy.ndarray`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if ((points.dtype != np.float32) or (ref_points.dtype != np.float32)):
             raise ValueError("points must be a numpy float32 array")
         if ((points.ndim != 2) or (ref_points.ndim != 2)):

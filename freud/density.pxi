@@ -54,8 +54,7 @@ cdef class FloatCF:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[double, ndim=1] refValues,
-        np.ndarray[float, ndim=2] points, np.ndarray[double, ndim=1] values):
+    def accumulate(self, box, ref_points, refValues, points, values):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -70,6 +69,10 @@ cdef class FloatCF:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        refValues = np.require(refValues, requirements=["C"])
+        values = np.require(values, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if ref_points.ndim != 2 or points.ndim != 2:
@@ -126,8 +129,7 @@ cdef class FloatCF:
         """
         self.thisptr.resetCorrelationFunction()
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[double, ndim=1] refValues,
-        np.ndarray[float, ndim=2] points, np.ndarray[double, ndim=1] values):
+    def compute(self, box, ref_points, refValues, points, values):
         """
         Calculates the correlation function for the given points. Will overwrite the current histogram.
 
@@ -215,8 +217,7 @@ cdef class ComplexCF:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[np.complex128_t, ndim=1] refValues,
-        np.ndarray[float, ndim=2] points, np.ndarray[np.complex128_t, ndim=1] values):
+    def accumulate(self, box, ref_points, refValues, points, values):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -231,6 +232,10 @@ cdef class ComplexCF:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        refValues = np.require(refValues, requirements=["C"])
+        values = np.require(values, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise TypeError("points must be a numpy float32 array")
         if ref_points.ndim != 2 or points.ndim != 2:
@@ -285,8 +290,7 @@ cdef class ComplexCF:
         """
         self.thisptr.resetCorrelationFunction()
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[np.complex128_t, ndim=1] refValues,
-        np.ndarray[float, ndim=2] points, np.ndarray[np.complex128_t, ndim=1] values):
+    def compute(self, box, ref_points, refValues, points, values):
         """
         Calculates the correlation function for the given points. Will overwrite the current histogram.
 
@@ -383,7 +387,7 @@ cdef class GaussianDensity:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def compute(self, box, np.ndarray[float, ndim=2] points):
+    def compute(self, box, points):
         """
         Calculates the gaussian blur for the specified points. Does not accumulate (will overwrite current image).
 
@@ -392,7 +396,9 @@ cdef class GaussianDensity:
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-        points = np.ascontiguousarray(points, dtype=np.float32)
+        points = np.require(points, requirements=["C"])
+        if points.dtype != np.float32:
+            raise RuntimeError("points must be a numpy float32 array")
         if points.ndim != 2:
             raise ValueError("points must be a 2 dimensional array")
         if points.shape[1] != 3:
@@ -486,6 +492,8 @@ cdef class LocalDensity:
         # old api
         else:
             points = args[1]
+        ref_points = np.require(ref_points, requirements=["C"])
+        points = np.require(points, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if len(ref_points.shape) != 2 or len(points.shape) != 2:
@@ -561,7 +569,7 @@ cdef class RDF:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] points):
+    def accumulate(self, box, ref_points, points):
         """
         Calculates the rdf and adds to the current rdf histogram.
 
@@ -572,6 +580,8 @@ cdef class RDF:
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        points = np.require(points, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if ref_points.ndim != 2 or points.ndim != 2:

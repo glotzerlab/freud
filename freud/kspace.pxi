@@ -63,10 +63,14 @@ cdef class FTdelta:
         :type position: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type orientation: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
         """
-        position = np.ascontiguousarray(position, dtype=np.float32)
+        position = np.require(position, requirements=["C"])
+        if position.dtype != np.float32:
+            raise RuntimeError("position must be a numpy.float32 array")
         if position.ndim != 2 or position.shape[1] != 3:
             raise TypeError('position should be an Nx3 array')
-        orientation = np.ascontiguousarray(orientation, dtype=np.float32)
+        orientation = np.require(orientation, requirements=["C"])
+        if orientation.dtype != np.float32:
+            raise RuntimeError("orientation must be a numpy.float32 array")
         if orientation.ndim != 2 or orientation.shape[1] != 4:
             raise TypeError('orientation should be an Nx4 array')
         if position.shape[0] != orientation.shape[0]:
@@ -136,10 +140,14 @@ cdef class FTsphere:
         :type position: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type orientation: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
         """
-        position = np.ascontiguousarray(position, dtype=np.float32)
+        position = np.require(position, requirements=["C"])
+        if position.dtype != np.float32:
+            raise RuntimeError("position must be a numpy.float32 array")
         if position.ndim != 2 or position.shape[1] != 3:
             raise TypeError('position should be an Nx3 array')
-        orientation = np.ascontiguousarray(orientation, dtype=np.float32)
+        orientation = np.require(orientation, requirements=["C"])
+        if orientation.dtype != np.float32:
+            raise RuntimeError("orientation must be a numpy.float32 array")
         if orientation.ndim != 2 or orientation.shape[1] != 4:
             raise TypeError('orientation should be an Nx4 array')
         if position.shape[0] != orientation.shape[0]:
@@ -196,7 +204,9 @@ cdef class FTpolyhedron:
         :param K: K values to evaluate
         :type K: :class:`numpy.ndarray`, shape=(:math:`N_{K}`, 3), dtype= :class:`numpy.float32`
         """
-        K = np.ascontiguousarray(K, dtype=np.float32)
+        K = np.require(K, requirements=["C"])
+        if K.dtype != np.float32:
+            raise RuntimeError("K must be a numpy.float32 array")
         if K.ndim != 2 or K.shape[1] != 3:
             raise TypeError('K should be an Nx3 array')
         self.NK = K.shape[0]
@@ -222,23 +232,35 @@ cdef class FTpolyhedron:
         :type volume: float
         """
 
-        verts = np.ascontiguousarray(verts, dtype=np.float32)
+        verts = np.require(verts, requirements=["C"])
+        if verts.dtype != np.float32:
+            raise RuntimeError("verts must be a numpy.float32 array")
         if verts.ndim != 2 or verts.shape[1] != 3:
             raise TypeError('position should be an Nx3 array')
 
-        facet_offs = np.ascontiguousarray(facet_offs, dtype=np.uint32)
+        facet_offs = np.require(facet_offs, requirements=["C"])
+        if facet_offs.dtype != np.float32:
+            raise RuntimeError("facet_offs must be a numpy.float32 array")
         if facet_offs.ndim != 1:
             raise TypeError('facet_offs should be Nx1 array')
-        facets = np.ascontiguousarray(facets, dtype=np.uint32)
+        facets = np.require(facets, requirements=["C"])
+        if facets.dtype != np.float32:
+            raise RuntimeError("facets must be a numpy.float32 array")
         if facets.ndim != 1:
             raise TypeError('facets should be Nx1 array')
-        norms = np.ascontiguousarray(norms, dtype=np.float32)
+        norms = np.require(norms, requirements=["C"])
+        if norms.dtype != np.float32:
+            raise RuntimeError("norms must be a numpy.float32 array")
         if norms.ndim != 2 and norms.shape[1] != 3:
             raise TypeError('norms should be Nx3 array')
-        d = np.ascontiguousarray(d, dtype=np.float32)
+        d = np.require(d, requirements=["C"])
+        if d.dtype != np.float32:
+            raise RuntimeError("d must be a numpy.float32 array")
         if d.ndim != 1:
             raise TypeError('d should be Nx1 array')
-        area = np.ascontiguousarray(area, dtype=np.float32)
+        area = np.require(area, requirements=["C"])
+        if area.dtype != np.float32:
+            raise RuntimeError("area must be a numpy.float32 array")
         if area.ndim != 1:
             raise TypeError('area should be Nx1 array')
         if norms.shape[0] != facet_offs.shape[0] - 1:
@@ -266,10 +288,14 @@ cdef class FTpolyhedron:
         :type position: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type orientation: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
         """
-        position = np.ascontiguousarray(position, dtype=np.float32)
+        position = np.require(position, requirements=["C"])
+        if position.dtype != np.float32:
+            raise RuntimeError("position must be a numpy.float32 array")
         if position.ndim != 2 or position.shape[1] != 3:
             raise TypeError('position should be an Nx3 array')
-        orientation = np.ascontiguousarray(orientation, dtype=np.float32)
+        orientation = np.require(orientation, requirements=["C"])
+        if orientation.dtype != np.float32:
+            raise RuntimeError("orientation must be a numpy.float32 array")
         if orientation.ndim != 2 or orientation.shape[1] != 4:
             raise TypeError('orientation should be an Nx4 array')
         if position.shape[0] != orientation.shape[0]:

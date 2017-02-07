@@ -62,8 +62,7 @@ cdef class BondOrder:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] ref_orientations,
-            np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=2] orientations, str mode="bod"):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, str mode="bod"):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -80,6 +79,10 @@ cdef class BondOrder:
         :type orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
         :type mode: str
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if ref_points.ndim != 2 or points.ndim != 2:
@@ -144,8 +147,7 @@ cdef class BondOrder:
         """
         self.thisptr.resetBondOrder()
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] ref_orientations,
-            np.ndarray[float, ndim=2] points, np.ndarray[float, ndim=2] orientations, str mode="bod"):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, str mode="bod"):
         """
         Calculates the bond order histogram. Will overwrite the current histogram.
 
@@ -268,6 +270,7 @@ cdef class CubaticOrderParameter:
         :type box: :py:class:`freud.box.Box`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
         """
+        orientations = np.require(orientations, requirements=["C"])
         if (orientations.dtype != np.float32):
             raise ValueError("orientations must be a numpy float32 array")
         if orientations.ndim != 2:
@@ -432,6 +435,7 @@ cdef class HexOrderParameter:
         :type box: :py:meth:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -526,6 +530,7 @@ cdef class LocalDescriptors:
 
         """
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        points_ref = np.require(points_ref, requirements=["C"])
         if points_ref.dtype != np.float32:
             raise ValueError("points_ref must be a numpy float32 array")
         if points_ref.ndim != 2:
@@ -571,6 +576,7 @@ cdef class LocalDescriptors:
         if mode not in self.known_modes:
            raise RuntimeError('Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
+        points_ref = np.require(points_ref, requirements=["C"])
         if points_ref.dtype != np.float32:
             raise ValueError("points_ref must be a numpy float32 array")
         if points_ref.ndim != 2:
@@ -581,6 +587,7 @@ cdef class LocalDescriptors:
         if points is None:
             points = points_ref
 
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -697,7 +704,7 @@ cdef class TransOrderParameter:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points, orientations):
+    def compute(self, box, points):
         """
         Calculates the local descriptors.
 
@@ -706,6 +713,7 @@ cdef class TransOrderParameter:
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -798,6 +806,7 @@ cdef class LocalQl:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -814,6 +823,7 @@ cdef class LocalQl:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -831,6 +841,7 @@ cdef class LocalQl:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -848,6 +859,7 @@ cdef class LocalQl:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -991,6 +1003,7 @@ cdef class LocalQlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1007,6 +1020,7 @@ cdef class LocalQlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1024,6 +1038,7 @@ cdef class LocalQlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1041,6 +1056,7 @@ cdef class LocalQlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1178,6 +1194,7 @@ cdef class LocalWl:
         :param points: points to calculate the order parameter
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1194,6 +1211,7 @@ cdef class LocalWl:
         :param points: points to calculate the order parameter
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1211,6 +1229,7 @@ cdef class LocalWl:
         :param points: points to calculate the order parameter
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1228,6 +1247,7 @@ cdef class LocalWl:
         :param points: points to calculate the order parameter
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1381,6 +1401,7 @@ cdef class LocalWlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1397,6 +1418,7 @@ cdef class LocalWlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1414,6 +1436,7 @@ cdef class LocalWlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1431,6 +1454,7 @@ cdef class LocalWlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1572,6 +1596,7 @@ cdef class SolLiq:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1588,6 +1613,7 @@ cdef class SolLiq:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1604,6 +1630,7 @@ cdef class SolLiq:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1771,6 +1798,7 @@ cdef class SolLiqNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1787,6 +1815,7 @@ cdef class SolLiqNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1803,6 +1832,7 @@ cdef class SolLiqNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -1979,6 +2009,7 @@ cdef class MatchEnv:
         :type hard_r: bool
         :type registration: bool
         """
+        points = np.require(points, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -2005,6 +2036,8 @@ cdef class MatchEnv:
         :type threshold: float
         :type registration: bool
         """
+        points = np.require(points, requirements=["C"])
+        refPoints = np.require(refPoints, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -2041,6 +2074,8 @@ cdef class MatchEnv:
         :return: vector of minimal RMSD values, one value per particle.
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
+        refPoints = np.require(refPoints, requirements=["C"])
         if points.dtype != np.float32:
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:
@@ -2079,6 +2114,8 @@ cdef class MatchEnv:
         :return: a doublet that gives the rotated (or not) set of refPoints2, and the mapping between the vectors of refPoints1 and refPoints2 that will make them correspond to each other. empty if they do not correspond to each other.
         :rtype: tuple[( :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`), map[int, int]]
         """
+        refPoints1 = np.require(refPoints1, requirements=["C"])
+        refPoints2 = np.require(refPoints2, requirements=["C"])
         if refPoints1.dtype != np.float32:
             raise ValueError("refPoints1 must be a numpy float32 array")
         if refPoints1.ndim != 2:
@@ -2119,6 +2156,8 @@ cdef class MatchEnv:
         :return: a triplet that gives the associated min_rmsd, rotated (or not) set of refPoints2, and the mapping between the vectors of refPoints1 and refPoints2 that somewhat minimizes the RMSD.
         :rtype: tuple[float, ( :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`), map[int, int]]
         """
+        refPoints1 = np.require(refPoints1, requirements=["C"])
+        refPoints2 = np.require(refPoints2, requirements=["C"])
         if refPoints1.dtype != np.float32:
             raise ValueError("refPoints1 must be a numpy float32 array")
         if refPoints1.ndim != 2:
@@ -2246,6 +2285,9 @@ cdef class Pairing2D:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type compOrientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
+        compOrientations = np.require(compOrientations, requirements=["C"])
         if (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if points.ndim != 2:

@@ -21,7 +21,9 @@ cdef class VoronoiBuffer:
         self.thisptr = new voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
-        points = np.ascontiguousarray(points, dtype=np.float32)
+        points = np.require(points, requirements=["C"])
+        if points.dtype != np.float32:
+            raise RuntimeError("points must be a numpy.float32 array")
         dimensions = 2 if self.thisptr.getBox().is2D() else 3
         if points.ndim != 2 or points.shape[1] != dimensions:
             raise RuntimeError('Need a list of {}D points for VoronoiBuffer.compute()'.format(dimensions))

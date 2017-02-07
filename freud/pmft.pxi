@@ -77,6 +77,10 @@ cdef class PMFTR12:
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
@@ -328,6 +332,10 @@ cdef class PMFTXYT:
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
@@ -569,6 +577,10 @@ cdef class PMFTXY2D:
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
@@ -796,6 +808,10 @@ cdef class PMFTXYZ:
         :type face_orientations: :class:`numpy.ndarray`, shape= :math:`\\left( \\left(N_{particles}, \\right), N_{faces}, 4\\right)`, \
             dtype= :class:`numpy.float32`
         """
+        ref_points = np.require(ref_points, requirements=["C"])
+        ref_orientations = np.require(ref_orientations, requirements=["C"])
+        points = np.require(points, requirements=["C"])
+        orientations = np.require(orientations, requirements=["C"])
         if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
             raise ValueError("points must be a numpy float32 array")
         if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):

@@ -53,7 +53,7 @@ class TestLinkCell(unittest.TestCase):
             N = 40; # number of particles
 
             #Initialize test points randomly
-            points = np.random.uniform(-L/2, L/2, (N, 3))
+            points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
             fbox = box.Box.cube(L);#Initialize Box
             cl = locality.LinkCell(fbox,rcut);#Initialize cell list
             cl.computeCellList(fbox, points);#Compute cell list
