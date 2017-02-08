@@ -21,11 +21,11 @@ cdef class VoronoiBuffer:
         self.thisptr = new voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise RuntimeError("points must be a numpy.float32 array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+
         dimensions = 2 if self.thisptr.getBox().is2D() else 3
-        if points.ndim != 2 or points.shape[1] != dimensions:
+        if points.shape[1] != dimensions:
             raise RuntimeError('Need a list of {}D points for VoronoiBuffer.compute()'.format(dimensions))
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]

@@ -69,20 +69,14 @@ cdef class FloatCF:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
         """
-        ref_points = np.require(ref_points, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        refValues = np.require(refValues, requirements=["C"])
-        values = np.require(values, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if ref_points.ndim != 2 or points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        refValues = freud.common.convert_array(refValues, 1, dtype=np.float64, contiguous=True)
+        values = freud.common.convert_array(values, 1, dtype=np.float64, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if (refValues.dtype != np.float64) or (values.dtype != np.float64):
-            raise ValueError("values must be a numpy float64 array")
-        if refValues.ndim != 1 or values.ndim != 1:
-            raise ValueError("values must be a 1 dimensional array")
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points;
         if ref_points is points:
@@ -232,20 +226,14 @@ cdef class ComplexCF:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
         """
-        ref_points = np.require(ref_points, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        refValues = np.require(refValues, requirements=["C"])
-        values = np.require(values, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise TypeError("points must be a numpy float32 array")
-        if ref_points.ndim != 2 or points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        refValues = freud.common.convert_array(refValues, 1, dtype=np.complex128, contiguous=True)
+        values = freud.common.convert_array(values, 1, dtype=np.complex128, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if (refValues.dtype != np.complex128) or (values.dtype != np.complex128):
-            raise TypeError("values must be a numpy complex128 array")
-        if refValues.ndim != 1 or values.ndim != 1:
-            raise ValueError("values must be a 1 dimensional array")
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points;
         if ref_points is points:
@@ -396,11 +384,8 @@ cdef class GaussianDensity:
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise RuntimeError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -492,12 +477,10 @@ cdef class LocalDensity:
         # old api
         else:
             points = args[1]
-        ref_points = np.require(ref_points, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
@@ -580,12 +563,10 @@ cdef class RDF:
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-        ref_points = np.require(ref_points, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if ref_points.ndim != 2 or points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
@@ -597,7 +578,7 @@ cdef class RDF:
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
 
-    def compute(self, box, np.ndarray[float, ndim=2] ref_points, np.ndarray[float, ndim=2] points):
+    def compute(self, box, ref_points, points):
         """
         Calculates the rdf for the specified points. Will overwrite the current histogram.
 

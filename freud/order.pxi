@@ -79,22 +79,25 @@ cdef class BondOrder:
         :type orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
         :type mode: str
         """
-        ref_points = np.require(ref_points, requirements=["C"])
-        ref_orientations = np.require(ref_orientations, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        orientations = np.require(orientations, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if ref_points.ndim != 2 or points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("values must be a numpy float32 array")
-        if ref_orientations.ndim != 2 or orientations.ndim != 2:
-            raise ValueError("values must be a 1 dimensional array")
-        if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
-            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 2 dimensional array")
+        if ref_orientations.shape[1] != 4:
+            raise TypeError('ref_orientations should be an Nx4 array')
+
+        orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 2 dimensional array")
+        if orientations.shape[1] != 4:
+            raise TypeError('orientations should be an Nx4 array')
 
         cdef unsigned int index = 0
         if mode == "bod":
@@ -270,13 +273,11 @@ cdef class CubaticOrderParameter:
         :type box: :py:class:`freud.box.Box`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
         """
-        orientations = np.require(orientations, requirements=["C"])
-        if (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if orientations.ndim != 2:
-            raise ValueError("orientations must be a 2 dimensional array")
+        orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 2 dimensional array")
         if orientations.shape[1] != 4:
-            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+            raise TypeError('orientations should be an Nx4 array')
+
         cdef np.ndarray[float, ndim=2] l_orientations = orientations
         cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
 
@@ -435,13 +436,11 @@ cdef class HexOrderParameter:
         :type box: :py:meth:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -530,23 +529,18 @@ cdef class LocalDescriptors:
 
         """
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        points_ref = np.require(points_ref, requirements=["C"])
-        if points_ref.dtype != np.float32:
-            raise ValueError("points_ref must be a numpy float32 array")
-        if points_ref.ndim != 2:
-            raise ValueError("points_ref must be a 2 dimensional array")
+        points_ref = freud.common.convert_array(points_ref, 2, dtype=np.float32, contiguous=True,
+            dim_message="points_ref must be a 2 dimensional array")
         if points_ref.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points_ref should be an Nx3 array')
 
         if points is None:
             points = points_ref
 
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
 
         cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
         cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
@@ -576,38 +570,31 @@ cdef class LocalDescriptors:
         if mode not in self.known_modes:
            raise RuntimeError('Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
-        points_ref = np.require(points_ref, requirements=["C"])
-        if points_ref.dtype != np.float32:
-            raise ValueError("points_ref must be a numpy float32 array")
-        if points_ref.ndim != 2:
-            raise ValueError("points_ref must be a 2 dimensional array")
+        points_ref = freud.common.convert_array(points_ref, 2, dtype=np.float32, contiguous=True,
+            dim_message="points_ref must be a 2 dimensional array")
         if points_ref.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points_ref should be an Nx3 array')
 
         if points is None:
             points = points_ref
 
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
 
         cdef np.ndarray[float, ndim=2] l_orientations = orientations
         if mode == 'particle_local':
             if orientations is None:
                 raise RuntimeError('Orientations must be given to orient LocalDescriptors with particles\' orientations')
 
-            if orientations.dtype != np.float32:
-                raise ValueError("orientations must be a numpy float32 array")
-            if orientations.ndim != 2:
-                raise ValueError("orientations must be a 2 dimensional array")
+            orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
+                dim_message="orientations must be a 2 dimensional array")
+            if orientations.shape[1] != 4:
+                raise TypeError('orientations should be an Nx4 array')
+
             if orientations.shape[0] != points_ref.shape[0]:
                 raise ValueError("orientations must have the same size as points_ref")
-            if orientations.shape[1] != 4:
-                raise ValueError("the 2nd dimension must have 3 values: r, x, y, z")
 
             l_orientations = orientations
 
@@ -713,13 +700,11 @@ cdef class TransOrderParameter:
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
@@ -806,13 +791,11 @@ cdef class LocalQl:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -823,13 +806,11 @@ cdef class LocalQl:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -841,13 +822,11 @@ cdef class LocalQl:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -859,13 +838,11 @@ cdef class LocalQl:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1003,13 +980,11 @@ cdef class LocalQlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1020,13 +995,11 @@ cdef class LocalQlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1038,13 +1011,11 @@ cdef class LocalQlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1056,13 +1027,11 @@ cdef class LocalQlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1194,13 +1163,11 @@ cdef class LocalWl:
         :param points: points to calculate the order parameter
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1211,13 +1178,11 @@ cdef class LocalWl:
         :param points: points to calculate the order parameter
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1229,13 +1194,11 @@ cdef class LocalWl:
         :param points: points to calculate the order parameter
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1247,13 +1210,11 @@ cdef class LocalWl:
         :param points: points to calculate the order parameter
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1401,13 +1362,11 @@ cdef class LocalWlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1418,13 +1377,11 @@ cdef class LocalWlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1436,13 +1393,11 @@ cdef class LocalWlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1454,13 +1409,11 @@ cdef class LocalWlNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1596,13 +1549,11 @@ cdef class SolLiq:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1613,13 +1564,11 @@ cdef class SolLiq:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
@@ -1630,13 +1579,11 @@ cdef class SolLiq:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
@@ -1798,13 +1745,11 @@ cdef class SolLiqNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
@@ -1815,13 +1760,11 @@ cdef class SolLiqNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
@@ -1832,13 +1775,11 @@ cdef class SolLiqNear:
         :param points: points to calculate the order parameter
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
@@ -2009,13 +1950,10 @@ cdef class MatchEnv:
         :type hard_r: bool
         :type registration: bool
         """
-        points = np.require(points, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
+            raise TypeError('points should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
@@ -2036,20 +1974,15 @@ cdef class MatchEnv:
         :type threshold: float
         :type registration: bool
         """
-        points = np.require(points, requirements=["C"])
-        refPoints = np.require(refPoints, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
-        if refPoints.dtype != np.float32:
-            raise ValueError("refPoints must be a numpy float32 array")
-        if refPoints.ndim != 2:
-            raise ValueError("refPoints must be a 2 dimensional array")
+            raise TypeError('points should be an Nx3 array')
+
+        refPoints = freud.common.convert_array(refPoints, 2, dtype=np.float32, contiguous=True,
+            dim_message="refPoints must be a 2 dimensional array")
         if refPoints.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
+            raise TypeError('refPoints should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
@@ -2074,20 +2007,15 @@ cdef class MatchEnv:
         :return: vector of minimal RMSD values, one value per particle.
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        refPoints = np.require(refPoints, requirements=["C"])
-        if points.dtype != np.float32:
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension of points must have 3 values: x, y, z")
-        if refPoints.dtype != np.float32:
-            raise ValueError("refPoints must be a numpy float32 array")
-        if refPoints.ndim != 2:
-            raise ValueError("refPoints must be a 2 dimensional array")
+            raise TypeError('points should be an Nx3 array')
+
+        refPoints = freud.common.convert_array(refPoints, 2, dtype=np.float32, contiguous=True,
+            dim_message="refPoints must be a 2 dimensional array")
         if refPoints.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints must have 3 values: x, y, z")
+            raise TypeError('refPoints should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(points.flatten())
@@ -2114,20 +2042,15 @@ cdef class MatchEnv:
         :return: a doublet that gives the rotated (or not) set of refPoints2, and the mapping between the vectors of refPoints1 and refPoints2 that will make them correspond to each other. empty if they do not correspond to each other.
         :rtype: tuple[( :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`), map[int, int]]
         """
-        refPoints1 = np.require(refPoints1, requirements=["C"])
-        refPoints2 = np.require(refPoints2, requirements=["C"])
-        if refPoints1.dtype != np.float32:
-            raise ValueError("refPoints1 must be a numpy float32 array")
-        if refPoints1.ndim != 2:
-            raise ValueError("refPoints1 must be a 2 dimensional array")
+        refPoints1 = freud.common.convert_array(refPoints1, 2, dtype=np.float32, contiguous=True,
+            dim_message="refPoints1 must be a 2 dimensional array")
         if refPoints1.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
-        if refPoints2.dtype != np.float32:
-            raise ValueError("refPoints2 must be a numpy float32 array")
-        if refPoints2.ndim != 2:
-            raise ValueError("refPoints2 must be a 2 dimensional array")
+            raise TypeError('refPoints1 should be an Nx3 array')
+
+        refPoints2 = freud.common.convert_array(refPoints2, 2, dtype=np.float32, contiguous=True,
+            dim_message="refPoints2 must be a 2 dimensional array")
         if refPoints2.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+            raise TypeError('refPoints2 should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
@@ -2156,20 +2079,15 @@ cdef class MatchEnv:
         :return: a triplet that gives the associated min_rmsd, rotated (or not) set of refPoints2, and the mapping between the vectors of refPoints1 and refPoints2 that somewhat minimizes the RMSD.
         :rtype: tuple[float, ( :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`), map[int, int]]
         """
-        refPoints1 = np.require(refPoints1, requirements=["C"])
-        refPoints2 = np.require(refPoints2, requirements=["C"])
-        if refPoints1.dtype != np.float32:
-            raise ValueError("refPoints1 must be a numpy float32 array")
-        if refPoints1.ndim != 2:
-            raise ValueError("refPoints1 must be a 2 dimensional array")
+        refPoints1 = freud.common.convert_array(refPoints1, 2, dtype=np.float32, contiguous=True,
+            dim_message="refPoints1 must be a 2 dimensional array")
         if refPoints1.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints1 must have 3 values: x, y, z")
-        if refPoints2.dtype != np.float32:
-            raise ValueError("refPoints2 must be a numpy float32 array")
-        if refPoints2.ndim != 2:
-            raise ValueError("refPoints2 must be a 2 dimensional array")
+            raise TypeError('refPoints1 should be an Nx3 array')
+
+        refPoints2 = freud.common.convert_array(refPoints2, 2, dtype=np.float32, contiguous=True,
+            dim_message="refPoints2 must be a 2 dimensional array")
         if refPoints2.shape[1] != 3:
-            raise ValueError("the 2nd dimension of refPoints2 must have 3 values: x, y, z")
+            raise TypeError('refPoints2 should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(np.ascontiguousarray(refPoints1.flatten()))
@@ -2285,21 +2203,17 @@ cdef class Pairing2D:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type compOrientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        points = np.require(points, requirements=["C"])
-        orientations = np.require(orientations, requirements=["C"])
-        compOrientations = np.require(compOrientations, requirements=["C"])
-        if (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if points.ndim != 2:
-            raise ValueError("points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
-            raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        if (orientations.dtype != np.float32) or (compOrientations.dtype != np.float32):
-            raise ValueError("values must be a numpy float32 array")
-        if orientations.ndim != 1:
-            raise ValueError("values must be a 1 dimensional array")
-        if compOrientations.ndim != 2:
-            raise ValueError("values must be a 2 dimensional array")
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 1 dimensional array")
+
+        compOrientations = freud.common.convert_array(compOrientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="compOrientations must be a 2 dimensional array")
+
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=2] l_compOrientations = compOrientations
         cdef np.ndarray[float, ndim=1] l_orientations = orientations

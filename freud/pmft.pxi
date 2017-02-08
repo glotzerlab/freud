@@ -77,20 +77,22 @@ cdef class PMFTR12:
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        ref_points = np.require(ref_points, requirements=["C"])
-        ref_orientations = np.require(ref_orientations, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        orientations = np.require(orientations, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if len(ref_orientations.shape) != 1 or len(orientations.shape) != 1:
-            raise ValueError("orientations must be a 2 dimensional array")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 1 dimensional array")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 1 dimensional array")
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -332,20 +334,22 @@ cdef class PMFTXYT:
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        ref_points = np.require(ref_points, requirements=["C"])
-        ref_orientations = np.require(ref_orientations, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        orientations = np.require(orientations, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if len(ref_orientations.shape) != 1 or len(orientations.shape) != 1:
-            raise ValueError("orientations must be a 2 dimensional array")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 1 dimensional array")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 1 dimensional array")
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -577,20 +581,22 @@ cdef class PMFTXY2D:
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        ref_points = np.require(ref_points, requirements=["C"])
-        ref_orientations = np.require(ref_orientations, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        orientations = np.require(orientations, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if len(ref_orientations.shape) != 1 or len(orientations.shape) != 1:
-            raise ValueError("orientations must be a 1 dimensional array")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 1 dimensional array")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 1 dimensional array")
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -808,21 +814,26 @@ cdef class PMFTXYZ:
         :type face_orientations: :class:`numpy.ndarray`, shape= :math:`\\left( \\left(N_{particles}, \\right), N_{faces}, 4\\right)`, \
             dtype= :class:`numpy.float32`
         """
-        ref_points = np.require(ref_points, requirements=["C"])
-        ref_orientations = np.require(ref_orientations, requirements=["C"])
-        points = np.require(points, requirements=["C"])
-        orientations = np.require(orientations, requirements=["C"])
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if face_orientations is not None:
-            if (face_orientations.dtype != np.float32):
-                raise ValueError("face_orientations must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if len(ref_orientations.shape) != 2 or len(orientations.shape) != 2:
-            raise ValueError("orientations must be a 2 dimensional array")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 2 dimensional array")
+        if ref_orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 2 dimensional array")
+        if orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+
         # handle multiple ways to input
         if face_orientations is None:
             # set to unit quaternion q = [1,0,0,0]
@@ -831,19 +842,19 @@ cdef class PMFTXYZ:
         else:
             if (len(face_orientations.shape) < 2) or (len(face_orientations.shape) > 3):
                 raise ValueError("points must be a 2 or 3 dimensional array")
-            if len(face_orientations) == 2:
+            face_orientations = freud.common.convert_array(face_orientations, face_orientations.ndim, dtype=np.float32, contiguous=True,
+                dim_message="face_orientations must be a {} dimensional array".format(face_orientations.ndim))
+            if face_orientations.ndim == 2:
                 if face_orientations.shape[1] != 4:
                     raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
                 # need to broadcast into new array
                 tmp_face_orientations = np.zeros(shape=(ref_points.shape[0], face_orientations.shape[0], face_orientations.shape[1]), dtype=np.float32)
                 tmp_face_orientations[:] = face_orientations
                 face_orientations = tmp_face_orientations
-            elif face_orientations.shape[2] == 3:
-                raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
-        if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
-            raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+            else:
+                if face_orientations.shape[2] != 4:
+                    raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
