@@ -36,13 +36,12 @@ cdef class InterfaceMeasure:
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-
-        ref_points = np.ascontiguousarray(ref_points, dtype=np.float32)
-        if ref_points.ndim != 2 or ref_points.shape[1] != 3:
-            raise RuntimeError('Need a list of 3D reference points for computeCellList()')
-        points = np.ascontiguousarray(points, dtype=np.float32)
-        if points.ndim != 2 or points.shape[1] != 3:
-            raise RuntimeError('Need a list of 3D points for computeCellList()')
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3 or points.shape[1] != 3:
+            raise RuntimeError('Need to provide array with x, y, z positions')
         cdef np.ndarray cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points

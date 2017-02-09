@@ -15,5 +15,6 @@ from . import interface
 from . import voronoi
 from . import pmft
 from . import index
+from . import common
 
 __version__ = '0.6.2'

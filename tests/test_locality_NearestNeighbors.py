@@ -13,7 +13,7 @@ class TestNearestNeighbors(unittest.TestCase):
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
-        points = np.random.uniform(-L/2, L/2, (N, 3))
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         cl.compute(fbox, points, points)
 
         self.assertEqual(cl.getNumNeighbors(), num_neighbors)
@@ -48,7 +48,7 @@ class TestNearestNeighbors(unittest.TestCase):
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
-        points = np.random.uniform(-L/2, L/2, (N, 3))
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         cl.compute(fbox, points, points)
 
         neighbor_list = cl.getNeighborList()
