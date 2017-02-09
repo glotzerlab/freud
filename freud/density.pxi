@@ -458,7 +458,7 @@ cdef class LocalDensity:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def compute(self, *args):
+    def compute(self, box, ref_points, points=None):
         """
         Calculates the local density for the specified points. Does not accumulate (will overwrite current data).
 
@@ -469,14 +469,8 @@ cdef class LocalDensity:
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-        box = args[0]
-        ref_points = args[1]
-        # new api
-        if len(args) == 3:
-            points = args[2]
-        # old api
-        else:
-            points = args[1]
+        if points is None:
+            points = ref_points
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,

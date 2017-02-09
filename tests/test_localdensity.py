@@ -13,6 +13,16 @@ class TestLD:
         self.pos = numpy.array(numpy.random.random(size=(10000,3)), dtype=numpy.float32)*10 - 5
         self.ld = density.LocalDensity(3, 1, 1);
 
+    def test_compute_api(self):
+        # test 2 args, no keyword
+        self.ld.compute(self.box, self.pos);
+        # test 3 args, no keyword
+        self.ld.compute(self.box, self.pos, self.pos);
+        # test 2 args, keyword
+        self.ld.compute(box=self.box, ref_points=self.pos);
+        # test 3 args, keyword
+        self.ld.compute(box=self.box, ref_points=self.pos, points=self.pos);
+
     def test_density(self):
         """Test that LocalDensity can compute a correct density at each point"""
 
