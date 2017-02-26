@@ -28,6 +28,13 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
     cdef cppclass BondingR12:
         BondingR12(float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
         const box.Box &getBox() const
+        void initialize(box.Box &,
+                        vec3[float]*,
+                        float*,
+                        unsigned int,
+                        vec3[float]*,
+                        float*,
+                        unsigned int) nogil except +
         void compute(box.Box &,
                      vec3[float]*,
                      float*,
@@ -35,9 +42,13 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil except +
-        shared_ptr[ uint ] getBonds()
+        # shared_ptr[ uint ] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
+        # vector[vector[uint]] getBondLifetimes()
+        vector[uint] getBondLifetimes()
+        # vector[vector[uint]] getOverallLifetimes()
+        vector[uint] getOverallLifetimes()
         map[ uint, uint] getListMap()
         map[ uint, uint] getRevListMap()
 

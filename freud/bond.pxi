@@ -159,6 +159,49 @@ cdef class BondingR12:
     def __dealloc__(self):
         del self.thisptr
 
+    def initialize(self, box, ref_points, ref_orientations, points, orientations):
+        """
+        Initialize the first frame to calculate the histogram.
+
+        :param box: simulation box
+        :param ref_points: points to calculate the bonding
+        :param ref_orientations: orientations as angles to use in computation
+        :param points: points to calculate the bonding
+        :param orientations: orientations as angles to use in computation
+        :type box: :py:meth:`freud.box.Box`
+        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type ref_orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        """
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 1 dimensional array")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 1 dimensional array")
+
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        with nogil:
+            self.thisptr.initialize(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
+                <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
+
     def compute(self, box, ref_points, ref_orientations, points, orientations):
         """
         Calculates the correlation function and adds to the current histogram.
@@ -202,17 +245,36 @@ cdef class BondingR12:
             self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
 
-    def getBonds(self):
+    # def getBonds(self):
+    #     """
+    #     :return: particle bonds
+    #     :rtype: :class:`numpy.ndarray`
+    #     """
+    #     cdef unsigned int *bonds = self.thisptr.getBonds().get()
+    #     cdef np.npy_intp nbins[2]
+    #     nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
+    #     nbins[1] = <np.npy_intp>self.thisptr.getNumBonds()
+    #     cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>bonds)
+    #     return result
+
+    def getBondLifetimes(self):
         """
-        :return: particle bonds
-        :rtype: :class:`numpy.ndarray`
+        :return: lifetime of bonds
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int *bonds = self.thisptr.getBonds().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp>self.thisptr.getNumBonds()
-        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>bonds)
-        return result
+        bonds = self.thisptr.getBondLifetimes()
+        # return bonds
+        ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
+        return ret_bonds
+
+    def getOverallLifetimes(self):
+        """
+        :return: lifetime of bonds
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.uint32`
+        """
+        bonds = self.thisptr.getOverallLifetimes()
+        ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
+        return ret_bonds
 
     def getBox(self):
         """
