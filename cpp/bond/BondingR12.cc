@@ -294,17 +294,29 @@ void BondingR12::compute(box::Box& box,
                 {
                 // printf("pidx = %u\n", i);
                 // create vector of pjdx to verify
-                std::vector<unsigned int> current_pjdxs (0);
-                std::vector<unsigned int> touched_pjdxs (0);
+                std::vector<unsigned int> current_pjdxs;
+                current_pjdxs.resize(0);
+                std::vector<unsigned int> touched_pjdxs;
+                touched_pjdxs.resize(0);
                 // iterate through current bonds and put into current bond array
                 // printf("attempting to access bond tracker array\n");
                 unsigned int num_bonds = (unsigned int) m_bond_tracker_array[i].size();
                 // safer to iterate through
+                // printf("pidx = %u\n", i);
                 for (unsigned int b_idx = 0; b_idx < num_bonds; b_idx++)
                     {
-                    // printf("b_idx %u\n", b_idx);
-                    current_pjdxs.push_back(m_bond_tracker_array[i][b_idx].first);
+                    unsigned int l_pjdx = m_bond_tracker_array[i][b_idx].first;
+                    // printf("pjdx = %u\n", l_pjdx);
+                    current_pjdxs.push_back(l_pjdx);
                     }
+                // printf("current_pjdxs:\n");
+                // printf("%u: ", i);
+                std::vector<unsigned int>::iterator print_iterator;
+                // for (print_iterator = current_pjdxs.begin(); print_iterator != current_pjdxs.end(); ++print_iterator)
+                //     {
+                //     printf("%u ", (*print_iterator));
+                //     }
+                // printf("\n");
                 // not needed here for current_pjdxs...insertion sort guarantees order
                 // std::sort(current_pjdxs.begin(), current_pjdxs.end());
                 // printf("finished with bond tracker\n");
@@ -333,10 +345,7 @@ void BondingR12::compute(box::Box& box,
 
                         float rsq = dot(delta, delta);
                         // particle cannot pair with itself...i != j is probably better?
-// if ((rsq < 1e-6) || (rsq > rmaxsq))
-//     {
-//     continue;
-//     }
+                        // if ((rsq < 1e-6) || (rsq > rmaxsq))
                         if ((i == j) || (rsq > rmaxsq))
                             // this should skip i == j and if rsq would segfault in the bond map lookup
                             // and the set difference should catch the b2u
@@ -477,61 +486,84 @@ void BondingR12::compute(box::Box& box,
                                 }
                             }
                         }
-                    // now compare pjdx we've check vs. the ones we started with
-                    std::vector<unsigned int> b2u;
-                    b2u.resize(0);
-                    std::set_difference(current_pjdxs.begin(), current_pjdxs.end(), touched_pjdxs.begin(),
-                        touched_pjdxs.end(), std::back_inserter(b2u));
-                    // if (b2u.size() > 0)
-                    if (false)
+                    }
+                // now compare pjdx we've check vs. the ones we started with
+                std::vector<unsigned int> b2u;
+                b2u.resize(0);
+                std::set_difference(current_pjdxs.begin(), current_pjdxs.end(), touched_pjdxs.begin(),
+                    touched_pjdxs.end(), std::back_inserter(b2u));
+                // std::vector<unsigned int>::iterator print_iterator;
+                // looks like maybe there's uninitialized memory?
+                if (b2u.size() > 0)
+                // if (false)
+                    {
+                    printf("current_pjdxs:\n");
+                    printf("%u: ", i);
+                    for (print_iterator = current_pjdxs.begin(); print_iterator != current_pjdxs.end(); ++print_iterator)
                         {
-                        // printf("b2u?\n");
-                        for (std::vector<unsigned int>::iterator j = b2u.begin(); j != b2u.end(); ++j)
+                        printf("%u ", (*print_iterator));
+                        }
+                    printf("\n");
+                    printf("touched_pjdxs:\n");
+                    printf("%u: ", i);
+                    for (print_iterator = touched_pjdxs.begin(); print_iterator != touched_pjdxs.end(); ++print_iterator)
+                        {
+                        printf("%u ", (*print_iterator));
+                        }
+                    printf("\n");
+                    printf("set difference:\n");
+                    printf("%u: ", i);
+                    for (print_iterator = b2u.begin(); print_iterator != b2u.end(); ++print_iterator)
+                        {
+                        printf("%u ", (*print_iterator));
+                        }
+                    // printf("b2u?\n");
+                    for (std::vector<unsigned int>::iterator j = b2u.begin(); j != b2u.end(); ++j)
+                        {
+                        std::vector<unsigned int>::iterator it_pjdx;
+                        // this seems dangerous to be iterating through while also erasing...
+                        // I think this should be ok
+                        it_pjdx = std::find_if(current_pjdxs.begin(),
+                            current_pjdxs.end(), FindParticle(*j));
+                        if (it_pjdx != current_pjdxs.end())
                             {
-                            std::vector<unsigned int>::iterator it_pjdx;
-                            // this seems dangerous to be iterating through while also erasing...
-                            // I think this should be ok
-                            it_pjdx = std::find_if(current_pjdxs.begin(),
-                                current_pjdxs.end(), FindParticle(*j));
-                            if (it_pjdx != current_pjdxs.end())
+                            // get the index
+                            auto l_index = std::distance(current_pjdxs.begin(), it_pjdx);
+                            // get the values
+                            std::vector<unsigned int> l_bond_values = m_bond_tracker_array[i][l_index].second;
+                            // put values into the arrays
+                            unsigned int b_lifetime = l_bond_values[1];
+                            m_bond_lifetime_array.push_back(b_lifetime);
+                            unsigned int o_lifetime = l_bond_values[2];
+                            m_overall_lifetime_array.push_back(o_lifetime);
+                            // delete the pair from the array
+                            // printf("time to erase\n");
+                            std::vector<std::pair< unsigned int, std::vector<unsigned int> > >::iterator print_iterator;
+                            printf("erasing b2u:\n");
+                            printf("%u: ", i);
+                            for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
                                 {
-                                // get the index
-                                auto l_index = std::distance(current_pjdxs.begin(), it_pjdx);
-                                // get the values
-                                std::vector<unsigned int> l_bond_values = m_bond_tracker_array[i][l_index].second;
-                                // put values into the arrays
-                                unsigned int b_lifetime = l_bond_values[1];
-                                m_bond_lifetime_array.push_back(b_lifetime);
-                                unsigned int o_lifetime = l_bond_values[2];
-                                m_overall_lifetime_array.push_back(o_lifetime);
-                                // delete the pair from the array
-                                // printf("time to erase\n");
-                                std::vector<std::pair< unsigned int, std::vector<unsigned int> > >::iterator print_iterator;
-                                printf("erasing b2u:\n");
-                                printf("%u: ", i);
-                                for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
-                                    {
-                                    printf("%u ", print_iterator->first);
-                                    }
-                                printf("\n");
-                                m_bond_tracker_array[i].erase(m_bond_tracker_array[i].begin()+l_index);
-                                current_pjdxs.erase(current_pjdxs.begin()+l_index);
-                                printf("%u: ", i);
-                                for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
-                                    {
-                                    printf("%u ", print_iterator->first);
-                                    }
-                                printf("\n");
-                                // printf("erased\n");
+                                printf("%u ", print_iterator->first);
                                 }
-                            else
+                            printf("\n");
+                            m_bond_tracker_array[i].erase(m_bond_tracker_array[i].begin()+l_index);
+                            current_pjdxs.erase(current_pjdxs.begin()+l_index);
+                            printf("%u: ", i);
+                            for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
                                 {
-                                // this line should NEVER BE REACHED
-                                printf("this line should never be reached!\n");
+                                printf("%u ", print_iterator->first);
                                 }
+                            printf("\n");
+                            // printf("erased\n");
+                            }
+                        else
+                            {
+                            // this line should NEVER BE REACHED
+                            printf("this line should never be reached!\n");
                             }
                         }
                     }
+                // printf("\n");
                 // std::vector<std::pair< unsigned int, std::vector<unsigned int> > >::iterator print_iterator;
                 // printf("%u: \n", i);
                 // for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
