@@ -139,6 +139,8 @@ void BondingR12::initialize(box::Box& box,
 
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
+                std::vector<unsigned int> touched_pjdxs;
+                touched_pjdxs.resize(0);
                 // get position, orientation of particle i
                 vec3<float> ref_pos = ref_points[i];
                 float ref_angle = ref_orientations[i];
@@ -201,7 +203,7 @@ void BondingR12::initialize(box::Box& box,
 
                         // find the bond
                         // bin if bond is tracked
-                        bool isBondTracked;
+                        bool isBondTracked = false;
                         unsigned int bond;
                         if ((ibin_r < m_nbins_r) && (ibin_t1 < m_nbins_t1) && (ibin_t2 < m_nbins_t2))
                             {
@@ -214,15 +216,20 @@ void BondingR12::initialize(box::Box& box,
                                 // m_bonds.get()[a_i((unsigned int)(list_idx->second), (unsigned int)i)] = j;
                                 isBondTracked = true;
                                 }
-                            else
-                                {
-                                isBondTracked = false;
-                                }
+                            // else
+                            //     {
+                            //     isBondTracked = false;
+                            //     }
                             }
                         if (!isBondTracked)
                             {
                             continue;
                             }
+                        std::vector<unsigned int>::iterator insert_idx = std::upper_bound(touched_pjdxs.begin(), touched_pjdxs.end(), j);
+                        // std::vector<unsigned int>::iterator insert_idx = std::lower_bound(touched_pjdxs.begin(), touched_pjdxs.end(), j);
+                        auto l_index = std::distance(touched_pjdxs.begin(), insert_idx);
+                        touched_pjdxs.insert(insert_idx, j);
+
                         std::pair< unsigned int, std::vector<unsigned int> > new_pjdx;
                         // new_pjdx.resize(0);
                         std::vector<unsigned int> new_element;
@@ -235,9 +242,17 @@ void BondingR12::initialize(box::Box& box,
                         new_element.push_back(1);
                         new_pjdx.first = j;
                         new_pjdx.second = new_element;
-                        m_bond_tracker_array[i].push_back(new_pjdx);
+                        // use insertion sort
+                        // m_bond_tracker_array[i].push_back(new_pjdx);
+                        m_bond_tracker_array[i].insert(m_bond_tracker_array[i].begin()+l_index, new_pjdx);
                         }
                     }
+                // std::vector<std::pair< unsigned int, std::vector<unsigned int> > >::iterator print_iterator;
+                // for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
+                //     {
+                //     printf("%u ", print_iterator->first);
+                //     }
+                // printf("\n");
                 }
             });
     m_n_ref = n_ref;
@@ -290,6 +305,8 @@ void BondingR12::compute(box::Box& box,
                     // printf("b_idx %u\n", b_idx);
                     current_pjdxs.push_back(m_bond_tracker_array[i][b_idx].first);
                     }
+                // not needed here for current_pjdxs...insertion sort guarantees order
+                // std::sort(current_pjdxs.begin(), current_pjdxs.end());
                 // printf("finished with bond tracker\n");
                 // think about sorting
 // huh?
@@ -326,7 +343,8 @@ void BondingR12::compute(box::Box& box,
                             {
                             continue;
                             }
-                        touched_pjdxs.push_back(j);
+                        std::vector<unsigned int>::iterator insert_idx = std::upper_bound(touched_pjdxs.begin(), touched_pjdxs.end(), j);
+                        touched_pjdxs.insert(insert_idx, j);
                         // determine which histogram bin to look in
                         float r = sqrtf(rsq);
                         float d_theta1 = atan2(delta.y, delta.x);
@@ -361,7 +379,7 @@ void BondingR12::compute(box::Box& box,
 
                         // find the bond
                         // bin if bond is tracked
-                        bool isBondTracked;
+                        bool isBondTracked = false;
                         unsigned int bond;
                         // printf("accessing bond map\n");
                         if ((ibin_r < m_nbins_r) && (ibin_t1 < m_nbins_t1) && (ibin_t2 < m_nbins_t2))
@@ -375,10 +393,10 @@ void BondingR12::compute(box::Box& box,
                                 // m_bonds.get()[a_i((unsigned int)(list_idx->second), (unsigned int)i)] = j;
                                 isBondTracked = true;
                                 }
-                            else
-                                {
-                                isBondTracked = false;
-                                }
+                            // else
+                            //     {
+                            //     isBondTracked = false;
+                            //     }
                             }
                         // printf("bond_map accessed\n");
                         // log the bond
@@ -447,7 +465,15 @@ void BondingR12::compute(box::Box& box,
                                 new_element.push_back(1);
                                 new_pjdx.first = j;
                                 new_pjdx.second = new_element;
-                                m_bond_tracker_array[i].push_back(new_pjdx);
+                                // do for current array first
+                                std::vector< unsigned int >::iterator insert_current_pjdx;
+                                insert_current_pjdx = std::upper_bound(current_pjdxs.begin(), current_pjdxs.end(), j);
+                                // find the distance
+                                auto l_index = std::distance(current_pjdxs.begin(), insert_current_pjdx);
+                                current_pjdxs.insert(insert_current_pjdx, j);
+                                // should already be initialized
+                                // m_bond_tracker_array[i].push_back(new_pjdx);
+                                m_bond_tracker_array[i].insert(m_bond_tracker_array[i].begin()+l_index, new_pjdx);
                                 }
                             }
                         }
@@ -456,12 +482,15 @@ void BondingR12::compute(box::Box& box,
                     b2u.resize(0);
                     std::set_difference(current_pjdxs.begin(), current_pjdxs.end(), touched_pjdxs.begin(),
                         touched_pjdxs.end(), std::back_inserter(b2u));
-                    if (b2u.size() > 0)
+                    // if (b2u.size() > 0)
+                    if (false)
                         {
                         // printf("b2u?\n");
                         for (std::vector<unsigned int>::iterator j = b2u.begin(); j != b2u.end(); ++j)
                             {
                             std::vector<unsigned int>::iterator it_pjdx;
+                            // this seems dangerous to be iterating through while also erasing...
+                            // I think this should be ok
                             it_pjdx = std::find_if(current_pjdxs.begin(),
                                 current_pjdxs.end(), FindParticle(*j));
                             if (it_pjdx != current_pjdxs.end())
@@ -477,8 +506,22 @@ void BondingR12::compute(box::Box& box,
                                 m_overall_lifetime_array.push_back(o_lifetime);
                                 // delete the pair from the array
                                 // printf("time to erase\n");
+                                std::vector<std::pair< unsigned int, std::vector<unsigned int> > >::iterator print_iterator;
+                                printf("erasing b2u:\n");
+                                printf("%u: ", i);
+                                for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
+                                    {
+                                    printf("%u ", print_iterator->first);
+                                    }
+                                printf("\n");
                                 m_bond_tracker_array[i].erase(m_bond_tracker_array[i].begin()+l_index);
                                 current_pjdxs.erase(current_pjdxs.begin()+l_index);
+                                printf("%u: ", i);
+                                for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
+                                    {
+                                    printf("%u ", print_iterator->first);
+                                    }
+                                printf("\n");
                                 // printf("erased\n");
                                 }
                             else
@@ -489,6 +532,13 @@ void BondingR12::compute(box::Box& box,
                             }
                         }
                     }
+                // std::vector<std::pair< unsigned int, std::vector<unsigned int> > >::iterator print_iterator;
+                // printf("%u: \n", i);
+                // for (print_iterator = m_bond_tracker_array[i].begin(); print_iterator != m_bond_tracker_array[i].end(); ++print_iterator)
+                //     {
+                //     printf("%u ", print_iterator->first);
+                //     }
+                // printf("\n");
                 }
             });
     m_n_ref = n_ref;
