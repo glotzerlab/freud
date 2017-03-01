@@ -9,7 +9,8 @@
 // boost include
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/bimap.hpp>
+// #include <boost/bimap.hpp>
+#include "BiMap.h"
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
@@ -252,7 +253,7 @@ class RegisterBruteForce  // : public Register
                         matrix rot_points = Rotate(r, points.transpose());
 
                         // feed back in the TRANSPOSE of rot_points such that the input matrix is (Nx3).
-                        boost::bimap<unsigned int, unsigned int> vec_map;
+                        BiMap<unsigned int, unsigned int> vec_map;
                         double rmsd = AlignedRMSDTree(rot_points.transpose(), vec_map);
                         if (rmsd < rmsd_min || rmsd_min < 0.0)
                         {
@@ -293,7 +294,7 @@ class RegisterBruteForce  // : public Register
 
         double getRMSD() { return m_rmsd; }
 
-        boost::bimap<unsigned int, unsigned int> getVecMap() { return m_vec_map; }
+        BiMap<unsigned int, unsigned int> getVecMap() { return m_vec_map; }
 
         void setNumShuffles(size_t s) { m_shuffles = s; }
 
@@ -305,7 +306,7 @@ class RegisterBruteForce  // : public Register
         // set, the vector set used in the argument below.
         // To fully solve this, we need to use the Hungarian algorithm or some other way of solving the
         // so-called assignment problem.
-        double AlignedRMSDTree(const matrix& points, boost::bimap<unsigned int, unsigned int>& m)
+        double AlignedRMSDTree(const matrix& points, BiMap<unsigned int, unsigned int>& m)
         {
             // Also brute force.
             assert(points.rows() == m_data.rows());
@@ -315,7 +316,7 @@ class RegisterBruteForce  // : public Register
             // guarantees 1-1 mapping
             std::vector<bool> found(m_data.rows(), false);
             // a mapping between the vectors of m_data and the vectors of points
-            boost::bimap<unsigned int, unsigned int> vec_map;
+            BiMap<unsigned int, unsigned int> vec_map;
             // loop through all the points
             for(int r = 0; r < points.rows(); r++)
             {
@@ -333,7 +334,7 @@ class RegisterBruteForce  // : public Register
                         dist = bg::distance(query, it->first);
                         found[it->second] = true;
                         // add this pairing to the mapping between vectors
-                        vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(it->second, r));
+                        vec_map.emplace(it->second, r);
                         break;
                     }
                 }
@@ -420,7 +421,7 @@ class RegisterBruteForce  // : public Register
         double m_rmsd;
         double m_tol;
         size_t m_shuffles;
-        boost::bimap<unsigned int, unsigned int> m_vec_map;
+        BiMap<unsigned int, unsigned int> m_vec_map;
         // R-tree. It stores (point, index) pairs and is initialized via the R*-tree algorithm.
         // The maximum number of elements in each node is set to 16.
         // R*-trees are more costly to set up than R-trees but apparently can be queried more efficiently.
