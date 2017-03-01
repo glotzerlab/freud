@@ -43,9 +43,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, BiMap<uns
             for (unsigned int proper_a_ind=0; proper_a_ind<vec_map.size(); proper_a_ind++)
                 {
                 // boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(proper_a_ind);
-                auto pair = vec_map.left.find(proper_a_ind);
-                // unsigned int proper_b_ind = it->second;
-                unsigned int proper_b_ind = pair->second;
+                unsigned int proper_b_ind = vec_map.left[proper_a_ind];
 
                 // old_node_vec_ind[proper_b_ind] is "relative_b_ind"
                 s[node].vec_ind[proper_a_ind] = old_node_vec_ind[proper_b_ind];
@@ -84,9 +82,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, BiMap<uns
                 for (unsigned int proper_a_ind=0; proper_a_ind<vec_map.size(); proper_a_ind++)
                     {
                     // boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(proper_a_ind);
-                    auto pair = vec_map.left.find(proper_a_ind);
-                    // unsigned int proper_b_ind = it->second;
-                    unsigned int proper_b_ind = pair->second;
+                    unsigned int proper_b_ind = vec_map.left[proper_a_ind];
 
                     // old_node_vec_ind[proper_b_ind] is "relative_b_ind"
                     s[node].vec_ind[proper_a_ind] = old_node_vec_ind[proper_b_ind];
@@ -121,9 +117,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, BiMap<uns
                 for (unsigned int proper_b_ind=0; proper_b_ind<vec_map.size(); proper_b_ind++)
                     {
                     // boost::bimap<unsigned int, unsigned int>::right_const_iterator it = vec_map.right.find(proper_b_ind);
-                    auto pair = vec_map.right.find(proper_b_ind);
-                    // unsigned int proper_a_ind = it->second;
-                    unsigned int proper_a_ind = pair->second;
+                    unsigned int proper_a_ind = vec_map.right[proper_b_ind];
 
                     // old_node_vec_ind[proper_a_ind] is "relative_a_ind"
                     s[node].vec_ind[proper_b_ind] = old_node_vec_ind[proper_a_ind];
@@ -303,7 +297,7 @@ MatchEnv::MatchEnv(const box::Box& box, float rmax, unsigned int k)
     tmp.emplace(2,3);
     for (BiMap<unsigned int, unsigned int>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
         {
-        std::cout<<it->left<<it->right<<std::endl;
+        std::cout<<(*it)->first<<(*it)->second<<std::endl;
         }
 
     }
@@ -414,11 +408,11 @@ std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > MatchEnv::isSimila
             {
             // RegisterBruteForce has found the vector mapping that results in minimal RMSD, as best as it can figure out.
             // Does this vector mapping pass the more stringent criterion imposed by the threshold?
-            vec3<float> delta = v1[it->left] - v2[it->right];
+            vec3<float> delta = v1[(*it)->first] - v2[(*it)->second];
             float rsq = dot(delta, delta);
             if (rsq < threshold_sq*m_rmaxsq)
                 {
-                vec_map.emplace(it->left, it->right);
+                vec_map.emplace((*it)->first, (*it)->second);
                 }
             }
         }
@@ -501,7 +495,7 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refP
     std::map<unsigned int, unsigned int> std_vec_map;
     for (BiMap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
         {
-        std_vec_map[it->left] = it->right;
+        std_vec_map[(*it)->first] = (*it)->second;
         }
 
     // update refPoints2 in case registration has taken place
@@ -618,7 +612,7 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *r
     std::map<unsigned int, unsigned int> std_vec_map;
     for (BiMap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
         {
-        std_vec_map[it->left] = it->right;
+        std_vec_map[(*it)->first] = (*it)->second;
         }
 
     // update refPoints2 in case registration has taken place

@@ -63,7 +63,7 @@ class EnvDisjointSet
         //! Constructor
         EnvDisjointSet(unsigned int Np);
         //! Merge two sets
-        void merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation);
+        void merge(const unsigned int a, const unsigned int b, BiMap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation);
         //! Find the set with a given element
         unsigned int find(const unsigned int c);
         //! Return ALL nodes in the tree that correspond to the head index m
