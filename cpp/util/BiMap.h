@@ -138,13 +138,22 @@ class BiMap
             }
             
         template <typename I, typename J>
-        void emplace(I&& Arg1_in, J&& Arg2_in)
+        bool emplace(I&& Arg1_in, J&& Arg2_in)
             {
             auto pair = new Pair(std::forward<I>(Arg1_in),
                                  std::forward<J>(Arg2_in));
-            set_A.emplace(&(pair->first));
-            set_B.emplace(&(pair->second));
+            if (!set_A.emplace(&(pair->first)))
+	        {
+		delete pair;
+	        return false;
+	        }
+            if (!set_B.emplace(&(pair->second)))
+	        {
+	        delete pair;
+		return false;
+	        }
             container.emplace_back(std::move(pair));
+	    return true;
             }
     
         void insert(const Pair& Pair_in)
