@@ -291,15 +291,24 @@ MatchEnv::MatchEnv(const box::Box& box, float rmax, unsigned int k)
     m_lc = new locality::LinkCell(m_box, m_rmax);
 
     // is the bimap 1-1? what's happening....
-    BiMap<unsigned int, unsigned int> tmp;
-    tmp.emplace(1,2);
-    tmp.emplace(1,3);
-    tmp.emplace(2,3);
-    for (BiMap<unsigned int, unsigned int>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
+    BiMap<std::string, unsigned int> tmp;
+    boost::bimap<std::string, unsigned int> boost_tmp;
+    tmp.emplace("hello",1);
+    boost_tmp.insert({"hello",1});
+    tmp.emplace("hello",2);
+    boost_tmp.insert({"hello",2});
+    tmp.emplace("bye",1);
+    boost_tmp.insert({"bye",1});
+    tmp.emplace("bye",2);
+    boost_tmp.insert({"bye",2});
+    for (BiMap<std::string, unsigned int>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
         {
-        std::cout<<(*it)->first<<(*it)->second<<std::endl;
+        std::cout<<"BiMap: "<<(*it)->first<<(*it)->second<<std::endl;
         }
-
+    for (boost::bimap<std::string, unsigned int>::const_iterator it = boost_tmp.begin(); it != boost_tmp.end(); ++it)
+        {
+        std::cout<<"boost bimap: "<<it->left<<it->right<<std::endl;
+        }
     }
 
 // Destructor
