@@ -773,6 +773,7 @@ cdef class PMFTXYZ:
     :type shiftvec: list
     """
     cdef pmft.PMFTXYZ *thisptr
+    cdef shiftvec
 
     def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z, shiftvec=[0,0,0]):
         cdef vec3[float] c_shiftvec = vec3[float](shiftvec[0],shiftvec[1],shiftvec[2])
