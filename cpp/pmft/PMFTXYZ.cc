@@ -22,10 +22,10 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z)
+PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec)
     : m_box(box::Box()), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z),
       m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_z(n_bins_z), m_frame_counter(0),
-      m_n_ref(0), m_n_p(0), m_n_faces(0), m_reduce(true)
+      m_n_ref(0), m_n_p(0), m_n_faces(0), m_reduce(true), m_shiftvec(shiftvec)
     {
     if (n_bins_x < 1)
         throw invalid_argument("must be at least 1 bin in x");
@@ -238,10 +238,11 @@ void PMFTXYZ::accumulate(box::Box& box,
                         // make sure that the particles are wrapped into the box
                         vec3<float> delta = m_box.wrap(points[j] - ref);
                         float rsq = dot(delta, delta);
+                        float shiftrsq = dot(m_shiftvec, m_shiftvec);
 
                         // check that the particle is not checking itself
                         // 1e-6 is an arbitrary value that could be set differently if needed
-                        if (rsq < 1e-6)
+                        if (abs(rsq-shiftrsq) < 1e-6)
                             {
                             continue;
                             }
