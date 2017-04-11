@@ -237,12 +237,11 @@ void PMFTXYZ::accumulate(box::Box& box,
                         {
                         // make sure that the particles are wrapped into the box
                         vec3<float> delta = m_box.wrap(points[j] - ref);
-                        float rsq = dot(delta, delta);
-                        float shiftrsq = dot(m_shiftvec, m_shiftvec);
+                        float rsq = dot(delta+m_shiftvec, delta+m_shiftvec);
 
                         // check that the particle is not checking itself
                         // 1e-6 is an arbitrary value that could be set differently if needed
-                        if (abs(rsq-shiftrsq) < 1e-6)
+                        if (rsq < 1e-6)
                             {
                             continue;
                             }
