@@ -42,7 +42,7 @@ class PMFTXYZ
     {
     public:
         //! Constructor
-        PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z);
+        PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec);
 
         //! Destructor
         ~PMFTXYZ();
@@ -141,6 +141,7 @@ class PMFTXYZ
         unsigned int m_n_faces;
         float m_jacobian;
         bool m_reduce;
+        vec3<float> m_shiftvec;            //!< vector that points from [0,0,0] to the origin of the pmft
 
         std::shared_ptr<float> m_pcf_array;         //!< array of pcf computed
         std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed
