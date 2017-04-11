@@ -777,7 +777,7 @@ cdef class PMFTXYZ:
     def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z, shiftvec=[0,0,0]):
         cdef vec3[float] c_shiftvec = vec3[float](shiftvec[0],shiftvec[1],shiftvec[2])
         self.thisptr = new pmft.PMFTXYZ(x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
-        self.shiftvec = np.array(shiftvec, dtype=np.float32).reshape(1,3)
+        self.shiftvec = np.array(shiftvec, dtype=np.float32)
 
     def __dealloc__(self):
         del self.thisptr
@@ -832,7 +832,7 @@ cdef class PMFTXYZ:
             dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
-        points = points - self.shiftvec
+        points = points - self.shiftvec.reshape(1,3)
 
         orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
             dim_message="orientations must be a 2 dimensional array")
@@ -958,7 +958,7 @@ cdef class PMFTXYZ:
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
-        return result + self.shiftvec[0,0]
+        return result + self.shiftvec[0]
 
     def getY(self):
         """
@@ -971,7 +971,7 @@ cdef class PMFTXYZ:
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
-        return result + self.shiftvec[0,1]
+        return result + self.shiftvec[1]
 
     def getZ(self):
         """
@@ -984,7 +984,7 @@ cdef class PMFTXYZ:
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsZ()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>z)
-        return result + self.shiftvec[0,2]
+        return result + self.shiftvec[2]
 
     def getNBinsX(self):
         """
