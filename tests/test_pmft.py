@@ -238,6 +238,24 @@ class TestPMFXY2DCompute(unittest.TestCase):
         pcfArray = myPMFT.getBinCounts()
         npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
 
+class TestPMFTXYZShift(unittest.TestCase):
+    def test_two_particles_dead_pixel(self):
+        points = numpy.array([[1,1,1],[0,0,0]],dtype=numpy.float32)
+        orientations = numpy.array([[1,0,0,0],[1,0,0,0]],dtype=numpy.float32)
+        noshift = pmft.PMFTXYZ(0.5,0.5,0.5,3,3,3,shiftvec=[0,0,0])
+        shift = pmft.PMFTXYZ(0.5,0.5,0.5,3,3,3,shiftvec=[1,1,1])
+
+        for pm in [noshift, shift]:
+            pm.compute(box.Box.cube(3), points, orientations, points, orientations, face_orientations=None)
+
+        # Non-shifted pmft should have no non-inf valued voxels, since the other point is outside the x/y/z max
+        infcheck_noshift = numpy.logical_not(numpy.isinf(noshift.getPMFT())).sum()
+        # Shifted pmft should have one non-inf valued voxel
+        infcheck_shift = numpy.logical_not(numpy.isinf(shift.getPMFT())).sum()
+
+        assert(infcheck_noshift==0)
+        assert(infcheck_shift==1)
+
 if __name__ == '__main__':
     print("testing pmft")
     unittest.main()
