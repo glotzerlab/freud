@@ -72,8 +72,12 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh,
 
                 for(size_t k(0); k < nNeigh; ++k)
                     {
-                    const float rsq(m_nn.getRsqList().get()[idx_nlist(k, i)]);
-                    const vec3<float> r_j(r[m_nn.getNeighborList().get()[idx_nlist(k, i)]]);
+                    const size_t idx_neigh_j(idx_nlist(k, i));
+                    const size_t idx_j(m_nn.getNeighborList().get()[idx_neigh_j]);
+                    if(idx_j == UINT_MAX)
+                        continue;
+                    const float rsq(m_nn.getRsqList().get()[idx_neigh_j]);
+                    const vec3<float> r_j(r[idx_j]);
                     const vec3<float> rvec(box.wrap(r_j - r_i));
 
                     for(size_t ii(0); ii < 3; ++ii)
@@ -144,22 +148,31 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh,
 
             for(size_t k(0); k < nNeigh; ++k)
                 {
-                const float rsq(m_nn.getRsqList().get()[idx_nlist(k, i)]);
-                const vec3<float> r_j(r[m_nn.getNeighborList().get()[idx_nlist(k, i)]]);
-                const vec3<float> rij(box.wrap(r_j - r_i));
-                const vec3<float> bond(dot(rotation_0, rij),
-                                       dot(rotation_1, rij),
-                                       dot(rotation_2, rij));
+                const size_t idx_neigh_j(idx_nlist(k, i));
+                const size_t idx_j(m_nn.getNeighborList().get()[idx_neigh_j]);
+                if(idx_j == UINT_MAX)
+                    {
+                    std::fill(&m_sphArray.get()[sphCount], &m_sphArray.get()[sphCount + getSphWidth()], 0);
+                    }
+                else
+                    {
+                    const float rsq(m_nn.getRsqList().get()[idx_neigh_j]);
+                    const vec3<float> r_j(r[idx_j]);
+                    const vec3<float> rij(box.wrap(r_j - r_i));
+                    const vec3<float> bond(dot(rotation_0, rij),
+                                           dot(rotation_1, rij),
+                                           dot(rotation_2, rij));
 
-                const float magR(sqrt(rsq));
-                float theta(atan2(bond.y, bond.x)); // theta in [-pi..pi] initially
-                if(theta < 0)
-                    theta += 2*M_PI; // move theta into [0..2*pi]
-                const float phi(acos(bond.z/magR)); // phi in [0..pi]
+                    const float magR(sqrt(rsq));
+                    float theta(atan2(bond.y, bond.x)); // theta in [-pi..pi] initially
+                    if(theta < 0)
+                        theta += 2*M_PI; // move theta into [0..2*pi]
+                    const float phi(acos(bond.z/magR)); // phi in [0..pi]
 
-                sph_eval.compute(phi, theta);
+                    sph_eval.compute(phi, theta);
 
-                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray.get()[sphCount]);
+                    std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray.get()[sphCount]);
+                    }
                 sphCount += getSphWidth();
                 }
             }

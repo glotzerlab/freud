@@ -81,6 +81,9 @@ void NearestNeighbors::compute(const box::Box& box,
         {
         m_wvec_array.get()[i] = vec3<float>(-1,-1,-1);
         }
+    // will be set to true for the last loop if we are recomputing
+    // with the maximum possible cutoff radius
+    bool force_last_recompute(false);
     // find the nearest neighbors
     do
         {
@@ -100,7 +103,7 @@ void NearestNeighbors::compute(const box::Box& box,
             for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
                 // If we have found an incomplete set of neighbors, end now and rebuild
-                if((m_deficits > 0) && !(m_strict_cut))
+                if(!force_last_recompute && (m_deficits > 0) && !(m_strict_cut))
                     break;
                 neighbors.clear();
 
@@ -137,7 +140,7 @@ void NearestNeighbors::compute(const box::Box& box,
                     }
 
                 // Add to the deficit count if necessary
-                if((num_adjacent < m_num_neighbors) && !(m_strict_cut))
+                if(!force_last_recompute && (num_adjacent < m_num_neighbors) && !(m_strict_cut))
                     m_deficits += (m_num_neighbors - num_adjacent);
                 else
                     {
@@ -156,7 +159,7 @@ void NearestNeighbors::compute(const box::Box& box,
             });
 
         // Increase m_rmax
-        if((m_deficits > 0) && !(m_strict_cut))
+        if(!force_last_recompute && (m_deficits > 0) && !(m_strict_cut))
             {
             m_rmax *= m_scale;
             // check if new r_max would be too large for the cell width
@@ -171,11 +174,16 @@ void NearestNeighbors::compute(const box::Box& box,
                 // throw runtime_warning("r_max has become too large to create a viable cell.");
                 // for now print
                 printf("r_max has become too large to create a viable cell. Returning neighbors found\n");
-                m_deficits = 0;
-                break;
+                m_rmax = min(0.4999f*L.x, 0.4999f*L.y);
+                if(!m_box.is2D())
+                    m_rmax = min(m_rmax, 0.4999f*L.z);
+                force_last_recompute = true;
                 }
             m_lc->setCellWidth(m_rmax);
             }
+        else if(force_last_recompute)
+            // exit the while loop even if there are deficits
+            break;
         } while((m_deficits > 0) && !(m_strict_cut));
     // save the last computed number of particles
     m_num_ref = num_ref;
