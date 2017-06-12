@@ -277,7 +277,7 @@ void BondingR12::compute(box::Box& box,
     //     }
     // std::fill(m_bonds.get(), m_bonds.get()+int(n_ref*m_n_bonds), UINT_MAX);
     // compute the order parameter
-    printf("compute\n");
+    // printf("compute\n");
     parallel_for(blocked_range<size_t>(0,n_ref),
         [=] (const blocked_range<size_t>& br)
             {
