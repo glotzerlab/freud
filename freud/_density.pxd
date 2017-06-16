@@ -4,6 +4,7 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._Boost cimport shared_array
 cimport freud._box as box
+cimport freud._locality
 
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
@@ -35,7 +36,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
         LocalDensity(float, float, float)
         const box.Box &getBox() const
-        void compute(const box.Box &, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int) nogil except +
+        void compute(const box.Box &, const freud._locality.NeighborList *, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int) nogil except +
         unsigned int getNRef()
         shared_array[float] getDensity()
         shared_array[float] getNumNeighbors()
@@ -46,6 +47,7 @@ cdef extern from "RDF.h" namespace "freud::density":
         const box.Box& getBox() const
         void resetRDF()
         void accumulate(box.Box&,
+                        const freud._locality.NeighborList*,
                         const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,

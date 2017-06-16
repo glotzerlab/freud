@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../box/box.h"
+#include "NeighborList.h"
 #include "HOOMDMath.h"
 #include "Index1D.h"
 
@@ -47,26 +48,26 @@ class IteratorLinkCell
     {
     public:
         IteratorLinkCell():
-            m_cell_list(NULL), m_Np(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
+            m_cell_list(NULL), m_Nref(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
 
         IteratorLinkCell(const std::shared_ptr<unsigned int>& cell_list,
                          unsigned int Np,
                          unsigned int Nc,
                          unsigned int cell)
-                         : m_cell_list(cell_list.get()), m_Np(Np), m_Nc(Nc)
+                         : m_cell_list(cell_list.get()), m_Nref(Np), m_Nc(Nc)
             {
             assert(cell < Nc);
             assert(Np > 0);
             assert(Nc > 0);
             m_cell = cell;
-            m_cur_idx = m_Np + cell;
+            m_cur_idx = m_Nref + cell;
             }
 
         //! Copy the position of rhs into this object
         void copy(const IteratorLinkCell &rhs)
         {
             m_cell_list = rhs.m_cell_list;
-            m_Np = rhs.m_Np;
+            m_Nref = rhs.m_Nref;
             m_Nc = rhs.m_Nc;
             m_cur_idx = rhs.m_cur_idx;
             m_cell = rhs.m_cell;
@@ -88,7 +89,7 @@ class IteratorLinkCell
         //! Get the first particle index in the list
         unsigned int begin()
             {
-            m_cur_idx = m_Np + m_cell;
+            m_cur_idx = m_Nref + m_cell;
             m_cur_idx = m_cell_list[m_cur_idx];
             return m_cur_idx;
             }
@@ -109,7 +110,7 @@ class IteratorLinkCell
 
     private:
         const unsigned int *m_cell_list;                  //!< The cell list
-        unsigned int m_Np;                                //!< Number of particles in the cell list
+        unsigned int m_Nref;                                //!< Number of particles in the cell list
         unsigned int m_Nc;                                //!< Number of cells in the cell list
         unsigned int m_cur_idx;                           //!< Current index
         unsigned int m_cell;                              //!< Cell being considered
@@ -138,7 +139,7 @@ class IteratorLinkCell
     neighbor cells are only listed in the plane. As with everything else in freud, 2D points must be passed in as
     3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
-class LinkCell
+class LinkCell: public NeighborProvider
     {
     public:
         //! iterator to iterate over particles in the cell
@@ -258,7 +259,7 @@ class LinkCell
         iteratorcell itercell(unsigned int cell) const
             {
             assert(m_cell_list.get() != NULL);
-            return iteratorcell(m_cell_list, m_Np, getNumCells(), cell);
+            return iteratorcell(m_cell_list, m_Nref, getNumCells(), cell);
             }
 
         //! Get a list of neighbors to a cell
@@ -277,10 +278,19 @@ class LinkCell
         //! Compute the cell list (deprecated float3 interface)
         void computeCellList(box::Box& box, const float3 *points, unsigned int Np);
         //! Compute the cell list
-        void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);
+        // TODO remove default arguments here and fix all usage elsewhere as needed
+        void computeCellList(box::Box& box, const vec3<float> *ref_points,
+                             unsigned int Nref, const vec3<float> *points=0, unsigned int Np=0,
+            bool exclude_ii=true);
 
         // //! Python wrapper for computeCellList
         // void computeCellListPy(box::Box& box, boost::python::numeric::array points);
+
+        virtual NeighborList *getNeighborList()
+        {
+            return &m_neighbor_list;
+        }
+
     private:
 
         //! Rounding helper function.
@@ -288,7 +298,7 @@ class LinkCell
 
         box::Box m_box;      //!< Simulation box the particles belong in
         Index3D m_cell_index;       //!< Indexer to compute cell indices
-        unsigned int m_Np;          //!< Number of particles last placed into the cell list
+        unsigned int m_Nref;        //!< Number of particles last placed into the cell list
         unsigned int m_Nc;          //!< Number of cells last used
         float m_cell_width;         //!< Minimum necessary cell width cutoff
         vec3<unsigned int> m_celldim; //!< Cell dimensions
@@ -296,6 +306,8 @@ class LinkCell
         std::shared_ptr<unsigned int> m_cell_list;    //!< The cell list last computed
 
         std::vector< std::vector<unsigned int> > m_cell_neighbors;    //!< List of cell neighborts to each cell
+
+        NeighborList m_neighbor_list;    //!< Stored neighbor list
 
         //! Helper function to compute cell neighbors
         void computeCellNeighbors();

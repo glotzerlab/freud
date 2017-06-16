@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from freud import box, density
+from freud import box, locality, density
 import unittest
 
 class TestR(unittest.TestCase):
@@ -28,7 +28,10 @@ class TestRDF(unittest.TestCase):
         box_size = rmax*3.1
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         rdf = density.RDF(rmax, dr)
-        rdf.accumulate(box.Box.cube(box_size), points, points)
+        fbox = box.Box.cube(box_size)
+        lc = locality.LinkCell(fbox, rmax)
+        lc.computeCellList(fbox, points, exclude_ii=True)
+        rdf.accumulate(fbox, lc.nlist, points, points)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32)
         correct[0] = 0.0

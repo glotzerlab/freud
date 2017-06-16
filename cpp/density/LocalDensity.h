@@ -46,6 +46,7 @@ class LocalDensity
 
         //! Compute the local density
         void compute(const box::Box &box,
+                     const freud::locality::NeighborList *nlist,
                      const vec3<float> *ref_points,
                      unsigned int n_ref,
                      const vec3<float> *points,

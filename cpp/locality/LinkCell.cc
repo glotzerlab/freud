@@ -19,12 +19,12 @@ namespace freud { namespace locality {
 // This is only used to initialize a pointer for the new triclinic setup
 // this shouldn't be needed any longer, but will be left for now
 // but until then, enjoy this mediocre hack
-LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0)
+LinkCell::LinkCell() : m_box(box::Box()), m_Nref(0), m_cell_width(0), m_neighbor_list()
     {
     m_celldim = vec3<unsigned int>(0,0,0);
     }
 
-LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width)
+LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Nref(0), m_cell_width(cell_width), m_neighbor_list()
     {
     // check if the cell width is too wide for the box
     m_celldim  = computeDimensions(m_box, m_cell_width);
@@ -194,45 +194,121 @@ void LinkCell::computeCellList(box::Box& box,
             pointscopy[i].y=points[i].y;
             pointscopy[i].z=points[i].z;
         }
-        computeCellList(box, pointscopy, Np);
+        computeCellList(box, pointscopy, Np, pointscopy, Np);
         delete[] pointscopy;
     }
 
 void LinkCell::computeCellList(box::Box& box,
+                               const vec3<float> *ref_points,
+                               unsigned int Nref,
                                const vec3<float> *points,
-                               unsigned int Np)
+                               unsigned int Np,
+                               bool exclude_ii)
     {
     updateBox(box);
-    if (Np == 0)
+    if (Nref == 0)
         {
         throw runtime_error("Cannot generate a cell list of 0 particles");
         }
 
+    // TODO remove this after all methods get updated to use
+    if(points == 0)
+    {
+        points = ref_points;
+        Np = Nref;
+    }
+
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
     assert(Nc > 0);
-    if ((m_Np != Np) || (m_Nc != Nc))
+    if ((m_Nref != Nref) || (m_Nc != Nc))
         {
-        m_cell_list = std::shared_ptr<unsigned int>(new unsigned int[Np + Nc], std::default_delete<unsigned int[]>());
+        m_cell_list = std::shared_ptr<unsigned int>(new unsigned int[Nref + Nc], std::default_delete<unsigned int[]>());
         }
-    m_Np = Np;
+    m_Nref = Nref;
     m_Nc = Nc;
 
     // initialize memory
     for (unsigned int cell = 0; cell < Nc; cell++)
         {
-        m_cell_list.get()[Np + cell] = LINK_CELL_TERMINATOR;
+        m_cell_list.get()[Nref + cell] = LINK_CELL_TERMINATOR;
         }
 
     // generate the cell list
     assert(points);
 
-    for (int i = Np-1; i >= 0; i--)
+    for (int i = Nref-1; i >= 0; i--)
         {
         unsigned int cell = getCell(points[i]);
-        m_cell_list.get()[i] = m_cell_list.get()[Np+cell];
-        m_cell_list.get()[Np+cell] = i;
+        m_cell_list.get()[i] = m_cell_list.get()[Nref+cell];
+        m_cell_list.get()[Nref+cell] = i;
         }
+
+    unsigned int bondsPerParticle(32);
+    bool done_building(false);
+    do
+    {
+        const size_t max_bonds(bondsPerParticle*m_Nref);
+        m_neighbor_list.resize(max_bonds);
+        size_t *neighbor_array(m_neighbor_list.getNeighbors());
+        float *neighbor_weights(m_neighbor_list.getWeights());
+        unsigned int numBonds(0);
+
+        for(unsigned int i(0); i < Np; ++i)
+        {
+            // get the cell the point is in
+            const vec3<float> ref_point(ref_points[i]);
+            const unsigned int ref_cell(getCell(ref_point));
+
+            // loop over all neighboring cells
+            const std::vector<unsigned int>& neigh_cells = getCellNeighbors(ref_cell);
+            for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+            {
+                unsigned int neigh_cell = neigh_cells[neigh_idx];
+
+                // iterate over the particles in that cell
+                locality::LinkCell::iteratorcell it = itercell(neigh_cell);
+                for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                {
+                    if(exclude_ii && i == j)
+                        continue;
+
+                    const vec3<float> rij(m_box.wrap(points[j] - ref_point));
+                    const float rsq(dot(rij, rij));
+
+                    if(rsq < m_cell_width*m_cell_width)
+                    {
+                        if(numBonds < max_bonds)
+                        {
+                            neighbor_array[2*numBonds] = i;
+                            neighbor_array[2*numBonds + 1] = j;
+                            neighbor_weights[numBonds] = 1;
+                            ++numBonds;
+                        }
+                    }
+                }
+
+                if(numBonds >= max_bonds)
+                {
+                    // guess a new number of bonds to use based on how
+                    // far we made it this time; this could give nasty
+                    // results in highly heterogeneous systems
+                    const float fraction_handled((float)max((unsigned int) 1, i)/Np);
+                    unsigned int bonds_guess(bondsPerParticle/fraction_handled*1.05);
+                    bonds_guess = max(bonds_guess, (unsigned int) 1.1*bondsPerParticle);
+                    bondsPerParticle = bonds_guess;
+                    break;
+                }
+            }
+
+        }
+
+        if(numBonds < max_bonds)
+        {
+            done_building = true;
+            m_neighbor_list.setNumBonds(numBonds);
+        }
+    } while(!done_building);
     }
 
 void LinkCell::computeCellNeighbors()

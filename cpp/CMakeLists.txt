@@ -68,6 +68,7 @@ set(FREUD_SOURCES
             locality/LinkCell.h
             locality/NearestNeighbors.h
             locality/NearestNeighbors.cc
+            locality/NeighborList.cc
             density/CorrelationFunction.h
             density/CorrelationFunction.cc
             density/RDF.cc

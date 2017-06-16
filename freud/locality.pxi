@@ -2,12 +2,93 @@
 # This file is part of the Freud project, released under the BSD 3-Clause License.
 
 import sys
+from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 cimport freud._locality as locality
 cimport freud._box as _box;
 from cython.operator cimport dereference
 import numpy as np
 cimport numpy as np
+
+cdef class NeighborList:
+    cdef locality.NeighborList *thisptr
+    cdef char _managed
+
+    cdef refer_to(self, locality.NeighborList *other):
+        if self._managed:
+            del self.thisptr
+        self._managed = False
+        self.thisptr = other
+
+    def __cinit__(self):
+        self._managed = True
+        self.thisptr = new locality.NeighborList()
+
+    def __dealloc__(self):
+        if self._managed:
+            del self.thisptr
+
+    cdef locality.NeighborList *get_ptr(self):
+        return self.thisptr
+
+    cdef void copy_c(self, NeighborList other):
+        self.thisptr.copy(dereference(other.thisptr))
+
+    def copy(self, other=None):
+        if other is not None:
+            assert isinstance(other, NeighborList)
+            self.copy_c(other)
+            return self
+        else:
+            new_copy = NeighborList()
+            new_copy.copy(self)
+            return new_copy
+
+    @property
+    def index_i(self):
+        cdef np.npy_intp size[2]
+        size[0] = self.thisptr.getNumBonds()
+        size[1] = 2
+        cdef np.ndarray[np.uint64_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64, <void*> self.thisptr.getNeighbors())
+        return result[:, 0]
+
+    @property
+    def index_j(self):
+        cdef np.npy_intp size[2]
+        size[0] = self.thisptr.getNumBonds()
+        size[1] = 2
+        cdef np.ndarray[np.uint64_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64, <void*> self.thisptr.getNeighbors())
+        return result[:, 1]
+
+    @property
+    def weights(self):
+        cdef np.npy_intp size[1]
+        size[0] = self.thisptr.getNumBonds()
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_FLOAT32, <void*> self.thisptr.getWeights())
+        return result
+
+    def filter(self, filt):
+        filt = np.ascontiguousarray(filt, dtype=np.bool)
+        cdef np.ndarray[cbool, ndim=1] filt_c = filt
+        cdef cbool *filt_ptr = <cbool*> filt_c.data
+        self.thisptr.filter(filt_ptr)
+
+    def filter_r(self, box, ref_points, points, float rmax, float rmin=0):
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef np.ndarray cRef_points = ref_points
+        cdef np.ndarray cPoints = points
+
+        self.thisptr.filter_r(cBox, <vec3[float]*> cRef_points.data, <vec3[float]*> cPoints.data, rmax, rmin)
 
 cdef class IteratorLinkCell:
     """Iterates over the particles in a cell.
@@ -80,10 +161,12 @@ cdef class LinkCell:
                    pass # do something with neighbor index
     """
     cdef locality.LinkCell *thisptr
+    cdef NeighborList _nlist
 
     def __cinit__(self, box, cell_width):
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new locality.LinkCell(cBox, float(cell_width))
+        self._nlist = NeighborList()
 
     def __dealloc__(self):
         del self.thisptr
@@ -147,24 +230,46 @@ cdef class LinkCell:
             result[i] = neighbors[i]
         return result
 
-    def computeCellList(self, box, points):
+    def computeCellList(self, box, ref_points, points=None, exclude_ii=None):
         """Update the data structure for the given set of points
 
         :param box: simulation box
+        :param ref_points: reference point coordinates
         :param points: point coordinates
+        :param exlude_ii: True if pairs of points with identical indices should be excluded
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{points}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        if points is None:
+            points = ref_points
+
+        exclude_ii = True if exclude_ii is None else exclude_ii
+
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef np.ndarray cRefPoints = points
+        cdef unsigned int Nref = points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
+        cdef cbool c_exclude_ii = exclude_ii
         with nogil:
-            self.thisptr.computeCellList(cBox, <vec3[float]*> cPoints.data, Np)
+            self.thisptr.computeCellList(cBox, <vec3[float]*> cRefPoints.data, Nref, <vec3[float]*> cPoints.data, Np, c_exclude_ii)
+
+        cdef locality.NeighborList *nlist = self.thisptr.getNeighborList()
+        self._nlist.refer_to(nlist)
+
+    @property
+    def nlist(self):
+        return self._nlist
 
 cdef class NearestNeighbors:
     """Supports efficiently finding the N nearest neighbors of each point

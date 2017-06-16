@@ -4,7 +4,9 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._Boost cimport shared_array
 cimport freud._box as _box
+cimport freud._locality as locality
 cimport freud._density as density
+from cython.operator cimport dereference
 from libc.string cimport memcpy
 import numpy as np
 cimport numpy as np
@@ -458,11 +460,12 @@ cdef class LocalDensity:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def compute(self, box, ref_points, points=None):
+    def compute(self, box, NeighborList nlist, ref_points, points=None):
         """
         Calculates the local density for the specified points. Does not accumulate (will overwrite current data).
 
         :param box: simulation box
+        :param nlist: Neighbor list to use for computation
         :param ref_points: reference points to calculate the local density
         :param points: (optional) points to calculate the local density
         :type box: :py:class:`freud.box.Box`
@@ -483,8 +486,9 @@ cdef class LocalDensity:
         cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
+            self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
 
     def getDensity(self):
         """
@@ -546,11 +550,12 @@ cdef class RDF:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def accumulate(self, box, ref_points, points):
+    def accumulate(self, box, NeighborList nlist, ref_points, points):
         """
         Calculates the rdf and adds to the current rdf histogram.
 
         :param box: simulation box
+        :param nlist: Neighbor list to use for computation
         :param ref_points: reference points to calculate the local density
         :param points: points to calculate the local density
         :type box: :py:class:`freud.box.Box`
@@ -569,10 +574,11 @@ cdef class RDF:
         cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
+            self.thisptr.accumulate(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
 
-    def compute(self, box, ref_points, points):
+    def compute(self, box, NeighborList nlist, ref_points, points):
         """
         Calculates the rdf for the specified points. Will overwrite the current histogram.
 
@@ -584,7 +590,7 @@ cdef class RDF:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         self.thisptr.resetRDF()
-        self.accumulate(box, ref_points, points)
+        self.accumulate(box, nlist, ref_points, points)
 
     def resetRDF(self):
         """

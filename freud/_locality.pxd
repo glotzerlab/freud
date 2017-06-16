@@ -8,6 +8,23 @@ from freud.util._Boost cimport shared_array
 cimport freud._box as box
 from libcpp.vector cimport vector
 
+cdef extern from "NeighborList.h" namespace "freud::locality":
+    cdef cppclass NeighborList:
+        NeighborList()
+        NeighborList(unsigned int)
+
+        unsigned int *getNeighbors() const
+        float *getWeights() const
+
+        unsigned int getNumBonds() const
+        unsigned int filter(const bool*)
+        unsigned int filter_r(const box.Box&, const vec3[float]*, const vec3[float]*, float, float)
+
+        unsigned int find_first_index(unsigned int)
+
+        void resize(unsigned int, bool)
+        void copy(const NeighborList &)
+
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:
         IteratorLinkCell()
@@ -31,7 +48,8 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int getCell(const vec3[float]&) const
         IteratorLinkCell itercell(unsigned int) const
         vector[unsigned int] getCellNeighbors(unsigned int) const
-        void computeCellList(const box.Box&, const vec3[float]*, unsigned int) nogil except +
+        void computeCellList(const box.Box&, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int, bool) nogil except +
+        NeighborList *getNeighborList()
 
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
     cdef cppclass NearestNeighbors:

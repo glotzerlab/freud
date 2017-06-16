@@ -205,6 +205,7 @@ void RDF::resetRDF()
 /*! \brief Function to accumulate the given points to the histogram in memory
 */
 void RDF::accumulate(box::Box& box,
+                     const locality::NeighborList *nlist,
                      const vec3<float> *ref_points,
                      unsigned int Nref,
                      const vec3<float> *points,
@@ -213,8 +214,8 @@ void RDF::accumulate(box::Box& box,
     m_box = box;
     m_Np = Np;
     m_n_ref = Nref;
-    m_lc->computeCellList(m_box, points, Np);
-    parallel_for(blocked_range<size_t>(0,Nref),
+    const size_t *neighbor_list(nlist->getNeighbors());
+    parallel_for(blocked_range<size_t>(0, nlist->getNumBonds()),
       [=] (const blocked_range<size_t>& r)
       {
       assert(ref_points);
@@ -233,49 +234,45 @@ void RDF::accumulate(box::Box& box,
           memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
           }
 
-      // for each reference point
-      for (size_t i = r.begin(); i != r.end(); i++)
+      size_t bond(r.begin());
+      size_t i(neighbor_list[2*bond]);
+      size_t last_i(-1);
+      vec3<float> ref;
+
+      // for each bond
+      for (size_t bond = r.begin(); bond != r.end(); bond++)
+      {
+          i = neighbor_list[2*bond];
+
+          if(i != last_i)
+              ref = ref_points[i];
+          last_i = i;
+
+          const unsigned int j(neighbor_list[2*bond + 1]);
+          // compute r between the two particles
+          vec3<float> delta = m_box.wrap(points[j] - ref);
+
+          float rsq = dot(delta, delta);
+
+          if (rsq < rmaxsq)
           {
-          // get the cell the point is in
-          vec3<float> ref = ref_points[i];
-          unsigned int ref_cell = m_lc->getCell(ref);
+              float r = sqrtf(rsq);
 
-          // loop over all neighboring cells
-          const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-          for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+              // bin that r
+              float binr = r * dr_inv;
+              // fast float to int conversion with truncation
+#ifdef __SSE2__
+              unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+#else
+              unsigned int bin = (unsigned int)(binr);
+#endif
+
+              if (bin < m_nbins)
               {
-              unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-              // iterate over the particles in that cell
-              locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-              for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
-                  {
-                  // compute r between the two particles
-                  vec3<float> delta = m_box.wrap(points[j] - ref);
-
-                  float rsq = dot(delta, delta);
-
-                  if (rsq < rmaxsq)
-                      {
-                      float r = sqrtf(rsq);
-
-                      // bin that r
-                      float binr = r * dr_inv;
-                      // fast float to int conversion with truncation
-                      #ifdef __SSE2__
-                      unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                      #else
-                      unsigned int bin = (unsigned int)(binr);
-                      #endif
-
-                      if (bin < m_nbins)
-                          {
-                          ++m_local_bin_counts.local()[bin];
-                          }
-                      }
-                  }
+                  ++m_local_bin_counts.local()[bin];
               }
-          } // done looping over reference points
+          }
+      } // done looping over bonds
       });
     m_frame_counter += 1;
     }
