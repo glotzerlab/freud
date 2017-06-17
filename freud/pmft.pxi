@@ -809,8 +809,8 @@ cdef class PMFTXYZ:
         :param orientations: orientations of particles to use in calculation
         :param face_orientations: Optional - orientations of particle faces to account for particle symmetry.
             * If not supplied by user, unit quaternions will be supplied.
-            * If a 2D array of shape (:math:`N_f`, :math:`4`) is supplied, the supplied quaternions will be broadcast\
-                for all particles
+            * If a 2D array of shape (:math:`N_f`, :math:`4`) or a 3D array of shape (1, :math:`N_f`, :math:`4`) \
+                is supplied, the supplied quaternions will be broadcast for all particles
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
@@ -858,8 +858,13 @@ cdef class PMFTXYZ:
                 tmp_face_orientations[:] = face_orientations
                 face_orientations = tmp_face_orientations
             else:
+				# Make sure that the first dimensions is actually the number of particles
                 if face_orientations.shape[2] != 4:
                     raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+                elif face_orientations.shape[0] not in (1, ref_points.shape[0]):
+                    raise ValueError("If provided as a 3D array, the first dimension of the face_orientations array must be either of size 1 or N_particles")
+                elif face_orientations.shape[0] == 1:
+                    face_orientations = np.repeat(face_orientations, ref_points.shape[0], axis = 0)
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
