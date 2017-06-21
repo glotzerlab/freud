@@ -72,6 +72,7 @@ cdef class Cluster:
         cdef unsigned int Np = points.shape[0]
         with nogil:
             self.thisptr.computeClusters(<vec3[float]*> cPoints.data, Np)
+        return self
 
     def computeClusterMembership(self, keys):
         """Compute the clusters with key membership
@@ -91,6 +92,7 @@ cdef class Cluster:
         cdef np.ndarray cKeys = keys
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int *>cKeys.data)
+        return self
 
     def getNumClusters(self):
         """Returns the number of clusters
@@ -197,6 +199,7 @@ cdef class ClusterProperties:
         cdef unsigned int Np = points.shape[0]
         with nogil:
             self.thisptr.computeProperties(<vec3[float]*> cPoints.data, <unsigned int *> cCluster_idx.data, Np)
+        return self
 
     def getNumClusters(self):
         """Count the number of clusters found in the last call to :meth:`~.computeProperties()`

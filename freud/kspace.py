@@ -103,6 +103,7 @@ class SFactor3DPoints:
         mid = self.grid // 2;
         cinv = numpy.absolute(self.s_complex[mid,mid,mid]);
         self.s_complex /= cinv;
+        return self;
 
     def getS(self):
         """Get the computed static structure factor
@@ -799,6 +800,7 @@ class FTdelta(FTbase):
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
+        return self;
 
 class FTsphere(FTdelta):
     """Fourier transform for sphere
@@ -924,6 +926,7 @@ class FTpolyhedron(FTbase):
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
+        return self;
 
 class FTconvexPolyhedron(FTpolyhedron):
     """Fourier Transform for convex polyhedra
@@ -991,6 +994,7 @@ class FTconvexPolyhedron(FTpolyhedron):
                 K = quatrot(q * numpy.array([1,-1,-1,-1]), self.K[i])
                 self.S[i] += numpy.exp(numpy.dot(K, r) * -1.j) * self.Spoly3D(K)
         self.S *= self.density
+        return self;
 
     def Spoly2D(self, i, k):
         """Calculate Fourier transform of polygon

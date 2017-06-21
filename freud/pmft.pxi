@@ -108,6 +108,7 @@ cdef class PMFTR12:
                                     <vec3[float]*>l_points.data,
                                     <float*>l_orientations.data,
                                     nP)
+        return self
 
     def compute(self, box, ref_points, ref_orientations, points, orientations):
         """
@@ -126,6 +127,7 @@ cdef class PMFTR12:
         """
         self.thisptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        return self
 
     def reducePCF(self):
         """
@@ -365,6 +367,7 @@ cdef class PMFTXYT:
                                     <vec3[float]*>l_points.data,
                                     <float*>l_orientations.data,
                                     nP)
+        return self
 
     def compute(self, box, ref_points, ref_orientations, points, orientations):
         """
@@ -383,6 +386,7 @@ cdef class PMFTXYT:
         """
         self.thisptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        return self
 
     def reducePCF(self):
         """
@@ -612,6 +616,7 @@ cdef class PMFTXY2D:
                                     <vec3[float]*>l_points.data,
                                     <float*>l_orientations.data,
                                     n_p)
+        return self
 
     def compute(self, box, ref_points, ref_orientations, points, orientations):
         """
@@ -630,6 +635,7 @@ cdef class PMFTXY2D:
         """
         self.thisptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        return self
 
     def reducePCF(self):
         """
@@ -880,6 +886,7 @@ cdef class PMFTXYZ:
                                     nP,
                                     <quat[float]*>l_face_orientations.data,
                                     nFaces)
+        return self
 
     def compute(self, box, ref_points, ref_orientations, points, orientations, face_orientations):
         """
@@ -901,6 +908,7 @@ cdef class PMFTXYZ:
         """
         self.thisptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations, points, orientations, face_orientations)
+        return self
 
     def reducePCF(self):
         """

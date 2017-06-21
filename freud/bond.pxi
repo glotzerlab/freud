@@ -72,6 +72,7 @@ cdef class BondingAnalysis:
         cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1
         with nogil:
             self.thisptr.compute(<unsigned int*> l_frame_0.data, <unsigned int*> l_frame_1.data)
+        return self
 
     def getBondLifetimes(self):
         """
@@ -201,6 +202,7 @@ cdef class BondingR12:
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
+        return self
 
     def getBonds(self):
         """
@@ -320,6 +322,7 @@ cdef class BondingXY2D:
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
+        return self
 
     def getBonds(self):
         """
@@ -440,6 +443,7 @@ cdef class BondingXYT:
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
+        return self
 
     def getBonds(self):
         """
@@ -566,6 +570,7 @@ cdef class BondingXYZ:
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <quat[float]*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <quat[float]*> l_orientations.data, n_p)
+        return self
 
     def getBonds(self):
         """

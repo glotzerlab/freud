@@ -30,6 +30,7 @@ cdef class VoronoiBuffer:
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         self.thisptr.compute(<float3*> cPoints.data, Np, buffer)
+        return self;
 
     def getBufferParticles(self):
         cdef _box.Box cBox = self.thisptr.getBox()

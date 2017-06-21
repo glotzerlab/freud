@@ -98,6 +98,7 @@ cdef class FloatCF:
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <double*>l_refValues.data, n_ref,
                 <vec3[float]*>l_points.data, <double*>l_values.data, n_p)
+        return self
 
     def getRDF(self):
         """
@@ -142,6 +143,7 @@ cdef class FloatCF:
         """
         self.thisptr.resetCorrelationFunction()
         self.accumulate(box, ref_points, refValues, points, values)
+        return self
 
     def reduceCorrelationFunction(self):
         """
@@ -255,6 +257,7 @@ cdef class ComplexCF:
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <np.complex128_t*>l_refValues.data, n_ref,
                 <vec3[float]*>l_points.data, <np.complex128_t*>l_values.data, n_p)
+        return self
 
     def getRDF(self):
         """
@@ -297,6 +300,7 @@ cdef class ComplexCF:
         """
         self.thisptr.resetCorrelationFunction()
         self.accumulate(box, ref_points, refValues, points, values)
+        return self
 
     def reduceCorrelationFunction(self):
         """
@@ -396,6 +400,7 @@ cdef class GaussianDensity:
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, n_p)
+        return self
 
     def getGaussianDensity(self):
         """
@@ -489,6 +494,7 @@ cdef class LocalDensity:
         cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
         with nogil:
             self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
+        return self
 
     def getDensity(self):
         """
@@ -577,6 +583,7 @@ cdef class RDF:
         cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
         with nogil:
             self.thisptr.accumulate(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
+        return self
 
     def compute(self, box, NeighborList nlist, ref_points, points):
         """
@@ -591,6 +598,7 @@ cdef class RDF:
         """
         self.thisptr.resetRDF()
         self.accumulate(box, nlist, ref_points, points)
+        return self
 
     def resetRDF(self):
         """

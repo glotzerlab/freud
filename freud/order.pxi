@@ -122,6 +122,7 @@ cdef class BondOrder:
         with nogil:
             self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <quat[float]*>l_ref_orientations.data,
                 n_ref, <vec3[float]*>l_points.data, <quat[float]*>l_orientations.data, n_p, index)
+        return self
 
     def getBondOrder(self):
         """
@@ -169,6 +170,7 @@ cdef class BondOrder:
         """
         self.thisptr.resetBondOrder()
         self.accumulate(box, ref_points, ref_orientations, points, orientations, mode)
+        return self
 
     def reduceBondOrder(self):
         """
@@ -283,6 +285,7 @@ cdef class CubaticOrderParameter:
 
         with nogil:
             self.thisptr.compute(<quat[float]*>l_orientations.data, num_particles, 1)
+        return self
 
     def get_t_initial(self):
         """
@@ -446,6 +449,7 @@ cdef class HexOrderParameter:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
+        return self
 
     def getPsi(self):
         """
@@ -549,6 +553,7 @@ cdef class LocalDescriptors:
         with nogil:
             self.thisptr.computeNList(l_box, <vec3[float]*>l_points_ref.data,
                                       nRef, <vec3[float]*>l_points.data, nP)
+        return self
 
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
         orientations=None, mode='neighborhood'):
@@ -610,6 +615,7 @@ cdef class LocalDescriptors:
             self.thisptr.compute(l_box, num_neighbors, <vec3[float]*>l_points_ref.data,
                                  nRef, <vec3[float]*>l_points.data, nP,
                                  <quat[float]*>l_orientations.data, l_mode)
+        return self
 
     def getSph(self):
         """
@@ -710,6 +716,7 @@ cdef class TransOrderParameter:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, nP)
+        return self
 
     def getDr(self):
         """
@@ -799,6 +806,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -815,6 +823,7 @@ cdef class LocalQl:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -831,6 +840,7 @@ cdef class LocalQl:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -848,6 +858,7 @@ cdef class LocalQl:
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def getBox(self):
         """
@@ -988,6 +999,7 @@ cdef class LocalQlNear:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1004,6 +1016,7 @@ cdef class LocalQlNear:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1020,6 +1033,7 @@ cdef class LocalQlNear:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1037,6 +1051,7 @@ cdef class LocalQlNear:
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def getBox(self):
         """
@@ -1171,6 +1186,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1187,6 +1203,7 @@ cdef class LocalWl:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
@@ -1203,6 +1220,7 @@ cdef class LocalWl:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
@@ -1220,6 +1238,7 @@ cdef class LocalWl:
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def getBox(self):
         """
@@ -1370,6 +1389,7 @@ cdef class LocalWlNear:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeAve(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1386,6 +1406,7 @@ cdef class LocalWlNear:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1402,6 +1423,7 @@ cdef class LocalWlNear:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeAveNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1419,6 +1441,7 @@ cdef class LocalWlNear:
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def getBox(self):
         """
@@ -1557,6 +1580,7 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeSolLiqVariant(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1572,6 +1596,7 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeSolLiqNoNorm(self, points):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1587,6 +1612,7 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def getBox(self):
         """
@@ -1753,6 +1779,7 @@ cdef class SolLiqNear:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeSolLiqVariant(self, points):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
@@ -1768,6 +1795,7 @@ cdef class SolLiqNear:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
+        return self
 
     def computeSolLiqNoNorm(self, points):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
@@ -1783,6 +1811,7 @@ cdef class SolLiqNear:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
+        return self
 
     def getBox(self):
         """
@@ -2221,6 +2250,7 @@ cdef class Pairing2D:
         cdef unsigned int nO = <unsigned int> compOrientations.shape[1]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.compute(l_box, <vec3[float]*>l_points.data, <float*>l_orientations.data, <float*>l_compOrientations.data, nP, nO)
+        return self
 
     def getMatch(self):
         """

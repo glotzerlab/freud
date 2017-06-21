@@ -266,6 +266,7 @@ cdef class LinkCell:
 
         cdef locality.NeighborList *nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
+        return self
 
     @property
     def nlist(self):
@@ -464,3 +465,4 @@ cdef class NearestNeighbors:
         cdef unsigned int Np = points.shape[0]
         with nogil:
             self.thisptr.compute(cBox, <vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np)
+        return self
