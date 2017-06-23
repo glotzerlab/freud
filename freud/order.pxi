@@ -792,7 +792,7 @@ cdef class LocalQl:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points):
+    def compute(self, NeighborList nlist, points):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -805,10 +805,11 @@ cdef class LocalQl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
-    def computeAve(self, points):
+    def computeAve(self, NeighborList nlist, points):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -821,11 +822,12 @@ cdef class LocalQl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
         return self
 
-    def computeNorm(self, points):
+    def computeNorm(self, NeighborList nlist, points):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -838,11 +840,12 @@ cdef class LocalQl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
         return self
 
-    def computeAveNorm(self, points):
+    def computeAveNorm(self, NeighborList nlist, points):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -855,7 +858,8 @@ cdef class LocalQl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
         return self

@@ -72,7 +72,8 @@ class LocalQl
         //! Compute the local rotationally invariant Ql order parameter
         // void compute(const float3 *points,
         //              unsigned int Np);
-        void compute(const vec3<float> *points,
+        void compute(const locality::NeighborList *nlist,
+                     const vec3<float> *points,
                      unsigned int Np);
 
         // //! Python wrapper for computing the order parameter from a Nx3 numpy array of float32.

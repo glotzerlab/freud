@@ -70,19 +70,16 @@ void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<f
 
 
 // void LocalQl::compute(const float3 *points, unsigned int Np)
-void LocalQl::compute(const vec3<float> *points, unsigned int Np)
+void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
 
     //Set local data size
     m_Np = Np;
 
-    //Initialize cell list
-    m_lc.computeCellList(m_box,points,m_Np);
-
+    const size_t *neighbor_list(nlist->getNeighbors());
     float rminsq = m_rmin * m_rmin;
     float rmaxsq = m_rmax * m_rmax;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
-
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
@@ -93,6 +90,8 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
     memset((void*)m_Qli.get(), 0, sizeof(float)*m_Np);
     memset((void*)m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
 
+    unsigned int bond(nlist->find_first_index(0));
+
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
@@ -101,16 +100,10 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
         unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=0;
 
-        //loop over neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
+                const unsigned int j(neighbor_list[2*bond + 1]);
 
-            //iterate over particles in neighboring cells
-            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
-                {
                 if (i == j)
                 {
                     continue;
@@ -149,7 +142,6 @@ void LocalQl::compute(const vec3<float> *points, unsigned int Np)
                         }
                     neighborcount++;
                     }
-                }
             } //End loop going over neighbor cells (and thus all neighboring particles);
             //Normalize!
             for(unsigned int k = 0; k < (2*m_l+1); ++k)

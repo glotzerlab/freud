@@ -10,6 +10,7 @@ from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 cimport freud._box as box
+cimport freud._locality
 
 cdef extern from "BondOrder.h" namespace "freud::order":
     cdef cppclass BondOrder:
@@ -101,7 +102,8 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         LocalQl(const box.Box&, float, unsigned int, float)
         const box.Box& getBox() const
         void setBox(const box.Box)
-        void compute(const vec3[float]*,
+        void compute(const freud._locality.NeighborList *,
+                     const vec3[float]*,
                      unsigned int) nogil except +
         void computeAve(const vec3[float]*,
                         unsigned int) nogil except +
