@@ -233,10 +233,10 @@ cdef class FTpolyhedron:
         if verts.shape[1] != 3:
             raise TypeError('verts should be an Nx3 array')
 
-        facet_offs = freud.common.convert_array(facet_offs, 1, dtype=np.float32, contiguous=True,
+        facet_offs = freud.common.convert_array(facet_offs, 1, dtype=np.uint32, contiguous=True,
             dim_message="facet_offs must be a 1 dimensional array")
 
-        facets = freud.common.convert_array(facets, 1, dtype=np.float32, contiguous=True,
+        facets = freud.common.convert_array(facets, 1, dtype=np.uint32, contiguous=True,
             dim_message="facets must be a 1 dimensional array")
 
         norms = freud.common.convert_array(norms, 2, dtype=np.float32, contiguous=True,
