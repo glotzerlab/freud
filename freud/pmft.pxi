@@ -807,6 +807,10 @@ cdef class PMFTXYZ:
             raise ValueError("points must be a 2 dimensional array")
         if len(ref_orientations.shape) != 2 or len(orientations.shape) != 2:
             raise ValueError("orientations must be a 2 dimensional array")
+        if ref_points.shape[1] != 3 or points.shape[1] != 3:
+            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
+            raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
         # handle multiple ways to input
         if face_orientations is None:
             # set to unit quaternion q = [1,0,0,0]
@@ -822,12 +826,15 @@ cdef class PMFTXYZ:
                 tmp_face_orientations = np.zeros(shape=(ref_points.shape[0], face_orientations.shape[0], face_orientations.shape[1]), dtype=np.float32)
                 tmp_face_orientations[:] = face_orientations
                 face_orientations = tmp_face_orientations
-            elif face_orientations.shape[2] == 3:
-                raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
-        if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
-            raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+            else:
+                # Make sure that the first dimensions is actually the number of particles
+                if face_orientations.shape[2] != 4:
+                    raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+                elif face_orientations.shape[0] not in (1, ref_points.shape[0]):
+                    raise ValueError("If provided as a 3D array, the first dimension of the face_orientations array must be either of size 1 or N_particles")
+                elif face_orientations.shape[0] == 1:
+                    face_orientations = np.repeat(face_orientations, ref_points.shape[0], axis = 0)
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
