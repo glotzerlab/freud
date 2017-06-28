@@ -3,6 +3,7 @@ from __future__ import division
 
 import time
 import cProfile
+import os
 import pstats
 import sys
 import multiprocessing
@@ -143,9 +144,10 @@ class benchmark(object):
                 print('{0:10d}'.format(N), end=' | ');
             print();
 
+        nproc_increment = int(os.environ.get('BENCHMARK_NPROC_INCREMENT', 1))
         # loop over the cores
         times = numpy.zeros(shape=(multiprocessing.cpu_count()+1, len(N_list)));
-        for ncores in range(1, multiprocessing.cpu_count()+1):
+        for ncores in range(1, multiprocessing.cpu_count()+1, nproc_increment):
             parallel.setNumThreads(ncores);
 
             if print_stats:
