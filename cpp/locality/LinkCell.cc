@@ -3,12 +3,15 @@
 
 #include <stdexcept>
 #include <algorithm>
+#include <tuple>
+#include <tbb/tbb.h>
 
 #include "LinkCell.h"
 #include "../box/box.h"
 #include "ScopedGILRelease.h"
 
 using namespace std;
+using namespace tbb;
 
 /*! \file LinkCell.cc
     \brief Build a cell list from a set of points
@@ -238,77 +241,71 @@ void LinkCell::computeCellList(box::Box& box,
     assert(points);
 
     for (int i = Nref-1; i >= 0; i--)
-        {
+    {
         unsigned int cell = getCell(points[i]);
         m_cell_list.get()[i] = m_cell_list.get()[Nref+cell];
         m_cell_list.get()[Nref+cell] = i;
-        }
+    }
 
-    unsigned int bondsPerParticle(32);
-    bool done_building(false);
-    do
-    {
-        const size_t max_bonds(bondsPerParticle*m_Nref);
-        m_neighbor_list.resize(max_bonds);
-        size_t *neighbor_array(m_neighbor_list.getNeighbors());
-        float *neighbor_weights(m_neighbor_list.getWeights());
-        unsigned int numBonds(0);
+    typedef tbb::enumerable_thread_specific< std::vector<std::tuple<size_t, size_t, float> > > BondVector;
+    BondVector bond_vectors;
 
-        for(unsigned int i(0); i < Np; ++i)
+    parallel_for(blocked_range<size_t>(0, Np),
+        [=, &bond_vectors] (const blocked_range<size_t> &r)
         {
-            // get the cell the point is in
-            const vec3<float> ref_point(ref_points[i]);
-            const unsigned int ref_cell(getCell(ref_point));
-
-            // loop over all neighboring cells
-            const std::vector<unsigned int>& neigh_cells = getCellNeighbors(ref_cell);
-            for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+            BondVector::reference bond_vector = bond_vectors.local();
+            for(size_t i(r.begin()); i != r.end(); ++i)
             {
-                unsigned int neigh_cell = neigh_cells[neigh_idx];
+                // get the cell the point is in
+                const vec3<float> ref_point(ref_points[i]);
+                const unsigned int ref_cell(getCell(ref_point));
 
-                // iterate over the particles in that cell
-                locality::LinkCell::iteratorcell it = itercell(neigh_cell);
-                for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                // loop over all neighboring cells
+                const std::vector<unsigned int>& neigh_cells = getCellNeighbors(ref_cell);
+                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
                 {
-                    if(exclude_ii && i == j)
-                        continue;
+                    unsigned int neigh_cell = neigh_cells[neigh_idx];
 
-                    const vec3<float> rij(m_box.wrap(points[j] - ref_point));
-                    const float rsq(dot(rij, rij));
-
-                    if(rsq < m_cell_width*m_cell_width)
+                    // iterate over the particles in that cell
+                    locality::LinkCell::iteratorcell it = itercell(neigh_cell);
+                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                     {
-                        if(numBonds < max_bonds)
+                        if(exclude_ii && i == j)
+                            continue;
+
+                        const vec3<float> rij(m_box.wrap(points[j] - ref_point));
+                        const float rsq(dot(rij, rij));
+
+                        if(rsq < m_cell_width*m_cell_width)
                         {
-                            neighbor_array[2*numBonds] = i;
-                            neighbor_array[2*numBonds + 1] = j;
-                            neighbor_weights[numBonds] = 1;
-                            ++numBonds;
+                            bond_vector.emplace_back(i, j, 1);
                         }
                     }
                 }
-
-                if(numBonds >= max_bonds)
-                {
-                    // guess a new number of bonds to use based on how
-                    // far we made it this time; this could give nasty
-                    // results in highly heterogeneous systems
-                    const float fraction_handled((float)max((unsigned int) 1, i)/Np);
-                    unsigned int bonds_guess(bondsPerParticle/fraction_handled*1.05);
-                    bonds_guess = max(bonds_guess, (unsigned int) 1.1*bondsPerParticle);
-                    bondsPerParticle = bonds_guess;
-                    break;
-                }
             }
+        });
 
-        }
+    size_t num_bonds(0);
+    for(BondVector::const_iterator bond_vector_iter = bond_vectors.begin();
+        bond_vector_iter != bond_vectors.end(); ++bond_vector_iter)
+    {
+        num_bonds += bond_vector_iter->size();
+    }
 
-        if(numBonds < max_bonds)
-        {
-            done_building = true;
-            m_neighbor_list.setNumBonds(numBonds);
-        }
-    } while(!done_building);
+    m_neighbor_list.resize(num_bonds);
+    m_neighbor_list.setNumBonds(num_bonds);
+
+    size_t *neighbor_array(m_neighbor_list.getNeighbors());
+    float *neighbor_weights(m_neighbor_list.getWeights());
+
+    tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bond_vectors);
+    num_bonds = 0;
+    for(tbb::flattened2d<BondVector>::const_iterator bond_iter = flat_bonds.begin();
+        bond_iter != flat_bonds.end(); ++num_bonds, ++bond_iter)
+    {
+        std::tie(neighbor_array[2*num_bonds], neighbor_array[2*num_bonds + 1],
+                 neighbor_weights[num_bonds]) = *bond_iter;
+    }
     }
 
 void LinkCell::computeCellNeighbors()
