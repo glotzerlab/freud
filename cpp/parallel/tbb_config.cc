@@ -27,9 +27,10 @@ void setNumThreads(unsigned int N)
     if (N == 0)
         N = task_scheduler_init::automatic;
 
+    delete old_ts;
+
     // then recreate it
     ts = new task_scheduler_init(N);
-    delete old_ts;
     }
 
 }; }; // end namespace freud::parallel
