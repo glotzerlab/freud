@@ -27,10 +27,10 @@ LocalDensity::~LocalDensity()
     delete m_lc;
     }
 
-    void LocalDensity::compute(const box::Box &box,
-                               const freud::locality::NeighborList *nlist,
-                               const vec3<float> *ref_points, unsigned int n_ref,
-                               const vec3<float> *points, unsigned int Np)
+void LocalDensity::compute(const box::Box &box,
+                           const freud::locality::NeighborList *nlist,
+                           const vec3<float> *ref_points, unsigned int n_ref,
+                           const vec3<float> *points, unsigned int Np)
     {
     m_box = box;
 
@@ -48,13 +48,19 @@ LocalDensity::~LocalDensity()
     parallel_for(blocked_range<size_t>(0, n_ref),
       [=] (const blocked_range<size_t>& r)
       {
-      unsigned int bond(nlist->find_first_index(r.begin()));
+      unsigned int bond(0);
+
+      if(!nlist->getNumBonds())
+          return;
 
       for(size_t i=r.begin(); i != r.end(); ++i)
           {
           float num_neighbors = 0;
 
           const vec3<float> r_i(ref_points[i]);
+
+          if(neighbor_list[2*bond] != i)
+              bond = nlist->find_first_index(i);
 
           for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
           {
