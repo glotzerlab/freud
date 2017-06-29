@@ -285,27 +285,28 @@ void LinkCell::computeCellList(box::Box& box,
             }
         });
 
-    size_t num_bonds(0);
-    for(BondVector::const_iterator bond_vector_iter = bond_vectors.begin();
-        bond_vector_iter != bond_vectors.end(); ++bond_vector_iter)
-    {
-        num_bonds += bond_vector_iter->size();
-    }
+    // Note that blocked_range above doesn't have to return contiguous
+    // indices; therefore, we need to sort these
+    tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bond_vectors);
+    std::vector<std::tuple<size_t, size_t, float> > flat_bond_vectors(flat_bonds.begin(), flat_bonds.end());
+    tbb::parallel_sort(flat_bond_vectors.begin(), flat_bond_vectors.end());
 
+    const size_t num_bonds(flat_bond_vectors.size());
     m_neighbor_list.resize(num_bonds);
     m_neighbor_list.setNumBonds(num_bonds);
 
     size_t *neighbor_array(m_neighbor_list.getNeighbors());
     float *neighbor_weights(m_neighbor_list.getWeights());
 
-    tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bond_vectors);
-    num_bonds = 0;
-    for(tbb::flattened2d<BondVector>::const_iterator bond_iter = flat_bonds.begin();
-        bond_iter != flat_bonds.end(); ++num_bonds, ++bond_iter)
-    {
-        std::tie(neighbor_array[2*num_bonds], neighbor_array[2*num_bonds + 1],
-                 neighbor_weights[num_bonds]) = *bond_iter;
-    }
+    parallel_for(blocked_range<size_t>(0, num_bonds),
+         [=, &flat_bond_vectors] (const blocked_range<size_t> &r)
+         {
+             for(size_t i(r.begin()); i != r.end(); ++i)
+             {
+                 std::tie(neighbor_array[2*i], neighbor_array[2*i + 1],
+                          neighbor_weights[i]) = flat_bond_vectors[i];
+             }
+         });
     }
 
 void LinkCell::computeCellNeighbors()
