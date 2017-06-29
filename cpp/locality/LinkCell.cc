@@ -247,13 +247,14 @@ void LinkCell::computeCellList(box::Box& box,
         m_cell_list.get()[Nref+cell] = i;
     }
 
-    typedef tbb::enumerable_thread_specific< std::vector<std::tuple<size_t, size_t, float> > > BondVector;
-    BondVector bond_vectors;
+    typedef std::vector<std::tuple<size_t, size_t, float> > BondVector;
+    typedef tbb::enumerable_thread_specific<BondVector> ThreadBondVector;
+    ThreadBondVector bond_vectors;
 
     parallel_for(blocked_range<size_t>(0, Np),
         [=, &bond_vectors] (const blocked_range<size_t> &r)
         {
-            BondVector::reference bond_vector = bond_vectors.local();
+            ThreadBondVector::reference bond_vector(bond_vectors.local());
             for(size_t i(r.begin()); i != r.end(); ++i)
             {
                 // get the cell the point is in
@@ -287,8 +288,8 @@ void LinkCell::computeCellList(box::Box& box,
 
     // Note that blocked_range above doesn't have to return contiguous
     // indices; therefore, we need to sort these
-    tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bond_vectors);
-    std::vector<std::tuple<size_t, size_t, float> > flat_bond_vectors(flat_bonds.begin(), flat_bonds.end());
+    tbb::flattened2d<ThreadBondVector> flat_bonds = tbb::flatten2d(bond_vectors);
+    BondVector flat_bond_vectors(flat_bonds.begin(), flat_bonds.end());
     tbb::parallel_sort(flat_bond_vectors.begin(), flat_bond_vectors.end());
 
     const size_t num_bonds(flat_bond_vectors.size());
