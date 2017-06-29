@@ -68,5 +68,19 @@ class TestLinkCell(unittest.TestCase):
             # if i is a neighbor of j, then j should be a neighbor of i
             self.assertEqual(neighbors_ij, neighbors_ji)
 
+    def test_nlist_order(self):
+        L = 10 #Box Dimensions
+        N = 40; # number of particles
+        rcut = 3 #Cutoff radius
+
+        fbox = box.Box.cube(L)#Initialize Box
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        cl = locality.LinkCell(fbox, rcut)#Initialize cell list
+        cl.computeCellList(fbox, points)#Compute cell list
+
+        # numpy's mergesort is stable
+        sortidx = np.argsort(cl.nlist.index_i, kind='mergesort')
+        self.assertTrue(np.all(sortidx == np.arange(len(sortidx))))
+
 if __name__ == '__main__':
     unittest.main()
