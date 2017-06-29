@@ -22,12 +22,12 @@ namespace freud { namespace locality {
 // This is only used to initialize a pointer for the new triclinic setup
 // this shouldn't be needed any longer, but will be left for now
 // but until then, enjoy this mediocre hack
-LinkCell::LinkCell() : m_box(box::Box()), m_Nref(0), m_cell_width(0), m_neighbor_list()
+LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_neighbor_list()
     {
     m_celldim = vec3<unsigned int>(0,0,0);
     }
 
-LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Nref(0), m_cell_width(cell_width), m_neighbor_list()
+LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width), m_neighbor_list()
     {
     // check if the cell width is too wide for the box
     m_celldim  = computeDimensions(m_box, m_cell_width);
@@ -209,10 +209,6 @@ void LinkCell::computeCellList(box::Box& box,
                                bool exclude_ii)
     {
     updateBox(box);
-    if (Nref == 0)
-        {
-        throw runtime_error("Cannot generate a cell list of 0 particles");
-        }
 
     // TODO remove this after all methods get updated to use
     if(points == 0)
@@ -221,30 +217,35 @@ void LinkCell::computeCellList(box::Box& box,
         Np = Nref;
     }
 
+    if (Np == 0)
+        {
+        throw runtime_error("Cannot generate a cell list of 0 particles");
+        }
+
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
     assert(Nc > 0);
-    if ((m_Nref != Nref) || (m_Nc != Nc))
+    if ((m_Np != Np) || (m_Nc != Nc))
         {
-        m_cell_list = std::shared_ptr<unsigned int>(new unsigned int[Nref + Nc], std::default_delete<unsigned int[]>());
+        m_cell_list = std::shared_ptr<unsigned int>(new unsigned int[Np + Nc], std::default_delete<unsigned int[]>());
         }
-    m_Nref = Nref;
+    m_Np = Np;
     m_Nc = Nc;
 
     // initialize memory
     for (unsigned int cell = 0; cell < Nc; cell++)
         {
-        m_cell_list.get()[Nref + cell] = LINK_CELL_TERMINATOR;
+        m_cell_list.get()[Np + cell] = LINK_CELL_TERMINATOR;
         }
 
     // generate the cell list
     assert(points);
 
-    for (int i = Nref-1; i >= 0; i--)
+    for (int i = Np-1; i >= 0; i--)
     {
         unsigned int cell = getCell(points[i]);
-        m_cell_list.get()[i] = m_cell_list.get()[Nref+cell];
-        m_cell_list.get()[Nref+cell] = i;
+        m_cell_list.get()[i] = m_cell_list.get()[Np+cell];
+        m_cell_list.get()[Np+cell] = i;
     }
 
     typedef std::vector<std::tuple<size_t, size_t, float> > BondVector;

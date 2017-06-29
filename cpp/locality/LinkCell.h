@@ -48,26 +48,26 @@ class IteratorLinkCell
     {
     public:
         IteratorLinkCell():
-            m_cell_list(NULL), m_Nref(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
+            m_cell_list(NULL), m_Np(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
 
         IteratorLinkCell(const std::shared_ptr<unsigned int>& cell_list,
                          unsigned int Np,
                          unsigned int Nc,
                          unsigned int cell)
-                         : m_cell_list(cell_list.get()), m_Nref(Np), m_Nc(Nc)
+                         : m_cell_list(cell_list.get()), m_Np(Np), m_Nc(Nc)
             {
             assert(cell < Nc);
             assert(Np > 0);
             assert(Nc > 0);
             m_cell = cell;
-            m_cur_idx = m_Nref + cell;
+            m_cur_idx = m_Np + cell;
             }
 
         //! Copy the position of rhs into this object
         void copy(const IteratorLinkCell &rhs)
         {
             m_cell_list = rhs.m_cell_list;
-            m_Nref = rhs.m_Nref;
+            m_Np = rhs.m_Np;
             m_Nc = rhs.m_Nc;
             m_cur_idx = rhs.m_cur_idx;
             m_cell = rhs.m_cell;
@@ -89,7 +89,7 @@ class IteratorLinkCell
         //! Get the first particle index in the list
         unsigned int begin()
             {
-            m_cur_idx = m_Nref + m_cell;
+            m_cur_idx = m_Np + m_cell;
             m_cur_idx = m_cell_list[m_cur_idx];
             return m_cur_idx;
             }
@@ -110,7 +110,7 @@ class IteratorLinkCell
 
     private:
         const unsigned int *m_cell_list;                  //!< The cell list
-        unsigned int m_Nref;                                //!< Number of particles in the cell list
+        unsigned int m_Np;                                //!< Number of particles in the cell list
         unsigned int m_Nc;                                //!< Number of cells in the cell list
         unsigned int m_cur_idx;                           //!< Current index
         unsigned int m_cell;                              //!< Cell being considered
@@ -259,7 +259,7 @@ class LinkCell: public NeighborProvider
         iteratorcell itercell(unsigned int cell) const
             {
             assert(m_cell_list.get() != NULL);
-            return iteratorcell(m_cell_list, m_Nref, getNumCells(), cell);
+            return iteratorcell(m_cell_list, m_Np, getNumCells(), cell);
             }
 
         //! Get a list of neighbors to a cell
@@ -298,7 +298,7 @@ class LinkCell: public NeighborProvider
 
         box::Box m_box;      //!< Simulation box the particles belong in
         Index3D m_cell_index;       //!< Indexer to compute cell indices
-        unsigned int m_Nref;        //!< Number of particles last placed into the cell list
+        unsigned int m_Np;        //!< Number of particles last placed into the cell list
         unsigned int m_Nc;          //!< Number of cells last used
         float m_cell_width;         //!< Minimum necessary cell width cutoff
         vec3<unsigned int> m_celldim; //!< Cell dimensions
