@@ -34,6 +34,7 @@ LocalDensity::~LocalDensity()
     {
     m_box = box;
 
+    nlist->validate(n_ref, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
     // reallocate the output array if it is not the right size

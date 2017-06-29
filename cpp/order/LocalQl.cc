@@ -76,6 +76,7 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
     //Set local data size
     m_Np = Np;
 
+    nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
     float rminsq = m_rmin * m_rmin;
     float rmaxsq = m_rmax * m_rmax;

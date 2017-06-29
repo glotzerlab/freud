@@ -214,6 +214,7 @@ void RDF::accumulate(box::Box& box,
     m_box = box;
     m_Np = Np;
     m_n_ref = Nref;
+    nlist->validate(Nref, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
     parallel_for(blocked_range<size_t>(0, nlist->getNumBonds()),
       [=] (const blocked_range<size_t>& r)

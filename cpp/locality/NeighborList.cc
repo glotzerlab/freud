@@ -6,15 +6,16 @@
 namespace freud { namespace locality {
 
         NeighborList::NeighborList():
-            m_max_bonds(0), m_num_bonds(0), m_neighbors(), m_weights()
+            m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0), m_neighbors(), m_weights()
         {}
 
         NeighborList::NeighborList(size_t max_bonds):
-            m_max_bonds(max_bonds), m_num_bonds(0), m_neighbors(new size_t[2*max_bonds]), m_weights(new float[max_bonds])
+            m_max_bonds(max_bonds), m_num_bonds(0), m_num_i(0), m_num_j(0),
+            m_neighbors(new size_t[2*max_bonds]), m_weights(new float[max_bonds])
         {}
 
         NeighborList::NeighborList(const NeighborList &other):
-            m_max_bonds(0), m_num_bonds(0), m_neighbors(), m_weights()
+            m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0), m_neighbors(), m_weights()
         {
             copy(other);
         }
@@ -24,9 +25,21 @@ namespace freud { namespace locality {
             return m_num_bonds;
         }
 
-        void NeighborList::setNumBonds(size_t num_bonds)
+        size_t NeighborList::getNumI() const
+        {
+            return m_num_i;
+        }
+
+        size_t NeighborList::getNumJ() const
+        {
+            return m_num_j;
+        }
+
+        void NeighborList::setNumBonds(size_t num_bonds, size_t num_i, size_t num_j)
         {
             m_num_bonds = num_bonds;
+            m_num_i = num_i;
+            m_num_j = num_j;
         }
 
         size_t *NeighborList::getNeighbors()
@@ -137,6 +150,16 @@ namespace freud { namespace locality {
             std::copy(src_neigh, src_neigh + 2*other.m_num_bonds, dst_neigh);
             std::copy(src_weights, src_weights + other.m_num_bonds, dst_weights);
             m_num_bonds = other.m_num_bonds;
+            m_num_i = other.m_num_i;
+            m_num_j = other.m_num_j;
+        }
+
+        void NeighborList::validate(size_t num_i, size_t num_j) const
+        {
+            if(num_i != m_num_i)
+                throw std::runtime_error("NeighborList found inconsistent array sizes");
+            if(num_j != m_num_j)
+                throw std::runtime_error("NeighborList found inconsistent array sizes");
         }
 
         size_t NeighborList::bisection_search(size_t val, size_t left, size_t right) const

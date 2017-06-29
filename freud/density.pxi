@@ -609,7 +609,7 @@ cdef class RDF:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         self.thisptr.resetRDF()
-        self.accumulate(box, nlist, ref_points, points, nlist)
+        self.accumulate(box, ref_points, points, nlist)
         return self
 
     def resetRDF(self):

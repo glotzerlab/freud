@@ -19,7 +19,9 @@ public:
     NeighborList(const NeighborList &other);
 
     size_t getNumBonds() const;
-    void setNumBonds(size_t num_bonds);
+    size_t getNumI() const;
+    size_t getNumJ() const;
+    void setNumBonds(size_t num_bonds, size_t num_i, size_t num_j);
     size_t *getNeighbors();
     float *getWeights();
 
@@ -33,11 +35,14 @@ public:
 
     void resize(size_t max_bonds, bool force=false);
     void copy(const NeighborList &other);
+    void validate(size_t num_i, size_t num_j) const;
 private:
     size_t bisection_search(size_t val, size_t left, size_t right) const;
 
     size_t m_max_bonds;
     size_t m_num_bonds;
+    size_t m_num_i;
+    size_t m_num_j;
     std::shared_ptr<size_t> m_neighbors;
     std::shared_ptr<float> m_weights;
 };

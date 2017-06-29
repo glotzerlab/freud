@@ -295,7 +295,7 @@ void LinkCell::computeCellList(box::Box& box,
 
     const size_t num_bonds(flat_bond_vectors.size());
     m_neighbor_list.resize(num_bonds);
-    m_neighbor_list.setNumBonds(num_bonds);
+    m_neighbor_list.setNumBonds(num_bonds, Nref, Np);
 
     size_t *neighbor_array(m_neighbor_list.getNeighbors());
     float *neighbor_weights(m_neighbor_list.getWeights());
