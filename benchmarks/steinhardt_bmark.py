@@ -17,13 +17,8 @@ class SteinhardtBenchmark(benchmark.benchmark):
         (self.box, self.points) = internal.make_fcc(nx, ny, nz, noise=1e-2)
 
     def run(self, N):
-        try:
-            lc = locality.LinkCell(self.box, 2).computeCellList(self.box, self.points, exclude_ii=True)
-            args = [lc.nlist, self.points]
-        except:
-            args = [self.points]
         stein = order.LocalQl(self.box, 2, 6)
-        stein.compute(*args);
+        stein.compute(self.points);
 
 if __name__ == '__main__':
     times = SteinhardtBenchmark().run_thread_scaling_benchmark([4096, 16384, 65536], number=20)

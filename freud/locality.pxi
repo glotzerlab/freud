@@ -90,6 +90,15 @@ cdef class NeighborList:
 
         self.thisptr.filter_r(cBox, <vec3[float]*> cRef_points.data, <vec3[float]*> cPoints.data, rmax, rmin)
 
+def make_default_nlist(box, ref_points, points, rmax, nlist=None, exclude_ii=None):
+    if nlist is not None:
+        return nlist, nlist
+
+    cdef LinkCell lc = LinkCell(box, rmax).computeCellList(box, ref_points, points, exclude_ii)
+
+    # return the owner of the neighbor list as well to prevent gc problems
+    return lc.nlist, lc
+
 cdef class IteratorLinkCell:
     """Iterates over the particles in a cell.
 

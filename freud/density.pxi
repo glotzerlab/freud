@@ -454,9 +454,11 @@ cdef class LocalDensity:
     :type diameter: float
     """
     cdef density.LocalDensity *thisptr
+    cdef r_cut
 
     def __cinit__(self, float r_cut, float volume, float diameter):
         self.thisptr = new density.LocalDensity(r_cut, volume, diameter)
+        self.r_cut = r_cut
 
     def getBox(self):
         """
@@ -465,12 +467,11 @@ cdef class LocalDensity:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def compute(self, box, NeighborList nlist, ref_points, points=None):
+    def compute(self, box, ref_points, points=None, nlist=None):
         """
         Calculates the local density for the specified points. Does not accumulate (will overwrite current data).
 
         :param box: simulation box
-        :param nlist: Neighbor list to use for computation
         :param ref_points: reference points to calculate the local density
         :param points: (optional) points to calculate the local density
         :type box: :py:class:`freud.box.Box`
@@ -489,9 +490,14 @@ cdef class LocalDensity:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
+
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.r_cut, nlist)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         with nogil:
             self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
         return self
@@ -540,11 +546,13 @@ cdef class RDF:
     :type dr: float
     """
     cdef density.RDF *thisptr
+    cdef rmax
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
         self.thisptr = new density.RDF(rmax, dr)
+        self.rmax = rmax
 
     def __dealloc__(self):
         del self.thisptr
@@ -556,12 +564,11 @@ cdef class RDF:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def accumulate(self, box, NeighborList nlist, ref_points, points):
+    def accumulate(self, box, ref_points, points, nlist=None):
         """
         Calculates the rdf and adds to the current rdf histogram.
 
         :param box: simulation box
-        :param nlist: Neighbor list to use for computation
         :param ref_points: reference points to calculate the local density
         :param points: points to calculate the local density
         :type box: :py:class:`freud.box.Box`
@@ -578,14 +585,19 @@ cdef class RDF:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
+
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         with nogil:
             self.thisptr.accumulate(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
         return self
 
-    def compute(self, box, NeighborList nlist, ref_points, points):
+    def compute(self, box, ref_points, points, nlist=None):
         """
         Calculates the rdf for the specified points. Will overwrite the current histogram.
 
@@ -597,7 +609,7 @@ cdef class RDF:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         self.thisptr.resetRDF()
-        self.accumulate(box, nlist, ref_points, points)
+        self.accumulate(box, nlist, ref_points, points, nlist)
         return self
 
     def resetRDF(self):

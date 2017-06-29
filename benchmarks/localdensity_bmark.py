@@ -17,13 +17,8 @@ class LocalDensityBenchmark(benchmark.benchmark):
         (self.box, self.points) = internal.make_fcc(nx, ny, nz, noise=1e-2)
 
     def run(self, N):
-        try:
-            lc = locality.LinkCell(self.box, 5).computeCellList(self.box, self.points, exclude_ii=True)
-            args = [self.box, lc.nlist, self.points]
-        except:
-            args = [self.box, self.points]
         dens = density.LocalDensity(5, 1, 1)
-        dens.compute(*args);
+        dens.compute(self.box, self.points);
 
 if __name__ == '__main__':
     times = LocalDensityBenchmark().run_thread_scaling_benchmark([4096, 16384, 65536], number=20)

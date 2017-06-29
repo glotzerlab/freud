@@ -784,15 +784,19 @@ cdef class LocalQl:
     .. todo:: move box to compute, this is old API
     """
     cdef order.LocalQl *thisptr
+    cdef box
+    cdef rmax
 
     def __cinit__(self, box, rmax, l, rmin=0):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.box = box
+        self.rmax = rmax
         self.thisptr = new order.LocalQl(l_box, rmax, l, rmin)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, NeighborList nlist, points):
+    def compute(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -802,14 +806,17 @@ cdef class LocalQl:
             dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
-
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
-    def computeAve(self, NeighborList nlist, points):
+    def computeAve(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -822,12 +829,16 @@ cdef class LocalQl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
         return self
 
-    def computeNorm(self, NeighborList nlist, points):
+    def computeNorm(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -840,12 +851,16 @@ cdef class LocalQl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
         return self
 
-    def computeAveNorm(self, NeighborList nlist, points):
+    def computeAveNorm(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -858,7 +873,11 @@ cdef class LocalQl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef locality.NeighborList *nlist_ptr = nlist.get_ptr()
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
