@@ -139,7 +139,7 @@ class IteratorLinkCell
     neighbor cells are only listed in the plane. As with everything else in freud, 2D points must be passed in as
     3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
 */
-class LinkCell: public NeighborProvider
+class LinkCell
     {
     public:
         //! iterator to iterate over particles in the cell
@@ -286,7 +286,7 @@ class LinkCell: public NeighborProvider
         // //! Python wrapper for computeCellList
         // void computeCellListPy(box::Box& box, boost::python::numeric::array points);
 
-        virtual NeighborList *getNeighborList()
+        NeighborList *getNeighborList()
         {
             return &m_neighbor_list;
         }

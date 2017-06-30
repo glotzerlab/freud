@@ -47,13 +47,6 @@ private:
     std::shared_ptr<float> m_weights;
 };
 
-class NeighborProvider
-{
-public:
-    virtual ~NeighborProvider() {}
-    virtual NeighborList *getNeighborList() = 0;
-};
-
 }; }; // end namespace freud::locality
 
 #endif // _NEIGHBOR_LIST_H__
