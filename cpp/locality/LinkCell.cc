@@ -262,6 +262,7 @@ void LinkCell::computeCellList(box::Box& box,
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;
 
+    // Find (i, j) neighbor pairs
     parallel_for(blocked_range<size_t>(0, Np),
         [=, &bond_vectors] (const blocked_range<size_t> &r)
         {
@@ -300,6 +301,7 @@ void LinkCell::computeCellList(box::Box& box,
             }
         });
 
+    // Sort neighbors by particle i index
     tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
     BondVectorVector bond_vector_groups(flat_bond_vector_groups.begin(), flat_bond_vector_groups.end());
     tbb::parallel_sort(bond_vector_groups.begin(), bond_vector_groups.end(), compareFirstNeighborPairs);
@@ -315,6 +317,7 @@ void LinkCell::computeCellList(box::Box& box,
     size_t *neighbor_array(m_neighbor_list.getNeighbors());
     float *neighbor_weights(m_neighbor_list.getWeights());
 
+    // build nlist structure
     parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
          [=, &bond_vector_groups] (const blocked_range<size_t> &r)
          {
