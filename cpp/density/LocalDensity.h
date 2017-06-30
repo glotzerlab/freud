@@ -14,7 +14,7 @@
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
-#include "LinkCell.h"
+#include "NeighborList.h"
 #include "box.h"
 
 #ifndef _LOCAL_DENSITY_H__
@@ -66,7 +66,6 @@ class LocalDensity
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_n_ref;                //!< Last number of points computed
 
         std::shared_ptr< float > m_density_array;         //!< density array computed

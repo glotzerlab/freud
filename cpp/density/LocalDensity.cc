@@ -19,12 +19,10 @@ namespace freud { namespace density {
 LocalDensity::LocalDensity(float rcut, float volume, float diameter)
     : m_box(box::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_n_ref(0)
     {
-    m_lc = new locality::LinkCell(m_box, m_rcut);
     }
 
 LocalDensity::~LocalDensity()
     {
-    delete m_lc;
     }
 
 void LocalDensity::compute(const box::Box &box,
