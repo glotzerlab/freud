@@ -290,25 +290,37 @@ MatchEnv::MatchEnv(const box::Box& box, float rmax, unsigned int k)
     m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     m_lc = new locality::LinkCell(m_box, m_rmax);
 
-    // is the bimap 1-1? what's happening....
-    BiMap<std::string, unsigned int> tmp;
-    boost::bimap<std::string, unsigned int> boost_tmp;
-    tmp.emplace("hello",1);
-    boost_tmp.insert({"hello",1});
-    tmp.emplace("hello",2);
-    boost_tmp.insert({"hello",2});
-    tmp.emplace("bye",1);
-    boost_tmp.insert({"bye",1});
-    tmp.emplace("bye",2);
-    boost_tmp.insert({"bye",2});
-    for (BiMap<std::string, unsigned int>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
-        {
-        std::cout<<"BiMap: "<<(*it)->first<<(*it)->second<<std::endl;
-        }
-    for (boost::bimap<std::string, unsigned int>::const_iterator it = boost_tmp.begin(); it != boost_tmp.end(); ++it)
-        {
-        std::cout<<"boost bimap: "<<it->left<<it->right<<std::endl;
-        }
+    // // is the bimap 1-1? what's happening....
+    // BiMap<std::string, unsigned int> tmp;
+    // boost::bimap<std::string, unsigned int> boost_tmp;
+    // bool b1 = tmp.emplace("hello",1);
+    // std::cout<<b1<<std::endl;
+    // std::cout<<"left values: "<<tmp.left["hello"]<<tmp.left["bye"]<<std::endl;
+    // std::cout<<"right values: "<<tmp.right[1]<<tmp.right[2]<<std::endl;
+    // boost_tmp.insert({"hello",1});
+    // bool b2 = tmp.emplace("hello",2);
+    // std::cout<<b2<<std::endl;
+    // std::cout<<"left values: "<<tmp.left["hello"]<<tmp.left["bye"]<<std::endl;
+    // std::cout<<"right values: "<<tmp.right[1]<<tmp.right[2]<<std::endl;
+    // boost_tmp.insert({"hello",2});
+    // bool b3 = tmp.emplace("bye",1);
+    // std::cout<<b3<<std::endl;
+    // std::cout<<"left values: "<<tmp.left["hello"]<<tmp.left["bye"]<<std::endl;
+    // std::cout<<"right values: "<<tmp.right[1]<<tmp.right[2]<<std::endl;
+    // boost_tmp.insert({"bye",1});
+    // bool b4 = tmp.emplace("bye",2);
+    // std::cout<<b4<<std::endl;
+    // std::cout<<"left values: "<<tmp.left["hello"]<<tmp.left["bye"]<<std::endl;
+    // std::cout<<"right values: "<<tmp.right[1]<<tmp.right[2]<<std::endl;
+    // boost_tmp.insert({"bye",2});
+    // for (BiMap<std::string, unsigned int>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
+    //     {
+    //     std::cout<<"BiMap: "<<(*it)->first<<(*it)->second<<std::endl;
+    //     }
+    // for (boost::bimap<std::string, unsigned int>::const_iterator it = boost_tmp.begin(); it != boost_tmp.end(); ++it)
+    //     {
+    //     std::cout<<"boost bimap: "<<it->left<<it->right<<std::endl;
+    //     }
     }
 
 // Destructor
