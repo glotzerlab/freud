@@ -19,8 +19,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         sphs = comp.getSph()
 
-        assert sphs.shape[0] == N
-        assert sphs.shape[1] == Nneigh
+        assert sphs.shape[0] == N*Nneigh
 
     def test_global(self):
         N = 1000
@@ -36,8 +35,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         sphs = comp.getSph()
 
-        assert sphs.shape[0] == N
-        assert sphs.shape[1] == Nneigh
+        assert sphs.shape[0] == N*Nneigh
 
     def test_particle_local(self):
         N = 1000
@@ -59,8 +57,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         sphs = comp.getSph()
 
-        assert sphs.shape[0] == N
-        assert sphs.shape[1] == Nneigh
+        assert sphs.shape[0] == N*Nneigh
 
     def test_unknown_modes(self):
         N = 1000
@@ -89,23 +86,12 @@ class TestLocalDescriptors(unittest.TestCase):
         comp.computeNList(box, positions, positions2)
         comp.compute(box, Nneigh, positions, positions2)
 
+        lc = freud.locality.LinkCell(box, 2).compute(box, positions, positions2)
+        nn = freud.locality.NearestNeighbors(1, 4).compute(box, positions, positions2)
+
         sphs = comp.getSph()
 
-        assert sphs.shape[0] == N
-        assert sphs.shape[1] == Nneigh
-
-    def test_no_nlist(self):
-        N = 1000
-        Nneigh = 4
-        lmax = 8
-
-        box = freud.box.Box.cube(10)
-        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
-
-        comp = LocalDescriptors(Nneigh, lmax, .5, True)
-
-        with self.assertRaises(RuntimeError):
-            comp.compute(box, Nneigh, positions)
+        assert sphs.shape[0] == N*Nneigh
 
 if __name__ == '__main__':
     unittest.main()

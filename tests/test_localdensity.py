@@ -1,6 +1,7 @@
 from freud import box, density
 import numpy
 import math
+import nose
 from nose.tools import assert_equal, assert_almost_equal, assert_less, raises
 
 class TestLD:
@@ -48,3 +49,6 @@ class TestLD:
         neighbors = self.ld.getNumNeighbors();
         for i in range(0,len(neighbors)):
             assert_less(math.fabs(neighbors[i]-1130.973355292), 200);
+
+if __name__ == '__main__':
+    nose.core.runmodule()

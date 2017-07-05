@@ -68,19 +68,116 @@ class TestLinkCell(unittest.TestCase):
             # if i is a neighbor of j, then j should be a neighbor of i
             self.assertEqual(neighbors_ij, neighbors_ji)
 
-    def test_nlist_order(self):
+    def test_first_index(self):
         L = 10 #Box Dimensions
-        N = 40; # number of particles
-        rcut = 3 #Cutoff radius
+        rcut = 2.01 #Cutoff radius
+        N = 4; # number of particles
 
         fbox = box.Box.cube(L)#Initialize Box
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
-        cl = locality.LinkCell(fbox, rcut)#Initialize cell list
-        cl.computeCellList(fbox, points)#Compute cell list
+        lc = locality.LinkCell(fbox, rcut)
 
-        # numpy's mergesort is stable
-        sortidx = np.argsort(cl.nlist.index_i, kind='mergesort')
-        self.assertTrue(np.all(sortidx == np.arange(len(sortidx))))
+        points = np.zeros(shape=(N, 3), dtype=np.float32)
+        points[0] = [0.0, 0.0, 0.0]
+        points[1] = [1.0, 0.0, 0.0]
+        points[2] = [3.0, 0.0, 0.0]
+        points[3] = [2.0, 0.0, 0.0]
+
+        lc.compute(fbox, points)
+        # particle 0 has 2 bonds
+        npt.assert_equal(lc.nlist.find_first_index(0), 0)
+        # particle 1 has 3 bonds
+        npt.assert_equal(lc.nlist.find_first_index(1), 2)
+        # particle 2 has 2 bonds
+        npt.assert_equal(lc.nlist.find_first_index(2), 5)
+        # particle 3 has 3 bonds
+        npt.assert_equal(lc.nlist.find_first_index(3), 7)
+
+        # now move particle 0 out of range...
+        points[0] = 5
+        lc.compute(fbox, points)
+
+        # particle 0 has 0 bonds
+        npt.assert_equal(lc.nlist.find_first_index(0), 0)
+        # particle 1 has 2 bonds
+        npt.assert_equal(lc.nlist.find_first_index(1), 0)
+        # particle 2 has 2 bonds
+        npt.assert_equal(lc.nlist.find_first_index(2), 2)
+        # particle 3 has 2 bonds
+        npt.assert_equal(lc.nlist.find_first_index(3), 4)
+
+    def test_reciprocal(self):
+        """Test that, for a random set of points, for each (i, j) neighbor
+        pair there also exists a (j, i) neighbor pair for one set of points"""
+        L, rcut, N = (10, 2.01, 1024)
+
+        fbox = box.Box.cube(L)
+        seed = np.random.randint(0, 2**32)
+        np.random.seed(seed)
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        lc = locality.LinkCell(fbox, rcut).compute(fbox, points)
+
+        ij = set(zip(lc.nlist.index_i, lc.nlist.index_j))
+        ji = set((j, i) for (i, j) in ij)
+
+        try:
+            self.assertEqual(ij, ji)
+        except:
+            print('Failed random seed: {}'.format(seed))
+            raise
+
+    def test_reciprocal_twoset(self):
+        """Test that, for a random set of points, for each (i, j) neighbor
+        pair there also exists a (j, i) neighbor pair for two sets of
+        different points
+        """
+        L, rcut, N = (10, 2.01, 1024)
+
+        fbox = box.Box.cube(L)
+        seed = np.random.randint(0, 2**32)
+        np.random.seed(seed)
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        points2 = np.random.uniform(-L/2, L/2, (N//6, 3)).astype(np.float32)
+        lc = locality.LinkCell(fbox, rcut).compute(fbox, points, points2)
+        lc2 = locality.LinkCell(fbox, rcut).compute(fbox, points2, points)
+
+        ij = set(zip(lc.nlist.index_i, lc.nlist.index_j))
+        ij2 = set(zip(lc2.nlist.index_j, lc2.nlist.index_i))
+
+        try:
+            self.assertEqual(ij, ij2)
+        except:
+            print('Failed random seed: {}'.format(seed))
+            raise
+
+    def test_exclude_ii(self):
+        L, rcut, N = (10, 2.01, 1024)
+
+        fbox = box.Box.cube(L)
+        seed = np.random.randint(0, 2**32)
+        np.random.seed(seed)
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        points2 = points[:N//6]
+        lc = locality.LinkCell(fbox, rcut).compute(fbox, points, points2, exclude_ii=False)
+
+        ij1 = set(zip(lc.nlist.index_i, lc.nlist.index_j))
+
+        lc.compute(fbox, points, points2, exclude_ii=True)
+
+        ij2 = set(zip(lc.nlist.index_i, lc.nlist.index_j))
+
+        try:
+            self.assertTrue(all((i, i) not in ij2 for i in range(N)))
+        except:
+            print('Failed random seed: {}'.format(seed))
+            raise
+
+        ij2.update((i, i) for i in range(points2.shape[0]))
+
+        try:
+            self.assertEqual(ij1, ij2)
+        except:
+            print('Failed random seed: {}'.format(seed))
+            raise
 
 if __name__ == '__main__':
     unittest.main()

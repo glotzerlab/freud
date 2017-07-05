@@ -47,14 +47,6 @@ NearestNeighbors::~NearestNeighbors()
     delete m_lc;
     }
 
-//! Utility function to sort a pair<float, unsigned int> on the first
-//! element of the pair
-bool compareRsqVectors(const pair<float, pair<unsigned int, vec3<float> > > &left,
-                       const pair<float, pair<unsigned int, vec3<float> > > &right)
-    {
-    return left.first < right.first;
-    }
-
 void NearestNeighbors::setCutMode(const bool strict_cut)
     {
     m_strict_cut = strict_cut;
@@ -64,92 +56,74 @@ void NearestNeighbors::compute(const box::Box& box,
                                const vec3<float> *ref_pos,
                                unsigned int num_ref,
                                const vec3<float> *pos,
-                               unsigned int num_points)
+                               unsigned int num_points,
+                               bool exclude_ii)
     {
     m_box = box;
-    // reallocate the output array if it is not the right size
-    if (num_ref != m_num_ref)
-        {
-        m_rsq_array = std::shared_ptr<float>(new float[num_ref * m_num_neighbors], std::default_delete<float[]>());
-        m_neighbor_array = std::shared_ptr<unsigned int>(new unsigned int[num_ref * m_num_neighbors], std::default_delete<unsigned int[]>());
-        m_wvec_array = std::shared_ptr<vec3<float> >(new vec3<float> [num_ref * m_num_neighbors], std::default_delete<vec3<float> []>());
-        }
-    // fill with padded values; rsq set to -1, neighbors set to UINT_MAX
-    std::fill(m_rsq_array.get(), m_rsq_array.get()+int(num_ref*m_num_neighbors), -1);
-    std::fill(m_neighbor_array.get(), m_neighbor_array.get()+int(num_ref*m_num_neighbors), UINT_MAX);
-    for (unsigned int i=0; i<(num_ref*m_num_neighbors); i++)
-        {
-        m_wvec_array.get()[i] = vec3<float>(-1,-1,-1);
-        }
+    m_neighbor_list.resize(num_ref*m_num_neighbors);
+
+    // TODO in the future, navigate the cell list directly rather than
+    // repeatedly rebuilding after modifying r_cut
+    typedef std::vector<std::tuple<size_t, size_t, float> > BondVector;
+    typedef std::vector<BondVector> BondVectorVector;
+    typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
+    ThreadBondVector bond_vectors;
+
     // find the nearest neighbors
     do
         {
+        const float rmaxsq(m_rmax*m_rmax);
         // compute the cell list
-        m_lc->computeCellList(m_box, pos, num_points);
+        m_lc->compute(m_box, ref_pos, num_ref, pos, num_points, exclude_ii);
+        const NeighborList *nlist(m_lc->getNeighborList());
+        const size_t *neighbor_list(nlist->getNeighbors());
+        bond_vectors.clear();
 
         m_deficits = 0;
         parallel_for(blocked_range<size_t>(0,num_ref),
-            [=] (const blocked_range<size_t>& r)
+            [=, &bond_vectors] (const blocked_range<size_t>& r)
             {
-            float rmaxsq = m_rmax * m_rmax;
-            // tuple<> is c++11, so for now just make a pair with pairs inside
-            // this data structure holds rsq, idx
-            // vector< pair<float, unsigned int> > neighbors;
-            vector< pair<float, pair<unsigned int, vec3<float> > > > neighbors;
-            Index2D b_i = Index2D(m_num_neighbors, num_ref);
-            for(size_t i=r.begin(); i!=r.end(); ++i)
+                size_t bond(nlist->find_first_index(r.begin()));
+                ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
+                bond_vector_vectors.emplace_back();
+                BondVector &bond_vector(bond_vector_vectors.back());
+
+                vector< pair<float, size_t> > neighbors;
+                for(size_t i=r.begin(); i!=r.end(); ++i)
                 {
-                // If we have found an incomplete set of neighbors, end now and rebuild
-                if((m_deficits > 0) && !(m_strict_cut))
-                    break;
-                neighbors.clear();
+                    // If we have found an incomplete set of neighbors, end now and rebuild
+                    if((m_deficits > 0) && !(m_strict_cut))
+                        break;
+                    neighbors.clear();
 
-                //get cell point is in
-                vec3<float> posi = ref_pos[i];
-                unsigned int ref_cell = m_lc->getCell(posi);
-                unsigned int num_adjacent = 0;
-
-                //loop over neighboring cells
-                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                    //get cell point is in
+                    vec3<float> posi = ref_pos[i];
+                    for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                     {
-                    unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                    //iterate over particles in cell
-                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-                    for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
-                        {
+                        const size_t j(neighbor_list[2*bond + 1]);
 
                         //compute r between the two particles
                         vec3<float>rij = m_box.wrap(pos[j] - posi);
                         const float rsq = dot(rij, rij);
 
                         // adds all neighbors within rsq to list of possible neighbors
-                        if ((rsq < rmaxsq) && (i != j))
-                            {
-                            pair<float, pair<unsigned int, vec3<float> > > l_neighbor;
-                            l_neighbor.first = rsq;
-                            l_neighbor.second = pair<unsigned int, vec3<float> > (j, rij);
-                            neighbors.push_back(l_neighbor);
-                            num_adjacent++;
-                            }
+                        if (rsq < rmaxsq)
+                        {
+                            neighbors.emplace_back(rsq, j);
                         }
                     }
 
-                // Add to the deficit count if necessary
-                if((num_adjacent < m_num_neighbors) && !(m_strict_cut))
-                    m_deficits += (m_num_neighbors - num_adjacent);
-                else
+                    // Add to the deficit count if necessary
+                    if((neighbors.size() < m_num_neighbors) && !(m_strict_cut))
+                        m_deficits += (m_num_neighbors - neighbors.size());
+                    else
                     {
-                    // sort based on rsq
-                    sort(neighbors.begin(), neighbors.end(), compareRsqVectors);
-                    unsigned int k_max = (neighbors.size() < m_num_neighbors) ? neighbors.size() : m_num_neighbors;
-                    for (unsigned int k = 0; k < k_max; k++)
+                        // sort based on rsq
+                        sort(neighbors.begin(), neighbors.end());
+                        const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
+                        for (unsigned int k = 0; k < k_max; ++k)
                         {
-                        // put the idx into the neighbor array
-                        m_rsq_array.get()[b_i(k, i)] = neighbors[k].first;
-                        m_neighbor_array.get()[b_i(k, i)] = (neighbors[k].second).first;
-                        m_wvec_array.get()[b_i(k, i)] = (neighbors[k].second).second;
+                            bond_vector.emplace_back(i, neighbors[k].second, 1);
                         }
                     }
                 }
@@ -177,6 +151,42 @@ void NearestNeighbors::compute(const box::Box& box,
             m_lc->setCellWidth(m_rmax);
             }
         } while((m_deficits > 0) && !(m_strict_cut));
+
+    // Sort neighbors by particle i index
+    tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
+    BondVectorVector bond_vector_groups(flat_bond_vector_groups.begin(), flat_bond_vector_groups.end());
+    tbb::parallel_sort(bond_vector_groups.begin(), bond_vector_groups.end(), compareFirstNeighborPairs);
+
+    unsigned int num_bonds(0);
+    for(BondVectorVector::const_iterator iter(bond_vector_groups.begin());
+        iter != bond_vector_groups.end(); ++iter)
+        num_bonds += iter->size();
+
+    m_neighbor_list.setNumBonds(num_bonds, num_ref, num_points);
+
+    size_t *neighbor_array(m_neighbor_list.getNeighbors());
+    float *neighbor_weights(m_neighbor_list.getWeights());
+
+    // build nlist structure
+    parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
+         [=, &bond_vector_groups] (const blocked_range<size_t> &r)
+         {
+             size_t bond(0);
+             for(size_t group(0); group < r.begin(); ++group)
+                 bond += bond_vector_groups[group].size();
+
+             for(size_t group(r.begin()); group < r.end(); ++group)
+             {
+                 const BondVector &vec(bond_vector_groups[group]);
+                 for(BondVector::const_iterator iter(vec.begin());
+                     iter != vec.end(); ++iter, ++bond)
+                 {
+                     std::tie(neighbor_array[2*bond], neighbor_array[2*bond + 1],
+                              neighbor_weights[bond]) = *iter;
+                 }
+             }
+         });
+
     // save the last computed number of particles
     m_num_ref = num_ref;
     m_num_points = num_points;

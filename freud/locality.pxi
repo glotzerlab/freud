@@ -67,6 +67,9 @@ cdef class NeighborList:
         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_FLOAT32, <void*> self.thisptr.getWeights())
         return result
 
+    def find_first_index(self, unsigned int i):
+        return self.thisptr.find_first_index(i)
+
     def filter(self, filt):
         filt = np.ascontiguousarray(filt, dtype=np.bool)
         cdef np.ndarray[cbool, ndim=1] filt_c = filt
@@ -98,6 +101,15 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None, exclude_ii=Non
 
     # return the owner of the neighbor list as well to prevent gc problems
     return lc.nlist, lc
+
+def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None, exclude_ii=None, rmax_guess=2.):
+    if nlist is not None:
+        return nlist, nlist
+
+    cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(box, ref_points, points)
+
+    # return the owner of the neighbor list as well to prevent gc problems
+    return nn.nlist, nn
 
 cdef class IteratorLinkCell:
     """Iterates over the particles in a cell.
@@ -249,6 +261,8 @@ cdef class LinkCell:
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{points}, 3\\right)`, dtype= :class:`numpy.float32`
         """
+        exclude_ii = (points is ref_points or points is None) if exclude_ii is None else exclude_ii
+
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
@@ -257,25 +271,26 @@ cdef class LinkCell:
         if points is None:
             points = ref_points
 
-        exclude_ii = True if exclude_ii is None else exclude_ii
-
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        cdef np.ndarray cRefPoints = points
-        cdef unsigned int Nref = points.shape[0]
+        cdef np.ndarray cRefPoints = ref_points
+        cdef unsigned int Nref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
-            self.thisptr.computeCellList(cBox, <vec3[float]*> cRefPoints.data, Nref, <vec3[float]*> cPoints.data, Np, c_exclude_ii)
+            self.thisptr.compute(cBox, <vec3[float]*> cRefPoints.data, Nref, <vec3[float]*> cPoints.data, Np, c_exclude_ii)
 
         cdef locality.NeighborList *nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         return self
+
+    def compute(self, box, ref_points, points=None, exclude_ii=None):
+        return self.computeCellList(box, ref_points, points, exclude_ii)
 
     @property
     def nlist(self):
@@ -303,11 +318,16 @@ cdef class NearestNeighbors:
     :type strict_cut: bool
     """
     cdef locality.NearestNeighbors *thisptr
+    cdef NeighborList _nlist
+    cdef _cached_points
+    cdef _cached_ref_points
+    cdef _cached_box
 
     def __cinit__(self, float rmax, unsigned int n_neigh, float scale=1.1, strict_cut=False):
         if scale < 1:
             raise RuntimeError("scale must be greater than 1")
         self.thisptr = new locality.NearestNeighbors(float(rmax), int(n_neigh), float(scale), bool(strict_cut))
+        self._nlist = NeighborList()
 
     def __dealloc__(self):
         del self.thisptr
@@ -375,11 +395,11 @@ cdef class NearestNeighbors:
         :type i: unsigned int
         """
         cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
-        result = np.zeros(nNeigh, dtype=np.uint32)
-        cdef unsigned int start_idx = i*nNeigh
-        cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
-        for j in range(nNeigh):
-            result[j] = neighbors[start_idx + j]
+        result = np.empty(nNeigh, dtype=np.uint32)
+        result[:] = self.getUINTMAX()
+        cdef unsigned int start_idx = self.nlist.find_first_index(i)
+        cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
+        result[:end_idx - start_idx] = self.nlist.index_j[start_idx:end_idx]
 
         return result
 
@@ -389,11 +409,17 @@ cdef class NearestNeighbors:
         :return: Neighbor List
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`, dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int *neighbors = self.thisptr.getNeighborList().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNref()
-        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
-        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>neighbors)
+        result = np.empty((self.thisptr.getNref(), self.thisptr.getNumNeighbors()), dtype=np.uint32)
+        result[:] = self.getUINTMAX()
+        idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
+        cdef size_t num_bonds = len(self.nlist.index_i)
+        cdef size_t last_i = 0
+        cdef size_t current_j = 0
+        for bond in range(num_bonds):
+            current_j *= last_i == idx_i[bond]
+            last_i = idx_i[bond]
+            result[last_i, current_j] = idx_j[bond]
+            current_j += 1
 
         return result
 
@@ -407,13 +433,13 @@ cdef class NearestNeighbors:
         :return: Neighbor List
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
-        result = np.zeros(nNeigh, dtype=np.float32)
-        cdef unsigned int start_idx = i*nNeigh
-        cdef float *neighbors = self.thisptr.getRsqList().get()
-        for j in range(nNeigh):
-            result[j] = neighbors[start_idx + j]
-
+        cdef unsigned int start_idx = self.nlist.find_first_index(i)
+        cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
+        rijs = (self._cached_points[self.nlist.index_j[start_idx:end_idx]] -
+                self._cached_ref_points[self.nlist.index_i[start_idx:end_idx]])
+        self._cached_box.wrap(rijs)
+        result = -np.ones((self.thisptr.getNumNeighbors(),), dtype=np.float32)
+        result[:len(rijs)] = np.sum(rijs**2, axis=-1)
         return result
 
     def getWrappedVectors(self):
@@ -424,13 +450,25 @@ cdef class NearestNeighbors:
         :return: Neighbor List
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef vec3[float] *wvec = self.thisptr.getWrappedVectors().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNref()
-        nbins[1] = 3
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>wvec)
+        return self._getWrappedVectors()[0]
 
-        return result
+    def _getWrappedVectors(self):
+        result = np.empty((self.thisptr.getNref(), self.thisptr.getNumNeighbors(), 3), dtype=np.float32)
+        blank_mask = np.ones((self.thisptr.getNref(), self.thisptr.getNumNeighbors()), dtype=np.bool)
+        idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
+        cdef size_t num_bonds = len(self.nlist.index_i)
+        cdef size_t last_i = 0
+        cdef size_t current_j = 0
+        for bond in range(num_bonds):
+            current_j *= last_i == idx_i[bond]
+            last_i = idx_i[bond]
+            result[last_i, current_j] = self._cached_points[idx_j[bond]] - self._cached_ref_points[last_i]
+            blank_mask[last_i, current_j] = False
+            current_j += 1
+
+        self._cached_box.wrap(result.reshape((-1, 3)))
+        result[blank_mask] = -1
+        return result, blank_mask
 
     def getRsqList(self):
         """
@@ -439,15 +477,12 @@ cdef class NearestNeighbors:
         :return: Rsq list
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float *rsq = self.thisptr.getRsqList().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNref()
-        nbins[1] = <np.npy_intp>self.thisptr.getNumNeighbors()
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>rsq)
-
+        (vecs, blank_mask) = self._getWrappedVectors()
+        result = np.sum(vecs**2, axis=-1)
+        result[blank_mask] = -1
         return result
 
-    def compute(self, box, ref_points, points):
+    def compute(self, box, ref_points, points, exclude_ii=None):
         """Update the data structure for the given set of points
 
         :param box: simulation box
@@ -457,6 +492,8 @@ cdef class NearestNeighbors:
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
+        exclude_ii = (points is ref_points or points is None) if exclude_ii is None else exclude_ii
+
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
@@ -467,11 +504,24 @@ cdef class NearestNeighbors:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
+        self._cached_ref_points = ref_points
+        self._cached_points = points
+        self._cached_box = box
+
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
+        cdef cbool c_exclude_ii = exclude_ii
         with nogil:
-            self.thisptr.compute(cBox, <vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np)
+            self.thisptr.compute(cBox, <vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np, c_exclude_ii)
+
+        cdef locality.NeighborList *nlist = self.thisptr.getNeighborList()
+        self._nlist.refer_to(nlist)
+
         return self
+
+    @property
+    def nlist(self):
+        return self._nlist

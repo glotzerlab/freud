@@ -29,9 +29,7 @@ class TestRDF(unittest.TestCase):
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         rdf = density.RDF(rmax, dr)
         fbox = box.Box.cube(box_size)
-        lc = locality.LinkCell(fbox, rmax)
-        lc.computeCellList(fbox, points, exclude_ii=True)
-        rdf.accumulate(fbox, lc.nlist, points, points)
+        rdf.accumulate(fbox, points, points)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32)
         correct[0] = 0.0

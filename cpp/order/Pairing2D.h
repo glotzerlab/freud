@@ -77,6 +77,7 @@ class Pairing2D
 
         //! Compute the pairing function
         void compute(box::Box& box,
+                     const freud::locality::NeighborList *nlist,
                      const vec3<float>* points,
                      const float* orientations,
                      const float* comp_orientations,
@@ -89,7 +90,8 @@ class Pairing2D
             }
 
     private:
-        void ComputePairing2D(const vec3<float> *points,
+        void ComputePairing2D(const freud::locality::NeighborList *nlist,
+                              const vec3<float> *points,
                               const float *orientations,
                               const float *comp_orientations,
                               const unsigned int Np,
@@ -98,7 +100,6 @@ class Pairing2D
         box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r to check for nearest neighbors
         float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
-        locality::NearestNeighbors* m_nn;          //!< Nearest Neighbors for the computation
         std::shared_ptr<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
         std::shared_ptr<unsigned int> m_pair_array;         //!< array of pairs for particle i
         unsigned int m_nmatch;             //!< Number of matches

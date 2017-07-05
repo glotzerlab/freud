@@ -116,6 +116,9 @@ class IteratorLinkCell
         unsigned int m_cell;                              //!< Cell being considered
     };
 
+bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float> > &left,
+                               const std::vector<std::tuple<size_t, size_t, float> > &right);
+
 //! Computes a cell id for each particle and a link cell data structure for iterating through it
 /*! For simplicity in only needing a small number of arrays, the link cell algorithm is used to generate and store
     the cell list data for particles.
@@ -279,8 +282,12 @@ class LinkCell
         void computeCellList(box::Box& box, const float3 *points, unsigned int Np);
         //! Compute the cell list
         // TODO remove default arguments here and fix all usage elsewhere as needed
-        void computeCellList(box::Box& box, const vec3<float> *ref_points,
-                             unsigned int Nref, const vec3<float> *points=0, unsigned int Np=0,
+        void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);
+
+        //! Compute the neighbor list
+        // TODO remove default arguments here and fix all usage elsewhere as needed
+        void compute(box::Box& box, const vec3<float> *ref_points,
+                     unsigned int Nref, const vec3<float> *points=0, unsigned int Np=0,
             bool exclude_ii=true);
 
         // //! Python wrapper for computeCellList

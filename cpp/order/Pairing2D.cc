@@ -36,20 +36,23 @@ Pairing2D::Pairing2D(const float rmax,
         {
         m_pair_array.get()[i] = i;
         }
-    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
     }
 
 Pairing2D::~Pairing2D()
     {
-    delete m_nn;
     }
 
-void Pairing2D::ComputePairing2D(const vec3<float> *points,
+void Pairing2D::ComputePairing2D(const freud::locality::NeighborList *nlist,
+                                 const vec3<float> *points,
                                  const float *orientations,
                                  const float *comp_orientations,
                                  const unsigned int Np,
                                  const unsigned int No)
     {
+    nlist->validate(Np, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
+    size_t bond(0);
+
     // for each particle
     Index2D b_i = Index2D(m_No, m_Np);
     for (unsigned int i = 0; i < m_Np; i++)
@@ -57,10 +60,10 @@ void Pairing2D::ComputePairing2D(const vec3<float> *points,
         // get the position of particle i
         const vec2<float> r_i(points[i].x, points[i].y);
         bool is_paired = false;
-        //loop over neighbors
-        locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
-        for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
+
+        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
+            const size_t j(neighbor_list[2*bond + 1]);
             // once a particle is paired we can stop
             if (m_match_array.get()[i] != 0)
                 {
@@ -144,6 +147,7 @@ void Pairing2D::ComputePairing2D(const vec3<float> *points,
     }
 
 void Pairing2D::compute(box::Box& box,
+                        const freud::locality::NeighborList *nlist,
                         const vec3<float>* points,
                         const float* orientations,
                         const float* comp_orientations,
@@ -151,8 +155,6 @@ void Pairing2D::compute(box::Box& box,
                         const unsigned int No)
     {
     m_box = box;
-    m_nn->compute(m_box,points,Np,points,Np);
-    m_nn->setRMax(m_rmax);
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
         {
@@ -168,11 +170,12 @@ void Pairing2D::compute(box::Box& box,
         {
         m_pair_array.get()[i] = i;
         }
-     ComputePairing2D(points,
-                      orientations,
-                      comp_orientations,
-                      Np,
-                      No);
+    ComputePairing2D(nlist,
+                     points,
+                     orientations,
+                     comp_orientations,
+                     Np,
+                     No);
     m_Np = Np;
     m_No = No;
     }

@@ -455,10 +455,12 @@ cdef class LocalDensity:
     """
     cdef density.LocalDensity *thisptr
     cdef r_cut
+    cdef diameter
 
     def __cinit__(self, float r_cut, float volume, float diameter):
         self.thisptr = new density.LocalDensity(r_cut, volume, diameter)
         self.r_cut = r_cut
+        self.diameter = diameter
 
     def getBox(self):
         """
@@ -494,7 +496,9 @@ cdef class LocalDensity:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.r_cut, nlist)
+        # local density of each particle includes itself (cutoff
+        # distance is r_cut + diam/2 because of smoothing)
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.r_cut + 0.5*self.diameter, nlist, exclude_ii=False)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 

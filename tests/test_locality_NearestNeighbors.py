@@ -2,6 +2,7 @@ from freud import locality, box
 import numpy as np
 import numpy.testing as npt
 import unittest
+import freud;freud.parallel.setNumThreads(1)
 
 class TestNearestNeighbors(unittest.TestCase):
     def test_neighbor_count(self):
@@ -81,7 +82,7 @@ class TestNearestNeighbors(unittest.TestCase):
 
     def test_strict_cutoff(self):
         L = 10 #Box Dimensions
-        rcut = 2 #Cutoff radius
+        rcut = 2.01 #Cutoff radius
         N = 3; # number of particles
         num_neighbors = 2;
 
@@ -92,6 +93,7 @@ class TestNearestNeighbors(unittest.TestCase):
         points[0] = [0.0, 0.0, 0.0]
         points[1] = [1.0, 0.0, 0.0]
         points[2] = [3.0, 0.0, 0.0]
+
         cl.compute(fbox, points, points)
         neighbor_list = cl.getNeighborList()
         rsq_list = cl.getRsqList()

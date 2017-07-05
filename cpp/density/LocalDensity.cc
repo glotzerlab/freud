@@ -46,19 +46,13 @@ void LocalDensity::compute(const box::Box &box,
     parallel_for(blocked_range<size_t>(0, n_ref),
       [=] (const blocked_range<size_t>& r)
       {
-      unsigned int bond(0);
-
-      if(!nlist->getNumBonds())
-          return;
+      size_t bond(nlist->find_first_index(r.begin()));
 
       for(size_t i=r.begin(); i != r.end(); ++i)
           {
           float num_neighbors = 0;
 
           const vec3<float> r_i(ref_points[i]);
-
-          if(neighbor_list[2*bond] != i)
-              bond = nlist->find_first_index(i);
 
           for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
           {

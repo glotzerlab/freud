@@ -122,7 +122,7 @@ namespace freud { namespace locality {
         size_t NeighborList::find_first_index(size_t i) const
         {
             if(getNumBonds())
-                return bisection_search(i, 0, getNumBonds()) + 1;
+                return bisection_search(i, 0, getNumBonds()) + (i > m_neighbors.get()[0]);
             else
                 return 0;
         }

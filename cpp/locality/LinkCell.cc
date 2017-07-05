@@ -197,7 +197,7 @@ void LinkCell::computeCellList(box::Box& box,
             pointscopy[i].y=points[i].y;
             pointscopy[i].z=points[i].z;
         }
-        computeCellList(box, pointscopy, Np, pointscopy, Np);
+        computeCellList(box, pointscopy, Np);
         delete[] pointscopy;
     }
 
@@ -211,20 +211,10 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
     }
 
 void LinkCell::computeCellList(box::Box& box,
-                               const vec3<float> *ref_points,
-                               unsigned int Nref,
                                const vec3<float> *points,
-                               unsigned int Np,
-                               bool exclude_ii)
+                               unsigned int Np)
     {
     updateBox(box);
-
-    // TODO remove this after all methods get updated to use
-    if(points == 0)
-    {
-        points = ref_points;
-        Np = Nref;
-    }
 
     if (Np == 0)
         {
@@ -256,6 +246,18 @@ void LinkCell::computeCellList(box::Box& box,
         m_cell_list.get()[i] = m_cell_list.get()[Np+cell];
         m_cell_list.get()[Np+cell] = i;
     }
+    }
+
+void LinkCell::compute(box::Box& box,
+                       const vec3<float> *ref_points,
+                       unsigned int Nref,
+                       const vec3<float> *points,
+                       unsigned int Np,
+                       bool exclude_ii)
+    {
+    // store points ("j" particles in (i, j) bonds) in the cell list
+    // for quick access later (not ref_points)
+    computeCellList(box, points, Np);
 
     typedef std::vector<std::tuple<size_t, size_t, float> > BondVector;
     typedef std::vector<BondVector> BondVectorVector;
@@ -263,7 +265,7 @@ void LinkCell::computeCellList(box::Box& box,
     ThreadBondVector bond_vectors;
 
     // Find (i, j) neighbor pairs
-    parallel_for(blocked_range<size_t>(0, Np),
+    parallel_for(blocked_range<size_t>(0, Nref),
         [=, &bond_vectors] (const blocked_range<size_t> &r)
         {
             ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
