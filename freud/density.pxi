@@ -47,16 +47,18 @@ cdef class FloatCF:
     :type dr: float
     """
     cdef density.CorrelationFunction[double] *thisptr
+    cdef rmax
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
         self.thisptr = new density.CorrelationFunction[double](rmax, dr)
+        self.rmax = rmax
 
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, ref_points, refValues, points, values):
+    def accumulate(self, box, ref_points, refValues, points, values, nlist=None):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -91,12 +93,17 @@ cdef class FloatCF:
             l_values = l_refValues
         else:
             l_values = values
+
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <double*>l_refValues.data, n_ref,
+            self.thisptr.accumulate(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, <double*>l_refValues.data, n_ref,
                 <vec3[float]*>l_points.data, <double*>l_values.data, n_p)
         return self
 
@@ -126,7 +133,7 @@ cdef class FloatCF:
         """
         self.thisptr.resetCorrelationFunction()
 
-    def compute(self, box, ref_points, refValues, points, values):
+    def compute(self, box, ref_points, refValues, points, values, nlist=None):
         """
         Calculates the correlation function for the given points. Will overwrite the current histogram.
 
@@ -142,7 +149,7 @@ cdef class FloatCF:
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
         """
         self.thisptr.resetCorrelationFunction()
-        self.accumulate(box, ref_points, refValues, points, values)
+        self.accumulate(box, ref_points, refValues, points, values, nlist)
         return self
 
     def reduceCorrelationFunction(self):
@@ -206,16 +213,18 @@ cdef class ComplexCF:
     :type dr: float
     """
     cdef density.CorrelationFunction[np.complex128_t] *thisptr
+    cdef rmax
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
         self.thisptr = new density.CorrelationFunction[np.complex128_t](rmax, dr)
+        self.rmax = rmax
 
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, ref_points, refValues, points, values):
+    def accumulate(self, box, ref_points, refValues, points, values, nlist=None):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -250,12 +259,17 @@ cdef class ComplexCF:
             l_values = l_refValues
         else:
             l_values = values
+
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, <vec3[float]*>l_ref_points.data, <np.complex128_t*>l_refValues.data, n_ref,
+            self.thisptr.accumulate(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, <np.complex128_t*>l_refValues.data, n_ref,
                 <vec3[float]*>l_points.data, <np.complex128_t*>l_values.data, n_p)
         return self
 
@@ -283,7 +297,7 @@ cdef class ComplexCF:
         """
         self.thisptr.resetCorrelationFunction()
 
-    def compute(self, box, ref_points, refValues, points, values):
+    def compute(self, box, ref_points, refValues, points, values, nlist=None):
         """
         Calculates the correlation function for the given points. Will overwrite the current histogram.
 
@@ -299,7 +313,7 @@ cdef class ComplexCF:
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
         """
         self.thisptr.resetCorrelationFunction()
-        self.accumulate(box, ref_points, refValues, points, values)
+        self.accumulate(box, ref_points, refValues, points, values, nlist)
         return self
 
     def reduceCorrelationFunction(self):

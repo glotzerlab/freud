@@ -71,6 +71,7 @@ class CorrelationFunction
 
         //! accumulate the correlation function
         void accumulate(const box::Box &box,
+                        const freud::locality::NeighborList *nlist,
                         const vec3<float> *ref_points,
                         const T *ref_values,
                         unsigned int n_ref,
@@ -106,7 +107,6 @@ class CorrelationFunction
         box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
         unsigned int m_n_ref;                  //!< number of reference particles
         unsigned int m_Np;                  //!< number of check particles
@@ -151,9 +151,9 @@ class ComputeOCF
         tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
         tbb::enumerable_thread_specific<T *>& m_rdf_array;
         const box::Box m_box;
+        const freud::locality::NeighborList *m_nlist;
         const float m_rmax;
         const float m_dr;
-        const locality::LinkCell *m_lc;
         const vec3<float> *m_ref_points;
         const T *m_ref_values;
         const unsigned int m_n_ref;
@@ -165,17 +165,17 @@ class ComputeOCF
                    tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
                    tbb::enumerable_thread_specific<T *>& rdf_array,
                    const box::Box &box,
+                   const freud::locality::NeighborList *nlist,
                    const float rmax,
                    const float dr,
-                   const locality::LinkCell *lc,
                    const vec3<float> *ref_points,
                    const T *ref_values,
                    unsigned int n_ref,
                    const vec3<float> *points,
                    const T *point_values,
                    unsigned int Np)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_rmax(rmax), m_dr(dr),
-              m_lc(lc), m_ref_points(ref_points), m_ref_values(ref_values), m_n_ref(n_ref), m_points(points),
+        : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_nlist(nlist), m_rmax(rmax), m_dr(dr),
+              m_ref_points(ref_points), m_ref_values(ref_values), m_n_ref(n_ref), m_points(points),
               m_point_values(point_values), m_Np(Np)
         {
         }

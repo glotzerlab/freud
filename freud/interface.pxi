@@ -19,15 +19,19 @@ cdef class InterfaceMeasure:
     :type r_cut: float
     """
     cdef interface.InterfaceMeasure *thisptr
+    cdef box
+    cdef rmax
 
     def __cinit__(self, box, float r_cut):
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new interface.InterfaceMeasure(cBox, r_cut)
+        self.box = box
+        self.rmax = r_cut
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, ref_points, points):
+    def compute(self, ref_points, points, nlist=None):
         """Compute and return the number of particles at the interface between
         the two given sets of points.
 
@@ -42,8 +46,13 @@ cdef class InterfaceMeasure:
             dim_message="points must be a 2 dimensional array")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise RuntimeError('Need to provide array with x, y, z positions')
+
+        defaulted_nlist = make_default_nlist(self.box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        return self.thisptr.compute(<vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np)
+        return self.thisptr.compute(nlist_ptr, <vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np)
