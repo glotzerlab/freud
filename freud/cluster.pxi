@@ -42,11 +42,15 @@ cdef class Cluster:
         behavior.
     """
     cdef cluster.Cluster *thisptr
+    cdef box
+    cdef rmax
 
     def __cinit__(self, box, float rcut):
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(),
             box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new cluster.Cluster(cBox, rcut)
+        self.box = box
+        self.rmax = rcut
 
     def __dealloc__(self):
         del self.thisptr
@@ -59,7 +63,7 @@ cdef class Cluster:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
-    def computeClusters(self, points):
+    def computeClusters(self, points, nlist=None):
         """Compute the clusters for the given set of points
 
         :param points: particle coordinates
@@ -68,10 +72,15 @@ cdef class Cluster:
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeClusters()')
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
-            self.thisptr.computeClusters(<vec3[float]*> cPoints.data, Np)
+            self.thisptr.computeClusters(nlist_ptr, <vec3[float]*> cPoints.data, Np)
         return self
 
     def computeClusterMembership(self, keys):

@@ -9,6 +9,7 @@ from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 cimport freud._box as box
+cimport freud._locality
 
 cdef extern from "BondingAnalysis.h" namespace "freud::bond":
     cdef cppclass BondingAnalysis:
@@ -29,6 +30,7 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
         BondingR12(float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
         const box.Box &getBox() const
         void compute(box.Box &,
+                     const freud._locality.NeighborList*,
                      vec3[float]*,
                      float*,
                      unsigned int,
@@ -46,6 +48,7 @@ cdef extern from "BondingXY2D.h" namespace "freud::bond":
         BondingXY2D(float, float, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
         const box.Box &getBox() const
         void compute(box.Box &,
+                     const freud._locality.NeighborList*,
                      vec3[float]*,
                      float*,
                      unsigned int,
@@ -63,6 +66,7 @@ cdef extern from "BondingXYT.h" namespace "freud::bond":
         BondingXYT(float, float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
         const box.Box &getBox() const
         void compute(box.Box &,
+                     const freud._locality.NeighborList*,
                      vec3[float]*,
                      float*,
                      unsigned int,
@@ -81,6 +85,7 @@ cdef extern from "BondingXYZ.h" namespace "freud::bond":
             unsigned int *)
         const box.Box &getBox() const
         void compute(box.Box &,
+                     const freud._locality.NeighborList*,
                      vec3[float]*,
                      quat[float]*,
                      unsigned int,

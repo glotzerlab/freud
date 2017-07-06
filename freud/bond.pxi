@@ -145,6 +145,7 @@ cdef class BondingR12:
     :type bond_list: :class:`numpy.ndarray`
     """
     cdef bond.BondingR12 *thisptr
+    cdef rmax
 
     def __cinit__(self, float r_max, bond_map, bond_list):
         # extract nr, nt from the bond_map
@@ -156,11 +157,12 @@ cdef class BondingR12:
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingR12(r_max, n_r, n_t2, n_t1, n_bonds,
             <unsigned int*>l_bond_map.data, <unsigned int*>l_bond_list.data)
+        self.rmax = r_max
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -191,6 +193,10 @@ cdef class BondingR12:
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
             dim_message="orientations must be a 1 dimensional array")
 
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -200,7 +206,7 @@ cdef class BondingR12:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
+            self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
         return self
 
@@ -264,6 +270,7 @@ cdef class BondingXY2D:
     :type bond_list: :class:`numpy.ndarray`
     """
     cdef bond.BondingXY2D *thisptr
+    cdef rmax
 
     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
         # extract nr, nt from the bond_map
@@ -276,11 +283,12 @@ cdef class BondingXY2D:
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXY2D(x_max, y_max, n_x, n_y, n_bonds,
             <unsigned int*>l_bond_map.data, <unsigned int*>l_bond_list.data)
+        self.rmax = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -311,6 +319,10 @@ cdef class BondingXY2D:
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
             dim_message="orientations must be a 1 dimensional array")
 
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -320,7 +332,7 @@ cdef class BondingXY2D:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
+            self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
         return self
 
@@ -384,6 +396,7 @@ cdef class BondingXYT:
     :type bond_list: :class:`numpy.ndarray`
     """
     cdef bond.BondingXYT *thisptr
+    cdef rmax
 
     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
         # extract nr, nt from the bond_map
@@ -397,11 +410,12 @@ cdef class BondingXYT:
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXYT(x_max, y_max, n_x, n_y, n_t, n_bonds, <unsigned int*>l_bond_map.data,
             <unsigned int*>l_bond_list.data)
+        self.rmax = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -432,6 +446,10 @@ cdef class BondingXYT:
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
             dim_message="orientations must be a 1 dimensional array")
 
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -441,7 +459,7 @@ cdef class BondingXYT:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
+            self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*> l_ref_points.data, <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
         return self
 
@@ -507,6 +525,7 @@ cdef class BondingXYZ:
     :type bond_list: :class:`numpy.ndarray`
     """
     cdef bond.BondingXYZ *thisptr
+    cdef rmax
 
     def __cinit__(self, float x_max, float y_max, float z_max, bond_map, bond_list):
         # extract nr, nt from the bond_map
@@ -520,11 +539,12 @@ cdef class BondingXYZ:
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXYZ(x_max, y_max, z_max, n_x, n_y, n_z, n_bonds, <unsigned int*>l_bond_map.data,
             <unsigned int*>l_bond_list.data)
+        self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the correlation function and adds to the current histogram.
 
@@ -559,6 +579,10 @@ cdef class BondingXYZ:
         if orientations.shape[1] != 4:
             raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
 
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -568,7 +592,7 @@ cdef class BondingXYZ:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*> l_ref_points.data, <quat[float]*> l_ref_orientations.data, n_ref,
+            self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*> l_ref_points.data, <quat[float]*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data, <quat[float]*> l_orientations.data, n_p)
         return self
 

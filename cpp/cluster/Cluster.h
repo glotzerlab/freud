@@ -72,7 +72,8 @@ class Cluster
         //! Compute the point clusters
         // void computeClusters(const float3 *points,
         //                      unsigned int Np);
-        void computeClusters(const vec3<float> *points,
+        void computeClusters(const freud::locality::NeighborList *nlist,
+                             const vec3<float> *points,
                              unsigned int Np);
 
         // //! Python wrapper for computePointClusters
@@ -120,7 +121,6 @@ class Cluster
     private:
         box::Box m_box;                    //!< Simulation box the particles belong in
         float m_rcut;                             //!< Maximum r at which points will be counted in the same cluster
-        locality::LinkCell m_lc;                  //!< LinkCell to bin particles for the computation
         unsigned int m_num_particles;             //!< Number of particles processed in the last call to compute()
         unsigned int m_num_clusters;              //!< Number of clusters found inthe last call to compute()
 
