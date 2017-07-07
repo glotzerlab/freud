@@ -6,16 +6,21 @@
 namespace freud { namespace locality {
 
         NeighborList::NeighborList():
-            m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0), m_neighbors(), m_weights()
+            m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0),
+            m_neighbors(nullptr, std::default_delete<size_t[]>()),
+            m_weights(nullptr, std::default_delete<float[]>())
         {}
 
         NeighborList::NeighborList(size_t max_bonds):
             m_max_bonds(max_bonds), m_num_bonds(0), m_num_i(0), m_num_j(0),
-            m_neighbors(new size_t[2*max_bonds]), m_weights(new float[max_bonds])
+            m_neighbors(new size_t[2*max_bonds], std::default_delete<size_t[]>()),
+            m_weights(new float[max_bonds], std::default_delete<float[]>())
         {}
 
         NeighborList::NeighborList(const NeighborList &other):
-            m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0), m_neighbors(), m_weights()
+            m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0),
+            m_neighbors(nullptr, std::default_delete<size_t[]>()),
+            m_weights(nullptr, std::default_delete<float[]>())
         {
             copy(other);
         }
