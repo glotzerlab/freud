@@ -40,9 +40,11 @@ cdef class PMFTR12:
 
     """
     cdef pmft.PMFTR12 *thisptr
+    cdef rmax
 
     def __cinit__(self, r_max, n_r, n_t1, n_t2):
         self.thisptr = new pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
+        self.rmax = r_max
 
     def __dealloc__(self):
         del self.thisptr
@@ -62,7 +64,7 @@ cdef class PMFTR12:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -93,6 +95,10 @@ cdef class PMFTR12:
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
             dim_message="orientations must be a 1 dimensional array")
 
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -102,6 +108,7 @@ cdef class PMFTR12:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
+                                    nlist_ptr,
                                     <vec3[float]*>l_ref_points.data,
                                     <float*>l_ref_orientations.data,
                                     nRef,
@@ -110,7 +117,7 @@ cdef class PMFTR12:
                                     nP)
         return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function for the given points. Will overwrite the current histogram.
 
@@ -126,7 +133,7 @@ cdef class PMFTR12:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
         return self
 
     def reducePCF(self):
@@ -299,9 +306,11 @@ cdef class PMFTXYT:
 
     """
     cdef pmft.PMFTXYT *thisptr
+    cdef rmax
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
         self.thisptr = new pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
+        self.rmax = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
         del self.thisptr
@@ -321,7 +330,7 @@ cdef class PMFTXYT:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -352,6 +361,10 @@ cdef class PMFTXYT:
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
             dim_message="orientations must be a 1 dimensional array")
 
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -361,6 +374,7 @@ cdef class PMFTXYT:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
+                                    nlist_ptr,
                                     <vec3[float]*>l_ref_points.data,
                                     <float*>l_ref_orientations.data,
                                     nRef,
@@ -369,7 +383,7 @@ cdef class PMFTXYT:
                                     nP)
         return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function for the given points. Will overwrite the current histogram.
 
@@ -385,7 +399,7 @@ cdef class PMFTXYT:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
         return self
 
     def reducePCF(self):
@@ -548,9 +562,11 @@ cdef class PMFTXY2D:
     :type n_y: unsigned int
     """
     cdef pmft.PMFTXY2D *thisptr
+    cdef rmax
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
         self.thisptr = new pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
+        self.rmax = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
         del self.thisptr
@@ -570,7 +586,7 @@ cdef class PMFTXY2D:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -601,6 +617,10 @@ cdef class PMFTXY2D:
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
             dim_message="orientations must be a 1 dimensional array")
 
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -610,6 +630,7 @@ cdef class PMFTXY2D:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
+                                    nlist_ptr,
                                     <vec3[float]*>l_ref_points.data,
                                     <float*>l_ref_orientations.data,
                                     n_ref,
@@ -618,7 +639,7 @@ cdef class PMFTXY2D:
                                     n_p)
         return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function for the given points. Will overwrite the current histogram.
 
@@ -634,7 +655,7 @@ cdef class PMFTXY2D:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
         return self
 
     def reducePCF(self):
@@ -780,11 +801,13 @@ cdef class PMFTXYZ:
     """
     cdef pmft.PMFTXYZ *thisptr
     cdef shiftvec
+    cdef rmax
 
     def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z, shiftvec=[0,0,0]):
         cdef vec3[float] c_shiftvec = vec3[float](shiftvec[0],shiftvec[1],shiftvec[2])
         self.thisptr = new pmft.PMFTXYZ(x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
         self.shiftvec = np.array(shiftvec, dtype=np.float32)
+        self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
 
     def __dealloc__(self):
         del self.thisptr
@@ -804,7 +827,7 @@ cdef class PMFTXYZ:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations, face_orientations=None):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, face_orientations=None, nlist=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -867,6 +890,10 @@ cdef class PMFTXYZ:
                 if face_orientations.shape[2] != 4:
                     raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
 
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
@@ -878,6 +905,7 @@ cdef class PMFTXYZ:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
+                                    nlist_ptr,
                                     <vec3[float]*>l_ref_points.data,
                                     <quat[float]*>l_ref_orientations.data,
                                     nRef,
@@ -888,7 +916,7 @@ cdef class PMFTXYZ:
                                     nFaces)
         return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations, face_orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, face_orientations, nlist=None):
         """
         Calculates the positional correlation function for the given points. Will overwrite the current histogram.
 
@@ -907,7 +935,7 @@ cdef class PMFTXYZ:
             dtype= :class:`numpy.float32`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations, face_orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, face_orientations, nlist)
         return self
 
     def reducePCF(self):
