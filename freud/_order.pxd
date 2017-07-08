@@ -108,7 +108,8 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        void computeAve(const vec3[float]*,
+        void computeAve(const freud._locality.NeighborList *,
+                        const vec3[float]*,
                         unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
                          unsigned int) nogil except +
@@ -126,9 +127,11 @@ cdef extern from "LocalWl.h" namespace "freud::order":
         LocalWl(const box.Box&, float, unsigned int)
         const box.Box& getBox() const
         void setBox(const box.Box)
-        void compute(const vec3[float]*,
+        void compute(const freud._locality.NeighborList *,
+                     const vec3[float]*,
                      unsigned int) nogil except +
-        void computeAve(const vec3[float]*,
+        void computeAve(const freud._locality.NeighborList *,
+                        const vec3[float]*,
                         unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
                          unsigned int) nogil except +
@@ -149,11 +152,14 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         const box.Box& getBox() const
         void setBox(const box.Box)
         void setClusteringRadius(float)
-        void compute(const vec3[float]*,
+        void compute(const freud._locality.NeighborList *,
+                     const vec3[float]*,
                      unsigned int) nogil except +
-        void computeSolLiqVariant(const vec3[float]*,
+        void computeSolLiqVariant(const freud._locality.NeighborList *,
+                                  const vec3[float]*,
                                   unsigned int) nogil except +
-        void computeSolLiqNoNorm(const vec3[float]*,
+        void computeSolLiqNoNorm(const freud._locality.NeighborList *,
+                                 const vec3[float]*,
                                  unsigned int) nogil except +
         unsigned int getLargestClusterSize()
         vector[unsigned int] getClusterSizes()

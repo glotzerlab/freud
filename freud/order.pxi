@@ -868,7 +868,7 @@ cdef class LocalQl:
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
         self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
-        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
     def computeNorm(self, points, nlist=None):
@@ -912,7 +912,7 @@ cdef class LocalQl:
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
         self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
-        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
         return self
 
@@ -1117,7 +1117,7 @@ cdef class LocalWl:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points):
+    def compute(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -1130,10 +1130,15 @@ cdef class LocalWl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
-    def computeAve(self, points):
+    def computeAve(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -1146,11 +1151,16 @@ cdef class LocalWl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
-        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
-    def computeNorm(self, points):
+    def computeNorm(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
 
         :param points: points to calculate the order parameter
@@ -1163,11 +1173,16 @@ cdef class LocalWl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeNorm(<vec3[float]*>l_points.data, nP)
         return self
 
-    def computeAveNorm(self, points):
+    def computeAveNorm(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
 
         :param points: points to calculate the order parameter
@@ -1180,8 +1195,13 @@ cdef class LocalWl:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
-        self.thisptr.computeAve(<vec3[float]*>l_points.data, nP)
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
+        self.thisptr.computeAve(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
         return self
 
@@ -1383,15 +1403,19 @@ cdef class SolLiq:
     .. todo:: move box to compute, this is old API
     """
     cdef order.SolLiq *thisptr
+    cdef box
+    cdef rmax
 
     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
+        self.box = box
+        self.rmax = rmax
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points):
+    def compute(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -1404,10 +1428,15 @@ cdef class SolLiq:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.compute(<vec3[float]*>l_points.data, nP)
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
+        self.thisptr.compute(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
-    def computeSolLiqVariant(self, points):
+    def computeSolLiqVariant(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -1420,10 +1449,15 @@ cdef class SolLiq:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqVariant(<vec3[float]*>l_points.data, nP)
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
+        self.thisptr.computeSolLiqVariant(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
-    def computeSolLiqNoNorm(self, points):
+    def computeSolLiqNoNorm(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
@@ -1436,7 +1470,12 @@ cdef class SolLiq:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        self.thisptr.computeSolLiqNoNorm(<vec3[float]*>l_points.data, nP)
+
+        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
+        self.thisptr.computeSolLiqNoNorm(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
     def getBox(self):

@@ -59,15 +59,13 @@ class LocalWl
         void setBox(const box::Box newbox)
             {
             m_box = newbox; //Set
-            locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );
-            //Rebuild cell list
-            m_lc = newLinkCell;
             }
 
         //! Compute the local rotationally invariant Wl order parameter
         // void compute(const float3 *points,
         //              unsigned int Np);
-        void compute(const vec3<float> *points,
+        void compute(const locality::NeighborList *nlist,
+                     const vec3<float> *points,
                      unsigned int Np);
 
         //! Compute the Wl order parameter globally (averaging over the system Qlm)
@@ -79,7 +77,8 @@ class LocalWl
        //! Compute the Wl order parameter with second shell (averaging over the second shell Qlm)
         // void computeAve(const float3 *points,
         //                 unsigned int Np);
-        void computeAve(const vec3<float> *points,
+        void computeAve(const locality::NeighborList *nlist,
+                        const vec3<float> *points,
                         unsigned int Np);
 
         //! Compute the global Wl order parameter with second shell (averaging over the second shell Qlm)
@@ -195,7 +194,6 @@ class LocalWl
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;             //!< Maxium radius at which to cluster one crystal;
 
-        locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_l;                 //!< Spherical harmonic l value.
         unsigned int m_Np;                //!< Last number of points computed
         unsigned int m_counter;           //!< length of wigner3jvalues

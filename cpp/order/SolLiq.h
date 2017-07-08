@@ -54,8 +54,6 @@ class SolLiq
         void setBox(const box::Box newbox)
             {
             m_box = newbox;  //Set
-            locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );  //Rebuild cell list
-            m_lc = newLinkCell;
             }
 
 
@@ -67,21 +65,19 @@ class SolLiq
                 //May not be necessary if std::max(m_rmax, m_rmax_cluster) is used to rebuild cell list here, and in setBox.
 
             m_rmax_cluster = rcut_cluster;  //Set
-            locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );  //Rebuild cell list.
-            m_lc = newLinkCell;
             }
 
         //! Compute the Solid-Liquid Order Parameter
         // void compute(const float3 *points, unsigned int Np);
-        void compute(const vec3<float> *points, unsigned int Np);
+        void compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np);
 
         //! Try to cluster requiring particles to have S_threshold number of shared neighbors to be clustered.  This enforces stronger conditions on orientations.
         // void computeSolLiqVariant(const float3 *points, unsigned int Np);
-        void computeSolLiqVariant(const vec3<float> *points, unsigned int Np);
+        void computeSolLiqVariant(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np);
 
         //! Compute Solid-Liquid order parameter without normalizing the dot product.  This is for comparisons with literature.
         // void computeSolLiqNoNorm(const float3 *points, unsigned int Np);
-        void computeSolLiqNoNorm(const vec3<float> *points, unsigned int Np);
+        void computeSolLiqNoNorm(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np);
 
         //! Calculates spherical harmonic Y6m for given theta, phi using boost.
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
@@ -261,41 +257,46 @@ class SolLiq
         //Calculates Qlmi
         // void computeClustersQ(const float3 *points,
         //                       unsigned int Np);
-        void computeClustersQ(const vec3<float> *points,
+        void computeClustersQ(const locality::NeighborList *nlist,
+                              const vec3<float> *points,
                               unsigned int Np);
         //! Computes the number of solid-like neighbors based on the dot product thresholds
         // void computeClustersQdot(const float3 *points,
         //                       unsigned int Np);
-        void computeClustersQdot(const vec3<float> *points,
+        void computeClustersQdot(const locality::NeighborList *nlist,
+                                 const vec3<float> *points,
                               unsigned int Np);
 
         //!Clusters particles based on values of Q_l dot product and solid-like neighbor thresholds
         // void computeClustersQS(const float3 *points,
         //                       unsigned int Np);
-        void computeClustersQS(const vec3<float> *points,
+        void computeClustersQS(const locality::NeighborList *nlist,
+                               const vec3<float> *points,
                               unsigned int Np);
 
         //Compute list of solidlike neighbors
         // void computeListOfSolidLikeNeighbors(const float3 *points,
         //                       unsigned int Np, std::vector< std::vector<unsigned int> > &SolidlikeNeighborlist);
-        void computeListOfSolidLikeNeighbors(const vec3<float> *points,
+        void computeListOfSolidLikeNeighbors(const locality::NeighborList *nlist,
+                                             const vec3<float> *points,
                               unsigned int Np, std::vector< std::vector<unsigned int> > &SolidlikeNeighborlist);
 
         //Alternate clustering method requiring same shared neighbors
         // void computeClustersSharedNeighbors(const float3 *points,
         //                       unsigned int Np, const std::vector< std::vector<unsigned int> > &SolidlikeNeighborlist);
-        void computeClustersSharedNeighbors(const vec3<float> *points,
+        void computeClustersSharedNeighbors(const locality::NeighborList *nlist,
+                                            const vec3<float> *points,
                               unsigned int Np, const std::vector< std::vector<unsigned int> > &SolidlikeNeighborlist);
 
         // void computeClustersQdotNoNorm(const float3 *points,
         //                       unsigned int Np);
-        void computeClustersQdotNoNorm(const vec3<float> *points,
+        void computeClustersQdotNoNorm(const locality::NeighborList *nlist,
+                                       const vec3<float> *points,
                               unsigned int Np);
 
         box::Box m_box;      //!< Simulation box the particles belong in
         float m_rmax;               //!< Maximum cutoff radius at which to determine local environment
         float m_rmax_cluster;       //!< Maximum radius at which to cluster solid-like particles;
-        locality::LinkCell m_lc;    //!< LinkCell to bin particles for the computation of local environments
 
         unsigned int m_Np;          //!< Last number of points computed
         std::shared_ptr< std::complex<float> > m_Qlmi_array; //!< Stores Qlm for each particle i

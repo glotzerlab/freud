@@ -17,7 +17,7 @@ using namespace std;
 namespace freud { namespace order {
 
 LocalQl::LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin)
-    :m_box(box), m_rmax(rmax), m_lc(box, rmax), m_l(l), m_rmin(rmin)
+    :m_box(box), m_rmax(rmax), m_l(l), m_rmin(rmin)
     {
     if (m_rmax < 0.0f or m_rmin < 0.0f)
         throw invalid_argument("rmin and rmax must be positive!");
@@ -78,6 +78,7 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
     nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
+
     float rminsq = m_rmin * m_rmin;
     float rmaxsq = m_rmax * m_rmax;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -91,14 +92,13 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
     memset((void*)m_Qli.get(), 0, sizeof(float)*m_Np);
     memset((void*)m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
 
-    unsigned int bond(nlist->find_first_index(0));
+    size_t bond(0);
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
         // float3 ref = points[i];
         vec3<float> ref = points[i];
-        unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=0;
 
         for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
@@ -157,18 +157,17 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
     }
 
 // void LocalQl::computeAve(const float3 *points, unsigned int Np)
-void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
+void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     //Set local data size
     m_Np = Np;
 
-    //Initialize cell list
-    m_lc.computeCellList(m_box,points,m_Np);
+    nlist->validate(Np, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     float rminsq = m_rmin * m_rmin;
     float rmaxsq = m_rmax * m_rmax;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
-
 
     //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
@@ -179,28 +178,20 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
     memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
     memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
 
+    size_t bond(0);
+
     for (unsigned int i = 0; i<m_Np; i++)
         {
         //get cell point is in
         // float3 ref = points[i];
         vec3<float> ref = points[i];
-        unsigned int ref_cell = m_lc.getCell(ref);
         unsigned int neighborcount=1;
 
-        //loop over neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
-            //get cell points of 1st neighbor
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-            //iterate over particles in neighboring cells
-            locality::LinkCell::iteratorcell shell1 = m_lc.itercell(neigh_cell);
-            for (unsigned int n1 = shell1.next(); !shell1.atEnd(); n1 = shell1.next())
+                const unsigned int n1(neighbor_list[2*bond + 1]);
                 {
-                // float3 ref1 = points[n1];
                 vec3<float> ref1 = points[n1];
-                unsigned int ref1_cell = m_lc.getCell(ref1);
                 if (n1 == i)
                     {
                         continue;
@@ -217,17 +208,10 @@ void LocalQl::computeAve(const vec3<float> *points, unsigned int Np)
 
                 if (rsq < rmaxsq and rsq > rminsq)
                     {
-
-                    //loop over 2nd neighboring cells
-                    const std::vector<unsigned int>& neigh1_cells = m_lc.getCellNeighbors(ref1_cell);
-                    for (unsigned int neigh1_idx = 0; neigh1_idx < neigh1_cells.size(); neigh1_idx++)
-                        {
-                        //get cell points of 2nd neighbor
-                        unsigned int neigh1_cell = neigh1_cells[neigh1_idx];
-
-                        //iterate over particles in neighboring cells
-                        locality::LinkCell::iteratorcell it = m_lc.itercell(neigh1_cell);
-                        for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
+                    size_t neighborhood_bond(nlist->find_first_index(n1));
+                    for(; neighborhood_bond < nlist->getNumBonds() && neighbor_list[2*neighborhood_bond] == n1; ++neighborhood_bond)
+                    {
+                    const unsigned int j(neighbor_list[2*neighborhood_bond + 1]);
                             {
                             if (n1 == j)
                                 {

@@ -62,10 +62,7 @@ class LocalQl
             {
             m_box = newbox;  //Set
     	    m_rmax_cluster=0;
-            locality::LinkCell newLinkCell(m_box, std::max(m_rmax, m_rmax_cluster) );
             m_rmax_cluster=0;
-            //Rebuild cell list
-            m_lc = newLinkCell;
             }
 
 
@@ -82,7 +79,8 @@ class LocalQl
         //! Compute the local rotationally invariant (with 2nd shell) Ql order parameter
         // void computeAve(const float3 *points,
         //                 unsigned int Np);
-        void computeAve(const vec3<float> *points,
+        void computeAve(const locality::NeighborList *nlist,
+                        const vec3<float> *points,
                         unsigned int Np);
 
         // //! Python wrapper for computing the order parameter (with 2nd shell) from a Nx3 numpy array of float32.
@@ -172,7 +170,6 @@ class LocalQl
         float m_rmin;                     //!< Minimum r at which to determine neighbors
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;             //!< Maximum radius at which to cluster one crystal
-        locality::LinkCell m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_l;                 //!< Spherical harmonic l value.
         unsigned int m_Np;                //!< Last number of points computed
         std::shared_ptr< std::complex<float> > m_Qlmi;        //!  Qlm for each particle i
