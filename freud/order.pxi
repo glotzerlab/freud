@@ -820,7 +820,7 @@ cdef class LocalQl:
     cdef box
     cdef rmax
 
-    def __cinit__(self, box, rmax, l, rmin=0):
+    def __init__(self, box, rmax, l, rmin=0):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.box = box
         self.rmax = rmax
@@ -828,6 +828,7 @@ cdef class LocalQl:
 
     def __dealloc__(self):
         del self.thisptr
+        self.thisptr = <order.LocalQl*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1034,14 +1035,16 @@ cdef class LocalQlNear(LocalQl):
     """
     cdef num_neigh
 
-    def __cinit__(self, box, rmax, l, kn=12):
+    def __init__(self, box, rmax, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalQl(l_box, rmax, l, 0)
+        self.box = box
         self.rmax = rmax
         self.num_neigh = kn
 
     def __dealloc__(self):
         del self.thisptr
+        self.thisptr = <order.LocalQl*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1109,13 +1112,18 @@ cdef class LocalWl:
     .. todo:: move box to compute, this is old API
     """
     cdef order.LocalWl *thisptr
+    cdef box
+    cdef rmax
 
-    def __cinit__(self, box, rmax, l):
+    def __init__(self, box, rmax, l):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWl(l_box, rmax, l)
+        self.box = box
+        self.rmax = rmax
 
     def __dealloc__(self):
         del self.thisptr
+        self.thisptr = <order.LocalWl*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1333,14 +1341,16 @@ cdef class LocalWlNear(LocalWl):
     """
     cdef num_neigh
 
-    def __cinit__(self, box, rmax, l, kn=12):
+    def __init__(self, box, rmax, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWl(l_box, rmax, l)
+        self.box = box
         self.rmax = rmax
         self.num_neigh = kn
 
     def __dealloc__(self):
         del self.thisptr
+        self.thisptr = <order.LocalWl*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1406,7 +1416,7 @@ cdef class SolLiq:
     cdef box
     cdef rmax
 
-    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l):
+    def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
         self.box = box
@@ -1414,6 +1424,7 @@ cdef class SolLiq:
 
     def __dealloc__(self):
         del self.thisptr
+        self.thisptr = <order.SolLiq*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant Ql order parameter.
@@ -1622,14 +1633,16 @@ cdef class SolLiqNear(SolLiq):
     """
     cdef num_neigh
 
-    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
+    def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
+        self.box = box
         self.rmax = rmax
         self.num_neigh = kn
 
     def __dealloc__(self):
         del self.thisptr
+        self.thisptr = <order.SolLiq*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
@@ -1639,7 +1652,7 @@ cdef class SolLiqNear(SolLiq):
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return SolLiq.compute(points, nlist_)
+        return SolLiq.compute(self, points, nlist_)
 
     def computeSolLiqVariant(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
@@ -1649,7 +1662,7 @@ cdef class SolLiqNear(SolLiq):
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return SolLiq.computeSolLiqVariant(points, nlist_)
+        return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
     def computeSolLiqNoNorm(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
@@ -1659,7 +1672,7 @@ cdef class SolLiqNear(SolLiq):
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return SolLiq.computeSolLiqNoNorm(points, nlist_)
+        return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
 cdef class MatchEnv:
     """Clusters particles according to whether their local environments match or not, according to various shape \
