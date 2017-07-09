@@ -61,6 +61,9 @@ void Pairing2D::ComputePairing2D(const freud::locality::NeighborList *nlist,
         const vec2<float> r_i(points[i].x, points[i].y);
         bool is_paired = false;
 
+        if(bond < nlist->getNumBonds() && neighbor_list[2*bond] < i)
+            bond = nlist->find_first_index(i);
+
         for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
             const size_t j(neighbor_list[2*bond + 1]);
