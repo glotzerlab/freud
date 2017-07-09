@@ -49,6 +49,9 @@ unsigned int InterfaceMeasure::compute(const freud::locality::NeighborList *nlis
         // float3 ref = ref_points[i];
         vec3<float> ref = ref_points[i];
 
+        if(bond < nlist->getNumBonds() && neighbor_list[2*bond] < i)
+            bond = nlist->find_first_index(i);
+
         for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
             const size_t j(neighbor_list[2*bond + 1]);
