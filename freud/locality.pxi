@@ -172,6 +172,7 @@ cdef class NeighborList:
         cdef np.ndarray[cbool, ndim=1] filt_c = filt
         cdef cbool *filt_ptr = <cbool*> filt_c.data
         self.thisptr.filter(filt_ptr)
+        return self
 
     def filter_r(self, box, ref_points, points, float rmax, float rmin=0):
         """Removes bonds that are outside of a given radius range.
@@ -198,6 +199,7 @@ cdef class NeighborList:
         cdef np.ndarray cPoints = points
 
         self.thisptr.filter_r(cBox, <vec3[float]*> cRef_points.data, <vec3[float]*> cPoints.data, rmax, rmin)
+        return self
 
 def make_default_nlist(box, ref_points, points, rmax, nlist=None, exclude_ii=None):
     """Helper function to return a neighbor list object if is given, or to
