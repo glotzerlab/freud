@@ -11,10 +11,46 @@ import numpy as np
 cimport numpy as np
 
 cdef class NeighborList:
+    """Class representing a certain number of "bonds" between
+    particles. Computation methods will iterate over these bonds when
+    searching for neighboring particles.
+
+    NeighborList objects are constructed for two sets of position
+    arrays A (alternatively *reference points*; of length :math:`n_A`)
+    and B (alternatively *target points*; of length :math:`n_B`) and
+    hold a set of :math:`\left(i, j\\right): i < n_A, j < n_B` index
+    pairs corresponding to near-neighbor points in A and B,
+    respectively.
+
+    For efficiency, all bonds for a particular reference particle i
+    are contiguous and bonds are stored in order based on reference
+    particle index i. The first bond index corresponding to a given
+    particle can be found in :math:`log(n_{bonds})` time using
+    :py:meth:`find_first_index`.
+
+    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+
+    .. note::
+
+       Typically, in python you will only manipulate a :py:class:`freud.locality.NeighborList` object that you receive from a neighbor search algorithm, such as :py:class:`freud.locality.LinkCell` and :py:class:`freud.locality.NearestNeighbors`.
+
+    Example::
+
+       # assume we have position as Nx3 array
+       lc = LinkCell(box, 1.5).compute(box, positions)
+       nlist = lc.nlist
+
+       # get all vectors from central particles to their neighbors
+       rijs = positions[nlist.index_j] - positions[nlist.index_i]
+       box.wrap(rijs)
+    """
     cdef locality.NeighborList *thisptr
     cdef char _managed
 
     cdef refer_to(self, locality.NeighborList *other):
+        """Makes this cython wrapper object point to a different C++ object,
+        deleting the one we are already holding if necessary. We do not
+        own the memory of the other C++ object."""
         if self._managed:
             del self.thisptr
         self._managed = False
@@ -29,12 +65,16 @@ cdef class NeighborList:
             del self.thisptr
 
     cdef locality.NeighborList *get_ptr(self):
+        """Returns a pointer to the raw C++ object we are wrapping"""
         return self.thisptr
 
     cdef void copy_c(self, NeighborList other):
+        """Copies the contents of other into ourself"""
         self.thisptr.copy(dereference(other.thisptr))
 
     def copy(self, other=None):
+        """Create a copy. If other is given, copy its contents into ourself;
+        otherwise, return a copy of ourself."""
         if other is not None:
             assert isinstance(other, NeighborList)
             self.copy_c(other)
@@ -46,6 +86,8 @@ cdef class NeighborList:
 
     @property
     def index_i(self):
+        """Returns the reference point indices from the last set of points we
+        were evaluated with"""
         cdef np.npy_intp size[2]
         size[0] = self.thisptr.getNumBonds()
         size[1] = 2
@@ -54,6 +96,8 @@ cdef class NeighborList:
 
     @property
     def index_j(self):
+        """Returns the target point indices from the last set of points we
+        were evaluated with"""
         cdef np.npy_intp size[2]
         size[0] = self.thisptr.getNumBonds()
         size[1] = 2
@@ -62,6 +106,8 @@ cdef class NeighborList:
 
     @property
     def weights(self):
+        """Returns the per-bond weights from the last set of points we were
+        evaluated with"""
         cdef np.npy_intp size[1]
         size[0] = self.thisptr.getNumBonds()
         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_FLOAT32, <void*> self.thisptr.getWeights())
@@ -69,6 +115,9 @@ cdef class NeighborList:
 
     @property
     def segments(self):
+        """Returns a *segment array*, which is an array of length `N_ref`
+        indicating the first bond index for each reference particle from the
+        last set of points we were evaluated with."""
         result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
         cdef size_t* neighbors = self.thisptr.getNeighbors()
         cdef size_t last_i = -1
@@ -83,6 +132,9 @@ cdef class NeighborList:
 
     @property
     def neighbor_counts(self):
+        """Returns a *neighbor count array*, which is an array of length
+        `N_ref` indicating the number of neighbors for each reference particle
+        from the last set of points we were evaluated with."""
         result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
         cdef size_t* neighbors = self.thisptr.getNeighbors()
         cdef size_t last_i = -1
@@ -100,15 +152,37 @@ cdef class NeighborList:
         return result
 
     def find_first_index(self, unsigned int i):
+        """Returns the lowest bond index corresponding to a reference particle
+        with index >=i"""
         return self.thisptr.find_first_index(i)
 
     def filter(self, filt):
+        """Removes bonds that satisfy a boolean criterion.
+
+        :param filt: Boolean-like array of bonds to keep (True => bond stays)
+
+        .. note:: This method modifies this object in-place
+
+        Example::
+
+            # keep only the bonds between particles of type A and type B
+            nlist.filter(types[nlist.index_i] != types[nlist.index_j])
+        """
         filt = np.ascontiguousarray(filt, dtype=np.bool)
         cdef np.ndarray[cbool, ndim=1] filt_c = filt
         cdef cbool *filt_ptr = <cbool*> filt_c.data
         self.thisptr.filter(filt_ptr)
 
     def filter_r(self, box, ref_points, points, float rmax, float rmin=0):
+        """Removes bonds that are outside of a given radius range.
+
+        :param ref_points: reference points to use for filtering
+        :param points: target points to use for filtering
+        :param rmax: maximum bond distance in the resulting neighbor list
+        :param rmin: minimum bond distance in the resulting neighbor list
+
+        .. note:: This method modifies this object in-place
+        """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
@@ -126,6 +200,8 @@ cdef class NeighborList:
         self.thisptr.filter_r(cBox, <vec3[float]*> cRef_points.data, <vec3[float]*> cPoints.data, rmax, rmin)
 
 def make_default_nlist(box, ref_points, points, rmax, nlist=None, exclude_ii=None):
+    """Helper function to return a neighbor list object if is given, or to
+    construct one using LinkCell if it is not."""
     if nlist is not None:
         return nlist, nlist
 
@@ -135,6 +211,8 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None, exclude_ii=Non
     return lc.nlist, lc
 
 def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None, exclude_ii=None, rmax_guess=2.):
+    """Helper function to return a neighbor list object if is given, or to
+    construct one using NearestNeighbors if it is not."""
     if nlist is not None:
         return nlist, nlist
 
