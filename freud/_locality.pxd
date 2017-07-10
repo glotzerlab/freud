@@ -11,18 +11,19 @@ from libcpp.vector cimport vector
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
         NeighborList()
-        NeighborList(unsigned int)
+        NeighborList(size_t)
 
-        unsigned int *getNeighbors() const
+        size_t *getNeighbors() const
         float *getWeights() const
 
-        unsigned int getNumBonds() const
-        unsigned int filter(const bool*)
-        unsigned int filter_r(const box.Box&, const vec3[float]*, const vec3[float]*, float, float)
+        size_t getNumI() const
+        size_t getNumBonds() const
+        size_t filter(const bool*)
+        size_t filter_r(const box.Box&, const vec3[float]*, const vec3[float]*, float, float)
 
-        unsigned int find_first_index(unsigned int)
+        size_t find_first_index(size_t)
 
-        void resize(unsigned int, bool)
+        void resize(size_t, bool)
         void copy(const NeighborList &)
 
 cdef extern from "LinkCell.h" namespace "freud::locality":

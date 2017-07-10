@@ -67,6 +67,38 @@ cdef class NeighborList:
         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_FLOAT32, <void*> self.thisptr.getWeights())
         return result
 
+    @property
+    def segments(self):
+        result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
+        cdef size_t* neighbors = self.thisptr.getNeighbors()
+        cdef size_t last_i = -1
+        cdef size_t i = -1
+        for bond in range(self.thisptr.getNumBonds()):
+            i = neighbors[2*bond]
+            if i != last_i:
+                result[i] = bond
+            last_i = i
+
+        return result
+
+    @property
+    def neighbor_counts(self):
+        result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
+        cdef size_t* neighbors = self.thisptr.getNeighbors()
+        cdef size_t last_i = -1
+        cdef size_t i = -1
+        cdef size_t n = 0
+        for bond in range(self.thisptr.getNumBonds()):
+            i = neighbors[2*bond]
+            if i != last_i and i > 0:
+                result[i - 1] = n
+                n = 0
+            last_i = i
+            n += 1
+        result[-1] = n
+
+        return result
+
     def find_first_index(self, unsigned int i):
         return self.thisptr.find_first_index(i)
 
