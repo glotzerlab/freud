@@ -76,12 +76,14 @@ cdef class BondOrder:
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
         :param mode: mode to calc bond order. "bod", "lbod", "obcd", and "oocd"
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
         :type mode: str
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -169,12 +171,14 @@ cdef class BondOrder:
         :param points: points to calculate the local density
         :param orientations: orientations to use in computation
         :param mode: mode to calc bond order. "bod", "lbod", "obcd", and "oocd"
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
         :type mode: str
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetBondOrder()
         self.accumulate(box, ref_points, ref_orientations, points, orientations, mode, nlist)
@@ -448,8 +452,10 @@ cdef class HexOrderParameter:
 
         :param box: simulation box
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:meth:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -586,11 +592,12 @@ cdef class LocalDescriptors:
         :param points: destination points to calculate the order parameter
         :param orientations: Orientation of each reference point
         :param mode: Orientation mode to use for environments, either 'neighborhood' to use the orientation of the local neighborhood, 'particle_local' to use the given particle orientations, or 'global' to not rotate environments
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points_ref: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32` or None
         :type mode: str
-
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         if mode not in self.known_modes:
@@ -731,8 +738,10 @@ cdef class TransOrderParameter:
 
         :param box: simulation box
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -834,7 +843,9 @@ cdef class LocalQl:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -854,7 +865,9 @@ cdef class LocalQl:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -876,7 +889,9 @@ cdef class LocalQl:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -898,7 +913,9 @@ cdef class LocalQl:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1050,7 +1067,9 @@ cdef class LocalQlNear(LocalQl):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1060,7 +1079,9 @@ cdef class LocalQlNear(LocalQl):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1070,7 +1091,9 @@ cdef class LocalQlNear(LocalQl):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1080,7 +1103,9 @@ cdef class LocalQlNear(LocalQl):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1129,7 +1154,9 @@ cdef class LocalWl:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1150,7 +1177,9 @@ cdef class LocalWl:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1172,7 +1201,9 @@ cdef class LocalWl:
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1194,7 +1225,9 @@ cdef class LocalWl:
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1356,7 +1389,9 @@ cdef class LocalWlNear(LocalWl):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1366,7 +1401,9 @@ cdef class LocalWlNear(LocalWl):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1376,7 +1413,9 @@ cdef class LocalWlNear(LocalWl):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1386,7 +1425,9 @@ cdef class LocalWlNear(LocalWl):
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1430,7 +1471,9 @@ cdef class SolLiq:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1451,7 +1494,9 @@ cdef class SolLiq:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1472,7 +1517,9 @@ cdef class SolLiq:
         """Compute the local rotationally invariant Ql order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1648,7 +1695,9 @@ cdef class SolLiqNear(SolLiq):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1658,7 +1707,9 @@ cdef class SolLiqNear(SolLiq):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1668,7 +1719,9 @@ cdef class SolLiqNear(SolLiq):
         """Compute the local rotationally invariant :math:`Q_l` order parameter.
 
         :param points: points to calculate the order parameter
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
@@ -1724,10 +1777,12 @@ cdef class MatchEnv:
         :param hard_r: if true, add all particles that fall within the threshold of m_rmaxsq to the environment
         :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
         :param global_search: if true, do an exhaustive search wherein you compare the environments of every single pair of particles in the simulation. If false, only compare the environments of neighboring particles.
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type threshold: float
         :type hard_r: bool
         :type registration: bool
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1759,10 +1814,12 @@ cdef class MatchEnv:
         :param refPoints: vectors that make up the motif against which we are matching
         :param threshold: maximum magnitude of the vector difference between two vectors, below which you call them matching
         :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type refPoints: :class:`numpy.ndarray`, shape= :math:`\\left(N_{neighbors}, 3\\right)`, dtype= :class:`numpy.float32`
         :type threshold: float
         :type registration: bool
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1793,6 +1850,7 @@ cdef class MatchEnv:
         :param points: particle positions
         :param refPoints: vectors that make up the motif against which we are matching
         :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type refPoints: :class:`numpy.ndarray`, shape= :math:`\\left(N_{neighbors}, 3\\right)`, dtype= :class:`numpy.float32`
         :type threshold: float
@@ -1800,6 +1858,7 @@ cdef class MatchEnv:
         :type registration: bool
         :return: vector of minimal RMSD values, one value per particle.
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -2001,10 +2060,12 @@ cdef class Pairing2D:
         :param points: reference points to calculate the local density
         :param orientations: orientations to use in computation
         :param compOrientations: possible orientations to check for bonds
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type compOrientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")

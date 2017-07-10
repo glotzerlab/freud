@@ -171,11 +171,13 @@ cdef class BondingR12:
         :param ref_orientations: orientations as angles to use in computation
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:meth:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -297,11 +299,13 @@ cdef class BondingXY2D:
         :param ref_orientations: orientations as angles to use in computation
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:meth:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -424,11 +428,13 @@ cdef class BondingXYT:
         :param ref_orientations: orientations as angles to use in computation
         :param points: points to calculate the bonding
         :param orientations: orientations as angles to use in computation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:meth:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -553,11 +559,13 @@ cdef class BondingXYZ:
         :param ref_orientations: orientations as quaternions to use in computation
         :param points: points to calculate the bonding
         :param orientations: orientations as quaternions to use in computation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:meth:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")

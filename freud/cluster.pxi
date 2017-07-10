@@ -67,7 +67,9 @@ cdef class Cluster:
         """Compute the clusters for the given set of points
 
         :param points: particle coordinates
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:

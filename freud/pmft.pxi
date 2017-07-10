@@ -73,11 +73,13 @@ cdef class PMFTR12:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -126,11 +128,13 @@ cdef class PMFTR12:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
@@ -339,11 +343,13 @@ cdef class PMFTXYT:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -392,11 +398,13 @@ cdef class PMFTXYT:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
@@ -595,11 +603,13 @@ cdef class PMFTXY2D:
         :param ref_orientations: orientations of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -648,11 +658,13 @@ cdef class PMFTXY2D:
         :param ref_orientations: orientations of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
@@ -840,6 +852,7 @@ cdef class PMFTXYZ:
             * If not supplied by user, unit quaternions will be supplied.
             * If a 2D array of shape (:math:`N_f`, :math:`4`) is supplied, the supplied quaternions will be broadcast\
                 for all particles
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
@@ -847,6 +860,7 @@ cdef class PMFTXYZ:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
         :type face_orientations: :class:`numpy.ndarray`, shape= :math:`\\left( \\left(N_{particles}, \\right), N_{faces}, 4\\right)`, \
             dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -926,6 +940,7 @@ cdef class PMFTXYZ:
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
         :param face_orientations: orientations of particle faces to account for particle symmetry
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
@@ -933,6 +948,7 @@ cdef class PMFTXYZ:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
         :type face_orientations: :class:`numpy.ndarray`, shape= :math:`\\left( \\left(N_{particles}, \\right), N_{faces}, 4\\right)`, \
             dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations, points, orientations, face_orientations, nlist)

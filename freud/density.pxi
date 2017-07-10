@@ -67,11 +67,13 @@ cdef class FloatCF:
         :param refValues: values to use in computation
         :param points: points to calculate the local density
         :param values: values to use in computation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -142,11 +144,13 @@ cdef class FloatCF:
         :param refValues: values to use in computation
         :param points: points to calculate the local density
         :param values: values to use in computation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float64`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetCorrelationFunction()
         self.accumulate(box, ref_points, refValues, points, values, nlist)
@@ -233,11 +237,13 @@ cdef class ComplexCF:
         :param refValues: values to use in computation
         :param points: points to calculate the local density
         :param values: values to use in computation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -306,11 +312,13 @@ cdef class ComplexCF:
         :param refValues: values to use in computation
         :param points: points to calculate the local density
         :param values: values to use in computation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type refValues: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.complex128`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetCorrelationFunction()
         self.accumulate(box, ref_points, refValues, points, values, nlist)
@@ -490,9 +498,11 @@ cdef class LocalDensity:
         :param box: simulation box
         :param ref_points: reference points to calculate the local density
         :param points: (optional) points to calculate the local density
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         if points is None:
             points = ref_points
@@ -589,9 +599,11 @@ cdef class RDF:
         :param box: simulation box
         :param ref_points: reference points to calculate the local density
         :param points: points to calculate the local density
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
             dim_message="ref_points must be a 2 dimensional array")
@@ -622,9 +634,11 @@ cdef class RDF:
         :param box: simulation box
         :param ref_points: reference points to calculate the local density
         :param points: points to calculate the local density
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:meth:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetRDF()
         self.accumulate(box, ref_points, points, nlist)
