@@ -25,6 +25,7 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
 
         void resize(size_t, bool)
         void copy(const NeighborList &)
+        void validate(size_t, size_t)
 
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:

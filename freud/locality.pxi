@@ -197,7 +197,10 @@ cdef class NeighborList:
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
         cdef np.ndarray cPoints = points
+        cdef size_t nRef = ref_points.shape[0]
+        cdef size_t nP = points.shape[0]
 
+        self.thisptr.validate(nRef, nP)
         self.thisptr.filter_r(cBox, <vec3[float]*> cRef_points.data, <vec3[float]*> cPoints.data, rmax, rmin)
         return self
 
