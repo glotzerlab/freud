@@ -62,95 +62,91 @@ void NearestNeighbors::compute(const box::Box& box,
     m_box = box;
     m_neighbor_list.resize(num_ref*m_num_neighbors);
 
-    // TODO in the future, navigate the cell list directly rather than
-    // repeatedly rebuilding after modifying r_cut
     typedef std::vector<std::tuple<size_t, size_t, float> > BondVector;
     typedef std::vector<BondVector> BondVectorVector;
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;
 
+    m_lc->computeCellList(m_box, pos, num_points);
+    const float rcutsq(m_lc->getCellWidth()*m_lc->getCellWidth());
+
     // find the nearest neighbors
-    do
+    parallel_for(blocked_range<size_t>(0,num_ref),
+                 [=, &bond_vectors] (const blocked_range<size_t>& r)
+    {
+        ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
+        bond_vector_vectors.emplace_back();
+        BondVector &bond_vector(bond_vector_vectors.back());
+        const Index3D &indexer(m_lc->getCellIndexer());
+        const unsigned int max_cell_distance(min(min(indexer.getW(), indexer.getH()), indexer.getD())/2);
+
+        // neighbors is the set of bonds we find that are within the cutoff radius
+        vector<pair<float, size_t> > neighbors;
+        // backup_neighbors is the set of bonds that are outside of
+        // the cutoff radius (but should be used next time we increase
+        // the range of cells we are looking within)
+        vector<pair<float, size_t> > backup_neighbors;
+
+        for(size_t i(r.begin()); i != r.end(); ++i)
         {
-        const float rmaxsq(m_rmax*m_rmax);
-        // compute the cell list
-        m_lc->compute(m_box, ref_pos, num_ref, pos, num_points, exclude_ii);
-        const NeighborList *nlist(m_lc->getNeighborList());
-        const size_t *neighbor_list(nlist->getNeighbors());
-        bond_vectors.clear();
+            const vec3<float> ref_point(ref_pos[i]);
+            // look for cells in [min_iter_distance, max_iter_distance)
+            unsigned int min_iter_distance(0), max_iter_distance(2);
+            neighbors.clear();
 
-        m_deficits = 0;
-        parallel_for(blocked_range<size_t>(0,num_ref),
-            [=, &bond_vectors] (const blocked_range<size_t>& r)
+            do
             {
-                size_t bond(nlist->find_first_index(r.begin()));
-                ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
-                bond_vector_vectors.emplace_back();
-                BondVector &bond_vector(bond_vector_vectors.back());
+                neighbors.insert(neighbors.end(), backup_neighbors.begin(), backup_neighbors.end());
+                backup_neighbors.clear();
+                const vec3<unsigned int> refCell(m_lc->getCellCoord(ref_pos[i]));
 
-                vector< pair<float, size_t> > neighbors;
-                for(size_t i=r.begin(); i!=r.end(); ++i)
+                for(IteratorCellShell neigh_cell_iter(min_iter_distance, m_box.is2D());
+                    neigh_cell_iter != IteratorCellShell(max_iter_distance, m_box.is2D()); ++neigh_cell_iter)
                 {
-                    // If we have found an incomplete set of neighbors, end now and rebuild
-                    if((m_deficits > 0) && !(m_strict_cut))
-                        break;
-                    neighbors.clear();
+                    vec3<int> neighborCellCoords(refCell.x, refCell.y, refCell.z);
+                    neighborCellCoords += *neigh_cell_iter;
+                    if(neighborCellCoords.x < 0)
+                        neighborCellCoords.x += indexer.getW();
+                    neighborCellCoords.x %= indexer.getW();
+                    if(neighborCellCoords.y < 0)
+                        neighborCellCoords.y += indexer.getH();
+                    neighborCellCoords.y %= indexer.getH();
+                    if(neighborCellCoords.z < 0)
+                        neighborCellCoords.z += indexer.getD();
+                    neighborCellCoords.z %= indexer.getD();
 
-                    //get cell point is in
-                    vec3<float> posi = ref_pos[i];
-                    for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+                    const size_t neighborCellIndex(indexer(neighborCellCoords.x, neighborCellCoords.y, neighborCellCoords.z));
+
+                    // iterate over the particles in that cell
+                    locality::LinkCell::iteratorcell it = m_lc->itercell(neighborCellIndex);
+                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                     {
-                        const size_t j(neighbor_list[2*bond + 1]);
+                        if(exclude_ii && i == j)
+                            continue;
 
-                        //compute r between the two particles
-                        vec3<float>rij = m_box.wrap(pos[j] - posi);
-                        const float rsq = dot(rij, rij);
+                        const vec3<float> rij(m_box.wrap(pos[j] - ref_point));
+                        const float rsq(dot(rij, rij));
 
-                        // adds all neighbors within rsq to list of possible neighbors
-                        if (rsq < rmaxsq)
-                        {
+                        if(rsq < (max_iter_distance - 1)*(max_iter_distance - 1)*rcutsq)
                             neighbors.emplace_back(rsq, j);
-                        }
-                    }
-
-                    // Add to the deficit count if necessary
-                    if((neighbors.size() < m_num_neighbors) && !(m_strict_cut))
-                        m_deficits += (m_num_neighbors - neighbors.size());
-                    else
-                    {
-                        // sort based on rsq
-                        sort(neighbors.begin(), neighbors.end());
-                        const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
-                        for (unsigned int k = 0; k < k_max; ++k)
-                        {
-                            bond_vector.emplace_back(i, neighbors[k].second, 1);
-                        }
+                        else
+                            backup_neighbors.emplace_back(rsq, j);
                     }
                 }
-            });
 
-        // Increase m_rmax
-        if((m_deficits > 0) && !(m_strict_cut))
+                min_iter_distance = max_iter_distance;
+                ++max_iter_distance;
+
+            } while((neighbors.size() < m_num_neighbors) && !m_strict_cut && max_iter_distance <= max_cell_distance + 1);
+
+            sort(neighbors.begin(), neighbors.end());
+            const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
+            for (unsigned int k = 0; k < k_max; ++k)
             {
-            m_rmax *= m_scale;
-            // check if new r_max would be too large for the cell width
-            vec3<float> L = m_box.getNearestPlaneDistance();
-            bool too_wide =  m_rmax > L.x/2.0 || m_rmax > L.y/2.0;
-            if (!m_box.is2D())
-                {
-                too_wide |=  m_rmax > L.z/2.0;
-                }
-            if (too_wide)
-                {
-                // throw runtime_warning("r_max has become too large to create a viable cell.");
-                // for now print
-                printf("r_max has become too large to create a viable cell. Returning neighbors found\n");
-                m_deficits = 0;
-                break;
-                }
-            m_lc->setCellWidth(m_rmax);
+                bond_vector.emplace_back(i, neighbors[k].second, 1);
             }
-        } while((m_deficits > 0) && !(m_strict_cut));
+        }
+    });
 
     // Sort neighbors by particle i index
     tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
