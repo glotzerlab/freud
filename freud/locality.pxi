@@ -87,21 +87,25 @@ cdef class NeighborList:
     @property
     def index_i(self):
         """Returns the reference point indices from the last set of points we
-        were evaluated with"""
+        were evaluated with. This array is read-only to prevent
+        breakage of find_first_index."""
         cdef np.npy_intp size[2]
         size[0] = self.thisptr.getNumBonds()
         size[1] = 2
         cdef np.ndarray[np.uint64_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64, <void*> self.thisptr.getNeighbors())
+        result.flags.writeable = False
         return result[:, 0]
 
     @property
     def index_j(self):
         """Returns the target point indices from the last set of points we
-        were evaluated with"""
+        were evaluated with. This array is read-only to prevent
+        breakage of find_first_index."""
         cdef np.npy_intp size[2]
         size[0] = self.thisptr.getNumBonds()
         size[1] = 2
         cdef np.ndarray[np.uint64_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64, <void*> self.thisptr.getNeighbors())
+        result.flags.writeable = False
         return result[:, 1]
 
     @property
@@ -110,7 +114,7 @@ cdef class NeighborList:
         evaluated with"""
         cdef np.npy_intp size[1]
         size[0] = self.thisptr.getNumBonds()
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_FLOAT32, <void*> self.thisptr.getWeights())
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, size, np.NPY_FLOAT32, <void*> self.thisptr.getWeights())
         return result
 
     @property
@@ -151,6 +155,10 @@ cdef class NeighborList:
 
         return result
 
+    def __len__(self):
+        """Returns the number of bonds stored in this object"""
+        return self.thisptr.getNumBonds()
+
     def find_first_index(self, unsigned int i):
         """Returns the lowest bond index corresponding to a reference particle
         with index >=i"""
@@ -169,7 +177,7 @@ cdef class NeighborList:
             nlist.filter(types[nlist.index_i] != types[nlist.index_j])
         """
         filt = np.ascontiguousarray(filt, dtype=np.bool)
-        cdef np.ndarray[cbool, ndim=1] filt_c = filt
+        cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
         cdef cbool *filt_ptr = <cbool*> filt_c.data
         self.thisptr.filter(filt_ptr)
         return self
