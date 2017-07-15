@@ -482,14 +482,12 @@ class LinkCell
         //! Compute the cell list (deprecated float3 interface)
         void computeCellList(box::Box& box, const float3 *points, unsigned int Np);
         //! Compute the cell list
-        // TODO remove default arguments here and fix all usage elsewhere as needed
         void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);
 
-        //! Compute the neighbor list
-        // TODO remove default arguments here and fix all usage elsewhere as needed
+        //! Compute the neighbor list using the cell list
         void compute(box::Box& box, const vec3<float> *ref_points,
                      unsigned int Nref, const vec3<float> *points=0, unsigned int Np=0,
-            bool exclude_ii=true);
+                     bool exclude_ii=true);
 
         // //! Python wrapper for computeCellList
         // void computeCellListPy(box::Box& box, boost::python::numeric::array points);
