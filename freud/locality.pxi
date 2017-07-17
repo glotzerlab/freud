@@ -47,6 +47,73 @@ cdef class NeighborList:
     cdef locality.NeighborList *thisptr
     cdef char _managed
 
+    @classmethod
+    def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):
+        """Create a NeighborList from a set of bond information arrays.
+
+        :param Nref: Number of reference points (corresponding to index_i)
+        :param Ntarget: Number of target points (corresponding to index_j)
+        :param index_i: Array of integers corresponding to indices in the set of reference points
+        :param index_j: Array of integers corresponding to indices in the set of target points
+        :param weights: Array of per-bond weights (if None is given, use a value of 1 for each weight)
+        :type Nref: unsigned int
+        :type Ntarget: unsigned int
+        :type index_i: Array-like of unsigned ints, length num_bonds
+        :type index_j: Array-like of unsigned ints, length num_bonds
+        :type weights: Array-like of floats, length num_bonds
+        """
+        index_i = np.asarray(index_i, dtype=np.uint64)
+        index_j = np.asarray(index_j, dtype=np.uint64)
+
+        if index_i.ndim != 1 or index_j.ndim != 1:
+            raise TypeError('index_i and index_j should be a 1D arrays')
+        if index_i.shape != index_j.shape:
+            raise TypeError('index_i and index_j should be the same size')
+
+        if weights is None:
+            weights = np.ones(index_i.shape, dtype=np.float32)
+        else:
+            weights = np.asarray(weights, dtype=np.float32)
+        if weights.shape != index_i.shape:
+            raise TypeError('weights and index_i should be the same size')
+
+        cdef size_t n_bonds = index_i.shape[0]
+        cdef size_t c_Nref = Nref
+        cdef size_t c_Ntarget = Ntarget
+        cdef np.ndarray[size_t, ndim=1] c_index_i = index_i
+        cdef np.ndarray[size_t, ndim=1] c_index_j = index_j
+        cdef np.ndarray[float, ndim=1] c_weights = weights
+
+        cdef size_t last_i
+        cdef int i
+        if n_bonds:
+            last_i = c_index_i[0]
+            i = last_i
+            for bond in range(n_bonds):
+                i = c_index_i[bond]
+                if i < last_i:
+                    raise RuntimeError('index_i is not sorted')
+                if c_Nref <= i:
+                    raise RuntimeError('Nref is too small for a value found in index_i')
+                if c_Ntarget <= c_index_j[bond]:
+                    raise RuntimeError('Ntarget is too small for a value found in index_j')
+                last_i = i
+
+        result = cls()
+        cdef NeighborList c_result = result
+        c_result.thisptr.resize(n_bonds)
+        cdef size_t* c_neighbors_ptr = c_result.thisptr.getNeighbors()
+        cdef float *c_weights_ptr = c_result.thisptr.getWeights()
+
+        for bond in range(n_bonds):
+            c_neighbors_ptr[2*bond] = c_index_i[bond]
+            c_neighbors_ptr[2*bond + 1] = c_index_j[bond]
+            c_weights_ptr[bond] = c_weights[bond]
+
+        c_result.thisptr.setNumBonds(n_bonds, c_Nref, c_Ntarget)
+
+        return result
+
     cdef refer_to(self, locality.NeighborList *other):
         """Makes this cython wrapper object point to a different C++ object,
         deleting the one we are already holding if necessary. We do not

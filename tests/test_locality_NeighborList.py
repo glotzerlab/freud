@@ -110,5 +110,39 @@ class TestNeighborList(unittest.TestCase):
         self.assertTrue(np.allclose(np.add.reduceat(ones, cl.nlist.segments), 6))
         self.assertTrue(np.allclose(cl.nlist.neighbor_counts, 6))
 
+    def test_from_arrays(self):
+        index_i = [0, 0, 1, 2, 3]
+        index_j = [1, 2, 3, 0, 0]
+
+        # implicit weights
+        nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j)
+        self.assertTrue(np.allclose(nlist.weights, 1))
+
+        # explicit weights
+        weights = np.ones((len(index_i),))*4.
+        nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j, weights)
+        self.assertTrue(np.allclose(nlist.weights, 4))
+
+        # too few reference particles
+        with self.assertRaises(RuntimeError):
+            nlist = freud.locality.NeighborList.from_arrays(3, 4, index_i, index_j)
+
+        # too few target particles
+        with self.assertRaises(RuntimeError):
+            nlist = freud.locality.NeighborList.from_arrays(4, 3, index_i, index_j)
+
+        # reference particles not sorted
+        with self.assertRaises(RuntimeError):
+            nlist = freud.locality.NeighborList.from_arrays(4, 4, index_j, index_i)
+
+        # mismatched array sizes
+        with self.assertRaises(TypeError):
+            nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i[:-1], index_j)
+        with self.assertRaises(TypeError):
+            nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j[:-1])
+        with self.assertRaises(TypeError):
+            weights = np.ones((len(index_i) - 1,))
+            nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j, weights)
+
 if __name__ == '__main__':
     unittest.main()

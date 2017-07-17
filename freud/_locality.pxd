@@ -13,17 +13,18 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         NeighborList()
         NeighborList(size_t)
 
-        size_t *getNeighbors() const
-        float *getWeights() const
+        size_t *getNeighbors()
+        float *getWeights()
 
         size_t getNumI() const
         size_t getNumBonds() const
+        void setNumBonds(size_t, size_t, size_t)
         size_t filter(const bool*)
         size_t filter_r(const box.Box&, const vec3[float]*, const vec3[float]*, float, float)
 
         size_t find_first_index(size_t)
 
-        void resize(size_t, bool)
+        void resize(size_t, bool=False)
         void copy(const NeighborList &)
         void validate(size_t, size_t) except +
 
