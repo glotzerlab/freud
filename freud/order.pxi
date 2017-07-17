@@ -639,6 +639,7 @@ cdef class LocalDescriptors:
 
         l_mode = self.known_modes[mode]
 
+        self.num_neigh = num_neighbors
         defaulted_nlist = make_default_nlist_nn(box, points_ref, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
