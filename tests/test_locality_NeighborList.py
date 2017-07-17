@@ -95,7 +95,7 @@ class TestNeighborList(unittest.TestCase):
 
     def test_segments(self):
         L = 10 #Box Dimensions
-        rcut = 2 #Cutoff radius
+        rcut = 3 #Cutoff radius
         N = 40; # number of particles
         num_neighbors = 6;
 

@@ -179,5 +179,32 @@ class TestLinkCell(unittest.TestCase):
             print('Failed random seed: {}'.format(seed))
             raise
 
+    def test_exhaustive_search(self):
+        L, rcut, N = (10, 1.999, 32)
+
+        fbox = box.Box.cube(L)
+        seed = np.random.randint(0, 2**32)
+        lc = locality.LinkCell(fbox, rcut)
+
+        for i in range(10):
+            np.random.seed(seed + i)
+            points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+            all_vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
+            fbox.wrap(all_vectors.reshape((-1, 3)))
+            all_rsqs = np.sum(all_vectors**2, axis=-1)
+            (exhaustive_i, exhaustive_j) = np.where(all_rsqs < rcut**2)
+
+            exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
+
+            lc.compute(fbox, points, points, exclude_ii=False)
+            index_i, index_j = (lc.nlist.index_i, lc.nlist.index_j)
+            ijs = set(zip(lc.nlist.index_i, lc.nlist.index_j))
+
+            try:
+                self.assertEqual(exhaustive_ijs, ijs)
+            except:
+                print('Failed random seed: {} (i={})'.format(seed, i))
+                raise
+
 if __name__ == '__main__':
     unittest.main()

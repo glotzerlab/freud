@@ -78,7 +78,7 @@ void NearestNeighbors::compute(const box::Box& box,
         bond_vector_vectors.emplace_back();
         BondVector &bond_vector(bond_vector_vectors.back());
         const Index3D &indexer(m_lc->getCellIndexer());
-        const unsigned int max_cell_distance(min(min(indexer.getW(), indexer.getH()), indexer.getD())/2);
+        const unsigned int max_cell_distance(min(min(indexer.getW(), indexer.getH()), indexer.getD()));
 
         // neighbors is the set of bonds we find that are within the cutoff radius
         vector<pair<float, size_t> > neighbors;
@@ -93,6 +93,10 @@ void NearestNeighbors::compute(const box::Box& box,
             // look for cells in [min_iter_distance, max_iter_distance)
             unsigned int min_iter_distance(0), max_iter_distance(2);
             neighbors.clear();
+            // hit_max_distance should be updated each time we change
+            // the maximum distance to make sure we don't go over half
+            // the box length
+            bool hit_max_distance(false);
 
             do
             {
@@ -136,9 +140,13 @@ void NearestNeighbors::compute(const box::Box& box,
 
                 min_iter_distance = max_iter_distance;
                 ++max_iter_distance;
+                hit_max_distance = 2*max_iter_distance + (max_cell_distance + 1)%2 > max_cell_distance + 1;
+            } while((neighbors.size() < m_num_neighbors) && !m_strict_cut && !hit_max_distance);
 
-            } while((neighbors.size() < m_num_neighbors) && !m_strict_cut && max_iter_distance <= max_cell_distance + 1);
-
+            // if we looked at the maximum cell range, add the backup
+            // particles that we found
+            if(!m_strict_cut && hit_max_distance)
+                neighbors.insert(neighbors.end(), backup_neighbors.begin(), backup_neighbors.end());
             sort(neighbors.begin(), neighbors.end());
             const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
             for (unsigned int k = 0; k < k_max; ++k)
