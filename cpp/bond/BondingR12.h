@@ -41,6 +41,7 @@ class BondingR12
         //! Destructor
         ~BondingR12();
 
+        //! function to initialize bond list
         void initialize(box::Box& box,
                         vec3<float> *ref_points,
                         float *ref_orientations,
@@ -64,22 +65,32 @@ class BondingR12
                      float *orientations,
                      unsigned int n_p);
 
-        //! Get a reference to the last computed bond list
-        // std::shared_ptr<unsigned int> getBonds();
 
-        // std::vector< std::vector< unsigned int> > getBondLifetimes();
+        //! get current list of bond lifetimes
         std::vector< unsigned int > getBondLifetimes();
+
+        //! get current list of overall lifetimes
         std::vector< unsigned int> getOverallLifetimes();
 
+        //! get current mapping of bond idx to list idx
         std::map<unsigned int, unsigned int> getListMap();
 
+        //! get current mapping of list idx to bond idx
         std::map<unsigned int, unsigned int> getRevListMap();
+        //! this is probably exceedingly stupid
+        std::vector< std::vector< std::pair< unsigned int, std::vector< unsigned int> > > > getBonds()
+            {
+            return m_bond_tracker_array;
+            }
 
+
+        //! get the number of particles
         unsigned int getNumParticles()
             {
             return m_n_ref;
             }
 
+        //! get the number of bonds being tracked
         unsigned int getNumBonds()
             {
             return m_n_bonds;
@@ -89,15 +100,15 @@ class BondingR12
         box::Box m_box;            //!< Simulation box the particles belong in
         float m_r_max;                     //!< Maximum r at which to determine neighbors
         float m_t_max;                     //!< Maximum theta at which to determine neighbors
-        float m_dr;
-        float m_dt1;
-        float m_dt2;
-        unsigned int m_nbins_r;             //!< Number of x bins to compute bonds
-        unsigned int m_nbins_t1;             //!< Number of y bins to compute bonds
-        unsigned int m_nbins_t2;             //!< Number of y bins to compute bonds
+        float m_dr;                        //!< size of the r bins
+        float m_dt1;                       //!< size of the t1 bins
+        float m_dt2;                       //!< size of the t2 bins
+        unsigned int m_nbins_r;             //!< Number of r bins to compute bonds
+        unsigned int m_nbins_t1;             //!< Number of t1 bins to compute bonds
+        unsigned int m_nbins_t2;             //!< Number of t2 bins to compute bonds
         unsigned int m_n_bonds;                        //!< number of bonds to track
         unsigned int *m_bond_map;                   //!< pointer to bonding map
-        unsigned int *m_bond_list;
+        unsigned int *m_bond_list;                  //!< pointer to list map
         std::map<unsigned int, unsigned int> m_list_map; //! maps bond index to list index
         std::map<unsigned int, unsigned int> m_rev_list_map; //! maps list index to bond index
         locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation

@@ -8,6 +8,7 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
+from libcpp.pair cimport pair
 cimport freud._box as box
 
 cdef extern from "BondingAnalysis.h" namespace "freud::bond":
@@ -43,6 +44,7 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
                      float*,
                      unsigned int) nogil except +
         # shared_ptr[ uint ] getBonds()
+        vector[vector[pair[uint, vector[uint]]]] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
         # vector[vector[uint]] getBondLifetimes()
@@ -56,6 +58,13 @@ cdef extern from "BondingXY2D.h" namespace "freud::bond":
     cdef cppclass BondingXY2D:
         BondingXY2D(float, float, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
         const box.Box &getBox() const
+        void initialize(box.Box &,
+                        vec3[float]*,
+                        float*,
+                        unsigned int,
+                        vec3[float]*,
+                        float*,
+                        unsigned int) nogil except +
         void compute(box.Box &,
                      vec3[float]*,
                      float*,
@@ -63,7 +72,8 @@ cdef extern from "BondingXY2D.h" namespace "freud::bond":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil except +
-        shared_ptr[ uint ] getBonds()
+        vector[uint] getBondLifetimes()
+        vector[uint] getOverallLifetimes()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
         map[ uint, uint] getListMap()
