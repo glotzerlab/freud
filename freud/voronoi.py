@@ -125,6 +125,8 @@ class Voronoi:
     #get numShells of neighbors for each particle
     def getNeighbors(self, numShells):
         neighbor_list = copy.copy(self.firstShellNeighborList)
+        #delete [] in neighbor_list
+        neighbor_list = [x for x in neighbor_list if x != []]
         for _ in range(numShells-1):
             dummy_neighbor_list = copy.copy(neighbor_list)
             for i in range(len(neighbor_list)):
