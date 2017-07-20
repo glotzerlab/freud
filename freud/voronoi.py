@@ -13,6 +13,7 @@ except ImportError:
     logger.warning(msg)
     #raise ImportWarning(msg)
 from ._freud import VoronoiBuffer
+from ._freud import NeighborList
 
 ## Compute the Voronoi tesselation of a 2D or 3D system using qhull
 # This essentially just wraps scipy.spatial.Voronoi, but accounts for
@@ -79,6 +80,9 @@ class Voronoi:
 
     Returns a list of lists of neighbors
     """
+    '''
+    Yina: Observe that vbuff.getBufferParticles() did not give correct buffer particles. So computeNeighbors(), getNeighbors(), voronoiNeighborList() is only working when set buffer=0
+    '''
     def computeNeighbors(self,positions,box=None,buff=None):
         #if box or buff is not specified, revert to object quantities
         if box is None:
@@ -99,10 +103,23 @@ class Voronoi:
         #use qhull to get the points
         self.voronoi = qvoronoi(self.expanded_points)
         ridge_points = self.voronoi.ridge_points
+        ridge_vertices = self.voronoi.ridge_vertices
+        vor_vertices = self.voronoi.vertices
+        #nearest neighbor index for each point
         self.firstShellNeighborList = [[]]*len(positions)
+        #weight between nearest neighbors, which is the length of ridge between two points
+        self.firstShellWeight = [[]]*len(positions)
         for k in range(len(ridge_points)):
             self.firstShellNeighborList[ridge_points[k,0]] = self.firstShellNeighborList[ridge_points[k,0]] + [ridge_points[k,1]]
             self.firstShellNeighborList[ridge_points[k,1]] = self.firstShellNeighborList[ridge_points[k,1]] + [ridge_points[k,0]]
+            #if -1 not in ridge_vertices, compute weight, else set weight to 0
+            if ridge_vertices[k][0] != -1 and ridge_vertices[k][1] != -1:
+                oneWeight = np.linalg.norm(vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]]) 
+            else:
+                oneWeight = 0
+
+            self.firstShellWeight[ridge_points[k,0]] = self.firstShellWeight[ridge_points[k,0]]+[oneWeight]
+            self.firstShellWeight[ridge_points[k,1]] = self.firstShellWeight[ridge_points[k,1]]+[oneWeight]
 
     #get numShells of neighbors for each particle
     def getNeighbors(self, numShells):
@@ -138,3 +155,29 @@ class Voronoi:
     #return the list of voronoi polytope vertices
     #def getVoronoiPolytopes(self):
     #    return self.poly_verts
+    def vonoiNeighborList(self):
+        neighbor_list = copy.copy(self.firstShellNeighborList)
+        weight = copy.copy(self.firstShellWeight)
+
+        #count number of elements in neighbor_list
+        count = 0
+        for i in range(len(neighbor_list)):
+            count += len(neighbor_list[i])
+
+        #indexAry, first column is reference particle index, second column is neighbor particle index, 3rd column is weight=ridge length
+        indexAry = np.zeros([count, 3], float)
+        j = 0
+        for i in range(len(neighbor_list)):
+            N = len(neighbor_list[i])
+            indexAry[j:j+N, 0] = i
+            indexAry[j:j+N, 1] = np.array(neighbor_list[i])
+            indexAry[j:j+N, 2] = np.array(weight[i])
+            j += N
+
+
+        result = NeighborList.from_arrays(len(neighbor_list), len(neighbor_list), indexAry[:,0], indexAry[:,1], weights=indexAry[:,2])
+        return result
+
+
+        
+
