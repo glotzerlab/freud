@@ -44,7 +44,9 @@ void VoronoiBuffer::compute(const float3 *points,
       if (m_box.is2D())
         {
         for (int i=-1; i<=1; i++)
+        {
           for (int j=-1; j<=1; j++)
+          {
                 if(i != 0 || j != 0)
                   {
                   img.x = points[particle].x + i*lx;
@@ -56,13 +58,18 @@ void VoronoiBuffer::compute(const float3 *points,
                       buffer_parts.push_back(img);
                       }
                   }
+          }
+        }
         }
       else
         {
         //loop over potential images
         for (int i=-1; i<=1; i++)
+        {
           for (int j=-1; j<=1; j++)
+          {
               for (int k=-1; k<=1; k++)
+              {
                 if(!(i==0 && j==0 && k==0))
                   {
                   img.x = points[particle].x + i*lx;
@@ -73,12 +80,12 @@ void VoronoiBuffer::compute(const float3 *points,
                      img.y < ly_2_buff && img.y > -ly_2_buff &&
                      img.z < lz_2_buff && img.z > -lz_2_buff)
                       {
-                      img.x -= lx_2;
-                      img.y -= ly_2;
-                      img.z -= lz_2;
                       buffer_parts.push_back(img);
                       }
                   }
+              }
+          }
+        }
         }
       }
     }
