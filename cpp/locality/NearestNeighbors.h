@@ -87,9 +87,9 @@ class NearestNeighbors
                      unsigned int Np, bool exclude_ii=true);
 
         freud::locality::NeighborList *getNeighborList()
-        {
+            {
             return &m_neighbor_list;
-        }
+            }
 
     private:
         box::Box m_box;            //!< Simulation box the particles belong in

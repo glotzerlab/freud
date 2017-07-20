@@ -136,185 +136,185 @@ for(IteratorCellShell iter(0); iter != IteratorCellShell(2); ++iter)
 \endcode
  */
 class IteratorCellShell
-{
-public:
-    IteratorCellShell(unsigned int range=0, bool is2D=false):
-        m_is2D(is2D)
     {
-        reset(range);
-    }
+    public:
+        IteratorCellShell(unsigned int range=0, bool is2D=false):
+            m_is2D(is2D)
+            {
+            reset(range);
+            }
 
-    void operator++()
-    {
-        // this bool indicates that we have wrapped over in whichever
-        // direction we are looking and should move to the next
-        // row/plane
-        bool wrapped(false);
+        void operator++()
+            {
+            // this bool indicates that we have wrapped over in whichever
+            // direction we are looking and should move to the next
+            // row/plane
+            bool wrapped(false);
 
-        switch(m_stage)
-        {
-        // +y wedge: iterate over x and (possibly) z
-        // zs = list(range(-N + 1, N)) if threeD else [0]
-        // for r in itertools.product(range(-N, N), [N], zs):
-        //     yield r
-        case 0:
-            ++m_current_x;
-            wrapped = m_current_x >= m_range;
-            m_current_x -= 2*wrapped*m_range;
-            if(!m_is2D)
-            {
-                m_current_z += wrapped;
-                wrapped = m_current_z >= m_range;
-                m_current_z += wrapped*(1 - 2*m_range);
-            }
-            if(wrapped)
-            {
-                ++m_stage;
-                m_current_x = m_range;
-            }
-            break;
-        // +x wedge: iterate over y and (possibly) z
-        // for r in itertools.product([N], range(N, -N, -1), zs):
-        //     yield r
-        case 1:
-            --m_current_y;
-            wrapped = m_current_y <= -m_range;
-            m_current_y += 2*wrapped*m_range;
-            if(!m_is2D)
-            {
-                m_current_z += wrapped;
-                wrapped = m_current_z >= m_range;
-                m_current_z += wrapped*(1 - 2*m_range);
-            }
-            if(wrapped)
-            {
-                ++m_stage;
-                m_current_y = -m_range;
-            }
-            break;
-        // -y wedge: iterate over x and (possibly) z
-        // for r in itertools.product(range(N, -N, -1), [-N], zs):
-        //     yield r
-        case 2:
-            --m_current_x;
-            wrapped = m_current_x <= -m_range;
-            m_current_x += 2*wrapped*m_range;
-            if(!m_is2D)
-            {
-                m_current_z += wrapped;
-                wrapped = m_current_z >= m_range;
-                m_current_z += wrapped*(1 - 2*m_range);
-            }
-            if(wrapped)
-            {
-                ++m_stage;
-                m_current_x = -m_range;
-            }
-            break;
-        // -x wedge: iterate over y and (possibly) z
-        // for r in itertools.product([-N], range(-N, N), zs):
-        //     yield r
-        case 3:
-            ++m_current_y;
-            wrapped = m_current_y >= m_range;
-            m_current_y -= 2*wrapped*m_range;
-            if(!m_is2D)
-            {
-                m_current_z += wrapped;
-                wrapped = m_current_z >= m_range;
-                m_current_z += wrapped*(1 - 2*m_range);
-            }
-            if(wrapped)
-            {
-                if(m_is2D) // we're done for this range
-                    reset(m_range + 1);
-                else
+            switch(m_stage)
                 {
-                    ++m_stage;
-                    m_current_x = -m_range;
-                    m_current_y = -m_range;
-                    m_current_z = -m_range;
+                // +y wedge: iterate over x and (possibly) z
+                // zs = list(range(-N + 1, N)) if threeD else [0]
+                // for r in itertools.product(range(-N, N), [N], zs):
+                //     yield r
+                case 0:
+                    ++m_current_x;
+                    wrapped = m_current_x >= m_range;
+                    m_current_x -= 2*wrapped*m_range;
+                    if(!m_is2D)
+                        {
+                        m_current_z += wrapped;
+                        wrapped = m_current_z >= m_range;
+                        m_current_z += wrapped*(1 - 2*m_range);
+                        }
+                    if(wrapped)
+                        {
+                        ++m_stage;
+                        m_current_x = m_range;
+                        }
+                    break;
+                    // +x wedge: iterate over y and (possibly) z
+                    // for r in itertools.product([N], range(N, -N, -1), zs):
+                    //     yield r
+                case 1:
+                    --m_current_y;
+                    wrapped = m_current_y <= -m_range;
+                    m_current_y += 2*wrapped*m_range;
+                    if(!m_is2D)
+                        {
+                        m_current_z += wrapped;
+                        wrapped = m_current_z >= m_range;
+                        m_current_z += wrapped*(1 - 2*m_range);
+                        }
+                    if(wrapped)
+                        {
+                        ++m_stage;
+                        m_current_y = -m_range;
+                        }
+                    break;
+                    // -y wedge: iterate over x and (possibly) z
+                    // for r in itertools.product(range(N, -N, -1), [-N], zs):
+                    //     yield r
+                case 2:
+                    --m_current_x;
+                    wrapped = m_current_x <= -m_range;
+                    m_current_x += 2*wrapped*m_range;
+                    if(!m_is2D)
+                        {
+                        m_current_z += wrapped;
+                        wrapped = m_current_z >= m_range;
+                        m_current_z += wrapped*(1 - 2*m_range);
+                        }
+                    if(wrapped)
+                        {
+                        ++m_stage;
+                        m_current_x = -m_range;
+                        }
+                    break;
+                    // -x wedge: iterate over y and (possibly) z
+                    // for r in itertools.product([-N], range(-N, N), zs):
+                    //     yield r
+                case 3:
+                    ++m_current_y;
+                    wrapped = m_current_y >= m_range;
+                    m_current_y -= 2*wrapped*m_range;
+                    if(!m_is2D)
+                        {
+                        m_current_z += wrapped;
+                        wrapped = m_current_z >= m_range;
+                        m_current_z += wrapped*(1 - 2*m_range);
+                        }
+                    if(wrapped)
+                        {
+                        if(m_is2D) // we're done for this range
+                            reset(m_range + 1);
+                        else
+                            {
+                            ++m_stage;
+                            m_current_x = -m_range;
+                            m_current_y = -m_range;
+                            m_current_z = -m_range;
+                            }
+                        }
+                    break;
+                    // -z face and +z face: iterate over x and y
+                    // grid = list(range(-N, N + 1))
+                    // if threeD:
+                    //     # make front and back in z
+                    //     for (x, y) in itertools.product(grid, grid):
+                    //         yield (x, y, N)
+                    //         if N > 0:
+                    //             yield (x, y, -N)
+                    // elif N == 0:
+                    //     yield (0, 0, 0)
+                case 4:
+                case 5:
+                default:
+                    ++m_current_x;
+                    wrapped = m_current_x > m_range;
+                    m_current_x -= wrapped*(2*m_range + 1);
+                    m_current_y += wrapped;
+                    wrapped = m_current_y > m_range;
+                    m_current_y -= wrapped*(2*m_range + 1);
+                    if(wrapped)
+                        {
+                        // 2D cases have already moved to the next stage by
+                        // this point, only deal with 3D
+                        ++m_stage;
+                        m_current_z = m_range;
+
+                        // if we're done, move on to the next range
+                        if(m_stage > 5)
+                            reset(m_range + 1);
+                        }
+                    break;
                 }
             }
-            break;
-        // -z face and +z face: iterate over x and y
-        // grid = list(range(-N, N + 1))
-        // if threeD:
-        //     # make front and back in z
-        //     for (x, y) in itertools.product(grid, grid):
-        //         yield (x, y, N)
-        //         if N > 0:
-        //             yield (x, y, -N)
-        // elif N == 0:
-        //     yield (0, 0, 0)
-        case 4:
-        case 5:
-        default:
-            ++m_current_x;
-            wrapped = m_current_x > m_range;
-            m_current_x -= wrapped*(2*m_range + 1);
-            m_current_y += wrapped;
-            wrapped = m_current_y > m_range;
-            m_current_y -= wrapped*(2*m_range + 1);
-            if(wrapped)
+
+        vec3<int> operator*()
             {
-                // 2D cases have already moved to the next stage by
-                // this point, only deal with 3D
-                ++m_stage;
-                m_current_z = m_range;
-
-                // if we're done, move on to the next range
-                if(m_stage > 5)
-                    reset(m_range + 1);
+            return vec3<int>(m_current_x, m_current_y, m_current_z);
             }
-            break;
-        }
-    }
 
-    vec3<int> operator*()
-    {
-        return vec3<int>(m_current_x, m_current_y, m_current_z);
-    }
+        bool operator==(const IteratorCellShell &other)
+            {
+            return m_range == other.m_range && m_current_x == other.m_current_x && m_current_y == other.m_current_y && m_current_z == other.m_current_z && m_stage == other.m_stage && m_is2D == other.m_is2D;
+            }
 
-    bool operator==(const IteratorCellShell &other)
-    {
-        return m_range == other.m_range && m_current_x == other.m_current_x && m_current_y == other.m_current_y && m_current_z == other.m_current_z && m_stage == other.m_stage && m_is2D == other.m_is2D;
-    }
+        bool operator!=(const IteratorCellShell &other)
+            {
+            return !(*this == other);
+            }
 
-    bool operator!=(const IteratorCellShell &other)
-    {
-        return !(*this == other);
-    }
+    private:
+        void reset(unsigned int range)
+            {
+            m_range = range;
+            m_stage = 0;
+            m_current_x = -m_range;
+            m_current_y = m_range;
+            if(m_is2D)
+                {
+                m_current_z = 0;
+                }
+            else
+                {
+                m_current_z = -m_range + 1;
+                }
 
-private:
-    void reset(unsigned int range)
-    {
-        m_range = range;
-        m_stage = 0;
-        m_current_x = -m_range;
-        m_current_y = m_range;
-        if(m_is2D)
-        {
-            m_current_z = 0;
-        }
-        else
-        {
-            m_current_z = -m_range + 1;
-        }
-
-        if(range == 0)
-        {
-            m_current_z = 0;
-            // skip to the last stage
-            m_stage = 5;
-        }
-    }
-    int m_range; //!< Find cells this many cells away
-    int m_current_x; //!< Current position in x
-    int m_current_y; //!< Current position in y
-    int m_current_z; //!< Current position in z
-    char m_stage; //!< stage of the computation (which face is being iterated over)
-    bool m_is2D; //!< true if the cell list is 2D
+            if(range == 0)
+                {
+                m_current_z = 0;
+                // skip to the last stage
+                m_stage = 5;
+                }
+            }
+        int m_range; //!< Find cells this many cells away
+        int m_current_x; //!< Current position in x
+        int m_current_y; //!< Current position in y
+        int m_current_z; //!< Current position in z
+        char m_stage; //!< stage of the computation (which face is being iterated over)
+        bool m_is2D; //!< true if the cell list is 2D
 };
 
 bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float> > &left,

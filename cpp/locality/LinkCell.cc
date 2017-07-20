@@ -187,22 +187,22 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
 
 //Deprecated.  Users should use the modern vec3<float> interfaces
 void LinkCell::computeCellList(box::Box& box,
-                               const float3 *points,
-                               unsigned int Np)
+    const float3 *points,
+    unsigned int Np)
     {
-        //Copy into appropriate vec3<float>;
-        vec3<float>* pointscopy = new vec3<float>[Np];
-        for(unsigned int i = 0; i < Np; i++) {
-            pointscopy[i].x=points[i].x;
-            pointscopy[i].y=points[i].y;
-            pointscopy[i].z=points[i].z;
+    //Copy into appropriate vec3<float>;
+    vec3<float>* pointscopy = new vec3<float>[Np];
+    for(unsigned int i = 0; i < Np; i++) {
+        pointscopy[i].x=points[i].x;
+        pointscopy[i].y=points[i].y;
+        pointscopy[i].z=points[i].z;
         }
-        computeCellList(box, pointscopy, Np);
-        delete[] pointscopy;
+    computeCellList(box, pointscopy, Np);
+    delete[] pointscopy;
     }
 
 bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float> > &left,
-                               const std::vector<std::tuple<size_t, size_t, float> > &right)
+    const std::vector<std::tuple<size_t, size_t, float> > &right)
     {
     if(left.size() && right.size())
         return left[0] < right[0];
@@ -211,8 +211,8 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
     }
 
 void LinkCell::computeCellList(box::Box& box,
-                               const vec3<float> *points,
-                               unsigned int Np)
+    const vec3<float> *points,
+    unsigned int Np)
     {
     updateBox(box);
 
@@ -241,19 +241,19 @@ void LinkCell::computeCellList(box::Box& box,
     assert(points);
 
     for (int i = Np-1; i >= 0; i--)
-    {
+        {
         unsigned int cell = getCell(points[i]);
         m_cell_list.get()[i] = m_cell_list.get()[Np+cell];
         m_cell_list.get()[Np+cell] = i;
-    }
+        }
     }
 
 void LinkCell::compute(box::Box& box,
-                       const vec3<float> *ref_points,
-                       unsigned int Nref,
-                       const vec3<float> *points,
-                       unsigned int Np,
-                       bool exclude_ii)
+    const vec3<float> *ref_points,
+    unsigned int Nref,
+    const vec3<float> *points,
+    unsigned int Np,
+    bool exclude_ii)
     {
     // store points ("j" particles in (i, j) bonds) in the cell list
     // for quick access later (not ref_points)
@@ -267,13 +267,13 @@ void LinkCell::compute(box::Box& box,
     // Find (i, j) neighbor pairs
     parallel_for(blocked_range<size_t>(0, Nref),
         [=, &bond_vectors] (const blocked_range<size_t> &r)
-        {
+            {
             ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
             bond_vector_vectors.emplace_back();
             BondVector &bond_vector(bond_vector_vectors.back());
 
             for(size_t i(r.begin()); i != r.end(); ++i)
-            {
+                {
                 // get the cell the point is in
                 const vec3<float> ref_point(ref_points[i]);
                 const unsigned int ref_cell(getCell(ref_point));
@@ -281,13 +281,13 @@ void LinkCell::compute(box::Box& box,
                 // loop over all neighboring cells
                 const std::vector<unsigned int>& neigh_cells = getCellNeighbors(ref_cell);
                 for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-                {
+                    {
                     const unsigned int neigh_cell = neigh_cells[neigh_idx];
 
                     // iterate over the particles in that cell
                     locality::LinkCell::iteratorcell it = itercell(neigh_cell);
                     for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
-                    {
+                        {
                         if(exclude_ii && i == j)
                             continue;
 
@@ -295,13 +295,13 @@ void LinkCell::compute(box::Box& box,
                         const float rsq(dot(rij, rij));
 
                         if(rsq < m_cell_width*m_cell_width)
-                        {
+                            {
                             bond_vector.emplace_back(i, j, 1);
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
 
     // Sort neighbors by particle i index
     tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
@@ -321,23 +321,23 @@ void LinkCell::compute(box::Box& box,
 
     // build nlist structure
     parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
-         [=, &bond_vector_groups] (const blocked_range<size_t> &r)
-         {
-             size_t bond(0);
-             for(size_t group(0); group < r.begin(); ++group)
-                 bond += bond_vector_groups[group].size();
+        [=, &bond_vector_groups] (const blocked_range<size_t> &r)
+            {
+            size_t bond(0);
+            for(size_t group(0); group < r.begin(); ++group)
+                bond += bond_vector_groups[group].size();
 
-             for(size_t group(r.begin()); group < r.end(); ++group)
-             {
-                 const BondVector &vec(bond_vector_groups[group]);
-                 for(BondVector::const_iterator iter(vec.begin());
-                     iter != vec.end(); ++iter, ++bond)
-                 {
-                     std::tie(neighbor_array[2*bond], neighbor_array[2*bond + 1],
-                              neighbor_weights[bond]) = *iter;
-                 }
-             }
-         });
+            for(size_t group(r.begin()); group < r.end(); ++group)
+                {
+                const BondVector &vec(bond_vector_groups[group]);
+                for(BondVector::const_iterator iter(vec.begin());
+                    iter != vec.end(); ++iter, ++bond)
+                    {
+                    std::tie(neighbor_array[2*bond], neighbor_array[2*bond + 1],
+                        neighbor_weights[bond]) = *iter;
+                    }
+                }
+            });
     }
 
 void LinkCell::computeCellNeighbors()
