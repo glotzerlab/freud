@@ -18,7 +18,7 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
         unsigned int getNumClusters()
         unsigned int getNumParticles()
         shared_array[unsigned int] getClusterIdx()
-        const vector[unsigned int] getClusterKeys()
+        const vector[vector[uint]] getClusterKeys()
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
     cdef cppclass ClusterProperties:

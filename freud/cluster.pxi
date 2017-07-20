@@ -141,9 +141,8 @@ cdef class Cluster:
 
         .. todo: Determine correct way to export. As-is, I do not particularly like how it was previously handled.
         """
-        pass
-        # cdef vector[unsigned int] cluster_keys = self.thisptr.getClusterKeys()
-        # return cluster_keys;
+        cluster_keys = self.thisptr.getClusterKeys()
+        return cluster_keys
 
 
 cdef class ClusterProperties:
