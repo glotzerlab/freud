@@ -42,6 +42,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/voronoi
                     ${CMAKE_CURRENT_SOURCE_DIR}/kspace
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
+                    ${CMAKE_CURRENT_SOURCE_DIR}/symmetry
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/pmft
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
@@ -95,6 +96,8 @@ set(FREUD_SOURCES
             order/BondOrder.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
+            symmetry/SymmetricOrientation.h
+            symmetry/SymmetricOrientation.cc
             util/Index1D.h
             util/HOOMDMath.h
             util/HOOMDMatrix.cc

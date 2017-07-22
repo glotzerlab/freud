@@ -10,6 +10,7 @@ from . import density
 from . import kspace
 from . import locality
 from . import order
+from . import symmetry
 from . import interface
 # from . import shape
 from . import voronoi
