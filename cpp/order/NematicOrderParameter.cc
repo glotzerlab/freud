@@ -97,7 +97,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
                 Q_ab[a_i(0,2)] = 1.5f*u_i.x*u_i.z;
                 Q_ab[a_i(1,0)] = 1.5f*u_i.y*u_i.x;
                 Q_ab[a_i(1,1)] = 1.5f*u_i.y*u_i.y - 0.5f;
-                Q_ab[a_i(1,2)] = 1.5f*u_i.y*u_i.y;
+                Q_ab[a_i(1,2)] = 1.5f*u_i.y*u_i.z;
                 Q_ab[a_i(2,0)] = 1.5f*u_i.z*u_i.x;
                 Q_ab[a_i(2,1)] = 1.5f*u_i.z*u_i.y;
                 Q_ab[a_i(2,2)] = 1.5f*u_i.z*u_i.z - 0.5f;
@@ -200,13 +200,13 @@ void NematicOrderParameter::compute(quat<float> *orientations,
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
     unsigned int max_idx = 0;
-    float max_val = std::numeric_limits<float>::min();
+    float max_val = -std::numeric_limits<float>::max();
 
     for (unsigned int i = 0; i < 3; ++i)
         if (eval[i] > max_val)
             {
             max_val = eval[i];
-            max_idx = 0;
+            max_idx = i;
             }
 
     m_nematic_director = vec3<Scalar>(evec[a_i(0,max_idx)],evec[a_i(1,max_idx)],evec[a_i(2,max_idx)]);
