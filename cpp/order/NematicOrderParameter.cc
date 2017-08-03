@@ -135,7 +135,8 @@ void NematicOrderParameter::compute(quat<float> *orientations,
         void operator()(const tbb::blocked_range<unsigned int>& r)
             {
             for (int i = r.begin(); i < r.end(); ++i)
-                y_[i] += m_[i];
+                for (int j = 0; j < 9; ++j)
+                    y_[j] += m_[i*9+j];
             }
 
         // reduce computations in two matrices

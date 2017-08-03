@@ -408,7 +408,7 @@ cdef class NematicOrderParameter:
         if len(u) != 3:
             raise ValueError('u needs to be a three-dimensional vector')
 
-        cdef np.ndarray[float, ndim=1] l_u = u
+        cdef np.ndarray[np.float32_t, ndim=1] l_u = np.array(u,dtype=np.float32)
         self.thisptr = new order.NematicOrderParameter((<vec3[float]*>l_u.data)[0])
 
     def compute(self, orientations):
