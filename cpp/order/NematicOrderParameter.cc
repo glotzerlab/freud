@@ -43,7 +43,7 @@ std::shared_ptr<float> NematicOrderParameter::getParticleTensor()
 std::shared_ptr<float> NematicOrderParameter::getNematicTensor()
     {
     std::shared_ptr<float> nematic_tensor = std::shared_ptr<float>(new float[9], std::default_delete<float[]>());
-    memcpy(nematic_tensor.get(), (void*)&m_nematic_tensor, sizeof(float)*9);
+    memcpy(nematic_tensor.get(), m_nematic_tensor, sizeof(float)*9);
     return nematic_tensor;
     }
 
@@ -82,7 +82,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
         [=] (const blocked_range<size_t>& r)
             {
             // create index object to access the array
-            Index2D a_i = Index2D(n, 9);
+            Index2D a_i = Index2D(3, 9);
 
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
@@ -110,9 +110,6 @@ void NematicOrderParameter::compute(quat<float> *orientations,
                 }
             });
 
-    float zero[9];
-    for (int i = 0; i < 9; i++) zero[i] = 0.0;
-
     //https://stackoverflow.com/questions/9399929/parallel-reduction-of-an-array-on-cpu
     struct reduce_matrix {
         float y_[9];
@@ -134,7 +131,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
         // adding the elements
         void operator()(const tbb::blocked_range<unsigned int>& r)
             {
-            for (int i = r.begin(); i < r.end(); ++i)
+            for (unsigned int i = r.begin(); i < r.end(); ++i)
                 for (int j = 0; j < 9; ++j)
                     y_[j] += m_[i*9+j];
             }
@@ -157,7 +154,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
 
     // get the nematic order parameter and director
     Eigen::MatrixXf m(3,3);
-    Index2D a_i = Index2D(n, 9);
+    Index2D a_i = Index2D(3, 3);
     for (unsigned int i = 0; i < 3; ++i)
         for (unsigned int j = 0; j < 3; ++j)
             {

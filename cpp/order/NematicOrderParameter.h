@@ -64,7 +64,6 @@ class NematicOrderParameter
         float m_nematic_order_parameter;
         vec3<float> m_nematic_director;
         float m_nematic_tensor[9];
-        std::shared_ptr<float> m_particle_order_parameter;
         std::shared_ptr<float> m_particle_tensor;
     };
 
