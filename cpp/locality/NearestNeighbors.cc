@@ -93,6 +93,7 @@ void NearestNeighbors::compute(const box::Box& box,
                 // look for cells in [min_iter_distance, max_iter_distance)
                 unsigned int min_iter_distance(0), max_iter_distance(2);
                 neighbors.clear();
+                backup_neighbors.clear();
                 // hit_max_distance should be updated each time we change
                 // the maximum distance to make sure we don't go over half
                 // the box length
