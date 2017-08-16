@@ -99,13 +99,13 @@ class Pairing2D
 
         box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r to check for nearest neighbors
-        float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
         std::shared_ptr<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
         std::shared_ptr<unsigned int> m_pair_array;         //!< array of pairs for particle i
-        unsigned int m_nmatch;             //!< Number of matches
-        unsigned int m_k;             //!< Number of nearest neighbors to check
+        /* unsigned int m_nmatch;             //!< Number of matches */
+        /* unsigned int m_k;             //!< Number of nearest neighbors to check */
         unsigned int m_Np;                //!< Last number of points computed
         unsigned int m_No;                //!< Last number of complementary orientations used
+        float m_comp_dot_tol;                     //!< Maximum r at which to compute g(r)
 
     };
 

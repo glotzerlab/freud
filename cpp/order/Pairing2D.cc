@@ -20,7 +20,7 @@ namespace freud { namespace order {
 Pairing2D::Pairing2D(const float rmax,
                      const unsigned int k,
                      const float comp_dot_tol)
-    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
+    : m_box(box::Box()), m_rmax(rmax), m_Np(0), m_No(0), m_comp_dot_tol(comp_dot_tol)
     {
     // create the unsigned int array to store whether or not a particle is paired
     m_match_array = std::shared_ptr<unsigned int>(new unsigned int[m_Np], std::default_delete<unsigned int[]>());
@@ -54,8 +54,9 @@ void Pairing2D::ComputePairing2D(const freud::locality::NeighborList *nlist,
     size_t bond(0);
 
     // for each particle
-    Index2D b_i = Index2D(m_No, m_Np);
-    for (unsigned int i = 0; i < m_Np; i++)
+    // there's the problem right there
+    Index2D b_i = Index2D(No, Np);
+    for (unsigned int i = 0; i < Np; i++)
         {
         // get the position of particle i
         const vec2<float> r_i(points[i].x, points[i].y);
@@ -105,7 +106,7 @@ void Pairing2D::ComputePairing2D(const freud::locality::NeighborList *nlist,
                 u_ji = u_ji / sqrt(dot(u_ji, u_ji));
 
                 // for each potential complementary orientation for particle i
-                for (unsigned int a=0; a<m_No; a++)
+                for (unsigned int a=0; a<No; a++)
                     {
                     // break once pair is detected
                     if (is_paired == true)
@@ -118,7 +119,7 @@ void Pairing2D::ComputePairing2D(const freud::locality::NeighborList *nlist,
                     c_i = c_i / sqrt(dot(c_i, c_i));
 
                     // for each potential complementary orientation for particle j
-                    for (unsigned int b=0; b<m_No; b++)
+                    for (unsigned int b=0; b<No; b++)
                         {
                         // break once pair is detected
                         if (is_paired == true)
