@@ -58,6 +58,7 @@ class Voronoi:
                 if -1 in self.voronoi.regions[region]:
                         continue
                 self.poly_verts.append(self.voronoi.vertices[self.voronoi.regions[region]])
+        return self;
 
     #return the list of voronoi polytope vertices
     def getBuffer(self):

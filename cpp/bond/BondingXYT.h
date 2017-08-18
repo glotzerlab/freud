@@ -50,6 +50,7 @@ class BondingXYT
 
         //! Compute the bond order
         void compute(box::Box& box,
+                     const freud::locality::NeighborList *nlist,
                      vec3<float> *ref_points,
                      float *ref_orientations,
                      unsigned int n_ref,
@@ -91,7 +92,6 @@ class BondingXYT
         unsigned int *m_bond_list;
         std::map<unsigned int, unsigned int> m_list_map; //! maps bond index to list index
         std::map<unsigned int, unsigned int> m_rev_list_map; //! maps list index to bond index
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_n_ref;                //!< Last number of points computed
         unsigned int m_n_p;                //!< Last number of points computed
 

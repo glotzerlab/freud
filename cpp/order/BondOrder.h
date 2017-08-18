@@ -53,6 +53,7 @@ class BondOrder
 
         //! accumulate the bond order
         void accumulate(box::Box& box,
+                        const freud::locality::NeighborList *nlist,
                         vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int n_ref,
@@ -94,7 +95,6 @@ class BondOrder
         float m_k;                        //!< Multiplier in the exponent
         float m_dt;
         float m_dp;
-        locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
         unsigned int m_n_ref;                //!< Last number of points computed
         unsigned int m_n_p;                //!< Last number of points computed
         unsigned int m_nbins_t;           //!< number of bins for theta

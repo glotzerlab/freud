@@ -7,17 +7,18 @@ from freud.util._Boost cimport shared_array
 cimport freud._box as box
 from libcpp.vector cimport vector
 from libc.stdint cimport uint32_t
+cimport freud._locality
 
 cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
         Cluster(const box.Box&, float)
         const box.Box &getBox() const
-        void computeClusters(const vec3[float]*, unsigned int) nogil except +
+        void computeClusters(const freud._locality.NeighborList*, const vec3[float]*, unsigned int) nogil except +
         void computeClusterMembership(const unsigned int*) nogil except +
         unsigned int getNumClusters()
         unsigned int getNumParticles()
         shared_array[unsigned int] getClusterIdx()
-        const vector[unsigned int] getClusterKeys()
+        const vector[vector[uint]] getClusterKeys()
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
     cdef cppclass ClusterProperties:

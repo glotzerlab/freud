@@ -30,6 +30,7 @@ cdef class FTdelta:
     def compute(self):
         """Perform transform and store result internally"""
         self.thisptr.compute()
+        return self
 
     def getFT(self):
         """Return the FT values"""
@@ -108,6 +109,7 @@ cdef class FTsphere:
     def compute(self):
         """Perform transform and store result internally"""
         self.thisptr.compute()
+        return self
 
     def getFT(self):
         """Return the FT values"""
@@ -185,6 +187,7 @@ cdef class FTpolyhedron:
     def compute(self):
         """Perform transform and store result internally"""
         self.thisptr.compute()
+        return self
 
     def getFT(self):
         """Return the FT values"""

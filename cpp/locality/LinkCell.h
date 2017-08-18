@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../box/box.h"
+#include "NeighborList.h"
 #include "HOOMDMath.h"
 #include "Index1D.h"
 
@@ -114,6 +115,210 @@ class IteratorLinkCell
         unsigned int m_cur_idx;                           //!< Current index
         unsigned int m_cell;                              //!< Cell being considered
     };
+
+//! Iterates over sets of shells in a cell list
+/*! This class provides a convenient way to iterate over distinct
+    shells in a cell list structure. For a range of N, these are the
+    faces, edges, and corners of a cube of edge length 2*N + 1 cells
+    large. While IteratorLinkCell provides a way to iterate over
+    neighbors given a cell, IteratorCellShell provides a way to find
+    which cell offsets should be applied to find all the neighbors of
+    a particular reference shell within a distance some number of
+    cells away.
+
+\code
+// Grab neighbor cell offsets within the 3x3x3 typical search distance
+for(IteratorCellShell iter(0); iter != IteratorCellShell(2); ++iter)
+{
+    // still need to apply modulo operation for dimensions of the cell list
+    const vec3<int> offset(*iter);
+}
+\endcode
+ */
+class IteratorCellShell
+    {
+    public:
+        IteratorCellShell(unsigned int range=0, bool is2D=false):
+            m_is2D(is2D)
+            {
+            reset(range);
+            }
+
+        void operator++()
+            {
+            // this bool indicates that we have wrapped over in whichever
+            // direction we are looking and should move to the next
+            // row/plane
+            bool wrapped(false);
+
+            switch(m_stage)
+                {
+                // +y wedge: iterate over x and (possibly) z
+                // zs = list(range(-N + 1, N)) if threeD else [0]
+                // for r in itertools.product(range(-N, N), [N], zs):
+                //     yield r
+                case 0:
+                    ++m_current_x;
+                    wrapped = m_current_x >= m_range;
+                    m_current_x -= 2*wrapped*m_range;
+                    if(!m_is2D)
+                        {
+                        m_current_z += wrapped;
+                        wrapped = m_current_z >= m_range;
+                        m_current_z += wrapped*(1 - 2*m_range);
+                        }
+                    if(wrapped)
+                        {
+                        ++m_stage;
+                        m_current_x = m_range;
+                        }
+                    break;
+                    // +x wedge: iterate over y and (possibly) z
+                    // for r in itertools.product([N], range(N, -N, -1), zs):
+                    //     yield r
+                case 1:
+                    --m_current_y;
+                    wrapped = m_current_y <= -m_range;
+                    m_current_y += 2*wrapped*m_range;
+                    if(!m_is2D)
+                        {
+                        m_current_z += wrapped;
+                        wrapped = m_current_z >= m_range;
+                        m_current_z += wrapped*(1 - 2*m_range);
+                        }
+                    if(wrapped)
+                        {
+                        ++m_stage;
+                        m_current_y = -m_range;
+                        }
+                    break;
+                    // -y wedge: iterate over x and (possibly) z
+                    // for r in itertools.product(range(N, -N, -1), [-N], zs):
+                    //     yield r
+                case 2:
+                    --m_current_x;
+                    wrapped = m_current_x <= -m_range;
+                    m_current_x += 2*wrapped*m_range;
+                    if(!m_is2D)
+                        {
+                        m_current_z += wrapped;
+                        wrapped = m_current_z >= m_range;
+                        m_current_z += wrapped*(1 - 2*m_range);
+                        }
+                    if(wrapped)
+                        {
+                        ++m_stage;
+                        m_current_x = -m_range;
+                        }
+                    break;
+                    // -x wedge: iterate over y and (possibly) z
+                    // for r in itertools.product([-N], range(-N, N), zs):
+                    //     yield r
+                case 3:
+                    ++m_current_y;
+                    wrapped = m_current_y >= m_range;
+                    m_current_y -= 2*wrapped*m_range;
+                    if(!m_is2D)
+                        {
+                        m_current_z += wrapped;
+                        wrapped = m_current_z >= m_range;
+                        m_current_z += wrapped*(1 - 2*m_range);
+                        }
+                    if(wrapped)
+                        {
+                        if(m_is2D) // we're done for this range
+                            reset(m_range + 1);
+                        else
+                            {
+                            ++m_stage;
+                            m_current_x = -m_range;
+                            m_current_y = -m_range;
+                            m_current_z = -m_range;
+                            }
+                        }
+                    break;
+                    // -z face and +z face: iterate over x and y
+                    // grid = list(range(-N, N + 1))
+                    // if threeD:
+                    //     # make front and back in z
+                    //     for (x, y) in itertools.product(grid, grid):
+                    //         yield (x, y, N)
+                    //         if N > 0:
+                    //             yield (x, y, -N)
+                    // elif N == 0:
+                    //     yield (0, 0, 0)
+                case 4:
+                case 5:
+                default:
+                    ++m_current_x;
+                    wrapped = m_current_x > m_range;
+                    m_current_x -= wrapped*(2*m_range + 1);
+                    m_current_y += wrapped;
+                    wrapped = m_current_y > m_range;
+                    m_current_y -= wrapped*(2*m_range + 1);
+                    if(wrapped)
+                        {
+                        // 2D cases have already moved to the next stage by
+                        // this point, only deal with 3D
+                        ++m_stage;
+                        m_current_z = m_range;
+
+                        // if we're done, move on to the next range
+                        if(m_stage > 5)
+                            reset(m_range + 1);
+                        }
+                    break;
+                }
+            }
+
+        vec3<int> operator*()
+            {
+            return vec3<int>(m_current_x, m_current_y, m_current_z);
+            }
+
+        bool operator==(const IteratorCellShell &other)
+            {
+            return m_range == other.m_range && m_current_x == other.m_current_x && m_current_y == other.m_current_y && m_current_z == other.m_current_z && m_stage == other.m_stage && m_is2D == other.m_is2D;
+            }
+
+        bool operator!=(const IteratorCellShell &other)
+            {
+            return !(*this == other);
+            }
+
+    private:
+        void reset(unsigned int range)
+            {
+            m_range = range;
+            m_stage = 0;
+            m_current_x = -m_range;
+            m_current_y = m_range;
+            if(m_is2D)
+                {
+                m_current_z = 0;
+                }
+            else
+                {
+                m_current_z = -m_range + 1;
+                }
+
+            if(range == 0)
+                {
+                m_current_z = 0;
+                // skip to the last stage
+                m_stage = 5;
+                }
+            }
+        int m_range; //!< Find cells this many cells away
+        int m_current_x; //!< Current position in x
+        int m_current_y; //!< Current position in y
+        int m_current_z; //!< Current position in z
+        char m_stage; //!< stage of the computation (which face is being iterated over)
+        bool m_is2D; //!< true if the cell list is 2D
+};
+
+bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float> > &left,
+                               const std::vector<std::tuple<size_t, size_t, float> > &right);
 
 //! Computes a cell id for each particle and a link cell data structure for iterating through it
 /*! For simplicity in only needing a small number of arrays, the link cell algorithm is used to generate and store
@@ -279,8 +484,19 @@ class LinkCell
         //! Compute the cell list
         void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);
 
+        //! Compute the neighbor list using the cell list
+        void compute(box::Box& box, const vec3<float> *ref_points,
+                     unsigned int Nref, const vec3<float> *points=0, unsigned int Np=0,
+                     bool exclude_ii=true);
+
         // //! Python wrapper for computeCellList
         // void computeCellListPy(box::Box& box, boost::python::numeric::array points);
+
+        NeighborList *getNeighborList()
+        {
+            return &m_neighbor_list;
+        }
+
     private:
 
         //! Rounding helper function.
@@ -288,7 +504,7 @@ class LinkCell
 
         box::Box m_box;      //!< Simulation box the particles belong in
         Index3D m_cell_index;       //!< Indexer to compute cell indices
-        unsigned int m_Np;          //!< Number of particles last placed into the cell list
+        unsigned int m_Np;        //!< Number of particles last placed into the cell list
         unsigned int m_Nc;          //!< Number of cells last used
         float m_cell_width;         //!< Minimum necessary cell width cutoff
         vec3<unsigned int> m_celldim; //!< Cell dimensions
@@ -296,6 +512,8 @@ class LinkCell
         std::shared_ptr<unsigned int> m_cell_list;    //!< The cell list last computed
 
         std::vector< std::vector<unsigned int> > m_cell_neighbors;    //!< List of cell neighborts to each cell
+
+        NeighborList m_neighbor_list;    //!< Stored neighbor list
 
         //! Helper function to compute cell neighbors
         void computeCellNeighbors();

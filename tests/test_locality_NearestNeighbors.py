@@ -1,7 +1,9 @@
 from freud import locality, box
 import numpy as np
 import numpy.testing as npt
+import itertools
 import unittest
+import freud;freud.parallel.setNumThreads(1)
 
 class TestNearestNeighbors(unittest.TestCase):
     def test_neighbor_count(self):
@@ -81,7 +83,7 @@ class TestNearestNeighbors(unittest.TestCase):
 
     def test_strict_cutoff(self):
         L = 10 #Box Dimensions
-        rcut = 2 #Cutoff radius
+        rcut = 2.01 #Cutoff radius
         N = 3; # number of particles
         num_neighbors = 2;
 
@@ -92,6 +94,7 @@ class TestNearestNeighbors(unittest.TestCase):
         points[0] = [0.0, 0.0, 0.0]
         points[1] = [1.0, 0.0, 0.0]
         points[2] = [3.0, 0.0, 0.0]
+
         cl.compute(fbox, points, points)
         neighbor_list = cl.getNeighborList()
         rsq_list = cl.getRsqList()
@@ -99,6 +102,28 @@ class TestNearestNeighbors(unittest.TestCase):
         npt.assert_equal(neighbor_list[0,1], cl.getUINTMAX())
         npt.assert_equal(rsq_list[0,0], 1.0)
         npt.assert_equal(rsq_list[0,1], -1.0)
+
+    def test_cheap_hexatic(self):
+        """Construct a poor man's hexatic order parameter using NeighborList properties"""
+        box = freud.box.Box.square(10)
+
+        # make a square grid
+        xs = np.linspace(-box.getLx()/2, box.getLx()/2, 10, endpoint=False)
+        positions = np.zeros((len(xs)**2, 3), dtype=np.float32)
+        positions[:, :2] = np.array(list(itertools.product(xs, xs)), dtype=np.float32)
+
+        nn = locality.NearestNeighbors(1.5, 4)
+        nn.compute(box, positions, positions)
+
+        rijs = positions[nn.nlist.index_j] - positions[nn.nlist.index_i]
+        box.wrap(rijs)
+        thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
+
+        cplx = np.exp(4*1j*thetas)
+        psi4 = np.add.reduceat(cplx, nn.nlist.segments)/nn.nlist.neighbor_counts
+
+        self.assertEqual(len(psi4), len(positions))
+        self.assertTrue(np.allclose(np.abs(psi4), 1))
 
 if __name__ == '__main__':
     unittest.main()

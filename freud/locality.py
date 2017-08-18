@@ -10,3 +10,4 @@
 from ._freud import LinkCell
 from ._freud import IteratorLinkCell
 from ._freud import NearestNeighbors
+from ._freud import NeighborList

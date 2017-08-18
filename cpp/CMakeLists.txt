@@ -68,6 +68,7 @@ set(FREUD_SOURCES
             locality/LinkCell.h
             locality/NearestNeighbors.h
             locality/NearestNeighbors.cc
+            locality/NeighborList.cc
             density/CorrelationFunction.h
             density/CorrelationFunction.cc
             density/RDF.cc
@@ -114,18 +115,12 @@ set(FREUD_SOURCES
             interface/InterfaceMeasure.h
             order/LocalQl.h
             order/LocalQl.cc
-            order/LocalQlNear.h
-            order/LocalQlNear.cc
             order/LocalWl.h
             order/LocalWl.cc
-            order/LocalWlNear.h
-            order/LocalWlNear.cc
             order/SolLiq.h
             order/SolLiq.cc
             order/MatchEnv.h
             order/MatchEnv.cc
-            order/SolLiqNear.h
-            order/SolLiqNear.cc
             order/wigner3j.cc
             order/wigner3j.h
             parallel/tbb_config.h

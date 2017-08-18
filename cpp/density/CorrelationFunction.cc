@@ -50,7 +50,6 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
         float nextr = float(i+1) * m_dr;
         m_r_array.get()[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
-    m_lc = new locality::LinkCell(m_box, m_rmax);
     }
 
 template<typename T>
@@ -64,7 +63,6 @@ CorrelationFunction<T>::~CorrelationFunction()
         {
         delete[] (*i);
         }
-    delete m_lc;
     }
 
 //! \internal
@@ -113,6 +111,7 @@ void CorrelationFunction<T>::resetCorrelationFunction()
 
 template<typename T>
 void CorrelationFunction<T>::accumulate(const box::Box &box,
+                             const freud::locality::NeighborList *nlist,
                              const vec3<float> *ref_points,
                              const T *ref_values,
                              unsigned int n_ref,
@@ -121,14 +120,14 @@ void CorrelationFunction<T>::accumulate(const box::Box &box,
                              unsigned int Np)
     {
     m_box = box;
-    m_lc->computeCellList(m_box, points, Np);
+    nlist->validate(n_ref, Np);
     parallel_for(tbb::blocked_range<size_t>(0, n_ref), ComputeOCF<T>(m_nbins,
                                                                     m_local_bin_counts,
                                                                     m_local_rdf_array,
                                                                     m_box,
+                                                                    nlist,
                                                                     m_rmax,
                                                                     m_dr,
-                                                                    m_lc,
                                                                     ref_points,
                                                                     ref_values,
                                                                     n_ref,
@@ -172,6 +171,7 @@ void ComputeOCF<T>::operator()( const blocked_range<size_t> &myR ) const
 
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
+    const size_t *neighbor_list(m_nlist->getNeighbors());
 
     bool bin_exists;
     m_bin_counts.local(bin_exists);
@@ -189,22 +189,15 @@ void ComputeOCF<T>::operator()( const blocked_range<size_t> &myR ) const
         memset((void*)m_rdf_array.local(), 0, sizeof(T)*m_nbins);
         }
 
+    size_t bond(m_nlist->find_first_index(myR.begin()));
     // for each reference point
     for (size_t i = myR.begin(); i != myR.end(); i++)
         {
         // get the cell the point is in
         vec3<float> ref = m_ref_points[i];
-        unsigned int ref_cell = m_lc->getCell(ref);
-
-        // loop over all neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+        for(; bond < m_nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-            // iterate over the particles in that cell
-            locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+            const size_t j(neighbor_list[2*bond + 1]);
                 {
                 // compute r between the two particles
                 vec3<float> delta = m_box.wrap(m_points[j] - ref);

@@ -48,6 +48,7 @@ class PMFTXYT
             of the pcf
         */
         void accumulate(box::Box& box,
+                        const locality::NeighborList *nlist,
                         vec3<float> *ref_points,
                         float *ref_orientations,
                         unsigned int n_ref,
@@ -116,7 +117,6 @@ class PMFTXYT
         float m_dx;                       //!< Step size for x in the computation
         float m_dy;                       //!< Step size for y in the computation
         float m_dt;                       //!< Step size for T in the computation
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_n_bins_x;             //!< Number of x bins to compute pcf over
         unsigned int m_n_bins_y;             //!< Number of y bins to compute pcf over
         unsigned int m_n_bins_t;             //!< Number of T bins to compute pcf over

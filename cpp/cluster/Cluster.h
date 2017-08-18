@@ -72,7 +72,8 @@ class Cluster
         //! Compute the point clusters
         // void computeClusters(const float3 *points,
         //                      unsigned int Np);
-        void computeClusters(const vec3<float> *points,
+        void computeClusters(const freud::locality::NeighborList *nlist,
+                             const vec3<float> *points,
                              unsigned int Np);
 
         // //! Python wrapper for computePointClusters
@@ -113,19 +114,18 @@ class Cluster
         // boost::python::object getClusterKeysPy();
 
         //! Returns the cluster keys last determined by computeClusterKeys
-        const std::vector< std::set<unsigned int> >& getClusterKeys()
+        const std::vector< std::vector<unsigned int> >& getClusterKeys()
             {
             return m_cluster_keys;
             }
     private:
         box::Box m_box;                    //!< Simulation box the particles belong in
         float m_rcut;                             //!< Maximum r at which points will be counted in the same cluster
-        locality::LinkCell m_lc;                  //!< LinkCell to bin particles for the computation
         unsigned int m_num_particles;             //!< Number of particles processed in the last call to compute()
         unsigned int m_num_clusters;              //!< Number of clusters found inthe last call to compute()
 
         std::shared_ptr<unsigned int> m_cluster_idx;         //!< Cluster index determined for each particle
-        std::vector< std::set<unsigned int> > m_cluster_keys;    //!< List of keys in each cluster
+        std::vector< std::vector<unsigned int> > m_cluster_keys;    //!< List of keys in each cluster
 
     };
 
