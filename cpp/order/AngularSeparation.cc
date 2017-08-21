@@ -118,7 +118,7 @@ void AngularSeparation::computeNeighbor(const freud::locality::NeighborList *nli
 
                 float theta = computeMinSeparationAngle(ref_q, q, ref_equiv_ors, Nequiv);
                 //cout<<neighbor_list[2*bond]<<neighbor_list[2*bond+1]<<endl;
-                cout<<"i: "<<i<<" j: "<<j<<" bond: "<<bond<<" theta: "<<theta<<endl;
+                //cout<<"i: "<<i<<" j: "<<j<<" bond: "<<bond<<" theta: "<<theta<<endl;
 
                 m_neigh_ang_array.get()[bond] = theta;
                 }

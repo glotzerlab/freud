@@ -2134,15 +2134,20 @@ cdef class AngularSeparation:
     cdef order.AngularSeparation *thisptr
     cdef num_neigh
     cdef rmax
-    cdef NeighborList nlist
+    cdef nlist_
 
     def __cinit__(self, rmax, n):
         self.thisptr = new order.AngularSeparation()
         self.rmax = rmax
         self.num_neigh = int(n)
+        self.nlist_ = None
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def nlist(self):
+        return self.nlist_
 
     def computeNeighbor(self, box, ref_ors, ors, ref_points, points, equiv_quats, nlist=None):
         """
@@ -2195,7 +2200,7 @@ cdef class AngularSeparation:
         defaulted_nlist = make_default_nlist_nn(box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
-        self.nlist = nlist_
+        self.nlist_ = nlist_
 
         cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
         cdef np.ndarray[float, ndim=2] l_ors = ors
