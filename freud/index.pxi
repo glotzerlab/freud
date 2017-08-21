@@ -59,6 +59,14 @@ cdef class Index2D:
         """
         return self.thisptr.getIndex(i, j)
 
+    @property
+    def num_elements(self):
+        """
+        :return: number of elements in the array
+        :rtype: unsigned int
+        """
+        return self.getNumElements()
+
     def getNumElements(self):
         """
         :return: number of elements in the array
@@ -119,6 +127,14 @@ cdef class Index3D:
         :rtype: unsigned int
         """
         return self.thisptr.getIndex(i, j, k)
+
+    @property
+    def num_elements(self):
+        """
+        :return: number of elements in the array
+        :rtype: unsigned int
+        """
+        return self.getNumElements()
 
     def getNumElements(self):
         """

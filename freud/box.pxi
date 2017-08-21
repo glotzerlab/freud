@@ -144,6 +144,7 @@ cdef class Box:
         :return: x-dimension of the box
         :rtype: float
         """
+        return self.getLx()
 
     def getLx(self):
         """
@@ -154,6 +155,16 @@ cdef class Box:
         """
         return self.thisptr.getLx()
 
+    @property
+    def Ly(self):
+        """
+        return the length of the y-dimension of the box
+
+        :return: y-dimension of the box
+        :rtype: float
+        """
+        return self.getLy()
+
     def getLy(self):
         """
         return the length of the y-dimension of the box
@@ -163,6 +174,16 @@ cdef class Box:
         """
         return self.thisptr.getLy()
 
+    @property
+    def Lz(self):
+        """
+        return the length of the z-dimension of the box
+
+        :return: z-dimension of the box
+        :rtype: float
+        """
+        return self.getLz()
+
     def getLz(self):
         """
         return the length of the z-dimension of the box
@@ -171,6 +192,26 @@ cdef class Box:
         :rtype: float
         """
         return self.thisptr.getLz()
+
+    @property
+    def L(self):
+        """
+        return the lengths of the box as a tuple (x, y, z)
+
+        :return: dimensions of the box as (x, y, z)
+        :rtype: (float, float, float)
+        """
+        return self.getL()
+
+    @L.setter
+    def L(self, value):
+        """
+        Set all side lengths of box to L
+
+        :param L: Side length of box
+        :type L: float
+        """
+        self.setL(value)
 
     def getL(self):
         """
@@ -182,6 +223,16 @@ cdef class Box:
         cdef vec3[float] result = self.thisptr.getL()
         return (result.x, result.y, result.z)
 
+    @property
+    def Linv(self):
+        """
+        return the inverse lengths of the box (1/x, 1/y, 1/z)
+
+        :return: dimensions of the box as (1/x, 1/y, 1/z)
+        :rtype: (float, float, float)
+        """
+        return self.getLinv()
+
     def getLinv(self):
         """
         return the inverse lengths of the box (1/x, 1/y, 1/z)
@@ -192,6 +243,16 @@ cdef class Box:
         cdef vec3[float] result = self.thisptr.getLinv()
         return (result.x, result.y, result.z)
 
+    @property
+    def tilt_factor_xy(self):
+        """
+        return the tilt factor xy
+
+        :return: xy tilt factor
+        :rtype: float
+        """
+        return self.getTiltFactorXY()
+
     def getTiltFactorXY(self):
         """
         return the tilt factor xy
@@ -200,6 +261,16 @@ cdef class Box:
         :rtype: float
         """
         return self.thisptr.getTiltFactorXY()
+
+    @property
+    def tilt_factor_xz(self):
+        """
+        return the tilt factor xz
+
+        :return: xz tilt factor
+        :rtype: float
+        """
+        return self.getTiltFactorXZ()
 
     def getTiltFactorXZ(self):
         """
@@ -210,6 +281,16 @@ cdef class Box:
         """
         return self.thisptr.getTiltFactorXZ()
 
+    @property
+    def tilt_factor_yz(self):
+        """
+        return the tilt factor yz
+
+        :return: yz tilt factor
+        :rtype: float
+        """
+        return self.getTiltFactorYZ()
+
     def getTiltFactorYZ(self):
         """
         return the tilt factor yz
@@ -218,6 +299,16 @@ cdef class Box:
         :rtype: float
         """
         return self.thisptr.getTiltFactorYZ()
+
+    @property
+    def volume(self):
+        """
+        return the box volume
+
+        :return: box volume
+        :rtype: float
+        """
+        return self.getVolume()
 
     def getVolume(self):
         """
