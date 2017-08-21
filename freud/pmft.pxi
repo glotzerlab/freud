@@ -49,6 +49,16 @@ cdef class PMFTR12:
     def __dealloc__(self):
         del self.thisptr
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         Get the box used in the calculation
@@ -147,6 +157,16 @@ cdef class PMFTR12:
         """
         self.thisptr.reducePCF()
 
+    @property
+    def bin_counts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getBinCounts()
+
     def getBinCounts(self):
         """
         Get the raw bin counts.
@@ -161,6 +181,16 @@ cdef class PMFTR12:
         nbins[2] = <np.npy_intp>self.thisptr.getNBinsT1()
         cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
+
+    @property
+    def PCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBinCounts()
 
     def getPCF(self):
         """
@@ -177,6 +207,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
+    @property
+    def PMFT(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBinCounts()
+
     def getPMFT(self):
         """
         Get the Potential of Mean Force and Torque.
@@ -185,6 +225,16 @@ cdef class PMFTR12:
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def R(self):
+        """
+        Get the array of r-values for the PCF histogram
+
+        :return: bin centers of r-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getR()
 
     def getR(self):
         """
@@ -199,6 +249,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
         return result
 
+    @property
+    def T1(self):
+        """
+        Get the array of T1-values for the PCF histogram
+
+        :return: bin centers of T1-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta1}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getT1()
+
     def getT1(self):
         """
         Get the array of T1-values for the PCF histogram
@@ -212,6 +272,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>T1)
         return result
 
+    @property
+    def T2(self):
+        """
+        Get the array of T2-values for the PCF histogram
+
+        :return: bin centers of T2-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta1}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getT2()
+
     def getT2(self):
         """
         Get the array of T2-values for the PCF histogram
@@ -224,6 +294,16 @@ cdef class PMFTR12:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsT2()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>T2)
         return result
+
+    @property
+    def inverse_jacobian(self):
+        """
+        Get the array of T2-values for the PCF histogram
+
+        :return: bin centers of T2-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta1}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getInverseJacobian()
 
     def getInverseJacobian(self):
         """
@@ -240,6 +320,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>inv_jac)
         return result
 
+    @property
+    def n_bins_r(self):
+        """
+        Get the number of bins in the r-dimension of histogram
+
+        :return: :math:`N_r`
+        :rtype: unsigned int
+        """
+        return self.getNBinsR()
+
     def getNBinsR(self):
         """
         Get the number of bins in the r-dimension of histogram
@@ -249,6 +339,16 @@ cdef class PMFTR12:
         """
         cdef unsigned int r = self.thisptr.getNBinsR()
         return r
+
+    @property
+    def n_bins_T1(self):
+        """
+        Get the number of bins in the T1-dimension of histogram
+
+        :return: :math:`N_{\\theta_1}`
+        :rtype: unsigned int
+        """
+        return self.getNBinsT1()
 
     def getNBinsT1(self):
         """
@@ -260,6 +360,16 @@ cdef class PMFTR12:
         cdef unsigned int T1 = self.thisptr.getNBinsT1()
         return T1
 
+    @property
+    def n_bins_T2(self):
+        """
+        Get the number of bins in the T2-dimension of histogram
+
+        :return: :math:`N_{\\theta_2}`
+        :rtype: unsigned int
+        """
+        return self.getNBinsT2()
+
     def getNBinsT2(self):
         """
         Get the number of bins in the T2-dimension of histogram
@@ -269,6 +379,16 @@ cdef class PMFTR12:
         """
         cdef unsigned int T2 = self.thisptr.getNBinsT2()
         return T2
+
+    @property
+    def r_cut(self):
+        """
+        Get the r_cut value used in the cell list
+
+        :return: r_cut
+        :rtype: float
+        """
+        return self.getRCut()
 
     def getRCut(self):
         """
@@ -318,6 +438,16 @@ cdef class PMFTXYT:
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -417,6 +547,16 @@ cdef class PMFTXYT:
         """
         self.thisptr.reducePCF()
 
+    @property
+    def bin_counts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getBinCounts()
+
     def getBinCounts(self):
         """
         Get the raw bin counts.
@@ -431,6 +571,16 @@ cdef class PMFTXYT:
         nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
+
+    @property
+    def PCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBinCounts()
 
     def getPCF(self):
         """
@@ -447,6 +597,16 @@ cdef class PMFTXYT:
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
+    @property
+    def PMFT(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBinCounts()
+
     def getPMFT(self):
         """
         Get the Potential of Mean Force and Torque.
@@ -455,6 +615,16 @@ cdef class PMFTXYT:
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def X(self):
+        """
+        Get the array of x-values for the PCF histogram
+
+        :return: bin centers of x-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
 
     def getX(self):
         """
@@ -469,6 +639,16 @@ cdef class PMFTXYT:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
         return result
 
+    @property
+    def Y(self):
+        """
+        Get the array of y-values for the PCF histogram
+
+        :return: bin centers of y-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
+
     def getY(self):
         """
         Get the array of y-values for the PCF histogram
@@ -481,6 +661,16 @@ cdef class PMFTXYT:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
         return result
+
+    @property
+    def T(self):
+        """
+        Get the array of t-values for the PCF histogram
+
+        :return: bin centers of t-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getT()
 
     def getT(self):
         """
@@ -495,6 +685,16 @@ cdef class PMFTXYT:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>t)
         return result
 
+    @property
+    def jacobian(self):
+        """
+        Get the jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: float
+        """
+        return self.getJacobian()
+
     def getJacobian(self):
         """
         Get the jacobian used in the pmft
@@ -504,6 +704,16 @@ cdef class PMFTXYT:
         """
         cdef float j = self.thisptr.getJacobian()
         return j
+
+    @property
+    def n_bins_X(self):
+        """
+        Get the number of bins in the x-dimension of histogram
+
+        :return: :math:`N_x`
+        :rtype: unsigned int
+        """
+        return self.getNBinsX()
 
     def getNBinsX(self):
         """
@@ -515,6 +725,16 @@ cdef class PMFTXYT:
         cdef unsigned int x = self.thisptr.getNBinsX()
         return x
 
+    @property
+    def n_bins_Y(self):
+        """
+        Get the number of bins in the y-dimension of histogram
+
+        :return: :math:`N_y`
+        :rtype: unsigned int
+        """
+        return self.getNBinsY()
+
     def getNBinsY(self):
         """
         Get the number of bins in the y-dimension of histogram
@@ -525,6 +745,16 @@ cdef class PMFTXYT:
         cdef unsigned int y = self.thisptr.getNBinsY()
         return y
 
+    @property
+    def n_bins_T(self):
+        """
+        Get the number of bins in the T-dimension of histogram
+
+        :return: :math:`N_{\\theta}`
+        :rtype: unsigned int
+        """
+        return self.getNBinsT()
+
     def getNBinsT(self):
         """
         Get the number of bins in the t-dimension of histogram
@@ -534,6 +764,16 @@ cdef class PMFTXYT:
         """
         cdef unsigned int t = self.thisptr.getNBinsT()
         return t
+
+    @property
+    def r_cut(self):
+        """
+        Get the r_cut value used in the cell list
+
+        :return: r_cut
+        :rtype: float
+        """
+        return self.getRCut()
 
     def getRCut(self):
         """
@@ -578,6 +818,16 @@ cdef class PMFTXY2D:
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -677,6 +927,16 @@ cdef class PMFTXY2D:
         """
         self.thisptr.reducePCF()
 
+    @property
+    def PCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBinCounts()
+
     def getPCF(self):
         """
         Get the positional correlation function.
@@ -691,6 +951,16 @@ cdef class PMFTXY2D:
         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
+    @property
+    def PMFT(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBinCounts()
+
     def getPMFT(self):
         """
         Get the Potential of Mean Force and Torque.
@@ -699,6 +969,16 @@ cdef class PMFTXY2D:
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def bin_counts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getBinCounts()
 
     def getBinCounts(self):
         """
@@ -714,6 +994,16 @@ cdef class PMFTXY2D:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
+    @property
+    def X(self):
+        """
+        Get the array of x-values for the PCF histogram
+
+        :return: bin centers of x-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
+
     def getX(self):
         """
         Get the array of x-values for the PCF histogram
@@ -726,6 +1016,16 @@ cdef class PMFTXY2D:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
         return result
+
+    @property
+    def Y(self):
+        """
+        Get the array of y-values for the PCF histogram
+
+        :return: bin centers of y-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
 
     def getY(self):
         """
@@ -741,6 +1041,16 @@ cdef class PMFTXY2D:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
         return result
 
+    @property
+    def n_bins_X(self):
+        """
+        Get the number of bins in the x-dimension of histogram
+
+        :return: :math:`N_x`
+        :rtype: unsigned int
+        """
+        return self.getNBinsX()
+
     def getNBinsX(self):
         """
         Get the number of bins in the x-dimension of histogram
@@ -750,6 +1060,16 @@ cdef class PMFTXY2D:
         """
         cdef unsigned int x = self.thisptr.getNBinsX()
         return x
+
+    @property
+    def n_bins_Y(self):
+        """
+        Get the number of bins in the y-dimension of histogram
+
+        :return: :math:`N_y`
+        :rtype: unsigned int
+        """
+        return self.getNBinsY()
 
     def getNBinsY(self):
         """
@@ -761,6 +1081,16 @@ cdef class PMFTXY2D:
         cdef unsigned int y = self.thisptr.getNBinsY()
         return y
 
+    @property
+    def jacobian(self):
+        """
+        Get the jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: float
+        """
+        return self.getJacobian()
+
     def getJacobian(self):
         """
         Get the jacobian
@@ -770,6 +1100,16 @@ cdef class PMFTXY2D:
         """
         cdef float j = self.thisptr.getJacobian()
         return j
+
+    @property
+    def r_cut(self):
+        """
+        Get the r_cut value used in the cell list
+
+        :return: r_cut
+        :rtype: float
+        """
+        return self.getRCut()
 
     def getRCut(self):
         """
@@ -823,6 +1163,16 @@ cdef class PMFTXYZ:
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -965,6 +1315,16 @@ cdef class PMFTXYZ:
         """
         self.thisptr.reducePCF()
 
+    @property
+    def bin_counts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getBinCounts()
+
     def getBinCounts(self):
         """
         Get the raw bin counts.
@@ -979,6 +1339,16 @@ cdef class PMFTXYZ:
         nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
+
+    @property
+    def PCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBinCounts()
 
     def getPCF(self):
         """
@@ -995,6 +1365,16 @@ cdef class PMFTXYZ:
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
+    @property
+    def PMFT(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBinCounts()
+
     def getPMFT(self):
         """
         Get the Potential of Mean Force and Torque.
@@ -1003,6 +1383,16 @@ cdef class PMFTXYZ:
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{z}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def X(self):
+        """
+        Get the array of x-values for the PCF histogram
+
+        :return: bin centers of x-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
 
     def getX(self):
         """
@@ -1016,6 +1406,16 @@ cdef class PMFTXYZ:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
         return result + self.shiftvec[0]
+
+    @property
+    def Y(self):
+        """
+        Get the array of y-values for the PCF histogram
+
+        :return: bin centers of y-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
 
     def getY(self):
         """
@@ -1043,6 +1443,16 @@ cdef class PMFTXYZ:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>z)
         return result + self.shiftvec[2]
 
+    @property
+    def n_bins_X(self):
+        """
+        Get the number of bins in the x-dimension of histogram
+
+        :return: :math:`N_x`
+        :rtype: unsigned int
+        """
+        return self.getNBinsX()
+
     def getNBinsX(self):
         """
         Get the number of bins in the x-dimension of histogram
@@ -1052,6 +1462,16 @@ cdef class PMFTXYZ:
         """
         cdef unsigned int x = self.thisptr.getNBinsX()
         return x
+
+    @property
+    def n_bins_Y(self):
+        """
+        Get the number of bins in the y-dimension of histogram
+
+        :return: :math:`N_y`
+        :rtype: unsigned int
+        """
+        return self.getNBinsY()
 
     def getNBinsY(self):
         """
@@ -1063,6 +1483,16 @@ cdef class PMFTXYZ:
         cdef unsigned int y = self.thisptr.getNBinsY()
         return y
 
+    @property
+    def n_bins_Z(self):
+        """
+        Get the number of bins in the z-dimension of histogram
+
+        :return: :math:`N_z`
+        :rtype: unsigned int
+        """
+        return self.getNBinsZ()
+
     def getNBinsZ(self):
         """
         Get the number of bins in the z-dimension of histogram
@@ -1072,6 +1502,16 @@ cdef class PMFTXYZ:
         """
         cdef unsigned int z = self.thisptr.getNBinsZ()
         return z
+
+    @property
+    def jacobian(self):
+        """
+        Get the jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: float
+        """
+        return self.getJacobian()
 
     def getJacobian(self):
         """
