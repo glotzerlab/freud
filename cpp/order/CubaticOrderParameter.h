@@ -96,8 +96,11 @@ class CubaticOrderParameter
         quat<float> m_cubatic_orientation;
         std::shared_ptr<float> m_particle_order_parameter;
         tensor4<float> m_global_tensor;
+        std::shared_ptr<float> m_sp_global_tensor;
         tensor4<float> m_cubatic_tensor;
+        std::shared_ptr<float> m_sp_cubatic_tensor;
         std::shared_ptr<float> m_particle_tensor;
+        std::shared_ptr<float> m_sp_gen_r4_tensor;
 
         // saru rng
         Saru m_saru;
