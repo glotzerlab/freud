@@ -136,6 +136,15 @@ cdef class Box:
         """
         return self.thisptr.is2D()
 
+    @property
+    def Lx(self):
+        """
+        return the length of the x-dimension of the box
+
+        :return: x-dimension of the box
+        :rtype: float
+        """
+
     def getLx(self):
         """
         return the length of the x-dimension of the box
