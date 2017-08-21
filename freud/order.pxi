@@ -1088,7 +1088,7 @@ cdef class LocalQl:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
-        return self.setBox(value)
+        self.setBox(value)
 
     def getBox(self):
         """
@@ -1117,7 +1117,7 @@ cdef class LocalQl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getQl(value)
+        return self.getQl()
 
     def getQl(self):
         """
@@ -1140,7 +1140,7 @@ cdef class LocalQl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getAveQl(value)
+        return self.getAveQl()
 
     def getAveQl(self):
         """
@@ -1164,7 +1164,7 @@ cdef class LocalQl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getQlNorm(value)
+        return self.getQlNorm()
 
     def getQlNorm(self):
         """
@@ -1189,7 +1189,7 @@ cdef class LocalQl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getQlAveNorm(value)
+        return self.getQlAveNorm()
 
     def getQlAveNorm(self):
         """
@@ -1491,7 +1491,7 @@ cdef class LocalWl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getQl(value)
+        return self.getQl()
 
     def getQl(self):
         """
@@ -1516,7 +1516,7 @@ cdef class LocalWl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.complex64`
         """
-        return self.getWl(value)
+        return self.getWl()
 
     def getWl(self):
         """
@@ -1541,7 +1541,7 @@ cdef class LocalWl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getAveWl(value)
+        return self.getAveWl()
 
     def getAveWl(self):
         """
@@ -1566,7 +1566,7 @@ cdef class LocalWl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getWlNorm(value)
+        return self.getWlNorm()
 
     def getWlNorm(self):
         """
@@ -1591,7 +1591,7 @@ cdef class LocalWl:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getWlAveNorm(value)
+        return self.getWlAveNorm()
 
     def getWlAveNorm(self):
         """
@@ -1836,7 +1836,7 @@ cdef class SolLiq:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
-        return self.setBox(value)
+        self.setBox(value)
 
     def getBox(self):
         """
