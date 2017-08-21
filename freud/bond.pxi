@@ -80,7 +80,7 @@ cdef class BondingAnalysis:
         :return: lifetime of bonds
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.uint32`
         """
-        return getBondLifetimes()
+        return self.getBondLifetimes()
 
     def getBondLifetimes(self):
         """
@@ -96,7 +96,7 @@ cdef class BondingAnalysis:
         :return: lifetime of bonds
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.uint32`
         """
-        return getOverallLifetimes()
+        return self.getOverallLifetimes()
 
     def getOverallLifetimes(self):
         """
@@ -113,7 +113,7 @@ cdef class BondingAnalysis:
         :return: transition matrix
         :rtype: :class:`numpy.ndarray`
         """
-        return getTransitionMatrix()
+        return self.getTransitionMatrix()
 
     def getTransitionMatrix(self):
         """
@@ -135,7 +135,7 @@ cdef class BondingAnalysis:
         :return: number of frames
         :rtype: unsigned int
         """
-        return getNumFrames()
+        return self.getNumFrames()
 
     def getNumFrames(self):
         """
@@ -154,7 +154,7 @@ cdef class BondingAnalysis:
         :return: number of particles
         :rtype: unsigned int
         """
-        return getNumParticles()
+        return self.getNumParticles()
 
     def getNumParticles(self):
         """
@@ -173,7 +173,7 @@ cdef class BondingAnalysis:
         :return: number of bonds
         :rtype: unsigned int
         """
-        return getNumBonds()
+        return self.getNumBonds()
 
     def getNumBonds(self):
         """
@@ -272,7 +272,7 @@ cdef class BondingR12:
         :return: particle bonds
         :rtype: :class:`numpy.ndarray`
         """
-        return getBonds()
+        return self.getBonds()
 
     def getBonds(self):
         """
@@ -294,7 +294,7 @@ cdef class BondingR12:
         :return: Freud Box
         :rtype: :py:meth:`freud.box.Box()`
         """
-        return getBox()
+        return self.getBox()
 
     def getBox(self):
         """
@@ -315,7 +315,7 @@ cdef class BondingR12:
 
         >>> list_idx = list_map[bond_idx]
         """
-        return getBonds()
+        return self.getBonds()
 
     def getListMap(self):
         """
@@ -338,7 +338,7 @@ cdef class BondingR12:
 
         >>> bond_idx = list_map[list_idx]
         """
-        return getRevListMap()
+        return self.getRevListMap()
 
     def getRevListMap(self):
         """
@@ -442,7 +442,7 @@ cdef class BondingXY2D:
         :return: particle bonds
         :rtype: :class:`numpy.ndarray`
         """
-        return getBonds()
+        return self.getBonds()
 
     def getBonds(self):
         """
@@ -464,7 +464,7 @@ cdef class BondingXY2D:
         :return: Freud Box
         :rtype: :py:meth:`freud.box.Box()`
         """
-        return getBox()
+        return self.getBox()
 
     def getBox(self):
         """
@@ -485,7 +485,7 @@ cdef class BondingXY2D:
 
         >>> list_idx = list_map[bond_idx]
         """
-        return getBonds()
+        return self.getBonds()
 
     def getListMap(self):
         """
@@ -508,7 +508,7 @@ cdef class BondingXY2D:
 
         >>> bond_idx = list_map[list_idx]
         """
-        return getRevListMap()
+        return self.getRevListMap()
 
     def getRevListMap(self):
         """
@@ -613,7 +613,7 @@ cdef class BondingXYT:
         :return: particle bonds
         :rtype: :class:`numpy.ndarray`
         """
-        return getBonds()
+        return self.getBonds()
 
     def getBonds(self):
         """
@@ -635,7 +635,7 @@ cdef class BondingXYT:
         :return: Freud Box
         :rtype: :py:meth:`freud.box.Box()`
         """
-        return getBox()
+        return self.getBox()
 
     def getBox(self):
         """
@@ -656,7 +656,7 @@ cdef class BondingXYT:
 
         >>> list_idx = list_map[bond_idx]
         """
-        return getBonds()
+        return self.getBonds()
 
     def getListMap(self):
         """
@@ -679,7 +679,7 @@ cdef class BondingXYT:
 
         >>> bond_idx = list_map[list_idx]
         """
-        return getRevListMap()
+        return self.getRevListMap()
 
     def getRevListMap(self):
         """
@@ -790,7 +790,7 @@ cdef class BondingXYZ:
         :return: particle bonds
         :rtype: :class:`numpy.ndarray`
         """
-        return getBonds()
+        return self.getBonds()
 
     def getBonds(self):
         """
@@ -812,7 +812,7 @@ cdef class BondingXYZ:
         :return: Freud Box
         :rtype: :py:meth:`freud.box.Box()`
         """
-        return getBox()
+        return self.getBox()
 
     def getBox(self):
         """
@@ -833,7 +833,7 @@ cdef class BondingXYZ:
 
         >>> list_idx = list_map[bond_idx]
         """
-        return getBonds()
+        return self.getBonds()
 
     def getListMap(self):
         """
@@ -856,7 +856,7 @@ cdef class BondingXYZ:
 
         >>> bond_idx = list_map[list_idx]
         """
-        return getRevListMap()
+        return self.getRevListMap()
 
     def getRevListMap(self):
         """
