@@ -386,12 +386,28 @@ cdef class LinkCell:
     def __dealloc__(self):
         del self.thisptr
 
+    @property
+    def box(self):
+        """
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         :return: Freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())
+
+    @property
+    def num_cells(self):
+        """
+        :return: the number of cells in this box
+        :rtype: unsigned int
+        """
+        return self.getNumCells()
 
     def getNumCells(self):
         """
@@ -548,12 +564,28 @@ cdef class NearestNeighbors:
     def __dealloc__(self):
         del self.thisptr
 
+    @property
+    def UINTMAX(self):
+        """
+        :return: value of C++ UINTMAX used to pad the arrays
+        :rtype: unsigned int
+        """
+        return self.getUINTMAX()
+
     def getUINTMAX(self):
         """
         :return: value of C++ UINTMAX used to pad the arrays
         :rtype: unsigned int
         """
         return self.thisptr.getUINTMAX()
+
+    @property
+    def box(self):
+        """
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -562,12 +594,28 @@ cdef class NearestNeighbors:
         """
         return BoxFromCPP(self.thisptr.getBox())
 
+    @property
+    def num_neighbors(self):
+        """
+        :return: the number of neighbors this object will find
+        :rtype: unsigned int
+        """
+        return self.getNumNeighbors()
+
     def getNumNeighbors(self):
         """
         :return: the number of neighbors this object will find
         :rtype: unsigned int
         """
         return self.thisptr.getNumNeighbors()
+
+    @property
+    def n_ref(self):
+        """
+        :return: the number of particles this object found neighbors of
+        :rtype: unsigned int
+        """
+        return self.getNRef()
 
     def getNRef(self):
         """
@@ -596,6 +644,14 @@ cdef class NearestNeighbors:
         :type strict_cut: bool
         """
         self.thisptr.setCutMode(strict_cut)
+
+    @property
+    def r_max(self):
+        """Return the current neighbor search distance guess
+        :return: nearest neighbors search radius
+        :rtype: float
+        """
+        return self.getRMax()
 
     def getRMax(self):
         """Return the current neighbor search distance guess
@@ -658,12 +714,21 @@ cdef class NearestNeighbors:
         result[:len(rijs)] = np.sum(rijs**2, axis=-1)
         return result
 
+    @property
+    def wrapped_vectors(self):
+        """
+        Return the wrapped vectors for computed neighbors. Array padded with -1 for empty neighbors
+
+        :return: wrapped vectors
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getWrappedVectors()
+
     def getWrappedVectors(self):
         """
         Return the wrapped vectors for computed neighbors. Array padded with -1 for empty neighbors
 
         :return: wrapped vectors
-        :return: Neighbor List
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self._getWrappedVectors()[0]
@@ -685,6 +750,16 @@ cdef class NearestNeighbors:
         self._cached_box.wrap(result.reshape((-1, 3)))
         result[blank_mask] = -1
         return result, blank_mask
+
+    @property
+    def r_sq_list(self):
+        """
+        Return the entire Rsq values list
+
+        :return: Rsq list
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getRsqList()
 
     def getRsqList(self):
         """
