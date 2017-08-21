@@ -315,7 +315,7 @@ cdef class BondingR12:
 
         >>> list_idx = list_map[bond_idx]
         """
-        return self.getBonds()
+        return self.getListMap()
 
     def getListMap(self):
         """
@@ -485,7 +485,7 @@ cdef class BondingXY2D:
 
         >>> list_idx = list_map[bond_idx]
         """
-        return self.getBonds()
+        return self.getListMap()
 
     def getListMap(self):
         """
@@ -656,7 +656,7 @@ cdef class BondingXYT:
 
         >>> list_idx = list_map[bond_idx]
         """
-        return self.getBonds()
+        return self.getListMap()
 
     def getListMap(self):
         """
@@ -833,7 +833,7 @@ cdef class BondingXYZ:
 
         >>> list_idx = list_map[bond_idx]
         """
-        return self.getBonds()
+        return self.getListMap()
 
     def getListMap(self):
         """

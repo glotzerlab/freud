@@ -1868,7 +1868,7 @@ cdef class SolLiq:
         self.thisptr.setBox(l_box)
 
     @property
-    def largest_cluster(self):
+    def largest_cluster_size(self):
         """
         Returns the largest cluster size. Must compute sol-liq first
 
@@ -1888,7 +1888,7 @@ cdef class SolLiq:
         return clusterSize
 
     @property
-    def cluster_sizes(self):
+    def cluster_size(self):
         """
         Returns the largest cluster size. Must compute sol-liq first
 

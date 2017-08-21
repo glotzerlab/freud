@@ -17,7 +17,7 @@ class TestLocalDescriptors(unittest.TestCase):
         comp.computeNList(box, positions)
         comp.compute(box, Nneigh, positions)
 
-        sphs = comp.getSph()
+        sphs = comp.sph
 
         assert sphs.shape[0] == N*Nneigh
 
@@ -33,7 +33,7 @@ class TestLocalDescriptors(unittest.TestCase):
         comp.computeNList(box, positions)
         comp.compute(box, Nneigh, positions, mode='global')
 
-        sphs = comp.getSph()
+        sphs = comp.sph
 
         assert sphs.shape[0] == N*Nneigh
 
@@ -55,7 +55,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         comp.compute(box, Nneigh, positions, orientations=orientations, mode='particle_local')
 
-        sphs = comp.getSph()
+        sphs = comp.sph
 
         assert sphs.shape[0] == N*Nneigh
 
@@ -89,7 +89,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lc = freud.locality.LinkCell(box, 2).compute(box, positions, positions2)
         nn = freud.locality.NearestNeighbors(1, 4).compute(box, positions, positions2)
 
-        sphs = comp.getSph()
+        sphs = comp.sph
 
         assert sphs.shape[0] == N*Nneigh
 

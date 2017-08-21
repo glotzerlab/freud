@@ -215,7 +215,7 @@ cdef class PMFTR12:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getBinCounts()
+        return self.getPMFT()
 
     def getPMFT(self):
         """
@@ -605,7 +605,7 @@ cdef class PMFTXYT:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getBinCounts()
+        return self.getPMFT()
 
     def getPMFT(self):
         """
@@ -959,7 +959,7 @@ cdef class PMFTXY2D:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getBinCounts()
+        return self.getPMFT()
 
     def getPMFT(self):
         """
@@ -1373,7 +1373,7 @@ cdef class PMFTXYZ:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getBinCounts()
+        return self.getPMFT()
 
     def getPMFT(self):
         """
@@ -1429,6 +1429,16 @@ cdef class PMFTXYZ:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
         return result + self.shiftvec[1]
+
+    @property
+    def Z(self):
+        """
+        Get the array of z-values for the PCF histogram
+
+        :return: bin centers of z-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getZ()
 
     def getZ(self):
         """

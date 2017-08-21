@@ -48,7 +48,7 @@ class TestBond(unittest.TestCase):
 
         # check to make sure that the point is in the correct bin
 
-        bonds = EB.getBonds()
+        bonds = EB.bonds
 
         npt.assert_equal(bonds[0,1], 1)
         npt.assert_equal(bonds[1,1], 0)
@@ -68,7 +68,7 @@ class TestBond(unittest.TestCase):
         bondList = np.array([0, 3, 4, 5], dtype=np.uint32)
         EB = bond.BondingXY2D(xmax, ymax, testArray, bondList)
 
-        bond_map = EB.getListMap()
+        bond_map = EB.list_map
 
         npt.assert_equal(bond_map[3], 1)
 
@@ -87,7 +87,7 @@ class TestBond(unittest.TestCase):
         bondList = np.array([0, 3, 4, 5], dtype=np.uint32)
         EB = bond.BondingXY2D(xmax, ymax, testArray, bondList)
 
-        bond_map = EB.getRevListMap()
+        bond_map = EB.rev_list_map
 
         npt.assert_equal(bond_map[1], bondList[1])
 

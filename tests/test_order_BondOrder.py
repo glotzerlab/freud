@@ -14,7 +14,7 @@ class TestBondOrder(unittest.TestCase):
         bo = freud.order.BondOrder(1.5, 0, 12, 6, 6)
         bo.compute(box, positions, quats, positions, quats)
 
-        self.assertEqual(np.sum(bo.getBondOrder() > 0), 12)
+        self.assertEqual(np.sum(bo.bond_order > 0), 12)
 
 if __name__ == '__main__':
     unittest.main()
