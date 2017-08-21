@@ -533,7 +533,7 @@ cdef class NematicOrderParameter:
 
     """
     cdef order.NematicOrderParameter *thisptr
-    cdef shared_ptr[float] nematic_tensor
+    # cdef shared_ptr[float] nematic_tensor
 
     def __cinit__(self, u):
         # run checks
@@ -595,11 +595,12 @@ cdef class NematicOrderParameter:
         :return: 3x3 matrix corresponding to the average particle orientation
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(3, 3 \\right)`, dtype= :class:`numpy.float32`
         """
-        self.nematic_tensor = self.thisptr.getNematicTensor()
+        # self.nematic_tensor = self.thisptr.getNematicTensor()
+        cdef float *nematic_tensor = self.thisptr.getNematicTensor()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp>3
         nbins[1] = <np.npy_intp>3
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>self.nematic_tensor.get())
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>nematic_tensor.get())
         return result
 
 cdef class HexOrderParameter:

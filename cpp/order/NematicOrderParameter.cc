@@ -27,6 +27,7 @@ NematicOrderParameter::NematicOrderParameter(vec3<float> u)
     : m_n(0)
     {
     // Normalize the molecular axis to be a unit vector
+    m_sp_nematic_tensor = std::shared_ptr<float>(new float [9], std::default_delete<float[]>());
     m_u = u/sqrt(dot(u,u));
     }
 
@@ -42,9 +43,11 @@ std::shared_ptr<float> NematicOrderParameter::getParticleTensor()
 
 std::shared_ptr<float> NematicOrderParameter::getNematicTensor()
     {
-    std::shared_ptr<float> nematic_tensor = std::shared_ptr<float>(new float[9], std::default_delete<float[]>());
-    memcpy(nematic_tensor.get(), m_nematic_tensor, sizeof(float)*9);
-    return nematic_tensor;
+    // std::shared_ptr<float> nematic_tensor = std::shared_ptr<float>(new float[9], std::default_delete<float[]>());
+    // memcpy(nematic_tensor.get(), m_nematic_tensor, sizeof(float)*9);
+    memcpy(m_sp_nematic_tensor.get(), m_nematic_tensor, sizeof(float)*9);
+    // return nematic_tensor;
+    return m_sp_nematic_tensor;
     }
 
 unsigned int NematicOrderParameter::getNumParticles()
