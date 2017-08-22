@@ -1888,20 +1888,18 @@ cdef class SolLiq:
         return clusterSize
 
     @property
-    def cluster_size(self):
+    def cluster_sizes(self):
         """
-        Returns the largest cluster size. Must compute sol-liq first
+        Return the sizes of all clusters
 
         :return: largest cluster size
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{clusters}\\right)`, dtype= :class:`numpy.uint32`
-
-        .. todo:: unsure of the best way to pass back...as this doesn't do what I want
         """
         return self.getClusterSizes()
 
     def getClusterSizes(self):
         """
-        Returns the largest cluster size. Must compute sol-liq first
+        Return the sizes of all clusters
 
         :return: largest cluster size
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{clusters}\\right)`, dtype= :class:`numpy.uint32`
