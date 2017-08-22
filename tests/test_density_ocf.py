@@ -19,7 +19,7 @@ class TestR(unittest.TestCase):
 
         ocf = density.ComplexCF(rmax, dr)
 
-        npt.assert_almost_equal(ocf.getR(), r_list, decimal=3)
+        npt.assert_almost_equal(ocf.R, r_list, decimal=3)
 
 class TestOCF(unittest.TestCase):
     def test_random_point_with_cell_list(self):
@@ -37,7 +37,7 @@ class TestOCF(unittest.TestCase):
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
-        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.rdf, correct, atol=absolute_tolerance)
 
     def test_random_point_without_cell_list(self):
         rmax = 10.0
@@ -54,7 +54,7 @@ class TestOCF(unittest.TestCase):
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
-        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.rdf, correct, atol=absolute_tolerance)
 
     def test_value_point_with_cell_list(self):
         rmax = 10.0
@@ -70,7 +70,7 @@ class TestOCF(unittest.TestCase):
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
-        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.rdf, correct, atol=absolute_tolerance)
 
     def test_value_point_without_cell_list(self):
         rmax = 10.0
@@ -86,7 +86,7 @@ class TestOCF(unittest.TestCase):
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
-        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.rdf, correct, atol=absolute_tolerance)
 
 
 def test_summation():
@@ -107,12 +107,12 @@ def test_summation():
     cf = density.ComplexCF(500, 40)
     cf.compute(fbox, pos2d, phi, pos2d, phi)
     c1 = cf.getCounts();
-    f1 = numpy.real(cf.getRDF());
+    f1 = numpy.real(cf.rdf);
 
     parallel.setNumThreads(20);
     cf.compute(fbox, pos2d, phi, pos2d, phi)
     c2 = cf.getCounts();
-    f2 = numpy.real(cf.getRDF());
+    f2 = numpy.real(cf.rdf);
 
     numpy.testing.assert_allclose(f1, f2);
     numpy.testing.assert_array_equal(c1, c2);

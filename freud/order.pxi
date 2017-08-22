@@ -492,6 +492,14 @@ cdef class HexOrderParameter:
             self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
+    @property
+    def psi(self):
+        """
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles} \\right)`, dtype= :class:`numpy.complex64`
+        """
+        return self.getPsi()
+
     def getPsi(self):
         """
         :return: order parameter

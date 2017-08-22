@@ -653,6 +653,14 @@ cdef class LocalDensity:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nref, np.NPY_FLOAT32, <void*>density)
         return result
 
+    @property
+    def num_neighbors(self):
+        """
+        :return: Number of neighbors for each particle
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        """
+        return self.getNumNeighbors()
+
     def getNumNeighbors(self):
         """
         :return: Number of neighbors for each particle
