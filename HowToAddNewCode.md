@@ -34,17 +34,19 @@ Add `from . import ModuleName` so that your module is imported by default
 
 Add `include "ModuleName.pxi"` to `freud/__init__.py`. This must be done to have freud include your python-level code
 
-### Create `freud/ModuleName.pxi` file
+### Create `freud/module_name.pxi` file
 
-This will house the python-level code
+This will house the python-level code. If you have a .pxd file exposing C++ classes, make sure to import that:
 
-### Create `freud/ModuleName.py` file
+    cimport freud._module_name as module_name
+
+### Create `freud/module_name.py` file
 
 Make sure there is an import for each C++ class in your module:
 
     from ._freud import MyC++Class
 
-### Create `freud/_ModuleName.pxd`
+### Create `freud/_module_name.pxd`
 
 This file will expose the C++ classes in your module to python
 
