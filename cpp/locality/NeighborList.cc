@@ -7,8 +7,8 @@ namespace freud { namespace locality {
 
 NeighborList::NeighborList():
     m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0),
-    m_neighbors(nullptr, std::default_delete<size_t[]>()),
-    m_weights(nullptr, std::default_delete<float[]>())
+    m_neighbors((size_t*) nullptr, std::default_delete<size_t[]>()),
+    m_weights((float*) nullptr, std::default_delete<float[]>())
     {}
 
 NeighborList::NeighborList(size_t max_bonds):
@@ -19,8 +19,8 @@ NeighborList::NeighborList(size_t max_bonds):
 
 NeighborList::NeighborList(const NeighborList &other):
     m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0),
-    m_neighbors(nullptr, std::default_delete<size_t[]>()),
-    m_weights(nullptr, std::default_delete<float[]>())
+    m_neighbors((size_t*) nullptr, std::default_delete<size_t[]>()),
+    m_weights((float*) nullptr, std::default_delete<float[]>())
     {
     copy(other);
     }
@@ -138,8 +138,8 @@ void NeighborList::resize(size_t max_bonds, bool force)
 
     if(need_resize)
         {
-        m_neighbors.reset(new size_t[2*max_bonds]);
-        m_weights.reset(new float[max_bonds]);
+        m_neighbors.reset(new size_t[2*max_bonds], std::default_delete<size_t[]>());
+        m_weights.reset(new float[max_bonds], std::default_delete<float[]>());
         m_max_bonds = max_bonds;
         }
     }

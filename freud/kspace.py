@@ -892,10 +892,10 @@ class FTpolyhedron(FTbase):
         :type areas: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`), dtype= :class:`numpy.float32`
         :type volumes: :class:`numpy.ndarray`
         """
-        facet_offs = numpy.zeros((len(facets)+1))
+        facet_offs = numpy.zeros((len(facets)+1),dtype=numpy.uint32)
         for i,f in enumerate(facets):
             facet_offs[i+1] = facet_offs[i] + len(f)
-        self.FTobj.set_params(verts, facet_offs, [vi for f in facets for vi in f], norms, d, areas, volume)
+        self.FTobj.set_params(verts, facet_offs, numpy.array([vi for f in facets for vi in f],dtype=numpy.uint32), norms, d, areas, volume)
 
     def set_radius(self, radius):
         """Set radius of in-sphere

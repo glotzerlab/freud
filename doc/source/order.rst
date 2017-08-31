@@ -14,7 +14,7 @@ Bond Order
 Order Parameters
 ================
 
-Lorem Ipsum
+Order parameters take bond order data and interpret it in some way to quantify the degree of order in a system. This is often done through taking Spherical Harmonics of the bond order diagram, which is the spherical analogue of Fourier Transforms.
 
 Cubatic Order Parameter
 =======================

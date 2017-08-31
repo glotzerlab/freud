@@ -92,6 +92,8 @@ set(FREUD_SOURCES
             order/TransOrderParameter.cc
             order/CubaticOrderParameter.h
             order/CubaticOrderParameter.cc
+            order/AngularSeparation.h
+            order/AngularSeparation.cc
             order/BondOrder.h
             order/BondOrder.cc
             order/LocalDescriptors.h

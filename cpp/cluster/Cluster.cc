@@ -197,7 +197,7 @@ void Cluster::computeClusterMembership(const unsigned int *keys)
         {
         unsigned int key = keys[i];
         unsigned int cluster = m_cluster_idx.get()[i];
-        m_cluster_keys[cluster].insert(key);
+        m_cluster_keys[cluster].push_back(key);
         }
     }
 

@@ -114,7 +114,7 @@ class Cluster
         // boost::python::object getClusterKeysPy();
 
         //! Returns the cluster keys last determined by computeClusterKeys
-        const std::vector< std::set<unsigned int> >& getClusterKeys()
+        const std::vector< std::vector<unsigned int> >& getClusterKeys()
             {
             return m_cluster_keys;
             }
@@ -125,7 +125,7 @@ class Cluster
         unsigned int m_num_clusters;              //!< Number of clusters found inthe last call to compute()
 
         std::shared_ptr<unsigned int> m_cluster_idx;         //!< Cluster index determined for each particle
-        std::vector< std::set<unsigned int> > m_cluster_keys;    //!< List of keys in each cluster
+        std::vector< std::vector<unsigned int> > m_cluster_keys;    //!< List of keys in each cluster
 
     };
 
