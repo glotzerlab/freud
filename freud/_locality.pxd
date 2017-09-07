@@ -38,7 +38,7 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int begin()
 
     cdef cppclass LinkCell:
-        LinkCell(const box.Box&, float)
+        LinkCell(const box.Box&, float) except +
         LinkCell()
 
         setCellWidth(float)

@@ -206,5 +206,17 @@ class TestLinkCell(unittest.TestCase):
                 print('Failed random seed: {} (i={})'.format(seed, i))
                 raise
 
+    def test_throws(self):
+        L = 10
+
+        with self.assertRaises(RuntimeError):
+            fbox = box.Box.cube(L)
+            locality.LinkCell(fbox, L/1.9999)
+
+        fbox = box.Box(L, 2*L, 2*L)
+        locality.LinkCell(fbox, L/2.0001)
+        with self.assertRaises(RuntimeError):
+            locality.LinkCell(fbox, L/1.9999)
+
 if __name__ == '__main__':
     unittest.main()
