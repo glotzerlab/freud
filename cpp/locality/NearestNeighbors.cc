@@ -78,7 +78,9 @@ void NearestNeighbors::compute(const box::Box& box,
             bond_vector_vectors.emplace_back();
             BondVector &bond_vector(bond_vector_vectors.back());
             const Index3D &indexer(m_lc->getCellIndexer());
-            const unsigned int max_cell_distance(min(min(indexer.getW(), indexer.getH()), indexer.getD()));
+            const unsigned int max_cell_distance_2d(min(indexer.getW(), indexer.getH()));
+            const unsigned int max_cell_distance_3d(min(max_cell_distance_2d, indexer.getD()));
+            const unsigned int max_cell_distance(m_box.is2D()? max_cell_distance_2d: max_cell_distance_3d);
 
             // neighbors is the set of bonds we find that are within the cutoff radius
             vector<pair<float, size_t> > neighbors;

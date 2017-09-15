@@ -171,5 +171,18 @@ class TestNearestNeighbors(unittest.TestCase):
                     'Wrong-sized neighbor list in test_even_cells,'
                     'seed={}, box_cell_count={}'.format(seed, box_cell_count))
 
+    def test_single_neighbor(self):
+        pos = np.zeros((10, 3), dtype=np.float32)
+        pos[::2, 0] = 2*np.arange(5)
+        pos[1::2, 0] = pos[::2, 0] + .25
+        pos[:, 1] = pos[:, 0]
+        pos[0] = (9, 7, 0)
+
+        box = freud.box.Box.square(L=4*len(pos))
+        nn = freud.locality.NearestNeighbors(1, 1).compute(box, pos, pos)
+        nlist = nn.nlist
+
+        self.assertEqual(len(nlist), len(pos))
+
 if __name__ == '__main__':
     unittest.main()
