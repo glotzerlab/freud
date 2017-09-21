@@ -1838,7 +1838,7 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
