@@ -1838,9 +1838,11 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
+        cdef locality.NeighborList *nlist_ptr
+        cdef NeighborList nlist_
         defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, None, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        nlist_ = defaulted_nlist[0]
+        nlist_ptr = nlist_.get_ptr()
 
         # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.matchMotif(nlist_ptr, <vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, threshold, registration)
@@ -1877,10 +1879,11 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList *nlist_ptr
+        cdef NeighborList nlist_
+        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, None, self.rmax)
+        nlist_ = defaulted_nlist[0]
+        nlist_ptr = nlist_.get_ptr()
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(nlist_ptr, <vec3[float]*>&l_points[0], nP, <vec3[float]*>&l_refPoints[0], nRef, registration)

@@ -687,7 +687,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
 
-    nlist->validate(numRef, Np);
+    nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
@@ -735,8 +735,10 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3
         rotmat3<float> rotation = mapping.first;
         boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
         // if the mapping between the vectors of the environments is NOT empty, then the environments are similar.
+        std::cout<<i<<std::endl;
         if (!vec_map.empty())
             {
+            std::cout<<"match found!"<<std::endl;
             dj.merge(0, dummy, vec_map, rotation);
             }
         }
@@ -765,7 +767,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList *n
     m_Np = Np;
     std::vector<float> min_rmsd_vec(m_Np);
 
-    nlist->validate(numRef, Np);
+    nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
@@ -818,6 +820,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList *n
 
         // if the mapping between the vectors of the environments is NOT empty, then the environments are similar.
         // minimizeRMSD should always return a non-empty vec_map, except if e0 and e1 have different numbers of vectors.
+        std::cout<<i<<std::endl;
         if (!vec_map.empty())
             {
             dj.merge(0, dummy, vec_map, rotation);
