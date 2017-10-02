@@ -735,10 +735,8 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3
         rotmat3<float> rotation = mapping.first;
         boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
         // if the mapping between the vectors of the environments is NOT empty, then the environments are similar.
-        std::cout<<i<<std::endl;
         if (!vec_map.empty())
             {
-            std::cout<<"match found!"<<std::endl;
             dj.merge(0, dummy, vec_map, rotation);
             }
         }
@@ -820,7 +818,6 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList *n
 
         // if the mapping between the vectors of the environments is NOT empty, then the environments are similar.
         // minimizeRMSD should always return a non-empty vec_map, except if e0 and e1 have different numbers of vectors.
-        std::cout<<i<<std::endl;
         if (!vec_map.empty())
             {
             dj.merge(0, dummy, vec_map, rotation);
