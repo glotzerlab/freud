@@ -69,19 +69,19 @@ class Voronoi:
     def getVoronoiPolytopes(self):
         return self.poly_verts
 
-    """Compute the neighbors of each particle based on the voronoi tessalation.
-    One can include neighbors from multiple voronoi shells by specifying 'numShells' variable.
-    An example code to compute neighbors upto two voronoi shells for a 2D mesh
-
-    vor = voronoi.Voronoi(box.Box(5, 5))
-    pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
-    vor.computeNeighbors(pos)
-    neighbors = vor.getNeighbors(2)
-
-    Returns a list of lists of neighbors
-    Note: input positions must be 3D array, for 2D, set z value be 0
-    """
     def computeNeighbors(self,positions,box=None,buff=None):
+        """Compute the neighbors of each particle based on the voronoi tessalation.
+        One can include neighbors from multiple voronoi shells by specifying 'numShells' variable.
+        An example code to compute neighbors upto two voronoi shells for a 2D mesh
+
+        vor = voronoi.Voronoi(box.Box(5, 5))
+        pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
+        vor.computeNeighbors(pos)
+        neighbors = vor.getNeighbors(2)
+
+        Returns a list of lists of neighbors
+        Note: input positions must be 3D array, for 2D, set z value be 0
+        """
         #if box or buff is not specified, revert to object quantities
         if box is None:
             box=self.box
@@ -117,7 +117,7 @@ class Voronoi:
             if ridge_vertices[k][0] != -1 and ridge_vertices[k][1] != -1:
                 self.firstShellNeighborList[ridge_points[k,0]] = self.firstShellNeighborList[ridge_points[k,0]] + [ridge_points[k,1]]
                 self.firstShellNeighborList[ridge_points[k,1]] = self.firstShellNeighborList[ridge_points[k,1]] + [ridge_points[k,0]]
-                oneWeight = np.linalg.norm(vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]]) 
+                oneWeight = np.linalg.norm(vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]])
 
                 self.firstShellWeight[ridge_points[k,0]] = self.firstShellWeight[ridge_points[k,0]]+[oneWeight]
                 self.firstShellWeight[ridge_points[k,1]] = self.firstShellWeight[ridge_points[k,1]]+[oneWeight]
@@ -144,21 +144,6 @@ class Voronoi:
 
         return neighbor_list
 
-        #construct a list of polygon/hedra vertices
-        #self.poly_verts=list()
-        #for region in self.voronoi.point_region[:len(positions)]:
-        #        if -1 in self.voronoi.regions[region]:
-        #                continue
-        #        self.poly_verts.append(self.voronoi.vertices[self.voronoi.regions[region]])
-
-    #return the list of voronoi polytope vertices
-    #def getBuffer(self):
-    #    return self.buff
-
-    #return the list of voronoi polytope vertices
-    #def getVoronoiPolytopes(self):
-    #    return self.poly_verts
-    
     #build neighbor list based on voronoi neighbors
     def vonoiNeighborList(self):
         neighbor_list = copy.copy(self.firstShellNeighborList)
@@ -182,7 +167,3 @@ class Voronoi:
 
         result = NeighborList.from_arrays(len(neighbor_list), len(neighbor_list), indexAry[:,0], indexAry[:,1], weights=indexAry[:,2])
         return result
-
-
-        
-
