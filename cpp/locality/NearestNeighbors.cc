@@ -141,7 +141,7 @@ void NearestNeighbors::compute(const box::Box& box,
 
                             const vec3<float> rij(m_box.wrap(pos[j] - ref_point));
                             const float rsq(dot(rij, rij));
-                            
+
                             if(rsq < (max_iter_distance - 1)*(max_iter_distance - 1)*rcutsq)
                                 neighbors.emplace_back(rsq, j);
                             else
