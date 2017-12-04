@@ -98,13 +98,15 @@ class MatchEnv
                              unsigned int i, unsigned int env_ind, bool hard_r);
 
         //! Determine clusters of particles with matching environments
+        //! env_nlist is the neighborlist used to build the environment of every particle.
+        //! nlist is the neighborlist used to determine the neighbors against which to compare environments for every particle, if hard_r = False.
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
         //! If hard_r is true, add all particles that fall within the threshold of m_rmaxsq to the environment
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
         //! If global is true, do an exhaustive search wherein you compare the environments of every single pair of particles in the simulation. If global is false, only compare the environments of neighboring particles.
-        void cluster(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false, bool registration=false, bool global=false);
+        void cluster(const freud::locality::NeighborList *env_nlist, const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false, bool registration=false, bool global=false);
 
         //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
@@ -168,10 +170,6 @@ class MatchEnv
         void setBox(const box::Box newbox)
             {
             m_box = newbox;
-            delete m_nn;
-            delete m_lc;
-            m_nn = new locality::NearestNeighbors(m_rmax, m_k);
-            m_lc = new locality::LinkCell(m_box, m_rmax);
             }
 
         //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
@@ -210,10 +208,10 @@ class MatchEnv
         box::Box m_box;              //!< Simulation box
         float m_rmax;                       //!< Maximum cutoff radius at which to determine local environment
         float m_rmaxsq;                     //!< Square of m_rmax
-        float m_k;                          //!< Number of nearest neighbors used to determine which environments are compared during local environment clustering. If hard_r=false, this is also the number of neighbors in each local environment.
+        float m_k;                          //!< Default number of nearest neighbors used to determine which environments are compared during local environment clustering.
+                                            //!< If hard_r=false, this is also the number of neighbors in each local environment.
         unsigned int m_maxk;                //!< Maximum number of neighbors in any particle's local environment. If hard_r=false, m_maxk = m_k.
-        locality::NearestNeighbors *m_nn;   //!< NearestNeighbors to bin particles for the computation of local environments
-        locality::LinkCell *m_lc;           //!< LinkCell to bin particles for the computation
+                                            //!< In the cluster method it is also possible to provide two separate neighborlists, one for environments and one for clustering.
         unsigned int m_Np;                  //!< Last number of points computed
         unsigned int m_num_clusters;        //!< Last number of local environments computed
 

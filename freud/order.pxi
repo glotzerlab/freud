@@ -1770,7 +1770,7 @@ cdef class MatchEnv:
         self.thisptr.setBox(l_box)
         self.box = box
 
-    def cluster(self, points, threshold, hard_r=False, registration=False, global_search=False, nlist=None):
+    def cluster(self, points, threshold, hard_r=False, registration=False, global_search=False, env_nlist=None, nlist=None):
         """Determine clusters of particles with matching environments.
 
         :param points: particle positions
@@ -1778,12 +1778,14 @@ cdef class MatchEnv:
         :param hard_r: if true, add all particles that fall within the threshold of m_rmaxsq to the environment
         :param registration: if true, first use brute force registration to orient one set of environment vectors with respect to the other set such that it minimizes the RMSD between the two sets
         :param global_search: if true, do an exhaustive search wherein you compare the environments of every single pair of particles in the simulation. If false, only compare the environments of neighboring particles.
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find neighbors of every particle, to compare environments
+        :param env_nlist: :py:class:`freud.locality.NeighborList` object to use to find the environment of every particle
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type threshold: float
         :type hard_r: bool
         :type registration: bool
         :type nlist: :py:class:`freud.locality.NeighborList`
+        :type env_nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message="points must be a 2 dimensional array")
@@ -1796,17 +1798,27 @@ cdef class MatchEnv:
 
         cdef locality.NeighborList *nlist_ptr
         cdef NeighborList nlist_
+        cdef locality.NeighborList *env_nlist_ptr
+        cdef NeighborList env_nlist_
         if hard_r:
             defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
+
+            defaulted_env_nlist = make_default_nlist(self.box, points, points, self.rmax, env_nlist, True)
+            env_nlist_ = defaulted_env_nlist[0]
+            env_nlist_ptr = env_nlist_.get_ptr()
         else:
             defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, None, self.rmax)
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
+            defaulted_env_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, env_nlist, None, self.rmax)
+            env_nlist_ = defaulted_env_nlist[0]
+            env_nlist_ptr = env_nlist_.get_ptr()
+
         # keeping the below syntax seems to be crucial for passing unit tests
-        self.thisptr.cluster(nlist_ptr, <vec3[float]*>&l_points[0], nP, threshold, hard_r, registration, global_search)
+        self.thisptr.cluster(env_nlist_ptr, nlist_ptr, <vec3[float]*>&l_points[0], nP, threshold, hard_r, registration, global_search)
 
     def matchMotif(self, points, refPoints, threshold, registration=False, nlist=None):
         """Determine clusters of particles that match the motif provided by refPoints.

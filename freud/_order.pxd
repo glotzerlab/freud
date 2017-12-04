@@ -175,6 +175,7 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         MatchEnv(const box.Box&, float, unsigned int) nogil except +
         void setBox(const box.Box)
         void cluster(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int,
                      float,

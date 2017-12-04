@@ -580,7 +580,7 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *r
 
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::cluster(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, float threshold, bool hard_r, bool registration, bool global)
+void MatchEnv::cluster(const freud::locality::NeighborList *env_nlist, const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, float threshold, bool hard_r, bool registration, bool global)
     {
     assert(points);
     assert(Np > 0);
@@ -594,19 +594,23 @@ void MatchEnv::cluster(const freud::locality::NeighborList *nlist, const vec3<fl
 
     nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
+    size_t bond(0);
+    const size_t num_bonds(nlist->getNumBonds());
+
+    env_nlist->validate(Np, Np);
+    const size_t *env_neighbor_list(env_nlist->getNeighbors());
+    size_t env_bond(0);
+    const size_t env_num_bonds(env_nlist->getNumBonds());
 
     // create a disjoint set where all particles belong in their own cluster
     EnvDisjointSet dj(m_Np);
-
-    size_t bond(0);
-    const size_t num_bonds(nlist->getNumBonds());
 
     // add all the environments to the set
     // take care, here: set things up s.t. the env_ind of every environment matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        Environment ei = buildEnv(neighbor_list, num_bonds, bond, points, i, i, hard_r);
+        Environment ei = buildEnv(env_neighbor_list, env_num_bonds, env_bond, points, i, i, hard_r);
         dj.s.push_back(ei);
         m_maxk = std::max(m_maxk, ei.num_vecs);
         dj.m_max_num_neigh = m_maxk;
