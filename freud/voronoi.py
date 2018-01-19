@@ -145,7 +145,7 @@ class Voronoi:
         return neighbor_list
 
     #build neighbor list based on voronoi neighbors
-    def vonoiNeighborList(self):
+    def getNeighborList(self):
         neighbor_list = copy.copy(self.firstShellNeighborList)
         weight = copy.copy(self.firstShellWeight)
 
