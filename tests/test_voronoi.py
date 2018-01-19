@@ -29,5 +29,27 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_equal(vor.getNeighbors(1), [[1, 3], [0, 2, 4], [5, 1], [0, 6, 4], [3, 5, 1, 7], [8, 2, 4], [3, 7], [6, 8, 4], [5, 7]])
         npt.assert_equal(vor.getNeighbors(2), [[1, 2, 3, 4, 6], [0, 2, 3, 4, 5, 7], [0, 1, 4, 5, 8], [0, 1, 4, 5, 6, 7], [0, 1, 2, 3, 5, 6, 7, 8], [1, 2, 3, 4, 7, 8], [0, 3, 4, 7, 8], [1, 3, 4, 5, 6, 8], [2, 4, 5, 6, 7]])
 
+    def test_nlist_symmetric(self):
+        L = 10 #Box Dimensions
+        rbuf = 3 #Cutoff radius
+        N = 40; # number of particles
+
+        fbox = box.Box.cube(L)#Initialize Box
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        vor = voronoi.Voronoi(fbox)
+        vor.computeNeighbors(points, fbox, rbuf)
+        nlist = vor.getNeighborList()
+
+        ijs = set(zip(nlist.index_i, nlist.index_j))
+        jis = set(zip(nlist.index_j, nlist.index_i))
+
+        # we shouldn't have had duplicate (i, j) pairs in the
+        # resulting neighbor list
+        self.assert_equal(len(ijs), len(nlist))
+        self.assert_equal(len(ijs), len(jis))
+
+        # every (i, j) pair should have a corresponding (j, i) pair
+        self.assert_true(all((j, i) in jis for (i, j) in ijs))
+
 if __name__ == '__main__':
     unittest.main()
