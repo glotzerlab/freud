@@ -86,7 +86,7 @@ workflows:
   version: 2
   all:
     jobs:
-      - test-py27:
-      - test-py34:
-      - test-py35:
-      - test-py36:
+      - test-py27
+      - test-py34
+      - test-py35
+      - test-py36
