@@ -3,25 +3,18 @@ version: 2
 references:
   container: &test_container_config
     docker:
-      - image: circleci/python:3.6.1
-    working_directory: ~/ci/project
+      - image: vramasub/freud:20180122
+    working_directory: ~/ci/freud
 
   load_code: &load_code
-    checkout:
-      path: repo
+    checkout
 
   get_requirements: &get_requirements
-    restore_cache:
-      keys:
-      - v1-dependencies-{{ checksum "requirements.txt" }}
-      # fallback to using the latest cache if no exact match is found
-      - v1-dependencies-
-      run:
-        name: install dependencies
-        command: |
-          python3 -m venv venv
-          . venv/bin/activate
-          pip install -r requirements.txt
+    run:
+      name: install dependencies
+      command: |
+        pip install --user -r requirements.txt
+        pip3 install --user -r requirements.txt
 
   configure: &configure
     run:
@@ -29,30 +22,21 @@ references:
       command: |
         mkdir build
         cd build
-        echo cmake_root=${CMAKE_BIN}
         echo pyver=${PYVER}
-        echo cc=${CC}
-        echo cxx=${CXX}
-        ${CMAKE_BIN}/cmake ../repo -DPYTHON_EXECUTABLE=/usr/bin/python${PYVER}
-
-  save_requirements: &save_requirements
-    save_cache:
-        paths:
-          - ./venv
-        key: v1-dependencies-{{ checksum "requirements.txt" }}
+        cmake ../ -DPYTHON_EXECUTABLE=/usr/bin/python${PYVER}
 
   compile: &compile
     run:
       name: Compile
       working_directory: build
-      command: make -j4
+      command: |
+        make -j4
+        make install
 
   test: &test
     run:
       name: run tests
-      command: |
-        . venv/bin/activate
-        nosetests
+      command: ${NOSE}
 
   store: &store
     store_artifacts:
@@ -64,7 +48,7 @@ references:
       - *load_code
       - *get_requirements
       - *configure
-      - *save_requirements
+        #- *save_requirements
       - *compile
       - *test
       - *store
@@ -73,37 +57,29 @@ jobs:
   test-py27:
     <<: *test_container_config
     environment:
-      CC: /usr/bin/gcc-4.8
-      CXX: /usr/bin/g++-4.8
       PYVER: "2.7"
-      CMAKE_BIN: /opt/cmake-2.8.12/bin
+      NOSE: "nosetests"
     <<: *build_and_test
 
   test-py34:
     <<: *test_container_config
     environment:
-      CC: /usr/bin/gcc-4.8
-      CXX: /usr/bin/g++-4.8
       PYVER: "3.4"
-      CMAKE_BIN: /opt/cmake-2.8.12/bin
+      NOSE: "python3.4 -m nose"
     <<: *build_and_test
 
   test-py35:
     <<: *test_container_config
     environment:
-      CC: /usr/bin/gcc-4.8
-      CXX: /usr/bin/g++-4.8
       PYVER: "3.5"
-      CMAKE_BIN: /opt/cmake-2.8.12/bin
+      NOSE: "python3.5 -m nose"
     <<: *build_and_test
 
   test-py36:
     <<: *test_container_config
     environment:
-      CC: /usr/bin/gcc-4.8
-      CXX: /usr/bin/g++-4.8
       PYVER: "3.6"
-      CMAKE_BIN: /opt/cmake-2.8.12/bin
+      NOSE: "python3.6 -m nose"
     <<: *build_and_test
 
 workflows:
