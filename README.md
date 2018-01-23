@@ -40,7 +40,7 @@ Use cmake to configure an out of source build and make to build freud.
 mkdir build
 cd build
 cmake ../
-make -j20
+make install -j20
 ```
 
 By default, freud installs to the [USER_SITE](https://docs.python.org/2/install/index.html) directory. Which is in
