@@ -51,7 +51,7 @@ references:
     run:
       name: run tests
       command: |
-          nosetests ~/ci/freud/tests/
+          ${NOSE} ~/ci/freud/tests/
 
   store: &store
     store_artifacts:
