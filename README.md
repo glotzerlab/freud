@@ -47,7 +47,7 @@ By default, freud installs to the [USER_SITE](https://docs.python.org/2/install/
 `~/.local` on linux and in `~/Library` on mac. `USER_SITE` is on the python search path by default, there is no need to
 modify `PYTHONPATH`.
 
-To run out of the build directory, add the build directory to your `PYTHONPATH`:
+To run out of the build directory, run `make -j20` instead of `make install -j20` and then add the build directory to your `PYTHONPATH`:
 
 ~~~
 bash
