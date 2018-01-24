@@ -1,4 +1,4 @@
-six
 nose
 numpy
 scipy
+six

@@ -47,11 +47,18 @@ references:
         make -j4
         make install
 
-  test: &test
+  test_ubuntu: &test_ubuntu
     run:
       name: run tests
       command: |
           ${NOSE} ~/ci/freud/tests/
+
+  test_arch: &test_arch
+    run:
+      name: run tests
+      command: |
+          cd /
+          ${NOSE} -v ~/ci/freud/tests/
 
   store: &store
     store_artifacts:
@@ -64,7 +71,7 @@ references:
       - *get_requirements_ubuntu
       - *configure
       - *compile
-      - *test
+      - *test_ubuntu
       - *store
 
   build_and_test_arch: &build_and_test_arch
@@ -73,7 +80,7 @@ references:
       - *get_requirements_arch
       - *configure
       - *compile
-      - *test
+      - *test_arch
       - *store
 
 jobs:
