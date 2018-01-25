@@ -28,9 +28,6 @@ void VoronoiBuffer::compute(const float3 *points,
     float lx = m_box.getLx();
     float ly = m_box.getLy();
     float lz = m_box.getLz();
-    float lx_2 = 0.5*lx;
-    float ly_2 = 0.5*ly;
-    float lz_2 = 0.5*lz;
     float lx_2_buff = 0.5*lx + buff;
     float ly_2_buff = 0.5*ly + buff;
     float lz_2_buff = 0.5*lz + buff;
