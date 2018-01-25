@@ -1,25 +1,39 @@
 version: 2
 
 references:
-  container: &test_container_config
+  container_ubuntu: &test_container_config_ubuntu
     docker:
-      - image: vramasub/freud:20180122
+      - image: vramasub/freud_py35_ubuntu:20180124
+    working_directory: ~/ci/freud
+
+  container_arch: &test_container_config_arch
+    docker:
+      - image: vramasub/freud_py36_arch:20180124
     working_directory: ~/ci/freud
 
   load_code: &load_code
     checkout
 
-  get_requirements: &get_requirements
+  get_requirements_ubuntu: &get_requirements_ubuntu
     run:
       name: install dependencies
       command: |
         pip install --user -r requirements.txt
         pip3 install --user -r requirements.txt
 
+  get_requirements_arch: &get_requirements_arch
+    run:
+      name: install dependencies
+      command: |
+        pip install --user -r requirements.txt
+
   configure: &configure
     run:
       name: Configure
       command: |
+        if [ -d build ]; then
+            rmdir build
+        fi
         mkdir build
         cd build
         echo pyver=${PYVER}
@@ -33,60 +47,68 @@ references:
         make -j4
         make install
 
-  test: &test
+  test_ubuntu: &test_ubuntu
     run:
       name: run tests
-      command: ${NOSE}
+      command: |
+          ${NOSE} ~/ci/freud/tests/
+
+  test_arch: &test_arch
+    run:
+      name: run tests
+      command: |
+          cd /
+          ${NOSE} -v ~/ci/freud/tests/
 
   store: &store
     store_artifacts:
       path: test-reports
       destination: test-reports
 
-  build_and_test: &build_and_test
+  build_and_test_ubuntu: &build_and_test_ubuntu
     steps:
       - *load_code
-      - *get_requirements
+      - *get_requirements_ubuntu
       - *configure
-        #- *save_requirements
       - *compile
-      - *test
+      - *test_ubuntu
+      - *store
+
+  build_and_test_arch: &build_and_test_arch
+    steps:
+      - *load_code
+      - *get_requirements_arch
+      - *configure
+      - *compile
+      - *test_arch
       - *store
 
 jobs:
   test-py27:
-    <<: *test_container_config
+    <<: *test_container_config_ubuntu
     environment:
       PYVER: "2.7"
       NOSE: "nosetests"
-    <<: *build_and_test
-
-  test-py34:
-    <<: *test_container_config
-    environment:
-      PYVER: "3.4"
-      NOSE: "python3.4 -m nose"
-    <<: *build_and_test
+    <<: *build_and_test_ubuntu
 
   test-py35:
-    <<: *test_container_config
+    <<: *test_container_config_ubuntu
     environment:
       PYVER: "3.5"
       NOSE: "python3.5 -m nose"
-    <<: *build_and_test
+    <<: *build_and_test_ubuntu
 
   test-py36:
-    <<: *test_container_config
+    <<: *test_container_config_arch
     environment:
       PYVER: "3.6"
-      NOSE: "python3.6 -m nose"
-    <<: *build_and_test
+      NOSE: "nosetests"
+    <<: *build_and_test_arch
 
 workflows:
   version: 2
   all:
     jobs:
       - test-py27
-      - test-py34
       - test-py35
       - test-py36
