@@ -56,9 +56,9 @@ class Voronoi:
         #construct a list of polygon/hedra vertices
         self.poly_verts=list()
         for region in self.voronoi.point_region[:len(positions)]:
-                if -1 in self.voronoi.regions[region]:
-                        continue
-                self.poly_verts.append(self.voronoi.vertices[self.voronoi.regions[region]])
+            if -1 in self.voronoi.regions[region]:
+                continue
+            self.poly_verts.append(self.voronoi.vertices[self.voronoi.regions[region]])
         return self;
 
     #return the list of voronoi polytope vertices
@@ -70,9 +70,9 @@ class Voronoi:
         return self.poly_verts
 
     def computeNeighbors(self,positions,box=None,buff=None):
-        """Compute the neighbors of each particle based on the voronoi tessalation.
+        """Compute the neighbors of each particle based on the voronoi tessellation.
         One can include neighbors from multiple voronoi shells by specifying 'numShells' variable.
-        An example code to compute neighbors upto two voronoi shells for a 2D mesh
+        An example code to compute neighbors up to two voronoi shells for a 2D mesh:
 
         vor = voronoi.Voronoi(box.Box(5, 5))
         pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
@@ -80,7 +80,7 @@ class Voronoi:
         neighbors = vor.getNeighbors(2)
 
         Returns a list of lists of neighbors
-        Note: input positions must be 3D array, for 2D, set z value be 0
+        Note: input positions must be a 3D array. For 2D, set the z value to be 0.
         """
         #if box or buff is not specified, revert to object quantities
         if box is None:
@@ -163,7 +163,6 @@ class Voronoi:
             indexAry[j:j+N, 1] = np.array(neighbor_list[i])
             indexAry[j:j+N, 2] = np.array(weight[i])
             j += N
-
 
         result = NeighborList.from_arrays(len(neighbor_list), len(neighbor_list), indexAry[:,0], indexAry[:,1], weights=indexAry[:,2])
         return result

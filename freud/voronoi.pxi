@@ -12,7 +12,7 @@ cimport numpy as np
 
 cdef class VoronoiBuffer:
     """
-    .. moduleauthor:: Ben Schultz <baschult@umich.edu@umich.edu>
+    .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     """
     cdef voronoi.VoronoiBuffer *thisptr
 
@@ -22,7 +22,7 @@ cdef class VoronoiBuffer:
 
     def compute(self, points, float buffer):
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 3 dimensional array")
+            dim_message='points must be a 3 dimensional array')
 
         dimensions = 2 if self.thisptr.getBox().is2D() else 3
         if points.shape[1] != 3:
@@ -38,7 +38,7 @@ cdef class VoronoiBuffer:
         cdef float3* buffer_points = &dereference(self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
-        
+
         '''
         shape = [buffer_size, 3]
         result = np.zeros(shape, dtype=np.float32)
