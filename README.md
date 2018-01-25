@@ -3,6 +3,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg)](https://doi.org/10.5281/zenodo.166564)
 [![Anaconda-Server Badge](https://anaconda.org/glotzer/freud/badges/version.svg)](https://anaconda.org/glotzer/freud)
 [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org:/repo/harperic/freud-examples)
+[![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
 
 Please use the above citation when using freud.
 
