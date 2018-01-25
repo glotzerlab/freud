@@ -121,21 +121,28 @@ class Voronoi:
         ridge_points = self.voronoi.ridge_points
         ridge_vertices = self.voronoi.ridge_vertices
         vor_vertices = self.voronoi.vertices
+        N = len(positions)
         # Nearest neighbor index for each point
-        self.firstShellNeighborList = [[]]*len(self.expanded_points)
+        self.firstShellNeighborList = [[] for _ in range(N)]
         # Weight between nearest neighbors, which is the length of ridge between two points
-        self.firstShellWeight = [[]]*len(self.expanded_points)
-        for k in range(len(ridge_points)):
-            # If -1 not in ridge_vertices, compute weight,
-            # else do not include it in neighbor list.
-            # -1 in ridge_vertices means the two particles are buffer particles.
-            if ridge_vertices[k][0] != -1 and ridge_vertices[k][1] != -1:
-                self.firstShellNeighborList[ridge_points[k,0]] = self.firstShellNeighborList[ridge_points[k,0]] + [ridge_points[k,1]]
-                self.firstShellNeighborList[ridge_points[k,1]] = self.firstShellNeighborList[ridge_points[k,1]] + [ridge_points[k,0]]
-                oneWeight = np.linalg.norm(vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]])
+        self.firstShellWeight = [[] for _ in range(N)]
+        for (k, (index_i, index_j)) in enumerate(ridge_points):
+            if index_i >= N or index_j >= N:
+                continue
 
-                self.firstShellWeight[ridge_points[k,0]] = self.firstShellWeight[ridge_points[k,0]]+[oneWeight]
-                self.firstShellWeight[ridge_points[k,1]] = self.firstShellWeight[ridge_points[k,1]]+[oneWeight]
+            self.firstShellNeighborList[index_i].append(index_j)
+            self.firstShellNeighborList[index_j].append(index_i)
+
+            if -1 not in ridge_vertices[k]:
+                # TODO properly account for 3D
+                weight = np.linalg.norm(vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]])
+            else:
+                # this point was on the boundary, so as far as qhull
+                # is concerned its ridge goes out to infinity
+                weight = 0
+
+            self.firstShellWeight[index_i].append(weight)
+            self.firstShellWeight[index_j].append(weight)
 
     def getNeighbors(self, numShells):
         # Get numShells of neighbors for each particle
