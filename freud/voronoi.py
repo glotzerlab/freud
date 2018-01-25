@@ -15,61 +15,75 @@ except ImportError:
 from ._freud import VoronoiBuffer
 from ._freud import NeighborList
 
-## Compute the Voronoi tesselation of a 2D or 3D system using qhull
-# This essentially just wraps scipy.spatial.Voronoi, but accounts for
-# periodic boundary conditions
 class Voronoi:
-    ##Initialize Voronoi
-    # \param box The simulation box
-    def __init__(self,box,buff=0.1):
-        self.box=box
-        self.buff=buff
-    ##Set the simulation box
-    def setBox(self,box):
-        self.box=box
-    ##Set the box buffer width
-    def setBufferWidth(self,buff):
-        self.buff=buff
+    ## Compute the Voronoi tesselation of a 2D or 3D system using qhull
+    # This essentially just wraps scipy.spatial.Voronoi, but accounts for
+    # periodic boundary conditions
 
-    ##Compute Voronoi tesselation
-    # \param box The simulation box
-    # \param buff The buffer of particles to be duplicated to simulated PBC, default=0.1
-    def compute(self,positions,box=None,buff=None):
-        #if box or buff is not specified, revert to object quantities
+    def __init__(self, box, buff=0.1):
+        ##Initialize Voronoi
+        # \param box The simulation box
+        self.box = box
+        self.buff = buff
+
+    def setBox(self, box):
+        ##Set the simulation box
+        self.box = box
+
+    def setBufferWidth(self, buff):
+        ##Set the box buffer width
+        self.buff = buff
+
+    def compute(self, positions, box=None, buff=None):
+        ##Compute Voronoi tesselation
+        # \param box The simulation box
+        # \param buff The buffer of particles to be duplicated to simulated PBC, default=0.1
+
+        # If box or buff is not specified, revert to object quantities
         if box is None:
-            box=self.box
+            box = self.box
         if buff is None:
-            buff=self.buff
+            buff = self.buff
 
-        #Compute the buffer particles in c++
+        # Compute the buffer particles in c++
         vbuff = VoronoiBuffer(box)
-        vbuff.compute(positions,buff)
+        vbuff.compute(positions, buff)
         self.buff = buffer_parts = vbuff.getBufferParticles()
-        if self.buff != []:
-            self.expanded_points = np.concatenate((positions,buffer_parts))
+        if self.buff.size > 0:
+            self.expanded_points = np.concatenate((positions, buffer_parts))
         else:
             self.expanded_points = positions
 
-        #use qhull to get the points
+        # Use only the first two components if the box is 2D
+        if box.is2D():
+            self.expanded_points = self.expanded_points[:,:2]
+
+        # Use qhull to get the points
         self.voronoi = qvoronoi(self.expanded_points)
 
-        #construct a list of polygon/hedra vertices
-        self.poly_verts=list()
+        vertices = self.voronoi.vertices
+
+        # Add a z-component of 0 if the box is 2D
+        if box.is2D():
+            vertices = np.insert(vertices, 2, 0, 1)
+
+        # Construct a list of polygon/hedra vertices
+        self.poly_verts = list()
         for region in self.voronoi.point_region[:len(positions)]:
             if -1 in self.voronoi.regions[region]:
                 continue
-            self.poly_verts.append(self.voronoi.vertices[self.voronoi.regions[region]])
+            self.poly_verts.append(vertices[self.voronoi.regions[region]])
         return self;
 
-    #return the list of voronoi polytope vertices
     def getBuffer(self):
+        # Return the list of voronoi polytope vertices
         return self.buff
 
-    #return the list of voronoi polytope vertices
     def getVoronoiPolytopes(self):
+        # Return the list of voronoi polytope vertices
         return self.poly_verts
 
-    def computeNeighbors(self,positions,box=None,buff=None):
+    def computeNeighbors(self, positions, box=None, buff=None):
         """Compute the neighbors of each particle based on the voronoi tessellation.
         One can include neighbors from multiple voronoi shells by specifying 'numShells' variable.
         An example code to compute neighbors up to two voronoi shells for a 2D mesh:
@@ -82,38 +96,39 @@ class Voronoi:
         Returns a list of lists of neighbors
         Note: input positions must be a 3D array. For 2D, set the z value to be 0.
         """
-        #if box or buff is not specified, revert to object quantities
-        if box is None:
-            box=self.box
-        if buff is None:
-            buff=self.buff
 
-        #Compute the buffer particles in c++
+        # If box or buff is not specified, revert to object quantities
+        if box is None:
+            box = self.box
+        if buff is None:
+            buff = self.buff
+
+        # Compute the buffer particles in c++
         vbuff = VoronoiBuffer(box)
-        vbuff.compute(positions,buff)
+        vbuff.compute(positions, buff)
         self.buff = buffer_parts = vbuff.getBufferParticles()
 
-
-        if self.buff != []:
-            self.expanded_points = np.concatenate((positions,buffer_parts))
+        if self.buff.size > 0:
+            self.expanded_points = np.concatenate((positions, buffer_parts))
         else:
             self.expanded_points = positions
-
 
         if box.is2D():
             self.expanded_points = self.expanded_points[:,:2]
 
-        #use qhull to get the points
+        # Use qhull to get the points
         self.voronoi = qvoronoi(self.expanded_points)
         ridge_points = self.voronoi.ridge_points
         ridge_vertices = self.voronoi.ridge_vertices
         vor_vertices = self.voronoi.vertices
-        #nearest neighbor index for each point
+        # Nearest neighbor index for each point
         self.firstShellNeighborList = [[]]*len(self.expanded_points)
-        #weight between nearest neighbors, which is the length of ridge between two points
+        # Weight between nearest neighbors, which is the length of ridge between two points
         self.firstShellWeight = [[]]*len(self.expanded_points)
         for k in range(len(ridge_points)):
-            #if -1 not in ridge_vertices, compute weight, else do not include it in neighbor list, -1 in ridge_vertices means the 2 particles are buffer particles
+            # If -1 not in ridge_vertices, compute weight,
+            # else do not include it in neighbor list.
+            # -1 in ridge_vertices means the two particles are buffer particles.
             if ridge_vertices[k][0] != -1 and ridge_vertices[k][1] != -1:
                 self.firstShellNeighborList[ridge_points[k,0]] = self.firstShellNeighborList[ridge_points[k,0]] + [ridge_points[k,1]]
                 self.firstShellNeighborList[ridge_points[k,1]] = self.firstShellNeighborList[ridge_points[k,1]] + [ridge_points[k,0]]
@@ -122,11 +137,11 @@ class Voronoi:
                 self.firstShellWeight[ridge_points[k,0]] = self.firstShellWeight[ridge_points[k,0]]+[oneWeight]
                 self.firstShellWeight[ridge_points[k,1]] = self.firstShellWeight[ridge_points[k,1]]+[oneWeight]
 
-    #get numShells of neighbors for each particle
     def getNeighbors(self, numShells):
+        # Get numShells of neighbors for each particle
         neighbor_list = copy.copy(self.firstShellNeighborList)
         #delete [] in neighbor_list
-        neighbor_list = [x for x in neighbor_list if x != []]
+        neighbor_list = [x for x in neighbor_list if len(x) > 0]
         for _ in range(numShells-1):
             dummy_neighbor_list = copy.copy(neighbor_list)
             for i in range(len(neighbor_list)):
@@ -144,17 +159,20 @@ class Voronoi:
 
         return neighbor_list
 
-    #build neighbor list based on voronoi neighbors
     def getNeighborList(self):
+        # Build neighbor list based on voronoi neighbors
         neighbor_list = copy.copy(self.firstShellNeighborList)
         weight = copy.copy(self.firstShellWeight)
 
-        #count number of elements in neighbor_list
+        # Count number of elements in neighbor_list
         count = 0
         for i in range(len(neighbor_list)):
             count += len(neighbor_list[i])
 
-        #indexAry, first column is reference particle index, second column is neighbor particle index, 3rd column is weight=ridge length
+        # indexAry layout:
+        # First column is reference particle index,
+        # Second column is neighbor particle index,
+        # Third column is weight = ridge length
         indexAry = np.zeros([count, 3], float)
         j = 0
         for i in range(len(neighbor_list)):
@@ -164,5 +182,7 @@ class Voronoi:
             indexAry[j:j+N, 2] = np.array(weight[i])
             j += N
 
-        result = NeighborList.from_arrays(len(neighbor_list), len(neighbor_list), indexAry[:,0], indexAry[:,1], weights=indexAry[:,2])
+        result = NeighborList.from_arrays(
+                len(neighbor_list), len(neighbor_list),
+                indexAry[:,0], indexAry[:,1], weights=indexAry[:,2])
         return result
