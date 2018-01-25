@@ -228,3 +228,26 @@ cdef extern from "Pairing2D.h" namespace "freud::order":
         shared_array[unsigned int] getMatch()
         shared_array[unsigned int] getPair()
         unsigned int getNumParticles()
+
+cdef extern from "AngularSeparation.h" namespace "freud::order":
+    cdef cppclass AngularSeparation:
+        AngularSeparation()
+        void computeNeighbor(const freud._locality.NeighborList*,
+                             quat[float]*,
+                             quat[float]*,
+                             quat[float]*,
+                             unsigned int,
+                             unsigned int,
+                             unsigned int) nogil except +
+        void computeGlobal(quat[float]*,
+                           quat[float]*,
+                           quat[float]*,
+                           unsigned int,
+                           unsigned int,
+                           unsigned int) nogil except +
+
+        shared_array[float] getNeighborAngles()
+        shared_array[float] getGlobalAngles()
+        unsigned int getNP()
+        unsigned int getNref()
+        unsigned int getNglobal()

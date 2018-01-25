@@ -15,6 +15,7 @@ from ._freud import HexOrderParameter;
 from ._freud import TransOrderParameter;
 from ._freud import LocalDescriptors;
 from ._freud import Pairing2D;
+from ._freud import AngularSeparation;
 
 # everything below is sphericalharmonic stuff
 from ._freud import LocalQl

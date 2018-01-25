@@ -125,5 +125,64 @@ class TestNearestNeighbors(unittest.TestCase):
         self.assertEqual(len(psi4), len(positions))
         self.assertTrue(np.allclose(np.abs(psi4), 1))
 
+    def test_repeated_neighbors(self):
+        L = 10 #Box Dimensions
+        N = 40; # number of particles
+        num_neighbors = 6;
+
+        fbox = box.Box.cube(L)#Initialize Box
+
+        seed = np.random.randint(0, 2**32)
+        np.random.seed(seed)
+
+        pos = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+
+        for rcut in np.random.uniform(L/2, L/5, 128):
+            cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
+            nlist = cl.compute(fbox, pos, pos).nlist
+
+            all_pairs = list(set(zip(nlist.index_i, nlist.index_j)))
+
+            if len(all_pairs) != len(nlist):
+                raise AssertionError(
+                    'Repeated neighbor pair sizes in test_repeated_neighbors, '
+                    'seed={}, rcut={}'.format(seed, rcut))
+
+    def test_small_box(self):
+        L = 10 #Box Dimensions
+        N = 8; # number of particles
+        num_neighbors = N - 1;
+
+        fbox = box.Box.cube(L)#Initialize Box
+
+        seed = np.random.randint(0, 2**32)
+        np.random.seed(seed)
+
+        pos = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+
+        for box_cell_count in range(2, 8):
+            rcut = L/box_cell_count/1.0001
+            cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
+            nlist = cl.compute(fbox, pos, pos).nlist
+
+            # all particles should be all particles' neighbors
+            if len(nlist) != N*(N - 1):
+                raise AssertionError(
+                    'Wrong-sized neighbor list in test_even_cells,'
+                    'seed={}, box_cell_count={}'.format(seed, box_cell_count))
+
+    def test_single_neighbor(self):
+        pos = np.zeros((10, 3), dtype=np.float32)
+        pos[::2, 0] = 2*np.arange(5)
+        pos[1::2, 0] = pos[::2, 0] + .25
+        pos[:, 1] = pos[:, 0]
+        pos[0] = (9, 7, 0)
+
+        box = freud.box.Box.square(L=4*len(pos))
+        nn = freud.locality.NearestNeighbors(1, 1).compute(box, pos, pos)
+        nlist = nn.nlist
+
+        self.assertEqual(len(nlist), len(pos))
+
 if __name__ == '__main__':
     unittest.main()

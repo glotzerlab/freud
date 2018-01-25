@@ -46,6 +46,7 @@ cdef class NeighborList:
     """
     cdef locality.NeighborList *thisptr
     cdef char _managed
+    cdef base
 
     @classmethod
     def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):
@@ -499,6 +500,7 @@ cdef class LinkCell:
 
         cdef locality.NeighborList *nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
+        self._nlist.base = self
         return self
 
     def compute(self, box, ref_points, points=None, exclude_ii=None):
@@ -811,6 +813,7 @@ cdef class NearestNeighbors:
 
         cdef locality.NeighborList *nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
+        self._nlist.base = self
 
         return self
 

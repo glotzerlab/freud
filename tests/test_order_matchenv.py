@@ -3,12 +3,15 @@ import numpy.testing as npt
 from freud.order import MatchEnv
 from freud import box
 import unittest
-
+import os
 
 class TestCluster(unittest.TestCase):
     #by Chrisy
+    test_folder = os.path.join(os.path.dirname(__file__), 'numpy_test_files')
+
     def test_single_cluster(self):
-        xyz = np.load("bcc.npy")
+        fn = os.path.join(self.test_folder, 'bcc.npy')
+        xyz = np.load(fn)
         xyz = np.array(xyz, dtype=np.float32)
         L = np.max(xyz)*2
         fbox = box.Box.cube(L)
@@ -26,7 +29,8 @@ class TestCluster(unittest.TestCase):
             if cluster_ind not in cluster_env:
                 cluster_env[cluster_ind] = np.copy(np.array(match.getEnvironment(cluster_ind)))
 
-        bcc_env = np.load("bcc_env.npy")
+        fn = os.path.join(self.test_folder, 'bcc_env.npy')
+        bcc_env = np.load(fn)
         num_cluster = len(cluster_env)
         env_cluster = cluster_env[0]
 
@@ -41,7 +45,8 @@ class TestCluster(unittest.TestCase):
 
     #by Chrisy
     def test_multi_cluster(self):
-        xyz = np.load("sc.npy")
+        fn = os.path.join(self.test_folder, "sc.npy")
+        xyz = np.load(fn)
         xyz = np.array(xyz, dtype=np.float32)
         fbox = box.Box.cube(21)
 
@@ -58,7 +63,8 @@ class TestCluster(unittest.TestCase):
             if cluster_ind not in cluster_env:
                 cluster_env[cluster_ind] = np.copy(np.array(match.getEnvironment(cluster_ind)))
 
-        sc_env = np.load("sc_env.npy")
+        fn = os.path.join(self.test_folder, "sc_env.npy")
+        sc_env = np.load(fn)
         # Randomly choose the 3rd cluster here to test
         env_cluster = cluster_env[2]
         num_cluster = len(cluster_env)
@@ -75,7 +81,8 @@ class TestCluster(unittest.TestCase):
 
     #test MatchEnv.cluster function, defining clusters using constant k neighbors, hard_r=false, registration=false
     def test_cluster_kNeighbor(self):
-        xyz = np.load("bcc.npy")
+        fn = os.path.join(self.test_folder, "bcc.npy")
+        xyz = np.load(fn)
         xyz = np.array(xyz, dtype=np.float32)
         L = np.max(xyz)*2
         fbox = box.Box.cube(L)
@@ -93,7 +100,8 @@ class TestCluster(unittest.TestCase):
             if cluster_ind not in cluster_env:
                 cluster_env[cluster_ind] = np.copy(np.array(match.getEnvironment(cluster_ind)))
 
-        bcc_env = np.load("bcc_env.npy")
+        fn = os.path.join(self.test_folder, "bcc_env.npy")
+        bcc_env = np.load(fn)
         num_cluster = len(cluster_env)
         env_cluster = cluster_env[0]
 
@@ -108,7 +116,8 @@ class TestCluster(unittest.TestCase):
 
     #test MatchEnv.cluster function, hard_r=true, registration=false
     def test_cluster_hardr(self):
-        xyz = np.load("bcc.npy")
+        fn = os.path.join(self.test_folder, "bcc.npy")
+        xyz = np.load(fn)
         xyz = np.array(xyz, dtype=np.float32)
         L = np.max(xyz)*2
         fbox = box.Box.cube(L)
@@ -126,7 +135,8 @@ class TestCluster(unittest.TestCase):
             if cluster_ind not in cluster_env:
                 cluster_env[cluster_ind] = np.copy(np.array(match.getEnvironment(cluster_ind)))
 
-        bcc_env = np.load("bcc_env.npy")
+        fn = os.path.join(self.test_folder, "bcc_env.npy")
+        bcc_env = np.load(fn)
         num_cluster = len(cluster_env)
         env_cluster = cluster_env[0]
 
@@ -142,7 +152,8 @@ class TestCluster(unittest.TestCase):
 
     #test MatchEnv.cluster function, hard_r=false, registration=true, global=true
     def test_cluster_registration(self):
-        xyz = np.load("sc_N54.npy")
+        fn = os.path.join(self.test_folder, "sc_N54.npy")
+        xyz = np.load(fn)
         xyz = np.array(xyz, dtype=np.float32)
 
         rcut = 4

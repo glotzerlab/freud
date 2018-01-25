@@ -2559,3 +2559,192 @@ cdef class Pairing2D:
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+
+cdef class AngularSeparation:
+    """Calculates the minimum angles of separation between particles and references.
+
+    .. moduleauthor:: Erin Teich & Andrew Karas
+
+    """
+    cdef order.AngularSeparation *thisptr
+    cdef num_neigh
+    cdef rmax
+    cdef nlist_
+
+    def __cinit__(self, rmax, n):
+        self.thisptr = new order.AngularSeparation()
+        self.rmax = rmax
+        self.num_neigh = int(n)
+        self.nlist_ = None
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    @property
+    def nlist(self):
+        return self.nlist_
+
+    def computeNeighbor(self, box, ref_ors, ors, ref_points, points, equiv_quats, nlist=None):
+        """
+        Calculates the minimum angles of separation between ref_ors and ors, checking for underlying symmetry as encoded in equiv_quats.
+
+        :param box: simulation box
+        :param ref_ors: orientations to calculate the order parameter
+        :param ref_points: points to calculate the order parameter
+        :param ors: orientations (neighbors of ref_ors) to calculate the order parameter
+        :param points: points (neighbors of ref_points) to calculate the order parameter
+        :param equiv_quats: the set of all equivalent quaternions that takes the particle as it
+        is defined to some global reference orientation. IMPT: equiv_quats must include both q and -q, for all included quaternions
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
+        :type box: :py:meth:`freud.box.Box`
+        :type ref_ors: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type ors: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type equiv_quats: :class:`numpy.ndarray`, shape= :math:`\\left(N_{equiv}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
+        """
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        ref_ors = freud.common.convert_array(ref_ors, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_ors must be a 2 dimensional array")
+        if ref_ors.shape[1] != 4:
+            raise TypeError('ref_ors should be an Nx4 array')
+
+        ors = freud.common.convert_array(ors, 2, dtype=np.float32, contiguous=True,
+            dim_message="ors must be a 2 dimensional array")
+        if ors.shape[1] != 4:
+            raise TypeError('ors should be an Nx4 array')
+
+        equiv_quats = freud.common.convert_array(equiv_quats, 2, dtype=np.float32, contiguous=True,
+            dim_message="equiv_quats must be a 2 dimensional array")
+        if equiv_quats.shape[1] != 4:
+            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(),
+                                        box.getTiltFactorYZ(), box.is2D())
+
+        defaulted_nlist = make_default_nlist_nn(box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        self.nlist_ = nlist_
+
+        cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
+        cdef np.ndarray[float, ndim=2] l_ors = ors
+        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
+
+        cdef unsigned int nRef = <unsigned int> ref_ors.shape[0]
+        cdef unsigned int nP = <unsigned int> ors.shape[0]
+        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
+
+        with nogil:
+            self.thisptr.computeNeighbor(nlist_ptr, <quat[float]*>l_ref_ors.data, <quat[float]*>l_ors.data, <quat[float]*>l_equiv_quats.data,
+                                        nRef, nP, nEquiv)
+        return self
+
+    def computeGlobal(self, global_ors, ors, equiv_quats):
+        """
+        Calculates the minimum angles of separation between global_ors and ors, checking for underlying symmetry as encoded in equiv_quats.
+
+        :param global_ors: global reference orientations to calculate the order parameter
+        :param ors: orientations to calculate the order parameter
+        :param equiv_quats: the set of all equivalent quaternions that takes the particle as it
+        is defined to some global reference orientation. IMPT: equiv_quats must include both q and -q, for all included quaternions
+        :type ref_ors: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type ors: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type equiv_quats: :class:`numpy.ndarray`, shape= :math:`\\left(N_{equiv}, 4 \\right)`, dtype= :class:`numpy.float32`
+        """
+        global_ors = freud.common.convert_array(global_ors, 2, dtype=np.float32, contiguous=True,
+            dim_message="global_ors must be a 2 dimensional array")
+        if global_ors.shape[1] != 4:
+            raise TypeError('global_ors should be an Nx4 array')
+
+        ors = freud.common.convert_array(ors, 2, dtype=np.float32, contiguous=True,
+            dim_message="ors must be a 2 dimensional array")
+        if ors.shape[1] != 4:
+            raise TypeError('ors should be an Nx4 array')
+
+        equiv_quats = freud.common.convert_array(equiv_quats, 2, dtype=np.float32, contiguous=True,
+            dim_message="equiv_quats must be a 2 dimensional array")
+        if equiv_quats.shape[1] != 4:
+            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+
+        cdef np.ndarray[float, ndim=2] l_global_ors = global_ors
+        cdef np.ndarray[float, ndim=2] l_ors = ors
+        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
+
+        cdef unsigned int nGlobal = <unsigned int> global_ors.shape[0]
+        cdef unsigned int nP = <unsigned int> ors.shape[0]
+        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
+
+        with nogil:
+            self.thisptr.computeGlobal(<quat[float]*>l_global_ors.data, <quat[float]*>l_ors.data, <quat[float]*>l_equiv_quats.data,
+                                        nGlobal, nP, nEquiv)
+        return self
+
+    def getNeighborAngles(self):
+        """
+        :return: angles in radians
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{reference}, N_{neighbors} \\right)`, dtype= :class:`numpy.float32`
+        """
+
+        cdef float *neigh_ang = self.thisptr.getNeighborAngles().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>len(self.nlist)
+        cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>neigh_ang)
+        return result
+
+
+    def getGlobalAngles(self):
+        """
+        :return: angles in radians
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{global} \\right)`, dtype= :class:`numpy.float32`
+        """
+
+        cdef float *global_ang = self.thisptr.getGlobalAngles().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        nbins[1] = <np.npy_intp>self.thisptr.getNglobal()
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>global_ang)
+        return result
+
+
+    def getNP(self):
+        """
+        Get the number of particles used in computing the last set.
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
+    def getNReference(self):
+        """
+        Get the number of reference particles used in computing the neighbor angles.
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        cdef unsigned int nref = self.thisptr.getNref()
+        return nref
+
+    def getNGlobal(self):
+        """
+        Get the number of global orientations to check against
+
+        :return: :math:`N_{global orientations}`
+        :rtype: unsigned int
+        """
+        cdef unsigned int nglobal = self.thisptr.getNglobal()
+        return nglobal
