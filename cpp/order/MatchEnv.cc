@@ -685,7 +685,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
 
-    nlist->validate(numRef, Np);
+    nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
@@ -763,7 +763,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList *n
     m_Np = Np;
     std::vector<float> min_rmsd_vec(m_Np);
 
-    nlist->validate(numRef, Np);
+    nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
