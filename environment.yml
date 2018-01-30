@@ -8,13 +8,18 @@ dependencies:
 - bzip2=1.0.6=1
 - ca-certificates=2017.11.5=0
 - certifi=2017.11.5=py36_0
+- clangdev=5.0.0=default_0
 - cmake=3.10.0=4
 - curl=7.55.1=0
 - cython=0.27.3=py36_0
 - expat=2.2.5=0
+- icu=58.2=0
 - krb5=1.14.2=0
+- libiconv=1.15=0
 - libssh2=1.8.0=2
 - libuv=1.11.0=0
+- libxml2=2.9.7=0
+- llvmdev=5.0.0=default_0
 - ncurses=5.9=10
 - numpy=1.14.0=py36_blas_openblas_200
 - openblas=0.2.20=7
@@ -32,4 +37,5 @@ dependencies:
 - xz=5.2.3=0
 - zlib=1.2.11=0
 - libgfortran=3.0.0=1
+- system=5.8=2
 - boost-headers=1.55.0=0
