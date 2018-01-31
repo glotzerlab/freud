@@ -110,15 +110,7 @@ cdef class FloatCF:
         return self
 
     @property
-    def rdf(self):
-        """
-        :return: expected (average) product of all values at a given radial distance
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
-        """
-        return self.getRDF()
-
-    @property
-    def rdf(self):
+    def RDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
@@ -322,7 +314,7 @@ cdef class ComplexCF:
         return self
 
     @property
-    def rdf(self):
+    def RDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
@@ -788,7 +780,7 @@ cdef class RDF:
         self.thisptr.reduceRDF()
 
     @property
-    def rdf(self):
+    def RDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`

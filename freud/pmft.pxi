@@ -190,7 +190,7 @@ cdef class PMFTR12:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getBinCounts()
+        return self.getPCF()
 
     def getPCF(self):
         """
@@ -580,7 +580,7 @@ cdef class PMFTXYT:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getBinCounts()
+        return self.getPCF()
 
     def getPCF(self):
         """
@@ -647,7 +647,7 @@ cdef class PMFTXYT:
         :return: bin centers of y-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getX()
+        return self.getY()
 
     def getY(self):
         """
@@ -935,7 +935,7 @@ cdef class PMFTXY2D:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getBinCounts()
+        return self.getPCF()
 
     def getPCF(self):
         """
@@ -1025,7 +1025,7 @@ cdef class PMFTXY2D:
         :return: bin centers of y-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getX()
+        return self.getY()
 
     def getY(self):
         """
@@ -1348,7 +1348,7 @@ cdef class PMFTXYZ:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getBinCounts()
+        return self.getPCF()
 
     def getPCF(self):
         """
@@ -1415,7 +1415,7 @@ cdef class PMFTXYZ:
         :return: bin centers of y-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
         """
-        return self.getX()
+        return self.getY()
 
     def getY(self):
         """

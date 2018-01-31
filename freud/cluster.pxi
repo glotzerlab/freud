@@ -173,17 +173,17 @@ cdef class Cluster:
     def cluster_keys(self):
         """Returns the keys contained in each cluster
 
-        :return: list of lists of each key containted in clusters
+        :return: list of lists of each key contained in clusters
         :rtype: list
 
         .. todo: Determine correct way to export. As-is, I do not particularly like how it was previously handled.
         """
-        return self.getClusterIdx()
+        return self.getClusterKeys()
 
     def getClusterKeys(self):
         """Returns the keys contained in each cluster
 
-        :return: list of lists of each key containted in clusters
+        :return: list of lists of each key contained in clusters
         :rtype: list
 
         .. todo: Determine correct way to export. As-is, I do not particularly like how it was previously handled.
@@ -286,7 +286,7 @@ cdef class ClusterProperties:
 
     @property
     def cluster_COM(self):
-        """Returns the cluster center of mass the last computed cluster_com
+        """Returns the center of mass of the last computed cluster
 
         :return: numpy array of cluster center of mass coordinates :math:`\\left(x,y,z\\right)`
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`, 3), dtype= :class:`numpy.float32`
@@ -294,7 +294,7 @@ cdef class ClusterProperties:
         return self.getClusterCOM()
 
     def getClusterCOM(self):
-        """Returns the cluster center of mass the last computed cluster_com
+        """Returns the center of mass of the last computed cluster
 
         :return: numpy array of cluster center of mass coordinates :math:`\\left(x,y,z\\right)`
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`, 3), dtype= :class:`numpy.float32`
