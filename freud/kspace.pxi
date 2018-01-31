@@ -32,6 +32,11 @@ cdef class FTdelta:
         self.thisptr.compute()
         return self
 
+    @property
+    def FT(self):
+        """Return the FT values"""
+        return self.getFT()
+
     def getFT(self):
         """Return the FT values"""
         cdef (float complex)* ft_points = self.thisptr.getFT().get()
@@ -111,6 +116,11 @@ cdef class FTsphere:
         self.thisptr.compute()
         return self
 
+    @property
+    def FT(self):
+        """Return the FT values"""
+        return self.getFT()
+
     def getFT(self):
         """Return the FT values"""
         cdef (float complex)* ft_points = self.thisptr.getFT().get()
@@ -188,6 +198,11 @@ cdef class FTpolyhedron:
         """Perform transform and store result internally"""
         self.thisptr.compute()
         return self
+
+    @property
+    def FT(self):
+        """Return the FT values"""
+        return self.getFT()
 
     def getFT(self):
         """Return the FT values"""

@@ -35,7 +35,7 @@ class TestLD:
         for i in range(0,len(self.pos)):
             assert_less(math.fabs(density[i]-10.0), 1.5);
 
-        neighbors = self.ld.getNumNeighbors();
+        neighbors = self.ld.num_neighbors
         for i in range(0,len(neighbors)):
             assert_less(math.fabs(neighbors[i]-1130.973355292), 200);
 
@@ -49,7 +49,7 @@ class TestLD:
         for i in range(0,len(self.pos)):
             assert_less(math.fabs(density[i]-10.0), 1.5);
 
-        neighbors = self.ld.getNumNeighbors();
+        neighbors = self.ld.num_neighbors
         for i in range(0,len(neighbors)):
             assert_less(math.fabs(neighbors[i]-1130.973355292), 200);
 

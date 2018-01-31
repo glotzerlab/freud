@@ -176,7 +176,7 @@ class TestCluster(unittest.TestCase):
         clusters = match.getClusters()
 
         #get environment for each particle
-        tot_env = match.getTotEnvironment()
+        tot_env = match.tot_environment
 
         #particles with index 22 and 31 have opposite y positions, they should have the same local environment
         npt.assert_equal(clusters[22], clusters[31], err_msg="two points do not have similar environment")

@@ -18,7 +18,7 @@ class TestR(unittest.TestCase):
 
         rdf = density.RDF(rmax, dr)
 
-        npt.assert_almost_equal(rdf.getR(), r_list, decimal=3)
+        npt.assert_almost_equal(rdf.R, r_list, decimal=3)
 
 class TestRDF(unittest.TestCase):
     def test_random_point(self):
@@ -34,7 +34,7 @@ class TestRDF(unittest.TestCase):
         correct = np.ones(int(rmax/dr), dtype=np.float32)
         correct[0] = 0.0
         absolute_tolerance = 0.1
-        npt.assert_allclose(rdf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(rdf.RDF, correct, atol=absolute_tolerance)
 
 if __name__ == '__main__':
     unittest.main()

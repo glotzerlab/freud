@@ -74,6 +74,14 @@ cdef class BondingAnalysis:
             self.thisptr.compute(<unsigned int*> l_frame_0.data, <unsigned int*> l_frame_1.data)
         return self
 
+    @property
+    def bond_lifetimes(self):
+        """
+        :return: lifetime of bonds
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.uint32`
+        """
+        return self.getBondLifetimes()
+
     def getBondLifetimes(self):
         """
         :return: lifetime of bonds
@@ -81,6 +89,14 @@ cdef class BondingAnalysis:
         """
         bonds = self.thisptr.getBondLifetimes()
         return bonds
+
+    @property
+    def overall_lifetimes(self):
+        """
+        :return: lifetime of bonds
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, varying), dtype= :class:`numpy.uint32`
+        """
+        return self.getOverallLifetimes()
 
     def getOverallLifetimes(self):
         """
@@ -90,6 +106,14 @@ cdef class BondingAnalysis:
         bonds = self.thisptr.getOverallLifetimes()
         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
         return ret_bonds
+
+    @property
+    def transition_matrix(self):
+        """
+        :return: transition matrix
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.getTransitionMatrix()
 
     def getTransitionMatrix(self):
         """
@@ -103,6 +127,16 @@ cdef class BondingAnalysis:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>trans_matrix)
         return result
 
+    @property
+    def num_frames(self):
+        """
+        Get number of frames calculated
+
+        :return: number of frames
+        :rtype: unsigned int
+        """
+        return self.getNumFrames()
+
     def getNumFrames(self):
         """
         Get number of frames calculated
@@ -112,6 +146,16 @@ cdef class BondingAnalysis:
         """
         return self.thisptr.getNumFrames()
 
+    @property
+    def num_particles(self):
+        """
+        Get number of particles being tracked
+
+        :return: number of particles
+        :rtype: unsigned int
+        """
+        return self.getNumParticles()
+
     def getNumParticles(self):
         """
         Get number of particles being tracked
@@ -120,6 +164,16 @@ cdef class BondingAnalysis:
         :rtype: unsigned int
         """
         return self.thisptr.getNumParticles()
+
+    @property
+    def num_bonds(self):
+        """
+        Get number of bonds being tracked
+
+        :return: number of bonds
+        :rtype: unsigned int
+        """
+        return self.getNumBonds()
 
     def getNumBonds(self):
         """
@@ -212,6 +266,14 @@ cdef class BondingR12:
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
         return self
 
+    @property
+    def bonds(self):
+        """
+        :return: particle bonds
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.getBonds()
+
     def getBonds(self):
         """
         :return: particle bonds
@@ -224,6 +286,16 @@ cdef class BondingR12:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>bonds)
         return result
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.box.Box()`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         Get the box used in the calculation
@@ -232,6 +304,18 @@ cdef class BondingR12:
         :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+    @property
+    def list_map(self):
+        """
+        Get the dict used to map list idx to bond idx
+
+        :return: list_map
+        :rtype: dict
+
+        >>> list_idx = list_map[bond_idx]
+        """
+        return self.getListMap()
 
     def getListMap(self):
         """
@@ -243,6 +327,18 @@ cdef class BondingR12:
         >>> list_idx = list_map[bond_idx]
         """
         return self.thisptr.getListMap()
+
+    @property
+    def rev_list_map(self):
+        """
+        Get the dict used to map list idx to bond idx
+
+        :return: list_map
+        :rtype: dict
+
+        >>> bond_idx = list_map[list_idx]
+        """
+        return self.getRevListMap()
 
     def getRevListMap(self):
         """
@@ -340,6 +436,14 @@ cdef class BondingXY2D:
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
         return self
 
+    @property
+    def bonds(self):
+        """
+        :return: particle bonds
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.getBonds()
+
     def getBonds(self):
         """
         :return: particle bonds
@@ -352,6 +456,16 @@ cdef class BondingXY2D:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>bonds)
         return result
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.box.Box()`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         Get the box used in the calculation
@@ -360,6 +474,18 @@ cdef class BondingXY2D:
         :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+    @property
+    def list_map(self):
+        """
+        Get the dict used to map list idx to bond idx
+
+        :return: list_map
+        :rtype: dict
+
+        >>> list_idx = list_map[bond_idx]
+        """
+        return self.getListMap()
 
     def getListMap(self):
         """
@@ -371,6 +497,18 @@ cdef class BondingXY2D:
         >>> list_idx = list_map[bond_idx]
         """
         return self.thisptr.getListMap()
+
+    @property
+    def rev_list_map(self):
+        """
+        Get the dict used to map list idx to bond idx
+
+        :return: list_map
+        :rtype: dict
+
+        >>> bond_idx = list_map[list_idx]
+        """
+        return self.getRevListMap()
 
     def getRevListMap(self):
         """
@@ -469,6 +607,14 @@ cdef class BondingXYT:
                 <vec3[float]*> l_points.data, <float*> l_orientations.data, n_p)
         return self
 
+    @property
+    def bonds(self):
+        """
+        :return: particle bonds
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.getBonds()
+
     def getBonds(self):
         """
         :return: particle bonds
@@ -481,6 +627,16 @@ cdef class BondingXYT:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>bonds)
         return result
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.box.Box()`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         Get the box used in the calculation
@@ -489,6 +645,18 @@ cdef class BondingXYT:
         :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+    @property
+    def list_map(self):
+        """
+        Get the dict used to map list idx to bond idx
+
+        :return: list_map
+        :rtype: dict
+
+        >>> list_idx = list_map[bond_idx]
+        """
+        return self.getListMap()
 
     def getListMap(self):
         """
@@ -500,6 +668,18 @@ cdef class BondingXYT:
         >>> list_idx = list_map[bond_idx]
         """
         return self.thisptr.getListMap()
+
+    @property
+    def rev_list_map(self):
+        """
+        Get the dict used to map list idx to bond idx
+
+        :return: list_map
+        :rtype: dict
+
+        >>> bond_idx = list_map[list_idx]
+        """
+        return self.getRevListMap()
 
     def getRevListMap(self):
         """
@@ -604,6 +784,14 @@ cdef class BondingXYZ:
                 <vec3[float]*> l_points.data, <quat[float]*> l_orientations.data, n_p)
         return self
 
+    @property
+    def bonds(self):
+        """
+        :return: particle bonds
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.getBonds()
+
     def getBonds(self):
         """
         :return: particle bonds
@@ -616,6 +804,16 @@ cdef class BondingXYZ:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,<void*>bonds)
         return result
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:meth:`freud.box.Box()`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         Get the box used in the calculation
@@ -624,6 +822,18 @@ cdef class BondingXYZ:
         :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+    @property
+    def list_map(self):
+        """
+        Get the dict used to map list idx to bond idx
+
+        :return: list_map
+        :rtype: dict
+
+        >>> list_idx = list_map[bond_idx]
+        """
+        return self.getListMap()
 
     def getListMap(self):
         """
@@ -635,6 +845,18 @@ cdef class BondingXYZ:
         >>> list_idx = list_map[bond_idx]
         """
         return self.thisptr.getListMap()
+
+    @property
+    def rev_list_map(self):
+        """
+        Get the dict used to map list idx to bond idx
+
+        :return: list_map
+        :rtype: dict
+
+        >>> bond_idx = list_map[list_idx]
+        """
+        return self.getRevListMap()
 
     def getRevListMap(self):
         """

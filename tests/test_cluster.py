@@ -24,9 +24,11 @@ class TestCluster(unittest.TestCase):
         props = freud.cluster.ClusterProperties(box)
         props.computeProperties(positions, clust.getClusterIdx())
 
-        self.assertEqual(props.getNumClusters(), Ngrid)
+        #self.assertEqual(props.getNumClusters(), Ngrid)
+        self.assertEqual(props.num_clusters, Ngrid)
 
-        self.assertTrue(np.all(props.getClusterSizes() == Nrep))
+        #self.assertTrue(np.all(props.getClusterSizes() == Nrep))
+        self.assertTrue(np.all(props.cluster_sizes == Nrep))
 
 if __name__ == '__main__':
     unittest.main()
