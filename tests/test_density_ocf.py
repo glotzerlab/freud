@@ -37,7 +37,7 @@ class TestOCF(unittest.TestCase):
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
-        npt.assert_allclose(ocf.rdf, correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
     @unittest.skip("Skipping to test with CircleCI")
     def test_random_point_without_cell_list(self):
@@ -71,7 +71,7 @@ class TestOCF(unittest.TestCase):
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + 1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
-        npt.assert_allclose(ocf.rdf, correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
     @unittest.skip("Skipping to test with CircleCI")
     def test_value_point_without_cell_list(self):

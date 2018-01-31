@@ -34,7 +34,7 @@ class TestRDF(unittest.TestCase):
         correct = np.ones(int(rmax/dr), dtype=np.float32)
         correct[0] = 0.0
         absolute_tolerance = 0.1
-        npt.assert_allclose(rdf.rdf, correct, atol=absolute_tolerance)
+        npt.assert_allclose(rdf.RDF, correct, atol=absolute_tolerance)
 
 if __name__ == '__main__':
     unittest.main()
