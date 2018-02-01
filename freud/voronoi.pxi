@@ -24,9 +24,8 @@ cdef class VoronoiBuffer:
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
             dim_message='points must be a 3 dimensional array')
 
-        dimensions = 2 if self.thisptr.getBox().is2D() else 3
         if points.shape[1] != 3:
-            raise RuntimeError('Need a list of 3D points for VoronoiBuffer.compute()'.format(dimensions))
+            raise RuntimeError('Need a list of 3D points for VoronoiBuffer.compute()')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         self.thisptr.compute(<float3*> cPoints.data, Np, buffer)
@@ -38,17 +37,6 @@ cdef class VoronoiBuffer:
         cdef float3* buffer_points = &dereference(self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
-
-        '''
-        shape = [buffer_size, 3]
-        result = np.zeros(shape, dtype=np.float32)
-        cdef float[:] flatBuffer = <float[:shape[0]*shape[1]]> (<float*> buffer_points)
-        result.flat[:] = flatBuffer
-        if cBox.is2D():
-            return result[:, :2]
-        else:
-            return result
-        '''
 
         cdef vector[float3]*bufferPar = self.thisptr.getBufferParticles().get()
         cdef np.npy_intp nbins[2]

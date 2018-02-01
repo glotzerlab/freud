@@ -11,7 +11,6 @@ except ImportError:
     qvoronoi = None
     msg = 'scipy.spatial.Voronoi is not available (requires scipy 0.12+), so freud.voronoi is not available.'
     logger.warning(msg)
-    #raise ImportWarning(msg)
 from ._freud import VoronoiBuffer
 from ._freud import NeighborList
 

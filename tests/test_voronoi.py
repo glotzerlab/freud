@@ -5,6 +5,8 @@ import unittest
 
 class TestVoronoi(unittest.TestCase):
     def test_basic(self):
+        # Test that voronoi tesselations of random systems have the same
+        # number of points and polytopes
         L = 10 # Box length
         N = 50 # Number of particles
         fbox = box.Box.square(L) # Initialize box
@@ -17,7 +19,8 @@ class TestVoronoi(unittest.TestCase):
 
         npt.assert_equal(len(result), len(positions))
 
-    def test_voronoi_tess(self):
+    def test_voronoi_tess_2d(self):
+        # Test that the voronoi polytope works for a 2D system
         L = 10 # Box length
         fbox = box.Box.square(L)
         vor = voronoi.Voronoi(fbox)
@@ -30,7 +33,30 @@ class TestVoronoi(unittest.TestCase):
                 [np.array([[ 1.5,  1.5, 0], [ 0.5,  1.5, 0],
                            [ 0.5,  0.5, 0], [ 1.5,  0.5, 0]])])
 
+    def test_voronoi_tess_3d(self):
+        # Test that the voronoi polytope works for a 3D system
+        L = 10 # Box length
+        fbox = box.Box.cube(L)
+        vor = voronoi.Voronoi(fbox)
+        # Make a regular grid
+        positions = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0],
+                              [1, 0, 0], [1, 1, 0], [1, 2, 0],
+                              [2, 0, 0], [2, 1, 0], [2, 2, 0],
+                              [0, 0, 1], [0, 1, 1], [0, 2, 1],
+                              [1, 0, 1], [1, 1, 1], [1, 2, 1],
+                              [2, 0, 1], [2, 1, 1], [2, 2, 1],
+                              [0, 0, 2], [0, 1, 2], [0, 2, 2],
+                              [1, 0, 2], [1, 1, 2], [1, 2, 2],
+                              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float32)
+        vor.compute(positions)
+        npt.assert_equal(vor.getVoronoiPolytopes(),
+                [np.array([[1.5, 1.5, 1.5], [1.5, 0.5, 1.5], [1.5, 0.5, 0.5],
+                           [1.5, 1.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 1.5],
+                           [0.5, 1.5, 0.5], [0.5, 1.5, 1.5]])])
+
     def test_voronoi_neighbors(self):
+        # Test that voronoi neighbors in the first and second shells are
+        # correct in 2D
         L = 10 # Box length
         fbox = box.Box.square(L)
         vor = voronoi.Voronoi(fbox)
@@ -49,6 +75,7 @@ class TestVoronoi(unittest.TestCase):
                  [2, 4, 5, 6, 7]])
 
     def test_nlist_symmetric(self):
+        # Test that the voronoi neighborlist is symmetric
         L = 10 # Box length
         rbuf = 3 # Cutoff radius
         N = 40 # Number of particles
