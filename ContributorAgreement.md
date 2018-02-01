@@ -1,6 +1,6 @@
-Freud Contributor Agreement
+freud Contributor Agreement
 
-These terms apply to your contribution to the Freud Open Source Project ("Project") owned or managed by the Regents of the University of Michigan ("Michigan"), and set out the intellectual property rights you grant to Michigan in the contributed materials. If this contribution is on behalf of a company, the term "you" will also mean the company you identify below. If you agree to be bound by these terms, fill in the information requested below and provide your signature.
+These terms apply to your contribution to the freud Open Source Project ("Project") owned or managed by the Regents of the University of Michigan ("Michigan"), and set out the intellectual property rights you grant to Michigan in the contributed materials. If this contribution is on behalf of a company, the term "you" will also mean the company you identify below. If you agree to be bound by these terms, fill in the information requested below and provide your signature.
 
 1. The term "contribution" means any source code, object code, patch, tool, sample, graphic, specification, manual, documentation, or any other material posted or submitted by you to a project.
 1. With respect to any worldwide copyrights, or copyright applications and registrations, in your contribution:
@@ -19,11 +19,11 @@ These terms apply to your contribution to the Freud Open Source Project ("Projec
 you are authorized to sign this contract on behalf of your company (if identified below).
 1. The terms will be governed by the laws of the State of Michigan and applicable U.S. Federal Law. Any choice of law rules will not apply.
 
-** By making contribution, you electronically sign and agree to the terms of the Freud Contributor Agreement.**
+** By making contribution, you electronically sign and agree to the terms of the freud Contributor Agreement.**
 
 ![by-sa.png](https://licensebuttons.net/l/by-sa/3.0/88x31.png)
 
 Based on the Sun Contributor Agreement - version 1.5.
 This document is licensed under a Creative Commons Attribution-Share Alike 3.0 Unported License
-http://creativecommons.org/licenses/by-sa/3.0/
+https://creativecommons.org/licenses/by-sa/3.0/
 

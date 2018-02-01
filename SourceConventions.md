@@ -2,12 +2,12 @@
 
 [TOC]
 
-The following conventions apply to all code written in Freud, whether it be C++, python, CMake, etc. Pull requests
+The following conventions apply to all code written in freud, whether it be C++, Python, CMake, etc. Pull requests
 will not be accepted and feature branches will not be merged unless these conventions are followed.
 
 ## Code Guidlines ##
 
-Code in Freud should follow [PEP8](https://www.python.org/dev/peps/pep-0008/), as well as the following guidelines. Anything listed here takes precedence over PEP8, but we try to deviate as little as possible from PEP8. *When in doubt, follow the guidelines!*
+Code in freud should follow [PEP8](https://www.python.org/dev/peps/pep-0008/), as well as the following guidelines. Anything listed here takes precedence over PEP8, but we try to deviate as little as possible from PEP8. *When in doubt, follow the guidelines!*
 
 ### Python and Cython naming conventions ###
 
@@ -53,7 +53,7 @@ class FreudCPPClass
 
 ### Make things explicit, not automatic ###
 
-While it is tempting to make your code do things "automatically", such as have a calculate method find all `_calc` methods in a class, call them, and add their returns to a dictionary to return to the user, it is preferred in Freud to do this explicitly. This helps avoid issues in debugging and undocumented behavior:
+While it is tempting to make your code do things "automatically", such as have a calculate method find all `_calc` methods in a class, call them, and add their returns to a dictionary to return to the user, it is preferred in freud to do this explicitly. This helps avoid issues in debugging and undocumented behavior:
 
 ```
 #!python
@@ -72,7 +72,7 @@ class SomeOtherFreudClass(object):
 
 ### Code duplication ###
 
-When possible, code should not be duplicated. However, being explicit is more important. In Freud this translates to many of the inner loops of functions being very similar:
+When possible, code should not be duplicated. However, being explicit is more important. In freud this translates to many of the inner loops of functions being very similar:
 
 ```
 #!c++
@@ -106,7 +106,7 @@ However, if you have a class which has a number of methods, each of which requir
 
 ### Python vs. Cython vs. C++ ###
 
-Freud is meant to leverage the power of C++ code imbued with parallel processing power from TBB with the ease of writing Python code. The bulk of your calculations should take place in C++, as shown in the snippet below
+The freud library is meant to leverage the power of C++ code imbued with parallel processing power from TBB with the ease of writing Python code. The bulk of your calculations should take place in C++, as shown in the snippet below
 
 ```
 #!python
@@ -160,7 +160,7 @@ Semicolons should not be used to mark the end of lines in Python
 * *4 spaces* are required per level of indentation
 * *4 spaces* are *required*, not optional, for continuation lines
 * There should be no whitespace at the end of lines in the file.
-* C++ code should follow [Whitesmith's style](http://en.wikipedia.org/wiki/Indent_style#Whitesmiths_style). An extended set of examples follows:
+* C++ code should follow [Whitesmith's style](https://en.wikipedia.org/wiki/Indentation_style#Whitesmiths_style). An extended set of examples follows:
 
 ```
 #!c++
@@ -318,7 +318,7 @@ int someReallyLongFunctionName(int with_really_long_arguments,
 ### Documentation Comments ###
 
 * Documentation should be included at the Python-level in the Cython wrapper.
-* Every class, member variable, function, function parameter, macro, etc. *MUST* be documented with *python docstring* comments which will be converted to documentation with *sphinx*.
+* Every class, member variable, function, function parameter, macro, etc. *MUST* be documented with *Python docstring* comments which will be converted to documentation with *sphinx*.
 * See http://www.sphinx-doc.org/en/stable/index.html
 * If you copy an existing file as a template, *DO NOT* simply leave the existing documentation comments there. They apply to the original file, not your new one!
 * The best advice that can be given is to write the documentation comments *FIRST* and the _actual code_ *second*. This allows one to formulate their thoughts and write out in English what the code is going to be doing. After thinking through that, writing the actual code is often _much easier_, plus the documentation left for future developers to read is top-notch.

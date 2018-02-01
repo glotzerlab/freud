@@ -4,7 +4,7 @@ Design
 Vision
 ------
 
-Freud is designed to be:
+The freud library is designed to be:
 
 1. Powerful
 2. Flexible
@@ -14,7 +14,7 @@ Powerful
 ~~~~~~~~
 
 The amount of data produced by simulations is always increasing. By
-being powerful, Freud allows users to analyze their simulation data as
+being powerful, freud allows users to analyze their simulation data as
 fast as possible so that it can be used in real-time visualization and
 on-line simulation analysis.
 
@@ -23,33 +23,33 @@ Flexible
 
 The number of simulation packages, analysis packages, and other software
 packages keeps growing. Rather than attempt to understand and interact
-with all of these packages, Freud achieves flexibility by providing a
+with all of these packages, freud achieves flexibility by providing a
 simple Python interface and making no assumptions regarding data,
-operating on and returning numpy arrays to the user.
+operating on and returning NumPy arrays to the user.
 
 Maintainable
 ~~~~~~~~~~~~
 
 Code which cannot be maintained is destined for obscurity. In order to
-be maintainable, Freud uses git for version control; bit bucket for code
+be maintainable, freud uses Git for version control; BitBucket for code
 hosting, issue tracking; the PEP8 standard for code, stressing
 explicitly written code which is easy to read.
 
 Language choices
 ----------------
 
-Freud is written in two languages: Python and C++. C++ allows for
+The freud library is written in two languages: Python and C++. C++ allows for
 powerful, fast code execution while Python allows for easy, flexible
 use. Intel Thread Building Blocks parallelism provides further power to
 C++ code. The C++ code is wrapped with Cython, allowing for user
 interaction in Python. NumPy provides the basic data structures in
-Freud, which are commonly used in other Python plotting libraries and
+freud, which are commonly used in other Python plotting libraries and
 packages.
 
-Code Guidlines
+Code Guidelines
 --------------
 
-Code in Freud should follow
+Code in freud should follow
 `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__, as well as the
 following guidelines. Anything listed here takes precedence over PEP8,
 but we try to deviate as little as possible from PEP8. *When in doubt,
@@ -107,7 +107,7 @@ Make things explicit, not automatic
 While it is tempting to make your code do things "automatically", such
 as have a calculate method find all ``_calc`` methods in a class, call
 them, and add their returns to a dictionary to return to the user, it is
-preferred in Freud to do this explicitly. This helps avoid issues in
+preferred in freud to do this explicitly. This helps avoid issues in
 debugging and undocumented behavior:
 
 ::
@@ -129,7 +129,7 @@ Code duplication
 ~~~~~~~~~~~~~~~~
 
 When possible, code should not be duplicated. However, being explicit is
-more important. In Freud this translates to many of the inner loops of
+more important. In freud this translates to many of the inner loops of
 functions being very similar:
 
 ::
@@ -173,10 +173,10 @@ method, as is typical in object-oriented programming.
 Python vs. Cython vs. C++
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Freud is meant to leverage the power of C++ code imbued with parallel
-processing power from TBB with the ease of writing Python code. The bulk
-of your calculations should take place in C++, as shown in the snippet
-below
+The freud library is meant to leverage the power of C++ code imbued with
+parallel processing power from TBB with the ease of writing Python code.
+The bulk of your calculations should take place in C++, as shown in the
+snippet below:
 
 ::
 
@@ -236,7 +236,7 @@ Indentation
 -  *4 spaces* are *required*, not optional, for continuation lines
 -  There should be no whitespace at the end of lines in the file.
 -  C++ code should follow `Whitesmith's
-   style <http://en.wikipedia.org/wiki/Indent_style#Whitesmiths_style>`__.
+   style <https://en.wikipedia.org/wiki/Indentation_style#Whitesmiths_style>`__.
    An extended set of examples follows:
 
 ::
@@ -407,7 +407,7 @@ Documentation Comments
 -  Documentation should be included at the Python-level in the Cython
    wrapper.
 -  Every class, member variable, function, function parameter, macro,
-   etc. *MUST* be documented with *python docstring* comments which will
+   etc. *MUST* be documented with *Python docstring* comments which will
    be converted to documentation with *sphinx*.
 -  See http://www.sphinx-doc.org/en/stable/index.html
 -  If you copy an existing file as a template, *DO NOT* simply leave the

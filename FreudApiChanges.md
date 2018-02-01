@@ -8,12 +8,12 @@ Address and impose common way of indexing arrays (PMFTR12 at least is in an odd 
 
 This really, really needs to be addressing because
 
-## Numpy
+## NumPy
 
 myArray = np.zeros(shape=(nBinsZ, nBinsY, nBinsX))
 val = myArray[z,y,x]
 
-## Freud (C++)
+## freud (C++)
 
 Index3D myIndexer(nBinsX, nBinsY, nBinsz);
 <T> val = myArray[myIndexer(x, y, z)];

@@ -1,18 +1,18 @@
-Contributions are welcomed via pull requests on Bitbucket. First contact the Freud developers prior to beginning
+Contributions are welcomed via pull requests on BitBucket. First contact the freud developers prior to beginning
 your work to ensure that your plans mesh well with the planned development direction and standards set for the project.
 Then implement your code.
 
-Submit a pull request on bitbucket. Multiple developers and/or users will review requested changes and make comments.
-This The rest of this file will be used as a checklist to review the pull request. The lead developer will merge into
-the mainline after the review is complete and approved.
+Submit a pull request on BitBucket. Multiple developers and/or users will review requested changes and make comments.
+This The rest of this file will be used as a checklist to review the pull request. The lead developer(s) will merge into
+the master branch after the review is complete and approved.
 
 # Features
 
 ## Implement functionality in a general and flexible fashion
 
-Freud provides a lot of flexibility to the user. Your pull request should provide something that is applicable
-to a variety of use-cases and not just the one thing you might need it to do for your research. Speak to the lead
-developers before writing your code, and they will help you make design choices that allow flexibility.
+The freud library provides a lot of flexibility to the user. Your pull request should provide something that is
+applicable to a variety of use-cases and not just the one thing you might need it to do for your research. Speak to the
+lead developers before writing your code, and they will help you make design choices that allow flexibility.
 
 ## Do not degrade performance of existing code paths
 
@@ -21,15 +21,15 @@ existing code.
 
 ## Add dependencies only if absolutely necessary
 
-In order to make Freud as widely available as possible, we try to keep the number of dependencies to a minimum. If you
+In order to make freud as widely available as possible, we try to keep the number of dependencies to a minimum. If you
 need a feature present in an external library, follow the following steps:
 
-1. Add to Freud itself if it's simple or if other modules would benefit:
+1. Add to freud itself if it's simple or if other modules would benefit:
     * Example: Added simple tensor math for CubaticOrderParameter
-2. Add via submodule if the code exists externally
+2. Add via submodule if the code exists externally:
     * Example: fsph
-3. Contact Freud developers to inquire if the library you'd like as a dependency fits in with the overall design/goals
-of freud
+3. Contact freud developers to inquire if the library you'd like as a dependency fits in with the overall design/goals
+of freud.
 
 # Version control
 
@@ -52,14 +52,15 @@ If there are spelling errors to fix, propose that in a separate pull request :)
 
 ## Agree to the contributor agreement
 
-All contributors must agree to the Contributor Agreement ([ContributorAgreement.md](ContributorAgreement.md)) before their pull request can be merged.
+All contributors must agree to the Contributor Agreement ([ContributorAgreement.md](ContributorAgreement.md))
+before their pull request can be merged.
 
 # Source code
 
 ## Use a consistent style
 
 It is important to have a consistent style throughout the source code. See [SourceConventions.md](SourceConventions.md)
-for the defined style guidelines for Freud code.
+for the defined style guidelines for freud code.
 
 ## Document code with comments
 
@@ -76,8 +77,8 @@ Your changes should compile without warnings.
 
 ## Write unit tests
 
-All new functionality in Freud should be tested with automatic unit tests that execute in a few seconds (if your
-specific test requires a long amount of time, please alert the Freud developers as to why this is required so that
+All new functionality in freud should be tested with automatic unit tests that execute in a few seconds (if your
+specific test requires a long amount of time, please alert the freud developers as to why this is required so that
 your test can be opted-out of for "regular" unit-testing). High level features should be tested from python, and the
 python tests should attempt to cover all options that the user can select.
 

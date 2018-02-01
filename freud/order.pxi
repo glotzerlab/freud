@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
@@ -159,7 +159,7 @@ cdef class BondOrder:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -168,7 +168,7 @@ cdef class BondOrder:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
@@ -516,7 +516,7 @@ cdef class HexOrderParameter:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -525,7 +525,7 @@ cdef class HexOrderParameter:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
@@ -902,7 +902,7 @@ cdef class TransOrderParameter:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -911,7 +911,7 @@ cdef class TransOrderParameter:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
@@ -1083,7 +1083,7 @@ cdef class LocalQl:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -1102,7 +1102,7 @@ cdef class LocalQl:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
@@ -1467,7 +1467,7 @@ cdef class LocalWl:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -1476,7 +1476,7 @@ cdef class LocalWl:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
@@ -1831,7 +1831,7 @@ cdef class SolLiq:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -1850,7 +1850,7 @@ cdef class SolLiq:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
@@ -2545,7 +2545,7 @@ cdef class Pairing2D:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -2554,7 +2554,7 @@ cdef class Pairing2D:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
