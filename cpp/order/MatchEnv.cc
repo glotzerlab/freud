@@ -349,7 +349,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
     if (registration == true)
         {
         registration::RegisterBruteForce r = registration::RegisterBruteForce(v1);
-        bool good_fit = r.Fit(v2);
+        r.Fit(v2);
         // get the optimal rotation to take v2 to v1
         std::vector<vec3<float> > rot = r.getRotation();
         // this must be a 3x3 matrix. if it isn't, something has gone wrong.
@@ -497,7 +497,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::m
     // the Fit operation CHANGES v2.
     if (registration == true)
         {
-        bool good_fit = r.Fit(v2);
+        r.Fit(v2);
         // get the optimal rotation to take v2 to v1
         std::vector<vec3<float> > rot = r.getRotation();
         // this must be a 3x3 matrix. if it isn't, something has gone wrong.
@@ -620,8 +620,6 @@ void MatchEnv::cluster(const freud::locality::NeighborList *nlist, const vec3<fl
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        vec3<float> p = points[i];
-
         if (global == false)
             {
             // loop over the neighbors
@@ -687,7 +685,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
 
-    nlist->validate(numRef, Np);
+    nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
@@ -765,7 +763,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList *n
     m_Np = Np;
     std::vector<float> min_rmsd_vec(m_Np);
 
-    nlist->validate(numRef, Np);
+    nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
