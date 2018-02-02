@@ -1,0 +1,4 @@
+nose
+numpy
+scipy
+six

@@ -78,7 +78,9 @@ void NearestNeighbors::compute(const box::Box& box,
             bond_vector_vectors.emplace_back();
             BondVector &bond_vector(bond_vector_vectors.back());
             const Index3D &indexer(m_lc->getCellIndexer());
-            const unsigned int max_cell_distance(min(min(indexer.getW(), indexer.getH()), indexer.getD()));
+            const unsigned int max_cell_distance_2d(min(indexer.getW(), indexer.getH()));
+            const unsigned int max_cell_distance_3d(min(max_cell_distance_2d, indexer.getD()));
+            const unsigned int max_cell_distance(m_box.is2D()? max_cell_distance_2d: max_cell_distance_3d);
 
             // neighbors is the set of bonds we find that are within the cutoff radius
             vector<pair<float, size_t> > neighbors;
@@ -108,8 +110,16 @@ void NearestNeighbors::compute(const box::Box& box,
                     for(IteratorCellShell neigh_cell_iter(min_iter_distance, m_box.is2D());
                         neigh_cell_iter != IteratorCellShell(max_iter_distance, m_box.is2D()); ++neigh_cell_iter)
                         {
+                        const vec3<int> neighbor_cell_delta(*neigh_cell_iter);
+                        if(2*neighbor_cell_delta.x + 1 > (int) indexer.getW())
+                            continue;
+                        else if(2*neighbor_cell_delta.y + 1 > (int) indexer.getH())
+                            continue;
+                        else if(2*neighbor_cell_delta.z + 1 > (int) indexer.getD())
+                            continue;
+
                         vec3<int> neighborCellCoords(refCell.x, refCell.y, refCell.z);
-                        neighborCellCoords += *neigh_cell_iter;
+                        neighborCellCoords += neighbor_cell_delta;
                         if(neighborCellCoords.x < 0)
                             neighborCellCoords.x += indexer.getW();
                         neighborCellCoords.x %= indexer.getW();
@@ -139,9 +149,9 @@ void NearestNeighbors::compute(const box::Box& box,
                             }
                         }
 
+                    hit_max_distance = 2*max_iter_distance > max_cell_distance;
                     min_iter_distance = max_iter_distance;
                     ++max_iter_distance;
-                    hit_max_distance = 2*max_iter_distance + (max_cell_distance + 1)%2 > max_cell_distance + 1;
                     } while((neighbors.size() < m_num_neighbors) && !m_strict_cut && !hit_max_distance);
 
                 // if we looked at the maximum cell range, add the backup

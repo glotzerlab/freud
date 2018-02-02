@@ -16,7 +16,7 @@ class TestTransOrder(unittest.TestCase):
         trans = freud.order.TransOrderParameter(1.1, 4, 4)
         trans.compute(box, positions)
 
-        self.assertTrue(np.allclose(trans.getDr(), 0))
+        self.assertTrue(np.allclose(trans.d_r, 0))
 
 if __name__ == '__main__':
     unittest.main()

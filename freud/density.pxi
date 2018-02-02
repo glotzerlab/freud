@@ -109,6 +109,14 @@ cdef class FloatCF:
                 <vec3[float]*>l_points.data, <double*>l_values.data, n_p)
         return self
 
+    @property
+    def RDF(self):
+        """
+        :return: expected (average) product of all values at a given radial distance
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
+        """
+        return self.getRDF()
+
     def getRDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
@@ -119,6 +127,16 @@ cdef class FloatCF:
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.float64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT64, <void*>rdf)
         return result
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -163,6 +181,14 @@ cdef class FloatCF:
         """
         self.thisptr.reduceCorrelationFunction()
 
+    @property
+    def counts(self):
+        """
+        :return: counts of each histogram bin
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.int32`
+        """
+        return self.getCounts()
+
     def getCounts(self):
         """
         :return: counts of each histogram bin
@@ -173,6 +199,14 @@ cdef class FloatCF:
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>counts)
         return result
+
+    @property
+    def R(self):
+        """
+        :return: values of bin centers
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
+        """
+        return self.getR()
 
     def getR(self):
         """
@@ -279,6 +313,14 @@ cdef class ComplexCF:
                 <vec3[float]*>l_points.data, <np.complex128_t*>l_values.data, n_p)
         return self
 
+    @property
+    def RDF(self):
+        """
+        :return: expected (average) product of all values at a given radial distance
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
+        """
+        return self.getRDF()
+
     def getRDF(self):
         """
         :return: expected (average) product of all values at a given radial distance
@@ -289,6 +331,16 @@ cdef class ComplexCF:
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.complex128_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX128, <void*>rdf)
         return result
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -331,6 +383,14 @@ cdef class ComplexCF:
         """
         self.thisptr.reduceCorrelationFunction()
 
+    @property
+    def counts(self):
+        """
+        :return: counts of each histogram bin
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.int32`
+        """
+        return self.getCounts()
+
     def getCounts(self):
         """
         :return: counts of each histogram bin
@@ -341,6 +401,14 @@ cdef class ComplexCF:
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>counts)
         return result
+
+    @property
+    def R(self):
+        """
+        :return: values of bin centers
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
+        """
+        return self.getR()
 
     def getR(self):
         """
@@ -396,6 +464,16 @@ cdef class GaussianDensity:
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         :return: Freud Box
@@ -423,6 +501,14 @@ cdef class GaussianDensity:
         with nogil:
             self.thisptr.compute(l_box, <vec3[float]*>l_points.data, n_p)
         return self
+
+    @property
+    def gaussian_density(self):
+        """
+        :return: Image (grid) with values of gaussian
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`w_x`, :math:`w_y`, :math:`w_z`), dtype= :class:`numpy.float32`
+        """
+        return self.getGaussianDensity()
 
     def getGaussianDensity(self):
         """
@@ -484,6 +570,16 @@ cdef class LocalDensity:
         self.r_cut = r_cut
         self.diameter = diameter
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         :return: Freud Box
@@ -530,6 +626,14 @@ cdef class LocalDensity:
             self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
         return self
 
+    @property
+    def density(self):
+        """
+        :return: Density array for each particle
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        """
+        return self.getDensity()
+
     def getDensity(self):
         """
         :return: Density array for each particle
@@ -540,6 +644,14 @@ cdef class LocalDensity:
         nref[0] = <np.npy_intp>self.thisptr.getNRef()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nref, np.NPY_FLOAT32, <void*>density)
         return result
+
+    @property
+    def num_neighbors(self):
+        """
+        :return: Number of neighbors for each particle
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        """
+        return self.getNumNeighbors()
 
     def getNumNeighbors(self):
         """
@@ -584,6 +696,16 @@ cdef class RDF:
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -657,6 +779,14 @@ cdef class RDF:
         """
         self.thisptr.reduceRDF()
 
+    @property
+    def RDF(self):
+        """
+        :return: expected (average) product of all values at a given radial distance
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
+        """
+        return self.getRDF()
+
     def getRDF(self):
         """
         :return: histogram of rdf values
@@ -668,6 +798,14 @@ cdef class RDF:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rdf)
         return result
 
+    @property
+    def R(self):
+        """
+        :return: values of bin centers
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
+        """
+        return self.getR()
+
     def getR(self):
         """
         :return: values of the histogram bin centers
@@ -678,6 +816,14 @@ cdef class RDF:
         nbins[0] = <np.npy_intp>self.thisptr.getNBins()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
         return result
+
+    @property
+    def n_r(self):
+        """
+        :return: histogram of cumulative rdf values
+        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
+        """
+        return self.getNr()
 
     def getNr(self):
         """

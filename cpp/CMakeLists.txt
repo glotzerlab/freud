@@ -2,10 +2,17 @@
 # Perform setup to make a target into a functional python module
 macro(setup_pymodule target)
 set_target_properties(${target} PROPERTIES PREFIX "")
+
 if (APPLE)
     set_target_properties(${target} PROPERTIES SUFFIX ".so")
 endif(APPLE)
-target_link_libraries(${target} ${PYTHON_LIBRARIES} ${TBB_LIBRARY})
+
+target_link_libraries(${target} ${TBB_LIBRARY})
+
+if (APPLE)
+    target_link_libraries(${target} "-undefined dynamic_lookup")
+endif()
+
 fix_tbb_rpath(${target})
 fix_conda_python(${target})
 endmacro(setup_pymodule)
@@ -93,6 +100,8 @@ set(FREUD_SOURCES
             order/CubaticOrderParameter.cc
             order/NematicOrderParameter.h
             order/NematicOrderParameter.cc
+            order/AngularSeparation.h
+            order/AngularSeparation.cc
             order/BondOrder.h
             order/BondOrder.cc
             order/LocalDescriptors.h

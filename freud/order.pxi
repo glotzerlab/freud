@@ -134,6 +134,14 @@ cdef class BondOrder:
                 n_ref, <vec3[float]*>l_points.data, <quat[float]*>l_orientations.data, n_p, index)
         return self
 
+    @property
+    def bond_order(self):
+        """
+        :return: bond order
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\phi}, N_{\\theta} \\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getBondOrder()
+
     def getBondOrder(self):
         """
         :return: bond order
@@ -145,6 +153,16 @@ cdef class BondOrder:
         nbins[1] = <np.npy_intp>self.thisptr.getNBinsTheta()
         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>bod)
         return result
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -554,6 +572,14 @@ cdef class HexOrderParameter:
             self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
+    @property
+    def psi(self):
+        """
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles} \\right)`, dtype= :class:`numpy.complex64`
+        """
+        return self.getPsi()
+
     def getPsi(self):
         """
         :return: order parameter
@@ -565,6 +591,16 @@ cdef class HexOrderParameter:
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>psi)
         return result
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         Get the box used in the calculation
@@ -573,6 +609,16 @@ cdef class HexOrderParameter:
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+    @property
+    def num_particles(self):
+        """
+        Get the number of particles
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        return self.getNP()
 
     def getNP(self):
         """
@@ -583,6 +629,19 @@ cdef class HexOrderParameter:
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    @property
+    def k(self):
+        """
+        Get the symmetry of the order parameter
+
+        :return: :math:`k`
+        :rtype: float
+
+        .. note:: While :math:`k` is a float, this is due to its use in calculations requiring floats. Passing in \
+        non-integer values will result in undefined behavior
+        """
+        return self.getK()
 
     def getK(self):
         """
@@ -730,6 +789,17 @@ cdef class LocalDescriptors:
                                  <quat[float]*>l_orientations.data, l_mode)
         return self
 
+    @property
+    def sph(self):
+        """
+        Get a reference to the last computed spherical harmonic array
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`, \
+            dtype= :class:`numpy.complex64`
+        """
+        return self.getSph()
+
     def getSph(self):
         """
         Get a reference to the last computed spherical harmonic array
@@ -745,6 +815,16 @@ cdef class LocalDescriptors:
         cdef np.ndarray[np.complex64_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_COMPLEX64, <void*>sph)
         return result
 
+    @property
+    def num_particles(self):
+        """
+        Get the number of particles
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        return self.getNP()
+
     def getNP(self):
         """
         Get the number of particles
@@ -754,6 +834,17 @@ cdef class LocalDescriptors:
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    @property
+    def num_neighbors(self):
+        """
+        Get the number of neighbors
+
+        :return: :math:`N_{neighbors}`
+        :rtype: unsigned int
+
+        """
+        return self.getNSphs()
 
     def getNSphs(self):
         """
@@ -766,6 +857,17 @@ cdef class LocalDescriptors:
         cdef unsigned int n = self.thisptr.getNSphs()
         return n
 
+    @property
+    def l_max(self):
+        """
+        Get the maximum spherical harmonic l to calculate for
+
+        :return: :math:`l`
+        :rtype: unsigned int
+
+        """
+        return self.getLMax()
+
     def getLMax(self):
         """
         Get the maximum spherical harmonic l to calculate for
@@ -776,6 +878,17 @@ cdef class LocalDescriptors:
         """
         cdef unsigned int l = self.thisptr.getLMax()
         return l
+
+    @property
+    def r_max(self):
+        """
+        Get the cutoff radius
+
+        :return: :math:`r`
+        :rtype: float
+
+        """
+        return self.getRMax()
 
     def getRMax(self):
         """
@@ -841,6 +954,16 @@ cdef class TransOrderParameter:
             self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
 
+    @property
+    def d_r(self):
+        """
+        Get a reference to the last computed spherical harmonic array
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.complex64`
+        """
+        return self.getDr()
+
     def getDr(self):
         """
         Get a reference to the last computed spherical harmonic array
@@ -854,6 +977,16 @@ cdef class TransOrderParameter:
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>dr)
         return result
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         Get the box used in the calculation
@@ -862,6 +995,16 @@ cdef class TransOrderParameter:
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+    @property
+    def num_particles(self):
+        """
+        Get the number of particles
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        return self.getNP()
 
     def getNP(self):
         """
@@ -907,12 +1050,12 @@ cdef class LocalQl:
     .. todo:: move box to compute, this is old API
     """
     cdef order.LocalQl *thisptr
-    cdef box
+    cdef m_box
     cdef rmax
 
     def __init__(self, box, rmax, l, rmin=0):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
         self.thisptr = new order.LocalQl(l_box, rmax, l, rmin)
 
@@ -935,7 +1078,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -958,7 +1101,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -982,7 +1125,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1006,7 +1149,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1014,6 +1157,26 @@ cdef class LocalQl:
         self.thisptr.computeAve(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
         return self
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
+
+    @box.setter
+    def box(self, value):
+        """
+        Reset the simulation box
+
+        :param box: simulation box
+        :type box: :py:class:`freud.box.Box`
+        """
+        self.setBox(value)
 
     def getBox(self):
         """
@@ -1034,6 +1197,16 @@ cdef class LocalQl:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
+    @property
+    def Ql(self):
+        """
+        Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getQl()
+
     def getQl(self):
         """
         Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
@@ -1047,6 +1220,16 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>Ql)
         return result
 
+    @property
+    def ave_Ql(self):
+        """
+        Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getAveQl()
+
     def getAveQl(self):
         """
         Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for particles with no neighbors.
@@ -1059,6 +1242,17 @@ cdef class LocalQl:
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>Ql)
         return result
+
+    @property
+    def norm_Ql(self):
+        """
+        Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for \
+        particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getQlNorm()
 
     def getQlNorm(self):
         """
@@ -1074,6 +1268,17 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>Ql)
         return result
 
+    @property
+    def ave_norm_Ql(self):
+        """
+        Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for \
+        particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getQlAveNorm()
+
     def getQlAveNorm(self):
         """
         Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for \
@@ -1087,6 +1292,16 @@ cdef class LocalQl:
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>Ql)
         return result
+
+    @property
+    def num_particles(self):
+        """
+        Get the number of particles
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        return self.getNP()
 
     def getNP(self):
         """
@@ -1136,7 +1351,7 @@ cdef class LocalQlNear(LocalQl):
     def __init__(self, box, rmax, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalQl(l_box, rmax, l, 0)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
         self.num_neigh = kn
 
@@ -1152,7 +1367,7 @@ cdef class LocalQlNear(LocalQl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.compute(self, points, nlist_)
 
@@ -1164,7 +1379,7 @@ cdef class LocalQlNear(LocalQl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.computeAve(self, points, nlist_)
 
@@ -1176,7 +1391,7 @@ cdef class LocalQlNear(LocalQl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.computeNorm(self, points, nlist_)
 
@@ -1188,7 +1403,7 @@ cdef class LocalQlNear(LocalQl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.computeAveNorm(self, points, nlist_)
 
@@ -1218,13 +1433,13 @@ cdef class LocalWl:
     .. todo:: move box to compute, this is old API
     """
     cdef order.LocalWl *thisptr
-    cdef box
+    cdef m_box
     cdef rmax
 
     def __init__(self, box, rmax, l):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWl(l_box, rmax, l)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -1247,7 +1462,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1270,7 +1485,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1294,7 +1509,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1318,7 +1533,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1326,6 +1541,16 @@ cdef class LocalWl:
         self.thisptr.computeAve(nlist_ptr, <vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(<vec3[float]*>l_points.data, nP)
         return self
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
@@ -1346,6 +1571,16 @@ cdef class LocalWl:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
+    @property
+    def Ql(self):
+        """
+        Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getQl()
+
     def getQl(self):
         """
         Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for \
@@ -1359,6 +1594,17 @@ cdef class LocalWl:
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>Ql)
         return result
+
+    @property
+    def Wl(self):
+        """
+        Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
+        particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.complex64`
+        """
+        return self.getWl()
 
     def getWl(self):
         """
@@ -1374,6 +1620,17 @@ cdef class LocalWl:
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Wl)
         return result
 
+    @property
+    def ave_Wl(self):
+        """
+        Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
+        particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getAveWl()
+
     def getAveWl(self):
         """
         Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
@@ -1387,6 +1644,17 @@ cdef class LocalWl:
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Wl)
         return result
+
+    @property
+    def norm_Wl(self):
+        """
+        Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
+        particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getWlNorm()
 
     def getWlNorm(self):
         """
@@ -1402,6 +1670,17 @@ cdef class LocalWl:
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Wl)
         return result
 
+    @property
+    def ave_norm_Wl(self):
+        """
+        Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
+        particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getWlAveNorm()
+
     def getWlAveNorm(self):
         """
         Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
@@ -1415,6 +1694,16 @@ cdef class LocalWl:
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Wl)
         return result
+
+    @property
+    def num_particles(self):
+        """
+        Get the number of particles
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        return self.getNP()
 
     def getNP(self):
         """
@@ -1458,7 +1747,7 @@ cdef class LocalWlNear(LocalWl):
     def __init__(self, box, rmax, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWl(l_box, rmax, l)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
         self.num_neigh = kn
 
@@ -1474,7 +1763,7 @@ cdef class LocalWlNear(LocalWl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalWl.compute(self, points, nlist_)
 
@@ -1486,7 +1775,7 @@ cdef class LocalWlNear(LocalWl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalWl.computeAve(self, points, nlist_)
 
@@ -1498,7 +1787,7 @@ cdef class LocalWlNear(LocalWl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalWl.computeNorm(self, points, nlist_)
 
@@ -1510,7 +1799,7 @@ cdef class LocalWlNear(LocalWl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalWl.computeAveNorm(self, points, nlist_)
 
@@ -1535,13 +1824,13 @@ cdef class SolLiq:
     .. todo:: move box to compute, this is old API
     """
     cdef order.SolLiq *thisptr
-    cdef box
+    cdef m_box
     cdef rmax
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -1564,7 +1853,7 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1587,7 +1876,7 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1610,12 +1899,32 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
         self.thisptr.computeSolLiqNoNorm(nlist_ptr, <vec3[float]*>l_points.data, nP)
         return self
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
+
+    @box.setter
+    def box(self, value):
+        """
+        Reset the simulation box
+
+        :param box: simulation box
+        :type box: :py:class:`freud.box.Box`
+        """
+        self.setBox(value)
 
     def getBox(self):
         """
@@ -1646,6 +1955,16 @@ cdef class SolLiq:
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
 
+    @property
+    def largest_cluster_size(self):
+        """
+        Returns the largest cluster size. Must compute sol-liq first
+
+        :return: largest cluster size
+        :rtype: unsigned int
+        """
+        return self.getLargestClusterSize()
+
     def getLargestClusterSize(self):
         """
         Returns the largest cluster size. Must compute sol-liq first
@@ -1656,9 +1975,19 @@ cdef class SolLiq:
         cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
         return clusterSize
 
+    @property
+    def cluster_sizes(self):
+        """
+        Return the sizes of all clusters
+
+        :return: largest cluster size
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{clusters}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getClusterSizes()
+
     def getClusterSizes(self):
         """
-        Returns the largest cluster size. Must compute sol-liq first
+        Return the sizes of all clusters
 
         :return: largest cluster size
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{clusters}\\right)`, dtype= :class:`numpy.uint32`
@@ -1670,6 +1999,16 @@ cdef class SolLiq:
         nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>&clusterSizes)
         return result
+
+    @property
+    def Ql_mi(self):
+        """
+        Get a reference to the last computed :math:`Q_{lmi}` for each particle.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.complex64`
+        """
+        return self.getQlmi()
 
     def getQlmi(self):
         """
@@ -1683,6 +2022,16 @@ cdef class SolLiq:
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>Qlmi)
         return result
+
+    @property
+    def clusters(self):
+        """
+        Get a reference to the last computed set of solid-like cluster indices for each particle
+
+        :return: clusters
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getClusters()
 
     def getClusters(self):
         """
@@ -1698,6 +2047,16 @@ cdef class SolLiq:
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>clusters)
         return result
 
+    @property
+    def num_connections(self):
+        """
+        Get a reference to the number of connections per particle
+
+        :return: clusters
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getNumberOfConnections()
+
     def getNumberOfConnections(self):
         """
         Get a reference to the number of connections per particle
@@ -1711,6 +2070,16 @@ cdef class SolLiq:
         nbins[0] = <np.npy_intp>self.thisptr.getNP()
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>connections)
         return result
+
+    @property
+    def Ql_dot_ij(self):
+        """
+        Get a reference to the number of connections per particle
+
+        :return: clusters
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getNumberOfConnections()
 
     def getQldot_ij(self):
         """
@@ -1726,6 +2095,16 @@ cdef class SolLiq:
         nbins[0] = <np.npy_intp>self.thisptr.getNumClusters()
         cdef np.ndarray[np.complex64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64, <void*>&Qldot)
         return result
+
+    @property
+    def num_particles(self):
+        """
+        Get the number of particles
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        return self.getNP()
 
     def getNP(self):
         """
@@ -1764,7 +2143,7 @@ cdef class SolLiqNear(SolLiq):
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
         self.num_neigh = kn
 
@@ -1780,7 +2159,7 @@ cdef class SolLiqNear(SolLiq):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.compute(self, points, nlist_)
 
@@ -1792,7 +2171,7 @@ cdef class SolLiqNear(SolLiq):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
@@ -1804,7 +2183,7 @@ cdef class SolLiqNear(SolLiq):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
@@ -1824,7 +2203,7 @@ cdef class MatchEnv:
     cdef order.MatchEnv *thisptr
     cdef rmax
     cdef num_neigh
-    cdef box
+    cdef m_box
 
     def __cinit__(self, box, rmax, k):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
@@ -1833,7 +2212,7 @@ cdef class MatchEnv:
 
         self.rmax = rmax
         self.num_neigh = k
-        self.box = box
+        self.m_box = box
 
     def __dealloc__(self):
         del self.thisptr
@@ -1848,7 +2227,7 @@ cdef class MatchEnv:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
-        self.box = box
+        self.m_box = box
 
     def cluster(self, points, threshold, hard_r=False, registration=False, global_search=False, nlist=None):
         """Determine clusters of particles with matching environments.
@@ -1877,11 +2256,11 @@ cdef class MatchEnv:
         cdef locality.NeighborList *nlist_ptr
         cdef NeighborList nlist_
         if hard_r:
-            defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+            defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
         else:
-            defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, None, self.rmax)
+            defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
@@ -1918,7 +2297,7 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1957,8 +2336,7 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -2073,6 +2451,17 @@ cdef class MatchEnv:
         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>environment)
         return result
 
+    @property
+    def tot_environment(self):
+        """
+        Returns the entire m_Np by m_maxk by 3 matrix of all environments for all particles
+
+        :return: the array of vectors
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)`, \
+            dtype= :class:`numpy.float32`
+        """
+        return self.getTotEnvironment()
+
     def getTotEnvironment(self):
         """
         Returns the entire m_Np by m_maxk by 3 matrix of all environments for all particles
@@ -2089,6 +2478,16 @@ cdef class MatchEnv:
         cdef np.ndarray[float, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>tot_environment)
         return result
 
+    @property
+    def num_particles(self):
+        """
+        Get the number of particles
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        return self.getNP()
+
     def getNP(self):
         """
         Get the number of particles
@@ -2098,6 +2497,16 @@ cdef class MatchEnv:
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    @property
+    def num_clusters(self):
+        """
+        Get the number of clusters
+
+        :return: :math:`N_{clusters}`
+        :rtype: unsigned int
+        """
+        return self.getNumClusters()
 
     def getNumClusters(self):
         """
@@ -2173,6 +2582,14 @@ cdef class Pairing2D:
         self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_points.data, <float*>l_orientations.data, <float*>l_compOrientations.data, nP, nO)
         return self
 
+    @property
+    def match(self):
+        """
+        :return: match
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getMatch()
+
     def getMatch(self):
         """
         :return: match
@@ -2183,6 +2600,14 @@ cdef class Pairing2D:
         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>match)
         return result
+
+    @property
+    def pair(self):
+        """
+        :return: pair
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getPair()
 
     def getPair(self):
         """
@@ -2195,6 +2620,16 @@ cdef class Pairing2D:
         cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>pair)
         return result
 
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: Freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return self.getBox()
+
     def getBox(self):
         """
         Get the box used in the calculation
@@ -2203,3 +2638,192 @@ cdef class Pairing2D:
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
+
+
+cdef class AngularSeparation:
+    """Calculates the minimum angles of separation between particles and references.
+
+    .. moduleauthor:: Erin Teich & Andrew Karas
+
+    """
+    cdef order.AngularSeparation *thisptr
+    cdef num_neigh
+    cdef rmax
+    cdef nlist_
+
+    def __cinit__(self, rmax, n):
+        self.thisptr = new order.AngularSeparation()
+        self.rmax = rmax
+        self.num_neigh = int(n)
+        self.nlist_ = None
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    @property
+    def nlist(self):
+        return self.nlist_
+
+    def computeNeighbor(self, box, ref_ors, ors, ref_points, points, equiv_quats, nlist=None):
+        """
+        Calculates the minimum angles of separation between ref_ors and ors, checking for underlying symmetry as encoded in equiv_quats.
+
+        :param box: simulation box
+        :param ref_ors: orientations to calculate the order parameter
+        :param ref_points: points to calculate the order parameter
+        :param ors: orientations (neighbors of ref_ors) to calculate the order parameter
+        :param points: points (neighbors of ref_points) to calculate the order parameter
+        :param equiv_quats: the set of all equivalent quaternions that takes the particle as it
+        is defined to some global reference orientation. IMPT: equiv_quats must include both q and -q, for all included quaternions
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
+        :type box: :py:meth:`freud.box.Box`
+        :type ref_ors: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type ors: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3 \\right)`, dtype= :class:`numpy.float32`
+        :type equiv_quats: :class:`numpy.ndarray`, shape= :math:`\\left(N_{equiv}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
+        """
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        ref_ors = freud.common.convert_array(ref_ors, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_ors must be a 2 dimensional array")
+        if ref_ors.shape[1] != 4:
+            raise TypeError('ref_ors should be an Nx4 array')
+
+        ors = freud.common.convert_array(ors, 2, dtype=np.float32, contiguous=True,
+            dim_message="ors must be a 2 dimensional array")
+        if ors.shape[1] != 4:
+            raise TypeError('ors should be an Nx4 array')
+
+        equiv_quats = freud.common.convert_array(equiv_quats, 2, dtype=np.float32, contiguous=True,
+            dim_message="equiv_quats must be a 2 dimensional array")
+        if equiv_quats.shape[1] != 4:
+            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+
+        cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(),
+                                        box.getTiltFactorYZ(), box.is2D())
+
+        defaulted_nlist = make_default_nlist_nn(box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        self.nlist_ = nlist_
+
+        cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
+        cdef np.ndarray[float, ndim=2] l_ors = ors
+        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
+
+        cdef unsigned int nRef = <unsigned int> ref_ors.shape[0]
+        cdef unsigned int nP = <unsigned int> ors.shape[0]
+        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
+
+        with nogil:
+            self.thisptr.computeNeighbor(nlist_ptr, <quat[float]*>l_ref_ors.data, <quat[float]*>l_ors.data, <quat[float]*>l_equiv_quats.data,
+                                        nRef, nP, nEquiv)
+        return self
+
+    def computeGlobal(self, global_ors, ors, equiv_quats):
+        """
+        Calculates the minimum angles of separation between global_ors and ors, checking for underlying symmetry as encoded in equiv_quats.
+
+        :param global_ors: global reference orientations to calculate the order parameter
+        :param ors: orientations to calculate the order parameter
+        :param equiv_quats: the set of all equivalent quaternions that takes the particle as it
+        is defined to some global reference orientation. IMPT: equiv_quats must include both q and -q, for all included quaternions
+        :type ref_ors: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type ors: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type equiv_quats: :class:`numpy.ndarray`, shape= :math:`\\left(N_{equiv}, 4 \\right)`, dtype= :class:`numpy.float32`
+        """
+        global_ors = freud.common.convert_array(global_ors, 2, dtype=np.float32, contiguous=True,
+            dim_message="global_ors must be a 2 dimensional array")
+        if global_ors.shape[1] != 4:
+            raise TypeError('global_ors should be an Nx4 array')
+
+        ors = freud.common.convert_array(ors, 2, dtype=np.float32, contiguous=True,
+            dim_message="ors must be a 2 dimensional array")
+        if ors.shape[1] != 4:
+            raise TypeError('ors should be an Nx4 array')
+
+        equiv_quats = freud.common.convert_array(equiv_quats, 2, dtype=np.float32, contiguous=True,
+            dim_message="equiv_quats must be a 2 dimensional array")
+        if equiv_quats.shape[1] != 4:
+            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+
+        cdef np.ndarray[float, ndim=2] l_global_ors = global_ors
+        cdef np.ndarray[float, ndim=2] l_ors = ors
+        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
+
+        cdef unsigned int nGlobal = <unsigned int> global_ors.shape[0]
+        cdef unsigned int nP = <unsigned int> ors.shape[0]
+        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
+
+        with nogil:
+            self.thisptr.computeGlobal(<quat[float]*>l_global_ors.data, <quat[float]*>l_ors.data, <quat[float]*>l_equiv_quats.data,
+                                        nGlobal, nP, nEquiv)
+        return self
+
+    def getNeighborAngles(self):
+        """
+        :return: angles in radians
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{reference}, N_{neighbors} \\right)`, dtype= :class:`numpy.float32`
+        """
+
+        cdef float *neigh_ang = self.thisptr.getNeighborAngles().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp>len(self.nlist)
+        cdef np.ndarray[float, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>neigh_ang)
+        return result
+
+
+    def getGlobalAngles(self):
+        """
+        :return: angles in radians
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{global} \\right)`, dtype= :class:`numpy.float32`
+        """
+
+        cdef float *global_ang = self.thisptr.getGlobalAngles().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>self.thisptr.getNP()
+        nbins[1] = <np.npy_intp>self.thisptr.getNglobal()
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>global_ang)
+        return result
+
+
+    def getNP(self):
+        """
+        Get the number of particles used in computing the last set.
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
+    def getNReference(self):
+        """
+        Get the number of reference particles used in computing the neighbor angles.
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        cdef unsigned int nref = self.thisptr.getNref()
+        return nref
+
+    def getNGlobal(self):
+        """
+        Get the number of global orientations to check against
+
+        :return: :math:`N_{global orientations}`
+        :rtype: unsigned int
+        """
+        cdef unsigned int nglobal = self.thisptr.getNglobal()
+        return nglobal
