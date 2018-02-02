@@ -1,22 +1,22 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 cimport freud.util._Index1D as Index1D
 
 import numpy as np
 cimport numpy as np
 
-# Numpy must be initialized. When using numpy from C or Cython you must
+# numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 
 cdef class Index2D:
-    """Freud-style indexer for flat arrays.
+    """freud-style indexer for flat arrays.
 
-    Freud utilizes "flat" arrays at the C++ level i.e. an :math:`n`-dimensional array with :math:`n_i` elements in each \
+    freud utilizes "flat" arrays at the C++ level i.e. an :math:`n`-dimensional array with :math:`n_i` elements in each \
     index is represented as a :math:`1`-dimensional array with :math:`\prod\limits_i n_i` elements.
 
-    .. note:: Freud indexes column-first i.e. Index2D(i, j) will return the :math:`1`-dimensional index of the \
+    .. note:: freud indexes column-first i.e. Index2D(i, j) will return the :math:`1`-dimensional index of the \
     :math:`i^{th}` column and the :math:`j^{th}` row. This is the opposite of what occurs in a numpy array, in which \
     array[i, j] returns the element in the :math:`i^{th}` row and the :math:`j^{th}` column
 
@@ -75,12 +75,12 @@ cdef class Index2D:
         return self.thisptr.getNumElements()
 
 cdef class Index3D:
-    """Freud-style indexer for flat arrays.
+    """freud-style indexer for flat arrays.
 
-    Freud utilizes "flat" arrays at the C++ level i.e. an :math:`n`-dimensional array with :math:`n_i` elements in each \
+    freud utilizes "flat" arrays at the C++ level i.e. an :math:`n`-dimensional array with :math:`n_i` elements in each \
     index is represented as a :math:`1`-dimensional array with :math:`\\prod\\limits_i n_i` elements.
 
-    .. note:: Freud indexes column-first i.e. Index3D(i, j, k) will return the :math:`1`-dimensional index of the \
+    .. note:: freud indexes column-first i.e. Index3D(i, j, k) will return the :math:`1`-dimensional index of the \
     :math:`i^{th}` column, :math:`j^{th}` row, and the :math:`k^{th}` frame. This is the opposite of what occurs in a \
     numpy array, in which array[i, j, k] returns the element in the :math:`i^{th}` frame, :math:`j^{th}` row, and the \
     :math:`k^{th}` column.

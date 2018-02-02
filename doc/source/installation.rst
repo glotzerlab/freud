@@ -5,11 +5,11 @@ Installation
 Requirements
 ============
 
-- `Numpy <http://www.numpy.org/>`_ is **required** to build freud
+- `NumPy <http://www.numpy.org/>`_ is **required** to build freud
 - `Cython <http://cython.org/>`_ >= 0.23 is **required** to compile your own _freud.cpp file.
   * Cython **is not required** to install freud
 - `Boost <http://www.boost.org/>`_ is **required** to run freud
-- `Intel Thread Building Blocks <https://www.threadingbuildingblocks.org/>`_ is **required** to run freud
+- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ is **required** to run freud
 
 Documentation
 =============
@@ -75,8 +75,8 @@ Mac
 Installation
 ============
 
-Freud may be installed via `conda <http://conda.pydata.org/docs/>`_, \
-`glotzpkgs <http://glotzerlab.engin.umich.edu/glotzpkgs/>`_, or compiled from source
+Install freud via `conda <http://conda.pydata.org/docs/>`_, \
+`glotzpkgs <http://glotzerlab.engin.umich.edu/glotzpkgs/>`_, or compile from source.
 
 Conda install
 +++++++++++++
@@ -120,7 +120,7 @@ Compile from source
 
 It's easiest to install freud with a working conda install of the required packages:
 
-- python (2.7, 3.3, 3.4, 3.5)
+- python (2.7, 3.4, 3.5, 3.6)
 - numpy
 - boost (2.7, 3.3 provided on flux, 3.4, 3.5)
 - cython (not required, but a correct _freud.cpp file must be present to compile)
@@ -147,12 +147,12 @@ To run out of the build directory, run `make -j20` instead of `make install -j20
 
 .. note::
 
-    Freud makes use of submodules. CMAKE has been configured to automatically init and update submodules. However, if
+    freud makes use of submodules. CMake has been configured to automatically init and update submodules. However, if
     this does not work, or you would like to do this yourself, please execute:
 
     .. code-block:: bash
 
-        git submodule init
+        git submodule update --init
 
 Unit Tests
 ==========

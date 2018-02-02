@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
 cimport freud._cluster as cluster
@@ -9,7 +9,7 @@ cimport numpy as np
 import freud.common
 from libcpp.vector cimport vector
 
-# Numpy must be initialized. When using numpy from C or Cython you must
+# numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 
@@ -57,17 +57,17 @@ cdef class Cluster:
 
     @property
     def box(self):
-        """Return the stored Freud Box
+        """Return the stored freud Box
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
 
     def getBox(self):
-        """Return the stored Freud Box
+        """Return the stored freud Box
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())
@@ -227,9 +227,9 @@ cdef class ClusterProperties:
 
     @property
     def box(self):
-        """Return the stored Freud Box
+        """Return the stored freud Box
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -237,7 +237,7 @@ cdef class ClusterProperties:
     def getBox(self):
         """Return the stored :py:class:`freud.box.Box` object
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())

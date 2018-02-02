@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
 #include <algorithm>
@@ -153,7 +153,7 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
 
     // In extremely small boxes, the calculated dimensions could go to zero, but need at least one cell in each dimension
     //  for particles to be in a cell and to pass the checkCondition tests.
-    // Note: Freud doesn't actually support these small boxes (as of this writing), but this function will return the correct dimensions
+    // Note: freud doesn't actually support these small boxes (as of this writing), but this function will return the correct dimensions
     //  required anyways.
     if (dim.x == 0)
         dim.x = 1;

@@ -6,8 +6,8 @@ This document details the process of adding new code into freud.
 
 * Does this code simply wrap or augment an external python library?
 
-If you answered "yes" to the question above, your code *probably* does not belong in Freud. A good rule of thumb
-is *if the code I plan to write does not require C++, it does not belong in Freud*.
+If you answered "yes" to the question above, your code *probably* does not belong in freud. A good rule of thumb
+is *if the code I plan to write does not require C++, it does not belong in freud*.
 
 There are, of course, exceptions.
 

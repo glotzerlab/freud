@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
 from freud.util._Boost cimport shared_array
@@ -11,7 +11,7 @@ from libc.string cimport memcpy
 import numpy as np
 cimport numpy as np
 
-# Numpy must be initialized. When using numpy from C or Cython you must
+# numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 
@@ -133,7 +133,7 @@ cdef class FloatCF:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
@@ -142,7 +142,7 @@ cdef class FloatCF:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
@@ -337,14 +337,14 @@ cdef class ComplexCF:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
 
     def getBox(self):
         """
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:meth:`freud.box.Box()`
         """
         return BoxFromCPP(<box.Box> self.thisptr.getBox())
@@ -469,14 +469,14 @@ cdef class GaussianDensity:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
 
     def getBox(self):
         """
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())
@@ -575,14 +575,14 @@ cdef class LocalDensity:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
 
     def getBox(self):
         """
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())
@@ -702,14 +702,14 @@ cdef class RDF:
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
 
     def getBox(self):
         """
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())

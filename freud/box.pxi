@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 import warnings
 from freud.util._VectorMath cimport vec3
@@ -8,13 +8,13 @@ import numpy as np
 cimport numpy as np
 from libcpp.string cimport string
 from libc.string cimport memcpy
-# Numpy must be initialized. When using numpy from C or Cython you must
+# numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 
 cdef class Box:
     """
-    Freud box object. Wrapper for the c++ box.Box() class
+    freud Box object. Wrapper for the c++ box.Box() class
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
