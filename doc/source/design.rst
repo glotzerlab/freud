@@ -33,8 +33,10 @@ Maintainable
 
 Code which cannot be maintained is destined for obscurity. In order to
 be maintainable, freud uses Git for version control; BitBucket for code
-hosting, issue tracking; the PEP8 standard for code, stressing
-explicitly written code which is easy to read.
+hosting and issue tracking; and the PEP8 standard for code, stressing
+explicitly written code which is easy to read. Additionally, freud
+employs unit tests to ensure that any changes or new features do not
+break existing functionality
 
 Language choices
 ----------------
@@ -47,7 +49,7 @@ interaction in Python. NumPy provides the basic data structures in
 freud, which are commonly used in other Python plotting libraries and
 packages.
 
-Code Guidlines
+Code Guidelines
 --------------
 
 Code in freud should follow
@@ -55,6 +57,14 @@ Code in freud should follow
 following guidelines. Anything listed here takes precedence over PEP8,
 but we try to deviate as little as possible from PEP8. *When in doubt,
 follow the guidelines!*
+
+Unit Tests
+~~~~~~~~~~~~
+
+All modules should include a set of unit tests which test the correct
+behavior of the module. These tests should be simple and short, testing
+a single function each, and completing as quickly as possible
+(ideally < 10 sec, but times up to a minute are acceptable if justified).
 
 Python and Cython naming conventions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -422,3 +432,4 @@ Documentation Comments
    developers to read is top-notch.
 -  Good documentation comments are best demonstrated with an in-code
    example.
+
