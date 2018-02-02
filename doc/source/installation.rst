@@ -9,7 +9,7 @@ Requirements
 - `Cython <http://cython.org/>`_ >= 0.23 is **required** to compile your own _freud.cpp file.
   * Cython **is not required** to install freud
 - `Boost <http://www.boost.org/>`_ is **required** to run freud
-- `Intel Thread Building Blocks <https://www.threadingbuildingblocks.org/>`_ is **required** to run freud
+- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ is **required** to run freud
 
 Documentation
 =============

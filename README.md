@@ -68,7 +68,7 @@ git submodule update --init
     * Boost (headers only)
     * CMake >= 2.8.0 (to compile freud)
     * C++ 11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
-    * Intel Thread Building Blocks
+    * Intel Threading Building Blocks
 * Optional:
     * Cython >= 0.23 (to compile your own _freud.cpp)
 

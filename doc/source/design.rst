@@ -43,7 +43,7 @@ Language choices
 
 The freud library is written in two languages: Python and C++. C++ allows for
 powerful, fast code execution while Python allows for easy, flexible
-use. Intel Thread Building Blocks parallelism provides further power to
+use. Intel Threading Building Blocks parallelism provides further power to
 C++ code. The C++ code is wrapped with Cython, allowing for user
 interaction in Python. Numpy provides the basic data structures in
 freud, which are commonly used in other Python plotting libraries and
