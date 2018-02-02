@@ -36,7 +36,7 @@ if on_rtd:
     clang_env['CXX'] = shutil.which('clang++')
     try:
         import cython
-        cmake_process = Popen(['cmake', '../' '-DENABLE_CYTHON=ON'], env=clang_env)
+        cmake_process = Popen(['cmake', '../', '-DENABLE_CYTHON=ON'], env=clang_env)
     except ModuleNotFoundError:
         cmake_process = Popen(['cmake', '../'], env=clang_env)
     finally:
