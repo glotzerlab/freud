@@ -1,14 +1,5 @@
 # Change Log
 
-## v0.7.0
-
-* Improved API
-    - Named Tuples for Boxes intelligently converted for user
-    - inputs to compute functions converted to proper type, made contiguous if necessary
-    - if a single input is passed to a function requiring two, it is assumed the user wants that input duplicated
-* Boost dependence removed
-    - migration of boost bimap to custom implementation
-
 ## v0.6.0
 
 * trajectory module removed
