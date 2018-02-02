@@ -5,7 +5,7 @@ Installation
 Requirements
 ============
 
-- `NumPy <http://www.numpy.org/>`_ is **required** to build freud
+- `Numpy <http://www.numpy.org/>`_ is **required** to build freud
 - `Cython <http://cython.org/>`_ >= 0.23 is **required** to compile your own _freud.cpp file.
   * Cython **is not required** to install freud
 - `Boost <http://www.boost.org/>`_ is **required** to run freud
