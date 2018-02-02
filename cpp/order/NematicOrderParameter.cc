@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "NematicOrderParameter.h"
 #include "ScopedGILRelease.h"
@@ -18,7 +18,7 @@ using namespace std;
 using namespace tbb;
 
 /*! \file NematicOrderParameter.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the nematic order parameter for each particle
 */
 
 namespace freud { namespace order {
@@ -110,7 +110,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
                 }
             });
 
-    //https://stackoverflow.com/questions/9399929/parallel-reduction-of-an-array-on-cpu
+    // https://stackoverflow.com/questions/9399929/parallel-reduction-of-an-array-on-cpu
     struct reduce_matrix {
         float y_[9];
         const float *m_; // reference to a matrix
@@ -184,7 +184,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
         }
     else
         {
-        // columns are eigen vectors
+        // columns are eigenvectors
         Eigen::MatrixXcf eigen_vec = es.eigenvectors();
         for (unsigned int i = 0; i < 3; ++i)
             for (unsigned int j = 0; j < 3; ++j)
