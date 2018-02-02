@@ -42,14 +42,14 @@ cdef class Cluster:
         behavior.
     """
     cdef cluster.Cluster *thisptr
-    cdef box
+    cdef m_box
     cdef rmax
 
     def __cinit__(self, box, float rcut):
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(),
             box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new cluster.Cluster(cBox, rcut)
-        self.box = box
+        self.m_box = box
         self.rmax = rcut
 
     def __dealloc__(self):
@@ -84,7 +84,7 @@ cdef class Cluster:
         if points.shape[1] != 3:
             raise RuntimeError('Need a list of 3D points for computeClusters()')
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 

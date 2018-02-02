@@ -34,11 +34,27 @@ if on_rtd:
     clang_env = os.environ.copy()
     clang_env['CC'] = shutil.which('clang')
     clang_env['CXX'] = shutil.which('clang++')
-    cmake_process = Popen(['cmake', '../'], env=clang_env)
-    if cmake_process.wait() != 0:
-        print('Errors occurred during CMake.')
-        exit(1)
-    call(['make', 'install', '-j1'])
+    try:
+        import cython
+        cmake_process = Popen(['cmake', '../', '-DENABLE_CYTHON=ON'], env=clang_env)
+    except ModuleNotFoundError:
+        cmake_process = Popen(['cmake', '../'], env=clang_env)
+    finally:
+        if cmake_process.wait() != 0:
+            print('Errors occurred during CMake.')
+            exit(1)
+        exit_code = call(['make', 'install', '-j1'])
+        exit(exit_code)
 else:
-    call(['cmake', '../'])
-    call(['make', 'install', '-j4'])
+    try:
+        import cython
+        exit_code = call(['cmake', '../', '-DENABLE_CYTHON=ON'])
+        if exit_code != 0:
+            exit(exit_code)
+    except ModuleNotFoundError:
+        exit_code = call(['cmake', '../'])
+        if exit_code != 0:
+            exit(exit_code)
+    finally:
+        exit_code = call(['make', 'install', '-j4'])
+        exit(exit_code)

@@ -60,7 +60,6 @@ class VoronoiBuffer
         //         }
     private:
         const box::Box m_box;    //!< Simulation box the particles belong in
-        float m_buff;                  //!< Distance from box to duplicate particles
         std::shared_ptr< std::vector<float3> > m_buffer_particles;
     };
 
