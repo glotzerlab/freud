@@ -42,13 +42,19 @@ if on_rtd:
     finally:
         if cmake_process.wait() != 0:
             print('Errors occurred during CMake.')
-        exit(1)
-        call(['make', 'install', '-j1'])
+            exit(1)
+        exit_code = call(['make', 'install', '-j1'])
+        exit(exit_code)
 else:
     try:
         import cython
-        call(['cmake', '../', '-DENABLE_CYTHON=ON'])
+        exit_code = call(['cmake', '../', '-DENABLE_CYTHON=ON'])
+        if exit_code != 0:
+            exit(exit_code)
     except ModuleNotFoundError:
-        call(['cmake', '../'])
+        exit_code = call(['cmake', '../'])
+        if exit_code != 0:
+            exit(exit_code)
     finally:
-        call(['make', 'install', '-j4'])
+        exit_code = call(['make', 'install', '-j4'])
+        exit(exit_code)
