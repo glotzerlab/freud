@@ -36,7 +36,7 @@ be maintainable, freud uses git for version control; Bitbucket for code
 hosting and issue tracking; and the PEP8 standard for code, stressing
 explicitly written code which is easy to read. Additionally, freud
 employs unit tests to ensure that any changes or new features do not
-break existing functionality
+break existing functionality.
 
 Language choices
 ----------------
