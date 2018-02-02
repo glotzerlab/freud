@@ -970,12 +970,12 @@ cdef class LocalQl:
     .. todo:: move box to compute, this is old API
     """
     cdef order.LocalQl *thisptr
-    cdef box
+    cdef m_box
     cdef rmax
 
     def __init__(self, box, rmax, l, rmin=0):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
         self.thisptr = new order.LocalQl(l_box, rmax, l, rmin)
 
@@ -998,7 +998,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1021,7 +1021,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1045,7 +1045,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1069,7 +1069,7 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1271,7 +1271,7 @@ cdef class LocalQlNear(LocalQl):
     def __init__(self, box, rmax, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalQl(l_box, rmax, l, 0)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
         self.num_neigh = kn
 
@@ -1287,7 +1287,7 @@ cdef class LocalQlNear(LocalQl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.compute(self, points, nlist_)
 
@@ -1299,7 +1299,7 @@ cdef class LocalQlNear(LocalQl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.computeAve(self, points, nlist_)
 
@@ -1311,7 +1311,7 @@ cdef class LocalQlNear(LocalQl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.computeNorm(self, points, nlist_)
 
@@ -1323,7 +1323,7 @@ cdef class LocalQlNear(LocalQl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.computeAveNorm(self, points, nlist_)
 
@@ -1353,13 +1353,13 @@ cdef class LocalWl:
     .. todo:: move box to compute, this is old API
     """
     cdef order.LocalWl *thisptr
-    cdef box
+    cdef m_box
     cdef rmax
 
     def __init__(self, box, rmax, l):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWl(l_box, rmax, l)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -1382,7 +1382,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1405,7 +1405,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1429,7 +1429,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1453,7 +1453,7 @@ cdef class LocalWl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1667,7 +1667,7 @@ cdef class LocalWlNear(LocalWl):
     def __init__(self, box, rmax, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.LocalWl(l_box, rmax, l)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
         self.num_neigh = kn
 
@@ -1683,7 +1683,7 @@ cdef class LocalWlNear(LocalWl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalWl.compute(self, points, nlist_)
 
@@ -1695,7 +1695,7 @@ cdef class LocalWlNear(LocalWl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalWl.computeAve(self, points, nlist_)
 
@@ -1707,7 +1707,7 @@ cdef class LocalWlNear(LocalWl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalWl.computeNorm(self, points, nlist_)
 
@@ -1719,7 +1719,7 @@ cdef class LocalWlNear(LocalWl):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalWl.computeAveNorm(self, points, nlist_)
 
@@ -1744,13 +1744,13 @@ cdef class SolLiq:
     .. todo:: move box to compute, this is old API
     """
     cdef order.SolLiq *thisptr
-    cdef box
+    cdef m_box
     cdef rmax
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -1773,7 +1773,7 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1796,7 +1796,7 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -1819,7 +1819,7 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -2063,7 +2063,7 @@ cdef class SolLiqNear(SolLiq):
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
-        self.box = box
+        self.m_box = box
         self.rmax = rmax
         self.num_neigh = kn
 
@@ -2079,7 +2079,7 @@ cdef class SolLiqNear(SolLiq):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.compute(self, points, nlist_)
 
@@ -2091,7 +2091,7 @@ cdef class SolLiqNear(SolLiq):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
@@ -2103,7 +2103,7 @@ cdef class SolLiqNear(SolLiq):
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, True, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
@@ -2123,7 +2123,7 @@ cdef class MatchEnv:
     cdef order.MatchEnv *thisptr
     cdef rmax
     cdef num_neigh
-    cdef box
+    cdef m_box
 
     def __cinit__(self, box, rmax, k):
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
@@ -2132,7 +2132,7 @@ cdef class MatchEnv:
 
         self.rmax = rmax
         self.num_neigh = k
-        self.box = box
+        self.m_box = box
 
     def __dealloc__(self):
         del self.thisptr
@@ -2147,7 +2147,7 @@ cdef class MatchEnv:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
-        self.box = box
+        self.m_box = box
 
     def cluster(self, points, threshold, hard_r=False, registration=False, global_search=False, nlist=None):
         """Determine clusters of particles with matching environments.
@@ -2176,11 +2176,11 @@ cdef class MatchEnv:
         cdef locality.NeighborList *nlist_ptr
         cdef NeighborList nlist_
         if hard_r:
-            defaulted_nlist = make_default_nlist(self.box, points, points, self.rmax, nlist, True)
+            defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
         else:
-            defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, None, self.rmax)
+            defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
@@ -2217,7 +2217,7 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, None, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
@@ -2256,7 +2256,7 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        defaulted_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, nlist, None, self.rmax)
+        defaulted_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
