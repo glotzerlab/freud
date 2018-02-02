@@ -9,7 +9,7 @@ from libcpp.map cimport map
 import numpy as np
 cimport numpy as np
 
-# Numpy must be initialized. When using Numpy from C or Cython you must
+# numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 

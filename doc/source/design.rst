@@ -26,13 +26,13 @@ The number of simulation packages, analysis packages, and other software
 packages keeps growing. Rather than attempt to understand and interact
 with all of these packages, freud achieves flexibility by providing a
 simple Python interface and making no assumptions regarding data,
-operating on and returning Numpy arrays to the user.
+operating on and returning NumPy arrays to the user.
 
 Maintainable
 ~~~~~~~~~~~~
 
 Code which cannot be maintained is destined for obscurity. In order to
-be maintainable, freud uses git for version control; Bitbucket for code
+be maintainable, freud uses Git for version control; Bitbucket for code
 hosting and issue tracking; and the PEP8 standard for code, stressing
 explicitly written code which is easy to read. Additionally, freud
 employs unit tests to ensure that any changes or new features do not
@@ -45,7 +45,7 @@ The freud library is written in two languages: Python and C++. C++ allows for
 powerful, fast code execution while Python allows for easy, flexible
 use. Intel Threading Building Blocks parallelism provides further power to
 C++ code. The C++ code is wrapped with Cython, allowing for user
-interaction in Python. Numpy provides the basic data structures in
+interaction in Python. NumPy provides the basic data structures in
 freud, which are commonly used in other Python plotting libraries and
 packages.
 
