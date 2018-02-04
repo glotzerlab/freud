@@ -50,7 +50,7 @@ freud, which are commonly used in other Python plotting libraries and
 packages.
 
 Code Guidelines
---------------
+---------------
 
 Code in freud should follow
 `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__, as well as the
