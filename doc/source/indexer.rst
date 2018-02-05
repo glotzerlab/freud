@@ -1,6 +1,6 @@
-==============
+============
 Index Module
-==============
+============
 
 The index module exposes the :math:`1`-dimensional indexer utilized in freud at the C++ level.
 

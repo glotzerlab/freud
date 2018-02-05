@@ -1,5 +1,6 @@
-Welcome to freud's documentation!
-=================================
+===================
+freud documentation
+===================
 
 *"Neurosis is the inability to tolerate ambiguity" - Sigmund Freud*
 
@@ -10,8 +11,8 @@ Please visit our repository on `Bitbucket <https://bitbucket.org/glotzer/freud>`
 issues or bugs to our `issue tracker <https://bitbucket.org/glotzer/freud/issues?status=new&status=open>`_, and ask
 questions and discuss on our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
 
-Contents:
-=========
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
@@ -19,14 +20,13 @@ Contents:
    examples
    installation
    modules
-   design
+   development
    citations
 
 
 
-Indices and tables
-==================
+Index
+=====
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

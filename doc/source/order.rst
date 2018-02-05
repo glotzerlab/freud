@@ -1,6 +1,6 @@
-==============
+============
 Order Module
-==============
+============
 
 The order module contains functions which deal with the order of the system
 

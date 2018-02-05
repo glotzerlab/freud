@@ -1,6 +1,6 @@
-==============
+=============
 KSpace Module
-==============
+=============
 
 Modules for calculating quantities in reciprocal space, including fourier transforms of shapes and diffraction pattern
 generation.

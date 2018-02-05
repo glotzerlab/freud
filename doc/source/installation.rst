@@ -17,7 +17,7 @@ You may use the online documentation from `ReadTheDocs <https://freud.readthedoc
 or you may build the documentation yourself:
 
 Building the documentation
-++++++++++++++++++++++++++
+--------------------------
 
 The documentation is build with sphinx. To install sphinx, run
 
@@ -54,8 +54,8 @@ Installation
 Install freud via `conda <http://conda.pydata.org/docs/>`_, \
 `glotzpkgs <http://glotzerlab.engin.umich.edu/glotzpkgs/>`_, or compile from source.
 
-Conda install
-+++++++++++++
+Install via conda
+-----------------
 
 The code below will enable the glotzer conda channel and install freud.
 
@@ -64,8 +64,8 @@ The code below will enable the glotzer conda channel and install freud.
     conda config --add channels glotzer
     conda install freud
 
-glotzpkgs install
-+++++++++++++++++
+Install via glotzpkgs
+---------------------
 
 Please refer to the official `glotzpkgs <http://glotzerlab.engin.umich.edu/glotzpkgs/>`_ documentation.
 
@@ -84,9 +84,9 @@ First, make sure you have a working glotzpkgs environment.
     module load freud
 
 Compile from source
-+++++++++++++++++++
+-------------------
 
-It's easiest to install freud with a working conda install of the required packages:
+It is easiest to install freud with a working conda install of the required packages:
 
 - python (2.7, 3.4, 3.5, 3.6)
 - numpy
@@ -95,8 +95,6 @@ It's easiest to install freud with a working conda install of the required packa
 - cython (not required, but a correct :code:`_freud.cpp` file must be present to compile)
 - tbb
 - cmake
-
-
 
 The code that follows creates a build directory inside the freud source directory and builds freud:
 
