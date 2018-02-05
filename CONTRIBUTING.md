@@ -59,12 +59,10 @@ before their pull request can be merged.
 
 ## Use a consistent style
 
-It is important to have a consistent style throughout the source code. See [SourceConventions.md](SourceConventions.md)
-for the defined style guidelines for freud code.
+It is important to have a consistent style throughout the source code. Follow
+the source conventions defined in the documentation for all freud code.
 
 ## Document code with comments
-
-TODO?
 
 Use doxygen header comments for classes, functions, etc... Also comment complex sections of code so that other
 developers can understand them.
