@@ -9,3 +9,4 @@ Contributions to freud are highly encouraged. The pages below offer information 
 
    design
    sourceconventions
+   howtoadd
