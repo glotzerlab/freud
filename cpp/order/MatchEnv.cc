@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <cstdio>
 #include "MatchEnv.h"
@@ -287,68 +287,32 @@ MatchEnv::MatchEnv(const box::Box& box, float rmax, unsigned int k)
     if (m_rmax < 0.0f)
         throw std::invalid_argument("rmax must be positive!");
     m_rmaxsq = m_rmax * m_rmax;
-    m_nn = new locality::NearestNeighbors(m_rmax, m_k);
-    m_lc = new locality::LinkCell(m_box, m_rmax);
     }
 
 // Destructor
 MatchEnv::~MatchEnv()
     {
-    delete m_nn;
-    delete m_lc;
     }
 
 // Build and return a local environment surrounding a particle.
 // Label its environment with env_ind.
-Environment MatchEnv::buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind, bool hard_r)
+Environment MatchEnv::buildEnv(const size_t *neighbor_list, size_t num_bonds, size_t &bond, const vec3<float> *points, unsigned int i, unsigned int env_ind, bool hard_r)
     {
     Environment ei = Environment();
     // set the environment index equal to the particle index
     ei.env_ind = env_ind;
 
     vec3<float> p = points[i];
-    if (hard_r == false)
-        {
-        // get the neighbors
-        std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
-        // loop over the neighbors
-        for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
+    for(; bond < num_bonds && neighbor_list[2*bond] == i; ++bond)
             {
             // compute vec{r} between the two particles
-            unsigned int j = neighbors.get()[neigh_idx];
+            const size_t j(neighbor_list[2*bond + 1]);
             if (i != j)
                 {
                 vec3<float> delta = m_box.wrap(points[j]-p);
                 ei.addVec(delta);
                 }
             }
-        }
-
-    else
-        {
-        // loop over everyone who could possibly be within m_rmax of particle i
-        unsigned int cell = m_lc->getCell(p);
-        const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(cell);
-        // loop over neighboring cells
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-            {
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
-            //iterate over particles in neighboring cells
-            locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
-                {
-                if (i != j)
-                    {
-                    vec3<float> delta = m_box.wrap(points[j]-p);
-                    float rsq = dot(delta, delta);
-                    if (rsq < m_rmaxsq)
-                        {
-                        ei.addVec(delta);
-                        }
-                    }
-                }
-            }
-        }
 
     return ei;
     }
@@ -385,7 +349,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
     if (registration == true)
         {
         registration::RegisterBruteForce r = registration::RegisterBruteForce(v1);
-        bool good_fit = r.Fit(v2);
+        r.Fit(v2);
         // get the optimal rotation to take v2 to v1
         std::vector<vec3<float> > rot = r.getRotation();
         // this must be a 3x3 matrix. if it isn't, something has gone wrong.
@@ -533,7 +497,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::m
     // the Fit operation CHANGES v2.
     if (registration == true)
         {
-        bool good_fit = r.Fit(v2);
+        r.Fit(v2);
         // get the optimal rotation to take v2 to v1
         std::vector<vec3<float> > rot = r.getRotation();
         // this must be a 3x3 matrix. if it isn't, something has gone wrong.
@@ -616,7 +580,7 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *r
 
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r, bool registration, bool global)
+void MatchEnv::cluster(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, float threshold, bool hard_r, bool registration, bool global)
     {
     assert(points);
     assert(Np > 0);
@@ -628,20 +592,21 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
 
-    // compute the neighbor list
-    m_nn->compute(m_box, points, m_Np, points, m_Np);
-    // compute the cell list
-    m_lc->computeCellList(m_box, points, m_Np);
+    nlist->validate(Np, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster
     EnvDisjointSet dj(m_Np);
+
+    size_t bond(0);
+    const size_t num_bonds(nlist->getNumBonds());
 
     // add all the environments to the set
     // take care, here: set things up s.t. the env_ind of every environment matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        Environment ei = buildEnv(points, i, i, hard_r);
+        Environment ei = buildEnv(neighbor_list, num_bonds, bond, points, i, i, hard_r);
         dj.s.push_back(ei);
         m_maxk = std::max(m_maxk, ei.num_vecs);
         dj.m_max_num_neigh = m_maxk;
@@ -651,18 +616,16 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     unsigned int array_size = Np*m_maxk;
     m_tot_env = std::shared_ptr<vec3<float> >(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
 
+    bond = 0;
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        vec3<float> p = points[i];
-
         if (global == false)
             {
             // loop over the neighbors
-            std::shared_ptr<unsigned int> neighbors = m_nn->getNeighbors(i);
-            for (unsigned int neigh_idx = 0; neigh_idx < m_k; neigh_idx++)
+            for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                 {
-                unsigned int j = neighbors.get()[neigh_idx];
+                const size_t j(neighbor_list[2*bond + 1]);
                 if (i != j)
                     {
                     std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
@@ -708,7 +671,7 @@ void MatchEnv::cluster(const vec3<float> *points, unsigned int Np, float thresho
     }
 
 //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
-void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool registration)
+void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool registration)
     {
     assert(points);
     assert(refPoints);
@@ -722,10 +685,8 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     m_Np = Np;
     float m_threshold_sq = threshold*threshold;
 
-    // compute the neighbor list
-    m_nn->compute(m_box, points, m_Np, points, m_Np);
-    // compute the cell list
-    m_lc->computeCellList(m_box, points, m_Np);
+    nlist->validate(Np, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles, because we're inserting the motif into it.
@@ -755,13 +716,16 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
     // add this environment to the set
     dj.s.push_back(e0);
 
+    size_t bond(0);
+    const size_t num_bonds(nlist->getNumBonds());
+
     // loop through the particles and add their environments to the set
     // take care, here: set things up s.t. the env_ind of every environment matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < m_Np; i++)
         {
         unsigned int dummy = i+1;
-        Environment ei = buildEnv(points, i, dummy, false);
+        Environment ei = buildEnv(neighbor_list, num_bonds, bond, points, i, dummy, false);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
@@ -786,7 +750,7 @@ void MatchEnv::matchMotif(const vec3<float> *points, unsigned int Np, const vec3
 //! NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
 //! of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
 //! To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
-std::vector<float> MatchEnv::minRMSDMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, bool registration)
+std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, bool registration)
     {
     assert(points);
     assert(refPoints);
@@ -799,10 +763,8 @@ std::vector<float> MatchEnv::minRMSDMotif(const vec3<float> *points, unsigned in
     m_Np = Np;
     std::vector<float> min_rmsd_vec(m_Np);
 
-    // compute the neighbor list
-    m_nn->compute(m_box, points, m_Np, points, m_Np);
-    // compute the cell list
-    m_lc->computeCellList(m_box, points, m_Np);
+    nlist->validate(Np, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles, because we're inserting the motif into it.
@@ -832,13 +794,16 @@ std::vector<float> MatchEnv::minRMSDMotif(const vec3<float> *points, unsigned in
     // add this environment to the set
     dj.s.push_back(e0);
 
+    size_t bond(0);
+    const size_t num_bonds(nlist->getNumBonds());
+
     // loop through the particles and add their environments to the set
     // take care, here: set things up s.t. the env_ind of every environment matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < m_Np; i++)
         {
         unsigned int dummy = i+1;
-        Environment ei = buildEnv(points, i, dummy, false);
+        Environment ei = buildEnv(neighbor_list, num_bonds, bond, points, i, dummy, false);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set

@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
 #include <stdexcept>
@@ -25,7 +25,7 @@ namespace freud { namespace order {
 LocalDescriptors::LocalDescriptors(
         unsigned int neighmax, unsigned int lmax, float rmax, bool negative_m):
     m_neighmax(neighmax), m_lmax(lmax),
-    m_negative_m(negative_m), m_nn(rmax, neighmax), m_Nref(0), m_nNeigh(0)
+    m_negative_m(negative_m), m_nn(rmax, neighmax), m_Nref(0), m_nSphs(0)
     {
     }
 
@@ -35,27 +35,39 @@ void LocalDescriptors::computeNList(const box::Box& box, const vec3<float> *r_re
     m_nn.compute(box, r_ref, Nref, r, Np);
     }
 
-void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh,
+void LocalDescriptors::compute(const box::Box& box, const freud::locality::NeighborList *nlist,
+                               unsigned int nNeigh,
                                const vec3<float> *r_ref, unsigned int Nref,
                                const vec3<float> *r, unsigned int Np,
                                const quat<float> *q_ref,
                                LocalDescriptorOrientation orientation)
     {
-    if(m_nn.getNref() != Nref || m_nn.getNp() != Np)
-        throw runtime_error("Must call computeNList() before compute");
+    // legacy API, use internal NearestNeighbors if nlist is a null pointer
+    if(!nlist)
+        {
+        if(m_nn.getNref() != Nref || m_nn.getNp() != Np)
+            throw runtime_error("Must call computeNList() before compute");
+
+        nlist = m_nn.getNeighborList();
+        }
+
+    nlist->validate(Nref, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     // reallocate the output array if it is not the right size
-    if (Nref != m_Nref || nNeigh != m_nNeigh)
+    if (m_nSphs < nlist->getNumBonds())
         {
-        m_sphArray = std::shared_ptr<complex<float> >(new complex<float>[nNeigh*Nref*getSphWidth()], std::default_delete<complex<float>[]>());
-        m_nNeigh = nNeigh;
+        m_sphArray = std::shared_ptr<complex<float> >(
+            new complex<float>[nlist->getNumBonds()*getSphWidth()], std::default_delete<complex<float>[]>());
         }
+
+    std::complex<float> *const sph_array(m_sphArray.get());
 
     parallel_for(blocked_range<size_t>(0,Nref),
         [=] (const blocked_range<size_t>& br)
         {
         fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
-        Index2D idx_nlist(m_neighmax, 0);
+        size_t bond(nlist->find_first_index(br.begin()));
 
         for(size_t i=br.begin(); i!=br.end(); ++i)
             {
@@ -70,15 +82,13 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh,
                     for(size_t jj(0); jj < 3; ++jj)
                         inertiaTensor[ii][jj] = 0;
 
-                for(size_t k(0); k < nNeigh; ++k)
+                for(size_t bond_copy(bond); bond_copy < nlist->getNumBonds() &&
+                        neighbor_list[2*bond_copy] == i; ++bond_copy)
                     {
-                    const size_t idx_neigh_j(idx_nlist(k, i));
-                    const size_t idx_j(m_nn.getNeighborList().get()[idx_neigh_j]);
-                    if(idx_j == UINT_MAX)
-                        continue;
-                    const float rsq(m_nn.getRsqList().get()[idx_neigh_j]);
-                    const vec3<float> r_j(r[idx_j]);
+                    const size_t j(neighbor_list[2*bond_copy + 1]);
+                    const vec3<float> r_j(r[j]);
                     const vec3<float> rvec(box.wrap(r_j - r_i));
+                    const float rsq(dot(rvec, rvec));
 
                     for(size_t ii(0); ii < 3; ++ii)
                         inertiaTensor[ii][ii] += rsq;
@@ -144,42 +154,33 @@ void LocalDescriptors::compute(const box::Box& box, unsigned int nNeigh,
                 throw std::runtime_error("Uncaught orientation mode in LocalDescriptors::compute");
                 }
 
-            unsigned int sphCount(i*nNeigh*getSphWidth());
-
-            for(size_t k(0); k < nNeigh; ++k)
+            for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                 {
-                const size_t idx_neigh_j(idx_nlist(k, i));
-                const size_t idx_j(m_nn.getNeighborList().get()[idx_neigh_j]);
-                if(idx_j == UINT_MAX)
-                    {
-                    std::fill(&m_sphArray.get()[sphCount], &m_sphArray.get()[sphCount + getSphWidth()], 0);
-                    }
-                else
-                    {
-                    const float rsq(m_nn.getRsqList().get()[idx_neigh_j]);
-                    const vec3<float> r_j(r[idx_j]);
-                    const vec3<float> rij(box.wrap(r_j - r_i));
-                    const vec3<float> bond(dot(rotation_0, rij),
-                                           dot(rotation_1, rij),
-                                           dot(rotation_2, rij));
+                const unsigned int sphCount(bond*getSphWidth());
+                const size_t j(neighbor_list[2*bond + 1]);
+                const vec3<float> r_j(r[j]);
+                const vec3<float> rij(box.wrap(r_j - r_i));
+                const float rsq(dot(rij, rij));
+                const vec3<float> bond_ij(dot(rotation_0, rij),
+                                       dot(rotation_1, rij),
+                                       dot(rotation_2, rij));
 
-                    const float magR(sqrt(rsq));
-                    float theta(atan2(bond.y, bond.x)); // theta in [-pi..pi] initially
-                    if(theta < 0)
-                        theta += 2*M_PI; // move theta into [0..2*pi]
-                    const float phi(acos(bond.z/magR)); // phi in [0..pi]
+                const float magR(sqrt(rsq));
+                float theta(atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
+                if(theta < 0)
+                    theta += 2*M_PI; // move theta into [0..2*pi]
+                const float phi(acos(bond_ij.z/magR)); // phi in [0..pi]
 
-                    sph_eval.compute(phi, theta);
+                sph_eval.compute(phi, theta);
 
-                    std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray.get()[sphCount]);
-                    }
-                sphCount += getSphWidth();
+                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &sph_array[sphCount]);
                 }
             }
         });
 
     // save the last computed number of particles
     m_Nref = Nref;
+    m_nSphs = nlist->getNumBonds();
     }
 
 }; }; // end namespace freud::order

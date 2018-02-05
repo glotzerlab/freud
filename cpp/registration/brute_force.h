@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 // stdlib include
 #include <iostream>
@@ -174,7 +174,7 @@ class RegisterBruteForce  // : public Register
         }
         ~RegisterBruteForce(){}
 
-        bool Fit(std::vector<vec3<float> >& pts)
+        void Fit(std::vector<vec3<float> >& pts)
         {
             matrix points;
             matrix p, q, r;
@@ -266,7 +266,7 @@ class RegisterBruteForce  // : public Register
                                 matrix ptsT = Rotate(m_rotation, points.transpose());
                                 // Then we have to take the transpose again to get our matrix back to its original dimensionality.
                                 pts = makeVec3Matrix(ptsT.transpose());
-                                return true;
+                                return;
                             }
                         }
                     } while (std::next_permutation(comb,comb+num_pts));
@@ -276,7 +276,7 @@ class RegisterBruteForce  // : public Register
             matrix ptsT = Rotate(m_rotation, points.transpose());
             // Then we have to take the transpose again to get our matrix back to its original dimensionality.
             pts = makeVec3Matrix(ptsT.transpose());
-            return true;
+            return;
         }
 
         std::vector<vec3<float> > getRotation()

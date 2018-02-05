@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from freud import box, density
+from freud import box, locality, density
 import unittest
 
 class TestR(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestR(unittest.TestCase):
 
         rdf = density.RDF(rmax, dr)
 
-        npt.assert_almost_equal(rdf.getR(), r_list, decimal=3)
+        npt.assert_almost_equal(rdf.R, r_list, decimal=3)
 
 class TestRDF(unittest.TestCase):
     def test_random_point(self):
@@ -28,12 +28,13 @@ class TestRDF(unittest.TestCase):
         box_size = rmax*3.1
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         rdf = density.RDF(rmax, dr)
-        rdf.accumulate(box.Box.cube(box_size), points, points)
+        fbox = box.Box.cube(box_size)
+        rdf.accumulate(fbox, points, points)
 
         correct = np.ones(int(rmax/dr), dtype=np.float32)
         correct[0] = 0.0
         absolute_tolerance = 0.1
-        npt.assert_allclose(rdf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(rdf.RDF, correct, atol=absolute_tolerance)
 
 if __name__ == '__main__':
     unittest.main()

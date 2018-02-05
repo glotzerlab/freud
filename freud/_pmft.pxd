@@ -1,10 +1,11 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from libcpp.memory cimport shared_ptr
 cimport freud._box as box
+cimport freud._locality
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12:
@@ -13,6 +14,7 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
         const box.Box& getBox() const
         void resetPCF()
         void accumulate(box.Box&,
+                        const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
                         unsigned int,
@@ -38,6 +40,7 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
         const box.Box& getBox() const
         void resetPCF()
         void accumulate(box.Box&,
+                        const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
                         unsigned int,
@@ -63,6 +66,7 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
         const box.Box& getBox() const
         void resetPCF()
         void accumulate(box.Box&,
+                        const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
                         unsigned int,
@@ -81,11 +85,12 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
 
 cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFTXYZ:
-        PMFTXYZ(float, float, float, unsigned int, unsigned int, unsigned int)
+        PMFTXYZ(float, float, float, unsigned int, unsigned int, unsigned int, vec3[float])
 
         const box.Box& getBox() const
         void resetPCF()
         void accumulate(box.Box&,
+                        const freud._locality.NeighborList*,
                         vec3[float]*,
                         quat[float]*,
                         unsigned int,

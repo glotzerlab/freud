@@ -15,3 +15,4 @@ cpp/module.cc.orig
 py/freud/__init__.py.orig
 py/freud/trajectory.py.orig
 doc/build/*
+doc/_build/*

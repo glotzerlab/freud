@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <tbb/tbb.h>
 #include <ostream>
@@ -42,7 +42,7 @@ class PMFTXYZ
     {
     public:
         //! Constructor
-        PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z);
+        PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec);
 
         //! Destructor
         ~PMFTXYZ();
@@ -60,6 +60,7 @@ class PMFTXYZ
             of the pcf
         */
         void accumulate(box::Box& box,
+                        const locality::NeighborList *nlist,
                         vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int n_ref,
@@ -130,7 +131,6 @@ class PMFTXYZ
         float m_dx;                       //!< Step size for x in the computation
         float m_dy;                       //!< Step size for y in the computation
         float m_dz;                       //!< Step size for z in the computation
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_n_bins_x;             //!< Number of x bins to compute pcf over
         unsigned int m_n_bins_y;             //!< Number of y bins to compute pcf over
         unsigned int m_n_bins_z;             //!< Number of z bins to compute pcf over
@@ -141,6 +141,7 @@ class PMFTXYZ
         unsigned int m_n_faces;
         float m_jacobian;
         bool m_reduce;
+        vec3<float> m_shiftvec;            //!< vector that points from [0,0,0] to the origin of the pmft
 
         std::shared_ptr<float> m_pcf_array;         //!< array of pcf computed
         std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed

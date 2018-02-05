@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "VoronoiBuffer.h"
 #include "ScopedGILRelease.h"
@@ -10,8 +10,8 @@
 
 using namespace std;
 
-/*! \file GaussianDensity.cc
-    \brief Routines for computing Gaussian smeared densities from points
+/*! \file VoronoiBuffer.cc
+    \brief Computes Voronoi buffer.
 */
 
 namespace freud { namespace voronoi {
@@ -28,9 +28,6 @@ void VoronoiBuffer::compute(const float3 *points,
     float lx = m_box.getLx();
     float ly = m_box.getLy();
     float lz = m_box.getLz();
-    float lx_2 = 0.5*lx;
-    float ly_2 = 0.5*ly;
-    float lz_2 = 0.5*lz;
     float lx_2_buff = 0.5*lx + buff;
     float ly_2_buff = 0.5*ly + buff;
     float lz_2_buff = 0.5*lz + buff;
@@ -39,48 +36,56 @@ void VoronoiBuffer::compute(const float3 *points,
     buffer_parts.clear();
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
-      {
-      // in 2D, only loop over the 0 z plane
-      if (m_box.is2D())
         {
-        for (int i=-1; i<=1; i++)
-          for (int j=-1; j<=1; j++)
-                if(i != 0 || j != 0)
-                  {
-                  img.x = points[particle].x + i*lx;
-                  img.y = points[particle].y + j*ly;
-                  img.z = 0.0;
-                  //check to see if this image in within a
-                  if(img.x < lx_2_buff && img.x > -lx_2_buff && img.y < ly_2_buff && img.y > -ly_2_buff)
-                      {
-                      buffer_parts.push_back(img);
-                      }
-                  }
+        // in 2D, only loop over the 0 z plane
+        if (m_box.is2D())
+            {
+            for (int i=-1; i<=1; i++)
+                {
+                for (int j=-1; j<=1; j++)
+                    {
+                    if(i != 0 || j != 0)
+                        {
+                        img.x = points[particle].x + i*lx;
+                        img.y = points[particle].y + j*ly;
+                        img.z = 0.0;
+                        //check to see if this image in within a
+                        if(img.x < lx_2_buff && img.x > -lx_2_buff &&
+                           img.y < ly_2_buff && img.y > -ly_2_buff)
+                            {
+                            buffer_parts.push_back(img);
+                            }
+                        }
+                    }
+                }
+            }
+        else
+            {
+            //loop over potential images
+            for (int i=-1; i<=1; i++)
+                {
+                for (int j=-1; j<=1; j++)
+                    {
+                    for (int k=-1; k<=1; k++)
+                        {
+                        if(!(i==0 && j==0 && k==0))
+                            {
+                            img.x = points[particle].x + i*lx;
+                            img.y = points[particle].y + j*ly;
+                            img.z = points[particle].z + k*lz;
+                            //check to see if this image in within a
+                            if(img.x < lx_2_buff && img.x > -lx_2_buff &&
+                               img.y < ly_2_buff && img.y > -ly_2_buff &&
+                               img.z < lz_2_buff && img.z > -lz_2_buff)
+                                {
+                                buffer_parts.push_back(img);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-      else
-        {
-        //loop over potential images
-        for (int i=-1; i<=1; i++)
-          for (int j=-1; j<=1; j++)
-              for (int k=-1; k<=1; k++)
-                if(!(i==0 && j==0 && k==0))
-                  {
-                  img.x = points[particle].x + i*lx;
-                  img.y = points[particle].y + j*ly;
-                  img.z = points[particle].z + k*lz;
-                  //check to see if this image in within a
-                  if(img.x < lx_2_buff && img.x > -lx_2_buff &&
-                     img.y < ly_2_buff && img.y > -ly_2_buff &&
-                     img.z < lz_2_buff && img.z > -lz_2_buff)
-                      {
-                      img.x -= lx_2;
-                      img.y -= ly_2;
-                      img.z -= lz_2;
-                      buffer_parts.push_back(img);
-                      }
-                  }
-        }
-      }
     }
 
 // void VoronoiBuffer::computePy(boost::python::numeric::array points, const float buff)

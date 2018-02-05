@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "InterfaceMeasure.h"
 
@@ -12,7 +12,7 @@ using namespace std;
 namespace freud { namespace interface {
 
 InterfaceMeasure::InterfaceMeasure(const box::Box& box, float r_cut)
-    : m_box(box), m_rcut(r_cut), m_lc(box, r_cut)
+    : m_box(box), m_rcut(r_cut)
     {
         if (r_cut < 0.0f)
             throw invalid_argument("r_cut must be positive");
@@ -22,7 +22,8 @@ InterfaceMeasure::InterfaceMeasure(const box::Box& box, float r_cut)
 //                                        unsigned int n_ref,
 //                                        const float3 *points,
 //                                        unsigned int Np)
-unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
+unsigned int InterfaceMeasure::compute(const freud::locality::NeighborList *nlist,
+                                       const vec3<float> *ref_points,
                                        unsigned int n_ref,
                                        const vec3<float> *points,
                                        unsigned int Np)
@@ -32,12 +33,13 @@ unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
     assert(n_ref > 0);
     assert(Np > 0);
 
-    // bin the second set of points
-    m_lc.computeCellList(m_box, points, Np);
+    nlist->validate(n_ref, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     unsigned int interfaceCount = 0;
     float rcutsq = m_rcut * m_rcut;
 
+    size_t bond(0);
     // for each reference point
     for( unsigned int i = 0; i < n_ref; i++)
     {
@@ -46,19 +48,13 @@ unsigned int InterfaceMeasure::compute(const vec3<float> *ref_points,
         // get the cell the point is in
         // float3 ref = ref_points[i];
         vec3<float> ref = ref_points[i];
-        unsigned int ref_cell = m_lc.getCell(ref);
 
-        // loop over all neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(ref_cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-        {
-            if(inInterface)
-                break;
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
+        if(bond < nlist->getNumBonds() && neighbor_list[2*bond] < i)
+            bond = nlist->find_first_index(i);
 
-            // iterate over the particles in that cell
-            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+            {
+            const size_t j(neighbor_list[2*bond + 1]);
             {
                 if(inInterface)
                     break;

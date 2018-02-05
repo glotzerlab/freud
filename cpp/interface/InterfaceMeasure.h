@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
 
@@ -44,7 +44,8 @@ class InterfaceMeasure
         //                      const float3 *points,
         //                      unsigned int Np);
 
-        unsigned int compute(const vec3<float> *ref_points,
+        unsigned int compute(const freud::locality::NeighborList *nlist,
+                             const vec3<float> *ref_points,
                              unsigned int n_ref,
                              const vec3<float> *points,
                              unsigned int Np);
@@ -55,7 +56,6 @@ class InterfaceMeasure
     private:
         box::Box m_box;          //!< Simulation box the particles belong in
         float m_rcut;                   //!< Maximum distance at which a particle is considered to be in an interface
-        locality::LinkCell m_lc;        //!< LinkCell to bin particles for the computation
 };
 
 }; }; // end namespace freud::interface

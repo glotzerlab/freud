@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "Cluster.h"
 
@@ -72,7 +72,7 @@ uint32_t DisjointSet::find(const uint32_t c)
     }
 
 Cluster::Cluster(const box::Box& box, float rcut)
-    : m_box(box), m_rcut(rcut), m_lc(box, rcut), m_num_particles(0)
+    : m_box(box), m_rcut(rcut), m_num_particles(0)
     {
     if (m_rcut < 0.0f)
         throw invalid_argument("rcut must be positive");
@@ -80,11 +80,15 @@ Cluster::Cluster(const box::Box& box, float rcut)
 
 // void Cluster::computeClusters(const float3 *points,
 //                               unsigned int Np)
-void Cluster::computeClusters(const vec3<float> *points,
+void Cluster::computeClusters(const freud::locality::NeighborList *nlist,
+                              const vec3<float> *points,
                               unsigned int Np)
     {
     assert(points);
     assert(Np > 0);
+
+    nlist->validate(Np, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (Np != m_num_particles)
@@ -94,25 +98,17 @@ void Cluster::computeClusters(const vec3<float> *points,
     float rmaxsq = m_rcut * m_rcut;
     DisjointSet dj(m_num_particles);
 
-    // bin the particles
-    m_lc.computeCellList(m_box, points, m_num_particles);
+    size_t bond(0);
 
     // for each point
     for (unsigned int i = 0; i < m_num_particles; i++)
         {
         // get the cell the point is in
         vec3<float> p = points[i];
-        unsigned int cell = m_lc.getCell(p);
 
-        // loop over all neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc.getCellNeighbors(cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-            // iterate over the particles in that cell
-            locality::LinkCell::iteratorcell it = m_lc.itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+            const size_t j(neighbor_list[2*bond + 1]);
                 {
                 if (i != j)
                     {
@@ -201,7 +197,7 @@ void Cluster::computeClusterMembership(const unsigned int *keys)
         {
         unsigned int key = keys[i];
         unsigned int cluster = m_cluster_idx.get()[i];
-        m_cluster_keys[cluster].insert(key);
+        m_cluster_keys[cluster].push_back(key);
         }
     }
 

@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 import numpy
 import math
@@ -103,6 +103,7 @@ class SFactor3DPoints:
         mid = self.grid // 2;
         cinv = numpy.absolute(self.s_complex[mid,mid,mid]);
         self.s_complex /= cinv;
+        return self;
 
     def getS(self):
         """Get the computed static structure factor
@@ -799,6 +800,7 @@ class FTdelta(FTbase):
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
+        return self;
 
 class FTsphere(FTdelta):
     """Fourier transform for sphere
@@ -890,10 +892,10 @@ class FTpolyhedron(FTbase):
         :type areas: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`), dtype= :class:`numpy.float32`
         :type volumes: :class:`numpy.ndarray`
         """
-        facet_offs = numpy.zeros((len(facets)+1))
+        facet_offs = numpy.zeros((len(facets)+1),dtype=numpy.uint32)
         for i,f in enumerate(facets):
             facet_offs[i+1] = facet_offs[i] + len(f)
-        self.FTobj.set_params(verts, facet_offs, [vi for f in facets for vi in f], norms, d, areas, volume)
+        self.FTobj.set_params(verts, facet_offs, numpy.array([vi for f in facets for vi in f],dtype=numpy.uint32), norms, d, areas, volume)
 
     def set_radius(self, radius):
         """Set radius of in-sphere
@@ -924,6 +926,7 @@ class FTpolyhedron(FTbase):
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
+        return self;
 
 class FTconvexPolyhedron(FTpolyhedron):
     """Fourier Transform for convex polyhedra
@@ -991,6 +994,7 @@ class FTconvexPolyhedron(FTpolyhedron):
                 K = quatrot(q * numpy.array([1,-1,-1,-1]), self.K[i])
                 self.S[i] += numpy.exp(numpy.dot(K, r) * -1.j) * self.Spoly3D(K)
         self.S *= self.density
+        return self;
 
     def Spoly2D(self, i, k):
         """Calculate Fourier transform of polygon

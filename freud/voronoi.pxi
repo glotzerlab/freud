@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 from cython.view cimport array as cvarray
 from libcpp.vector cimport vector
@@ -12,7 +12,7 @@ cimport numpy as np
 
 cdef class VoronoiBuffer:
     """
-    .. moduleauthor:: Ben Schultz <baschult@umich.edu@umich.edu>
+    .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     """
     cdef voronoi.VoronoiBuffer *thisptr
 
@@ -21,13 +21,15 @@ cdef class VoronoiBuffer:
         self.thisptr = new voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
-        points = np.ascontiguousarray(points, dtype=np.float32)
-        dimensions = 2 if self.thisptr.getBox().is2D() else 3
-        if points.ndim != 2 or points.shape[1] != dimensions:
-            raise RuntimeError('Need a list of {}D points for VoronoiBuffer.compute()'.format(dimensions))
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message='points must be a 3 dimensional array')
+
+        if points.shape[1] != 3:
+            raise RuntimeError('Need a list of 3D points for VoronoiBuffer.compute()')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         self.thisptr.compute(<float3*> cPoints.data, Np, buffer)
+        return self;
 
     def getBufferParticles(self):
         cdef _box.Box cBox = self.thisptr.getBox()
@@ -35,11 +37,12 @@ cdef class VoronoiBuffer:
         cdef float3* buffer_points = &dereference(self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
-        shape = [buffer_size, 3]
-        result = np.zeros(shape, dtype=np.float32)
-        cdef float[:] flatBuffer = <float[:shape[0]*shape[1]]> (<float*> buffer_points)
-        result.flat[:] = flatBuffer
-        if cBox.is2D():
-            return result[:, :2]
-        else:
-            return result
+
+        cdef vector[float3]*bufferPar = self.thisptr.getBufferParticles().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = buffer_size
+        nbins[1] = 3
+
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>dereference(bufferPar).data())
+
+        return result

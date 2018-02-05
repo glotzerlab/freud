@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
@@ -7,6 +7,26 @@ from freud.util._Index1D cimport Index3D
 from freud.util._Boost cimport shared_array
 cimport freud._box as box
 from libcpp.vector cimport vector
+
+cdef extern from "NeighborList.h" namespace "freud::locality":
+    cdef cppclass NeighborList:
+        NeighborList()
+        NeighborList(size_t)
+
+        size_t *getNeighbors()
+        float *getWeights()
+
+        size_t getNumI() const
+        size_t getNumBonds() const
+        void setNumBonds(size_t, size_t, size_t)
+        size_t filter(const bool*)
+        size_t filter_r(const box.Box&, const vec3[float]*, const vec3[float]*, float, float)
+
+        size_t find_first_index(size_t)
+
+        void resize(size_t, bool=False)
+        void copy(const NeighborList &)
+        void validate(size_t, size_t) except +
 
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:
@@ -18,7 +38,7 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int begin()
 
     cdef cppclass LinkCell:
-        LinkCell(const box.Box&, float)
+        LinkCell(const box.Box&, float) except +
         LinkCell()
 
         setCellWidth(float)
@@ -32,6 +52,8 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         IteratorLinkCell itercell(unsigned int) const
         vector[unsigned int] getCellNeighbors(unsigned int) const
         void computeCellList(const box.Box&, const vec3[float]*, unsigned int) nogil except +
+        void compute(const box.Box&, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int, bool) nogil except +
+        NeighborList *getNeighborList()
 
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
     cdef cppclass NearestNeighbors:
@@ -44,10 +66,6 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         float getRMax() const
         unsigned int getUINTMAX() const
         unsigned int getNref() const
-        # shared_array[unsigned int] getNeighbors(unsigned int) const
-        shared_array[unsigned int] getNeighborList() const
-        # shared_array[float] getRsq(unsigned int) const
-        shared_array[float] getRsqList() const
-        shared_array[vec3[float]] getWrappedVectors() const
         void setCutMode(const bool)
-        void compute(const box.Box&, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int) nogil except +
+        void compute(const box.Box&, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int, bool) nogil except +
+        NeighborList *getNeighborList()

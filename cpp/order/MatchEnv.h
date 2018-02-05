@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #ifndef _MATCH_ENV_H__
 #define _MATCH_ENV_H__
@@ -93,7 +93,9 @@ class MatchEnv
 
         //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
         //! if hard_r is true, add all particles that fall within the threshold of m_rmaxsq to the environment
-        Environment buildEnv(const vec3<float> *points, unsigned int i, unsigned int env_ind, bool hard_r);
+        Environment buildEnv(const size_t *neighbor_list, size_t num_bonds,
+                             size_t &bond, const vec3<float> *points,
+                             unsigned int i, unsigned int env_ind, bool hard_r);
 
         //! Determine clusters of particles with matching environments
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
@@ -102,21 +104,21 @@ class MatchEnv
         //! If hard_r is true, add all particles that fall within the threshold of m_rmaxsq to the environment
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
         //! If global is true, do an exhaustive search wherein you compare the environments of every single pair of particles in the simulation. If global is false, only compare the environments of neighboring particles.
-        void cluster(const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false, bool registration=false, bool global=false);
+        void cluster(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, float threshold, bool hard_r=false, bool registration=false, bool global=false);
 
         //! Determine whether particles match a given input motif, characterized by refPoints (of which there are numRef)
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! Note that ONLY values of (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two environment vectors.
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-        void matchMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool registration=false);
+        void matchMotif(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool registration=false);
 
         //! Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt a given input motif, characterized by refPoints (of which there are numRef).
         //! Returns a vector of minimal RMSD values, one value per particle.
         //! NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
         //! of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
         //! To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
-        std::vector<float> minRMSDMotif(const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, bool registration=false);
+        std::vector<float> minRMSDMotif(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, bool registration=false);
 
         //! Renumber the clusters in the disjoint set dj from zero to num_clusters-1
         void populateEnv(EnvDisjointSet dj, bool reLabel=true);

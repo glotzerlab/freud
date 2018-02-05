@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "HexOrderParameter.h"
 #include "ScopedGILRelease.h"
@@ -19,20 +19,20 @@ namespace freud { namespace order {
 HexOrderParameter::HexOrderParameter(float rmax, float k, unsigned int n)
     : m_box(box::Box()), m_rmax(rmax), m_k(k), m_Np(0)
     {
-    m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
     }
 
 HexOrderParameter::~HexOrderParameter()
     {
-    delete m_nn;
     }
 
-void HexOrderParameter::compute(box::Box& box, const vec3<float> *points, unsigned int Np)
+void HexOrderParameter::compute(box::Box& box, const freud::locality::NeighborList *nlist,
+                                const vec3<float> *points, unsigned int Np)
     {
     // compute the cell list
     m_box = box;
-    m_nn->compute(m_box,points,Np,points,Np);
-    m_nn->setRMax(m_rmax);
+
+    nlist->validate(Np, Np);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
@@ -44,16 +44,15 @@ void HexOrderParameter::compute(box::Box& box, const vec3<float> *points, unsign
     parallel_for(blocked_range<size_t>(0,Np),
         [=] (const blocked_range<size_t>& r)
         {
-
+        size_t bond(nlist->find_first_index(r.begin()));
         for(size_t i=r.begin(); i!=r.end(); ++i)
             {
             m_psi_array.get()[i] = 0;
             vec3<float> ref = points[i];
 
-            //loop over neighbors
-            locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
-            for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
+            for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                 {
+                const size_t j(neighbor_list[2*bond + 1]);
 
                 //compute r between the two particles
                 vec3<float> delta = m_box.wrap(points[j] - ref);

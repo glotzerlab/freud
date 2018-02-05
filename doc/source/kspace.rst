@@ -8,8 +8,7 @@ generation.
 Meshgrid
 ========
 
-.. autoclass:: freud.kspace.meshgrid2(*arrs)
-    :members:
+.. autofunction:: freud.kspace.meshgrid2(*arrs)
 
 
 Structure Factor
@@ -66,8 +65,6 @@ Classes and methods used by other kspace modules
 .. autoclass:: freud.kspace.AlignedBoxConstraint()
     :members:
 
-.. autoclass:: freud.kspace.constrainedLatticePoints()
-    :members:
+.. autofunction:: freud.kspace.constrainedLatticePoints()
 
-.. autoclass:: freud.kspace.reciprocalLattice3D()
-    :members:
+.. autofunction:: freud.kspace.reciprocalLattice3D()

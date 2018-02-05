@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
@@ -40,18 +40,30 @@ cdef class PMFTR12:
 
     """
     cdef pmft.PMFTR12 *thisptr
+    cdef rmax
 
     def __cinit__(self, r_max, n_r, n_t1, n_t2):
         self.thisptr = new pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
+        self.rmax = r_max
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box()`
         """
         return BoxFromCPP(self.thisptr.getBox())
@@ -62,7 +74,7 @@ cdef class PMFTR12:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -71,22 +83,34 @@ cdef class PMFTR12:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if len(ref_orientations.shape) != 1 or len(orientations.shape) != 1:
-            raise ValueError("orientations must be a 2 dimensional array")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 1 dimensional array")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 1 dimensional array")
+
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -96,14 +120,16 @@ cdef class PMFTR12:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
+                                    nlist_ptr,
                                     <vec3[float]*>l_ref_points.data,
                                     <float*>l_ref_orientations.data,
                                     nRef,
                                     <vec3[float]*>l_points.data,
                                     <float*>l_orientations.data,
                                     nP)
+        return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function for the given points. Will overwrite the current histogram.
 
@@ -112,14 +138,17 @@ cdef class PMFTR12:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
+        return self
 
     def reducePCF(self):
         """
@@ -127,6 +156,16 @@ cdef class PMFTR12:
         :py:meth:`freud.pmft.PMFTR12.getPCF()`.
         """
         self.thisptr.reducePCF()
+
+    @property
+    def bin_counts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getBinCounts()
 
     def getBinCounts(self):
         """
@@ -143,6 +182,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
+    @property
+    def PCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getPCF()
+
     def getPCF(self):
         """
         Get the positional correlation function.
@@ -158,6 +207,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
+    @property
+    def PMFT(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getPMFT()
+
     def getPMFT(self):
         """
         Get the Potential of Mean Force and Torque.
@@ -166,6 +225,16 @@ cdef class PMFTR12:
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def R(self):
+        """
+        Get the array of r-values for the PCF histogram
+
+        :return: bin centers of r-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getR()
 
     def getR(self):
         """
@@ -180,6 +249,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
         return result
 
+    @property
+    def T1(self):
+        """
+        Get the array of T1-values for the PCF histogram
+
+        :return: bin centers of T1-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta1}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getT1()
+
     def getT1(self):
         """
         Get the array of T1-values for the PCF histogram
@@ -193,6 +272,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>T1)
         return result
 
+    @property
+    def T2(self):
+        """
+        Get the array of T2-values for the PCF histogram
+
+        :return: bin centers of T2-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta1}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getT2()
+
     def getT2(self):
         """
         Get the array of T2-values for the PCF histogram
@@ -205,6 +294,16 @@ cdef class PMFTR12:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsT2()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>T2)
         return result
+
+    @property
+    def inverse_jacobian(self):
+        """
+        Get the array of T2-values for the PCF histogram
+
+        :return: bin centers of T2-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta1}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getInverseJacobian()
 
     def getInverseJacobian(self):
         """
@@ -221,6 +320,16 @@ cdef class PMFTR12:
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>inv_jac)
         return result
 
+    @property
+    def n_bins_r(self):
+        """
+        Get the number of bins in the r-dimension of histogram
+
+        :return: :math:`N_r`
+        :rtype: unsigned int
+        """
+        return self.getNBinsR()
+
     def getNBinsR(self):
         """
         Get the number of bins in the r-dimension of histogram
@@ -230,6 +339,16 @@ cdef class PMFTR12:
         """
         cdef unsigned int r = self.thisptr.getNBinsR()
         return r
+
+    @property
+    def n_bins_T1(self):
+        """
+        Get the number of bins in the T1-dimension of histogram
+
+        :return: :math:`N_{\\theta_1}`
+        :rtype: unsigned int
+        """
+        return self.getNBinsT1()
 
     def getNBinsT1(self):
         """
@@ -241,6 +360,16 @@ cdef class PMFTR12:
         cdef unsigned int T1 = self.thisptr.getNBinsT1()
         return T1
 
+    @property
+    def n_bins_T2(self):
+        """
+        Get the number of bins in the T2-dimension of histogram
+
+        :return: :math:`N_{\\theta_2}`
+        :rtype: unsigned int
+        """
+        return self.getNBinsT2()
+
     def getNBinsT2(self):
         """
         Get the number of bins in the T2-dimension of histogram
@@ -250,6 +379,16 @@ cdef class PMFTR12:
         """
         cdef unsigned int T2 = self.thisptr.getNBinsT2()
         return T2
+
+    @property
+    def r_cut(self):
+        """
+        Get the r_cut value used in the cell list
+
+        :return: r_cut
+        :rtype: float
+        """
+        return self.getRCut()
 
     def getRCut(self):
         """
@@ -291,18 +430,30 @@ cdef class PMFTXYT:
 
     """
     cdef pmft.PMFTXYT *thisptr
+    cdef rmax
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
         self.thisptr = new pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
+        self.rmax = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())
@@ -313,7 +464,7 @@ cdef class PMFTXYT:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -322,22 +473,34 @@ cdef class PMFTXYT:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if len(ref_orientations.shape) != 1 or len(orientations.shape) != 1:
-            raise ValueError("orientations must be a 2 dimensional array")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 1 dimensional array")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 1 dimensional array")
+
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -347,14 +510,16 @@ cdef class PMFTXYT:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
+                                    nlist_ptr,
                                     <vec3[float]*>l_ref_points.data,
                                     <float*>l_ref_orientations.data,
                                     nRef,
                                     <vec3[float]*>l_points.data,
                                     <float*>l_orientations.data,
                                     nP)
+        return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function for the given points. Will overwrite the current histogram.
 
@@ -363,14 +528,17 @@ cdef class PMFTXYT:
         :param ref_orientations: angles of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: angles of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
+        return self
 
     def reducePCF(self):
         """
@@ -378,6 +546,16 @@ cdef class PMFTXYT:
         :py:meth:`freud.pmft.PMFTXYT.getPCF()`.
         """
         self.thisptr.reducePCF()
+
+    @property
+    def bin_counts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getBinCounts()
 
     def getBinCounts(self):
         """
@@ -394,6 +572,16 @@ cdef class PMFTXYT:
         cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
+    @property
+    def PCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getPCF()
+
     def getPCF(self):
         """
         Get the positional correlation function.
@@ -409,6 +597,16 @@ cdef class PMFTXYT:
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
+    @property
+    def PMFT(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getPMFT()
+
     def getPMFT(self):
         """
         Get the Potential of Mean Force and Torque.
@@ -417,6 +615,16 @@ cdef class PMFTXYT:
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def X(self):
+        """
+        Get the array of x-values for the PCF histogram
+
+        :return: bin centers of x-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
 
     def getX(self):
         """
@@ -431,6 +639,16 @@ cdef class PMFTXYT:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
         return result
 
+    @property
+    def Y(self):
+        """
+        Get the array of y-values for the PCF histogram
+
+        :return: bin centers of y-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getY()
+
     def getY(self):
         """
         Get the array of y-values for the PCF histogram
@@ -443,6 +661,16 @@ cdef class PMFTXYT:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
         return result
+
+    @property
+    def T(self):
+        """
+        Get the array of t-values for the PCF histogram
+
+        :return: bin centers of t-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getT()
 
     def getT(self):
         """
@@ -457,6 +685,16 @@ cdef class PMFTXYT:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>t)
         return result
 
+    @property
+    def jacobian(self):
+        """
+        Get the jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: float
+        """
+        return self.getJacobian()
+
     def getJacobian(self):
         """
         Get the jacobian used in the pmft
@@ -466,6 +704,16 @@ cdef class PMFTXYT:
         """
         cdef float j = self.thisptr.getJacobian()
         return j
+
+    @property
+    def n_bins_X(self):
+        """
+        Get the number of bins in the x-dimension of histogram
+
+        :return: :math:`N_x`
+        :rtype: unsigned int
+        """
+        return self.getNBinsX()
 
     def getNBinsX(self):
         """
@@ -477,6 +725,16 @@ cdef class PMFTXYT:
         cdef unsigned int x = self.thisptr.getNBinsX()
         return x
 
+    @property
+    def n_bins_Y(self):
+        """
+        Get the number of bins in the y-dimension of histogram
+
+        :return: :math:`N_y`
+        :rtype: unsigned int
+        """
+        return self.getNBinsY()
+
     def getNBinsY(self):
         """
         Get the number of bins in the y-dimension of histogram
@@ -487,6 +745,16 @@ cdef class PMFTXYT:
         cdef unsigned int y = self.thisptr.getNBinsY()
         return y
 
+    @property
+    def n_bins_T(self):
+        """
+        Get the number of bins in the T-dimension of histogram
+
+        :return: :math:`N_{\\theta}`
+        :rtype: unsigned int
+        """
+        return self.getNBinsT()
+
     def getNBinsT(self):
         """
         Get the number of bins in the t-dimension of histogram
@@ -496,6 +764,16 @@ cdef class PMFTXYT:
         """
         cdef unsigned int t = self.thisptr.getNBinsT()
         return t
+
+    @property
+    def r_cut(self):
+        """
+        Get the r_cut value used in the cell list
+
+        :return: r_cut
+        :rtype: float
+        """
+        return self.getRCut()
 
     def getRCut(self):
         """
@@ -532,18 +810,30 @@ cdef class PMFTXY2D:
     :type n_y: unsigned int
     """
     cdef pmft.PMFTXY2D *thisptr
+    cdef rmax
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
         self.thisptr = new pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
+        self.rmax = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())
@@ -554,7 +844,7 @@ cdef class PMFTXY2D:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -563,22 +853,34 @@ cdef class PMFTXY2D:
         :param ref_orientations: orientations of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if len(ref_orientations.shape) != 1 or len(orientations.shape) != 1:
-            raise ValueError("orientations must be a 1 dimensional array")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 1 dimensional array")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 1 dimensional array")
+
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -588,14 +890,16 @@ cdef class PMFTXY2D:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
+                                    nlist_ptr,
                                     <vec3[float]*>l_ref_points.data,
                                     <float*>l_ref_orientations.data,
                                     n_ref,
                                     <vec3[float]*>l_points.data,
                                     <float*>l_orientations.data,
                                     n_p)
+        return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None):
         """
         Calculates the positional correlation function for the given points. Will overwrite the current histogram.
 
@@ -604,14 +908,17 @@ cdef class PMFTXY2D:
         :param ref_orientations: orientations of reference points to use in calculation
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
+        return self
 
     def reducePCF(self):
         """
@@ -619,6 +926,16 @@ cdef class PMFTXY2D:
         :py:meth:`freud.pmft.PMFTXY2D.getPCF()`.
         """
         self.thisptr.reducePCF()
+
+    @property
+    def PCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getPCF()
 
     def getPCF(self):
         """
@@ -634,6 +951,16 @@ cdef class PMFTXY2D:
         cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
+    @property
+    def PMFT(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getPMFT()
+
     def getPMFT(self):
         """
         Get the Potential of Mean Force and Torque.
@@ -642,6 +969,16 @@ cdef class PMFTXY2D:
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def bin_counts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getBinCounts()
 
     def getBinCounts(self):
         """
@@ -657,6 +994,16 @@ cdef class PMFTXY2D:
         cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
+    @property
+    def X(self):
+        """
+        Get the array of x-values for the PCF histogram
+
+        :return: bin centers of x-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
+
     def getX(self):
         """
         Get the array of x-values for the PCF histogram
@@ -669,6 +1016,16 @@ cdef class PMFTXY2D:
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
         return result
+
+    @property
+    def Y(self):
+        """
+        Get the array of y-values for the PCF histogram
+
+        :return: bin centers of y-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getY()
 
     def getY(self):
         """
@@ -684,6 +1041,16 @@ cdef class PMFTXY2D:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
         return result
 
+    @property
+    def n_bins_X(self):
+        """
+        Get the number of bins in the x-dimension of histogram
+
+        :return: :math:`N_x`
+        :rtype: unsigned int
+        """
+        return self.getNBinsX()
+
     def getNBinsX(self):
         """
         Get the number of bins in the x-dimension of histogram
@@ -693,6 +1060,16 @@ cdef class PMFTXY2D:
         """
         cdef unsigned int x = self.thisptr.getNBinsX()
         return x
+
+    @property
+    def n_bins_Y(self):
+        """
+        Get the number of bins in the y-dimension of histogram
+
+        :return: :math:`N_y`
+        :rtype: unsigned int
+        """
+        return self.getNBinsY()
 
     def getNBinsY(self):
         """
@@ -704,6 +1081,16 @@ cdef class PMFTXY2D:
         cdef unsigned int y = self.thisptr.getNBinsY()
         return y
 
+    @property
+    def jacobian(self):
+        """
+        Get the jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: float
+        """
+        return self.getJacobian()
+
     def getJacobian(self):
         """
         Get the jacobian
@@ -713,6 +1100,16 @@ cdef class PMFTXY2D:
         """
         cdef float j = self.thisptr.getJacobian()
         return j
+
+    @property
+    def r_cut(self):
+        """
+        Get the r_cut value used in the cell list
+
+        :return: r_cut
+        :rtype: float
+        """
+        return self.getRCut()
 
     def getRCut(self):
         """
@@ -745,26 +1142,43 @@ cdef class PMFTXYZ:
     :param n_x: number of bins in x
     :param n_y: number of bins in y
     :param n_z: number of bins in z
+    :param shiftvec: vector pointing from [0,0,0] to the center of the pmft
     :type x_max: float
     :type y_max: float
     :type z_max: float
     :type n_x: unsigned int
     :type n_y: unsigned int
     :type n_z: unsigned int
+    :type shiftvec: list
     """
     cdef pmft.PMFTXYZ *thisptr
+    cdef shiftvec
+    cdef rmax
 
-    def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z):
-        self.thisptr = new pmft.PMFTXYZ(x_max, y_max, z_max, n_x, n_y, n_z)
+    def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z, shiftvec=[0,0,0]):
+        cdef vec3[float] c_shiftvec = vec3[float](shiftvec[0],shiftvec[1],shiftvec[2])
+        self.thisptr = new pmft.PMFTXYZ(x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
+        self.shiftvec = np.array(shiftvec, dtype=np.float32)
+        self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def box(self):
+        """
+        Get the box used in the calculation
+
+        :return: freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return self.getBox()
 
     def getBox(self):
         """
         Get the box used in the calculation
 
-        :return: Freud Box
+        :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
         return BoxFromCPP(self.thisptr.getBox())
@@ -775,7 +1189,7 @@ cdef class PMFTXYZ:
         """
         self.thisptr.resetPCF()
 
-    def accumulate(self, box, ref_points, ref_orientations, points, orientations, face_orientations=None):
+    def accumulate(self, box, ref_points, ref_orientations, points, orientations, face_orientations=None, nlist=None):
         """
         Calculates the positional correlation function and adds to the current histogram.
 
@@ -786,8 +1200,8 @@ cdef class PMFTXYZ:
         :param orientations: orientations of particles to use in calculation
         :param face_orientations: Optional - orientations of particle faces to account for particle symmetry.
             * If not supplied by user, unit quaternions will be supplied.
-            * If a 2D array of shape (:math:`N_f`, :math:`4`) is supplied, the supplied quaternions will be broadcast\
-                for all particles
+            * If a 2D array of shape (:math:`N_f`, :math:`4`) or a 3D array of shape (1, :math:`N_f`, :math:`4`) \
+                is supplied, the supplied quaternions will be broadcast for all particles
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
@@ -795,22 +1209,29 @@ cdef class PMFTXYZ:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
         :type face_orientations: :class:`numpy.ndarray`, shape= :math:`\\left( \\left(N_{particles}, \\right), N_{faces}, 4\\right)`, \
             dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        if (ref_points.dtype != np.float32) or (points.dtype != np.float32):
-            raise ValueError("points must be a numpy float32 array")
-        if (ref_orientations.dtype != np.float32) or (orientations.dtype != np.float32):
-            raise ValueError("orientations must be a numpy float32 array")
-        if face_orientations is not None:
-            if (face_orientations.dtype != np.float32):
-                raise ValueError("face_orientations must be a numpy float32 array")
-        if len(ref_points.shape) != 2 or len(points.shape) != 2:
-            raise ValueError("points must be a 2 dimensional array")
-        if len(ref_orientations.shape) != 2 or len(orientations.shape) != 2:
-            raise ValueError("orientations must be a 2 dimensional array")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("2nd dimension for points must have 3 values: x, y, z")
-        if ref_orientations.shape[1] != 4 or orientations.shape[1] != 4:
-            raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_orientations = freud.common.convert_array(ref_orientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="ref_orientations must be a 2 dimensional array")
+        if ref_orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+
+        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
+            dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+        points = points - self.shiftvec.reshape(1,3)
+
+        orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 2 dimensional array")
+        if orientations.shape[1] != 4:
+            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+
         # handle multiple ways to input
         if face_orientations is None:
             # set to unit quaternion q = [1,0,0,0]
@@ -819,7 +1240,9 @@ cdef class PMFTXYZ:
         else:
             if (len(face_orientations.shape) < 2) or (len(face_orientations.shape) > 3):
                 raise ValueError("points must be a 2 or 3 dimensional array")
-            if len(face_orientations) == 2:
+            face_orientations = freud.common.convert_array(face_orientations, face_orientations.ndim, dtype=np.float32, contiguous=True,
+                dim_message="face_orientations must be a {} dimensional array".format(face_orientations.ndim))
+            if face_orientations.ndim == 2:
                 if face_orientations.shape[1] != 4:
                     raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
                 # need to broadcast into new array
@@ -827,13 +1250,17 @@ cdef class PMFTXYZ:
                 tmp_face_orientations[:] = face_orientations
                 face_orientations = tmp_face_orientations
             else:
-                # Make sure that the first dimensions is actually the number of particles
+				# Make sure that the first dimensions is actually the number of particles
                 if face_orientations.shape[2] != 4:
                     raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
                 elif face_orientations.shape[0] not in (1, ref_points.shape[0]):
                     raise ValueError("If provided as a 3D array, the first dimension of the face_orientations array must be either of size 1 or N_particles")
                 elif face_orientations.shape[0] == 1:
                     face_orientations = np.repeat(face_orientations, ref_points.shape[0], axis = 0)
+
+        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -846,6 +1273,7 @@ cdef class PMFTXYZ:
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
+                                    nlist_ptr,
                                     <vec3[float]*>l_ref_points.data,
                                     <quat[float]*>l_ref_orientations.data,
                                     nRef,
@@ -854,8 +1282,9 @@ cdef class PMFTXYZ:
                                     nP,
                                     <quat[float]*>l_face_orientations.data,
                                     nFaces)
+        return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations, face_orientations):
+    def compute(self, box, ref_points, ref_orientations, points, orientations, face_orientations, nlist=None):
         """
         Calculates the positional correlation function for the given points. Will overwrite the current histogram.
 
@@ -865,6 +1294,7 @@ cdef class PMFTXYZ:
         :param points: points to calculate the local density
         :param orientations: orientations of particles to use in calculation
         :param face_orientations: orientations of particle faces to account for particle symmetry
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3\\right)`, dtype= :class:`numpy.float32`
         :type ref_orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
@@ -872,9 +1302,11 @@ cdef class PMFTXYZ:
         :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4\\right)`, dtype= :class:`numpy.float32`
         :type face_orientations: :class:`numpy.ndarray`, shape= :math:`\\left( \\left(N_{particles}, \\right), N_{faces}, 4\\right)`, \
             dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations, face_orientations)
+        self.accumulate(box, ref_points, ref_orientations, points, orientations, face_orientations, nlist)
+        return self
 
     def reducePCF(self):
         """
@@ -882,6 +1314,16 @@ cdef class PMFTXYZ:
         :py:meth:`freud.pmft.PMFTXYZ.getPCF()`.
         """
         self.thisptr.reducePCF()
+
+    @property
+    def bin_counts(self):
+        """
+        Get the raw bin counts.
+
+        :return: Bin Counts
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
+        """
+        return self.getBinCounts()
 
     def getBinCounts(self):
         """
@@ -898,6 +1340,16 @@ cdef class PMFTXYZ:
         cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
         return result
 
+    @property
+    def PCF(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getPCF()
+
     def getPCF(self):
         """
         Get the positional correlation function.
@@ -913,6 +1365,16 @@ cdef class PMFTXYZ:
         cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
         return result
 
+    @property
+    def PMFT(self):
+        """
+        Get the positional correlation function.
+
+        :return: PCF
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getPMFT()
+
     def getPMFT(self):
         """
         Get the Potential of Mean Force and Torque.
@@ -921,6 +1383,16 @@ cdef class PMFTXYZ:
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{z}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def X(self):
+        """
+        Get the array of x-values for the PCF histogram
+
+        :return: bin centers of x-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getX()
 
     def getX(self):
         """
@@ -933,7 +1405,17 @@ cdef class PMFTXYZ:
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
-        return result
+        return result + self.shiftvec[0]
+
+    @property
+    def Y(self):
+        """
+        Get the array of y-values for the PCF histogram
+
+        :return: bin centers of y-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getY()
 
     def getY(self):
         """
@@ -946,7 +1428,17 @@ cdef class PMFTXYZ:
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
-        return result
+        return result + self.shiftvec[1]
+
+    @property
+    def Z(self):
+        """
+        Get the array of z-values for the PCF histogram
+
+        :return: bin centers of z-dimension of histogram
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
+        """
+        return self.getZ()
 
     def getZ(self):
         """
@@ -959,7 +1451,17 @@ cdef class PMFTXYZ:
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp>self.thisptr.getNBinsZ()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>z)
-        return result
+        return result + self.shiftvec[2]
+
+    @property
+    def n_bins_X(self):
+        """
+        Get the number of bins in the x-dimension of histogram
+
+        :return: :math:`N_x`
+        :rtype: unsigned int
+        """
+        return self.getNBinsX()
 
     def getNBinsX(self):
         """
@@ -971,6 +1473,16 @@ cdef class PMFTXYZ:
         cdef unsigned int x = self.thisptr.getNBinsX()
         return x
 
+    @property
+    def n_bins_Y(self):
+        """
+        Get the number of bins in the y-dimension of histogram
+
+        :return: :math:`N_y`
+        :rtype: unsigned int
+        """
+        return self.getNBinsY()
+
     def getNBinsY(self):
         """
         Get the number of bins in the y-dimension of histogram
@@ -981,6 +1493,16 @@ cdef class PMFTXYZ:
         cdef unsigned int y = self.thisptr.getNBinsY()
         return y
 
+    @property
+    def n_bins_Z(self):
+        """
+        Get the number of bins in the z-dimension of histogram
+
+        :return: :math:`N_z`
+        :rtype: unsigned int
+        """
+        return self.getNBinsZ()
+
     def getNBinsZ(self):
         """
         Get the number of bins in the z-dimension of histogram
@@ -990,6 +1512,16 @@ cdef class PMFTXYZ:
         """
         cdef unsigned int z = self.thisptr.getNBinsZ()
         return z
+
+    @property
+    def jacobian(self):
+        """
+        Get the jacobian used in the pmft
+
+        :return: Inverse Jacobian
+        :rtype: float
+        """
+        return self.getJacobian()
 
     def getJacobian(self):
         """

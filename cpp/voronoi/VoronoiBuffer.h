@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
 #include <vector>
@@ -60,7 +60,6 @@ class VoronoiBuffer
         //         }
     private:
         const box::Box m_box;    //!< Simulation box the particles belong in
-        float m_buff;                  //!< Distance from box to duplicate particles
         std::shared_ptr< std::vector<float3> > m_buffer_particles;
     };
 

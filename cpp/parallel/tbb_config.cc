@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "tbb_config.h"
 
@@ -27,9 +27,10 @@ void setNumThreads(unsigned int N)
     if (N == 0)
         N = task_scheduler_init::automatic;
 
+    delete old_ts;
+
     // then recreate it
     ts = new task_scheduler_init(N);
-    delete old_ts;
     }
 
 }; }; // end namespace freud::parallel

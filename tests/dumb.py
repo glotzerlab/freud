@@ -54,7 +54,7 @@ def test_correct_bond():
 
     # check to make sure that the point is in the correct bin
 
-    bondList = EB.getBonds()
+    bondList = EB.bonds
 
     print(bondList)
 

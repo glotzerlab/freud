@@ -2,10 +2,17 @@
 # Perform setup to make a target into a functional python module
 macro(setup_pymodule target)
 set_target_properties(${target} PROPERTIES PREFIX "")
+
 if (APPLE)
     set_target_properties(${target} PROPERTIES SUFFIX ".so")
 endif(APPLE)
-target_link_libraries(${target} ${PYTHON_LIBRARIES} ${TBB_LIBRARY})
+
+target_link_libraries(${target} ${TBB_LIBRARY})
+
+if (APPLE)
+    target_link_libraries(${target} "-undefined dynamic_lookup")
+endif()
+
 fix_tbb_rpath(${target})
 fix_conda_python(${target})
 endmacro(setup_pymodule)
@@ -68,6 +75,7 @@ set(FREUD_SOURCES
             locality/LinkCell.h
             locality/NearestNeighbors.h
             locality/NearestNeighbors.cc
+            locality/NeighborList.cc
             density/CorrelationFunction.h
             density/CorrelationFunction.cc
             density/RDF.cc
@@ -90,6 +98,8 @@ set(FREUD_SOURCES
             order/TransOrderParameter.cc
             order/CubaticOrderParameter.h
             order/CubaticOrderParameter.cc
+            order/AngularSeparation.h
+            order/AngularSeparation.cc
             order/BondOrder.h
             order/BondOrder.cc
             order/LocalDescriptors.h
@@ -114,18 +124,12 @@ set(FREUD_SOURCES
             interface/InterfaceMeasure.h
             order/LocalQl.h
             order/LocalQl.cc
-            order/LocalQlNear.h
-            order/LocalQlNear.cc
             order/LocalWl.h
             order/LocalWl.cc
-            order/LocalWlNear.h
-            order/LocalWlNear.cc
             order/SolLiq.h
             order/SolLiq.cc
             order/MatchEnv.h
             order/MatchEnv.cc
-            order/SolLiqNear.h
-            order/SolLiqNear.cc
             order/wigner3j.cc
             order/wigner3j.h
             parallel/tbb_config.h

@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "PMFTXYZ.h"
 #include "ScopedGILRelease.h"
@@ -22,10 +22,10 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z)
+PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec)
     : m_box(box::Box()), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z),
       m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_z(n_bins_z), m_frame_counter(0),
-      m_n_ref(0), m_n_p(0), m_n_faces(0), m_reduce(true)
+      m_n_ref(0), m_n_p(0), m_n_faces(0), m_reduce(true), m_shiftvec(shiftvec)
     {
     if (n_bins_x < 1)
         throw invalid_argument("must be at least 1 bin in x");
@@ -80,8 +80,6 @@ PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, u
         float nextz = float(i+1) * m_dz;
         m_z_array.get()[i] = -m_max_z + ((z + nextz) / 2.0);
         }
-
-    m_lc = new locality::LinkCell(m_box, sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z));
     // create and populate the pcf_array
     m_pcf_array = std::shared_ptr<float>(new float[m_n_bins_x*m_n_bins_y*m_n_bins_z], std::default_delete<float[]>());
     memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
@@ -89,8 +87,6 @@ PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, u
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
 
     m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
-
-    m_lc = new locality::LinkCell(m_box, m_r_cut);
     }
 
 PMFTXYZ::~PMFTXYZ()
@@ -99,7 +95,6 @@ PMFTXYZ::~PMFTXYZ()
         {
         delete[] (*i);
         }
-    delete m_lc;
     }
 
 //! \internal
@@ -180,6 +175,7 @@ void PMFTXYZ::resetPCF()
 /*! \brief Helper function to direct the calculation to the correct helper class
 */
 void PMFTXYZ::accumulate(box::Box& box,
+                         const locality::NeighborList *nlist,
                         vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int n_ref,
@@ -190,7 +186,10 @@ void PMFTXYZ::accumulate(box::Box& box,
                         unsigned int n_faces)
     {
     m_box = box;
-    m_lc->computeCellList(m_box, points, n_p);
+
+    nlist->validate(n_ref, n_p);
+    const size_t *neighbor_list(nlist->getNeighbors());
+
     parallel_for(blocked_range<size_t>(0,n_ref),
         [=] (const blocked_range<size_t>& r)
             {
@@ -216,28 +215,22 @@ void PMFTXYZ::accumulate(box::Box& box,
                 memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
                 }
 
+            size_t bond(nlist->find_first_index(r.begin()));
+
             // for each reference point
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                // get the cell the point is in
                 vec3<float> ref = ref_points[i];
                 // create the reference point quaternion
                 quat<float> ref_q(ref_orientations[i]);
-                unsigned int ref_cell = m_lc->getCell(ref);
 
-                // loop over all neighboring cells
-                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                     {
-                    unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                    // iterate over the particles in that cell
-                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                    const size_t j(neighbor_list[2*bond + 1]);
                         {
                         // make sure that the particles are wrapped into the box
                         vec3<float> delta = m_box.wrap(points[j] - ref);
-                        float rsq = dot(delta, delta);
+                        float rsq = dot(delta+m_shiftvec, delta+m_shiftvec);
 
                         // check that the particle is not checking itself
                         // 1e-6 is an arbitrary value that could be set differently if needed

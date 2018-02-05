@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <tbb/tbb.h>
 #include <ostream>
@@ -14,7 +14,7 @@
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 
-#include "LinkCell.h"
+#include "NeighborList.h"
 #include "box.h"
 
 #ifndef _LOCAL_DENSITY_H__
@@ -46,6 +46,7 @@ class LocalDensity
 
         //! Compute the local density
         void compute(const box::Box &box,
+                     const freud::locality::NeighborList *nlist,
                      const vec3<float> *ref_points,
                      unsigned int n_ref,
                      const vec3<float> *points,
@@ -65,7 +66,6 @@ class LocalDensity
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
         unsigned int m_n_ref;                //!< Last number of points computed
 
         std::shared_ptr< float > m_density_array;         //!< density array computed
