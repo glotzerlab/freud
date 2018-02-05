@@ -179,7 +179,7 @@ class LocalQl
         std::shared_ptr< std::complex<float> > m_Qlm;  //! NormQlm for the system
         std::shared_ptr< float > m_QliNorm;   //!< QlNorm order parameter for each particle i
         std::shared_ptr< std::complex<float> > m_AveQlm; //! AveNormQlm for the system
-        std::shared_ptr< float > m_QliAveNorm;     //! < QlAveNorm order paramter for each particle i
+        std::shared_ptr< float > m_QliAveNorm;     //! < QlAveNorm order parameter for each particle i
     };
 
 }; }; // end namespace freud::localql

@@ -22,7 +22,7 @@
 #define _BOND_ORDER_H__
 
 /*! \file BondOrder.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the bond order diagram for the system of particles.
 */
 
 namespace freud { namespace order {

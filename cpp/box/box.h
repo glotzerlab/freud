@@ -13,7 +13,7 @@
 #define _BOX_H__
 
 /*! \file box.h
-    \brief Represents simulation boxes and contains helpful wrapping functions
+    \brief Represents simulation boxes and contains helpful wrapping functions.
 */
 
 namespace freud { namespace box {

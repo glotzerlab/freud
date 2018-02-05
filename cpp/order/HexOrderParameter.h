@@ -19,11 +19,11 @@
 #include "box.h"
 #include "Index1D.h"
 
-#ifndef _HEX_ORDER_PARAMTER_H__
-#define _HEX_ORDER_PARAMTER_H__
+#ifndef _HEX_ORDER_PARAMETER_H__
+#define _HEX_ORDER_PARAMETER_H__
 
 /*! \file HexOrderParameter.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the hexatic order parameter for each particle.
 */
 
 namespace freud { namespace order {
@@ -70,13 +70,13 @@ class HexOrderParameter
 
     private:
         box::Box m_box;            //!< Simulation box the particles belong in
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_k;                        //!< Multiplier in the exponent
-        unsigned int m_Np;                //!< Last number of points computed
+        float m_rmax;              //!< Maximum r at which to determine neighbors
+        float m_k;                 //!< Multiplier in the exponent
+        unsigned int m_Np;         //!< Last number of points computed
 
-        std::shared_ptr< std::complex<float> > m_psi_array;         //!< psi array computed
+        std::shared_ptr< std::complex<float> > m_psi_array; //!< psi array computed
     };
 
 }; }; // end namespace freud::order
 
-#endif // _HEX_ORDER_PARAMTER_H__
+#endif // _HEX_ORDER_PARAMETER_H__

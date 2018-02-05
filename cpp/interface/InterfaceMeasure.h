@@ -13,7 +13,7 @@
 #define _INTERFACEMEASURE_H_
 
 /*! \file InterfaceMeasure.h
-    \brief Compute the size of an interface between two point clouds
+    \brief Compute the size of an interface between two point clouds.
 */
 
 namespace freud { namespace interface {

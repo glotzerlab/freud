@@ -10,7 +10,7 @@
 using namespace std;
 
 /*! \file Cluster.cc
-    \brief Routines for clustering points
+    \brief Routines for clustering points.
 */
 
 namespace freud { namespace cluster {

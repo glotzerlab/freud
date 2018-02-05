@@ -21,7 +21,7 @@
 #define _LOCAL_DENSITY_H__
 
 /*! \file LocalDensity.h
-    \brief Routines for computing local density around a point
+    \brief Routines for computing local density around a point.
 */
 
 namespace freud { namespace density {

@@ -22,7 +22,7 @@
 #define _RDF_H__
 
 /*! \file RDF.h
-    \brief Routines for computing radial density functions
+    \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {

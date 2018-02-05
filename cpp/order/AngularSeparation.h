@@ -23,7 +23,7 @@
 #define _ANGULAR_SEPARATION_H__
 
 /*! \file AngularSeparation.h
-    \brief Compute the angular separation for each particle
+    \brief Compute the angular separation for each particle.
 */
 
 namespace freud { namespace order {

@@ -5,8 +5,8 @@
 
 using namespace std;
 
-/*! \file InterfaceMeasure.h
-    \brief Compute the size of an interface between two point clouds
+/*! \file InterfaceMeasure.cc
+    \brief Compute the size of an interface between two point clouds.
 */
 
 namespace freud { namespace interface {

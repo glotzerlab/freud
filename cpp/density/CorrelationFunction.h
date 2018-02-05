@@ -14,8 +14,8 @@
 #ifndef _CORRELATIONFUNCTION_H__
 #define _CORRELATIONFUNCTION_H__
 
-/*! \file CorrelationFunction.cc
-    \brief Generic pairwise correlation functions
+/*! \file CorrelationFunction.h
+    \brief Generic pairwise correlation functions.
 */
 
 namespace freud { namespace density {
