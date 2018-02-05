@@ -14,9 +14,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class BondingAnalysis:
-    """Analyze the bonds as calculated by freud's Bonding modules.
-
-    Determines the bond lifetimes and flux present in the system.
+    """Analyze the bond lifetimes and flux present in the system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
