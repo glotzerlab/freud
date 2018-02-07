@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.7.0
+
+* Added a generic neighbor list interface
+
 ## v0.6.4
 
 * Set up CircleCI for continuous integration
