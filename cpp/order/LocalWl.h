@@ -192,7 +192,6 @@ class LocalWl
     private:
         box::Box m_box;            //!< Simulation box the particles belong in
         float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_rmax_cluster;             //!< Maxium radius at which to cluster one crystal;
 
         unsigned int m_l;                 //!< Spherical harmonic l value.
         unsigned int m_Np;                //!< Last number of points computed

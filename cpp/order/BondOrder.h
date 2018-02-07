@@ -91,8 +91,6 @@ class BondOrder
 
     private:
         box::Box m_box;            //!< Simulation box the particles belong in
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_k;                        //!< Multiplier in the exponent
         float m_dt;
         float m_dp;
         unsigned int m_n_ref;                //!< Last number of points computed
