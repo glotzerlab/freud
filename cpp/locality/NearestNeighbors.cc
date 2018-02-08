@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 #include <tbb/tbb.h>
-#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "NearestNeighbors.h"
 #include "ScopedGILRelease.h"

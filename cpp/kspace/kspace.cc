@@ -22,7 +22,7 @@ FTdelta::FTdelta()
 
 FTdelta::~FTdelta()
     {
-    // S_Re and S_Im are boost::shared_array which need to be passed to
+    // m_S_Re and m_S_Im are std::shared_ptr which need to be passed to
     // Python and which should clean up after themselves.
     // m_K, m_r, and m_q should point to arrays managed by the calling code.
     }
@@ -196,14 +196,15 @@ void FTpolyhedron::compute()
                         }
                     else
                         {
-                        // f2D = -i/k^2 * \sum_0^{Nfacets - 1) \hat(z) \cdot
-                        // (l_n \times k) \exp(-ik \cdot c_n) \sinc (k \cdot l/2)
-                        // Noting that -i \exp(-i x) == \sin(x) - i \cos(x),
-                        // we can get the real and imaginary parts as
-                        // For each element in the sum,
-                        // f_n = \hat(z) \cdot (l_n \times k) \sinc (k \cdot l/2) / k^2
-                        // f_Re = \sin(k \cdot c_n) * f_n
-                        // f_Im = - \cos(k \cdot c_n) * f_n
+                        /* f2D = -i/k^2 * \sum_0^{Nfacets - 1) \hat(z) \cdot
+                         * (l_n \times k) \exp(-ik \cdot c_n) \sinc (k \cdot l/2)
+                         * Noting that -i \exp(-i x) == \sin(x) - i \cos(x),
+                         * we can get the real and imaginary parts as
+                         * For each element in the sum,
+                         * f_n = \hat(z) \cdot (l_n \times k) \sinc (k \cdot l/2) / k^2
+                         * f_Re = \sin(k \cdot c_n) * f_n
+                         * f_Im = - \cos(k \cdot c_n) * f_n
+                         */
                         unsigned int N_vert = m_params.facet[facet_idx].size();
                         float f_n(0.0f);
                         float K2inv = 1.0f/K_proj2;

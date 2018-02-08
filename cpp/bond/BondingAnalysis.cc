@@ -416,5 +416,3 @@ void BondingAnalysis::compute(unsigned int* frame0,
     }
 
 }; }; // end namespace freud::bond
-
-
