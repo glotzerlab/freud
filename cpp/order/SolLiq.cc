@@ -10,8 +10,9 @@ using namespace std;
 
 namespace freud { namespace order {
 
-SolLiq::SolLiq(const box::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l)
-    :m_box(box), m_rmax(rmax), m_rmax_cluster(rmax), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold), m_l(l)
+SolLiq::SolLiq(const box::Box& box, float rmax, float Qthreshold,
+               unsigned int Sthreshold, unsigned int l)
+    : m_box(box), m_rmax(rmax), m_rmax_cluster(rmax), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold), m_l(l)
     {
     m_Np = 0;
     if (m_rmax < 0.0f)
@@ -181,7 +182,7 @@ void SolLiq::computeClustersQdot(const locality::NeighborList *nlist,
                         {
                         // Calc Q dotproduct.
                         std::complex<float> Qdot(0.0,0.0);
-                        std::complex<float> Qlminorm(0.0,0.0); // qlmi norm sq
+                        std::complex<float> Qlminorm(0.0,0.0); // Qlmi norm sq
                         std::complex<float> Qlmjnorm(0.0,0.0);
                         for (unsigned int k = 0; k < (elements); ++k)  // loop over m
                             {
@@ -207,7 +208,7 @@ void SolLiq::computeClustersQdot(const locality::NeighborList *nlist,
         }
     }
 
-// Initializes Q6lmi, and number of solid-like neighbors per particle.
+// Initializes Qlmi, and number of solid-like neighbors per particle.
 void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList *nlist,
                                        const vec3<float> *points,
                                        unsigned int Np)
@@ -244,9 +245,9 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList *nlist,
                     vec3<float> delta = m_box.wrap(p - points[j]);
                     float rsq = dot(delta, delta);
 
-                    if (rsq < rmaxsq)  //Check distance for candidate i,j
+                    if (rsq < rmaxsq) // Check distance for candidate i,j
                         {
-                        //Calc Q dotproduct.
+                        // Calc Q dotproduct.
                         std::complex<float> Qdot(0.0,0.0);
                         for (unsigned int k = 0; k < (elements); ++k)  // loop over m
                             {
@@ -289,7 +290,6 @@ void SolLiq::computeClustersQS(const locality::NeighborList *nlist,
     // for each point
     for (unsigned int i = 0; i < Np; i++)
         {
-        // float3 p = points[i];
         vec3<float> p = points[i];
 
         for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)

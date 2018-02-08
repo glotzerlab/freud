@@ -44,25 +44,24 @@ void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<f
     // in fsph, the definition is flipped
     sph_eval.compute(theta, phi);
 
-    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
+    for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
         iter != sph_eval.end(); ++iter)
         {
         Y[(j+m_l) % (2*m_l+1)] = *iter;
         ++j;
         }
-    for(unsigned int i = 1; i <=m_l; i++)
+    for (unsigned int i = 1; i <=m_l; i++)
         Y[-i+m_l] = Y[i+m_l];
     }
 
-// void LocalWl::compute(const float3 *points, unsigned int Np)
 void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
-    //Get wigner3j coefficients from wigner3j.cc
+    // Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
     std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
-    //Set local data size
+    // Set local data size
     m_Np = Np;
 
     nlist->validate(Np, Np);
@@ -70,7 +69,7 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
     float rmaxsq = m_rmax * m_rmax;
 
-    //newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
+    // newmanrs: For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
     m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
@@ -85,27 +84,20 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
-        //get cell point is in
-        // float3 ref = points[i];
+        // Get cell point is in
         vec3<float> ref = points[i];
         unsigned int neighborcount=0;
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
-                const unsigned int j(neighbor_list[2*bond + 1]);
+            const unsigned int j(neighbor_list[2*bond + 1]);
                 {
                 if (i == j)
-                {
+                    {
                     continue;
-                }
+                    }
                 // rij = rj - ri, from i pointing to j.
-                // float dx = float(points[j].x - ref.x);
-                // float dy = float(points[j].y - ref.y);
-                // float dz = float(points[j].z - ref.z);
-
-                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 vec3<float> delta = m_box.wrap(points[j] - ref);
-                // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                 float rsq = dot(delta, delta);
 
                 if (rsq < rmaxsq)
@@ -114,7 +106,7 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
                     float theta = acos(delta.z / sqrt(rsq)); //0..Pi
 
                     std::vector<std::complex<float> > Y;
-                    LocalWl::Ylm(theta, phi,Y);  //Fill up Ylm vector
+                    LocalWl::Ylm(theta, phi,Y); // Fill up Ylm vector
                     for(unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
                         // change to Index later
@@ -123,8 +115,8 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
                     neighborcount++;
                     }
                 }
-            } //End loop going over neighbor cells (and thus all neighboring particles);
-            //Normalize!
+            } // End loop going over neighbor cells (and thus all neighboring particles);
+            // Normalize!
             for(unsigned int k = 0; k < (2*m_l+1); ++k)
                 {
                 m_Qlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
@@ -133,9 +125,9 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
                 } //Ends loop over particles i for Qlmi calcs
         m_Qli.get()[i]=sqrt(m_Qli.get()[i]);//*sqrt(m_Qli[i])*sqrt(m_Qli[i]);//Normalize factor for Wli
 
-        //Wli calculation
+        // Wli calculation
         unsigned int counter = 0;
-        for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
+        for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
             {
             for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
                 {
@@ -143,8 +135,8 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
                 m_Wli.get()[i] += m_wigner3jvalues[counter]*m_Qlmi.get()[(2*m_l+1)*i+u1]*m_Qlmi.get()[(2*m_l+1)*i+u2]*m_Qlmi.get()[(2*m_l+1)*i+u3];
                 counter+=1;
                 }
-            }//Ends loop for Wli calcs
-        if(m_normalizeWl)
+            } // Ends loop for Wli calcs
+        if (m_normalizeWl)
             {
             m_Wli.get()[i]/=(m_Qli.get()[i]*m_Qli.get()[i]*m_Qli.get()[i]);//Normalize
             }
@@ -152,16 +144,15 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
         }
     }
 
-// void LocalWl::computeAve(const float3 *points, unsigned int Np)
 void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
 
-    //Get wigner3j coefficients from wigner3j.cc
+    // Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
     std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
-    //Set local data size
+    // Set local data size
     m_Np = Np;
 
     nlist->validate(Np, Np);
@@ -169,7 +160,7 @@ void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
 
     float rmaxsq = m_rmax * m_rmax;
 
-    //Maybe consider if Np != m_Np, we could not reallocate these
+    // Maybe consider if Np != m_Np, we could not reallocate these
     m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_AveQlm = std::shared_ptr<complex<float> > (new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
     m_AveWli = std::shared_ptr<complex<float> >(new complex<float> [m_Np], std::default_delete<complex<float>[]>());
@@ -181,50 +172,35 @@ void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
-        //get cell point is in
-        // float3 ref = points[i];
+        // Get cell point is in
         vec3<float> ref = points[i];
         unsigned int neighborcount=1;
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
-                const unsigned int n1(neighbor_list[2*bond + 1]);
+            const unsigned int n1(neighbor_list[2*bond + 1]);
                 {
-                // float3 ref1 = points[n1];
                 vec3<float> ref1 = points[n1];
                 if (n1 == i)
                     {
-                        continue;
+                    continue;
                     }
                 // rij = rj - ri, from i pointing to j.
-                // float dx = float(points[n1].x - ref.x);
-                // float dy = float(points[n1].y - ref.y);
-                // float dz = float(points[n1].z - ref.z);
-
-                // float3 delta = m_box.wrap(make_float3(dx, dy, dz));
                 vec3<float> delta = m_box.wrap(points[n1] - ref);
-                // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                 float rsq = dot(delta, delta);
                 if (rsq < rmaxsq)
                     {
-
                     size_t neighborhood_bond(nlist->find_first_index(n1));
-                    for(; neighborhood_bond < nlist->getNumBonds() && neighbor_list[2*neighborhood_bond] == n1; ++neighborhood_bond)
-                    {
-                    const unsigned int j(neighbor_list[2*neighborhood_bond + 1]);
+                    for (; neighborhood_bond < nlist->getNumBonds() && neighbor_list[2*neighborhood_bond] == n1; ++neighborhood_bond)
+                        {
+                        const unsigned int j(neighbor_list[2*neighborhood_bond + 1]);
                             {
                             if (n1 == j)
                                 {
-                                    continue;
+                                continue;
                                 }
                             // rij = rj - ri, from i pointing to j.
-                            // float dx1 = float(points[j].x - ref1.x);
-                            // float dy1 = float(points[j].y - ref1.y);
-                            // float dz1 = float(points[j].z - ref1.z);
-
-                            // float3 delta1 = m_box.wrap(make_float3(dx1, dy1, dz1));
                             vec3<float> delta1 = m_box.wrap(points[j] - ref1);
-                            // float rsq1 = delta1.x*delta1.x + delta1.y*delta1.y + delta1.z*delta1.z;
                             float rsq1 = dot(delta1, delta1);
 
                             if (rsq1 < rmaxsq)
@@ -240,14 +216,14 @@ void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
                     }
                 }
             }
-         //Normalize!
+         // Normalize!
         for (unsigned int k = 0; k < (2*m_l+1); ++k)
             {
-                m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*i+k];
-                m_AveQlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
-                m_AveQlm.get()[k] += m_AveQlmi.get()[(2*m_l+1)*i+k];
+            m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*i+k];
+            m_AveQlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
+            m_AveQlm.get()[k] += m_AveQlmi.get()[(2*m_l+1)*i+k];
             }
-        //Ave Wli calculation
+        // Ave Wli calculation
         unsigned int counter = 0;
         for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
             {
@@ -257,28 +233,27 @@ void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
                 m_AveWli.get()[i]+= m_wigner3jvalues[counter]*m_AveQlmi.get()[(2*m_l+1)*i+u1]*m_AveQlmi.get()[(2*m_l+1)*i+u2]*m_AveQlmi.get()[(2*m_l+1)*i+u3];
                 counter+=1;
                 }
-            }//Ends loop for Norm Wli calcs
+            } // Ends loop for Norm Wli calcs
         m_counter = counter;
 
-        } //Ends loop over particles i for Qlmi calcs
+        } // Ends loop over particles i for Qlmi calcs
     }
 
-// void LocalWl::computeNorm(const float3 *points, unsigned int Np)
 void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
     {
 
-    //Get wigner3j coefficients from wigner3j.cc
+    // Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
     std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
-    //Set local data size
+    // Set local data size
     m_Np = Np;
 
     m_WliNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
     memset((void*)m_WliNorm.get(), 0, sizeof(complex<float>)*m_Np);
 
-    //Average Q_lm over all particles, which was calculated in compute
+    // Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
         {
         m_Qlm.get()[k]/= m_Np;
@@ -286,17 +261,20 @@ void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
 
     for(unsigned int i = 0; i < m_Np; ++i)
         {
-        //Norm Wli calculation
+        // Norm Wli calculation
         unsigned int counter = 0;
         for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
             {
             for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
                 {
                 unsigned int u3 = 3*m_l-u1-u2;
-                m_WliNorm.get()[i]+= m_wigner3jvalues[counter]*m_Qlm.get()[u1]*m_Qlm.get()[u2]*m_Qlm.get()[u3];
+                m_WliNorm.get()[i] += m_wigner3jvalues[counter] *
+                                      m_Qlm.get()[u1] *
+                                      m_Qlm.get()[u2] *
+                                      m_Qlm.get()[u3];
                 counter+=1;
                 }
-            }//Ends loop for Norm Wli calcs
+            } // Ends loop for Norm Wli calcs
         m_counter = counter;
         }
     }
@@ -304,18 +282,18 @@ void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
 void LocalWl::computeAveNorm(const vec3<float> *points, unsigned int Np)
     {
 
-    //Get wigner3j coefficients from wigner3j.cc
+    // Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
     std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
-    //Set local data size
+    // Set local data size
     m_Np = Np;
 
     m_WliAveNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
     memset((void*)m_WliAveNorm.get(), 0, sizeof(complex<float>)*m_Np);
 
-    //Average Q_lm over all particles, which was calculated in compute
+    // Average Q_lm over all particles, which was calculated in compute
     for(unsigned int k = 0; k < (2*m_l+1); ++k)
         {
         m_AveQlm.get()[k]/= m_Np;
@@ -323,17 +301,20 @@ void LocalWl::computeAveNorm(const vec3<float> *points, unsigned int Np)
 
     for(unsigned int i = 0; i < m_Np; ++i)
         {
-        //AveNorm Wli calculation
+        // AveNorm Wli calculation
         unsigned int counter = 0;
         for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
             {
             for(unsigned int u2 = max( 0,int(m_l)-int(u1)); u2 < (min(3*m_l+1-u1,2*m_l+1)); ++u2)
                 {
                 unsigned int u3 = 3*m_l-u1-u2;
-                m_WliAveNorm.get()[i]+= m_wigner3jvalues[counter]*m_AveQlm.get()[u1]*m_AveQlm.get()[u2]*m_AveQlm.get()[u3];
+                m_WliAveNorm.get()[i] += m_wigner3jvalues[counter] *
+                                         m_AveQlm.get()[u1] *
+                                         m_AveQlm.get()[u2] *
+                                         m_AveQlm.get()[u3];
                 counter+=1;
                 }
-            }//Ends loop for Norm Wli calcs
+            } // Ends loop for Norm Wli calcs
         m_counter = counter;
         }
     }
