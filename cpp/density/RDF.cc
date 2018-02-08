@@ -120,7 +120,7 @@ class CumulativeCount
 
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 void RDF::reduceRDF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);

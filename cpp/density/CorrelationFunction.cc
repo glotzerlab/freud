@@ -64,7 +64,7 @@ CorrelationFunction<T>::~CorrelationFunction()
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 template<typename T>
 void CorrelationFunction<T>::reduceCorrelationFunction()
     {

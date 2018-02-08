@@ -56,7 +56,7 @@ class GaussianDensity
         void resetDensity();
 
         //! \internal
-        //! helper function to reduce the thread specific arrays into the boost array
+        //! helper function to reduce the thread specific arrays into one array
         void reduceDensity();
 
         //! Compute the Density

@@ -53,7 +53,7 @@ class RDF
                         unsigned int Np);
 
         //! \internal
-        //! helper function to reduce the thread specific arrays into the boost array
+        //! helper function to reduce the thread specific arrays into one array
         void reduceRDF();
 
         //! Get a reference to the last computed rdf

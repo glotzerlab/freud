@@ -71,7 +71,7 @@ class PMFTXYZ
                         unsigned int n_faces);
 
         //! \internal
-        //! helper function to reduce the thread specific arrays into the boost array
+        //! helper function to reduce the thread specific arrays into one array
         void reducePCF();
 
         //! Get a reference to the PCF array

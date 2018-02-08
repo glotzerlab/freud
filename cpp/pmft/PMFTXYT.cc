@@ -96,7 +96,7 @@ PMFTXYT::~PMFTXYT()
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 void PMFTXYT::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_t);
