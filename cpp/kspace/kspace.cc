@@ -58,13 +58,6 @@ void FTdelta::compute()
         }
     }
 
-void FTdelta::computePy()
-    {
-    // compute with the GIL released
-    util::ScopedGILRelease gil;
-    compute();
-    }
-
 FTsphere::FTsphere()
     : m_radius(0.5f), m_volume(4.0f * M_PI * 0.125f / 3.0f)
     {

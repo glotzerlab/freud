@@ -62,9 +62,6 @@ class FTdelta
         //! Perform transform and store result internally
         virtual void compute();
 
-        //! Python wrapper for compute method
-        virtual void computePy();
-
         //! C++ interface to return the FT values
         std::shared_ptr< std::complex<float> > getFT()
             {

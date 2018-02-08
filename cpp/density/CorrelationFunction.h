@@ -63,12 +63,6 @@ class CorrelationFunction
         //! Reset the PCF array to all zeros
         void resetCorrelationFunction();
 
-        //! Python wrapper for reset method
-        void resetCorrelationFunctionPy()
-            {
-            resetCorrelationFunction();
-            }
-
         //! accumulate the correlation function
         void accumulate(const box::Box &box,
                         const freud::locality::NeighborList *nlist,

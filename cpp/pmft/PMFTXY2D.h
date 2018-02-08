@@ -58,15 +58,9 @@ class PMFTXY2D
         //! Reset the PCF array to all zeros
         void resetPCF();
 
-        //! Python wrapper for reset method
-        void resetPCFPy()
-            {
-            resetPCF();
-            }
-
-        /*! Compute the PCF for the passed in set of points. The function will be added to previous values
-            of the pcf
-        */
+        /*! Compute the PCF for the passed in set of points. The result will
+         *  be added to previous values of the PCF.
+         */
         void accumulate(box::Box& box,
                         const locality::NeighborList *nlist,
                         vec3<float> *ref_points,
