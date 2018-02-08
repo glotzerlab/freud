@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <complex>
+#include <cstring>
 
 using namespace std;
 

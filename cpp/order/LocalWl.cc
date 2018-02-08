@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <complex>
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 
