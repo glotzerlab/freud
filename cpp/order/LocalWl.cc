@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <complex>
 #include <algorithm>
-//#include <boost/math/special_functions.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace std;
@@ -31,24 +30,6 @@ LocalWl::LocalWl(const box::Box& box, float rmax, unsigned int l)
         }
     m_normalizeWl = false;
     }
-
-/*
-void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
-    {
-    if(Y.size() != 2*m_l+1)
-        Y.resize(2*m_l+1);
-
-    for(int m = -m_l; m <=0; m++)
-        //Doc for boost spherical harmonic
-        //http://www.boost.org/doc/libs/1_53_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/sph_harm.html
-        // theta = colatitude = 0..Pi
-        // phi = azimuthal (longitudinal) 0..2pi).
-        Y[m+m_l]= boost::math::spherical_harmonic(m_l, m, theta, phi);
-
-    for(unsigned int i = 1; i <= m_l; i++)
-        Y[i+m_l] = Y[-i+m_l];
-    }
-*/
 
 // Calculating Ylm using fsph module
 void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
@@ -357,114 +338,4 @@ void LocalWl::computeAveNorm(const vec3<float> *points, unsigned int Np)
         }
     }
 
-
-// //python wrapper for compute
-// void LocalWl::computePy(boost::python::numeric::array points)
-//     {
-//     //validate input type and rank
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     // get the raw data pointers and compute the cell list
-//     // float3* points_raw = (float3*) num_util::data(points);
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-//     compute(points_raw, Np);
-//     }
-
-// void LocalWl::computeNormPy(boost::python::numeric::array points)
-//     {
-//     //validate input type and rank
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     // get the raw data pointers and compute the cell list
-//     // float3* points_raw = (float3*) num_util::data(points);
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-//     compute(points_raw, Np);
-//     computeNorm(points_raw, Np);
-//     }
-
-// void LocalWl::computeAvePy(boost::python::numeric::array points)
-//     {
-//     // validate input type and rank
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     // get the raw data pointers and compute the cell list
-//     // float3* points_raw = (float3*) num_util::data(points);
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-//     compute(points_raw, Np);
-//     computeAve(points_raw, Np);
-//     }
-
-// void LocalWl::computeAveNormPy(boost::python::numeric::array points)
-//     {
-//     // validate input type and rank
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     // get the raw data pointers and compute the cell list
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-//     compute(points_raw, Np);
-//     computeAve(points_raw, Np);
-//     computeAveNorm(points_raw, Np);
-//     }
-
-/*! get wigner3j coefficients from python wrapper
- old version of getting wigner3j from python wrapper
-void LocalWl::setWigner3jPy(boost::python::numeric::array wigner3jvalues)
-	{
-	//validate input type and rank
-    num_util::check_type(wigner3jvalues, NPY_DOUBLE);
-    num_util::check_rank(wigner3jvalues, 1);
-
-    // get dimension
-    unsigned int num_wigner3jcoefs = num_util::shape(wigner3jvalues)[0];
-    m_wigner3jvalues = boost::shared_array<float>(new float[num_wigner3jcoefs]);
-
-    // get the raw data pointers and compute the cell list
-    float* wig3j = (float*) num_util::data(wigner3jvalues);
-    for(unsigned int i = 0; i < num_wigner3jcoefs; i++)
-    	{
-    	m_wigner3jvalues[i] = wig3j[i];
-    	}
-    }
- */
-
-// void export_LocalWl()
-//     {
-//     class_<LocalWl>("LocalWl", init<box::Box&, float, unsigned int>())
-//         .def("getBox", &LocalWl::getBox, return_internal_reference<>())
-//         .def("compute", &LocalWl::computePy)
-//         .def("computeNorm", &LocalWl::computeNormPy)
-//         .def("computeAve", &LocalWl::computeAvePy)
-//         .def("computeAveNorm", &LocalWl::computeAveNormPy)
-//         .def("getWl", &LocalWl::getWlPy)
-//         .def("getWlNorm", &LocalWl::getWlNormPy)
-//         .def("getAveWl", &LocalWl::getAveWlPy)
-//         .def("getWlAveNorm", &LocalWl::getWlAveNormPy)
-//         .def("getQl", &LocalWl::getQlPy)
-//         .def("setBox",&LocalWl::setBox)
-//         //.def("setWigner3j", &LocalWl::setWigner3jPy)
-//         .def("enableNormalization", &LocalWl::enableNormalization)
-//         .def("disableNormalization", &LocalWl::disableNormalization)
-//         ;
-//     }
-
-}; }; // end namespace freud::localwl
+}; }; // end namespace freud::order
