@@ -1,3 +1,6 @@
 [submodule "extern/fsph"]
 	path = extern/fsph
 	url = https://bitbucket.org/glotzer/fsph.git
+[submodule "extern/Eigen"]
+	path = extern/Eigen
+	url = https://github.com/glotzerlab/eigen-git-mirror.git
