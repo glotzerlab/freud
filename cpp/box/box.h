@@ -124,27 +124,30 @@ class Box
             return m_2d;
             }
 
-
         //! Get the value of Lx
         float getLx() const
             {
             return m_L.x;
             }
+
         //! Get the value of Ly
         float getLy() const
             {
             return m_L.y;
             }
+
         //! Get the value of Lz
         float getLz() const
             {
             return m_L.z;
             }
+
         //! Get current L
         vec3<float> getL() const
             {
             return m_L;
             }
+
         //! Get current stored inverse of L
         vec3<float> getLinv() const
             {
@@ -156,11 +159,13 @@ class Box
             {
             return m_xy;
             }
+
         //! Get tilt factor xz
         float getTiltFactorXZ() const
             {
             return m_xz;
             }
+
         //! Get tilt factor yz
         float getTiltFactorYZ() const
             {
@@ -213,33 +218,6 @@ class Box
                 }
             return v;
             }
-
-        // //! Python wrapper for makeCoordinates() (returns a copy)
-        // boost::python::numeric::array getCoordinatesPy(boost::python::numeric::array f)
-        //     {
-        //     num_util::check_type(f, NPY_FLOAT);
-        //     num_util::check_rank(f, 1);
-
-        //     // validate that the 2nd dimension is only 3
-        //     num_util::check_dim(f, 0, 3);
-
-        //     // get the raw data pointers and compute the cell list
-        //     vec3<float>* f_raw = (vec3<float>*) num_util::data(f);
-
-        //     // now get the coordinates
-        //     vec3<float> v = makeCoordinates(*f_raw);
-        //     boost::shared_array<float> v_array = boost::shared_array<float>(new float[3]);
-        //     memset((void*)v_array.get(), 0, sizeof(float)*3);
-        //     v_array[0] = v.x;
-        //     v_array[1] = v.y;
-        //     v_array[2] = v.z;
-        //     if (m_2d)
-        //         {
-        //         v_array[2] = 0.0;
-        //         }
-        //     float *arr = v_array.get();
-        //     return num_util::makeNum(arr, 3);
-        //     }
 
         //! Get the periodic image a vector belongs to
         /*! \param v The vector to check
@@ -356,8 +334,6 @@ class Box
                 w.x = tempcopy.x; w.y = tempcopy.y; w.z=tempcopy.z;
             }
 
-
-
         void minimalwrap(vec3<float>& w) const
             {
             vec3<float> L = getL();
@@ -421,7 +397,6 @@ class Box
         // changes to the codebase here.
         // Followup: I don't remember why I put this comment here, better refer later to
         // original box.h
-
         vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
             {
             vec3<float> tempcopy = w;
@@ -439,46 +414,6 @@ class Box
                wrapped.x = tempcopy.x; wrapped.y = tempcopy.y; wrapped.z=tempcopy.z;
                return wrapped;
             }
-
-
-
-        // //! Wrap a given array of vectors back into the box from python
-        // /*! \param vecs numpy array of vectors (Nx3) (or just 3 elements) to wrap
-        //     \note Vectors are wrapped in place to avoid costly memory copies
-        // */
-        // void wrapPy(boost::python::numeric::array vecs)
-        //     {
-        //     // validate input type and dimensions
-        //     num_util::check_type(vecs, NPY_FLOAT);
-
-        //     // if this is a rank 1 array, then it must be a simple 3-vector of points
-        //     if (num_util::rank(vecs) == 1)
-        //         {
-        //         // validate that the 1st dimension is only 3
-        //         num_util::check_dim(vecs, 0, 3);
-        //         vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
-
-        //         // wrap the single vector back
-        //         vecs_raw[0] = wrap(vecs_raw[0]);
-        //         }
-        //     else
-        //     if (num_util::rank(vecs) == 2)
-        //         {
-        //         // validate that the 2nd dimension is only 3
-        //         num_util::check_dim(vecs, 1, 3);
-        //         unsigned int Np = num_util::shape(vecs)[0];
-        //         vec3<float>* vecs_raw = (vec3<float>*) num_util::data(vecs);
-
-        //         // wrap all the vecs back
-        //         for (unsigned int i = 0; i < Np; i++)
-        //             vecs_raw[i] = wrap(vecs_raw[i]);
-        //         }
-        //     else
-        //         {
-        //         PyErr_SetString(PyExc_ValueError, "no mapping available for this type");
-        //         boost::python::throw_error_already_set();
-        //         }
-        //     }
 
         //! Unwrap a given position to its "real" location
         /*! \param p coordinates to unwrap
@@ -506,6 +441,7 @@ class Box
                 newp += getLatticeVector(2) * float(image.z);
             return newp;
             }
+
         //! Get the shortest distance between opposite boundary planes of the box
         /*! The distance between two planes of the lattice is 2 Pi/|b_i|, where
          *   b_1 is the reciprocal lattice vector of the Bravais lattice normal to
@@ -549,31 +485,6 @@ class Box
             return vec3<float>(0.0,0.0,0.0);
             }
 
-        //! Python wrapper for getLatticeVector()
-        // boost::python::numeric::array getLatticeVectorPy(unsigned int i)
-        //     {
-        //     vec3<float> v =  getLatticeVector(i);
-
-        //     // put this in a python-friendly format
-        //     boost::shared_array<float> v_array = boost::shared_array<float>(new float[3]);
-        //     memset((void*)v_array.get(), 0, sizeof(float)*3);
-        //     v_array[0] = v.x;
-        //     v_array[1] = v.y;
-        //     v_array[2] = v.z;
-        //     if (m_2d)
-        //         {
-        //         v_array[2] = 0.0;
-        //         }
-        //     float *arr = v_array.get();
-        //     return num_util::makeNum(arr, 3);
-        //     }
-
-
-        // uchar3 getPeriodic() const
-        //     {
-        //     return m_periodic;
-        //     }
-
         //! Set the periodic flags
         /*! \param periodic Flags to set
             \post Period flags are set to \a periodic
@@ -589,11 +500,11 @@ class Box
         vec3<float> m_hi;      //!< Maximum coords in the box
         vec3<float> m_L;       //!< L precomputed (used to avoid subtractions in boundary conditions)
         vec3<float> m_Linv;    //!< 1/L precomputed (used to avoid divisions in boundary conditions)
-        float m_xy;       //!< xy tilt factor
-        float m_xz;       //!< xz tilt factor
-        float m_yz;       //!< yz tilt factor
-        uchar3 m_periodic;//!< 0/1 in each direction to tell if the box is periodic in that direction
-        bool m_2d;        //!< Specify whether box is 2D.
+        float m_xy;            //!< xy tilt factor
+        float m_xz;            //!< xz tilt factor
+        float m_yz;            //!< yz tilt factor
+        uchar3 m_periodic;     //!< 0/1 to determine if the box is periodic in each direction
+        bool m_2d;             //!< Specify whether box is 2D.
     };
 
 }; };

@@ -19,12 +19,14 @@
 namespace freud { namespace interface {
 
 //! Computes the amount of interface for two given sets of points
-/*! Given two sets of points, calculates the amount of points in the first set (reference) that are within a
- *  cutoff distance from any point in the second set.
- *
- *  <b>2D:</b><br>
- *  InterfaceMeasure properly handles 2D boxes. As with everything else in freud, 2D points must be passed in
- *  as 3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
+/*! Given two sets of points, calculates the amount of points in the first
+    set (reference) that are within a cutoff distance from any point in the
+    second set.
+
+    <b>2D:</b><br>
+    InterfaceMeasure properly handles 2D boxes. As with everything else in
+    freud, 2D points must be passed in as 3 component vectors x,y,0. Failing
+    to set 0 in the third component will lead to undefined behavior.
  */
 class InterfaceMeasure
 {
@@ -39,23 +41,15 @@ class InterfaceMeasure
         }
 
         //! Compute the interface
-        // unsigned int compute(const float3 *ref_points,
-        //                      unsigned int n_ref,
-        //                      const float3 *points,
-        //                      unsigned int Np);
-
         unsigned int compute(const freud::locality::NeighborList *nlist,
                              const vec3<float> *ref_points,
                              unsigned int n_ref,
                              const vec3<float> *points,
                              unsigned int Np);
 
-        // //! Python wrapper for compute
-        // unsigned int computePy(boost::python::numeric::array ref_points,
-        //                      boost::python::numeric::array points);
     private:
-        box::Box m_box;          //!< Simulation box the particles belong in
-        float m_rcut;                   //!< Maximum distance at which a particle is considered to be in an interface
+        box::Box m_box;  //!< Simulation box the particles belong in
+        float m_rcut;    //!< Max distance at which particles are considered to be in an interface
 };
 
 }; }; // end namespace freud::interface

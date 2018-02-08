@@ -47,12 +47,16 @@ struct Environment
         num_vecs++;
         }
 
-    unsigned int env_ind;                   //!< The index of the environment
-    std::vector<vec3<float> > vecs;         //!< The vectors that define the environment
-    bool ghost;                             //!< Is this environment a ghost? Do we ignore it when we compute actual physical quantities associated with all environments?
-    unsigned int num_vecs;                  //!< The number of vectors defining the environment currently
-    std::vector<unsigned int> vec_ind;      //!< The order that the vectors must be in to define the environment
-    rotmat3<float> proper_rot;              //!< The rotation that defines the proper orientation of the environment
+    unsigned int env_ind;            //!< The index of the environment
+    std::vector<vec3<float> > vecs;  //!< The vectors that define the environment
+    //! Is this environment a ghost? Do we ignore it when we compute actual
+    //  physical quantities associated with all environments?
+    bool ghost;
+    unsigned int num_vecs;           //!< The number of vectors defining the environment currently
+    //! The order that the vectors must be in to define the environment
+    std::vector<unsigned int> vec_ind;
+    //! The rotation that defines the proper orientation of the environment
+    rotmat3<float> proper_rot;
     };
 
 //! General disjoint set class, taken mostly from Cluster.h
@@ -72,9 +76,9 @@ class EnvDisjointSet
         //! Get the vectors corresponding to index m in the dj set
         std::vector<vec3<float> > getIndividualEnv(const unsigned int m);
 
-        std::vector<Environment> s;         //!< The disjoint set data
-        std::vector<unsigned int> rank;     //!< The rank of each tree in the set
-        unsigned int m_max_num_neigh;       //!< The maximum number of neighbors in any environment in the set
+        std::vector<Environment> s;      //!< The disjoint set data
+        std::vector<unsigned int> rank;  //!< The rank of each tree in the set
+        unsigned int m_max_num_neigh;    //!< The maximum number of neighbors in any environment in the set
     };
 
 class MatchEnv

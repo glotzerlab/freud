@@ -26,7 +26,7 @@ namespace freud { namespace order {
     Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
 
     The values of r to compute the rdf at are controlled by the rmax and dr parameters to the constructor. rmax
-    determins the maximum r at which to compute g(r) and dr is the step size for each bin.
+    determines the maximum r at which to compute g(r) and dr is the step size for each bin.
 
     <b>2D:</b><br>
     RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
@@ -60,20 +60,6 @@ class Pairing2D
             {
             return m_pair_array;
             }
-
-        // //! Python wrapper for getMatch() (returns a copy)
-        // boost::python::numeric::array getMatchPy()
-        //     {
-        //     unsigned int *arr = m_match_array.get();
-        //     return num_util::makeNum(arr, m_Np);
-        //     }
-
-        // //! Python wrapper for getPair() (returns a copy)
-        // boost::python::numeric::array getPairPy()
-        //     {
-        //     unsigned int *arr = m_pair_array.get();
-        //     return num_util::makeNum(arr, m_Np);
-        //     }
 
         //! Compute the pairing function
         void compute(box::Box& box,
