@@ -123,7 +123,7 @@ class Voronoi:
         N = len(positions)
         # Nearest neighbor index for each point
         self.firstShellNeighborList = [[] for _ in range(N)]
-        # Weight between nearest neighbors, which is the length of ridge between two points
+        # Weight between nearest neighbors, which is the length of ridge between two points in 2D or the area of the ridge facet in 3D
         self.firstShellWeight = [[] for _ in range(N)]
         for (k, (index_i, index_j)) in enumerate(ridge_points):
             if index_i >= N or index_j >= N:
@@ -133,10 +133,46 @@ class Voronoi:
             self.firstShellNeighborList[index_j].append(index_i)
 
             if -1 not in ridge_vertices[k]:
-                # TODO properly account for 3D
-                weight = np.linalg.norm(vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]])
+                if box.is2D():
+                    # The weight for a 2D system is the length of the ridge line
+                    weight = np.linalg.norm(vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]])
+                else:
+                    # The weight for a 3D system is the ridge polygon area
+                    # The process to compute this area is:
+                    # 1. Project 3D polygon onto xy, yz, or zx plane,
+                    #    by aligning with max component of the normal vector
+                    # 2. Use shoelace formula to compute 2D area
+                    # 3. Project back to get true area of 3D polygon
+                    # See link below for sample code and further explanation
+                    # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
+                    vertex_coords = np.array([vor_vertices[i] for i in ridge_vertices[k]])
+
+                    # Get a unit normal vector to the polygonal facet
+                    r01 = vertex_coords[1] - vertex_coords[0]
+                    r12 = vertex_coords[2] - vertex_coords[1]
+                    norm_vec = np.cross(r01, r12)
+                    norm_vec /= np.linalg.norm(norm_vec)
+
+                    # Determine projection axis:
+                    # c0 is the largest coordinate (x, y, or z) of the normal
+                    # vector. We project along the c0 axis and use c1, c2 axes
+                    # for computing the projected area.
+                    c0 = np.argmax(np.abs(norm_vec))
+                    c1 = (c0 + 1) % 3
+                    c2 = (c0 + 2) % 3
+
+                    vc1 = vertex_coords[:, c1]
+                    vc2 = vertex_coords[:, c2]
+
+                    # Use shoelace formula for the projected area
+                    projected_area = 0.5*np.abs(
+                        np.dot(vc1, np.roll(vc2, 1)) -
+                        np.dot(vc2, np.roll(vc1, 1)))
+
+                    # Project back to get the true area (which is the weight)
+                    weight = projected_area / np.abs(norm_vec[c0])
             else:
-                # this point was on the boundary, so as far as qhull
+                # This point was on the boundary, so as far as qhull
                 # is concerned its ridge goes out to infinity
                 weight = 0
 

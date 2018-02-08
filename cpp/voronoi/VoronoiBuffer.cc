@@ -49,7 +49,7 @@ void VoronoiBuffer::compute(const float3 *points,
                         img.x = points[particle].x + i*lx;
                         img.y = points[particle].y + j*ly;
                         img.z = 0.0;
-                        //check to see if this image in within a
+                        // Check to see if this image is within a
                         if(img.x < lx_2_buff && img.x > -lx_2_buff &&
                            img.y < ly_2_buff && img.y > -ly_2_buff)
                             {
