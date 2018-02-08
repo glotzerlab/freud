@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <boost/shared_array.hpp> // Removing this line causes builds to fail. bdice, 2018-02-08
 #include <stdexcept>
 #include "HOOMDMath.h"
 #include "VectorMath.h"
