@@ -31,7 +31,7 @@ class TestBox(unittest.TestCase):
         box3d = bx.Box(2, 2, 2, 1, 0, 0)
         volume3d = box3d.getVolume()
 
-        box2d = bx.Box(2, 2, 0, 0, 0, 0)
+        box2d = bx.Box(2, 2, 0, 0, 0, 0, is2D=True)
         volume2d = box2d.getVolume()
 
         npt.assert_almost_equal(volume3d, 8, decimal=2, err_msg="Volume3DFail")
