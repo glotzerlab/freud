@@ -9,10 +9,7 @@
 #include <emmintrin.h>
 #endif
 
-#include "VectorMath.h"
-
 using namespace std;
-
 using namespace tbb;
 
 /*! \internal

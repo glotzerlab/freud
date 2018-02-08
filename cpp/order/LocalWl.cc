@@ -2,7 +2,6 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "LocalWl.h"
-#include "wigner3j.h"
 #include <stdexcept>
 #include <complex>
 #include <algorithm>

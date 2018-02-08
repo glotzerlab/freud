@@ -7,7 +7,6 @@
 #include <tbb/tbb.h>
 
 #include "LinkCell.h"
-#include "../box/box.h"
 #include "ScopedGILRelease.h"
 
 using namespace std;

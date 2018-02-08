@@ -5,12 +5,11 @@
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
+#include <complex>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <stdexcept>
-#include <complex>
 
 using namespace std;
 using namespace tbb;
