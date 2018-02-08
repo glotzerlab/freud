@@ -4,6 +4,7 @@
 #include "SolLiq.h"
 #include "Cluster.h"
 #include <map>
+#include <cstring>
 
 using namespace std;
 
