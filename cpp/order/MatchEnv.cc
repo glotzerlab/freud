@@ -972,4 +972,4 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
     m_num_clusters = cur_set;
     }
 
-}; }; // end namespace freud::order;
+}; }; // end namespace freud::order

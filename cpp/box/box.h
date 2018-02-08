@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <boost/shared_array.hpp>
 #include <stdexcept>
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -186,8 +185,10 @@ class Box
         /*! \param p point
             \returns alpha
 
-            alpha.x is 0 when \a x is on the far left side of the box and 1.0 when it is on the far right. If x is
-            outside of the box in either direction, it will go larger than 1 or less than 0 keeping the same scaling.
+            alpha.x is 0 when \a x is on the far left side of the box and
+            1.0 when it is on the far right. If x is outside of the box in
+            either direction, it will go larger than 1 or less than 0
+            keeping the same scaling.
         */
         vec3<float> makeFraction(const vec3<float>& v, const vec3<float>& ghost_width=vec3<float>(0.0,0.0,0.0)) const
             {
@@ -204,7 +205,8 @@ class Box
             }
 
         //! Convert fractional coordinates into real coordinates
-        /*! \param f Fractional coordinates between 0 and 1 within parallelpipedal box
+        /*! \param f Fractional coordinates between 0 and 1 within
+         *         parallelpipedal box
             \return A vector inside the box corresponding to f
         */
         vec3<float> makeCoordinates(const vec3<float> &f) const
@@ -507,6 +509,6 @@ class Box
         bool m_2d;             //!< Specify whether box is 2D.
     };
 
-}; };
+}; }; // end namespace freud::box
 
 #endif // _BOX_H__

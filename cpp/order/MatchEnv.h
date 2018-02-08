@@ -226,6 +226,6 @@ class MatchEnv
         std::shared_ptr<vec3<float> > m_tot_env;                                //!< m_NP by m_maxk by 3 matrix of all environments for all particles
     };
 
-}; }; // end namespace freud::match_env
+}; }; // end namespace freud::order
 
 #endif // _MATCH_ENV_H__

@@ -563,4 +563,4 @@ void SolLiq::computeClustersSharedNeighbors(
     m_num_clusters = cur_set;
     }
 
-}; };// end namespace freud::order;
+}; }; // end namespace freud::order

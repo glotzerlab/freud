@@ -73,4 +73,4 @@ unsigned int InterfaceMeasure::compute(const freud::locality::NeighborList *nlis
     return interfaceCount;
     }
 
-}; }; // end namespace freud::density
+}; }; // end namespace freud::interface
