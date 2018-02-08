@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <complex>
-//include <boost/math/special_functions.hpp>
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"

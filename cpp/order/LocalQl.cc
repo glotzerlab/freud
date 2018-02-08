@@ -5,7 +5,6 @@
 
 #include <stdexcept>
 #include <complex>
-#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace std;
 
