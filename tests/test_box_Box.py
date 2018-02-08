@@ -1,4 +1,4 @@
-from freud import box as bx;
+from freud import box as bx
 import numpy as np
 import numpy.testing as npt
 import warnings
@@ -23,16 +23,19 @@ class TestBox(unittest.TestCase):
         tiltxz = box.getTiltFactorXZ()
         tiltyz = box.getTiltFactorYZ()
 
-        npt.assert_almost_equal(tiltxy, 1, decimal=2, err_msg="TiltXYfail")
-        npt.assert_almost_equal(tiltxz, 0, decimal=2, err_msg="TiltXZfail")
-        npt.assert_almost_equal(tiltyz, 0, decimal=2, err_msg="TiltYZfail")
+        npt.assert_almost_equal(tiltxy, 1, decimal=2, err_msg="TiltXYFail")
+        npt.assert_almost_equal(tiltxz, 0, decimal=2, err_msg="TiltXZFail")
+        npt.assert_almost_equal(tiltyz, 0, decimal=2, err_msg="TiltYZFail")
 
     def test_BoxVolume(self):
-        box = bx.Box(2, 2, 2, 1, 0, 0)
+        box3d = bx.Box(2, 2, 2, 1, 0, 0)
+        volume3d = box3d.getVolume()
 
-        volume = box.getVolume()
+        box2d = bx.Box(2, 2, 0, 0, 0, 0)
+        volume2d = box2d.getVolume()
 
-        npt.assert_almost_equal(volume, 8, decimal=2, err_msg="VolumnFail")
+        npt.assert_almost_equal(volume3d, 8, decimal=2, err_msg="Volume3DFail")
+        npt.assert_almost_equal(volume2d, 4, decimal=2, err_msg="Volume2DFail")
 
     def test_WrapSingleParticle(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)

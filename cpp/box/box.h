@@ -36,9 +36,9 @@ class Box
     {
     public:
         //! Construct a box of length 0.
-        Box() //Lest you think of removing this, it's needed by the DCDLoader. No touching.
+        Box() // Lest you think of removing this, it's needed by the DCDLoader. No touching.
             {
-            m_2d = false; //Assign before calling setL!
+            m_2d = false; // Assign before calling setL!
             setL(0,0,0);
             m_periodic = make_uchar3(1,1,1);
             m_xy = m_xz = m_yz = 0;
@@ -55,7 +55,7 @@ class Box
         //! Construct an orthorhombic box
         Box(float Lx, float Ly, float Lz, bool _2d=false)
             {
-            m_2d = _2d;  //Assign before calling setL!
+            m_2d = _2d;  // Assign before calling setL!
             setL(Lx,Ly,Lz);
             m_periodic = make_uchar3(1,1,1);
             m_xy = m_xz = m_yz = 0;
@@ -64,7 +64,7 @@ class Box
         //! Construct a triclinic box
         Box(float Lx, float Ly, float Lz, float xy, float xz, float yz, bool _2d=false)
             {
-            m_2d = _2d;  //Assign before calling setL!
+            m_2d = _2d;  // Assign before calling setL!
             setL(Lx,Ly,Lz);
             m_periodic = make_uchar3(1,1,1);
             m_xy = xy; m_xz = xz; m_yz = yz;
@@ -175,7 +175,6 @@ class Box
         //! Get the volume of the box (area in 2D)
         float getVolume() const
             {
-            //TODO:  Unit test these
             if (m_2d)
                 return m_L.x*m_L.y;
             else
