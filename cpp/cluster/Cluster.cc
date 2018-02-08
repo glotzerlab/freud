@@ -78,8 +78,6 @@ Cluster::Cluster(const box::Box& box, float rcut)
         throw invalid_argument("rcut must be positive");
     }
 
-// void Cluster::computeClusters(const float3 *points,
-//                               unsigned int Np)
 void Cluster::computeClusters(const freud::locality::NeighborList *nlist,
                               const vec3<float> *points,
                               unsigned int Np)

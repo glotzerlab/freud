@@ -64,7 +64,6 @@ void ClusterProperties::computeProperties(const vec3<float> *points,
     for (unsigned int i = 0; i < Np; i++)
         {
         unsigned int c = cluster_idx[i];
-        // float3 pos = points[i];
         vec3<float> pos = points[i];
 
         // the first time we see the cluster, mark this point as the reference position

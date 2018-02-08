@@ -74,8 +74,6 @@ class Cluster
             }
 
         //! Compute the point clusters
-        // void computeClusters(const float3 *points,
-        //                      unsigned int Np);
         void computeClusters(const freud::locality::NeighborList *nlist,
                              const vec3<float> *points,
                              unsigned int Np);
