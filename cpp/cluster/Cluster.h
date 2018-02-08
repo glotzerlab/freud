@@ -105,7 +105,7 @@ class Cluster
             return m_cluster_keys;
             }
     private:
-        box::Box m_box;             //!< Simulation box the particles belong in
+        box::Box m_box;             //!< Simulation box where the particles belong
         float m_rcut;               //!< Maximum r at which points will be counted in the same cluster
         unsigned int m_num_particles; //!< Number of particles processed in the last call to compute()
         unsigned int m_num_clusters;  //!< Number of clusters found in the last call to compute()

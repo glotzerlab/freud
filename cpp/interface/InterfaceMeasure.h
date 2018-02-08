@@ -48,7 +48,7 @@ class InterfaceMeasure
                              unsigned int Np);
 
     private:
-        box::Box m_box;  //!< Simulation box the particles belong in
+        box::Box m_box;  //!< Simulation box where the particles belong
         float m_rcut;    //!< Max distance at which particles are considered to be in an interface
 };
 

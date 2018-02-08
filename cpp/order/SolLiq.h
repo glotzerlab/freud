@@ -157,7 +157,7 @@ class SolLiq
                                        const vec3<float> *points,
                               unsigned int Np);
 
-        box::Box m_box;        //!< Simulation box the particles belong in
+        box::Box m_box;        //!< Simulation box where the particles belong
         float m_rmax;          //!< Maximum cutoff radius at which to determine local environment
         float m_rmax_cluster;  //!< Maximum radius at which to cluster solid-like particles;
 

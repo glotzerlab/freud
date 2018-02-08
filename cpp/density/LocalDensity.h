@@ -62,7 +62,7 @@ class LocalDensity
         std::shared_ptr< float > getNumNeighbors();
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box where the particles belong
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles

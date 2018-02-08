@@ -75,7 +75,7 @@ class ClusterProperties
             }
 
     private:
-        box::Box m_box;                //!< Simulation box the particles belong in
+        box::Box m_box;                //!< Simulation box where the particles belong
         unsigned int m_num_clusters;   //!< Number of clusters found in the last call to computeProperties()
         std::shared_ptr< vec3<float> > m_cluster_com;  //!< Center of mass computed for each cluster (length: m_num_clusters)
         std::shared_ptr<float> m_cluster_G; //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)

@@ -121,7 +121,7 @@ class PMFTR12
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box where the particles belong
         float m_max_r;                     //!< Maximum x at which to compute pcf
         float m_max_t1;                     //!< Maximum y at which to compute pcf
         float m_max_t2;                     //!< Maximum T at which to compute pcf

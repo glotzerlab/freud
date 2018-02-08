@@ -68,7 +68,7 @@ class RDF
         unsigned int getNBins();
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box where the particles belong
         float m_rmax;                     //!< Maximum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over

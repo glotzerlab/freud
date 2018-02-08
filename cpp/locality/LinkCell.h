@@ -456,7 +456,7 @@ class LinkCell
         //! Rounding helper function.
         static unsigned int roundDown(unsigned int v, unsigned int m);
 
-        box::Box m_box;                //!< Simulation box the particles belong in
+        box::Box m_box;                //!< Simulation box where the particles belong
         Index3D m_cell_index;          //!< Indexer to compute cell indices
         unsigned int m_Np;             //!< Number of particles last placed into the cell list
         unsigned int m_Nc;             //!< Number of cells last used

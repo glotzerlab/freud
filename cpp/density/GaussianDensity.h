@@ -72,7 +72,7 @@ class GaussianDensity
         unsigned int getWidthZ();
 
     private:
-        box::Box m_box;    //!< Simulation box the particles belong in
+        box::Box m_box;    //!< Simulation box where the particles belong
         unsigned int m_width_x,m_width_y,m_width_z;           //!< Num of bins on one side of the cube
         float m_rcut;                  //!< Max r at which to compute density
         float m_sigma;                  //!< Variance

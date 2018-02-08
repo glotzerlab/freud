@@ -92,7 +92,7 @@ class NearestNeighbors
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box where the particles belong
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         unsigned int m_num_neighbors;            //!< Number of neighbors to calculate
         float m_scale;                    //!< scale by which to increase neighbor search radius

@@ -69,7 +69,7 @@ class HexOrderParameter
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box where the particles belong
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         float m_k;                        //!< Multiplier in the exponent
         unsigned int m_Np;                //!< Last number of points computed

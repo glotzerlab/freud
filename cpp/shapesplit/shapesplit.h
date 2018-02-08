@@ -62,7 +62,7 @@ class ShapeSplit
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box where the particles belong
         unsigned int m_Np;
         unsigned int m_Nsplit;
 

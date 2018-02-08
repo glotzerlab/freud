@@ -42,7 +42,7 @@ class VoronoiBuffer
             }
 
     private:
-        const box::Box m_box;    //!< Simulation box the particles belong in
+        const box::Box m_box;    //!< Simulation box where the particles belong
         std::shared_ptr< std::vector<float3> > m_buffer_particles;
     };
 

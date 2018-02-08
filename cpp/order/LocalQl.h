@@ -129,7 +129,7 @@ class LocalQl
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        box::Box m_box;        //!< Simulation box the particles belong in
+        box::Box m_box;        //!< Simulation box where the particles belong
         float m_rmin;          //!< Minimum r at which to determine neighbors
         float m_rmax;          //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;  //!< Maximum radius at which to cluster one crystal

@@ -83,7 +83,7 @@ class Pairing2D
                               const unsigned int Np,
                               const unsigned int No);
 
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box where the particles belong
         float m_rmax;                     //!< Maximum r to check for nearest neighbors
         std::shared_ptr<unsigned int> m_match_array;         //!< unsigned int array of whether particle i is paired
         std::shared_ptr<unsigned int> m_pair_array;         //!< array of pairs for particle i

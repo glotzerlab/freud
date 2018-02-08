@@ -77,7 +77,7 @@ class BondingXYZ
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;            //!< Simulation box where the particles belong
         float m_r_max;                     //!< Maximum r at which to determine neighbors
         float m_x_max;                     //!< Maximum r at which to determine neighbors
         float m_y_max;                     //!< Maximum theta at which to determine neighbors
