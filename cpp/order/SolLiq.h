@@ -165,10 +165,9 @@ class SolLiq
         std::shared_ptr< std::complex<float> > m_Qlmi_array; //!< Stores Qlm for each particle i
         float m_Qthreshold;           //!< Dotproduct cutoff
         unsigned int m_Sthreshold;    //!< Solid-like num connections cutoff
-        unsigned int m_num_particles; //!< Number of particles
         unsigned int m_l;             //!< Value of l for the spherical harmonic.
 
-        //Pull cluster data into these
+        // Pull cluster data into these
         unsigned int m_num_clusters;  //!< Number of clusters found in the last call to compute()
         std::shared_ptr<unsigned int> m_cluster_idx;    //!< Cluster index determined for each particle
         std::vector< std::complex<float> > m_qldot_ij;  //!< All of the Qlmi dot Qlmj's computed

@@ -15,8 +15,8 @@ namespace freud { namespace kspace {
 FTdelta::FTdelta()
     : m_NK(0),
       m_Np(0),
-      m_density_Im(0),
-      m_density_Re(1)
+      m_density_Re(1),
+      m_density_Im(0)
     {
     }
 

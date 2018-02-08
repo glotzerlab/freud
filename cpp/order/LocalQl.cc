@@ -16,7 +16,7 @@ using namespace std;
 namespace freud { namespace order {
 
 LocalQl::LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin)
-    :m_box(box), m_rmax(rmax), m_l(l), m_rmin(rmin)
+    :m_box(box), m_rmin(rmin), m_rmax(rmax), m_l(l)
     {
     if (m_rmax < 0.0f or m_rmin < 0.0f)
         throw invalid_argument("rmin and rmax must be positive!");

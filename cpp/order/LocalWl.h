@@ -133,10 +133,10 @@ class LocalWl
     private:
         box::Box m_box;          //!< Simulation box where the particles belong
         float m_rmax;            //!< Maximum r at which to determine neighbors
-        float m_rmax_cluster;    //!< Maxium radius at which to cluster one crystal;
+
         unsigned int m_l;        //!< Spherical harmonic l value.
         unsigned int m_Np;       //!< Last number of points computed
-        unsigned int m_counter;  //!< length of wigner3jvalues
+        unsigned int m_counter;  //!< Length of wigner3jvalues
         bool m_normalizeWl;      //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.
 
         std::shared_ptr< std::complex<float> > m_Qlm;         //!< Normalized Qlm for the whole system

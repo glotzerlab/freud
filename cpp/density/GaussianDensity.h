@@ -77,7 +77,6 @@ class GaussianDensity
         float m_rcut;                  //!< Max r at which to compute density
         float m_sigma;                  //!< Variance
         Index3D m_bi;                   //!< Bin indexer
-        unsigned int m_frame_counter;       //!< number of frames calc'd
 
         std::shared_ptr<float> m_Density_array;            //! computed density array
         tbb::enumerable_thread_specific<float *> m_local_bin_counts;

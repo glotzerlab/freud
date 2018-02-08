@@ -84,7 +84,7 @@ class CumulativeCount
     public:
         CumulativeCount( float *N_r_array,
               float *avg_counts )
-            : m_sum(0), m_avg_counts(avg_counts), m_N_r_array(N_r_array)
+            : m_sum(0), m_N_r_array(N_r_array), m_avg_counts(avg_counts)
         {
         }
         float get_sum() const
@@ -104,7 +104,7 @@ class CumulativeCount
             m_sum = temp;
             }
         CumulativeCount( CumulativeCount& b, split )
-            : m_avg_counts(b.m_avg_counts), m_N_r_array(b.m_N_r_array), m_sum(0)
+            : m_sum(0), m_N_r_array(b.m_N_r_array), m_avg_counts(b.m_avg_counts)
         {
         }
         void reverse_join( CumulativeCount& a )

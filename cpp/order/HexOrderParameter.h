@@ -70,11 +70,10 @@ class HexOrderParameter
 
     private:
         box::Box m_box;            //!< Simulation box where the particles belong
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_k;                        //!< Multiplier in the exponent
-        unsigned int m_Np;                //!< Last number of points computed
+        float m_k;                 //!< Multiplier in the exponent
+        unsigned int m_Np;         //!< Last number of points computed
 
-        std::shared_ptr< std::complex<float> > m_psi_array;         //!< psi array computed
+        std::shared_ptr< std::complex<float> > m_psi_array;  //!< psi array computed
     };
 
 }; }; // end namespace freud::order

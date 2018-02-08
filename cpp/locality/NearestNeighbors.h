@@ -95,7 +95,6 @@ class NearestNeighbors
         box::Box m_box;            //!< Simulation box where the particles belong
         float m_rmax;                     //!< Maximum r at which to determine neighbors
         unsigned int m_num_neighbors;            //!< Number of neighbors to calculate
-        float m_scale;                    //!< scale by which to increase neighbor search radius
         bool m_strict_cut;                  //!< use a strict r_cut, or allow freud to expand the r_cut as needed
         unsigned int m_num_points;                //!< Number of particles for which nearest neighbors checks
         unsigned int m_num_ref;                //!< Number of particles for which nearest neighbors calcs
