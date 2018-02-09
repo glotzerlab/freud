@@ -220,7 +220,7 @@ void FTpolyhedron::compute()
                             float dotKl = dot(K_proj, l_n);
                             vec3<float> crosslK = cross(l_n, K_proj);
 
-                            float x = dotKl*0.5f; // argument to sine function
+                            float x = dotKl*0.5f; // argument to sinc function
                             float sinc = 1.0;
                             const float eps = 0.000001;
                             if (fabs(x) > eps) sinc = sinf(x)/x;
