@@ -394,11 +394,6 @@ class Box
 
             \note \a w must not extend more than 1 image beyond the box
         */
-        //Is this even sane? I assume since we previously had image free version
-        // that I can just use our new getImage to pass through and make as few as possible
-        // changes to the codebase here.
-        // Followup: I don't remember why I put this comment here, better refer later to
-        // original box.h
         vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
             {
             vec3<float> tempcopy = w;

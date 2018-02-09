@@ -30,20 +30,20 @@ class SolLiq
     {
     public:
         //! Constructor
-        /**Constructor for Solid-Liquid analysis class. After creation, call
-         * compute to calculate solid-like clusters. Use accessor functions
-         * to retrieve data.
-        @param box A freud box for the trajectory.
-        @param rmax Cutoff radius for cell list and clustering algorithm.
-               Values near first minima of the rdf are recommended.
-        @param Qthreshold Value of dot product threshold when evaluating
+        /*! Constructor for Solid-Liquid analysis class. After creation, call
+         *  compute to calculate solid-like clusters. Use accessor functions
+         *  to retrieve data.
+         *  \param box A freud box for the trajectory.
+         *  \param rmax Cutoff radius for cell list and clustering algorithm.
+              Values near first minima of the rdf are recommended.
+         *  \param Qthreshold Value of dot product threshold when evaluating
                \f$Q_{lm}^*(i) Q_{lm}(j)\f$ to determine if a neighbor pair is
                a solid-like bond. (For l=6, 0.7 generally good for FCC or BCC
                structures)
-        @param Sthreshold Minimum required number of adjacent solid-link bonds
+         *  \param Sthreshold Minimum required number of adjacent solid-link bonds
                for a particle to be considered solid-like for clustering. (For
                l=6, 6-8 generally good for FCC or BCC structures)
-        @param l Choose spherical harmonic Ql. Must be positive and even.
+         *  \param l Choose spherical harmonic Ql. Must be positive and even.
         **/
         SolLiq(const box::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l);
 
@@ -162,13 +162,13 @@ class SolLiq
         float m_rmax_cluster;  //!< Maximum radius at which to cluster solid-like particles;
 
         unsigned int m_Np;     //!< Last number of points computed
-        std::shared_ptr< std::complex<float> > m_Qlmi_array; //!< Stores Qlm for each particle i
+        std::shared_ptr< std::complex<float> > m_Qlmi_array;    //!< Stores Qlm for each particle i
         float m_Qthreshold;           //!< Dotproduct cutoff
         unsigned int m_Sthreshold;    //!< Solid-like num connections cutoff
         unsigned int m_l;             //!< Value of l for the spherical harmonic.
 
         // Pull cluster data into these
-        unsigned int m_num_clusters;  //!< Number of clusters found in the last call to compute()
+        unsigned int m_num_clusters;    //!< Number of clusters found in the last call to compute()
         std::shared_ptr<unsigned int> m_cluster_idx;    //!< Cluster index determined for each particle
         std::vector< std::complex<float> > m_qldot_ij;  //!< All of the Qlmi dot Qlmj's computed
         //! Number of connections for each particle with dot product above Qthreshold

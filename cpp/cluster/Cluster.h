@@ -106,12 +106,12 @@ class Cluster
             }
 
     private:
-        box::Box m_box;             //!< Simulation box where the particles belong
-        float m_rcut;               //!< Maximum r at which points will be counted in the same cluster
-        unsigned int m_num_particles; //!< Number of particles processed in the last call to compute()
-        unsigned int m_num_clusters;  //!< Number of clusters found in the last call to compute()
-        std::shared_ptr<unsigned int> m_cluster_idx;  //!< Cluster index determined for each particle
-        std::vector< std::vector<unsigned int> > m_cluster_keys;  //!< List of keys in each cluster
+        box::Box m_box;                  //!< Simulation box where the particles belong
+        float m_rcut;                    //!< Maximum r at which points will be counted in the same cluster
+        unsigned int m_num_particles;    //!< Number of particles processed in the last call to compute()
+        unsigned int m_num_clusters;     //!< Number of clusters found in the last call to compute()
+        std::shared_ptr<unsigned int> m_cluster_idx;   //!< Cluster index determined for each particle
+        std::vector< std::vector<unsigned int> > m_cluster_keys;   //!< List of keys in each cluster
 
     };
 

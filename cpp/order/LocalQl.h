@@ -46,14 +46,15 @@ class LocalQl
     {
     public:
         //! LocalQl Class Constructor
-        /* Constructor for LocalQl analysis class.
-        @param box A freud box object containing the dimensions of the box
-               associated with the particles that will be fed into compute.
-        @param rmax Cutoff radius for running the local order parameter.
-               Values near first minima of the rdf are recommended.
-        @param l Spherical harmonic quantum number l. Must be a positive number.
-        @param rmin (optional) can look at only the second shell or some
-               arbitrary rdf region
+        /*! Constructor for LocalQl analysis class.
+         *  \param box A freud box object containing the dimensions of the box
+         *             associated with the particles that will be fed into compute.
+         *  \param rmax Cutoff radius for running the local order parameter.
+         *              Values near first minima of the rdf are recommended.
+         *  \param l Spherical harmonic number l.
+         *           Must be a positive number.
+         *  \param rmin (optional) can look at only the second shell
+         *             or some arbitrary rdf region
          */
         LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0);
 

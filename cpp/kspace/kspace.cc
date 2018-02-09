@@ -220,14 +220,14 @@ void FTpolyhedron::compute()
                             float dotKl = dot(K_proj, l_n);
                             vec3<float> crosslK = cross(l_n, K_proj);
 
-                            float x = dotKl*0.5f; // argument to sinc function
+                            float x = dotKl*0.5f; // argument to sine function
                             float sinc = 1.0;
                             const float eps = 0.000001;
                             if (fabs(x) > eps) sinc = sinf(x)/x;
                             f_n = dot(norm, crosslK) * sinc * K2inv;
                             f2D_Re -= sinf(dotKc) * f_n;
                             f2D_Im -= cosf(dotKc) * f_n;
-                            } // end foreach edge
+                            } // end loop over edges
                         }
 
                     float d = m_params.d[facet_idx];
@@ -237,7 +237,7 @@ void FTpolyhedron::compute()
                     float im_exp = -sinf(dotKnorm*d);
                     f_Im += dotKnorm*(f2D_Re*re_exp-f2D_Im*im_exp);
                     f_Re -= dotKnorm*(f2D_Im*re_exp+f2D_Re*im_exp);
-                    } // end for each facet
+                    } // end loop over facets
 
                 f_Re /= K2;
                 f_Im /= K2;
@@ -252,11 +252,11 @@ void FTpolyhedron::compute()
             // S += rho * f * exp(-i K r)
             S_Re += CosKr * f_Re + negSinKr * f_Im;
             S_Im += CosKr * f_Im - negSinKr * f_Re;
-            } // end for each particle
+            } // end loop over particles
 
         m_S_Re.get()[K_idx] = S_Re * rho_Re - S_Im * rho_Im;
         m_S_Im.get()[K_idx] = S_Re * rho_Im + S_Im * rho_Re;
-        } // end for each K
+        } // end loop over Ks
     }
 
 //! Helper function to build FTpolyhedron parameters

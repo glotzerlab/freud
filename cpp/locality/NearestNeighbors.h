@@ -92,14 +92,14 @@ class NearestNeighbors
             }
 
     private:
-        box::Box m_box;            //!< Simulation box where the particles belong
+        box::Box m_box;                   //!< Simulation box where the particles belong
         float m_rmax;                     //!< Maximum r at which to determine neighbors
-        unsigned int m_num_neighbors;            //!< Number of neighbors to calculate
-        bool m_strict_cut;                  //!< use a strict r_cut, or allow freud to expand the r_cut as needed
-        unsigned int m_num_points;                //!< Number of particles for which nearest neighbors checks
-        unsigned int m_num_ref;                //!< Number of particles for which nearest neighbors calcs
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
-        tbb::atomic<unsigned int> m_deficits; //!< Neighbor deficit count from the last compute step
+        unsigned int m_num_neighbors;     //!< Number of neighbors to calculate
+        bool m_strict_cut;                //!< use a strict r_cut, or allow freud to expand the r_cut as needed
+        unsigned int m_num_points;        //!< Number of particles for which nearest neighbors checks
+        unsigned int m_num_ref;           //!< Number of particles for which nearest neighbors calcs
+        locality::LinkCell* m_lc;         //!< LinkCell to bin particles for the computation
+        tbb::atomic<unsigned int> m_deficits;    //!< Neighbor deficit count from the last compute step
         freud::locality::NeighborList m_neighbor_list;    //!< Stored neighbor list
         };
 

@@ -90,7 +90,7 @@ class BondOrder
             }
 
     private:
-        box::Box m_box;                   //!< Simulation box where the particles belong
+        box::Box m_box;                //!< Simulation box where the particles belong
         float m_dt;
         float m_dp;
         unsigned int m_n_ref;          //!< Last number of points computed

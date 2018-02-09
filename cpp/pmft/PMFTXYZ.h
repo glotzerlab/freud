@@ -124,18 +124,18 @@ class PMFTXYZ
             }
 
     private:
-        box::Box m_box;            //!< Simulation box where the particles belong
+        box::Box m_box;                    //!< Simulation box where the particles belong
         float m_max_x;                     //!< Maximum x at which to compute pcf
         float m_max_y;                     //!< Maximum y at which to compute pcf
         float m_max_z;                     //!< Maximum z at which to compute pcf
-        float m_dx;                       //!< Step size for x in the computation
-        float m_dy;                       //!< Step size for y in the computation
-        float m_dz;                       //!< Step size for z in the computation
-        unsigned int m_n_bins_x;             //!< Number of x bins to compute pcf over
-        unsigned int m_n_bins_y;             //!< Number of y bins to compute pcf over
-        unsigned int m_n_bins_z;             //!< Number of z bins to compute pcf over
-        float m_r_cut;                      //!< r_cut used in cell list construction
-        unsigned int m_frame_counter;       //!< number of frames calc'd
+        float m_dx;                        //!< Step size for x in the computation
+        float m_dy;                        //!< Step size for y in the computation
+        float m_dz;                        //!< Step size for z in the computation
+        unsigned int m_n_bins_x;           //!< Number of x bins to compute pcf over
+        unsigned int m_n_bins_y;           //!< Number of y bins to compute pcf over
+        unsigned int m_n_bins_z;           //!< Number of z bins to compute pcf over
+        float m_r_cut;                     //!< r_cut used in cell list construction
+        unsigned int m_frame_counter;      //!< number of frames calc'd
         unsigned int m_n_ref;
         unsigned int m_n_p;
         unsigned int m_n_faces;
@@ -143,11 +143,11 @@ class PMFTXYZ
         bool m_reduce;
         vec3<float> m_shiftvec;            //!< vector that points from [0,0,0] to the origin of the pmft
 
-        std::shared_ptr<float> m_pcf_array;         //!< array of pcf computed
-        std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed
-        std::shared_ptr<float> m_x_array;           //!< array of x values that the pcf is computed at
-        std::shared_ptr<float> m_y_array;           //!< array of y values that the pcf is computed at
-        std::shared_ptr<float> m_z_array;           //!< array of z values that the pcf is computed at
+        std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
+        std::shared_ptr<unsigned int> m_bin_counts;    //!< array of pcf computed
+        std::shared_ptr<float> m_x_array;              //!< array of x values that the pcf is computed at
+        std::shared_ptr<float> m_y_array;              //!< array of y values that the pcf is computed at
+        std::shared_ptr<float> m_z_array;              //!< array of z values that the pcf is computed at
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
