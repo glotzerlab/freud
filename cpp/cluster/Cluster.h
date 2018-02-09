@@ -104,6 +104,7 @@ class Cluster
             {
             return m_cluster_keys;
             }
+
     private:
         box::Box m_box;             //!< Simulation box where the particles belong
         float m_rcut;               //!< Maximum r at which points will be counted in the same cluster

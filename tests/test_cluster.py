@@ -5,7 +5,8 @@ import unittest
 import internal
 
 class TestCluster(unittest.TestCase):
-    def test_basic(self):
+
+    def test_cluster_props(self):
         Nlattice = 4
         Nrep = 5
 
@@ -22,13 +23,35 @@ class TestCluster(unittest.TestCase):
         clust.computeClusters(positions)
 
         props = freud.cluster.ClusterProperties(box)
-        props.computeProperties(positions, clust.getClusterIdx())
+        props.computeProperties(positions, clust.cluster_idx)
 
-        #self.assertEqual(props.getNumClusters(), Ngrid)
         self.assertEqual(props.num_clusters, Ngrid)
 
-        #self.assertTrue(np.all(props.getClusterSizes() == Nrep))
         self.assertTrue(np.all(props.cluster_sizes == Nrep))
+
+    def test_cluster_keys(self):
+        Nlattice = 4
+        Nrep = 5
+
+        positions = []
+        for _ in range(Nrep):
+            (box, pos) = internal.make_fcc(Nlattice, Nlattice, Nlattice, noise=1e-2)
+            positions.append(pos)
+
+        # number of grid points (N = Nrep*Ngrid)
+        Ngrid = positions[-1].shape[0]
+        positions = np.array(positions).reshape((-1, 3))
+
+        clust = freud.cluster.Cluster(box, 0.5)
+        clust.computeClusters(positions)
+        clust.computeClusterMembership(np.array(range(Nrep*Ngrid)))
+
+        self.assertEqual(len(clust.cluster_keys), Ngrid)
+
+        ckeys = np.array(clust.cluster_keys) % Ngrid
+        check_values = np.arange(Ngrid)[:, np.newaxis].repeat(Nrep, axis=1)
+
+        self.assertTrue(np.all(ckeys == check_values))
 
 if __name__ == '__main__':
     unittest.main()
