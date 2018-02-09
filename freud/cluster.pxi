@@ -41,13 +41,13 @@ cdef class Cluster:
         3 component vectors :math:`\\left(x,y,0\\right)`. Failing to set 0 in the third component will lead to undefined \
         behavior.
     """
-    cdef cluster.Cluster *thisptr
+    cdef cluster.Cluster * thisptr
     cdef m_box
     cdef rmax
 
     def __cinit__(self, box, float rcut):
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(),
-            box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                                      box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new cluster.Cluster(cBox, rcut)
         self.m_box = box
         self.rmax = rcut
@@ -80,18 +80,21 @@ cdef class Cluster:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True)
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:
-            raise RuntimeError('Need a list of 3D points for computeClusters()')
+            raise RuntimeError(
+                'Need a list of 3D points for computeClusters()')
 
-        defaulted_nlist = make_default_nlist(self.m_box, points, points, self.rmax, nlist, True)
+        defaulted_nlist = make_default_nlist(
+            self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
-            self.thisptr.computeClusters(nlist_ptr, <vec3[float]*> cPoints.data, Np)
+            self.thisptr.computeClusters(nlist_ptr, < vec3[float]*> cPoints.data, Np)
         return self
 
     def computeClusterMembership(self, keys):
@@ -105,13 +108,15 @@ cdef class Cluster:
         :param keys: Membership keys, one for each particle
         :type keys: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
-        keys = freud.common.convert_array(keys, 1, dtype=np.uint32, contiguous=True)
+        keys = freud.common.convert_array(
+            keys, 1, dtype=np.uint32, contiguous=True)
         N = self.getNumParticles()
         if keys.shape[0] != N:
-            raise RuntimeError('keys must be a 1D array of length NumParticles')
+            raise RuntimeError(
+                'keys must be a 1D array of length NumParticles')
         cdef np.ndarray cKeys = keys
         with nogil:
-            self.thisptr.computeClusterMembership(<unsigned int *>cKeys.data)
+            self.thisptr.computeClusterMembership(< unsigned int * >cKeys.data)
         return self
 
     @property
@@ -163,10 +168,10 @@ cdef class Cluster:
         :return: 1D array of cluster idx
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int *cluster_idx_raw = self.thisptr.getClusterIdx().get()
+        cdef unsigned int * cluster_idx_raw = self.thisptr.getClusterIdx().get()
         cdef np.npy_intp nP[1]
-        nP[0] = <np.npy_intp>self.thisptr.getNumParticles()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nP, np.NPY_UINT32, <void*>cluster_idx_raw)
+        nP[0] = <np.npy_intp > self.thisptr.getNumParticles()
+        cdef np.ndarray[np.uint32_t, ndim= 1] result = np.PyArray_SimpleNewFromData(1, nP, np.NPY_UINT32, < void*>cluster_idx_raw)
         return result
 
     @property
@@ -213,17 +218,15 @@ cdef class ClusterProperties:
     :param box: simulation box
     :type box: :py:class:`freud.box.Box`
     """
-    cdef cluster.ClusterProperties *thisptr
+    cdef cluster.ClusterProperties * thisptr
 
     def __cinit__(self, box):
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(),
-            box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                                      box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new cluster.ClusterProperties(cBox)
-
 
     def __dealloc__(self):
         del self.thisptr
-
 
     @property
     def box(self):
@@ -254,17 +257,21 @@ cdef class ClusterProperties:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type cluster_idx: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
-        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True)
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:
-            raise RuntimeError('Need a list of 3D points for computeClusterProperties()')
-        cluster_idx = freud.common.convert_array(cluster_idx, 1, dtype=np.uint32, contiguous=True)
+            raise RuntimeError(
+                'Need a list of 3D points for computeClusterProperties()')
+        cluster_idx = freud.common.convert_array(
+            cluster_idx, 1, dtype=np.uint32, contiguous=True)
         if cluster_idx.shape[0] != points.shape[0]:
-            raise RuntimeError('cluster_idx must be a 1D array of matching length/number of particles to points')
+            raise RuntimeError(
+                'cluster_idx must be a 1D array of matching length/number of particles to points')
         cdef np.ndarray cPoints = points
-        cdef np.ndarray cCluster_idx= cluster_idx
+        cdef np.ndarray cCluster_idx = cluster_idx
         cdef unsigned int Np = points.shape[0]
         with nogil:
-            self.thisptr.computeProperties(<vec3[float]*> cPoints.data, <unsigned int *> cCluster_idx.data, Np)
+            self.thisptr.computeProperties( < vec3[float]*> cPoints.data, < unsigned int * > cCluster_idx.data, Np)
         return self
 
     @property
@@ -299,11 +306,11 @@ cdef class ClusterProperties:
         :return: numpy array of cluster center of mass coordinates :math:`\\left(x,y,z\\right)`
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`, 3), dtype= :class:`numpy.float32`
         """
-        cdef vec3[float] *cluster_com_raw = self.thisptr.getClusterCOM().get()
+        cdef vec3[float] * cluster_com_raw = self.thisptr.getClusterCOM().get()
         cdef np.npy_intp nClusters[2]
-        nClusters[0] = <np.npy_intp>self.thisptr.getNumClusters()
+        nClusters[0] = <np.npy_intp > self.thisptr.getNumClusters()
         nClusters[1] = 3
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nClusters, np.NPY_FLOAT32, <void*>cluster_com_raw)
+        cdef np.ndarray[np.float32_t, ndim= 2] result = np.PyArray_SimpleNewFromData(2, nClusters, np.NPY_FLOAT32, < void*>cluster_com_raw)
         return result
 
     @property
@@ -321,12 +328,12 @@ cdef class ClusterProperties:
         :return: numpy array of cluster center of mass coordinates :math:`\\left(x,y,z\\right)`
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`, 3, 3), dtype= :class:`numpy.float32`
         """
-        cdef float *cluster_G_raw = self.thisptr.getClusterG().get()
+        cdef float * cluster_G_raw = self.thisptr.getClusterG().get()
         cdef np.npy_intp nClusters[3]
-        nClusters[0] = <np.npy_intp>self.thisptr.getNumClusters()
+        nClusters[0] = <np.npy_intp > self.thisptr.getNumClusters()
         nClusters[1] = 3
         nClusters[2] = 3
-        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nClusters, np.NPY_FLOAT32, <void*>cluster_G_raw)
+        cdef np.ndarray[np.float32_t, ndim= 3] result = np.PyArray_SimpleNewFromData(3, nClusters, np.NPY_FLOAT32, < void*>cluster_G_raw)
         return result
 
     @property
@@ -344,8 +351,8 @@ cdef class ClusterProperties:
         :return: numpy array of sizes of each cluster
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`), dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int *cluster_sizes_raw = self.thisptr.getClusterSize().get()
+        cdef unsigned int * cluster_sizes_raw = self.thisptr.getClusterSize().get()
         cdef np.npy_intp nClusters[1]
-        nClusters[0] = <np.npy_intp>self.thisptr.getNumClusters()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nClusters, np.NPY_UINT32, <void*>cluster_sizes_raw)
+        nClusters[0] = <np.npy_intp > self.thisptr.getNumClusters()
+        cdef np.ndarray[np.uint32_t, ndim= 1] result = np.PyArray_SimpleNewFromData(1, nClusters, np.NPY_UINT32, < void*>cluster_sizes_raw)
         return result

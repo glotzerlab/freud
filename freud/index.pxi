@@ -37,7 +37,7 @@ cdef class Index2D:
 
             freud.index.Index2D(w, h)
     """
-    cdef Index1D.Index2D *thisptr
+    cdef Index1D.Index2D * thisptr
 
     def __cinit__(self, w, h=None):
         if h is not None:
@@ -104,7 +104,7 @@ cdef class Index3D:
 
             freud.index.Index3D(w, h, d)
     """
-    cdef Index1D.Index3D *thisptr
+    cdef Index1D.Index3D * thisptr
 
     def __cinit__(self, w, h=None, d=None):
         if h is not None:
@@ -142,4 +142,3 @@ cdef class Index3D:
         :rtype: unsigned int
         """
         return self.thisptr.getNumElements()
-

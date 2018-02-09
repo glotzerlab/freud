@@ -60,7 +60,7 @@ cdef class Box:
             freud.box.Box(Lx=0.0, Ly=0.0, Lz=0.0, xy=0.0, xz=0.0, yz=0.0, is2D=False)
 
     """
-    cdef box.Box *thisptr
+    cdef box.Box * thisptr
 
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None, is2D=None):
         # BEGIN Check for and warn about possible use of deprecated API
@@ -74,9 +74,10 @@ cdef class Box:
                     DeprecationWarning)
             elif nargs == 2 and isinstance(Ly, bool):
                 raise ValueError(
-                  "You are using a deprecated Box constructor API! Did you mean Box.square()?")
+                    "You are using a deprecated Box constructor API! Did you mean Box.square()?")
             elif isinstance(Lz, bool) or isinstance(xy, bool) or isinstance(xz, bool) or isinstance(yz, bool):
-                raise ValueError("You are using a deprecated Box constructor API!")
+                raise ValueError(
+                    "You are using a deprecated Box constructor API!")
         # END Check for and warn about possible use of deprecated API
         if Lx is None:
             Lx = 0
@@ -92,8 +93,9 @@ cdef class Box:
             yz = 0
         if is2D is None:
             is2D = False
-        if is2D and (Lz != 0 or xz != 0 or yz!= 0):
-            warnings.warn("Specifying z-dimensions in a 2-dimensional box has no effect!")
+        if is2D and (Lz != 0 or xz != 0 or yz != 0):
+            warnings.warn(
+                "Specifying z-dimensions in a 2-dimensional box has no effect!")
         self.thisptr = new box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     def __dealloc__(self):
@@ -115,7 +117,8 @@ cdef class Box:
             raise TypeError('Could not setL({})'.format(L))
 
         if self.is2D() and L[2] != 0:
-            warnings.warn("Specifying z-dimensions in a 2-dimensional box has no effect!")
+            warnings.warn(
+                "Specifying z-dimensions in a 2-dimensional box has no effect!")
         self.thisptr.setL(L[0], L[1], L[2])
 
     def set2D(self, val):
@@ -330,7 +333,7 @@ cdef class Box:
         :rtype: list[float, float, float]
         """
         cdef vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
-        cdef vec3[float] resultVec = self.thisptr.makeCoordinates(<const vec3[float]&>fRaw)
+        cdef vec3[float] resultVec = self.thisptr.makeCoordinates(< const vec3[float]&>fRaw)
         # check on this
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
@@ -350,15 +353,17 @@ cdef class Box:
         elif len(vecs.shape) == 2:
             # check to make sure the second dim is x, y, z
             if vecs.shape[1] != 3:
-                raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+                raise ValueError(
+                    "the 2nd dimension must have 3 values: x, y, z")
             for i, vec in enumerate(vecs):
                 vecs[i] = self._wrap(vec)
         else:
-            raise ValueError("Invalid dimensions given to box wrap. Wrap requires a 3 element array (3,), or (N,3) array as input");
+            raise ValueError(
+                "Invalid dimensions given to box wrap. Wrap requires a 3 element array (3,), or (N,3) array as input")
 
     def _wrap(self, vec):
-        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
-        cdef vec3[float] result = self.thisptr.wrapMultiple(<vec3[float]&>l_vec[0])
+        cdef np.ndarray[float, ndim = 1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef vec3[float] result = self.thisptr.wrapMultiple(< vec3[float]&>l_vec[0])
         return (result.x, result.y, result.z)
 
     def unwrap(self, vecs, imgs):
@@ -377,13 +382,15 @@ cdef class Box:
             # only one vector to wrap
             # verify only one img
             if len(imgs.shape == 1):
-                vecs = np.ascontiguousarray(self._unwrap(vecs, imgs), dtype=np.float32)
+                vecs = np.ascontiguousarray(
+                    self._unwrap(vecs, imgs), dtype=np.float32)
             else:
                 raise RuntimeError("imgs do not match vectors")
         elif len(vecs.shape) == 2:
             # check to make sure the second dim is x, y, z
             if vecs.shape[1] != 3:
-                raise ValueError("the 2nd dimension must have 3 values: x, y, z")
+                raise ValueError(
+                    "the 2nd dimension must have 3 values: x, y, z")
             if len(imgs.shape) == 2:
                 for i, (vec, img) in enumerate(zip(vecs, imgs)):
                     vecs[i] = self._unwrap(vec, img)
@@ -391,9 +398,9 @@ cdef class Box:
                 raise RuntimeError("imgs do not match vectors")
 
     def _unwrap(self, vec, img):
-        cdef np.ndarray[float,ndim=1] l_vec = vec
-        cdef np.ndarray[int,ndim=1] l_img = img
-        cdef vec3[float] result = self.thisptr.unwrap(<vec3[float]&>l_vec[0], <vec3[int]&>l_img[0])
+        cdef np.ndarray[float, ndim = 1] l_vec = vec
+        cdef np.ndarray[int, ndim = 1] l_img = img
+        cdef vec3[float] result = self.thisptr.unwrap( < vec3[float]&>l_vec[0], < vec3[int]&>l_img[0])
         return [result.x, result.y, result.z]
 
     def makeCoordinates(self, f):
@@ -404,8 +411,8 @@ cdef class Box:
         :type f: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: A vector inside the box corresponding to f
         """
-        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(f.flatten())
-        cdef vec3[float] result = self.thisptr.makeCoordinates(<const vec3[float]&>l_vec[0])
+        cdef np.ndarray[float, ndim = 1] l_vec = np.ascontiguousarray(f.flatten())
+        cdef vec3[float] result = self.thisptr.makeCoordinates(< const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
     def makeFraction(self, vec):
@@ -416,8 +423,8 @@ cdef class Box:
         :type vec: numpy.ndarray([x, y, z], dtype=numpy.float32)
         :return: Fractional vector inside the box corresponding to f
         """
-        cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(vec.flatten())
-        cdef vec3[float] result = self.thisptr.makeFraction(<const vec3[float]&>l_vec[0])
+        cdef np.ndarray[float, ndim = 1] l_vec = np.ascontiguousarray(vec.flatten())
+        cdef vec3[float] result = self.thisptr.makeFraction(< const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
 
     def getLatticeVector(self, i):
@@ -434,12 +441,12 @@ cdef class Box:
             result.z = 0.0
         return [result.x, result.y, result.z]
 
-    ## Enable pickling of internal classes
+    # Enable pickling of internal classes
     # Box
     def __getinitargs__(self):
         return (self.getLx(), self.getLy(), self.getLz(), self.is2D())
 
-cdef BoxFromCPP(const box.Box& cppbox):
+cdef BoxFromCPP(const box.Box & cppbox):
     """
     """
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(), cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(), cppbox.getTiltFactorYZ(), cppbox.is2D())

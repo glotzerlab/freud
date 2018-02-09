@@ -5,7 +5,7 @@ import sys
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 cimport freud._locality as locality
-cimport freud._box as _box;
+cimport freud._box as _box
 from cython.operator cimport dereference
 import numpy as np
 cimport numpy as np
@@ -44,7 +44,7 @@ cdef class NeighborList:
        rijs = positions[nlist.index_j] - positions[nlist.index_i]
        box.wrap(rijs)
     """
-    cdef locality.NeighborList *thisptr
+    cdef locality.NeighborList * thisptr
     cdef char _managed
     cdef base
 
@@ -81,9 +81,9 @@ cdef class NeighborList:
         cdef size_t n_bonds = index_i.shape[0]
         cdef size_t c_Nref = Nref
         cdef size_t c_Ntarget = Ntarget
-        cdef np.ndarray[size_t, ndim=1] c_index_i = index_i
-        cdef np.ndarray[size_t, ndim=1] c_index_j = index_j
-        cdef np.ndarray[float, ndim=1] c_weights = weights
+        cdef np.ndarray[size_t, ndim = 1] c_index_i = index_i
+        cdef np.ndarray[size_t, ndim = 1] c_index_j = index_j
+        cdef np.ndarray[float, ndim = 1] c_weights = weights
 
         cdef size_t last_i
         cdef int i
@@ -95,16 +95,18 @@ cdef class NeighborList:
                 if i < last_i:
                     raise RuntimeError('index_i is not sorted')
                 if c_Nref <= i:
-                    raise RuntimeError('Nref is too small for a value found in index_i')
+                    raise RuntimeError(
+                        'Nref is too small for a value found in index_i')
                 if c_Ntarget <= c_index_j[bond]:
-                    raise RuntimeError('Ntarget is too small for a value found in index_j')
+                    raise RuntimeError(
+                        'Ntarget is too small for a value found in index_j')
                 last_i = i
 
         result = cls()
         cdef NeighborList c_result = result
         c_result.thisptr.resize(n_bonds)
-        cdef size_t* c_neighbors_ptr = c_result.thisptr.getNeighbors()
-        cdef float *c_weights_ptr = c_result.thisptr.getWeights()
+        cdef size_t * c_neighbors_ptr = c_result.thisptr.getNeighbors()
+        cdef float * c_weights_ptr = c_result.thisptr.getWeights()
 
         for bond in range(n_bonds):
             c_neighbors_ptr[2*bond] = c_index_i[bond]
@@ -115,7 +117,7 @@ cdef class NeighborList:
 
         return result
 
-    cdef refer_to(self, locality.NeighborList *other):
+    cdef refer_to(self, locality.NeighborList * other):
         """Makes this cython wrapper object point to a different C++ object,
         deleting the one we are already holding if necessary. We do not
         own the memory of the other C++ object."""
@@ -132,7 +134,7 @@ cdef class NeighborList:
         if self._managed:
             del self.thisptr
 
-    cdef locality.NeighborList *get_ptr(self):
+    cdef locality.NeighborList * get_ptr(self):
         """Returns a pointer to the raw C++ object we are wrapping"""
         return self.thisptr
 
@@ -160,7 +162,7 @@ cdef class NeighborList:
         cdef np.npy_intp size[2]
         size[0] = self.thisptr.getNumBonds()
         size[1] = 2
-        cdef np.ndarray[np.uint64_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64, <void*> self.thisptr.getNeighbors())
+        cdef np.ndarray[np.uint64_t, ndim= 2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64, < void*> self.thisptr.getNeighbors())
         result.flags.writeable = False
         return result[:, 0]
 
@@ -172,7 +174,7 @@ cdef class NeighborList:
         cdef np.npy_intp size[2]
         size[0] = self.thisptr.getNumBonds()
         size[1] = 2
-        cdef np.ndarray[np.uint64_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64, <void*> self.thisptr.getNeighbors())
+        cdef np.ndarray[np.uint64_t, ndim= 2] result = np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64, < void*> self.thisptr.getNeighbors())
         result.flags.writeable = False
         return result[:, 1]
 
@@ -182,7 +184,7 @@ cdef class NeighborList:
         evaluated with"""
         cdef np.npy_intp size[1]
         size[0] = self.thisptr.getNumBonds()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, size, np.NPY_FLOAT32, <void*> self.thisptr.getWeights())
+        cdef np.ndarray[np.float32_t, ndim= 1] result = np.PyArray_SimpleNewFromData(1, size, np.NPY_FLOAT32, < void*> self.thisptr.getWeights())
         return result
 
     @property
@@ -191,7 +193,7 @@ cdef class NeighborList:
         indicating the first bond index for each reference particle from the
         last set of points we were evaluated with."""
         result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t* neighbors = self.thisptr.getNeighbors()
+        cdef size_t * neighbors = self.thisptr.getNeighbors()
         cdef size_t last_i = -1
         cdef size_t i = -1
         for bond in range(self.thisptr.getNumBonds()):
@@ -208,7 +210,7 @@ cdef class NeighborList:
         `N_ref` indicating the number of neighbors for each reference particle
         from the last set of points we were evaluated with."""
         result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t* neighbors = self.thisptr.getNeighbors()
+        cdef size_t * neighbors = self.thisptr.getNeighbors()
         cdef size_t last_i = -1
         cdef size_t i = -1
         cdef size_t n = 0
@@ -245,8 +247,8 @@ cdef class NeighborList:
             nlist.filter(types[nlist.index_i] != types[nlist.index_j])
         """
         filt = np.ascontiguousarray(filt, dtype=np.bool)
-        cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
-        cdef cbool *filt_ptr = <cbool*> filt_c.data
+        cdef np.ndarray[np.uint8_t, ndim = 1, cast = True] filt_c = filt
+        cdef cbool * filt_ptr = <cbool*> filt_c.data
         self.thisptr.filter(filt_ptr)
         return self
 
@@ -261,12 +263,12 @@ cdef class NeighborList:
         .. note:: This method modifies this object in-place
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -277,8 +279,9 @@ cdef class NeighborList:
         cdef size_t nP = points.shape[0]
 
         self.thisptr.validate(nRef, nP)
-        self.thisptr.filter_r(cBox, <vec3[float]*> cRef_points.data, <vec3[float]*> cPoints.data, rmax, rmin)
+        self.thisptr.filter_r(cBox, < vec3[float]*> cRef_points.data, < vec3[float]*> cPoints.data, rmax, rmin)
         return self
+
 
 def make_default_nlist(box, ref_points, points, rmax, nlist=None, exclude_ii=None):
     """Helper function to return a neighbor list object if is given, or to
@@ -291,6 +294,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None, exclude_ii=Non
     # return the owner of the neighbor list as well to prevent gc problems
     return lc.nlist, lc
 
+
 def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None, exclude_ii=None, rmax_guess=2.):
     """Helper function to return a neighbor list object if is given, or to
     construct one using NearestNeighbors if it is not."""
@@ -301,6 +305,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None, exclude_
 
     # return the owner of the neighbor list as well to prevent gc problems
     return nn.nlist, nn
+
 
 cdef class IteratorLinkCell:
     """Iterates over the particles in a cell.
@@ -313,20 +318,21 @@ cdef class IteratorLinkCell:
        for j in linkcell.itercell(0):
            print(positions[j])
     """
-    cdef locality.IteratorLinkCell *thisptr
+    cdef locality.IteratorLinkCell * thisptr
 
     def __cinit__(self):
         # must be running python 3.x
         current_version = sys.version_info
         if current_version.major < 3:
-            raise RuntimeError("Must use python 3.x or greater to use IteratorLinkCell")
+            raise RuntimeError(
+                "Must use python 3.x or greater to use IteratorLinkCell")
         else:
             self.thisptr = new locality.IteratorLinkCell()
 
     def __dealloc__(self):
         del self.thisptr
 
-    cdef void copy(self, const locality.IteratorLinkCell &rhs):
+    cdef void copy(self, const locality.IteratorLinkCell & rhs):
         self.thisptr.copy(rhs)
 
     def next(self):
@@ -376,7 +382,7 @@ cdef class LinkCell:
        dens = density.LocalDensity(1.5, 1, 1)
        dens.compute(box, positions, nlist=lc.nlist)
     """
-    cdef locality.LinkCell *thisptr
+    cdef locality.LinkCell * thisptr
     cdef NeighborList _nlist
 
     def __cinit__(self, box, cell_width):
@@ -426,11 +432,11 @@ cdef class LinkCell:
         :rtype: unsigned int
         """
         point = freud.common.convert_array(point, 1, dtype=np.float32, contiguous=True,
-            dim_message="point must be a 1 dimensional array")
+                                           dim_message="point must be a 1 dimensional array")
 
         cdef float[:] cPoint = point
 
-        return self.thisptr.getCell(dereference(<vec3[float]*>&cPoint[0]))
+        return self.thisptr.getCell(dereference( < vec3[float]*>&cPoint[0]))
 
     def itercell(self, unsigned int cell):
         """Return an iterator over all particles in the given cell
@@ -442,7 +448,8 @@ cdef class LinkCell:
         """
         current_version = sys.version_info
         if current_version.major < 3:
-            raise RuntimeError("Must use python 3.x or greater to use itercell")
+            raise RuntimeError(
+                "Must use python 3.x or greater to use itercell")
         result = IteratorLinkCell()
         cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
         result.copy(cResult)
@@ -474,10 +481,11 @@ cdef class LinkCell:
         :type ref_points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{refpoints}, 3\\right)`, dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape= :math:`\\left(N_{points}, 3\\right)`, dtype= :class:`numpy.float32`
         """
-        exclude_ii = (points is ref_points or points is None) if exclude_ii is None else exclude_ii
+        exclude_ii = (
+            points is ref_points or points is None) if exclude_ii is None else exclude_ii
 
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
@@ -485,20 +493,20 @@ cdef class LinkCell:
             points = ref_points
 
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                                      box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRefPoints = ref_points
         cdef unsigned int Nref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
-            self.thisptr.compute(cBox, <vec3[float]*> cRefPoints.data, Nref, <vec3[float]*> cPoints.data, Np, c_exclude_ii)
+            self.thisptr.compute(cBox, < vec3[float]*> cRefPoints.data, Nref, < vec3[float]*> cPoints.data, Np, c_exclude_ii)
 
-        cdef locality.NeighborList *nlist = self.thisptr.getNeighborList()
+        cdef locality.NeighborList * nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
         return self
@@ -551,7 +559,7 @@ cdef class NearestNeighbors:
        hexatic = order.HexOrderParameter(2)
        hexatic.compute(box, positions, nlist=nn.nlist)
     """
-    cdef locality.NearestNeighbors *thisptr
+    cdef locality.NearestNeighbors * thisptr
     cdef NeighborList _nlist
     cdef _cached_points
     cdef _cached_ref_points
@@ -683,7 +691,8 @@ cdef class NearestNeighbors:
         :return: Neighbor List
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`, dtype= :class:`numpy.uint32`
         """
-        result = np.empty((self.thisptr.getNref(), self.thisptr.getNumNeighbors()), dtype=np.uint32)
+        result = np.empty(
+            (self.thisptr.getNref(), self.thisptr.getNumNeighbors()), dtype=np.uint32)
         result[:] = self.getUINTMAX()
         idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
         cdef size_t num_bonds = len(self.nlist.index_i)
@@ -736,8 +745,10 @@ cdef class NearestNeighbors:
         return self._getWrappedVectors()[0]
 
     def _getWrappedVectors(self):
-        result = np.empty((self.thisptr.getNref(), self.thisptr.getNumNeighbors(), 3), dtype=np.float32)
-        blank_mask = np.ones((self.thisptr.getNref(), self.thisptr.getNumNeighbors()), dtype=np.bool)
+        result = np.empty(
+            (self.thisptr.getNref(), self.thisptr.getNumNeighbors(), 3), dtype=np.float32)
+        blank_mask = np.ones(
+            (self.thisptr.getNref(), self.thisptr.getNumNeighbors()), dtype=np.bool)
         idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
         cdef size_t num_bonds = len(self.nlist.index_i)
         cdef size_t last_i = 0
@@ -745,7 +756,8 @@ cdef class NearestNeighbors:
         for bond in range(num_bonds):
             current_j *= last_i == idx_i[bond]
             last_i = idx_i[bond]
-            result[last_i, current_j] = self._cached_points[idx_j[bond]] - self._cached_ref_points[last_i]
+            result[last_i, current_j] = self._cached_points[idx_j[bond]
+                                                            ] - self._cached_ref_points[last_i]
             blank_mask[last_i, current_j] = False
             current_j += 1
 
@@ -786,15 +798,16 @@ cdef class NearestNeighbors:
         :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
-        exclude_ii = (points is ref_points or points is None) if exclude_ii is None else exclude_ii
+        exclude_ii = (
+            points is ref_points or points is None) if exclude_ii is None else exclude_ii
 
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -809,9 +822,9 @@ cdef class NearestNeighbors:
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
-            self.thisptr.compute(cBox, <vec3[float]*> cRef_points.data, n_ref, <vec3[float]*> cPoints.data, Np, c_exclude_ii)
+            self.thisptr.compute(cBox, < vec3[float]*> cRef_points.data, n_ref, < vec3[float]*> cPoints.data, Np, c_exclude_ii)
 
-        cdef locality.NeighborList *nlist = self.thisptr.getNeighborList()
+        cdef locality.NeighborList * nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
 

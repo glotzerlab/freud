@@ -39,7 +39,7 @@ cdef class PMFTR12:
     :type n_t2: unsigned int
 
     """
-    cdef pmft.PMFTR12 *thisptr
+    cdef pmft.PMFTR12 * thisptr
     cdef rmax
 
     def __cinit__(self, r_max, n_r, n_t1, n_t2):
@@ -92,40 +92,41 @@ cdef class PMFTR12:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
-            dim_message="ref_orientations must be a 1 dimensional array")
+                                                      dim_message="ref_orientations must be a 1 dimensional array")
 
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
-            dim_message="orientations must be a 1 dimensional array")
+                                                  dim_message="orientations must be a 1 dimensional array")
 
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        defaulted_nlist = make_default_nlist(
+            box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim= 2] l_points = points
+        cdef np.ndarray[float, ndim= 1] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim= 1] l_orientations = orientations
+        cdef unsigned int nRef = <unsigned int > ref_points.shape[0]
+        cdef unsigned int nP = <unsigned int > points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
                                     nlist_ptr,
-                                    <vec3[float]*>l_ref_points.data,
-                                    <float*>l_ref_orientations.data,
+                                    < vec3[float]*>l_ref_points.data,
+                                    < float*>l_ref_orientations.data,
                                     nRef,
-                                    <vec3[float]*>l_points.data,
-                                    <float*>l_orientations.data,
+                                    < vec3[float]*>l_points.data,
+                                    < float*>l_orientations.data,
                                     nP)
         return self
 
@@ -147,7 +148,8 @@ cdef class PMFTR12:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
+        self.accumulate(box, ref_points, ref_orientations,
+                        points, orientations, nlist)
         return self
 
     def reducePCF(self):
@@ -174,12 +176,12 @@ cdef class PMFTR12:
         :return: Bin Counts
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
+        cdef unsigned int * bin_counts = self.thisptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsT2()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsT1()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsR()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsT2()
+        nbins[2] = <np.npy_intp > self.thisptr.getNBinsT1()
+        cdef np.ndarray[np.uint32_t, ndim = 3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, < void*>bin_counts)
         return result
 
     @property
@@ -199,12 +201,12 @@ cdef class PMFTR12:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* pcf = self.thisptr.getPCF().get()
+        cdef float * pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsT2()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsR()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsT2()
+        nbins[2] = <np.npy_intp > self.thisptr.getNBinsT1()
+        cdef np.ndarray[np.float32_t, ndim = 3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, < void*>pcf)
         return result
 
     @property
@@ -243,10 +245,10 @@ cdef class PMFTR12:
         :return: bin centers of r-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* r = self.thisptr.getR().get()
+        cdef float * r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsR()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>r)
         return result
 
     @property
@@ -266,10 +268,10 @@ cdef class PMFTR12:
         :return: bin centers of T1-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta1}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* T1 = self.thisptr.getT1().get()
+        cdef float * T1 = self.thisptr.getT1().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>T1)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsT1()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>T1)
         return result
 
     @property
@@ -289,10 +291,10 @@ cdef class PMFTR12:
         :return: bin centers of T2-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* T2 = self.thisptr.getT2().get()
+        cdef float * T2 = self.thisptr.getT2().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT2()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>T2)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsT2()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>T2)
         return result
 
     @property
@@ -312,12 +314,12 @@ cdef class PMFTR12:
         :return: Inverse Jacobian
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{r}, N_{\\theta1}, N_{\\theta2}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* inv_jac = self.thisptr.getInverseJacobian().get()
+        cdef float * inv_jac = self.thisptr.getInverseJacobian().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsR()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsT2()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>inv_jac)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsR()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsT2()
+        nbins[2] = <np.npy_intp > self.thisptr.getNBinsT1()
+        cdef np.ndarray[np.float32_t, ndim = 3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, < void*>inv_jac)
         return result
 
     @property
@@ -429,7 +431,7 @@ cdef class PMFTXYT:
     :type n_t: unsigned int
 
     """
-    cdef pmft.PMFTXYT *thisptr
+    cdef pmft.PMFTXYT * thisptr
     cdef rmax
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
@@ -482,40 +484,41 @@ cdef class PMFTXYT:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
-            dim_message="ref_orientations must be a 1 dimensional array")
+                                                      dim_message="ref_orientations must be a 1 dimensional array")
 
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
-            dim_message="orientations must be a 1 dimensional array")
+                                                  dim_message="orientations must be a 1 dimensional array")
 
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        defaulted_nlist = make_default_nlist(
+            box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim= 2] l_points = points
+        cdef np.ndarray[float, ndim= 1] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim= 1] l_orientations = orientations
+        cdef unsigned int nRef = <unsigned int > ref_points.shape[0]
+        cdef unsigned int nP = <unsigned int > points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
                                     nlist_ptr,
-                                    <vec3[float]*>l_ref_points.data,
-                                    <float*>l_ref_orientations.data,
+                                    < vec3[float]*>l_ref_points.data,
+                                    < float*>l_ref_orientations.data,
                                     nRef,
-                                    <vec3[float]*>l_points.data,
-                                    <float*>l_orientations.data,
+                                    < vec3[float]*>l_points.data,
+                                    < float*>l_orientations.data,
                                     nP)
         return self
 
@@ -537,7 +540,8 @@ cdef class PMFTXYT:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
+        self.accumulate(box, ref_points, ref_orientations,
+                        points, orientations, nlist)
         return self
 
     def reducePCF(self):
@@ -564,12 +568,12 @@ cdef class PMFTXYT:
         :return: Bin Counts
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
+        cdef unsigned int * bin_counts = self.thisptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsT()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsY()
+        nbins[2] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.uint32_t, ndim = 3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, < void*>bin_counts)
         return result
 
     @property
@@ -589,12 +593,12 @@ cdef class PMFTXYT:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* pcf = self.thisptr.getPCF().get()
+        cdef float * pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsT()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsY()
+        nbins[2] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim = 3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, < void*>pcf)
         return result
 
     @property
@@ -633,10 +637,10 @@ cdef class PMFTXYT:
         :return: bin centers of x-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* x = self.thisptr.getX().get()
+        cdef float * x = self.thisptr.getX().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>x)
         return result
 
     @property
@@ -656,10 +660,10 @@ cdef class PMFTXYT:
         :return: bin centers of y-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* y = self.thisptr.getY().get()
+        cdef float * y = self.thisptr.getY().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsY()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>y)
         return result
 
     @property
@@ -679,10 +683,10 @@ cdef class PMFTXYT:
         :return: bin centers of t-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* t = self.thisptr.getT().get()
+        cdef float * t = self.thisptr.getT().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsT()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>t)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsT()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>t)
         return result
 
     @property
@@ -809,7 +813,7 @@ cdef class PMFTXY2D:
     :type n_x: unsigned int
     :type n_y: unsigned int
     """
-    cdef pmft.PMFTXY2D *thisptr
+    cdef pmft.PMFTXY2D * thisptr
     cdef rmax
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
@@ -862,40 +866,41 @@ cdef class PMFTXY2D:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(ref_orientations, 1, dtype=np.float32, contiguous=True,
-            dim_message="ref_orientations must be a 1 dimensional array")
+                                                      dim_message="ref_orientations must be a 1 dimensional array")
 
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(orientations, 1, dtype=np.float32, contiguous=True,
-            dim_message="orientations must be a 1 dimensional array")
+                                                  dim_message="orientations must be a 1 dimensional array")
 
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        defaulted_nlist = make_default_nlist(
+            box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim= 2] l_points = points
+        cdef np.ndarray[float, ndim= 1] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim= 1] l_orientations = orientations
+        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int > points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
                                     nlist_ptr,
-                                    <vec3[float]*>l_ref_points.data,
-                                    <float*>l_ref_orientations.data,
+                                    < vec3[float]*>l_ref_points.data,
+                                    < float*>l_ref_orientations.data,
                                     n_ref,
-                                    <vec3[float]*>l_points.data,
-                                    <float*>l_orientations.data,
+                                    < vec3[float]*>l_points.data,
+                                    < float*>l_orientations.data,
                                     n_p)
         return self
 
@@ -917,7 +922,8 @@ cdef class PMFTXY2D:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations, nlist)
+        self.accumulate(box, ref_points, ref_orientations,
+                        points, orientations, nlist)
         return self
 
     def reducePCF(self):
@@ -944,11 +950,11 @@ cdef class PMFTXY2D:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}, N_{y}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* pcf = self.thisptr.getPCF().get()
+        cdef float * pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>pcf)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsY()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim = 2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, < void*>pcf)
         return result
 
     @property
@@ -987,11 +993,11 @@ cdef class PMFTXY2D:
         :return: Bin Counts
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}, N_{x}\\right)`, dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
+        cdef unsigned int * bin_counts = self.thisptr.getBinCounts().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, <void*>bin_counts)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsY()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.uint32_t, ndim = 2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32, < void*>bin_counts)
         return result
 
     @property
@@ -1011,10 +1017,10 @@ cdef class PMFTXY2D:
         :return: bin centers of x-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* x = self.thisptr.getX().get()
+        cdef float * x = self.thisptr.getX().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>x)
         return result
 
     @property
@@ -1035,10 +1041,10 @@ cdef class PMFTXY2D:
         :return: bin centers of y-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* y = self.thisptr.getY().get()
+        cdef float * y = self.thisptr.getY().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsY()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>y)
         return result
 
     @property
@@ -1151,12 +1157,12 @@ cdef class PMFTXYZ:
     :type n_z: unsigned int
     :type shiftvec: list
     """
-    cdef pmft.PMFTXYZ *thisptr
+    cdef pmft.PMFTXYZ * thisptr
     cdef shiftvec
     cdef rmax
 
-    def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z, shiftvec=[0,0,0]):
-        cdef vec3[float] c_shiftvec = vec3[float](shiftvec[0],shiftvec[1],shiftvec[2])
+    def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z, shiftvec=[0, 0, 0]):
+        cdef vec3[float] c_shiftvec = vec3[float](shiftvec[0], shiftvec[1], shiftvec[2])
         self.thisptr = new pmft.PMFTXYZ(x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
         self.shiftvec = np.array(shiftvec, dtype=np.float32)
         self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
@@ -1212,75 +1218,84 @@ cdef class PMFTXYZ:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(ref_orientations, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_orientations must be a 2 dimensional array")
+                                                      dim_message="ref_orientations must be a 2 dimensional array")
         if ref_orientations.shape[1] != 4:
-            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+            raise ValueError(
+                "the 2nd dimension must have 4 values: q0, q1, q2, q3")
 
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
-        points = points - self.shiftvec.reshape(1,3)
+        points = points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
-            dim_message="orientations must be a 2 dimensional array")
+                                                  dim_message="orientations must be a 2 dimensional array")
         if orientations.shape[1] != 4:
-            raise ValueError("the 2nd dimension must have 4 values: q0, q1, q2, q3")
+            raise ValueError(
+                "the 2nd dimension must have 4 values: q0, q1, q2, q3")
 
         # handle multiple ways to input
         if face_orientations is None:
             # set to unit quaternion q = [1,0,0,0]
-            face_orientations = np.zeros(shape=(ref_points.shape[0], 1, 4), dtype=np.float32)
-            face_orientations[:,:,0] = 1.0
+            face_orientations = np.zeros(
+                shape=(ref_points.shape[0], 1, 4), dtype=np.float32)
+            face_orientations[:, :, 0] = 1.0
         else:
             if (len(face_orientations.shape) < 2) or (len(face_orientations.shape) > 3):
                 raise ValueError("points must be a 2 or 3 dimensional array")
             face_orientations = freud.common.convert_array(face_orientations, face_orientations.ndim, dtype=np.float32, contiguous=True,
-                dim_message="face_orientations must be a {} dimensional array".format(face_orientations.ndim))
+                                                           dim_message="face_orientations must be a {} dimensional array".format(face_orientations.ndim))
             if face_orientations.ndim == 2:
                 if face_orientations.shape[1] != 4:
-                    raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+                    raise ValueError(
+                        "2nd dimension for orientations must have 4 values: s, x, y, z")
                 # need to broadcast into new array
-                tmp_face_orientations = np.zeros(shape=(ref_points.shape[0], face_orientations.shape[0], face_orientations.shape[1]), dtype=np.float32)
+                tmp_face_orientations = np.zeros(shape=(
+                    ref_points.shape[0], face_orientations.shape[0], face_orientations.shape[1]), dtype=np.float32)
                 tmp_face_orientations[:] = face_orientations
                 face_orientations = tmp_face_orientations
             else:
-				# Make sure that the first dimensions is actually the number of particles
+                                # Make sure that the first dimensions is actually the number of particles
                 if face_orientations.shape[2] != 4:
-                    raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
+                    raise ValueError(
+                        "2nd dimension for orientations must have 4 values: s, x, y, z")
                 elif face_orientations.shape[0] not in (1, ref_points.shape[0]):
-                    raise ValueError("If provided as a 3D array, the first dimension of the face_orientations array must be either of size 1 or N_particles")
+                    raise ValueError(
+                        "If provided as a 3D array, the first dimension of the face_orientations array must be either of size 1 or N_particles")
                 elif face_orientations.shape[0] == 1:
-                    face_orientations = np.repeat(face_orientations, ref_points.shape[0], axis = 0)
+                    face_orientations = np.repeat(
+                        face_orientations, ref_points.shape[0], axis=0)
 
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        defaulted_nlist = make_default_nlist(
+            box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef np.ndarray[float, ndim=3] l_face_orientations = face_orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nFaces = <unsigned int> face_orientations.shape[1]
+        cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim= 2] l_points = points
+        cdef np.ndarray[float, ndim= 2] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim= 2] l_orientations = orientations
+        cdef np.ndarray[float, ndim= 3] l_face_orientations = face_orientations
+        cdef unsigned int nRef = <unsigned int > ref_points.shape[0]
+        cdef unsigned int nP = <unsigned int > points.shape[0]
+        cdef unsigned int nFaces = <unsigned int > face_orientations.shape[1]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(l_box,
                                     nlist_ptr,
-                                    <vec3[float]*>l_ref_points.data,
-                                    <quat[float]*>l_ref_orientations.data,
+                                    < vec3[float]*>l_ref_points.data,
+                                    < quat[float]*>l_ref_orientations.data,
                                     nRef,
-                                    <vec3[float]*>l_points.data,
-                                    <quat[float]*>l_orientations.data,
+                                    < vec3[float]*>l_points.data,
+                                    < quat[float]*>l_orientations.data,
                                     nP,
-                                    <quat[float]*>l_face_orientations.data,
+                                    < quat[float]*>l_face_orientations.data,
                                     nFaces)
         return self
 
@@ -1305,7 +1320,8 @@ cdef class PMFTXYZ:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetPCF()
-        self.accumulate(box, ref_points, ref_orientations, points, orientations, face_orientations, nlist)
+        self.accumulate(box, ref_points, ref_orientations,
+                        points, orientations, face_orientations, nlist)
         return self
 
     def reducePCF(self):
@@ -1332,12 +1348,12 @@ cdef class PMFTXYZ:
         :return: Bin Counts
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{z}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int* bin_counts = self.thisptr.getBinCounts().get()
+        cdef unsigned int * bin_counts = self.thisptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsZ()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, <void*>bin_counts)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsZ()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsY()
+        nbins[2] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.uint32_t, ndim = 3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32, < void*>bin_counts)
         return result
 
     @property
@@ -1357,12 +1373,12 @@ cdef class PMFTXYZ:
         :return: PCF
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{z}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* pcf = self.thisptr.getPCF().get()
+        cdef float * pcf = self.thisptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsZ()
-        nbins[1] = <np.npy_intp>self.thisptr.getNBinsY()
-        nbins[2] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>pcf)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsZ()
+        nbins[1] = <np.npy_intp > self.thisptr.getNBinsY()
+        nbins[2] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim = 3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, < void*>pcf)
         return result
 
     @property
@@ -1401,10 +1417,10 @@ cdef class PMFTXYZ:
         :return: bin centers of x-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{x}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* x = self.thisptr.getX().get()
+        cdef float * x = self.thisptr.getX().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>x)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>x)
         return result + self.shiftvec[0]
 
     @property
@@ -1424,10 +1440,10 @@ cdef class PMFTXYZ:
         :return: bin centers of y-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{y}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* y = self.thisptr.getY().get()
+        cdef float * y = self.thisptr.getY().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>y)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsY()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>y)
         return result + self.shiftvec[1]
 
     @property
@@ -1447,10 +1463,10 @@ cdef class PMFTXYZ:
         :return: bin centers of z-dimension of histogram
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{z}\\right)`, dtype= :class:`numpy.float32`
         """
-        cdef float* z = self.thisptr.getZ().get()
+        cdef float * z = self.thisptr.getZ().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBinsZ()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>z)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBinsZ()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>z)
         return result + self.shiftvec[2]
 
     @property

@@ -46,7 +46,7 @@ cdef class FloatCF:
     :type r_max: float
     :type dr: float
     """
-    cdef density.CorrelationFunction[double] *thisptr
+    cdef density.CorrelationFunction[double] * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr):
@@ -76,37 +76,40 @@ cdef class FloatCF:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
-        refValues = freud.common.convert_array(refValues, 1, dtype=np.float64, contiguous=True)
-        values = freud.common.convert_array(values, 1, dtype=np.float64, contiguous=True)
+                                            dim_message="points must be a 2 dimensional array")
+        refValues = freud.common.convert_array(
+            refValues, 1, dtype=np.float64, contiguous=True)
+        values = freud.common.convert_array(
+            values, 1, dtype=np.float64, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points;
+        cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim = 2] l_points
         if ref_points is points:
-            l_points = l_ref_points;
+            l_points = l_ref_points
         else:
             l_points = points
-        cdef np.ndarray[np.float64_t, ndim=1] l_refValues = refValues
-        cdef np.ndarray[np.float64_t, ndim=1] l_values
+        cdef np.ndarray[np.float64_t, ndim= 1] l_refValues = refValues
+        cdef np.ndarray[np.float64_t, ndim= 1] l_values
         if values is refValues:
             l_values = l_refValues
         else:
             l_values = values
 
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        defaulted_nlist = make_default_nlist(
+            box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int > points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                                       box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, <double*>l_refValues.data, n_ref,
-                <vec3[float]*>l_points.data, <double*>l_values.data, n_p)
+            self.thisptr.accumulate(l_box, nlist_ptr, < vec3[float]*>l_ref_points.data, < double*>l_refValues.data, n_ref,
+                                    < vec3[float]*>l_points.data, < double*>l_values.data, n_p)
         return self
 
     @property
@@ -122,10 +125,10 @@ cdef class FloatCF:
         :return: expected (average) product of all values at a given radial distance
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
         """
-        cdef double *rdf = self.thisptr.getRDF().get()
+        cdef double * rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.float64_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT64, <void*>rdf)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.float64_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT64, < void*>rdf)
         return result
 
     @property
@@ -145,7 +148,7 @@ cdef class FloatCF:
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP( < box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """
@@ -194,10 +197,10 @@ cdef class FloatCF:
         :return: counts of each histogram bin
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.int32`
         """
-        cdef unsigned int *counts = self.thisptr.getCounts().get()
+        cdef unsigned int * counts = self.thisptr.getCounts().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>counts)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.uint32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, < void*>counts)
         return result
 
     @property
@@ -213,10 +216,10 @@ cdef class FloatCF:
         :return: values of bin centers
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
         """
-        cdef float *r = self.thisptr.getR().get()
+        cdef float * r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>r)
         return result
 
 cdef class ComplexCF:
@@ -250,7 +253,7 @@ cdef class ComplexCF:
     :type r_max: float
     :type dr: float
     """
-    cdef density.CorrelationFunction[np.complex128_t] *thisptr
+    cdef density.CorrelationFunction[np.complex128_t] * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr):
@@ -280,37 +283,40 @@ cdef class ComplexCF:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
-        refValues = freud.common.convert_array(refValues, 1, dtype=np.complex128, contiguous=True)
-        values = freud.common.convert_array(values, 1, dtype=np.complex128, contiguous=True)
+                                            dim_message="points must be a 2 dimensional array")
+        refValues = freud.common.convert_array(
+            refValues, 1, dtype=np.complex128, contiguous=True)
+        values = freud.common.convert_array(
+            values, 1, dtype=np.complex128, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points;
+        cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim = 2] l_points
         if ref_points is points:
-            l_points = l_ref_points;
+            l_points = l_ref_points
         else:
             l_points = points
-        cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = refValues
-        cdef np.ndarray[np.complex128_t, ndim=1] l_values
+        cdef np.ndarray[np.complex128_t, ndim= 1] l_refValues = refValues
+        cdef np.ndarray[np.complex128_t, ndim= 1] l_values
         if values is refValues:
             l_values = l_refValues
         else:
             l_values = values
 
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist, None)
+        defaulted_nlist = make_default_nlist(
+            box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int > points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                                       box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, <np.complex128_t*>l_refValues.data, n_ref,
-                <vec3[float]*>l_points.data, <np.complex128_t*>l_values.data, n_p)
+            self.thisptr.accumulate(l_box, nlist_ptr, < vec3[float]*>l_ref_points.data, < np.complex128_t*>l_refValues.data, n_ref,
+                                    < vec3[float]*>l_points.data, < np.complex128_t*>l_values.data, n_p)
         return self
 
     @property
@@ -326,10 +332,10 @@ cdef class ComplexCF:
         :return: expected (average) product of all values at a given radial distance
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.complex128`
         """
-        cdef np.complex128_t *rdf = self.thisptr.getRDF().get()
+        cdef np.complex128_t * rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.complex128_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX128, <void*>rdf)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.complex128_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX128, < void*>rdf)
         return result
 
     @property
@@ -347,7 +353,7 @@ cdef class ComplexCF:
         :return: freud Box
         :rtype: :py:meth:`freud.box.Box()`
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP( < box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """
@@ -396,10 +402,10 @@ cdef class ComplexCF:
         :return: counts of each histogram bin
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.int32`
         """
-        cdef unsigned int *counts = self.thisptr.getCounts().get()
+        cdef unsigned int * counts = self.thisptr.getCounts().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*>counts)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.uint32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, < void*>counts)
         return result
 
     @property
@@ -415,10 +421,10 @@ cdef class ComplexCF:
         :return: values of bin centers
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
         """
-        cdef float *r = self.thisptr.getR().get()
+        cdef float * r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>r)
         return result
 
 cdef class GaussianDensity:
@@ -453,7 +459,7 @@ cdef class GaussianDensity:
 
             freud.density.GaussianDensity(width_x, width_y, width_z, r_cut, dr)
     """
-    cdef density.GaussianDensity *thisptr
+    cdef density.GaussianDensity * thisptr
 
     def __cinit__(self, *args):
         if len(args) == 3:
@@ -491,15 +497,15 @@ cdef class GaussianDensity:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim= 2] l_points = points
         cdef unsigned int n_p = points.shape[0]
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                                       box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*>l_points.data, n_p)
+            self.thisptr.compute(l_box, < vec3[float]*>l_points.data, n_p)
         return self
 
     @property
@@ -515,18 +521,19 @@ cdef class GaussianDensity:
         :return: Image (grid) with values of gaussian
         :rtype: :class:`numpy.ndarray`, shape=(:math:`w_x`, :math:`w_y`, :math:`w_z`), dtype= :class:`numpy.float32`
         """
-        cdef float *density = self.thisptr.getDensity().get()
+        cdef float * density = self.thisptr.getDensity().get()
         cdef np.npy_intp nbins[1]
         arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
         cdef _box.Box l_box = self.thisptr.getBox()
         if not l_box.is2D():
             arraySize *= self.thisptr.getWidthZ()
-        nbins[0] = <np.npy_intp>arraySize
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>density)
+        nbins[0] = <np.npy_intp > arraySize
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>density)
         if l_box.is2D():
             arrayShape = (self.thisptr.getWidthY(), self.thisptr.getWidthX())
         else:
-            arrayShape = (self.thisptr.getWidthZ(), self.thisptr.getWidthY(), self.thisptr.getWidthX())
+            arrayShape = (self.thisptr.getWidthZ(),
+                          self.thisptr.getWidthY(), self.thisptr.getWidthX())
         pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
         return pyResult
 
@@ -561,7 +568,7 @@ cdef class LocalDensity:
     :type volume: float
     :type diameter: float
     """
-    cdef density.LocalDensity *thisptr
+    cdef density.LocalDensity * thisptr
     cdef r_cut
     cdef diameter
 
@@ -603,27 +610,28 @@ cdef class LocalDensity:
         if points is None:
             points = ref_points
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim= 2] l_points = points
+        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int > points.shape[0]
 
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                                       box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
         # local density of each particle includes itself (cutoff
         # distance is r_cut + diam/2 because of smoothing)
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.r_cut + 0.5*self.diameter, nlist, exclude_ii=False)
+        defaulted_nlist = make_default_nlist(
+            box, ref_points, points, self.r_cut + 0.5*self.diameter, nlist, exclude_ii=False)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         with nogil:
-            self.thisptr.compute(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
+            self.thisptr.compute(l_box, nlist_ptr, < vec3[float]*>l_ref_points.data, n_ref, < vec3[float]*>l_points.data, n_p)
         return self
 
     @property
@@ -639,10 +647,10 @@ cdef class LocalDensity:
         :return: Density array for each particle
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         """
-        cdef float *density = self.thisptr.getDensity().get()
+        cdef float * density = self.thisptr.getDensity().get()
         cdef np.npy_intp nref[1]
-        nref[0] = <np.npy_intp>self.thisptr.getNRef()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nref, np.NPY_FLOAT32, <void*>density)
+        nref[0] = <np.npy_intp > self.thisptr.getNRef()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nref, np.NPY_FLOAT32, < void*>density)
         return result
 
     @property
@@ -658,10 +666,10 @@ cdef class LocalDensity:
         :return: Number of neighbors for each particle
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         """
-        cdef float *neighbors = self.thisptr.getNumNeighbors().get()
+        cdef float * neighbors = self.thisptr.getNumNeighbors().get()
         cdef np.npy_intp nref[1]
-        nref[0] = <np.npy_intp>self.thisptr.getNRef()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nref, np.NPY_FLOAT32, <void*>neighbors)
+        nref[0] = <np.npy_intp > self.thisptr.getNRef()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nref, np.NPY_FLOAT32, < void*>neighbors)
         return result
 
 cdef class RDF:
@@ -685,7 +693,7 @@ cdef class RDF:
     :type rmax: float
     :type dr: float
     """
-    cdef density.RDF *thisptr
+    cdef density.RDF * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr):
@@ -728,25 +736,26 @@ cdef class RDF:
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-            dim_message="ref_points must be a 2 dimensional array")
+                                                dim_message="ref_points must be a 2 dimensional array")
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message="points must be a 2 dimensional array")
+                                            dim_message="points must be a 2 dimensional array")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim= 2] l_points = points
+        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int > points.shape[0]
 
         cdef _box.Box l_box = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                                       box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
-        defaulted_nlist = make_default_nlist(box, ref_points, points, self.rmax, nlist)
+        defaulted_nlist = make_default_nlist(
+            box, ref_points, points, self.rmax, nlist)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList *nlist_ptr = nlist_.get_ptr()
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         with nogil:
-            self.thisptr.accumulate(l_box, nlist_ptr, <vec3[float]*>l_ref_points.data, n_ref, <vec3[float]*>l_points.data, n_p)
+            self.thisptr.accumulate(l_box, nlist_ptr, < vec3[float]*>l_ref_points.data, n_ref, < vec3[float]*>l_points.data, n_p)
         return self
 
     def compute(self, box, ref_points, points, nlist=None):
@@ -792,10 +801,10 @@ cdef class RDF:
         :return: histogram of rdf values
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
-        cdef float *rdf = self.thisptr.getRDF().get()
+        cdef float * rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>rdf)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>rdf)
         return result
 
     @property
@@ -811,10 +820,10 @@ cdef class RDF:
         :return: values of the histogram bin centers
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
-        cdef float *r = self.thisptr.getR().get()
+        cdef float * r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>r)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>r)
         return result
 
     @property
@@ -830,8 +839,8 @@ cdef class RDF:
         :return: histogram of cumulative rdf values
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
-        cdef float *Nr = self.thisptr.getNr().get()
+        cdef float * Nr = self.thisptr.getNr().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp>self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*>Nr)
+        nbins[0] = <np.npy_intp > self.thisptr.getNBins()
+        cdef np.ndarray[np.float32_t, ndim = 1] result = np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, < void*>Nr)
         return result

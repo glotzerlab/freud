@@ -11,6 +11,7 @@ cimport freud._parallel as parallel
 
 _numThreads = 0
 
+
 def setNumThreads(nthreads=None):
     """Set the number of threads for parallel computation.
 
@@ -24,5 +25,5 @@ def setNumThreads(nthreads=None):
 
     _numThreads = nthreads
 
-    cdef unsigned int cNthreads = nthreads;
+    cdef unsigned int cNthreads = nthreads
     parallel.setNumThreads(cNthreads)

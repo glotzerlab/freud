@@ -14,7 +14,7 @@ cdef class VoronoiBuffer:
     """
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     """
-    cdef voronoi.VoronoiBuffer *thisptr
+    cdef voronoi.VoronoiBuffer * thisptr
 
     def __cinit__(self, box):
         cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -22,19 +22,20 @@ cdef class VoronoiBuffer:
 
     def compute(self, points, float buffer):
         points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-            dim_message='points must be a 3 dimensional array')
+                                            dim_message='points must be a 3 dimensional array')
 
         if points.shape[1] != 3:
-            raise RuntimeError('Need a list of 3D points for VoronoiBuffer.compute()')
+            raise RuntimeError(
+                'Need a list of 3D points for VoronoiBuffer.compute()')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        self.thisptr.compute(<float3*> cPoints.data, Np, buffer)
-        return self;
+        self.thisptr.compute(< float3*> cPoints.data, Np, buffer)
+        return self
 
     def getBufferParticles(self):
         cdef _box.Box cBox = self.thisptr.getBox()
         cdef unsigned int buffer_size = dereference(self.thisptr.getBufferParticles().get()).size()
-        cdef float3* buffer_points = &dereference(self.thisptr.getBufferParticles().get())[0]
+        cdef float3 * buffer_points = &dereference(self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
 
@@ -43,6 +44,6 @@ cdef class VoronoiBuffer:
         nbins[0] = buffer_size
         nbins[1] = 3
 
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>dereference(bufferPar).data())
+        cdef np.ndarray[float, ndim = 2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, < void*>dereference(bufferPar).data())
 
         return result
