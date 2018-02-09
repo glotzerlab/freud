@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
-## \package freud.pmft
+# \package freud.pmft
 #
 # Methods to compute pair correlation function and pmft from point distributions.
 #

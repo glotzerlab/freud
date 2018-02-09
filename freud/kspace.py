@@ -9,10 +9,12 @@ from ._freud import FTdelta as _FTdelta
 from ._freud import FTsphere as _FTsphere
 from ._freud import FTpolyhedron as _FTpolyhedron
 
-## \package freud.kspace
+# \package freud.kspace
 #
 # Analyses that are compute quantities in kspace
 #
+
+
 def meshgrid2(*arrs):
     """Computes an n-dimensional meshgrid
 
@@ -28,7 +30,7 @@ def meshgrid2(*arrs):
 
     sz = 1
     for s in lens:
-        sz*=s
+        sz *= s
 
     ans = []
     for i, arr in enumerate(arrs):
@@ -36,11 +38,12 @@ def meshgrid2(*arrs):
         slc[i] = lens[i]
         arr2 = numpy.asarray(arr).reshape(slc)
         for j, sz in enumerate(lens):
-            if j!=i:
+            if j != i:
                 arr2 = arr2.repeat(sz, axis=j)
         ans.append(arr2)
 
     return tuple(ans[::-1])
+
 
 class SFactor3DPoints:
     """Compute the full 3D structure factor of a given set of points
@@ -61,6 +64,7 @@ class SFactor3DPoints:
     Note that due to the way that numpy arrays are indexed, access the returned S array as
     S[c,b,a] to get the value at :math:`q = \\left(qx\\left[a\\right], qy\\left[b\\right], qz\\left[c\\right]\\right)`.
     """
+
     def __init__(self, box, g):
         """Initalize SFactor3DPoints
 
@@ -72,16 +76,21 @@ class SFactor3DPoints:
         if box.is2D():
             raise ValueError("SFactor3DPoints does not support 2D boxes")
 
-        self.grid = 2*g + 1;
-        self.qx = numpy.linspace(-g * 2 * math.pi / box.getLx(), g * 2 * math.pi / box.getLx(), num=self.grid)
-        self.qy = numpy.linspace(-g * 2 * math.pi / box.getLy(), g * 2 * math.pi / box.getLy(), num=self.grid)
-        self.qz = numpy.linspace(-g * 2 * math.pi / box.getLz(), g * 2 * math.pi / box.getLz(), num=self.grid)
+        self.grid = 2*g + 1
+        self.qx = numpy.linspace(-g * 2 * math.pi / box.getLx(),
+                                 g * 2 * math.pi / box.getLx(), num=self.grid)
+        self.qy = numpy.linspace(-g * 2 * math.pi / box.getLy(),
+                                 g * 2 * math.pi / box.getLy(), num=self.grid)
+        self.qz = numpy.linspace(-g * 2 * math.pi / box.getLz(),
+                                 g * 2 * math.pi / box.getLz(), num=self.grid)
 
         # make meshgrid versions of qx,qy,qz for easy computation later
-        self.qx_grid, self.qy_grid, self.qz_grid = meshgrid2(self.qx, self.qy, self.qz);
+        self.qx_grid, self.qy_grid, self.qz_grid = meshgrid2(
+            self.qx, self.qy, self.qz)
 
         # initialize a 0 S
-        self.s_complex = numpy.zeros(shape=(self.grid,self.grid,self.grid), dtype=numpy.complex64);
+        self.s_complex = numpy.zeros(
+            shape=(self.grid, self.grid, self.grid), dtype=numpy.complex64)
 
     def compute(self, points):
         """Compute the static structure factor of a given set of points
@@ -93,17 +102,18 @@ class SFactor3DPoints:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         # clear s_complex to zero
-        self.s_complex[:,:,:] = 0;
+        self.s_complex[:, :, :] = 0
 
         # add the contribution of each point
         for p in points:
-            self.s_complex += numpy.exp(1j * (self.qx_grid * p[0] + self.qy_grid * p[1] + self.qz_grid * p[2]));
+            self.s_complex += numpy.exp(1j * (self.qx_grid *
+                                              p[0] + self.qy_grid * p[1] + self.qz_grid * p[2]))
 
         # normalize
-        mid = self.grid // 2;
-        cinv = numpy.absolute(self.s_complex[mid,mid,mid]);
-        self.s_complex /= cinv;
-        return self;
+        mid = self.grid // 2
+        cinv = numpy.absolute(self.s_complex[mid, mid, mid])
+        self.s_complex /= cinv
+        return self
 
     def getS(self):
         """Get the computed static structure factor
@@ -111,7 +121,7 @@ class SFactor3DPoints:
         :return: The computed static structure factor as a copy
         :rtype: :class:`numpy.ndarray`, shape=(X,Y), dtype= :class:`numpy.float32`
         """
-        return (self.s_complex * numpy.conj(self.s_complex)).astype(numpy.float32);
+        return (self.s_complex * numpy.conj(self.s_complex)).astype(numpy.float32)
 
     def getSComplex(self):
         """Get the computed complex structure factor (if you need the phase information)
@@ -129,7 +139,8 @@ class SFactor3DPoints:
         :return: (qx, qy, qz)
         :rtype: :class:`tuple`
         """
-        return (self.qx, self.qy, self.qz);
+        return (self.qx, self.qy, self.qz)
+
 
 class AnalyzeSFactor3D:
     """ Analyze the peaks in a 3D structure factor
@@ -151,15 +162,16 @@ class AnalyzeSFactor3D:
     .. todo::
         need to think if this actually will work with non-cubic boxes...
     """
+
     def __init__(self, S):
         """Initialize the analyzer
 
         :param S: Static structure factor to analyze
         :type S: :class:`numpy.ndarray`
         """
-        self.S = S;
-        self.grid = S.shape[0];
-        self.g = self.grid/2;
+        self.S = S
+        self.grid = S.shape[0]
+        self.g = self.grid/2
 
     def getPeakList(self, cut):
         """Get a list of peaks in the structure factor
@@ -168,14 +180,15 @@ class AnalyzeSFactor3D:
         :return: peaks, q as lists
         :rtype: :class:`list`
         """
-        clist,blist,alist = (self.S > cut).nonzero()
-        clist -= self.g;
-        blist -= self.g;
-        alist -= self.g;
+        clist, blist, alist = (self.S > cut).nonzero()
+        clist -= self.g
+        blist -= self.g
+        alist -= self.g
 
-        q_list = [idx for idx in zip(clist,blist,alist)];
-        peak_list = [self.S[(q[0]+self.g, q[1]+self.g, q[2]+self.g)] for q in q_list];
-        return (q_list, peak_list);
+        q_list = [idx for idx in zip(clist, blist, alist)]
+        peak_list = [self.S[(q[0]+self.g, q[1]+self.g, q[2]+self.g)]
+                     for q in q_list]
+        return (q_list, peak_list)
 
     def getPeakDegeneracy(self, cut):
         """Get a dictionary of peaks indexed by :math:`q^2`
@@ -185,17 +198,17 @@ class AnalyzeSFactor3D:
         :return: a dictionary with key :math:`q^2` and each element being a list of peaks
         :rtype: :class:`dict`
         """
-        q_list, peak_list = self.getPeakList(cut);
+        q_list, peak_list = self.getPeakList(cut)
 
         retval = {}
-        for q,peak in zip(q_list, peak_list):
-            qsq = q[0]*q[0] + q[1] * q[1] + q[2] * q[2];
+        for q, peak in zip(q_list, peak_list):
+            qsq = q[0]*q[0] + q[1] * q[1] + q[2] * q[2]
             if not (qsq in retval):
-                retval[qsq] = [];
+                retval[qsq] = []
 
-            retval[qsq].append(peak);
+            retval[qsq].append(peak)
 
-        return retval;
+        return retval
 
     def getSvsQ(self):
         """Get a list of all :math:`S\\left(\\left|q\\right|\\right)` values vs :math:`q^2`
@@ -203,16 +216,18 @@ class AnalyzeSFactor3D:
         :return: S, qsquared
         :rtype: :class:`numpy.ndarray`
         """
-        hx = range(-self.g, self.g+1);
+        hx = range(-self.g, self.g+1)
 
-        qsq_list = [];
+        qsq_list = []
         # create an list of q^2 in the proper order
-        for i in range(0,self.grid):
-            for j in range(0,self.grid):
-                for k in range(0,self.grid):
-                    qsq_list.append(hx[i]*hx[i] + hx[j] * hx[j] + hx[k] * hx[k]);
+        for i in range(0, self.grid):
+            for j in range(0, self.grid):
+                for k in range(0, self.grid):
+                    qsq_list.append(hx[i]*hx[i] + hx[j] *
+                                    hx[j] + hx[k] * hx[k])
 
         return (self.S.flatten(), qsq_list)
+
 
 class SingleCell3D:
     """SingleCell3D objects manage data structures necessary to call the Fourier Transform functions that evaluate FTs for
@@ -225,6 +240,7 @@ class SingleCell3D:
     I'm not sure what sort of error checking would be most useful, so I'm mostly allowing ValueErrors and such exceptions
     to just occur and then propagate up through the calling functions to be dealt with by the user.
     """
+
     def __init__(self, k=1800, ndiv=16, dK=0.01, boxMatrix=None, *args, **kwargs):
         """Initialize the single-cell data structure for FT calculation
         :param ndiv: The resolution of the diffraction image grid
@@ -263,7 +279,7 @@ class SingleCell3D:
         self.k = numpy.float32(k)
         self.ndiv = numpy.float32(ndiv)
         self.dK = numpy.float32(dK)
-        if numpy.float32(boxMatrix).shape != (3,3):
+        if numpy.float32(boxMatrix).shape != (3, 3):
             raise Warning('Need a valid box matrix!')
         else:
             self.boxMatrix = boxMatrix
@@ -272,8 +288,8 @@ class SingleCell3D:
         else:
             self.scale = 1.0
         self.scale = numpy.float32(self.scale)
-        self.a1, self.a2, self.a3 = numpy.zeros((3,3), dtype=numpy.float32)
-        self.g1, self.g2, self.g3 = numpy.zeros((3,3), dtype=numpy.float32)
+        self.a1, self.a2, self.a3 = numpy.zeros((3, 3), dtype=numpy.float32)
+        self.g1, self.g2, self.g3 = numpy.zeros((3, 3), dtype=numpy.float32)
         self.update_bases()
 
         # Initialize remaining variables
@@ -306,8 +322,8 @@ class SingleCell3D:
             raise Warning('{name} already exists'.format(name=name))
             return
         self.ptype_name.append(name)
-        self.ptype_position.append(numpy.empty((0,3), dtype=numpy.float32))
-        self.ptype_orientation.append(numpy.empty((0,4), dtype=numpy.float32))
+        self.ptype_position.append(numpy.empty((0, 3), dtype=numpy.float32))
+        self.ptype_orientation.append(numpy.empty((0, 4), dtype=numpy.float32))
         self.ptype_ff.append(None)
         for param in self.ptype_param:
             self.ptype_param[param].append(None)
@@ -458,7 +474,8 @@ class SingleCell3D:
         # Check for compatible position and orientation
         N = r.shape[0]
         if q.shape[0] != N:
-            raise ValueError('position and orientation must be the same length')
+            raise ValueError(
+                'position and orientation must be the same length')
         if len(r.shape) != 2 or r.shape[1] != 3:
             raise ValueError('position must be a (N,3) array')
         if len(q.shape) != 2 or q.shape[1] != 4:
@@ -510,7 +527,8 @@ class SingleCell3D:
         vectors = self.boxMatrix.transpose() * self.scale
         self.a1, self.a2, self.a3 = numpy.float32(vectors)
         # Calculate reciprocal lattice vectors
-        self.g1, self.g2, self.g3 = numpy.float32(reciprocalLattice3D(self.a1, self.a2, self.a3))
+        self.g1, self.g2, self.g3 = numpy.float32(
+            reciprocalLattice3D(self.a1, self.a2, self.a3))
         self.K_constraint_valid = False
 
     def update_K_constraint(self):
@@ -536,7 +554,8 @@ class SingleCell3D:
             recalculated.
         """
         self.Kpoints_valid = True
-        self.Kpoints = numpy.float32(constrainedLatticePoints(self.g1, self.g2, self.g3, self.K_constraint))
+        self.Kpoints = numpy.float32(constrainedLatticePoints(
+            self.g1, self.g2, self.g3, self.K_constraint))
         for i in range(len(self.ptype_ff)):
             self.ptype_ff[i].set_K(self.Kpoints)
         self.FT_valid = False
@@ -564,9 +583,11 @@ class SingleCell3D:
             self.FT += calculator.getFT()
         return self.FT
 
+
 class FTfactory:
     """Factory to return an FT object of the requested type
     """
+
     def __init__(self):
         """Constructor
         """
@@ -612,9 +633,11 @@ class FTfactory:
             self.constructor_list.append(constructor)
             self.args_list.append(args)
 
+
 class FTbase:
     """Base class for FT calculation classes
     """
+
     def __init__(self, *args, **kwargs):
         """Constructor
         """
@@ -622,8 +645,8 @@ class FTbase:
         self.density = numpy.complex64(1.0)
         self.S = None
         self.K = numpy.array([[0., 0., 0.]], dtype=numpy.float32)
-        self.position = numpy.array([[0.,0.,0.]], dtype=numpy.float32)
-        self.orientation = numpy.array([[1.,0.,0.,0.]], dtype=numpy.float32)
+        self.position = numpy.array([[0., 0., 0.]], dtype=numpy.float32)
+        self.orientation = numpy.array([[1., 0., 0., 0.]], dtype=numpy.float32)
 
         # create dictionary of parameter names and set/get methods
         self.set_param_map = dict()
@@ -634,8 +657,8 @@ class FTbase:
         self.get_param_map['scale'] = self.get_scale
         self.get_param_map['density'] = self.get_density
 
-    ## Compute FT
-    #def compute(self, *args, **kwargs):
+    # Compute FT
+    # def compute(self, *args, **kwargs):
     def getFT(self):
         """Return Fourier Transform
 
@@ -661,7 +684,8 @@ class FTbase:
         :type value: float
         """
         if not name in self.set_param_map.keys():
-            msg = 'Object {type} does not have parameter {param}'.format(type=self.__class__, param=name)
+            msg = 'Object {type} does not have parameter {param}'.format(
+                type=self.__class__, param=name)
             raise KeyError(msg)
         else:
             self.set_param_map[name](value)
@@ -675,7 +699,8 @@ class FTbase:
         :rtype: float
         """
         if not name in self.get_param_map.keys():
-            msg = 'Object {type} does not have parameter {param}'.format(type=self.__class__, param=name)
+            msg = 'Object {type} does not have parameter {param}'.format(
+                type=self.__class__, param=name)
             raise KeyError(msg)
         else:
             return self.get_param_map[name]()
@@ -731,19 +756,21 @@ class FTbase:
         self.position = numpy.asarray(r, dtype=numpy.float32)
         self.orientation = numpy.asarray(q, dtype=numpy.float32)
         if len(self.position.shape) == 1:
-            self.position.resize((1,3))
+            self.position.resize((1, 3))
         if len(self.position.shape) != 2:
             print('Error: can not make an array of 3D vectors from input position.')
             return None
         if len(self.orientation.shape) == 1:
-            self.orientation.resize((1,4))
+            self.orientation.resize((1, 4))
         if len(self.orientation.shape) != 2:
             print('Error: can not make an array of 4D vectors from input orientation.')
             return None
 
+
 class FTdelta(FTbase):
     """Fourier transform a list of delta functions
     """
+
     def __init__(self, *args, **kwargs):
         """Constructor
         """
@@ -770,7 +797,7 @@ class FTdelta(FTbase):
             :math:`S_{lambda}\\left(k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`
         """
         FTbase.set_scale(self, scale)
-        #self.FTobj.set_scale(float(self.scale))
+        # self.FTobj.set_scale(float(self.scale))
         self.FTobj.set_K(self.K * self.scale)
 
     def set_density(self, density):
@@ -800,13 +827,15 @@ class FTdelta(FTbase):
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
-        return self;
+        return self
+
 
 class FTsphere(FTdelta):
     """Fourier transform for sphere
 
     Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
     """
+
     def __init__(self, *args, **kwargs):
         """Constructor
         """
@@ -836,9 +865,11 @@ class FTsphere(FTdelta):
         self.radius = self.FTobj.get_radius()
         return self.radius
 
+
 class FTpolyhedron(FTbase):
     """Fourier Transform for polyhedra
     """
+
     def __init__(self, *args, **kwargs):
         """Constructor
         """
@@ -892,10 +923,11 @@ class FTpolyhedron(FTbase):
         :type areas: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`), dtype= :class:`numpy.float32`
         :type volumes: :class:`numpy.ndarray`
         """
-        facet_offs = numpy.zeros((len(facets)+1),dtype=numpy.uint32)
-        for i,f in enumerate(facets):
+        facet_offs = numpy.zeros((len(facets)+1), dtype=numpy.uint32)
+        for i, f in enumerate(facets):
             facet_offs[i+1] = facet_offs[i] + len(f)
-        self.FTobj.set_params(verts, facet_offs, numpy.array([vi for f in facets for vi in f],dtype=numpy.uint32), norms, d, areas, volume)
+        self.FTobj.set_params(verts, facet_offs, numpy.array(
+            [vi for f in facets for vi in f], dtype=numpy.uint32), norms, d, areas, volume)
 
     def set_radius(self, radius):
         """Set radius of in-sphere
@@ -926,11 +958,13 @@ class FTpolyhedron(FTbase):
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
-        return self;
+        return self
+
 
 class FTconvexPolyhedron(FTpolyhedron):
     """Fourier Transform for convex polyhedra
     """
+
     def __init__(self, hull, *args, **kwargs):
         """Constructor
 
@@ -944,12 +978,14 @@ class FTconvexPolyhedron(FTpolyhedron):
 
         # set convex hull geometry
         verts = self.hull.points * self.scale
-        facets = [self.hull.facets[i,0:n] for (i,n) in enumerate(self.hull.nverts)]
-        norms  = self.hull.equations[:, 0:3]
+        facets = [self.hull.facets[i, 0:n]
+                  for (i, n) in enumerate(self.hull.nverts)]
+        norms = self.hull.equations[:, 0:3]
         d = - self.hull.equations[:, 3] * self.scale
-        area = [self.hull.getArea(i)*self.scale**2.0 for i in range(len(facets))]
+        area = [self.hull.getArea(i)*self.scale **
+                2.0 for i in range(len(facets))]
         volume = self.hull.getVolume() * self.scale**3.0
-        self.set_params(verts,facets,norms,d,area,volume)
+        self.set_params(verts, facets, norms, d, area, volume)
 
     def set_radius(self, radius):
         """Set radius of in-sphere
@@ -991,10 +1027,11 @@ class FTconvexPolyhedron(FTpolyhedron):
                 # of the unrotated object at a k-space point rotated the opposite way.
                 # The opposite of the rotation represented by a quaternion is the conjugate of the quaternion,
                 # found by inverting the sign of the imaginary components.
-                K = quatrot(q * numpy.array([1,-1,-1,-1]), self.K[i])
-                self.S[i] += numpy.exp(numpy.dot(K, r) * -1.j) * self.Spoly3D(K)
+                K = quatrot(q * numpy.array([1, -1, -1, -1]), self.K[i])
+                self.S[i] += numpy.exp(numpy.dot(K, r)
+                                       * -1.j) * self.Spoly3D(K)
         self.S *= self.density
-        return self;
+        return self
 
     def Spoly2D(self, i, k):
         """Calculate Fourier transform of polygon
@@ -1022,7 +1059,8 @@ class FTconvexPolyhedron(FTpolyhedron):
                 # Note that numpy.sinc(x) gives sin(pi*x)/pi*x
                 x = numpy.dot(k, edge) / numpy.pi
                 cpedgek = numpy.cross(edge, k)
-                S += numpy.dot(n, cpedgek) * numpy.exp(-1.j * numpy.dot(k, centrum)) * numpy.sinc(x)
+                S += numpy.dot(n, cpedgek) * numpy.exp(-1.j *
+                                                       numpy.dot(k, centrum)) * numpy.sinc(x)
             S *= (-1.j / numpy.dot(k, k))
         return S
 
@@ -1043,11 +1081,14 @@ class FTconvexPolyhedron(FTpolyhedron):
                 di = - self.hull.equations[i, 3] * self.scale
                 dotkni = numpy.dot(k, ni)
                 k_proj = k - ni * dotkni
-                S += dotkni * numpy.exp(-1.j * dotkni * di) * self.Spoly2D(i, k_proj)
-            S *= 1.j/(numpy.dot(k,k))
+                S += dotkni * numpy.exp(-1.j * dotkni * di) * \
+                    self.Spoly2D(i, k_proj)
+            S *= 1.j/(numpy.dot(k, k))
         return S
 
 # The below are currently undocumented...need to determine if these belong or should be removed
+
+
 def mkSCcoords(nx, ny, nz):
     coords = list()
     for i in range(-int(nx/2), -int(nx/2) + nx):
@@ -1055,32 +1096,38 @@ def mkSCcoords(nx, ny, nz):
             for k in range(-int(nz/2), -int(nz/2) + nz):
                 coords.append([i, j, k])
     return numpy.array(coords, dtype=float)
+
+
 def mkBCCcoords(nx, ny, nz):
     # Note that now ni is number of half-lattice vectors
     coords = list()
     for i in range(-int(nx/2), -int(nx/2) + nx):
         for j in range(-int(ny/2), -int(ny/2) + ny):
             for k in range(-int(nz/2), -int(nz/2) + nz):
-                if (i%2 == j%2) and (i%2 == k%2):
+                if (i % 2 == j % 2) and (i % 2 == k % 2):
                     coords.append([i, j, k])
     return numpy.array(coords, dtype=float)
+
+
 def mkFCCcoords(nx, ny, nz):
     # Note that now ni is number of half-lattice vectors
     coords = list()
     for i in range(-int(nx/2), -int(nx/2) + nx):
         for j in range(-int(ny/2), -int(ny/2) + ny):
             for k in range(-int(nz/2), -int(nz/2) + nz):
-                if (i+j+k)%2 == 0:
+                if (i+j+k) % 2 == 0:
                     coords.append([i, j, k])
     return numpy.array(coords, dtype=float)
 
 # Given that these are potentially used elsewhere, they should be added to the new freud.common (v0.7.0)
-## Axis angle rotation
+# Axis angle rotation
 # \param v vector to be rotated
 # \param u rotation axis
 # \param theta rotation angle
+
+
 def rotate(v, u, theta):
-    v = numpy.array(v) # need an actual array and not a view
+    v = numpy.array(v)  # need an actual array and not a view
     u = numpy.array(u)
     v.resize((3,))
     u.resize((3,))
@@ -1090,23 +1137,26 @@ def rotate(v, u, theta):
     st = sin(theta)
     ct = cos(theta)
     vout[0] = vx*(ct + ux*ux*(1 - ct))      \
-            + vy*(ux*uy*(1 - ct) - uz*st)   \
-            + vz*(ux*uz*(1 - ct) + uy*st)
+        + vy*(ux*uy*(1 - ct) - uz*st)   \
+        + vz*(ux*uz*(1 - ct) + uy*st)
     vout[1] = vx*(uy*ux*(1 - ct) + uz*st)    \
-            + vy*(ct + uy*uy*(1-ct))        \
-            + vz*(uy*uz*(1 - ct) - ux*st)
+        + vy*(ct + uy*uy*(1-ct))        \
+        + vz*(uy*uz*(1 - ct) - ux*st)
     vout[2] = vx*(uz*ux*(1 - ct) - uy*st)   \
-            + vy*(uz*uy*(1 - ct) + ux*st)   \
-            + vz*(ct + uz*uz*(1 - ct))
+        + vy*(uz*uy*(1 - ct) + ux*st)   \
+        + vz*(ct + uz*uz*(1 - ct))
     return vout
 
-## Apply a rotation quaternion
+# Apply a rotation quaternion
 # \param b vector to be rotated
 # \param a rotation quaternion
+
+
 def quatrot(a, b):
     s = a[0]
     v = a[1:4]
-    return (s*s - numpy.dot(v,v))*b + 2*s*numpy.cross(v,b) + 2*numpy.dot(v,b)*v
+    return (s*s - numpy.dot(v, v))*b + 2*s*numpy.cross(v, b) + 2*numpy.dot(v, b)*v
+
 
 class Constraint:
     """Constraint base class
@@ -1114,6 +1164,7 @@ class Constraint:
     Base class for constraints on vectors to define the API. All constraints should have a 'radius' defining a bounding
     sphere and a 'satisfies' method to determine whether an input vector satisfies the constraint.
     """
+
     def __init__(self, R, *args, **kwargs):
         """Constructor
 
@@ -1130,12 +1181,14 @@ class Constraint:
         """
         return True
 
+
 class AlignedBoxConstraint(Constraint):
     """Axis-aligned Box constraint
 
     Tetragonal box aligned with the coordinate system. Consider using a small z dimension to serve as a plane plus or
     minus some epsilon. Set R < L for a cylinder
     """
+
     def __init__(self, R, *args, **kwargs):
         """Constructor
 
@@ -1153,12 +1206,13 @@ class AlignedBoxConstraint(Constraint):
         :type v: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
         """
         satisfied = False
-        if numpy.dot(v,v) <= self.R2:
+        if numpy.dot(v, v) <= self.R2:
             if v[0] >= self.xneg and v[0] <= self.xpos:
                 if v[1] >= self.yneg and v[1] <= self.ypos:
                     if v[2] >= self.zneg and v[2] <= self.zpos:
                         satisfied = True
         return satisfied
+
 
 def constrainedLatticePoints(v1, v2, v3, constraint):
     """Generate a list of points satisfying a constraint
@@ -1205,10 +1259,11 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
                 if constraint.satisfies(gvec):
                     vec_list.append(gvec)
     length = len(vec_list)
-    vec_array = numpy.empty((length,3), dtype=numpy.float32)
+    vec_array = numpy.empty((length, 3), dtype=numpy.float32)
     if length > 0:
         vec_array[...] = vec_list
     return vec_array
+
 
 def reciprocalLattice3D(a1, a2, a3):
     """Calculate reciprocal lattice vectors
@@ -1238,12 +1293,14 @@ def reciprocalLattice3D(a1, a2, a3):
     g3 = (2 * numpy.pi / numpy.dot(a3, a1xa2)) * a1xa2
     return g1, g2, g3
 
+
 class DeltaSpot:
     """Base class for drawing diffraction spots on a 2D grid.
 
     Based on the dimensions of a grid, determines which grid points need to be modified to represent a diffraction spot
     and generates the values in that subgrid. Spot is a single pixel at the closest grid point
     """
+
     def __init__(self, shape, extent, *args, **kwargs):
         """Constructor
 
@@ -1287,11 +1344,13 @@ class DeltaSpot:
         """
         return (numpy.conj(cval) * cval).real
 
+
 class GaussianSpot(DeltaSpot):
     """Draw diffraction spot as a Gaussian blur
 
     grid points filled according to gaussian at spot center
     """
+
     def __init__(self, shape, extent, *args, **kwargs):
         """Constructor
 
@@ -1305,7 +1364,7 @@ class GaussianSpot(DeltaSpot):
             self.set_sigma(kwargs['sigma'])
         else:
             self.set_sigma(self.dx)
-        self.set_xy(0,0)
+        self.set_xy(0, 0)
 
     def set_xy(self, x, y):
         """Set x,y values of spot center
@@ -1319,21 +1378,23 @@ class GaussianSpot(DeltaSpot):
         # set grid: two index matrices of i and j values
         nx = int((3. * self.sigma / self.dx) + 1)
         ny = int((3. * self.sigma / self.dy) + 1)
-        shape = (2*nx + 1, 2* ny + 1)
-        gridx, gridy= numpy.indices(shape)
+        shape = (2*nx + 1, 2 * ny + 1)
+        gridx, gridy = numpy.indices(shape)
         # round center to nearest grid point
         i = int(numpy.round((self.x - self.extent[0]) / self.dx))
         j = int(numpy.round((self.y - self.extent[2]) / self.dy))
         gridx += i - nx
         gridy += j - ny
         # calculate x, y coordinates at grid points
-        self.xvals = numpy.asarray(gridx * self.dx + self.extent[0], dtype=numpy.float32)
-        self.yvals = numpy.asarray(gridy * self.dy + self.extent[2], dtype=numpy.float32)
+        self.xvals = numpy.asarray(
+            gridx * self.dx + self.extent[0], dtype=numpy.float32)
+        self.yvals = numpy.asarray(
+            gridy * self.dy + self.extent[2], dtype=numpy.float32)
         # remove values outside of extent
-        mask =    (self.xvals >= self.extent[0]) \
-                * (self.xvals <= self.extent[1]) \
-                * (self.yvals >= self.extent[2]) \
-                * (self.yvals <= self.extent[3])
+        mask = (self.xvals >= self.extent[0]) \
+            * (self.xvals <= self.extent[1]) \
+            * (self.yvals >= self.extent[2]) \
+            * (self.yvals <= self.extent[3])
         self.gridPoints = numpy.array([gridx[mask], gridy[mask]])
         self.xvals = self.xvals[mask]
         self.yvals = self.yvals[mask]
@@ -1363,6 +1424,8 @@ class GaussianSpot(DeltaSpot):
         self.ss2 = numpy.float32(sigma * sigma * 2)
 
 # Not implemented due to lack of consensus on appropriate interpolation scheme
+
+
 class InterpolatedDeltaSpot(DeltaSpot):
     # four grid points filled according to interpolation of delta at spot location
     def set_xy(self, x, y):

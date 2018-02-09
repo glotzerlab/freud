@@ -14,27 +14,28 @@ except ImportError:
 from ._freud import VoronoiBuffer
 from ._freud import NeighborList
 
+
 class Voronoi:
-    ## Compute the Voronoi tesselation of a 2D or 3D system using qhull
+    # Compute the Voronoi tesselation of a 2D or 3D system using qhull
     # This essentially just wraps scipy.spatial.Voronoi, but accounts for
     # periodic boundary conditions
 
     def __init__(self, box, buff=0.1):
-        ##Initialize Voronoi
+        # Initialize Voronoi
         # \param box The simulation box
         self.box = box
         self.buff = buff
 
     def setBox(self, box):
-        ##Set the simulation box
+        # Set the simulation box
         self.box = box
 
     def setBufferWidth(self, buff):
-        ##Set the box buffer width
+        # Set the box buffer width
         self.buff = buff
 
     def compute(self, positions, box=None, buff=None):
-        ##Compute Voronoi tesselation
+        # Compute Voronoi tesselation
         # \param box The simulation box
         # \param buff The buffer of particles to be duplicated to simulated PBC, default=0.1
 
@@ -55,7 +56,7 @@ class Voronoi:
 
         # Use only the first two components if the box is 2D
         if box.is2D():
-            self.expanded_points = self.expanded_points[:,:2]
+            self.expanded_points = self.expanded_points[:, :2]
 
         # Use qhull to get the points
         self.voronoi = qvoronoi(self.expanded_points)
@@ -72,7 +73,7 @@ class Voronoi:
             if -1 in self.voronoi.regions[region]:
                 continue
             self.poly_verts.append(vertices[self.voronoi.regions[region]])
-        return self;
+        return self
 
     def getBuffer(self):
         # Return the list of voronoi polytope vertices
@@ -113,7 +114,7 @@ class Voronoi:
             self.expanded_points = positions
 
         if box.is2D():
-            self.expanded_points = self.expanded_points[:,:2]
+            self.expanded_points = self.expanded_points[:, :2]
 
         # Use qhull to get the points
         self.voronoi = qvoronoi(self.expanded_points)
@@ -134,7 +135,8 @@ class Voronoi:
 
             if -1 not in ridge_vertices[k]:
                 # TODO properly account for 3D
-                weight = np.linalg.norm(vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]])
+                weight = np.linalg.norm(
+                    vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]])
             else:
                 # this point was on the boundary, so as far as qhull
                 # is concerned its ridge goes out to infinity
@@ -146,14 +148,15 @@ class Voronoi:
     def getNeighbors(self, numShells):
         # Get numShells of neighbors for each particle
         neighbor_list = copy.copy(self.firstShellNeighborList)
-        #delete [] in neighbor_list
+        # delete [] in neighbor_list
         neighbor_list = [x for x in neighbor_list if len(x) > 0]
         for _ in range(numShells-1):
             dummy_neighbor_list = copy.copy(neighbor_list)
             for i in range(len(neighbor_list)):
                 numNeighbors = len(neighbor_list[i])
                 for j in range(numNeighbors):
-                    dummy_neighbor_list[i] = dummy_neighbor_list[i] + self.firstShellNeighborList[neighbor_list[i][j]]
+                    dummy_neighbor_list[i] = dummy_neighbor_list[i] + \
+                        self.firstShellNeighborList[neighbor_list[i][j]]
 
                 # remove duplicates
                 dummy_neighbor_list[i] = list(set(dummy_neighbor_list[i]))
@@ -189,6 +192,6 @@ class Voronoi:
             j += N
 
         result = NeighborList.from_arrays(
-                len(neighbor_list), len(neighbor_list),
-                indexAry[:,0], indexAry[:,1], weights=indexAry[:,2])
+            len(neighbor_list), len(neighbor_list),
+            indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
         return result

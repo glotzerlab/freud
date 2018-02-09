@@ -1,9 +1,10 @@
-## \package freud.common
+# \package freud.common
 #
 # Methods used throughout freud for convenience
 import logging
 logger = logging.getLogger(__name__)
 import numpy as np
+
 
 def convert_array(array, dimensions, dtype=None, contiguous=True, dim_message=None):
     """
@@ -28,7 +29,8 @@ def convert_array(array, dimensions, dtype=None, contiguous=True, dim_message=No
     if array.ndim != dimensions:
         if dim_message is not None:
             logger.warning(dim_message)
-        raise TypeError("array.ndim = {}; expected ndim = {}".format(array.ndim, dimensions))
+        raise TypeError("array.ndim = {}; expected ndim = {}".format(
+            array.ndim, dimensions))
     requirements = None
     if contiguous == True:
         if array.flags.contiguous == False:
@@ -36,6 +38,7 @@ def convert_array(array, dimensions, dtype=None, contiguous=True, dim_message=No
             logger.warning(msg)
         requirements = ["C"]
     if dtype is not None and dtype != array.dtype:
-        msg = 'converting supplied array dtype {} to dtype {}'.format(array.dtype, dtype)
+        msg = 'converting supplied array dtype {} to dtype {}'.format(
+            array.dtype, dtype)
         logger.warning(msg)
     return np.require(array, dtype=dtype, requirements=requirements)
