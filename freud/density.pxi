@@ -111,9 +111,7 @@ cdef class FloatCF:
 
     @property
     def RDF(self):
-        """
-        :return: expected (average) product of all values at a given radial distance
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
+        """The RDF
         """
         return self.getRDF()
 
@@ -130,11 +128,7 @@ cdef class FloatCF:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -183,9 +177,7 @@ cdef class FloatCF:
 
     @property
     def counts(self):
-        """
-        :return: counts of each histogram bin
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.int32`
+        """The counts
         """
         return self.getCounts()
 
@@ -202,9 +194,7 @@ cdef class FloatCF:
 
     @property
     def R(self):
-        """
-        :return: values of bin centers
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
+        """Bin centers
         """
         return self.getR()
 
@@ -315,14 +305,12 @@ cdef class ComplexCF:
 
     @property
     def RDF(self):
-        """
-        :return: expected (average) product of all values at a given radial distance
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
+        """The RDF
         """
         return self.getRDF()
 
     def getRDF(self):
-        """
+        """ The RDF
         :return: expected (average) product of all values at a given radial distance
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.complex128`
         """
@@ -334,11 +322,7 @@ cdef class ComplexCF:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -385,9 +369,7 @@ cdef class ComplexCF:
 
     @property
     def counts(self):
-        """
-        :return: counts of each histogram bin
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.int32`
+        """The counts of each histogram
         """
         return self.getCounts()
 
@@ -404,14 +386,12 @@ cdef class ComplexCF:
 
     @property
     def R(self):
-        """
-        :return: values of bin centers
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
+        """The value of bin centers
         """
         return self.getR()
 
     def getR(self):
-        """
+        """The value of bin centers
         :return: values of bin centers
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
         """
@@ -466,11 +446,7 @@ cdef class GaussianDensity:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -504,9 +480,7 @@ cdef class GaussianDensity:
 
     @property
     def gaussian_density(self):
-        """
-        :return: Image (grid) with values of gaussian
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`w_x`, :math:`w_y`, :math:`w_z`), dtype= :class:`numpy.float32`
+        """The image grid with the Gaussian density
         """
         return self.getGaussianDensity()
 
@@ -572,11 +546,7 @@ cdef class LocalDensity:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -628,14 +598,12 @@ cdef class LocalDensity:
 
     @property
     def density(self):
-        """
-        :return: Density array for each particle
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        """Density array for each particle
         """
         return self.getDensity()
 
     def getDensity(self):
-        """
+        """Get the density array for each particle
         :return: Density array for each particle
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         """
@@ -647,14 +615,12 @@ cdef class LocalDensity:
 
     @property
     def num_neighbors(self):
-        """
-        :return: Number of neighbors for each particle
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
+        """Number of neighbors for each particle
         """
         return self.getNumNeighbors()
 
     def getNumNeighbors(self):
-        """
+        """Return the number of neighbors for each particle
         :return: Number of neighbors for each particle
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.float32`
         """
@@ -699,11 +665,7 @@ cdef class RDF:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -781,14 +743,12 @@ cdef class RDF:
 
     @property
     def RDF(self):
-        """
-        :return: expected (average) product of all values at a given radial distance
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float64`
+        """Histogram of rdf values
         """
         return self.getRDF()
 
     def getRDF(self):
-        """
+        """Histogram of rdf values
         :return: histogram of rdf values
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
@@ -800,14 +760,12 @@ cdef class RDF:
 
     @property
     def R(self):
-        """
-        :return: values of bin centers
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`), dtype= :class:`numpy.float32`
+        """Values of bin centers
         """
         return self.getR()
 
     def getR(self):
-        """
+        """Values of the histogram bin centers
         :return: values of the histogram bin centers
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
@@ -819,14 +777,12 @@ cdef class RDF:
 
     @property
     def n_r(self):
-        """
-        :return: histogram of cumulative rdf values
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
+        """Histogram of cumulative rdf values
         """
         return self.getNr()
 
     def getNr(self):
-        """
+        """Get the histogram of cumulative rdf values
         :return: histogram of cumulative rdf values
         :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{bins}`, 3), dtype= :class:`numpy.float32`
         """
