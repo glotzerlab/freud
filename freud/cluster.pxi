@@ -58,9 +58,6 @@ cdef class Cluster:
     @property
     def box(self):
         """Return the stored freud Box
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
 
@@ -117,9 +114,6 @@ cdef class Cluster:
     @property
     def num_clusters(self):
         """Returns the number of clusters
-
-        :return: number of clusters
-        :rtype: int
         """
         return self.getNumClusters()
 
@@ -134,9 +128,6 @@ cdef class Cluster:
     @property
     def num_particles(self):
         """Returns the number of particles
-
-        :return: number of particles
-        :rtype: int
         """
         return self.getNumParticles()
 
@@ -150,9 +141,6 @@ cdef class Cluster:
     @property
     def cluster_idx(self):
         """Returns 1D array of Cluster idx for each particle
-
-        :return: 1D array of cluster idx
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`), dtype= :class:`numpy.uint32`
         """
         return self.getClusterIdx()
 
@@ -172,9 +160,6 @@ cdef class Cluster:
     @property
     def cluster_keys(self):
         """Returns the keys contained in each cluster
-
-        :return: list of lists of each key contained in clusters
-        :rtype: list
 
         .. todo: Determine correct way to export. As-is, I do not particularly like how it was previously handled.
         """
@@ -228,9 +213,6 @@ cdef class ClusterProperties:
     @property
     def box(self):
         """Return the stored freud Box
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
 
@@ -270,9 +252,6 @@ cdef class ClusterProperties:
     @property
     def num_clusters(self):
         """Returns the number of clusters
-
-        :return: number of clusters
-        :rtype: int
         """
         return self.getNumClusters()
 
@@ -287,9 +266,6 @@ cdef class ClusterProperties:
     @property
     def cluster_COM(self):
         """Returns the center of mass of the last computed cluster
-
-        :return: numpy array of cluster center of mass coordinates :math:`\\left(x,y,z\\right)`
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`, 3), dtype= :class:`numpy.float32`
         """
         return self.getClusterCOM()
 
@@ -309,9 +285,6 @@ cdef class ClusterProperties:
     @property
     def cluster_G(self):
         """Returns the cluster G tensors computed by the last call to computeProperties
-
-        :return: numpy array of cluster center of mass coordinates :math:`\\left(x,y,z\\right)`
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`, 3, 3), dtype= :class:`numpy.float32`
         """
         return self.getClusterG()
 
@@ -332,9 +305,6 @@ cdef class ClusterProperties:
     @property
     def cluster_sizes(self):
         """Returns the cluster sizes computed by the last call to computeProperties
-
-        :return: numpy array of sizes of each cluster
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`N_{clusters}`), dtype= :class:`numpy.uint32`
         """
         return self.getClusterSizes()
 
