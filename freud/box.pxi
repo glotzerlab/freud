@@ -138,11 +138,7 @@ cdef class Box:
 
     @property
     def Lx(self):
-        """
-        return the length of the x-dimension of the box
-
-        :return: x-dimension of the box
-        :rtype: float
+        """Return the length of the x-dimension of the box
         """
         return self.getLx()
 
@@ -157,11 +153,7 @@ cdef class Box:
 
     @property
     def Ly(self):
-        """
-        return the length of the y-dimension of the box
-
-        :return: y-dimension of the box
-        :rtype: float
+        """Return the length of the y-dimension of the box
         """
         return self.getLy()
 
@@ -176,11 +168,7 @@ cdef class Box:
 
     @property
     def Lz(self):
-        """
-        return the length of the z-dimension of the box
-
-        :return: z-dimension of the box
-        :rtype: float
+        """Return the length of the z-dimension of the box
         """
         return self.getLz()
 
@@ -195,21 +183,13 @@ cdef class Box:
 
     @property
     def L(self):
-        """
-        return the lengths of the box as a tuple (x, y, z)
-
-        :return: dimensions of the box as (x, y, z)
-        :rtype: (float, float, float)
+        """Return the lengths of the box as a tuple (x, y, z)
         """
         return self.getL()
 
     @L.setter
     def L(self, value):
-        """
-        Set all side lengths of box to L
-
-        :param L: Side length of box
-        :type L: float
+        """Set all side lengths of box to L
         """
         self.setL(value)
 
@@ -225,11 +205,7 @@ cdef class Box:
 
     @property
     def Linv(self):
-        """
-        return the inverse lengths of the box (1/x, 1/y, 1/z)
-
-        :return: dimensions of the box as (1/x, 1/y, 1/z)
-        :rtype: (float, float, float)
+        """Return the inverse lengths of the box (1/x, 1/y, 1/z)
         """
         return self.getLinv()
 
@@ -245,11 +221,7 @@ cdef class Box:
 
     @property
     def tilt_factor_xy(self):
-        """
-        return the tilt factor xy
-
-        :return: xy tilt factor
-        :rtype: float
+        """Return the tilt factor xy
         """
         return self.getTiltFactorXY()
 
@@ -264,11 +236,7 @@ cdef class Box:
 
     @property
     def tilt_factor_xz(self):
-        """
-        return the tilt factor xz
-
-        :return: xz tilt factor
-        :rtype: float
+        """Return the tilt factor xz
         """
         return self.getTiltFactorXZ()
 
@@ -283,11 +251,7 @@ cdef class Box:
 
     @property
     def tilt_factor_yz(self):
-        """
-        return the tilt factor yz
-
-        :return: yz tilt factor
-        :rtype: float
+        """Return the tilt factor yz
         """
         return self.getTiltFactorYZ()
 
@@ -302,11 +266,7 @@ cdef class Box:
 
     @property
     def volume(self):
-        """
-        return the box volume
-
-        :return: box volume
-        :rtype: float
+        """Return the box volume
         """
         return self.getVolume()
 
