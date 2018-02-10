@@ -9,10 +9,7 @@
 #include <emmintrin.h>
 #endif
 
-#include "VectorMath.h"
-
 using namespace std;
-
 using namespace tbb;
 
 /*! \internal
@@ -98,7 +95,7 @@ PMFTXYZ::~PMFTXYZ()
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 void PMFTXYZ::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
@@ -240,8 +237,6 @@ void PMFTXYZ::accumulate(box::Box& box,
                             }
                         for (unsigned int k=0; k<n_faces; k++)
                             {
-                            // create tmp vector
-                            vec3<float> my_vector(delta);
                             // rotate vector
                             // create the extra quaternion
                             quat<float> qe(face_orientations[q_i(k, i)]);

@@ -5,12 +5,11 @@
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
+#include <complex>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <stdexcept>
-#include <complex>
 
 using namespace std;
 using namespace tbb;
@@ -23,7 +22,7 @@ namespace freud { namespace order {
 
 CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, float scale, float *r4_tensor,
     unsigned int n_replicates, unsigned int seed)
-    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_seed(seed), m_n_replicates(n_replicates)
+    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_n_replicates(n_replicates), m_seed(seed)
     {
     // sanity checks, should be caught in python
     if (m_t_initial < m_t_final)
@@ -319,7 +318,6 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
     parallel_for(blocked_range<size_t>(0,n),
         [=] (const blocked_range<size_t>& r)
             {
-            Index2D a_i = Index2D(n, 81);
             tensor4<float> l_mbar;
             for (size_t i = r.begin(); i != r.end(); i++)
                 {

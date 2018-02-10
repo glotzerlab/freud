@@ -64,10 +64,9 @@ class TransOrderParameter
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_k;                        //!< Multiplier in the exponent
-        unsigned int m_Np;                //!< Last number of points computed
+        box::Box m_box;            //!< Simulation box where the particles belong
+        float m_k;                 //!< Multiplier in the exponent
+        unsigned int m_Np;         //!< Last number of points computed
 
         std::shared_ptr< std::complex<float> > m_dr_array;         //!< dr array computed
     };
