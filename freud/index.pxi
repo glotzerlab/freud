@@ -61,14 +61,12 @@ cdef class Index2D:
 
     @property
     def num_elements(self):
-        """
-        :return: number of elements in the array
-        :rtype: unsigned int
+        """Number of elements in the array
         """
         return self.getNumElements()
 
     def getNumElements(self):
-        """
+        """Get the number of elements in the array
         :return: number of elements in the array
         :rtype: unsigned int
         """
@@ -130,14 +128,12 @@ cdef class Index3D:
 
     @property
     def num_elements(self):
-        """
-        :return: number of elements in the array
-        :rtype: unsigned int
+        """Number of elements in the array
         """
         return self.getNumElements()
 
     def getNumElements(self):
-        """
+        """Get the number of elements in the array
         :return: number of elements in the array
         :rtype: unsigned int
         """
