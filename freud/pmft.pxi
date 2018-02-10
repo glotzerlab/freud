@@ -558,7 +558,7 @@ cdef class PMFTXYT:
         :return: PMFT
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`, dtype= :class:`numpy.float32`
          """
-         return -np.log(np.copy(self.getPCF()))
+        return -np.log(np.copy(self.getPCF()))
 
     @property
     def X(self):
@@ -1118,7 +1118,7 @@ cdef class PMFTXYZ:
                 tmp_face_orientations[:] = face_orientations
                 face_orientations = tmp_face_orientations
             else:
-				# Make sure that the first dimensions is actually the number of particles
+                # Make sure that the first dimensions is actually the number of particles
                 if face_orientations.shape[2] != 4:
                     raise ValueError("2nd dimension for orientations must have 4 values: s, x, y, z")
                 elif face_orientations.shape[0] not in (1, ref_points.shape[0]):
