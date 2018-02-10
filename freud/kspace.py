@@ -1,6 +1,11 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
+## \package freud.kspace
+#
+# Analyses that compute quantities in kspace
+#
+
 import numpy
 import math
 import copy
@@ -9,10 +14,6 @@ from ._freud import FTdelta as _FTdelta
 from ._freud import FTsphere as _FTsphere
 from ._freud import FTpolyhedron as _FTpolyhedron
 
-## \package freud.kspace
-#
-# Analyses that compute quantities in kspace
-#
 def meshgrid2(*arrs):
     """Computes an n-dimensional meshgrid
 
