@@ -55,7 +55,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
 
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
-        HexOrderParameter(float, float, unsigned int)
+        HexOrderParameter(float, unsigned int, unsigned int)
         const box.Box &getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
@@ -64,7 +64,7 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
         # unsure how to pass back the std::complex, but this seems to compile...
         shared_array[float complex] getPsi()
         unsigned int getNP()
-        float getK()
+        unsigned int getK()
 
 cdef extern from "LocalDescriptors.h" namespace "freud::order":
     ctypedef enum LocalDescriptorOrientation:
