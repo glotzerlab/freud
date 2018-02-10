@@ -4,7 +4,6 @@
 import numpy
 import math
 import copy
-from math import *
 from ._freud import FTdelta as _FTdelta
 from ._freud import FTsphere as _FTsphere
 from ._freud import FTpolyhedron as _FTpolyhedron
@@ -48,21 +47,28 @@ def meshgrid2(*arrs):
 class SFactor3DPoints:
     """Compute the full 3D structure factor of a given set of points
 
-    Given a set of points :math:`\\vec{r}_i` SFactor3DPoints computes the static structure factor
-    :math:`S \\left( \\vec{q} \\right) = C_0 \\left| {\\sum_{m=1}^{N} \\exp{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`
-    where :math:`C_0` is a scaling constant chosen so that :math:`S\\left(0\\right) = 1`, :math:`N` is the number of
-    particles. :math:`S` is evaluated on a grid of q-values
-    :math:`\\vec{q} = h \\frac{2\\pi}{L_x} \\hat{i} + k \\frac{2\\pi}{L_y} \\hat{j} + l \\frac{2\\pi}{L_z} \\hat{k}`
-    for integer :math:`h,k,l: \\left[-g,g\\right]` and
-    :math:`L_x, L_y, L_z` are the box lengths in each direction.
+    Given a set of points :math:`\\vec{r}_i` SFactor3DPoints computes the
+    static structure factor :math:`S \\left( \\vec{q} \\right) = C_0 \\left|
+    {\\sum_{m=1}^{N} \\exp{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`
+    where :math:`C_0` is a scaling constant chosen so that
+    :math:`S\\left(0\\right) = 1`, :math:`N` is the number of particles.
+    :math:`S` is evaluated on a grid of q-values :math:`\\vec{q} = h
+    \\frac{2\\pi}{L_x} \\hat{i} + k \\frac{2\\pi}{L_y} \\hat{j} + l
+    \\frac{2\\pi}{L_z} \\hat{k}` for integer :math:`h,k,l: \\left[-g,g\\right]`
+    and :math:`L_x, L_y, L_z` are the box lengths in each direction.
 
-    After calling :py:meth:`~.SFactor3DPoints.compute()`, access the used q values with :py:meth:`~.SFactor3DPoints.getQ()`,
-    the static structure factor with :py:meth:`~.SFactor3DPoints.getS()`, and (if needed) the un-squared complex version
-    of S with :py:meth:`~.SFactor3DPoints.getSComplex()`. All values are stored in 3D numpy arrays. They are indexed by
-    :math:`a,b,c` where :math:`a=h+g, b=k+g, c=l+g`.
+    After calling :py:meth:`~.SFactor3DPoints.compute()`, access the used q
+    values with :py:meth:`~.SFactor3DPoints.getQ()`, the static structure
+    factor with :py:meth:`~.SFactor3DPoints.getS()`, and (if needed) the
+    un-squared complex version of S with
+    :py:meth:`~.SFactor3DPoints.getSComplex()`. All values are stored in 3D
+    numpy arrays. They are indexed by :math:`a,b,c` where
+    :math:`a=h+g, b=k+g, c=l+g`.
 
-    Note that due to the way that numpy arrays are indexed, access the returned S array as
-    S[c,b,a] to get the value at :math:`q = \\left(qx\\left[a\\right], qy\\left[b\\right], qz\\left[c\\right]\\right)`.
+    Note that due to the way that numpy arrays are indexed, access the returned
+    S array as S[c,b,a] to get the value at
+    :math:`q = \\left(qx\\left[a\\right], qy\\left[b\\right],
+    qz\\left[c\\right]\\right)`.
     """
 
     def __init__(self, box, g):
@@ -75,7 +81,6 @@ class SFactor3DPoints:
         """
         if box.is2D():
             raise ValueError("SFactor3DPoints does not support 2D boxes")
-
         self.grid = 2*g + 1
         self.qx = numpy.linspace(-g * 2 * math.pi / box.getLx(),
                                  g * 2 * math.pi / box.getLx(), num=self.grid)
@@ -95,19 +100,25 @@ class SFactor3DPoints:
     def compute(self, points):
         """Compute the static structure factor of a given set of points
 
-        After calling :py:meth:`~.SFactor3DPoints.compute()`, you can access the results with :py:meth:`~.SFactor3DPoints.getS()`,
-        :py:meth:`~.SFactor3DPoints.getSComplex()`, and the grid with :py:meth:`~.SFactor3DPoints.getQ()`.
+        After calling :py:meth:`~.SFactor3DPoints.compute()`, you can access
+        the results with :py:meth:`~.SFactor3DPoints.getS()`,
+        :py:meth:`~.SFactor3DPoints.getSComplex()`, and the grid with
+        :py:meth:`~.SFactor3DPoints.getQ()`.
 
         :param points: points used to compute the static structure factor
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`,
+                        shape=(:math:`N_{particles}`, 3),
+                        dtype= :class:`numpy.float32`
         """
         # clear s_complex to zero
         self.s_complex[:, :, :] = 0
 
         # add the contribution of each point
         for p in points:
-            self.s_complex += numpy.exp(1j * (self.qx_grid *
-                                              p[0] + self.qy_grid * p[1] + self.qz_grid * p[2]))
+            self.s_complex += numpy.exp(
+                                1j * (self.qx_grid *
+                                      p[0] + self.qy_grid * p[1] +
+                                      self.qz_grid * p[2]))
 
         # normalize
         mid = self.grid // 2
@@ -119,22 +130,30 @@ class SFactor3DPoints:
         """Get the computed static structure factor
 
         :return: The computed static structure factor as a copy
-        :rtype: :class:`numpy.ndarray`, shape=(X,Y), dtype= :class:`numpy.float32`
+        :rtype: :class:`numpy.ndarray`,
+                shape=(X,Y),
+                dtype= :class:`numpy.float32`
         """
-        return (self.s_complex * numpy.conj(self.s_complex)).astype(numpy.float32)
+        return (self.s_complex * numpy.conj(self.s_complex)).astype(
+                numpy.float32)
 
     def getSComplex(self):
-        """Get the computed complex structure factor (if you need the phase information)
+        """Get the computed complex structure factor (if you need the phase
+        information)
 
-        :return: The computed static structure factor, as a copy, without taking the magnitude squared
-        :rtype: :class:`numpy.ndarray`, shape=(X,Y), dtype= :class:`numpy.complex64`
+        :return: The computed static structure factor, as a copy, without
+                taking the magnitude squared
+        :rtype: :class:`numpy.ndarray`,
+            shape=(X,Y),
+            dtype= :class:`numpy.complex64`
         """
         return copy.cpy(self.s_complex)
 
     def getQ(self):
         """Get the q values at each point
 
-        The structure factor S[c,b,c] is evaluated at the vector q = (qx[a], qy[b], qz[c])
+        The structure factor S[c,b,c] is evaluated at the vector
+        q = (qx[a], qy[b], qz[c])
 
         :return: (qx, qy, qz)
         :rtype: :class:`tuple`
@@ -145,19 +164,23 @@ class SFactor3DPoints:
 class AnalyzeSFactor3D:
     """ Analyze the peaks in a 3D structure factor
 
-    Given a structure factor :math:`S\\left(q\\right)` computed by classes such as :py:class:`~.SFactor3DPoints`,
-    :py:class:`~.AnalyzeSFactor3D` performs a variety of analysis tasks.
+    Given a structure factor :math:`S\\left(q\\right)` computed by classes
+    such as :py:class:`~.SFactor3DPoints`, :py:class:`~.AnalyzeSFactor3D`
+    performs a variety of analysis tasks.
 
         * Identifies peaks
-        * Provides a list of peaks and the vector :math:`\\vec{q}` positions at which they occur
+        * Provides a list of peaks and the vector :math:`\\vec{q}` positions
+            at which they occur
         * Provides a list of peaks grouped by :math:`q^2`
-        * Provides a full list of :math:`S\\left(\\left|q\\right|\\right)` values vs :math:`q^2` suitable for plotting
-          the 1D analog of the structure factor
+        * Provides a full list of :math:`S\\left(\\left|q\\right|\\right)`
+            values vs :math:`q^2` suitable for plotting the 1D analog of the
+            structure factor
         * Scans through the full 3d peaks and reconstructs the Bravais lattice
 
     .. note::
-        All of these operations work in an indexed integer q-space :math:`h,k,l`. Any peak position values returned
-        must be multiplied by :math:`2*\\pi/L` to to real q values in simulation units.
+        All of these operations work in an indexed integer q-space
+        :math:`h,k,l`. Any peak position values returned must be multiplied by
+        :math:`2*\\pi/L` to to real q values in simulation units.
 
     .. todo::
         need to think if this actually will work with non-cubic boxes...
@@ -176,7 +199,8 @@ class AnalyzeSFactor3D:
     def getPeakList(self, cut):
         """Get a list of peaks in the structure factor
 
-        :param cut: All :math:`S\\left(q\\right)` values greater than cut will be counted as peaks
+        :param cut: All :math:`S\\left(q\\right)` values greater than cut will
+                    be counted as peaks
         :return: peaks, q as lists
         :rtype: :class:`list`
         """
@@ -193,9 +217,11 @@ class AnalyzeSFactor3D:
     def getPeakDegeneracy(self, cut):
         """Get a dictionary of peaks indexed by :math:`q^2`
 
-        :param cut: All :math:`S\\left(q\\right)` values greater than cut will be counted as peaks
+        :param cut: All :math:`S\\left(q\\right)` values greater than cut will
+                    be counted as peaks
         :type cut: :class:`numpy.ndarray`
-        :return: a dictionary with key :math:`q^2` and each element being a list of peaks
+        :return: a dictionary with key :math:`q^2` and each element being a
+                list of peaks
         :rtype: :class:`dict`
         """
         q_list, peak_list = self.getPeakList(cut)
@@ -211,7 +237,8 @@ class AnalyzeSFactor3D:
         return retval
 
     def getSvsQ(self):
-        """Get a list of all :math:`S\\left(\\left|q\\right|\\right)` values vs :math:`q^2`
+        """Get a list of all :math:`S\\left(\\left|q\\right|\\right)` values vs
+        :math:`q^2`
 
         :return: S, qsquared
         :rtype: :class:`numpy.ndarray`
@@ -230,35 +257,48 @@ class AnalyzeSFactor3D:
 
 
 class SingleCell3D:
-    """SingleCell3D objects manage data structures necessary to call the Fourier Transform functions that evaluate FTs for
-    given form factors at a list of K points. SingleCell3D provides an interface to helper functions to calculate
-    K points for a desired grid from the reciprocal lattice vectors calculated from an input boxMatrix.
-    State is maintained as `set_` and `update_` functions invalidate internal data structures and as fresh data
-    is restored with `update_` function calls. This should facilitate management with a higher-level UI such as a GUI
-    with an event queue.
+    """SingleCell3D objects manage data structures necessary to call the
+    Fourier Transform functions that evaluate FTs for given form factors at a
+    list of K points. SingleCell3D provides an interface to helper functions to
+    calculate K points for a desired grid from the reciprocal lattice vectors
+    calculated from an input boxMatrix.  State is maintained as `set_` and
+    `update_` functions invalidate internal data structures and as fresh data
+    is restored with `update_` function calls. This should facilitate
+    management with a higher-level UI such as a GUI with an event queue.
 
-    I'm not sure what sort of error checking would be most useful, so I'm mostly allowing ValueErrors and such exceptions
-    to just occur and then propagate up through the calling functions to be dealt with by the user.
+    I'm not sure what sort of error checking would be most useful, so I'm
+    mostly allowing ValueErrors and such exceptions to just occur and then
+    propagate up through the calling functions to be dealt with by the user.
     """
 
-    def __init__(self, k=1800, ndiv=16, dK=0.01, boxMatrix=None, *args, **kwargs):
+    def __init__(self, k=1800, ndiv=16, dK=0.01, boxMatrix=None,
+                 *args, **kwargs):
         """Initialize the single-cell data structure for FT calculation
         :param ndiv: The resolution of the diffraction image grid
-        :param k: The angular wave number of the plane wave probe. (Currently unused.)
-        :param dK: The k-space unit associated with the diffraction image grid spacing
-        :param boxMatrix: The unit cell lattice vectors as columns in a 3x3 matrix
+        :param k: The angular wave number of the plane wave probe.
+                    (Currently unused.)
+        :param dK: The k-space unit associated with the diffraction image grid
+                    spacing
+        :param boxMatrix: The unit cell lattice vectors as columns in a 3x3
+                            matrix
         :param scale: nm per unit length (default 1.0)
         :type ndiv: int
         :type k: float
         :type dK: int
-        :type boxMatrix: :class:`numpy.ndarray`, shape=(3, 3), dtype= :class:`numpy.float32`
+        :type boxMatrix: :class:`numpy.ndarray`,
+                    shape=(3, 3),
+                    dtype= :class:`numpy.float32`
         :type scale: float
 
         .. note::
-            * The `set_` functions take a single parameeter and cause other internal data structures to become invalid.
-            * The `update_` and calculate functions restore the validity of these structures using internal data.
-            * The functions are separate to make it easier to avoid unnecessary computation such as when changing
-              multiple parameters before seeking output or when wrapping the code with an interface with an event queue.
+            * The `set_` functions take a single parameeter and cause other
+                internal data structures to become invalid.
+            * The `update_` and calculate functions restore the validity of
+                these structures using internal data.
+            * The functions are separate to make it easier to avoid unnecessary
+                computation such as when changing multiple parameters before
+                seeking output or when wrapping the code with an interface
+                with an event queue.
         """
         # Initialize some state
         self.Kpoints_valid = False
@@ -297,23 +337,23 @@ class SingleCell3D:
         self.Kpoints = None
         self.Kmax = numpy.float32(self.dK * self.ndiv)
         K = self.Kmax
-        R = K * numpy.float32(1.41422)
         epsilon = numpy.float32(-self.dK/2.)
         self.K_extent = [-K, K, -K, K, -epsilon, epsilon]
         self.K_constraint = None
 
-        # For initial K points, assume a planar extent commensurate with the image
+        # For initial K points, assume a planar extent commensurate with the
+        # image
         self.update_K_constraint()
         self.update_Kpoints()
 
         # Set up particle type information and scattering form factor mapping
         self.fffactory = FTfactory()
-        #self.fffactory.addFT('Sphere', FTsphere)
 
     def add_ptype(self, name):
         """Create internal data structures for new particle type by name
 
-        Particle type is inactive when added because parameters must be set before FT can be performed.
+        Particle type is inactive when added because parameters must be set
+        before FT can be performed.
 
         :param name: particle name
         :type name: str
@@ -335,8 +375,9 @@ class SingleCell3D:
         :type name: str
 
         .. note::
-            this shouldn't usually be necessary, since particle types may be set inactive or have any of their
-            properties updated through `set_` methods
+            this shouldn't usually be necessary, since particle types may be
+            set inactive or have any of their properties updated through
+            `set_` methods
         """
         i = self.ptype_name.index(name)
         if i in self.active_types:
@@ -358,7 +399,7 @@ class SingleCell3D:
         :type name: str
         """
         i = self.ptype_name.index(name)
-        if not i in self.active_types:
+        if i not in self.active_types:
             self.active_types.add(i)
             self.FT_valid = False
 
@@ -393,7 +434,8 @@ class SingleCell3D:
         """Set scattering form factor
 
         :param name: particle type name
-        :param ff: scattering form factor named in :py:meth:`~.SingleCell3D.get_form_factors()`
+        :param ff: scattering form factor named in
+                :py:meth:`~.SingleCell3D.get_form_factors()`
         :type name: str
         :type ff: :class:`list`
         """
@@ -424,12 +466,11 @@ class SingleCell3D:
         """
         i = self.ptype_name.index(particle)
         FTobj = self.ptype_ff[i]
-        if not param in self.ptype_param:
+        if param not in self.ptype_param:
             self.ptype_param[param] = [None] * len(self.ptype_name)
         self.ptype_param[param][i] = value
-        if not param in FTobj.get_params():
-            #raise KeyError('No set_ method for parameter {p}'.format(p=param))
-            return
+        if param not in FTobj.get_params():
+            raise KeyError('No set_ method for parameter {p}'.format(p=param))
         else:
             FTobj.set_parambyname(param, value)
             if i in self.active_types:
@@ -450,7 +491,9 @@ class SingleCell3D:
         """Set box matrix
 
         :param boxMatrix: unit cell box matrix
-        :type boxMatrix: :class:`numpy.ndarray`, shape=(3, 3), dtype= :class:`numpy.float32`
+        :type boxMatrix: :class:`numpy.ndarray`,
+                            shape=(3, 3),
+                            dtype= :class:`numpy.float32`
         """
         self.boxMatrix = numpy.array(boxMatrix)
         self.bases_valid = False
@@ -458,15 +501,19 @@ class SingleCell3D:
     def set_rq(self, name, position, orientation):
         """Set positions and orientations for a particle type
 
-        To best maintain valid state in the event of changing numbers of particles, position and orientation are
-        updated in a single method.
+        To best maintain valid state in the event of changing numbers of
+        particles, position and orientation are updated in a single method.
 
         :param name: particle type name
         :param position: (N,3) array of particle positions
         :param orientation: (N,4) array of particle quaternions
         :type name: str
-        :type position: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
-        :type orientation: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
+        :type position: :class:`numpy.ndarray`,
+                        shape=(:math:`N_{particles}`, 3),
+                        dtype= :class:`numpy.float32`
+        :type orientation: :class:`numpy.ndarray`,
+                            shape=(:math:`N_{particles}`, 4),
+                            dtype= :class:`numpy.float32`
         """
         i = self.ptype_name.index(name)
         r = numpy.asarray(position, dtype=numpy.float32)
@@ -498,7 +545,8 @@ class SingleCell3D:
     def set_dK(self, dK):
         """Set grid spacing in diffraction image
 
-        :param dK: difference in K vector between two adjacent diffraction image grid points
+        :param dK: difference in K vector between two adjacent diffraction
+                    image grid points
         :type dK: float
         """
         self.dK = numpy.float32(dK)
@@ -511,13 +559,13 @@ class SingleCell3D:
         :type k: float
         """
         self.k = numpy.float32(k)
-        #self.K_points_valid = False
 
     def update_bases(self):
         """Update the direct and reciprocal space lattice vectors
 
         .. note::
-            If scale or boxMatrix is updated, the lattice vectors in direct and reciprocal space need to be recalculated.
+            If scale or boxMatrix is updated, the lattice vectors in direct and
+            reciprocal space need to be recalculated.
 
         .. todo::
             call automatically if scale, boxMatrix updated
@@ -534,8 +582,9 @@ class SingleCell3D:
     def update_K_constraint(self):
         """Recalculate constraint used to select K values
 
-        The constraint used is a slab of epsilon thickness in a plane perpendicular to the :math:`k_0` propagation,
-        intended to provide easy emulation of TEM or relatively high-energy scattering.
+        The constraint used is a slab of epsilon thickness in a plane
+        perpendicular to the :math:`k_0` propagation, intended to provide easy
+        emulation of TEM or relatively high-energy scattering.
         """
         self.K_constraint_valid = True
         self.Kmax = numpy.float32(self.dK * self.ndiv)
@@ -550,8 +599,8 @@ class SingleCell3D:
         """Update K points at which to evaluate FT
 
         .. note::
-            If the diffraction image dimensions change relative to the reciprocal lattice, the K points need to be
-            recalculated.
+            If the diffraction image dimensions change relative to the
+            reciprocal lattice, the K points need to be recalculated.
         """
         self.Kpoints_valid = True
         self.Kpoints = numpy.float32(constrainedLatticePoints(
@@ -561,18 +610,26 @@ class SingleCell3D:
         self.FT_valid = False
 
     def calculate(self, *args, **kwargs):
-        """## Calculate FT. The details and arguments will vary depending on the form factor chosen for the particles.
+        """## Calculate FT. The details and arguments will vary depending on
+        the form factor chosen for the particles.
 
-        For any particle type-dependent parameters passed as keyword arguments, the parameter must be passed as a list
-        of length max(p_type)+1 with indices corresponding to the particle types defined. In other words, type-dependent
-        parameters are optional (depending on the set of form factors being calculated), but if included must be defined
-        for all particle types.
+        For any particle type-dependent parameters passed as keyword arguments,
+        the parameter must be passed as a list of length max(p_type)+1 with
+        indices corresponding to the particle types defined. In other words,
+        type-dependent parameters are optional (depending on the set of form
+        factors being calculated), but if included must be defined for all
+        particle types.
 
         :param position: array of particle positions in nm
         :param orientation: array of orientation quaternions
-        :param kwargs: additional keyword arguments passed on to form-factor-specific FT calculator
-        :type position: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
-        :type orientation: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 4), dtype= :class:`numpy.float32`
+        :param kwargs: additional keyword arguments passed on to
+                        form-factor-specific FT calculator
+        :type position: :class:`numpy.ndarray`,
+                        shape=(:math:`N_{particles}`, 3),
+                        dtype= :class:`numpy.float32`
+        :type orientation: :class:`numpy.ndarray`,
+                            shape=(:math:`N_{particles}`, 4),
+                            dtype= :class:`numpy.float32`
         """
         self.FT_valid = True
         shape = (len(self.Kpoints),)
@@ -604,10 +661,13 @@ class FTfactory:
         return self.name_list
 
     def getFTobject(self, i, args=None):
-        """Get a new instance of an FT type from list returned by :py:meth:`~.FTfactory.getFTlist()`
+        """Get a new instance of an FT type from list returned by
+        :py:meth:`~.FTfactory.getFTlist()`
 
-        :param i: index into list returned by :py:meth:`~.FTfactory.getFTlist()`
-        :param args: argument object used to initialize FT, overriding default set at :py:meth:`~.FTfactory.addFT()`
+        :param i: index into list returned by
+                    :py:meth:`~.FTfactory.getFTlist()`
+        :param args: argument object used to initialize FT, overriding default
+                    set at :py:meth:`~.FTfactory.addFT()`
         :type i: int
         :type args: :class:`list`
         """
@@ -620,8 +680,10 @@ class FTfactory:
         """Add an FT class to the factory
 
         :param name: identifying string to be returned by getFTlist()
-        :param constructor: class / function name to be used to create new FT objects
-        :param args: set default argument object to be used to construct FT objects
+        :param constructor: class / function name to be used to create new FT
+                            objects
+        :param args: set default argument object to be used to construct FT
+                    objects
         :type name: str
         :type constructor: :class:`class`
         :type args: :class:`list`
@@ -678,12 +740,13 @@ class FTbase:
     def set_parambyname(self, name, value):
         """Set named parameter for object
 
-        :param name: parameter name. Must exist in list returned by :py:meth:`~.FTbase.get_params()`
+        :param name: parameter name. Must exist in list returned by
+                    :py:meth:`~.FTbase.get_params()`
         :param value: parameter value to set
         :type name: str
         :type value: float
         """
-        if not name in self.set_param_map.keys():
+        if name not in self.set_param_map.keys():
             msg = 'Object {type} does not have parameter {param}'.format(
                 type=self.__class__, param=name)
             raise KeyError(msg)
@@ -693,12 +756,13 @@ class FTbase:
     def get_parambyname(self, name):
         """Get named parameter for object
 
-        :param name: parameter name. Must exist in list returned by :py:meth:`~.FTbase.get_params()`
+        :param name: parameter name. Must exist in list returned by
+                    :py:meth:`~.FTbase.get_params()`
         :type name: str
         :return: parameter value
         :rtype: float
         """
-        if not name in self.get_param_map.keys():
+        if name not in self.get_param_map.keys():
             msg = 'Object {type} does not have parameter {param}'.format(
                 type=self.__class__, param=name)
             raise KeyError(msg)
@@ -758,12 +822,14 @@ class FTbase:
         if len(self.position.shape) == 1:
             self.position.resize((1, 3))
         if len(self.position.shape) != 2:
-            print('Error: can not make an array of 3D vectors from input position.')
+            print('Error: can not make an array of 3D vectors'
+                  'from input position.')
             return None
         if len(self.orientation.shape) == 1:
             self.orientation.resize((1, 4))
         if len(self.orientation.shape) != 2:
-            print('Error: can not make an array of 4D vectors from input orientation.')
+            print('Error: can not make an array of 4D vectors'
+                  'from input orientation.')
             return None
 
 
@@ -793,8 +859,9 @@ class FTdelta(FTbase):
         :type scale: float
 
         .. note::
-            For a scale factor, :math:`\\lambda`, affecting the scattering density :math:`\\rho\\left(r\\right)`,
-            :math:`S_{lambda}\\left(k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`
+            For a scale factor, :math:`\\lambda`, affecting the scattering
+            density :math:`\\rho\\left(r\\right)`, :math:`S_{lambda}\\left
+            (k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`
         """
         FTbase.set_scale(self, scale)
         # self.FTobj.set_scale(float(self.scale))
@@ -823,7 +890,8 @@ class FTdelta(FTbase):
     def compute(self, *args, **kwargs):
         """Compute FT
 
-        Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
+        Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
+        \\mathbf{r}_{\\alpha}}`
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
@@ -833,7 +901,8 @@ class FTdelta(FTbase):
 class FTsphere(FTdelta):
     """Fourier transform for sphere
 
-    Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
+    Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
+    \\mathbf{r}_{\\alpha}}`
     """
 
     def __init__(self, *args, **kwargs):
@@ -848,7 +917,8 @@ class FTsphere(FTdelta):
     def set_radius(self, radius):
         """Set radius parameter
 
-        :param radius: sphere radius will be stored as given, but scaled by scale parameter when used by methods
+        :param radius: sphere radius will be stored as given, but scaled by
+                        scale parameter when used by methods
         :type radius: float
         """
         self.radius = float(radius)
@@ -857,7 +927,8 @@ class FTsphere(FTdelta):
     def get_radius(self):
         """Get radius parameter
 
-        If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+        If appropriate, return value should be scaled by
+        get_parambyname('scale') for interpretation.
 
         :return: unscaled radius
         :rtype: float
@@ -916,18 +987,29 @@ class FTpolyhedron(FTbase):
         :param d: list of d values
         :param areas: list of areas
         :param volumes: list of volumes
-        :type verts: :class:`numpy.ndarray`, shape=(:math:`N_{verts}`, 3), dtype= :class:`numpy.float32`
-        :type facets: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`, :math:`N_{verts}`), dtype= :class:`numpy.float32`
-        :type norms: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`, 3), dtype= :class:`numpy.float32`
-        :type d: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`), dtype= :class:`numpy.float32`
-        :type areas: :class:`numpy.ndarray`, shape=(:math:`N_{facets}`), dtype= :class:`numpy.float32`
+        :type verts: :class:`numpy.ndarray`,
+                    shape=(:math:`N_{verts}`, 3),
+                    dtype= :class:`numpy.float32`
+        :type facets: :class:`numpy.ndarray`,
+                    shape=(:math:`N_{facets}`, :math:`N_{verts}`),
+                    dtype= :class:`numpy.float32`
+        :type norms: :class:`numpy.ndarray`,
+                    shape=(:math:`N_{facets}`, 3),
+                    dtype= :class:`numpy.float32`
+        :type d: :class:`numpy.ndarray`,
+                    shape=(:math:`N_{facets}`),
+                    dtype= :class:`numpy.float32`
+        :type areas: :class:`numpy.ndarray`,
+                    shape=(:math:`N_{facets}`),
+                    dtype= :class:`numpy.float32`
         :type volumes: :class:`numpy.ndarray`
         """
         facet_offs = numpy.zeros((len(facets)+1), dtype=numpy.uint32)
         for i, f in enumerate(facets):
             facet_offs[i+1] = facet_offs[i] + len(f)
         self.FTobj.set_params(verts, facet_offs, numpy.array(
-            [vi for f in facets for vi in f], dtype=numpy.uint32), norms, d, areas, volume)
+            [vi for f in facets for vi in f], dtype=numpy.uint32), norms, d,
+            areas, volume)
 
     def set_radius(self, radius):
         """Set radius of in-sphere
@@ -935,14 +1017,16 @@ class FTpolyhedron(FTbase):
         :param radius: radius inscribed sphere radius without scale applied
         :type radius: float
         """
-        # Find original in-sphere radius, determine necessary scale factor, and scale vertices and surface distances
+        # Find original in-sphere radius, determine necessary scale factor, and
+        # scale vertices and surface distances
         radius = float(radius)
         self.hull.setInsphereRadius(radius)
 
     def get_radius(self):
         """Get radius parameter
 
-        If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+        If appropriate, return value should be scaled by
+        get_parambyname('scale') for interpretation.
 
         :return: unscaled radius
         :rtype: float
@@ -954,7 +1038,8 @@ class FTpolyhedron(FTbase):
     def compute(self, *args, **kwargs):
         """Compute FT
 
-        Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
+        Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
+        \\mathbf{r}_{\\alpha}}`
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
@@ -969,7 +1054,9 @@ class FTconvexPolyhedron(FTpolyhedron):
         """Constructor
 
         :param hull: convex hull object
-        :type hull: :class:`numpy.ndarray`, shape=(:math:`N_{verts}`, 3), dtype= :class:`numpy.float32`
+        :type hull: :class:`numpy.ndarray`,
+                    shape=(:math:`N_{verts}`, 3),
+                    dtype= :class:`numpy.float32`
         """
         FTpolyhedron.__init__(self, *args, **kwargs)
         self.set_param_map['radius'] = self.set_radius
@@ -993,14 +1080,16 @@ class FTconvexPolyhedron(FTpolyhedron):
         :param radius: radius inscribed sphere radius without scale applied
         :type radius: float
         """
-        # Find original in-sphere radius, determine necessary scale factor, and scale vertices and surface distances
+        # Find original in-sphere radius, determine necessary scale factor,
+        # and scale vertices and surface distances
         radius = float(radius)
         self.hull.setInsphereRadius(radius)
 
     def get_radius(self):
         """Get radius parameter
 
-        If appropriate, return value should be scaled by get_parambyname('scale') for interpretation.
+        If appropriate, return value should be scaled by
+        get_parambyname('scale') for interpretation.
 
         :return: unscaled radius
         :rtype: float
@@ -1013,8 +1102,10 @@ class FTconvexPolyhedron(FTpolyhedron):
         """Compute FT
 
         Calculate :math:`P = F * S`:
-        * :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \\mathbf{r}_{\\alpha}}`
-        * F is the analytical form factor for a polyhedron, computed with Spoly3D
+        * :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
+            \\mathbf{r}_{\\alpha}}`
+        * F is the analytical form factor for a polyhedron,
+            computed with Spoly3D
         """
         # Return FT of delta function at one or more locations
         position = self.scale * self.position
@@ -1023,10 +1114,12 @@ class FTconvexPolyhedron(FTpolyhedron):
         self.S = numpy.zeros(self.outputShape, dtype=numpy.complex64)
         for r, q in zip(position, orientation):
             for i in range(len(self.K)):
-                # The FT of an object with orientation q at a given k-space point is the same as the FT
-                # of the unrotated object at a k-space point rotated the opposite way.
-                # The opposite of the rotation represented by a quaternion is the conjugate of the quaternion,
-                # found by inverting the sign of the imaginary components.
+                # The FT of an object with orientation q at a given k-space
+                # point is the same as the FT of the unrotated object at a
+                # k-space point rotated the opposite way. The opposite of the
+                # rotation represented by a quaternion is the conjugate of the
+                # quaternion, found by inverting the sign of the imaginary
+                # components.
                 K = quatrot(q * numpy.array([1, -1, -1, -1]), self.K[i])
                 self.S[i] += numpy.exp(numpy.dot(K, r)
                                        * -1.j) * self.Spoly3D(K)
@@ -1037,7 +1130,8 @@ class FTconvexPolyhedron(FTpolyhedron):
         """Calculate Fourier transform of polygon
 
         :param i: face index into self.hull simplex list
-        :param k: angular wave vector at which to calcular :math:`S\\left(i\\right)`
+        :param k: angular wave vector at which to calcular
+                    :math:`S\\left(i\\right)`
         :type i: int
         :type k: int
         """
@@ -1059,15 +1153,16 @@ class FTconvexPolyhedron(FTpolyhedron):
                 # Note that numpy.sinc(x) gives sin(pi*x)/pi*x
                 x = numpy.dot(k, edge) / numpy.pi
                 cpedgek = numpy.cross(edge, k)
-                S += numpy.dot(n, cpedgek) * numpy.exp(-1.j *
-                                                       numpy.dot(k, centrum)) * numpy.sinc(x)
+                S += numpy.dot(n, cpedgek) * numpy.exp(
+                        -1.j * numpy.dot(k, centrum)) * numpy.sinc(x)
             S *= (-1.j / numpy.dot(k, k))
         return S
 
     def Spoly3D(self, k):
         """Calculate Fourier transform of polyhedron
 
-        :param k: angular wave vector at which to calcular :math:`S\\left(i\\right)`
+        :param k: angular wave vector at which to calcular
+                    :math:`S\\left(i\\right)`
         :type k: int
         """
         if numpy.dot(k, k) == 0.0:
@@ -1086,7 +1181,8 @@ class FTconvexPolyhedron(FTpolyhedron):
             S *= 1.j/(numpy.dot(k, k))
         return S
 
-# The below are currently undocumented...need to determine if these belong or should be removed
+# The below are currently undocumented...need to determine if these belong
+# or should be removed
 
 
 def mkSCcoords(nx, ny, nz):
@@ -1119,7 +1215,8 @@ def mkFCCcoords(nx, ny, nz):
                     coords.append([i, j, k])
     return numpy.array(coords, dtype=float)
 
-# Given that these are potentially used elsewhere, they should be added to the new freud.common (v0.7.0)
+# Given that these are potentially used elsewhere,
+# they should be added to the new freud.common (v0.7.0)
 # Axis angle rotation
 # \param v vector to be rotated
 # \param u rotation axis
@@ -1134,8 +1231,8 @@ def rotate(v, u, theta):
     vx, vy, vz = v
     ux, uy, uz = u
     vout = numpy.empty((3,))
-    st = sin(theta)
-    ct = cos(theta)
+    st = math.sin(theta)
+    ct = math.cos(theta)
     vout[0] = vx*(ct + ux*ux*(1 - ct))      \
         + vy*(ux*uy*(1 - ct) - uz*st)   \
         + vz*(ux*uz*(1 - ct) + uy*st)
@@ -1155,20 +1252,23 @@ def rotate(v, u, theta):
 def quatrot(a, b):
     s = a[0]
     v = a[1:4]
-    return (s*s - numpy.dot(v, v))*b + 2*s*numpy.cross(v, b) + 2*numpy.dot(v, b)*v
+    return (s*s - numpy.dot(v, v))*b + 2*s*numpy.cross(
+            v, b) + 2*numpy.dot(v, b)*v
 
 
 class Constraint:
     """Constraint base class
 
-    Base class for constraints on vectors to define the API. All constraints should have a 'radius' defining a bounding
-    sphere and a 'satisfies' method to determine whether an input vector satisfies the constraint.
+    Base class for constraints on vectors to define the API. All constraints
+    should have a 'radius' defining a bounding sphere and a 'satisfies' method
+    to determine whether an input vector satisfies the constraint.
     """
 
     def __init__(self, R, *args, **kwargs):
         """Constructor
 
-        :param R: required parameter describes the circumsphere of influence of the constraint for quick tests
+        :param R: required parameter describes the circumsphere of influence of
+                    the constraint for quick tests
         :type R: float
         """
         self.radius = R
@@ -1177,7 +1277,9 @@ class Constraint:
         """Constraint test
 
         :param v: vector to test against constraint
-        :type v: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+        :type v: :class:`numpy.ndarray`,
+                    shape=(3),
+                    dtype= :class:`numpy.float32`
         """
         return True
 
@@ -1185,25 +1287,30 @@ class Constraint:
 class AlignedBoxConstraint(Constraint):
     """Axis-aligned Box constraint
 
-    Tetragonal box aligned with the coordinate system. Consider using a small z dimension to serve as a plane plus or
-    minus some epsilon. Set R < L for a cylinder
+    Tetragonal box aligned with the coordinate system. Consider using a small z
+    dimension to serve as a plane plus or minus some epsilon. Set R < L for a
+    cylinder
     """
 
     def __init__(self, R, *args, **kwargs):
         """Constructor
 
-        :param R: required parameter describes the circumsphere of influence of the constraint for quick tests
+        :param R: required parameter describes the circumsphere of influence of
+                    the constraint for quick tests
         :type R: float
         """
         self.radius = R
         self.R2 = R*R
-        [self.xneg, self.xpos, self.yneg, self.ypos, self.zneg, self.zpos] = args
+        [self.xneg, self.xpos, self.yneg, self.ypos, self.zneg,
+         self.zpos] = args
 
     def satisfies(self, v):
         """Constraint test
 
         :param v: vector to test against constraint
-        :type v: :class:`numpy.ndarray`, shape=(3), dtype= :class:`numpy.float32`
+        :type v: :class:`numpy.ndarray`,
+                    shape=(3),
+                    dtype= :class:`numpy.float32`
         """
         satisfied = False
         if numpy.dot(v, v) <= self.R2:
@@ -1232,11 +1339,11 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
     # Check each value h, k, l to see if vector satisfies constraint
     # Return list of vectors
     R = constraint.radius
-    R2 = R*R
     # Find shortest distance G. Assume lattice reduction is not necessary.
     gvec = v1 + v2 + v3
     G2 = numpy.dot(gvec, gvec)
-    # This potentially checks redundant vectors, but optimization might require hard-to-unroll loops.
+    # This potentially checks redundant vectors, but optimization might require
+    # hard-to-unroll loops.
     for h in [-1, 0, 1]:
         for k in [-1, 0, 1]:
             for l in [-1, 0, 1]:
@@ -1250,7 +1357,8 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
     G = numpy.sqrt(G2)
     nmax = int((R/G)+1)
     # Check each point against constraint
-    # This potentially checks redundant vectors but we don't want to assume anything about the constraint.
+    # This potentially checks redundant vectors but we don't want to assume
+    # anything about the constraint.
     vec_list = list()
     for h in range(-nmax, nmax + 1):
         for k in range(-nmax, nmax + 1):
@@ -1297,8 +1405,9 @@ def reciprocalLattice3D(a1, a2, a3):
 class DeltaSpot:
     """Base class for drawing diffraction spots on a 2D grid.
 
-    Based on the dimensions of a grid, determines which grid points need to be modified to represent a diffraction spot
-    and generates the values in that subgrid. Spot is a single pixel at the closest grid point
+    Based on the dimensions of a grid, determines which grid points need to be
+    modified to represent a diffraction spot and generates the values in that
+    subgrid. Spot is a single pixel at the closest grid point
     """
 
     def __init__(self, shape, extent, *args, **kwargs):
@@ -1306,8 +1415,12 @@ class DeltaSpot:
 
         :param shape: number of grid points in each dimension
         :param extent: range of x,y values associated with grid points
-        :type shape: :class:`numpy.ndarray`, shape=(2), dtype= :class:`numpy.int32`
-        :type extent: :class:`numpy.ndarray`, shape=(2), dtype= :class:`numpy.float32`
+        :type shape: :class:`numpy.ndarray`,
+                        shape=(2),
+                        dtype= :class:`numpy.int32`
+        :type extent: :class:`numpy.ndarray`,
+                        shape=(2),
+                        dtype= :class:`numpy.float32`
         """
         self.shape = shape
         self.extent = extent
@@ -1332,7 +1445,8 @@ class DeltaSpot:
     def get_gridPoints(self):
         """Get indices of sub-grid
 
-        Based on the type of spot and its center, return the grid mask of points containing the spot
+        Based on the type of spot and its center, return the grid mask of
+        points containing the spot
         """
         return self.gridPoints
 
@@ -1356,8 +1470,12 @@ class GaussianSpot(DeltaSpot):
 
         :param shape: number of grid points in each dimension
         :param extent: range of x,y values associated with grid points
-        :type shape: :class:`numpy.ndarray`, shape=(2), dtype= :class:`numpy.int32`
-        :type extent: :class:`numpy.ndarray`, shape=(2), dtype= :class:`numpy.float32`
+        :type shape: :class:`numpy.ndarray`,
+                        shape=(2),
+                        dtype= :class:`numpy.int32`
+        :type extent: :class:`numpy.ndarray`,
+                        shape=(2),
+                        dtype= :class:`numpy.float32`
         """
         DeltaSpot.__init__(self, shape, extent, *args, **kwargs)
         if 'sigma' in kwargs:
@@ -1427,7 +1545,8 @@ class GaussianSpot(DeltaSpot):
 
 
 class InterpolatedDeltaSpot(DeltaSpot):
-    # four grid points filled according to interpolation of delta at spot location
+    # four grid points filled according to interpolation of delta at spot
+    # location
     def set_xy(self, x, y):
         self.x, self.y = x, y
         # set grid: two index matrices of i and j values
