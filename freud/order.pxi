@@ -136,14 +136,12 @@ cdef class BondOrder:
 
     @property
     def bond_order(self):
-        """
-        :return: bond order
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\phi}, N_{\\theta} \\right)`, dtype= :class:`numpy.float32`
+        """Bond order
         """
         return self.getBondOrder()
 
     def getBondOrder(self):
-        """
+        """Get the bond order
         :return: bond order
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{\\phi}, N_{\\theta} \\right)`, dtype= :class:`numpy.float32`
         """
@@ -156,11 +154,7 @@ cdef class BondOrder:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Box used in the calculation
         """
         return self.getBox()
 
@@ -494,14 +488,12 @@ cdef class HexOrderParameter:
 
     @property
     def psi(self):
-        """
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles} \\right)`, dtype= :class:`numpy.complex64`
+        """Order parameter
         """
         return self.getPsi()
 
     def getPsi(self):
-        """
+        """Get the order parameter
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles} \\right)`, dtype= :class:`numpy.complex64`
         """
@@ -513,17 +505,12 @@ cdef class HexOrderParameter:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
     def getBox(self):
-        """
-        Get the box used in the calculation
+        """Get the box used in the calculation
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -532,11 +519,7 @@ cdef class HexOrderParameter:
 
     @property
     def num_particles(self):
-        """
-        Get the number of particles
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
+        """Get the number of particles
         """
         return self.getNP()
 
@@ -552,20 +535,12 @@ cdef class HexOrderParameter:
 
     @property
     def k(self):
-        """
-        Get the symmetry of the order parameter
-
-        :return: :math:`k`
-        :rtype: float
-
-        .. note:: While :math:`k` is a float, this is due to its use in calculations requiring floats. Passing in \
-        non-integer values will result in undefined behavior
+        """Symmetry of the order parameter
         """
         return self.getK()
 
     def getK(self):
-        """
-        Get the symmetry of the order parameter
+        """Get the symmetry of the order parameter
 
         :return: :math:`k`
         :rtype: float
@@ -711,18 +686,12 @@ cdef class LocalDescriptors:
 
     @property
     def sph(self):
-        """
-        Get a reference to the last computed spherical harmonic array
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`, \
-            dtype= :class:`numpy.complex64`
+        """A reference to the last computed spherical harmonic array
         """
         return self.getSph()
 
     def getSph(self):
-        """
-        Get a reference to the last computed spherical harmonic array
+        """Get a reference to the last computed spherical harmonic array
 
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`, \
@@ -737,17 +706,12 @@ cdef class LocalDescriptors:
 
     @property
     def num_particles(self):
-        """
-        Get the number of particles
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
+        """Get the number of particles
         """
         return self.getNP()
 
     def getNP(self):
-        """
-        Get the number of particles
+        """Get the number of particles
 
         :return: :math:`N_{particles}`
         :rtype: unsigned int
@@ -757,18 +721,12 @@ cdef class LocalDescriptors:
 
     @property
     def num_neighbors(self):
-        """
-        Get the number of neighbors
-
-        :return: :math:`N_{neighbors}`
-        :rtype: unsigned int
-
+        """Get the number of neighbors
         """
         return self.getNSphs()
 
     def getNSphs(self):
-        """
-        Get the number of neighbors
+        """Get the number of neighbors
 
         :return: :math:`N_{neighbors}`
         :rtype: unsigned int
@@ -779,18 +737,12 @@ cdef class LocalDescriptors:
 
     @property
     def l_max(self):
-        """
-        Get the maximum spherical harmonic l to calculate for
-
-        :return: :math:`l`
-        :rtype: unsigned int
-
+        """Get the maximum spherical harmonic l to calculate for
         """
         return self.getLMax()
 
     def getLMax(self):
-        """
-        Get the maximum spherical harmonic l to calculate for
+        """Get the maximum spherical harmonic l to calculate for
 
         :return: :math:`l`
         :rtype: unsigned int
@@ -801,12 +753,7 @@ cdef class LocalDescriptors:
 
     @property
     def r_max(self):
-        """
-        Get the cutoff radius
-
-        :return: :math:`r`
-        :rtype: float
-
+        """Get the cutoff radius
         """
         return self.getRMax()
 
@@ -876,17 +823,12 @@ cdef class TransOrderParameter:
 
     @property
     def d_r(self):
-        """
-        Get a reference to the last computed spherical harmonic array
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.complex64`
+        """Get a reference to the last computed spherical harmonic array
         """
         return self.getDr()
 
     def getDr(self):
-        """
-        Get a reference to the last computed spherical harmonic array
+        """Get a reference to the last computed spherical harmonic array
 
         :return: order parameter
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.complex64`
@@ -899,11 +841,7 @@ cdef class TransOrderParameter:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -918,17 +856,12 @@ cdef class TransOrderParameter:
 
     @property
     def num_particles(self):
-        """
-        Get the number of particles
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
+        """Get the number of particles
         """
         return self.getNP()
 
     def getNP(self):
-        """
-        Get the number of particles
+        """Get the number of particles
 
         :return: :math:`N_{particles}`
         :rtype: unsigned int
@@ -1080,21 +1013,13 @@ cdef class LocalQl:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
     @box.setter
     def box(self, value):
-        """
-        Reset the simulation box
-
-        :param box: simulation box
-        :type box: :py:class:`freud.box.Box`
+        """Reset the simulation box
         """
         self.setBox(value)
 
@@ -1121,9 +1046,6 @@ cdef class LocalQl:
     def Ql(self):
         """
         Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self.getQl()
 
@@ -1144,9 +1066,6 @@ cdef class LocalQl:
     def ave_Ql(self):
         """
         Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self.getAveQl()
 
@@ -1168,9 +1087,6 @@ cdef class LocalQl:
         """
         Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for \
         particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self.getQlNorm()
 
@@ -1193,9 +1109,6 @@ cdef class LocalQl:
         """
         Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for \
         particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self.getQlAveNorm()
 
@@ -1217,9 +1130,6 @@ cdef class LocalQl:
     def num_particles(self):
         """
         Get the number of particles
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
         """
         return self.getNP()
 
@@ -1464,11 +1374,7 @@ cdef class LocalWl:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -1495,9 +1401,6 @@ cdef class LocalWl:
     def Ql(self):
         """
         Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self.getQl()
 
@@ -1520,9 +1423,6 @@ cdef class LocalWl:
         """
         Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
         particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.complex64`
         """
         return self.getWl()
 
@@ -1545,9 +1445,6 @@ cdef class LocalWl:
         """
         Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
         particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self.getAveWl()
 
@@ -1570,9 +1467,6 @@ cdef class LocalWl:
         """
         Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
         particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self.getWlNorm()
 
@@ -1595,9 +1489,6 @@ cdef class LocalWl:
         """
         Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
         particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.float32`
         """
         return self.getWlAveNorm()
 
@@ -1619,9 +1510,6 @@ cdef class LocalWl:
     def num_particles(self):
         """
         Get the number of particles
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
         """
         return self.getNP()
 
@@ -1830,9 +1718,6 @@ cdef class SolLiq:
     def box(self):
         """
         Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
         """
         return self.getBox()
 
@@ -1879,9 +1764,6 @@ cdef class SolLiq:
     def largest_cluster_size(self):
         """
         Returns the largest cluster size. Must compute sol-liq first
-
-        :return: largest cluster size
-        :rtype: unsigned int
         """
         return self.getLargestClusterSize()
 
@@ -1899,9 +1781,6 @@ cdef class SolLiq:
     def cluster_sizes(self):
         """
         Return the sizes of all clusters
-
-        :return: largest cluster size
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{clusters}\\right)`, dtype= :class:`numpy.uint32`
         """
         return self.getClusterSizes()
 
@@ -1924,9 +1803,6 @@ cdef class SolLiq:
     def Ql_mi(self):
         """
         Get a reference to the last computed :math:`Q_{lmi}` for each particle.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.complex64`
         """
         return self.getQlmi()
 
@@ -1947,9 +1823,6 @@ cdef class SolLiq:
     def clusters(self):
         """
         Get a reference to the last computed set of solid-like cluster indices for each particle
-
-        :return: clusters
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
         """
         return self.getClusters()
 
@@ -1971,9 +1844,6 @@ cdef class SolLiq:
     def num_connections(self):
         """
         Get a reference to the number of connections per particle
-
-        :return: clusters
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
         """
         return self.getNumberOfConnections()
 
@@ -1995,9 +1865,6 @@ cdef class SolLiq:
     def Ql_dot_ij(self):
         """
         Get a reference to the number of connections per particle
-
-        :return: clusters
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
         """
         return self.getNumberOfConnections()
 
@@ -2020,9 +1887,6 @@ cdef class SolLiq:
     def num_particles(self):
         """
         Get the number of particles
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
         """
         return self.getNP()
 
@@ -2375,10 +2239,6 @@ cdef class MatchEnv:
     def tot_environment(self):
         """
         Returns the entire m_Np by m_maxk by 3 matrix of all environments for all particles
-
-        :return: the array of vectors
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)`, \
-            dtype= :class:`numpy.float32`
         """
         return self.getTotEnvironment()
 
@@ -2402,9 +2262,6 @@ cdef class MatchEnv:
     def num_particles(self):
         """
         Get the number of particles
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
         """
         return self.getNP()
 
@@ -2422,9 +2279,6 @@ cdef class MatchEnv:
     def num_clusters(self):
         """
         Get the number of clusters
-
-        :return: :math:`N_{clusters}`
-        :rtype: unsigned int
         """
         return self.getNumClusters()
 
@@ -2504,14 +2358,12 @@ cdef class Pairing2D:
 
     @property
     def match(self):
-        """
-        :return: match
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
+        """Match
         """
         return self.getMatch()
 
     def getMatch(self):
-        """
+        """Get the match
         :return: match
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
         """
@@ -2523,14 +2375,12 @@ cdef class Pairing2D:
 
     @property
     def pair(self):
-        """
-        :return: pair
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
+        """Pair
         """
         return self.getPair()
 
     def getPair(self):
-        """
+        """Get the pair
         :return: pair
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}\\right)`, dtype= :class:`numpy.uint32`
         """
@@ -2542,17 +2392,12 @@ cdef class Pairing2D:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
     def getBox(self):
-        """
-        Get the box used in the calculation
+        """Get the box used in the calculation
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
