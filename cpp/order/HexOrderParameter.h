@@ -35,7 +35,7 @@ class HexOrderParameter
     {
     public:
         //! Constructor
-        HexOrderParameter(float rmax, unsigned int k=6, unsigned int n=0);
+        HexOrderParameter(float rmax, float k=6, unsigned int n=0);
 
         //! Destructor
         ~HexOrderParameter();
@@ -63,14 +63,14 @@ class HexOrderParameter
             return m_Np;
             }
 
-        unsigned int getK()
+        float getK()
             {
             return m_k;
             }
 
     private:
         box::Box m_box;            //!< Simulation box where the particles belong
-        unsigned int m_k;          //!< Multiplier in the exponent
+        float m_k;                 //!< Multiplier in the exponent
         unsigned int m_Np;         //!< Last number of points computed
 
         std::shared_ptr< std::complex<float> > m_psi_array;  //!< psi array computed

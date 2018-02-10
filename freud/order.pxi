@@ -446,14 +446,17 @@ cdef class HexOrderParameter:
     :param k: symmetry of order parameter (:math:`k=6` is hexatic)
     :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
     :type rmax: float
-    :type k: unsigned int
+    :type k: float
     :type n: unsigned int
+
+    .. note:: While :math:`k` is a float, this is due to its use in calculations requiring floats. Passing in \
+    non-integer values will result in undefined behavior
     """
     cdef order.HexOrderParameter *thisptr
     cdef num_neigh
     cdef rmax
 
-    def __cinit__(self, rmax, k=int(6), n=int(0)):
+    def __cinit__(self, rmax, k=float(6.0), n=int(0)):
         self.thisptr = new order.HexOrderParameter(rmax, k, n)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
@@ -553,7 +556,10 @@ cdef class HexOrderParameter:
         Get the symmetry of the order parameter
 
         :return: :math:`k`
-        :rtype: unsigned int
+        :rtype: float
+
+        .. note:: While :math:`k` is a float, this is due to its use in calculations requiring floats. Passing in \
+        non-integer values will result in undefined behavior
         """
         return self.getK()
 
@@ -562,9 +568,12 @@ cdef class HexOrderParameter:
         Get the symmetry of the order parameter
 
         :return: :math:`k`
-        :rtype: unsigned int
+        :rtype: float
+
+        .. note:: While :math:`k` is a float, this is due to its use in calculations requiring floats. Passing in \
+        non-integer values will result in undefined behavior
         """
-        cdef unsigned int k = self.thisptr.getK()
+        cdef float k = self.thisptr.getK()
         return k
 
 cdef class LocalDescriptors:
