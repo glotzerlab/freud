@@ -3,11 +3,8 @@
 
 # \package freud.pmft
 #
-# Methods to compute pair correlation function and pmft from point distributions.
-#
-
-# import numpy
-# import time
+# Methods to compute pair correlation function and pmft from point
+# distributions.
 
 from ._freud import PMFTR12
 from ._freud import PMFTXYT

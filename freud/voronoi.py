@@ -3,16 +3,20 @@
 
 import numpy as np
 import logging
-logger = logging.getLogger(__name__)
 import copy
+
+from ._freud import VoronoiBuffer
+from ._freud import NeighborList
+
+logger = logging.getLogger(__name__)
+
 try:
     from scipy.spatial import Voronoi as qvoronoi
 except ImportError:
     qvoronoi = None
-    msg = 'scipy.spatial.Voronoi is not available (requires scipy 0.12+), so freud.voronoi is not available.'
+    msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
+           'so freud.voronoi is not available.')
     logger.warning(msg)
-from ._freud import VoronoiBuffer
-from ._freud import NeighborList
 
 
 class Voronoi:
@@ -35,9 +39,12 @@ class Voronoi:
         self.buff = buff
 
     def compute(self, positions, box=None, buff=None):
-        # Compute Voronoi tesselation
-        # \param box The simulation box
-        # \param buff The buffer of particles to be duplicated to simulated PBC, default=0.1
+        """ Compute Voronoi tesselation
+
+        :param box: The simulation box
+        :param buff: The buffer of particles to be duplicated to simulated
+                     PBC, default=0.1
+         """
 
         # If box or buff is not specified, revert to object quantities
         if box is None:
@@ -84,17 +91,21 @@ class Voronoi:
         return self.poly_verts
 
     def computeNeighbors(self, positions, box=None, buff=None):
-        """Compute the neighbors of each particle based on the voronoi tessellation.
-        One can include neighbors from multiple voronoi shells by specifying 'numShells' variable.
-        An example code to compute neighbors up to two voronoi shells for a 2D mesh:
+        """Compute the neighbors of each particle based on the voronoi
+        tessellation. One can include neighbors from multiple voronoi shells by
+        specifying 'numShells' variable. An example code to compute neighbors
+        up to two voronoi shells for a 2D mesh:
 
-        vor = voronoi.Voronoi(box.Box(5, 5))
-        pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
-        vor.computeNeighbors(pos)
-        neighbors = vor.getNeighbors(2)
+        Example::
+            vor = voronoi.Voronoi(box.Box(5, 5))
+            pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
+                [2, 0], [2, 1], [2, 2]])
+            vor.computeNeighbors(pos)
+            neighbors = vor.getNeighbors(2)
 
         Returns a list of lists of neighbors
-        Note: input positions must be a 3D array. For 2D, set the z value to be 0.
+        Note: input positions must be a 3D array. For 2D, set the z value to
+            be 0.
         """
 
         # If box or buff is not specified, revert to object quantities
@@ -124,7 +135,8 @@ class Voronoi:
         N = len(positions)
         # Nearest neighbor index for each point
         self.firstShellNeighborList = [[] for _ in range(N)]
-        # Weight between nearest neighbors, which is the length of ridge between two points
+        # Weight between nearest neighbors, which is the length of ridge
+        # between two points
         self.firstShellWeight = [[] for _ in range(N)]
         for (k, (index_i, index_j)) in enumerate(ridge_points):
             if index_i >= N or index_j >= N:
@@ -136,7 +148,8 @@ class Voronoi:
             if -1 not in ridge_vertices[k]:
                 # TODO properly account for 3D
                 weight = np.linalg.norm(
-                    vor_vertices[ridge_vertices[k][0]] - vor_vertices[ridge_vertices[k][1]])
+                    vor_vertices[ridge_vertices[k][0]] - vor_vertices[
+                        ridge_vertices[k][1]])
             else:
                 # this point was on the boundary, so as far as qhull
                 # is concerned its ridge goes out to infinity
@@ -160,10 +173,10 @@ class Voronoi:
 
                 # remove duplicates
                 dummy_neighbor_list[i] = list(set(dummy_neighbor_list[i]))
-                try:
+
+                if i in dummy_neighbor_list[i]:
                     dummy_neighbor_list[i].remove(i)
-                except:
-                    pass
+
             neighbor_list = copy.copy(dummy_neighbor_list)
 
         return neighbor_list
