@@ -77,7 +77,7 @@ class BondingXYZ
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;                    //!< Simulation box where the particles belong
         float m_r_max;                     //!< Maximum r at which to determine neighbors
         float m_x_max;                     //!< Maximum r at which to determine neighbors
         float m_y_max;                     //!< Maximum theta at which to determine neighbors
@@ -88,13 +88,13 @@ class BondingXYZ
         unsigned int m_nbins_x;             //!< Number of x bins to compute bonds
         unsigned int m_nbins_y;             //!< Number of y bins to compute bonds
         unsigned int m_nbins_z;             //!< Number of y bins to compute bonds
-        unsigned int m_n_bonds;                        //!< number of bonds to track
-        unsigned int *m_bond_map;                   //!< pointer to bonding map
+        unsigned int m_n_bonds;             //!< number of bonds to track
+        unsigned int *m_bond_map;           //!< pointer to bonding map
         unsigned int *m_bond_list;
-        std::map<unsigned int, unsigned int> m_list_map; //! maps bond index to list index
-        std::map<unsigned int, unsigned int> m_rev_list_map; //! maps list index to bond index
-        unsigned int m_n_ref;                //!< Last number of points computed
-        unsigned int m_n_p;                //!< Last number of points computed
+        std::map<unsigned int, unsigned int> m_list_map;        //! maps bond index to list index
+        std::map<unsigned int, unsigned int> m_rev_list_map;    //! maps list index to bond index
+        unsigned int m_n_ref;               //!< Last number of points computed
+        unsigned int m_n_p;                 //!< Last number of points computed
 
         std::shared_ptr<unsigned int> m_bonds;
     };

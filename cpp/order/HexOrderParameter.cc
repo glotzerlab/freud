@@ -17,7 +17,7 @@ using namespace tbb;
 namespace freud { namespace order {
 
 HexOrderParameter::HexOrderParameter(float rmax, float k, unsigned int n)
-    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_Np(0)
+    : m_box(box::Box()), m_k(k), m_Np(0)
     {
     }
 

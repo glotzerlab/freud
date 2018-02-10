@@ -21,7 +21,7 @@ np.import_array()
 cdef class BondOrder:
     """Compute the bond order diagram for the system of particles.
 
-    Available Modues of Calculation:
+    Available Modes of Calculation:
     * If mode=bod (Bond Order Diagram): Create the 2D histogram containing the number of bonds formed through the \
     surface of a unit sphere based on the azimuthal (Theta) and polar (Phi) angles. This is the default.
 

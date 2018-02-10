@@ -1,5 +1,14 @@
 # Change Log
 
+## v0.6.4
+
+* Set up CircleCI for continuous integration
+* Set up documentation on ReadTheDocs
+* Added bumpversion support
+* Various bug fixes
+* Added python-style properties for accessing data
+* Fixed issues with voronoi neighbor list
+
 ## v0.6.0
 
 * trajectory module removed
@@ -15,7 +24,7 @@
 
 ## v0.5.0
 
-* Replace boost::shared_array with std::shared_ptr (C++ 11)
+* Replace boost::shared\_array with std::shared\_ptr (C++ 11)
 * Moved all tbb template classes to lambda expressions
 * Moved trajectory.Box to box.Box
 * trajectory is deprecated

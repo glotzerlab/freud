@@ -14,4 +14,4 @@ using namespace std;
 
 namespace freud { namespace box {
 
-}; };
+}; }; // end namespace freud::box

@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 #include <tbb/tbb.h>
-#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "NearestNeighbors.h"
 #include "ScopedGILRelease.h"
@@ -24,7 +23,7 @@ namespace freud { namespace locality {
 
 // stop using
 NearestNeighbors::NearestNeighbors():
-    m_box(box::Box()), m_rmax(0), m_num_neighbors(0), m_scale(0), m_strict_cut(false), m_num_points(0), m_num_ref(0),
+    m_box(box::Box()), m_rmax(0), m_num_neighbors(0), m_strict_cut(false), m_num_points(0), m_num_ref(0),
     m_deficits()
     {
     m_lc = new locality::LinkCell();
@@ -35,7 +34,7 @@ NearestNeighbors::NearestNeighbors(float rmax,
                                    unsigned int num_neighbors,
                                    float scale,
                                    bool strict_cut):
-    m_box(box::Box()), m_rmax(rmax), m_num_neighbors(num_neighbors), m_scale(scale), m_strict_cut(strict_cut), m_num_points(0),
+    m_box(box::Box()), m_rmax(rmax), m_num_neighbors(num_neighbors), m_strict_cut(strict_cut), m_num_points(0),
     m_num_ref(0), m_deficits()
     {
     m_lc = new locality::LinkCell(m_box, m_rmax);

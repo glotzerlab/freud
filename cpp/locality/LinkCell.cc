@@ -7,7 +7,6 @@
 #include <tbb/tbb.h>
 
 #include "LinkCell.h"
-#include "../box/box.h"
 #include "ScopedGILRelease.h"
 
 using namespace std;
@@ -29,9 +28,9 @@ LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_neighbor_l
 
 LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width), m_neighbor_list()
     {
-    // check if the cell width is too wide for the box
-    m_celldim  = computeDimensions(m_box, m_cell_width);
-    //Check if box is too small!
+    // Check if the cell width is too wide for the box
+    m_celldim = computeDimensions(m_box, m_cell_width);
+    // Check if box is too small!
     // will only check if the box is not null
     if (box != box::Box())
         {
@@ -45,7 +44,7 @@ LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0),
             {
             throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
             }
-        //only 1 cell deep in 2D
+        // Only 1 cell deep in 2D
         if (m_box.is2D())
             {
             m_celldim.z = 1;
@@ -61,7 +60,7 @@ void LinkCell::setCellWidth(float cell_width)
         {
         vec3<float> L = m_box.getNearestPlaneDistance();
         vec3<unsigned int> celldim  = computeDimensions(m_box, cell_width);
-        //Check if box is too small!
+        // Check if box is too small!
         bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
         if (!m_box.is2D())
             {
@@ -71,13 +70,15 @@ void LinkCell::setCellWidth(float cell_width)
             {
             throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
             }
-        //only 1 cell deep in 2D
+        // Only 1 cell deep in 2D
         if (m_box.is2D())
             {
             celldim.z = 1;
             }
-        // check if the dims changed
-        if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
+        // Check if the dims changed
+        if (!((celldim.x == m_celldim.x) &&
+              (celldim.y == m_celldim.y) &&
+              (celldim.z == m_celldim.z)))
             {
             m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
             if (m_cell_index.getNumElements() < 1)
@@ -93,10 +94,10 @@ void LinkCell::setCellWidth(float cell_width)
 
 void LinkCell::updateBox(const box::Box& box)
     {
-    // check if the cell width is too wide for the box
+    // Check if the cell width is too wide for the box
     vec3<float> L = box.getNearestPlaneDistance();
     vec3<unsigned int> celldim  = computeDimensions(box, m_cell_width);
-    //Check if box is too small!
+    // Check if box is too small!
     bool too_wide =  m_cell_width > L.x/2.0 || m_cell_width > L.y/2.0;
     if (!box.is2D())
         {
@@ -106,12 +107,12 @@ void LinkCell::updateBox(const box::Box& box)
         {
         throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
         }
-    //only 1 cell deep in 2D
+    // Only 1 cell deep in 2D
     if (box.is2D())
         {
         celldim.z = 1;
         }
-    // check if the box is changed
+    // Check if the box is changed
     m_box = box;
     if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
         {
@@ -125,22 +126,13 @@ void LinkCell::updateBox(const box::Box& box)
         }
     }
 
-unsigned int LinkCell::roundDown(unsigned int v, unsigned int m)
-    {
-    // use integer floor division
-    unsigned int d = v/m;
-    return d*m;
-    }
-
 const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_width) const
     {
     vec3<unsigned int> dim;
 
-    //multiple is a holdover from hpmc...doesn't really need to be kept
-    unsigned int multiple = 1;
     vec3<float> L = box.getNearestPlaneDistance();
-    dim.x = roundDown((unsigned int)((L.x) / (cell_width)), multiple);
-    dim.y = roundDown((unsigned int)((L.y) / (cell_width)), multiple);
+    dim.x = (unsigned int)((L.x) / (cell_width));
+    dim.y = (unsigned int)((L.y) / (cell_width));
 
     if (box.is2D())
         {
@@ -148,13 +140,15 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
         }
     else
         {
-        dim.z = roundDown((unsigned int)((L.z) / (cell_width)), multiple);
+        dim.z = (unsigned int)((L.z) / (cell_width));
         }
 
-    // In extremely small boxes, the calculated dimensions could go to zero, but need at least one cell in each dimension
-    //  for particles to be in a cell and to pass the checkCondition tests.
-    // Note: freud doesn't actually support these small boxes (as of this writing), but this function will return the correct dimensions
-    //  required anyways.
+    // In extremely small boxes, the calculated dimensions could go to zero,
+    // but need at least one cell in each dimension for particles to be in a
+    // cell and to pass the checkCondition tests.
+    // Note: freud doesn't actually support these small boxes (as of this
+    // writing), but this function will return the correct dimensions
+    // required anyways.
     if (dim.x == 0)
         dim.x = 1;
     if (dim.y == 0)
@@ -163,27 +157,6 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
         dim.z = 1;
     return dim;
     }
-
-// void LinkCell::computeCellListPy(box::Box& box,
-//                                  boost::python::numeric::array points)
-//     {
-//     // validate input type and rank
-//     num_util::check_type(points, NPY_FLOAT);
-//     num_util::check_rank(points, 2);
-
-//     // validate that the 2nd dimension is only 3
-//     num_util::check_dim(points, 1, 3);
-//     unsigned int Np = num_util::shape(points)[0];
-
-//     // get the raw data pointers and compute the cell list
-//     vec3<float>* points_raw = (vec3<float>*) num_util::data(points);
-
-//         // compute the cell list with the GIL released
-//         {
-//         util::ScopedGILRelease gil;
-//         computeCellList(box, points_raw, Np);
-//         }
-//     }
 
 //Deprecated.  Users should use the modern vec3<float> interfaces
 void LinkCell::computeCellList(box::Box& box,
@@ -255,7 +228,7 @@ void LinkCell::compute(box::Box& box,
     unsigned int Np,
     bool exclude_ii)
     {
-    // store points ("j" particles in (i, j) bonds) in the cell list
+    // Store points ("j" particles in (i, j) bonds) in the cell list
     // for quick access later (not ref_points)
     computeCellList(box, points, Np);
 
@@ -428,25 +401,5 @@ void LinkCell::computeCellNeighbors()
                 sort(m_cell_neighbors[cur_cell].begin(), m_cell_neighbors[cur_cell].end());
                 }
     }
-
-// void export_LinkCell()
-//     {
-//     class_<LinkCell>("LinkCell", init<box::Box&, float>())
-//         .def("getBox", &LinkCell::getBox, return_internal_reference<>())
-//         .def("getCellIndexer", &LinkCell::getCellIndexer, return_internal_reference<>())
-//         .def("getNumCells", &LinkCell::getNumCells)
-//         .def("getCell", &LinkCell::getCellPy)
-//         //.def("getCellCoord", &LinkCell::getCellCoordPy)
-//         .def("itercell", &LinkCell::itercell)
-//         .def("getCellNeighbors", &LinkCell::getCellNeighborsPy)
-//         .def("computeCellList", &LinkCell::computeCellListPy)
-//         ;
-
-//     class_<IteratorLinkCell>("IteratorLinkCell",
-//         init<boost::shared_array<unsigned int>, unsigned int, unsigned int, unsigned int>())
-//         .def("next", &IteratorLinkCell::nextPy) //PYthon 2 iterator
-//         .def("__next__", &IteratorLinkCell::nextPy) //Python3 iterator
-//         ;
-//     }
 
 }; }; // end namespace freud::locality
