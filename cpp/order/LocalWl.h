@@ -48,7 +48,7 @@ class LocalWl
          * \param box A freud box object containing the dimensions of the box
          *             associated with the particles that will be fed into compute.
          * \param rmax Cutoff radius for running the local order parameter.
-         *             Values near first minima of the rdf are recommended. 
+         *             Values near first minima of the rdf are recommended.
          * \param l Spherical harmonic number l.
          *             Must be a positive even number.
          */

@@ -11,7 +11,7 @@ from ._freud import FTpolyhedron as _FTpolyhedron
 
 ## \package freud.kspace
 #
-# Analyses that are compute quantities in kspace
+# Analyses that compute quantities in kspace
 #
 def meshgrid2(*arrs):
     """Computes an n-dimensional meshgrid
