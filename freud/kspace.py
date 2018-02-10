@@ -602,7 +602,7 @@ class FTfactory:
         :param constructor: class / function name to be used to create new FT objects
         :param args: set default argument object to be used to construct FT objects
         :type name: str
-        :type constructor: :class:`class`
+        :type constructor: `object`
         :type args: :class:`list`
         """
         if name in self.name_list:
@@ -1283,7 +1283,7 @@ class DeltaSpot:
         """Generate intensity value(s) at sub-grid points
 
         :param cval: complex valued amplitude used to generate spot intensity
-        :type cval: :class:`np.complex`
+        :type cval: :class:`numpy.complex64`
         """
         return (numpy.conj(cval) * cval).real
 
@@ -1342,7 +1342,7 @@ class GaussianSpot(DeltaSpot):
         """Generate intensity value(s) at sub-grid points
 
         :param cval: complex valued amplitude used to generate spot intensity
-        :type cval: :class:`np.complex`
+        :type cval: :class:`numpy.complex64`
         """
         val = (numpy.conj(cval) * cval).real
         # calculate gaussian at grid points and multiply by val
