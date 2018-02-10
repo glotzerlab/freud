@@ -24,5 +24,5 @@ def setNumThreads(nthreads=None):
 
     _numThreads = nthreads
 
-    cdef unsigned int cNthreads = nthreads;
+    cdef unsigned int cNthreads = nthreads
     parallel.setNumThreads(cNthreads)

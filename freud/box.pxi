@@ -314,7 +314,7 @@ cdef class Box:
             for i, vec in enumerate(vecs):
                 vecs[i] = self._wrap(vec)
         else:
-            raise ValueError("Invalid dimensions given to box wrap. Wrap requires a 3 element array (3,), or (N,3) array as input");
+            raise ValueError("Invalid dimensions given to box wrap. Wrap requires a 3 element array (3,), or (N,3) array as input")
 
     def _wrap(self, vec):
         cdef np.ndarray[float,ndim=1] l_vec = np.ascontiguousarray(vec.flatten())

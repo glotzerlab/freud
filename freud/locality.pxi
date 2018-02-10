@@ -5,7 +5,7 @@ import sys
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 cimport freud._locality as locality
-cimport freud._box as _box;
+cimport freud._box as _box
 from cython.operator cimport dereference
 import numpy as np
 cimport numpy as np
@@ -141,8 +141,8 @@ cdef class NeighborList:
         self.thisptr.copy(dereference(other.thisptr))
 
     def copy(self, other=None):
-        """Create a copy. If other is given, copy its contents into ourself;
-        otherwise, return a copy of ourself."""
+        """Create a copy. If other is given, copy its contents into ourself.
+        Otherwise, return a copy of ourself."""
         if other is not None:
             assert isinstance(other, NeighborList)
             self.copy_c(other)

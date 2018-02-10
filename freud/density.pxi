@@ -84,9 +84,9 @@ cdef class FloatCF:
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points;
+        cdef np.ndarray[float, ndim=2] l_points
         if ref_points is points:
-            l_points = l_ref_points;
+            l_points = l_ref_points
         else:
             l_points = points
         cdef np.ndarray[np.float64_t, ndim=1] l_refValues = refValues
@@ -278,9 +278,9 @@ cdef class ComplexCF:
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points;
+        cdef np.ndarray[float, ndim=2] l_points
         if ref_points is points:
-            l_points = l_ref_points;
+            l_points = l_ref_points
         else:
             l_points = points
         cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = refValues

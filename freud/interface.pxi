@@ -3,7 +3,7 @@
 
 from freud.util._VectorMath cimport vec3
 cimport freud._interface as interface
-cimport freud._box as _box;
+cimport freud._box as _box
 from cython.operator cimport dereference
 import numpy as np
 cimport numpy as np

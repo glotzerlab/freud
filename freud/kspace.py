@@ -72,16 +72,16 @@ class SFactor3DPoints:
         if box.is2D():
             raise ValueError("SFactor3DPoints does not support 2D boxes")
 
-        self.grid = 2*g + 1;
+        self.grid = 2*g + 1
         self.qx = numpy.linspace(-g * 2 * math.pi / box.getLx(), g * 2 * math.pi / box.getLx(), num=self.grid)
         self.qy = numpy.linspace(-g * 2 * math.pi / box.getLy(), g * 2 * math.pi / box.getLy(), num=self.grid)
         self.qz = numpy.linspace(-g * 2 * math.pi / box.getLz(), g * 2 * math.pi / box.getLz(), num=self.grid)
 
         # make meshgrid versions of qx,qy,qz for easy computation later
-        self.qx_grid, self.qy_grid, self.qz_grid = meshgrid2(self.qx, self.qy, self.qz);
+        self.qx_grid, self.qy_grid, self.qz_grid = meshgrid2(self.qx, self.qy, self.qz)
 
         # initialize a 0 S
-        self.s_complex = numpy.zeros(shape=(self.grid,self.grid,self.grid), dtype=numpy.complex64);
+        self.s_complex = numpy.zeros(shape=(self.grid,self.grid,self.grid), dtype=numpy.complex64)
 
     def compute(self, points):
         """Compute the static structure factor of a given set of points
@@ -93,17 +93,17 @@ class SFactor3DPoints:
         :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
         """
         # clear s_complex to zero
-        self.s_complex[:,:,:] = 0;
+        self.s_complex[:,:,:] = 0
 
         # add the contribution of each point
         for p in points:
-            self.s_complex += numpy.exp(1j * (self.qx_grid * p[0] + self.qy_grid * p[1] + self.qz_grid * p[2]));
+            self.s_complex += numpy.exp(1j * (self.qx_grid * p[0] + self.qy_grid * p[1] + self.qz_grid * p[2]))
 
         # normalize
-        mid = self.grid // 2;
-        cinv = numpy.absolute(self.s_complex[mid,mid,mid]);
-        self.s_complex /= cinv;
-        return self;
+        mid = self.grid // 2
+        cinv = numpy.absolute(self.s_complex[mid,mid,mid])
+        self.s_complex /= cinv
+        return self
 
     def getS(self):
         """Get the computed static structure factor
@@ -111,7 +111,7 @@ class SFactor3DPoints:
         :return: The computed static structure factor as a copy
         :rtype: :class:`numpy.ndarray`, shape=(X,Y), dtype= :class:`numpy.float32`
         """
-        return (self.s_complex * numpy.conj(self.s_complex)).astype(numpy.float32);
+        return (self.s_complex * numpy.conj(self.s_complex)).astype(numpy.float32)
 
     def getSComplex(self):
         """Get the computed complex structure factor (if you need the phase information)
@@ -129,7 +129,7 @@ class SFactor3DPoints:
         :return: (qx, qy, qz)
         :rtype: :class:`tuple`
         """
-        return (self.qx, self.qy, self.qz);
+        return (self.qx, self.qy, self.qz)
 
 class AnalyzeSFactor3D:
     """ Analyze the peaks in a 3D structure factor
@@ -157,9 +157,9 @@ class AnalyzeSFactor3D:
         :param S: Static structure factor to analyze
         :type S: :class:`numpy.ndarray`
         """
-        self.S = S;
-        self.grid = S.shape[0];
-        self.g = self.grid/2;
+        self.S = S
+        self.grid = S.shape[0]
+        self.g = self.grid/2
 
     def getPeakList(self, cut):
         """Get a list of peaks in the structure factor
@@ -169,13 +169,13 @@ class AnalyzeSFactor3D:
         :rtype: :class:`list`
         """
         clist,blist,alist = (self.S > cut).nonzero()
-        clist -= self.g;
-        blist -= self.g;
-        alist -= self.g;
+        clist -= self.g
+        blist -= self.g
+        alist -= self.g
 
-        q_list = [idx for idx in zip(clist,blist,alist)];
-        peak_list = [self.S[(q[0]+self.g, q[1]+self.g, q[2]+self.g)] for q in q_list];
-        return (q_list, peak_list);
+        q_list = [idx for idx in zip(clist,blist,alist)]
+        peak_list = [self.S[(q[0]+self.g, q[1]+self.g, q[2]+self.g)] for q in q_list]
+        return (q_list, peak_list)
 
     def getPeakDegeneracy(self, cut):
         """Get a dictionary of peaks indexed by :math:`q^2`
@@ -185,17 +185,17 @@ class AnalyzeSFactor3D:
         :return: a dictionary with key :math:`q^2` and each element being a list of peaks
         :rtype: :class:`dict`
         """
-        q_list, peak_list = self.getPeakList(cut);
+        q_list, peak_list = self.getPeakList(cut)
 
         retval = {}
         for q,peak in zip(q_list, peak_list):
-            qsq = q[0]*q[0] + q[1] * q[1] + q[2] * q[2];
+            qsq = q[0]*q[0] + q[1] * q[1] + q[2] * q[2]
             if not (qsq in retval):
-                retval[qsq] = [];
+                retval[qsq] = []
 
-            retval[qsq].append(peak);
+            retval[qsq].append(peak)
 
-        return retval;
+        return retval
 
     def getSvsQ(self):
         """Get a list of all :math:`S\\left(\\left|q\\right|\\right)` values vs :math:`q^2`
@@ -203,14 +203,14 @@ class AnalyzeSFactor3D:
         :return: S, qsquared
         :rtype: :class:`numpy.ndarray`
         """
-        hx = range(-self.g, self.g+1);
+        hx = range(-self.g, self.g+1)
 
-        qsq_list = [];
+        qsq_list = []
         # create an list of q^2 in the proper order
         for i in range(0,self.grid):
             for j in range(0,self.grid):
                 for k in range(0,self.grid):
-                    qsq_list.append(hx[i]*hx[i] + hx[j] * hx[j] + hx[k] * hx[k]);
+                    qsq_list.append(hx[i]*hx[i] + hx[j] * hx[j] + hx[k] * hx[k])
 
         return (self.S.flatten(), qsq_list)
 
@@ -800,7 +800,7 @@ class FTdelta(FTbase):
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
-        return self;
+        return self
 
 class FTsphere(FTdelta):
     """Fourier transform for sphere
@@ -926,7 +926,7 @@ class FTpolyhedron(FTbase):
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
-        return self;
+        return self
 
 class FTconvexPolyhedron(FTpolyhedron):
     """Fourier Transform for convex polyhedra
@@ -994,7 +994,7 @@ class FTconvexPolyhedron(FTpolyhedron):
                 K = quatrot(q * numpy.array([1,-1,-1,-1]), self.K[i])
                 self.S[i] += numpy.exp(numpy.dot(K, r) * -1.j) * self.Spoly3D(K)
         self.S *= self.density
-        return self;
+        return self
 
     def Spoly2D(self, i, k):
         """Calculate Fourier transform of polygon

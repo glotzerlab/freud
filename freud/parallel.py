@@ -11,7 +11,7 @@ import re
 from ._freud import setNumThreads
 
 if (re.match("flux.", platform.node()) is not None) or (re.match("nyx.", platform.node()) is not None):
-    setNumThreads(1);
+    setNumThreads(1)
 
 class NumThreads:
     def __init__(self, N=None):
