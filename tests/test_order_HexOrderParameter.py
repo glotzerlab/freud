@@ -12,17 +12,17 @@ class TestHexOrderParameter(unittest.TestCase):
         box = freud.box.Box.square(boxlen)
 
         hop = freud.order.HexOrderParameter(rmax)
-        npt.assert_equal(hop.k, 6.0)
+        npt.assert_equal(hop.k, 6)
 
     def test_getK_pass(self):
         boxlen = 10
         N = 500
         rmax = 3
-        k=3.0
+        k = 3
 
         box = freud.box.Box.square(boxlen)
         hop = freud.order.HexOrderParameter(rmax, k)
-        npt.assert_equal(hop.k, 3.0)
+        npt.assert_equal(hop.k, 3)
 
     def test_getNP(self):
         boxlen = 10
