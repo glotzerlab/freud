@@ -6,11 +6,9 @@
 # Methods to compute order parameters
 #
 
-# __all__ = ['HexOrderParameter']
-
-# not sure if broken
 from ._freud import BondOrder
 from ._freud import CubaticOrderParameter
+from ._freud import NematicOrderParameter
 from ._freud import HexOrderParameter
 from ._freud import TransOrderParameter
 from ._freud import LocalDescriptors
