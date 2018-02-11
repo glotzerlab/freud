@@ -57,3 +57,16 @@ Rose Cersonsky
 Wenbo Shen
 Andrew Karas
 Paul Dodd
+
+Source code
+-----------
+
+Eigen (http://eigen.tuxfamily.org/) is embedded in freud's package and is
+made available under the Mozilla Public License v.2.0
+(http://mozilla.org/MPL/2.0/). It's linear algebra routines are used for
+various tasks including the computation of eigenvalues and eigenvectors.
+
+fsph (https://bitbucket.org/glotzer/fsph) is embedded in freud's package
+and is made available under the MIT license. It is used for the calculation
+of spherical harmonics, which are then used in the calculation of various
+order parameters.
