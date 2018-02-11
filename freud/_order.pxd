@@ -35,7 +35,13 @@ cdef extern from "BondOrder.h" namespace "freud::order":
 
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter(float, float, float, float*, unsigned int, unsigned int)
+        CubaticOrderParameter(
+                float,
+                float,
+                float,
+                float*,
+                unsigned int,
+                unsigned int)
         void resetCubaticOrderParameter()
         void compute(quat[float]*,
                      unsigned int,
@@ -61,7 +67,8 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        # unsure how to pass back the std::complex, but this seems to compile...
+        # unsure how to pass back the std::complex,
+        # but this seems to compile...
         shared_array[float complex] getPsi()
         unsigned int getNP()
         float getK()
@@ -84,9 +91,11 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         unsigned int getNP()
         void computeNList(const box.Box &, const vec3[float]*, unsigned int,
                           const vec3[float]*, unsigned int) nogil except +
-        void compute(const box.Box &, const freud._locality.NeighborList*, unsigned int, const vec3[float]*,
-                     unsigned int, const vec3[float]*, unsigned int,
-                     const quat[float]*, LocalDescriptorOrientation) nogil except +
+        void compute(
+                const box.Box &, const freud._locality.NeighborList*,
+                unsigned int, const vec3[float]*,
+                unsigned int, const vec3[float]*, unsigned int,
+                const quat[float]*, LocalDescriptorOrientation) nogil except +
         shared_array[float complex] getSph()
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
