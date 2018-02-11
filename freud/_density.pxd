@@ -13,7 +13,10 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
         void resetCorrelationFunction()
         void accumulate(const box.Box &, const freud._locality.NeighborList*,
                         const vec3[float]*, const T*,
-                        unsigned int, const vec3[float]*, const T*, unsigned int) nogil except +
+                        unsigned int,
+                        const vec3[float]*,
+                        const T*,
+                        unsigned int) nogil except +
         void reduceCorrelationFunction()
         shared_array[T] getRDF()
         shared_array[unsigned int] getCounts()
@@ -23,11 +26,18 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:
         GaussianDensity(unsigned int, float, float)
-        GaussianDensity(unsigned int, unsigned int, unsigned int, float, float)
+        GaussianDensity(unsigned int,
+                        unsigned int,
+                        unsigned int,
+                        float,
+                        float)
         const box.Box & getBox() const
         void resetDensity()
         void reduceDensity()
-        void compute(const box.Box &, const vec3[float]*, unsigned int) nogil except +
+        void compute(
+                const box.Box &,
+                const vec3[float]*,
+                unsigned int) nogil except +
         shared_array[float] getDensity()
         unsigned int getWidthX()
         unsigned int getWidthY()
@@ -37,7 +47,13 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
         LocalDensity(float, float, float)
         const box.Box & getBox() const
-        void compute(const box.Box & , const freud._locality.NeighborList * , const vec3[float]*, unsigned int, const vec3[float]*, unsigned int) nogil except +
+        void compute(
+                const box.Box & ,
+                const freud._locality.NeighborList * ,
+                const vec3[float]*,
+                unsigned int,
+                const vec3[float]*,
+                unsigned int) nogil except +
         unsigned int getNRef()
         shared_array[float] getDensity()
         shared_array[float] getNumNeighbors()
