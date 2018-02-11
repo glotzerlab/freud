@@ -33,7 +33,7 @@ Maintainable
 
 Code which cannot be maintained is destined for obscurity. In order to
 be maintainable, freud uses Git for version control; Bitbucket for code
-hosting and issue tracking; and the PEP8 standard for code, stressing
+hosting and issue tracking; and the PEP 8 standard for code, stressing
 explicitly written code which is easy to read. Additionally, freud
 employs unit tests to ensure that any changes or new features do not
 break existing functionality.

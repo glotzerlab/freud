@@ -137,11 +137,12 @@ Python
 ======
 
 Code in freud should follow
-`PEP8 <https://www.python.org/dev/peps/pep-0008/>`_, as well as the
-following guidelines. Anything listed here takes precedence over PEP8,
-but try to deviate as little as possible from PEP8. When in doubt,
-follow these guidelines over PEP8.
-If you are unsure if your code is pep8 compliant, you can use autopep8
+`PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_, as well as the
+following guidelines. Anything listed here takes precedence over PEP 8,
+but try to deviate as little as possible from PEP 8. When in doubt,
+follow these guidelines over PEP 8.
+
+If you are unsure if your code is PEP 8 compliant, you can use autopep8
 and flake8 (or similar) to automatically update and check your code.
 
 
