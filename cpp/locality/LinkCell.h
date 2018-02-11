@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "../box/box.h"
+#include "box.h"
 #include "NeighborList.h"
 #include "HOOMDMath.h"
 #include "Index1D.h"
