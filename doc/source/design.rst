@@ -5,38 +5,32 @@ Design Principles
 Vision
 ======
 
-The freud library is designed to be:
+The freud library is designed to be a powerful and flexible library
+for the analysis of simulation output. To support a variety of
+analysis routines, freud places few restrictions on its components.
+The primary requirement for an analysis routine in freud is that it
+should be substantially computationally intensive so as to require
+coding up in C++: **all freud code should be composed of fast C++
+routines operating on systems of particles in periodic boxes.** To
+remain easy-to-use, all C++ modules should be wrapped in python
+code so they can be easily accessed from python scripts or through
+a python interpreter.
 
-1. Powerful
-2. Flexible
-3. Maintainable
+In order to achieve this goal, freud takes the following viewpoints:
 
-Powerful
---------
-
-The amount of data produced by simulations is always increasing. By
-being powerful, freud allows users to analyze their simulation data as
-fast as possible so that it can be used in real-time visualization and
-online simulation analysis.
-
-Flexible
---------
-
-The number of simulation packages, analysis packages, and other software
-packages keeps growing. Rather than attempt to understand and interact
-with all of these packages, freud achieves flexibility by providing a
-simple Python interface and making no assumptions regarding data,
-operating on and returning NumPy arrays to the user.
-
-Maintainable
-------------
-
-Code which cannot be maintained is destined for obscurity. In order to
-be maintainable, freud uses Git for version control; Bitbucket for code
-hosting and issue tracking; and the PEP 8 standard for code, stressing
-explicitly written code which is easy to read. Additionally, freud
-employs unit tests to ensure that any changes or new features do not
-break existing functionality.
+* In order to remain as agnostic to inputs as possible, freud makes
+  no attempt to interface directly with simulation software.
+  Instead, freud works directly with `NumPy <http://www.numpy.org/>_`
+  arrays to retain maximum flexibility.
+* For ease of maintenance, freud uses Git for version control;
+  Bitbucket for code hosting and issue tracking; and the PEP 8
+  standard for code, stressing explicitly written code which is easy
+  to read.
+* To ensure correctness, freud employs unit testing using the 
+  python unittest framework. In addition, freud utilizes 
+  `CircleCI <http://www.python.org/>`_ for continuous integration to
+  ensure that all of its code works correctly and that any changes or
+  new features do not break existing functionality.
 
 Language choices
 ================
