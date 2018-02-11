@@ -154,13 +154,14 @@ Semicolons should not be used to mark the end of lines in Python.
 Documentation Comments
 ----------------------
 
+-  Python documentation uses sphinx, not doxygen
+-  See the `sphinx documentation <http://www.sphinx-doc.org/en/stable/index.html>`_
+   for more information
 -  Documentation should be included at the Python-level in the Cython
    wrapper.
 -  Every class, member variable, function, function parameter, macro,
    etc. must be documented with *Python docstring* comments which will
    be converted to documentation with sphinx.
--  See the `sphinx documentation <http://www.sphinx-doc.org/en/stable/index.html>`_
-   for more information
 -  If you copy an existing file as a template, do not leave the
    existing documentation comments there. They apply to the original
    file, not your new one!
