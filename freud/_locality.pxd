@@ -20,7 +20,11 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         size_t getNumBonds() const
         void setNumBonds(size_t, size_t, size_t)
         size_t filter(const bool*)
-        size_t filter_r(const box.Box & , const vec3[float]*, const vec3[float]*, float, float)
+        size_t filter_r(
+                const box.Box & ,
+                const vec3[float]*,
+                const vec3[float]*,
+                float, float)
 
         size_t find_first_index(size_t)
 
@@ -31,7 +35,11 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:
         IteratorLinkCell()
-        IteratorLinkCell(const shared_array[unsigned int] &, unsigned int, unsigned int, unsigned int)
+        IteratorLinkCell(
+                const shared_array[unsigned int] &,
+                unsigned int,
+                unsigned int,
+                unsigned int)
         void copy(const IteratorLinkCell &)
         bool atEnd()
         unsigned int next()
@@ -43,7 +51,9 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
 
         setCellWidth(float)
         updateBox(const box.Box & )
-        const vec3[unsigned int] computeDimensions(const box.Box & , float) const
+        const vec3[unsigned int] computeDimensions(
+                const box.Box & ,
+                float) const
         const box.Box & getBox() const
         const Index3D & getCellIndexer() const
         unsigned int getNumCells() const
@@ -51,8 +61,17 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int getCell(const vec3[float] & ) const
         IteratorLinkCell itercell(unsigned int) const
         vector[unsigned int] getCellNeighbors(unsigned int) const
-        void computeCellList(const box.Box & , const vec3[float]*, unsigned int) nogil except +
-        void compute(const box.Box & , const vec3[float]*, unsigned int, const vec3[float]*, unsigned int, bool) nogil except +
+        void computeCellList(
+                const box.Box & ,
+                const vec3[float]*,
+                unsigned int) nogil except +
+        void compute(
+                const box.Box & ,
+                const vec3[float]*,
+                unsigned int,
+                const vec3[float]*,
+                unsigned int,
+                bool) nogil except +
         NeighborList * getNeighborList()
 
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
@@ -67,5 +86,11 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         unsigned int getUINTMAX() const
         unsigned int getNref() const
         void setCutMode(const bool)
-        void compute(const box.Box & , const vec3[float]*, unsigned int, const vec3[float]*, unsigned int, bool) nogil except +
+        void compute(
+                const box.Box & ,
+                const vec3[float]*,
+                unsigned int,
+                const vec3[float]*,
+                unsigned int,
+                bool) nogil except +
         NeighborList * getNeighborList()
