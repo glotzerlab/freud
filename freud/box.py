@@ -108,7 +108,7 @@ class Box(_Box):
     def __str__(self):
         return ("{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, xy={xy}, "
                 "xz={xz}, yz={yz}, dimensions={dimensions})").format(
-                        cls=type(self).__name__, **self.to_dict())
+                    cls=type(self).__name__, **self.to_dict())
 
     def __eq__(self, other):
         return self.to_dict() == other.to_dict()
