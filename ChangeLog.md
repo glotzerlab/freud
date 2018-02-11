@@ -1,6 +1,6 @@
 # Change Log
 
-## v0.7.0
+## Unreleased
 
 * Added a generic neighbor list interface
 * Various bug fixes and code cleaning
