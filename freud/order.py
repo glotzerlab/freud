@@ -6,14 +6,14 @@
 # Methods to compute order parameters
 #
 
-from ._freud import BondOrder;
-from ._freud import CubaticOrderParameter;
-from ._freud import NematicOrderParameter;
-from ._freud import HexOrderParameter;
-from ._freud import TransOrderParameter;
-from ._freud import LocalDescriptors;
-from ._freud import Pairing2D;
-from ._freud import AngularSeparation;
+from ._freud import BondOrder
+from ._freud import CubaticOrderParameter
+from ._freud import NematicOrderParameter
+from ._freud import HexOrderParameter
+from ._freud import TransOrderParameter
+from ._freud import LocalDescriptors
+from ._freud import Pairing2D
+from ._freud import AngularSeparation
 
 # everything below is spherical harmonic stuff
 from ._freud import LocalQl
