@@ -562,14 +562,14 @@ cdef class NematicOrderParameter:
             self.thisptr.compute(<quat[float]*>l_orientations.data, num_particles)
 
     def get_nematic_order_parameter(self):
-        """
+        """The nematic order parameterr
         :return: Nematic Order parameter
         :rtype: float
         """
         return self.thisptr.getNematicOrderParameter()
 
     def get_director(self):
-        """
+        """The director (eigenvector corresponding to the order parameter)
         :return: The average nematic director
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(3 \\right)`, dtype= :class:`numpy.float32`
         """
@@ -578,7 +578,7 @@ cdef class NematicOrderParameter:
         return result
 
     def get_particle_tensor(self):
-        """
+        """The full per-particle tensor of orientation information
         :return: 3x3 matrix corresponding to each individual particle orientation
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3, 3 \\right)`, dtype= :class:`numpy.float32`
         """
@@ -591,7 +591,7 @@ cdef class NematicOrderParameter:
         return result
 
     def get_nematic_tensor(self):
-        """
+        """The nematic Q tensor
         :return: 3x3 matrix corresponding to the average particle orientation
         :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(3, 3 \\right)`, dtype= :class:`numpy.float32`
         """
