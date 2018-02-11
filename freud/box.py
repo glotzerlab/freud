@@ -107,8 +107,8 @@ class Box(_Box):
 
     def __str__(self):
         return ("{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, xy={xy}, "
-        "xz={xz}, yz={yz}, dimensions={dimensions})").format(
-            cls=type(self).__name__, ** self.to_dict())
+                "xz={xz}, yz={yz}, dimensions={dimensions})").format(
+                        cls=type(self).__name__, **self.to_dict())
 
     def __eq__(self, other):
         return self.to_dict() == other.to_dict()
@@ -116,9 +116,9 @@ class Box(_Box):
     @classmethod
     def from_box(cls, box):
         "Initialize a box instance from another box instance."
-        dimensions=getattr(box, 'dimensions', 3)
+        dimensions = getattr(box, 'dimensions', 3)
         return cls(Lx=box.Lx, Ly=box.Ly, Lz=box.Lz,
-            xy=box.xy, xz=box.xz, yz=box.yz, is2D=dimensions == 2)
+                   xy=box.xy, xz=box.xz, yz=box.yz, is2D=dimensions == 2)
 
     @classmethod
     def from_matrix(cls, boxMatrix, dimensions=None):
@@ -127,24 +127,24 @@ class Box(_Box):
         For more information and the source for this code,
         see: http://hoomd-blue.readthedocs.io/en/stable/box.html
         """
-        boxMatrix=np.asarray(boxMatrix, dtype=np.float32)
-        v0=boxMatrix[:, 0]
-        v1=boxMatrix[:, 1]
-        v2=boxMatrix[:, 2]
-        Lx=np.sqrt(np.dot(v0, v0))
-        a2x=np.dot(v0, v1) / Lx
-        Ly=np.sqrt(np.dot(v1, v1) - a2x * a2x)
-        xy=a2x / Ly
-        v0xv1=np.cross(v0, v1)
-        v0xv1mag=np.sqrt(np.dot(v0xv1, v0xv1))
-        Lz=np.dot(v2, v0xv1) / v0xv1mag
-        a3x=np.dot(v0, v2) / Lx
-        xz=a3x / Lz
-        yz=(np.dot(v1, v2) - a2x * a3x) / (Ly * Lz)
+        boxMatrix = np.asarray(boxMatrix, dtype=np.float32)
+        v0 = boxMatrix[:, 0]
+        v1 = boxMatrix[:, 1]
+        v2 = boxMatrix[:, 2]
+        Lx = np.sqrt(np.dot(v0, v0))
+        a2x = np.dot(v0, v1) / Lx
+        Ly = np.sqrt(np.dot(v1, v1) - a2x * a2x)
+        xy = a2x / Ly
+        v0xv1 = np.cross(v0, v1)
+        v0xv1mag = np.sqrt(np.dot(v0xv1, v0xv1))
+        Lz = np.dot(v2, v0xv1) / v0xv1mag
+        a3x = np.dot(v0, v2) / Lx
+        xz = a3x / Lz
+        yz = (np.dot(v1, v2) - a2x * a3x) / (Ly * Lz)
         if dimensions is None:
-            dimensions=2 if Lz == 0 else 3
-        return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy,
-            xz=xz, yz=yz, is2D=dimensions == 2)
+            dimensions = 2 if Lz == 0 else 3
+        return cls(Lx=Lx, Ly=Ly, Lz=Lz,
+                   xy=xy, xz=xz, yz=yz, is2D=dimensions == 2)
 
     @classmethod
     def cube(cls, L):
