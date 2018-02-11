@@ -28,7 +28,14 @@ cdef extern from "kspace.h" namespace "freud::kspace":
         void set_K(vec3[float]*, unsigned int)
         void set_rq(unsigned int, vec3[float]*, quat[float]*)
         void set_density(float complex)
-        void set_params(unsigned int, vec3[float]*, unsigned int, unsigned int *, unsigned int * ,
-                        vec3[float] * norm, float * d, float * area, float volume)
+        void set_params(
+                unsigned int, vec3[float]*,
+                unsigned int,
+                unsigned int *,
+                unsigned int * ,
+                vec3[float] * norm,
+                float * d,
+                float * area,
+                float volume)
         void compute() nogil except +
         shared_array[float complex] getFT()
