@@ -85,7 +85,8 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
 
 cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFTXYZ:
-        PMFTXYZ(float, float, float, unsigned int, unsigned int, unsigned int, vec3[float])
+        PMFTXYZ(float, float, float, unsigned int, unsigned int,
+                unsigned int, vec3[float])
 
         const box.Box & getBox() const
         void resetPCF()
