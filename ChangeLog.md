@@ -1,13 +1,21 @@
 # Change Log
 
-## v0.7.0
+## Unreleased
 
-* Improved API
-    - Named Tuples for Boxes intelligently converted for user
-    - inputs to compute functions converted to proper type, made contiguous if necessary
-    - if a single input is passed to a function requiring two, it is assumed the user wants that input duplicated
-* Boost dependence removed
-    - migration of boost bimap to custom implementation
+* Added a generic neighbor list interface
+* Various bug fixes and code cleaning
+* Fixed all compile-time warnings
+* Fixed Pep8 compliance everywhere
+* Minimized boost dependence
+
+## v0.6.4
+
+* Set up CircleCI for continuous integration
+* Set up documentation on ReadTheDocs
+* Added bumpversion support
+* Various bug fixes
+* Added python-style properties for accessing data
+* Fixed issues with voronoi neighbor list
 
 ## v0.6.0
 
@@ -24,7 +32,7 @@
 
 ## v0.5.0
 
-* Replace boost::shared_array with std::shared_ptr (C++ 11)
+* Replace boost::shared\_array with std::shared\_ptr (C++ 11)
 * Moved all tbb template classes to lambda expressions
 * Moved trajectory.Box to box.Box
 * trajectory is deprecated

@@ -2,12 +2,12 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg)](https://doi.org/10.5281/zenodo.166564)
 [![Anaconda-Server Badge](https://anaconda.org/glotzer/freud/badges/version.svg)](https://anaconda.org/glotzer/freud)
-[![Binder](http://mybinder.org/badge.svg)](http://mybinder.org:/repo/harperic/freud-examples)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org:/repo/harperic/freud-examples)
 [![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
 
 Please use the above citation when using freud.
 
-Welcome to freud! Freud provides users the ability to analyze generic data from a variety of sources, including simulation and experimental data, for advanced metrics such as the radial distribution function and various order parameters.
+Welcome to freud! freud provides users the ability to analyze generic data from a variety of sources, including simulation and experimental data, for advanced metrics such as the radial distribution function and various order parameters.
 
 ## Mailing List
 
@@ -20,7 +20,7 @@ Example Jupyter notebooks can be found in a [separate repository](https://bitbuc
 
 ## Installing freud
 
-Official binaries of freud are available via [conda](http://conda.pydata.org/docs/) through the [glotzer channel](https://anaconda.org/glotzer). To install freud, first download and install [miniconda](http://conda.pydata.org/miniconda.html) following [conda's instructions](http://conda.pydata.org/docs/install/quick.html). Then add the `glotzer` channel and install freud:
+Official binaries of freud are available via [conda](https://conda.io/docs/) through the [glotzer channel](https://anaconda.org/glotzer). To install freud, first download and install [miniconda](https://conda.io/miniconda.html) following [conda's instructions](https://conda.io/docs/user-guide/install/index.html). Then add the `glotzer` channel and install freud:
 
 ```bash
 $ conda config --add channels glotzer
@@ -53,28 +53,28 @@ For more detailed instructions, see [the documentation](https://freud.readthedoc
 
 #### Note
 
-freud makes use of submodules. CMake has been configured to automatically init and update submodules.
+The freud library makes use of submodules. CMake has been configured to automatically init and update submodules.
 However, if this does not work, or you would like to do this yourself, please execute:
 
 ```bash
-git submodule init
+git submodule update --init
 ```
 
 ### Requirements
 
 * Required:
     * Python >= 2.7 (3.5+ recommended)
-    * Numpy >=1.7
+    * NumPy >= 1.7
     * Boost (headers only)
     * CMake >= 2.8.0 (to compile freud)
     * C++ 11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
-    * Intel Thread Building Blocks
+    * Intel Threading Building Blocks
 * Optional:
     * Cython >= 0.23 (to compile your own _freud.cpp)
 
 ## Job scripts
 
-Freud analysis scripts are python scripts.
+The freud library is called using Python scripts.
 
 Here is a simple example.
 

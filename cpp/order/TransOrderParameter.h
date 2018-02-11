@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <tbb/tbb.h>
 #include <ostream>
@@ -64,10 +64,9 @@ class TransOrderParameter
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_k;                        //!< Multiplier in the exponent
-        unsigned int m_Np;                //!< Last number of points computed
+        box::Box m_box;            //!< Simulation box where the particles belong
+        float m_k;                 //!< Multiplier in the exponent
+        unsigned int m_Np;         //!< Last number of points computed
 
         std::shared_ptr< std::complex<float> > m_dr_array;         //!< dr array computed
     };

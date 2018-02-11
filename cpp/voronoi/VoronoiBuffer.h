@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
 #include <vector>
@@ -41,28 +41,11 @@ class VoronoiBuffer
             return m_buffer_particles;
             }
 
-        // //!Python wrapper for compute
-        // void computePy(boost::python::numeric::array points,
-        //                const float buff);
-
-        // //!Python wrapper for getDensity() (returns a copy)
-        // boost::python::numeric::array getBufferParticles()
-        //         {
-        //         std::vector<float3>& buffer_parts = *m_buffer_particles;
-        //         std::vector<intp> dims;
-        //         float* b = (float*)&buffer_parts[0];
-        //         dims.push_back(buffer_parts.size());
-        //         if (m_box.is2D())
-        //             dims.push_back(2);
-        //         else
-        //             dims.push_back(3);
-        //         return num_util::makeNum(b, dims);
-        //         }
     private:
-        const box::Box m_box;    //!< Simulation box the particles belong in
+        const box::Box m_box;    //!< Simulation box where the particles belong
         std::shared_ptr< std::vector<float3> > m_buffer_particles;
     };
 
-}; }; // end namespace freud::density
+}; }; // end namespace freud::voronoi
 
 #endif

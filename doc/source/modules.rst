@@ -1,8 +1,8 @@
 =============
-Freud modules
+freud modules
 =============
 
-Freud modules may be imported individually or as a whole as part of a python script.
+Modules in freud may be imported individually or as a whole as part of a Python script.
 
 Several modules are available currently. Feel free to contribute your own modules to the source.
 

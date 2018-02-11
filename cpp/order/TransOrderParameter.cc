@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "TransOrderParameter.h"
 #include "ScopedGILRelease.h"
@@ -17,7 +17,7 @@ using namespace tbb;
 namespace freud { namespace order {
 
 TransOrderParameter::TransOrderParameter(float rmax, float k, unsigned int n)
-    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_Np(0)
+    : m_box(box::Box()), m_k(k), m_Np(0)
     {
     }
 

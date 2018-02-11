@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <complex>
 #include <limits>
-#include "extern/Eigen/Dense"
+#include "Eigen/Eigen/Dense"
 
 using namespace std;
 using namespace tbb;
