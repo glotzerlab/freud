@@ -9,5 +9,10 @@ cimport freud._locality
 
 cdef extern from "InterfaceMeasure.h" namespace "freud::interface":
     cdef cppclass InterfaceMeasure:
-        InterfaceMeasure(const box.Box&, float)
-        unsigned int compute(const freud._locality.NeighborList*, const vec3[float]*, unsigned int, const vec3[float]*, unsigned int)
+        InterfaceMeasure(const box.Box &, float)
+        unsigned int compute(
+                const freud._locality.NeighborList*,
+                const vec3[float]*,
+                unsigned int,
+                const vec3[float]*,
+                unsigned int)
