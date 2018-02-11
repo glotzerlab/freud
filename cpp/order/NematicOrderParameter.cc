@@ -26,7 +26,7 @@ namespace freud { namespace order {
 NematicOrderParameter::NematicOrderParameter(vec3<float> u)
     : m_n(0)
     {
-    // molecular axis as unit vector
+    // Normalize the molecular axis to be a unit vector
     m_u = u/sqrt(dot(u,u));
     }
 
@@ -102,7 +102,8 @@ void NematicOrderParameter::compute(quat<float> *orientations,
                 Q_ab[a_i(2,1)] = 1.5f*u_i.z*u_i.y;
                 Q_ab[a_i(2,2)] = 1.5f*u_i.z*u_i.z - 0.5f;
 
-                // set the values
+                // Set the values. The per-particle array is used so that both
+                // this loop and the reduction can be done in parallel afterwards
                 for (unsigned int j = 0; j < 9; j++)
                     {
                     m_particle_tensor.get()[i*9+j] += Q_ab[j];

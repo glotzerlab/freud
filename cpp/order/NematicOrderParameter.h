@@ -47,7 +47,7 @@ class NematicOrderParameter
         void compute(quat<float> *orientations,
                      unsigned int n);
 
-        //! Get a reference to the last computed rdf
+        //! Get a reference to the last computed OP
         float getNematicOrderParameter();
 
         std::shared_ptr<float> getParticleTensor();
@@ -62,10 +62,11 @@ class NematicOrderParameter
         vec3<float> m_u;                 //!< The molecular axis
         unsigned int m_n;                //!< Last number of points computed
 
-        float m_nematic_order_parameter;
-        vec3<float> m_nematic_director;
-        float m_nematic_tensor[9];
-        std::shared_ptr<float> m_particle_tensor;
+        float m_nematic_order_parameter; //!< Current value of the order parameter
+        vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
+        float m_nematic_tensor[9];       //!< The Q tensor
+        std::shared_ptr<float> m_particle_tensor; //!< The per-particle tensor that is summed up to Q
+                                                  //!< Used to allow parallelized calculation of Q
     };
 
 }; }; // end namespace freud::order
