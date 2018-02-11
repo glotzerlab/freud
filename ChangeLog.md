@@ -5,8 +5,9 @@
 * Added a generic neighbor list interface
 * Various bug fixes and code cleaning
 * Fixed all compile-time warnings
-* Fixed Pep8 compliance everywhere
+* Ensured PEP 8 compliance everywhere
 * Minimized boost dependence
+* Added Nematic OP
 
 ## v0.6.4
 
