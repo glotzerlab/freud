@@ -8,7 +8,7 @@ from libcpp.vector cimport vector
 
 cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
     cdef cppclass VoronoiBuffer:
-        VoronoiBuffer(const box.Box&)
-        const box.Box &getBox() const
+        VoronoiBuffer(const box.Box &)
+        const box.Box & getBox() const
         void compute(const float3*, const unsigned int, const float) nogil except +
         shared_ptr[vector[float3]] getBufferParticles()
