@@ -27,8 +27,9 @@ cdef extern from "BondingAnalysis.h" namespace "freud::bond":
 
 cdef extern from "BondingR12.h" namespace "freud::bond":
     cdef cppclass BondingR12:
-        BondingR12(float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
-        const box.Box &getBox() const
+        BondingR12(float, unsigned int, unsigned int, unsigned int,
+                   unsigned int, unsigned int * , unsigned int * )
+        const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
@@ -37,16 +38,17 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil except +
-        shared_ptr[ uint ] getBonds()
+        shared_ptr[uint] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
-        map[ uint, uint] getListMap()
-        map[ uint, uint] getRevListMap()
+        map[uint, uint] getListMap()
+        map[uint, uint] getRevListMap()
 
 cdef extern from "BondingXY2D.h" namespace "freud::bond":
     cdef cppclass BondingXY2D:
-        BondingXY2D(float, float, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
-        const box.Box &getBox() const
+        BondingXY2D(float, float, unsigned int, unsigned int, unsigned int,
+                    unsigned int * , unsigned int * )
+        const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
@@ -55,16 +57,17 @@ cdef extern from "BondingXY2D.h" namespace "freud::bond":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil except +
-        shared_ptr[ uint ] getBonds()
+        shared_ptr[uint] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
-        map[ uint, uint] getListMap()
-        map[ uint, uint] getRevListMap()
+        map[uint, uint] getListMap()
+        map[uint, uint] getRevListMap()
 
 cdef extern from "BondingXYT.h" namespace "freud::bond":
     cdef cppclass BondingXYT:
-        BondingXYT(float, float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *, unsigned int *)
-        const box.Box &getBox() const
+        BondingXYT(float, float, unsigned int, unsigned int, unsigned int,
+                   unsigned int, unsigned int * , unsigned int * )
+        const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
@@ -73,17 +76,18 @@ cdef extern from "BondingXYT.h" namespace "freud::bond":
                      vec3[float]*,
                      float*,
                      unsigned int) nogil except +
-        shared_ptr[ uint ] getBonds()
+        shared_ptr[uint] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
-        map[ uint, uint] getListMap()
-        map[ uint, uint] getRevListMap()
+        map[uint, uint] getListMap()
+        map[uint, uint] getRevListMap()
 
 cdef extern from "BondingXYZ.h" namespace "freud::bond":
     cdef cppclass BondingXYZ:
-        BondingXYZ(float, float, float, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int *,
-            unsigned int *)
-        const box.Box &getBox() const
+        BondingXYZ(float, float, float, unsigned int, unsigned int,
+                   unsigned int, unsigned int, unsigned int * ,
+                   unsigned int * )
+        const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
@@ -92,8 +96,8 @@ cdef extern from "BondingXYZ.h" namespace "freud::bond":
                      vec3[float]*,
                      quat[float]*,
                      unsigned int) nogil except +
-        shared_ptr[ uint ] getBonds()
+        shared_ptr[uint] getBonds()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
-        map[ uint, uint] getListMap()
-        map[ uint, uint] getRevListMap()
+        map[uint, uint] getListMap()
+        map[uint, uint] getRevListMap()
