@@ -1,5 +1,13 @@
 # Change Log
 
+## Unreleased
+
+* Added a generic neighbor list interface
+* Various bug fixes and code cleaning
+* Fixed all compile-time warnings
+* Fixed Pep8 compliance everywhere
+* Minimized boost dependence
+
 ## v0.6.4
 
 * Set up CircleCI for continuous integration
