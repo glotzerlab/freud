@@ -12,6 +12,8 @@ Code in freud should follow
 following guidelines. Anything listed here takes precedence over PEP8,
 but try to deviate as little as possible from PEP8. When in doubt,
 follow these guidelines over PEP8.
+If you are unsure if your code is pep8 compliant, you can use autopep8
+and flake8 (or similar) to automatically update and check your code.
 
 Naming Conventions
 ==================
