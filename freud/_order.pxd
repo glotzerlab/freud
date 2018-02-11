@@ -59,9 +59,22 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         float getScale()
         quat[float] getCubaticOrientation()
 
+cdef extern from "NematicOrderParameter.h" namespace "freud::order":
+    cdef cppclass NematicOrderParameter:
+        NematicOrderParameter(vec3[float])
+        void resetNematicOrderParameter()
+        void compute(quat[float]*,
+                     unsigned int) nogil except +
+        unsigned int getNumParticles()
+        float getNematicOrderParameter()
+        shared_ptr[float] getParticleTensor()
+        shared_ptr[float] getNematicTensor()
+        vec3[float] getNematicDirector()
+
+
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
-        HexOrderParameter(float, float, unsigned int)
+        HexOrderParameter(float, unsigned int, unsigned int)
         const box.Box & getBox() const
         void compute(box.Box & ,
                      const freud._locality.NeighborList*,
@@ -71,7 +84,7 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
         # but this seems to compile...
         shared_array[float complex] getPsi()
         unsigned int getNP()
-        float getK()
+        unsigned int getK()
 
 cdef extern from "LocalDescriptors.h" namespace "freud::order":
     ctypedef enum LocalDescriptorOrientation:

@@ -514,6 +514,85 @@ cdef class CubaticOrderParameter:
                                 < void*>gen_r4_tensor)
         return result
 
+from libcpp.memory cimport shared_ptr
+
+cdef class NematicOrderParameter:
+    """Compute the Nematic order Parameter for a system of particles.
+
+    .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
+
+    :type u: The nematic director of a single particle in the reference state (without any rotation applied)
+
+    """
+    cdef order.NematicOrderParameter *thisptr
+
+    def __cinit__(self, u):
+        # run checks
+        if len(u) != 3:
+            raise ValueError('u needs to be a three-dimensional vector')
+
+        cdef np.ndarray[np.float32_t, ndim=1] l_u = np.array(u,dtype=np.float32)
+        self.thisptr = new order.NematicOrderParameter((<vec3[float]*>l_u.data)[0])
+
+    def compute(self, orientations):
+        """
+        Calculates the per-particle and global OP
+
+        :param orientations: orientations to calculate the order parameter
+        :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        """
+        orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
+            dim_message="orientations must be a 2 dimensional array")
+        if orientations.shape[1] != 4:
+            raise TypeError('orientations should be an Nx4 array')
+
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
+
+        with nogil:
+            self.thisptr.compute(<quat[float]*>l_orientations.data, num_particles)
+
+    def get_nematic_order_parameter(self):
+        """The nematic order parameterr
+        :return: Nematic Order parameter
+        :rtype: float
+        """
+        return self.thisptr.getNematicOrderParameter()
+
+    def get_director(self):
+        """The director (eigenvector corresponding to the order parameter)
+        :return: The average nematic director
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(3 \\right)`, dtype= :class:`numpy.float32`
+        """
+        cdef vec3[float] n = self.thisptr.getNematicDirector()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.array([n.x,n.y,n.z], dtype=np.float32)
+        return result
+
+    def get_particle_tensor(self):
+        """The full per-particle tensor of orientation information
+        :return: 3x3 matrix corresponding to each individual particle orientation
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3, 3 \\right)`, dtype= :class:`numpy.float32`
+        """
+        cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
+        cdef np.npy_intp nbins[3]
+        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp>3
+        nbins[2] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>particle_tensor)
+        return result
+
+    def get_nematic_tensor(self):
+        """The nematic Q tensor
+        :return: 3x3 matrix corresponding to the average particle orientation
+        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(3, 3 \\right)`, dtype= :class:`numpy.float32`
+        """
+        cdef float *nematic_tensor = self.thisptr.getNematicTensor().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp>3
+        nbins[1] = <np.npy_intp>3
+        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>nematic_tensor)
+        return result
+
 cdef class HexOrderParameter:
     """Calculates the x-atic order parameter for each particle in the system.
 
@@ -537,18 +616,14 @@ cdef class HexOrderParameter:
     :param k: symmetry of order parameter (:math:`k=6` is hexatic)
     :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
     :type rmax: float
-    :type k: float
+    :type k: unsigned int
     :type n: unsigned int
-
-    .. note:: While :math:`k` is a float, this is due to its use in
-    calculations requiring floats. Passing in non-integer values will result in
-    undefined behavior
     """
     cdef order.HexOrderParameter * thisptr
     cdef num_neigh
     cdef rmax
 
-    def __cinit__(self, rmax, k=float(6.0), n=int(0)):
+    def __cinit__(self, rmax, k=int(6), n=int(0)):
         self.thisptr = new order.HexOrderParameter(rmax, k, n)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
@@ -653,13 +728,9 @@ cdef class HexOrderParameter:
         """Get the symmetry of the order parameter
 
         :return: :math:`k`
-        :rtype: float
-
-        .. note:: While :math:`k` is a float, this is due to its use in
-        calculations requiring floats. Passing in non-integer values will
-        result in undefined behavior
+        :rtype: unsigned int
         """
-        cdef float k = self.thisptr.getK()
+        cdef unsigned int k = self.thisptr.getK()
         return k
 
 cdef class LocalDescriptors:

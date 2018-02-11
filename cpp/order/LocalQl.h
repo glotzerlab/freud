@@ -9,7 +9,7 @@
 
 #include "LinkCell.h"
 #include "box.h"
-#include "../../extern/fsph/src/spherical_harmonics.hpp"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_QL_H__
 #define _LOCAL_QL_H__

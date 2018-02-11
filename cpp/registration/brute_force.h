@@ -15,8 +15,8 @@
 #include <boost/geometry/index/rtree.hpp>
 
 // eigen include
-#include "../../extern/Eigen/Eigen/Dense"
-#include "../../extern/Eigen/Eigen/Sparse"
+#include "Eigen/Eigen/Dense"
+#include "Eigen/Eigen/Sparse"
 
 #ifndef BRUTE_FORCE_H
 #define BRUTE_FORCE_H

@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import internal
+import util
 
 class TestCluster(unittest.TestCase):
 
@@ -12,7 +12,7 @@ class TestCluster(unittest.TestCase):
 
         positions = []
         for _ in range(Nrep):
-            (box, pos) = internal.make_fcc(Nlattice, Nlattice, Nlattice, noise=1e-2)
+            (box, pos) = util.make_fcc(Nlattice, Nlattice, Nlattice, noise=1e-2)
             positions.append(pos)
 
         # number of grid points (N = Nrep*Ngrid)
@@ -35,7 +35,7 @@ class TestCluster(unittest.TestCase):
 
         positions = []
         for _ in range(Nrep):
-            (box, pos) = internal.make_fcc(Nlattice, Nlattice, Nlattice, noise=1e-2)
+            (box, pos) = util.make_fcc(Nlattice, Nlattice, Nlattice, noise=1e-2)
             positions.append(pos)
 
         # number of grid points (N = Nrep*Ngrid)

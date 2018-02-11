@@ -49,10 +49,6 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     Saru m_saru(m_seed, 0, 0xffaabb);
     }
 
-// CubaticOrderParameter::~CubaticOrderParameter()
-//     {
-//     }
-
 void CubaticOrderParameter::calcCubaticTensor(float *cubatic_tensor, quat<float> orientation)
     {
     // create the system vectors
@@ -105,21 +101,18 @@ std::shared_ptr<float> CubaticOrderParameter::getParticleTensor()
 
 std::shared_ptr<float> CubaticOrderParameter::getGlobalTensor()
     {
-    // std::shared_ptr<float> global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
     memcpy(m_sp_global_tensor.get(), (void*)&m_global_tensor.data, sizeof(float)*81);
     return m_sp_global_tensor;
     }
 
 std::shared_ptr<float> CubaticOrderParameter::getCubaticTensor()
     {
-    // std::shared_ptr<float> cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
     memcpy(m_sp_cubatic_tensor.get(), (void*)&m_cubatic_tensor.data, sizeof(float)*81);
     return m_sp_cubatic_tensor;
     }
 
 std::shared_ptr<float> CubaticOrderParameter::getGenR4Tensor()
     {
-    // std::shared_ptr<float> gen_r4_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
     memcpy(m_sp_gen_r4_tensor.get(), (void*)&m_gen_r4_tensor.data, sizeof(float)*81);
     return m_sp_gen_r4_tensor;
     }
