@@ -1,11 +1,11 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
+import numpy as np
 from freud.util._VectorMath cimport vec3
+from cython.operator cimport dereference
 cimport freud._interface as interface
 cimport freud._box as _box
-from cython.operator cimport dereference
-import numpy as np
 cimport numpy as np
 
 cdef class InterfaceMeasure:
@@ -23,7 +23,9 @@ cdef class InterfaceMeasure:
     cdef rmax
 
     def __cinit__(self, box, float r_cut):
-        cdef _box.Box cBox = _box.Box(box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(), box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef _box.Box cBox = _box.Box(
+                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new interface.InterfaceMeasure(cBox, r_cut)
         self.box = box
         self.rmax = r_cut
@@ -37,15 +39,22 @@ cdef class InterfaceMeasure:
 
         :param ref_points: one set of particle positions
         :param points: other set of particle positions
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
-        :type ref_points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`, shape=(:math:`N_{particles}`, 3), dtype= :class:`numpy.float32`
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
+                        find bonds
+        :type ref_points: :class:`numpy.ndarray`,
+                            shape=(:math:`N_{particles}`, 3),
+                            dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`,
+                        shape=(:math:`N_{particles}`, 3),
+                        dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        ref_points = freud.common.convert_array(ref_points, 2, dtype=np.float32, contiguous=True,
-                                                dim_message="ref_points must be a 2 dimensional array")
-        points = freud.common.convert_array(points, 2, dtype=np.float32, contiguous=True,
-                                            dim_message="points must be a 2 dimensional array")
+        ref_points = freud.common.convert_array(
+                ref_points, 2, dtype=np.float32, contiguous=True,
+                dim_message="ref_points must be a 2 dimensional array")
+        points = freud.common.convert_array(
+                points, 2, dtype=np.float32, contiguous=True,
+                dim_message="points must be a 2 dimensional array")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise RuntimeError('Need to provide array with x, y, z positions')
 
@@ -58,4 +67,9 @@ cdef class InterfaceMeasure:
         cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        return self.thisptr.compute(nlist_ptr, < vec3[float]*> cRef_points.data, n_ref, < vec3[float]*> cPoints.data, Np)
+        return self.thisptr.compute(
+                nlist_ptr,
+                < vec3[float]*> cRef_points.data,
+                n_ref,
+                < vec3[float]*> cPoints.data,
+                Np)
