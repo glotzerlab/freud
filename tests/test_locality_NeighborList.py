@@ -10,7 +10,7 @@ class TestNeighborList(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
@@ -35,7 +35,7 @@ class TestNeighborList(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
@@ -57,7 +57,7 @@ class TestNeighborList(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
@@ -80,7 +80,7 @@ class TestNeighborList(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
@@ -97,7 +97,7 @@ class TestNeighborList(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
