@@ -594,9 +594,9 @@ cdef class NematicOrderParameter:
         return result
 
 cdef class HexOrderParameter:
-    """Calculates the x-atic order parameter for each particle in the system.
+    """Calculates the :math:`k`-atic order parameter for each particle in the system.
 
-    The x-atic order parameter for a particle :math:`i` and its
+    The :math:`k`-atic order parameter for a particle :math:`i` and its
     :math:`n` neighbors :math:`j` is given by:
 
     :math:`\\psi_k \\left( i \\right) = \\frac{1}{n}
@@ -608,7 +608,7 @@ cdef class HexOrderParameter:
     vector :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`
 
     .. note:: 2D: This calculation is defined for 2D systems only. However
-    particle positions are still required to be (x, y, 0)
+              particle positions are still required to be (x, y, 0)
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
