@@ -19,7 +19,7 @@
 namespace freud { namespace box {
 
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box
-/*! Box stores a standard hoomd simulation box that goes from -L/2 to L/2 in each dimension, allowing Lx, Ly, Lz, and triclinic tilt factors xy, xz, and yz to be specified independently.
+/*! Box stores a standard HOOMD simulation box that goes from -L/2 to L/2 in each dimension, allowing Lx, Ly, Lz, and triclinic tilt factors xy, xz, and yz to be specified independently.
  *
 
     A number of utility functions are provided to work with coordinates in boxes. These are provided as inlined methods
@@ -52,6 +52,7 @@ class Box
             m_periodic = make_uchar3(1,1,1);
             m_xy = m_xz = m_yz = 0;
             }
+
         //! Construct an orthorhombic box
         Box(float Lx, float Ly, float Lz, bool _2d=false)
             {
@@ -70,7 +71,7 @@ class Box
             m_xy = xy; m_xz = xz; m_yz = yz;
             }
 
-        inline bool operator ==(const Box&b) const
+        inline bool operator ==(const Box &b) const
             {
             return ( (this->getL() == b.getL()) &&
                        (this->getTiltFactorXY() == b.getTiltFactorXY()) &&
@@ -78,7 +79,7 @@ class Box
                        (this->getTiltFactorYZ() == b.getTiltFactorYZ()) );
             }
 
-        inline bool operator !=(const Box&b) const
+        inline bool operator !=(const Box &b) const
             {
             return ( (this->getL() != b.getL()) ||
                        (this->getTiltFactorXY() != b.getTiltFactorXY()) ||
@@ -93,7 +94,7 @@ class Box
             }
 
         //! Set L, box lengths, inverses.  Box is also centered at zero.
-        void setL(const float Lx,const float Ly,const float Lz)
+        void setL(const float Lx, const float Ly, const float Lz)
             {
             m_L = vec3<float>(Lx,Ly,Lz);
             m_hi = m_L/float(2.0);
@@ -176,20 +177,20 @@ class Box
         float getVolume() const
             {
             if (m_2d)
-                return m_L.x*m_L.y;
+                return m_L.x * m_L.y;
             else
-                return m_L.x*m_L.y*m_L.z;
+                return m_L.x * m_L.y * m_L.z;
             }
 
         //! Compute the position of the particle in box relative coordinates
         /*! \param p point
-            \returns alpha
-
-            alpha.x is 0 when \a x is on the far left side of the box and
-            1.0 when it is on the far right. If x is outside of the box in
-            either direction, it will go larger than 1 or less than 0
-            keeping the same scaling.
-        */
+         *  \returns alpha
+         *
+         *  alpha.x is 0 when \a x is on the far left side of the box and
+         *  1.0 when it is on the far right. If x is outside of the box in
+         *  either direction, it will go larger than 1 or less than 0
+         *  keeping the same scaling.
+         */
         vec3<float> makeFraction(const vec3<float>& v, const vec3<float>& ghost_width=vec3<float>(0.0,0.0,0.0)) const
             {
             vec3<float> delta = v - m_lo;
@@ -207,8 +208,8 @@ class Box
         //! Convert fractional coordinates into real coordinates
         /*! \param f Fractional coordinates between 0 and 1 within
          *         parallelpipedal box
-            \return A vector inside the box corresponding to f
-        */
+         *  \return A vector inside the box corresponding to f
+         */
         vec3<float> makeCoordinates(const vec3<float> &f) const
             {
             vec3<float> v = m_lo + f*m_L;
@@ -223,7 +224,7 @@ class Box
 
         //! Get the periodic image a vector belongs to
         /*! \param v The vector to check
-            \returns the integer coordinates of the periodic image
+         *  \returns the integer coordinates of the periodic image
          */
         int3 getImage(const vec3<float> &v) const
             {
@@ -236,7 +237,7 @@ class Box
             }
 
         //! wrap a vector back into the box. This function is specifically designed to be
-        // called from python and wrap vectors which are greater than one image away
+        // called from Python and wrap vectors which are greater than one image away
         vec3<float> wrapMultiple(const vec3<float>& v) const
             {
             vec3<float> tmp = makeFraction(v);
@@ -261,11 +262,11 @@ class Box
 
         //! Wrap a vector back into the box
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
-            \param img Image of the vector, updated to reflect the new image
-            \param flags Vector of flags to force wrapping along certain directions
-            \post \a img and \a v are updated appropriately
-            \note \a v must not extend more than 1 image beyond the box
-        */
+         *  \param img Image of the vector, updated to reflect the new image
+         *  \param flags Vector of flags to force wrapping along certain directions
+         *  \post \a img and \a v are updated appropriately
+         *  \note \a v must not extend more than 1 image beyond the box
+         */
         void wrap(vec3<float>& w, int3& img, char3 flags = make_char3(0,0,0)) const
             {
             vec3<float> L = getL();
@@ -321,13 +322,13 @@ class Box
                 }
            }
 
-        //! Wrap a vector back into the box.  Legacy float3 version.  Deprecated?
+        //! Wrap a vector back into the box. Legacy float3 version. Deprecated.
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
-            \param img Image of the vector, updated to reflect the new image
-            \param flags Vector of flags to force wrapping along certain directions
-            \post \a img and \a v are updated appropriately
-            \note \a v must not extend more than 1 image beyond the box
-        */
+         *  \param img Image of the vector, updated to reflect the new image
+         *  \param flags Vector of flags to force wrapping along certain directions
+         *  \post \a img and \a v are updated appropriately
+         *  \note \a v must not extend more than 1 image beyond the box
+         */
         void wrap(float3& w, int3& img, char3 flags = make_char3(0,0,0)) const
             {
                 vec3<float> tempcopy;
@@ -388,12 +389,12 @@ class Box
 
         //! Wrap a vector back into the box
         /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
-            \param img Image of the vector, updated to reflect the new image
-            \param flags Vector of flags to force wrapping along certain directions
-            \returns w;
-
-            \note \a w must not extend more than 1 image beyond the box
-        */
+         *  \param img Image of the vector, updated to reflect the new image
+         *  \param flags Vector of flags to force wrapping along certain directions
+         *  \returns w;
+         *
+         *  \note \a w must not extend more than 1 image beyond the box
+         */
         vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
             {
             vec3<float> tempcopy = w;
@@ -414,7 +415,7 @@ class Box
 
         //! Unwrap a given position to its "real" location
         /*! \param p coordinates to unwrap
-            \param image image flags for this point
+         *  \param image image flags for this point
             \returns The unwrapped coordinates
         */
         vec3<float> unwrap(const vec3<float>& p, const int3& image) const
@@ -458,8 +459,8 @@ class Box
             }
 
         /*! Get the lattice vector with index i
-            \param i Index (0<=i<d) of the lattice vector, where d is dimension (2 or 3)
-            \returns the lattice vector with index i
+         *  \param i Index (0<=i<d) of the lattice vector, where d is dimension (2 or 3)
+         *  \returns the lattice vector with index i
          */
         vec3<float> getLatticeVector(unsigned int i) const
             {
@@ -484,9 +485,9 @@ class Box
 
         //! Set the periodic flags
         /*! \param periodic Flags to set
-            \post Period flags are set to \a periodic
-            \note It is invalid to set 1 for a periodic dimension where lo != -hi. This error is not checked for.
-        */
+         *  \post Period flags are set to \a periodic
+         *  \note It is invalid to set 1 for a periodic dimension where lo != -hi. This error is not checked for.
+         */
         void setPeriodic(uchar3 periodic)
             {
             m_periodic = periodic;

@@ -34,54 +34,6 @@ class Box(_Box):
     :type is2D: bool
     """
 
-    @property
-    def Lx(self):
-        return self.getLx()
-
-    @Lx.setter
-    def Lx(self, value):
-        self.setL([value, self.Ly, self.Lz])
-        return value
-
-    @property
-    def Ly(self):
-        return self.getLy()
-
-    @Ly.setter
-    def Ly(self, value):
-        self.setL([self.Lx, value, self.Lz])
-        return value
-
-    @property
-    def Lz(self):
-        return self.getLz()
-
-    @Lz.setter
-    def Lz(self, value):
-        self.setL([self.Lx, self.Ly, value])
-        return value
-
-    @property
-    def xy(self):
-        return self.getTiltFactorXY()
-
-    @property
-    def xz(self):
-        return self.getTiltFactorXZ()
-
-    @property
-    def yz(self):
-        return self.getTiltFactorYZ()
-
-    @property
-    def dimensions(self):
-        return 2 if self.is2D() else 3
-
-    @dimensions.setter
-    def dimensions(self, value):
-        assert value == 2 or value == 3
-        self.set2D(value == 2)
-
     def to_dict(self):
         return {
             'Lx': self.Lx,
@@ -93,14 +45,22 @@ class Box(_Box):
             'dimensions': self.dimensions}
 
     def to_tuple(self):
-        """Returns the box as named tuple."""
+        """Returns the box as named tuple.
+
+        :return: box parameters
+        :rtype: namedtuple
+        """
         tuple_type = namedtuple(
             'BoxTuple', ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'])
         return tuple_type(Lx=self.Lx, Ly=self.Ly, Lz=self.Lz,
                           xy=self.xy, xz=self.xz, yz=self.yz)
 
     def to_matrix(self):
-        """Returns the box matrix (3x3)."""
+        """Returns the box matrix (3x3).
+
+        :return: box matrix
+        :rtype: list of lists, shape 3x3
+        """
         return [[self.Lx, self.xy * self.Ly, self.xz * self.Lz],
                 [0, self.Ly, self.yz * self.Lz],
                 [0, 0, self.Lz]]
@@ -148,7 +108,7 @@ class Box(_Box):
 
     @classmethod
     def cube(cls, L):
-        """Construct a cubic box.
+        """Construct a cubic box with equal lengths.
 
         :param L: The edge length
         :type L: float
@@ -157,7 +117,7 @@ class Box(_Box):
 
     @classmethod
     def square(cls, L):
-        """Construct a 2-dimensional box with equal lengths.
+        """Construct a 2-dimensional (square) box with equal lengths.
 
         :param L: The edge length
         :type L: float
