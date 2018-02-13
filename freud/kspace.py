@@ -1097,13 +1097,15 @@ class FTconvexPolyhedron(FTpolyhedron):
         return inradius
 
     def compute_py(self, *args, **kwargs):
-        """Compute FT
+        """
+        Compute FT
 
         Calculate :math:`P = F * S`:
-        * :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
-            \\mathbf{r}_{\\alpha}}`
+
+        * :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \
+          \\mathbf{r}_{\\alpha}}`
         * F is the analytical form factor for a polyhedron,
-            computed with Spoly3D
+          computed with Spoly3D
         """
         # Return FT of delta function at one or more locations
         position = self.scale * self.position

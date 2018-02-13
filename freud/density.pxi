@@ -133,14 +133,21 @@ cdef class FloatCF:
 
     @property
     def RDF(self):
-        """The RDF
+        """Returns the radial distribution function
+
+        :return: expected (average) product of all values at a given radial
+                 distance
+        :rtype: :class:`numpy.ndarray`,
+                shape=(:math:`N_{bins}`),
+                dtype= :class:`numpy.float64`
         """
         return self.getRDF()
 
     def getRDF(self):
-        """
+        """Returns the radial distribution function
+
         :return: expected (average) product of all values at a given radial
-                    distance
+                 distance
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{bins}`),
                 dtype= :class:`numpy.float64`
@@ -381,9 +388,10 @@ cdef class ComplexCF:
         return self.getRDF()
 
     def getRDF(self):
-        """ The RDF
+        """The RDF
+
         :return: expected (average) product of all values at a given radial
-                    distance
+                 distance
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{bins}`),
                 dtype= :class:`numpy.complex128`
@@ -484,6 +492,7 @@ cdef class ComplexCF:
 
     def getR(self):
         """The value of bin centers
+
         :return: values of bin centers
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{bins}`),
@@ -731,6 +740,7 @@ cdef class LocalDensity:
 
     def getDensity(self):
         """Get the density array for each particle
+
         :return: Density array for each particle
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{particles}`),
@@ -752,6 +762,7 @@ cdef class LocalDensity:
 
     def getNumNeighbors(self):
         """Return the number of neighbors for each particle
+
         :return: Number of neighbors for each particle
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{particles}`),
@@ -910,6 +921,7 @@ cdef class RDF:
 
     def getRDF(self):
         """Histogram of rdf values
+
         :return: histogram of rdf values
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{bins}`, 3),
@@ -931,6 +943,7 @@ cdef class RDF:
 
     def getR(self):
         """Values of the histogram bin centers
+
         :return: values of the histogram bin centers
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{bins}`, 3),
@@ -952,6 +965,7 @@ cdef class RDF:
 
     def getNr(self):
         """Get the histogram of cumulative rdf values
+
         :return: histogram of cumulative rdf values
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{bins}`, 3),

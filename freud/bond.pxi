@@ -115,6 +115,7 @@ cdef class BondingAnalysis:
 
     def getOverallLifetimes(self):
         """The overall lifetimes
+
         :return: lifetime of bonds
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{particles}`, varying),
