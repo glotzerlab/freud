@@ -2691,7 +2691,7 @@ cdef class MatchEnv:
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
-            defaulted_env_nlist = make_default_nlist(self.box, points, points, self.rmax, env_nlist, True)
+            defaulted_env_nlist = make_default_nlist(self.m_box, points, points, self.rmax, env_nlist, True)
             env_nlist_ = defaulted_env_nlist[0]
             env_nlist_ptr = env_nlist_.get_ptr()
         else:
@@ -2701,7 +2701,7 @@ cdef class MatchEnv:
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
-            defaulted_env_nlist = make_default_nlist_nn(self.box, points, points, self.num_neigh, env_nlist, None, self.rmax)
+            defaulted_env_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, env_nlist, None, self.rmax)
             env_nlist_ = defaulted_env_nlist[0]
             env_nlist_ptr = env_nlist_.get_ptr()
 
