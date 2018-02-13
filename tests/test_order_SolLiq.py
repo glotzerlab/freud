@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import internal
+import util
 
 class TestSolLiq(unittest.TestCase):
     def test_shape(self):
@@ -14,18 +14,18 @@ class TestSolLiq(unittest.TestCase):
         comp = freud.order.SolLiq(box, 2, .7, 6, 6)
         comp.compute(positions)
 
-        npt.assert_equal(comp.getClusters().shape[0], N)
+        npt.assert_equal(comp.clusters.shape[0], N)
 
     def test_identical_environments(self):
-        (box, positions) = internal.make_fcc(4, 4, 4)
+        (box, positions) = util.make_fcc(4, 4, 4)
 
         comp = freud.order.SolLiq(box, 2, .7, 6, 6)
 
         comp.compute(positions)
-        assert np.allclose(comp.getLargestClusterSize(), len(positions))
+        assert np.allclose(comp.largest_cluster_size, len(positions))
 
         comp.computeSolLiqNoNorm(positions)
-        assert np.allclose(comp.getLargestClusterSize(), len(positions))
+        assert np.allclose(comp.largest_cluster_size, len(positions))
 
 class TestSolLiqNear(unittest.TestCase):
     def test_shape(self):
@@ -37,18 +37,18 @@ class TestSolLiqNear(unittest.TestCase):
         comp = freud.order.SolLiqNear(box, 2, .7, 6, 6, 12)
         comp.compute(positions)
 
-        npt.assert_equal(comp.getClusters().shape[0], N)
+        npt.assert_equal(comp.clusters.shape[0], N)
 
     def test_identical_environments(self):
-        (box, positions) = internal.make_fcc(4, 4, 4)
+        (box, positions) = util.make_fcc(4, 4, 4)
 
         comp = freud.order.SolLiqNear(box, 2, .7, 6, 6, 12)
 
         comp.compute(positions)
-        assert np.allclose(comp.getLargestClusterSize(), len(positions))
+        assert np.allclose(comp.largest_cluster_size, len(positions))
 
         comp.computeSolLiqNoNorm(positions)
-        assert np.allclose(comp.getLargestClusterSize(), len(positions))
+        assert np.allclose(comp.largest_cluster_size, len(positions))
 
 if __name__ == '__main__':
     unittest.main()

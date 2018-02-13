@@ -226,4 +226,4 @@ void quaternionFromExyz(float4 &ex_space, float4 &ey_space, float4 &ez_space, fl
 
     }
 
-};}; // end namespace hoomd::matrix
+}; }; // end namespace hoomd::matrix

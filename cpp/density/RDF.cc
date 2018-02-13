@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "RDF.h"
 #include "ScopedGILRelease.h"
@@ -84,7 +84,7 @@ class CumulativeCount
     public:
         CumulativeCount( float *N_r_array,
               float *avg_counts )
-            : m_sum(0), m_avg_counts(avg_counts), m_N_r_array(N_r_array)
+            : m_sum(0), m_N_r_array(N_r_array), m_avg_counts(avg_counts)
         {
         }
         float get_sum() const
@@ -104,7 +104,7 @@ class CumulativeCount
             m_sum = temp;
             }
         CumulativeCount( CumulativeCount& b, split )
-            : m_avg_counts(b.m_avg_counts), m_N_r_array(b.m_N_r_array), m_sum(0)
+            : m_sum(0), m_N_r_array(b.m_N_r_array), m_avg_counts(b.m_avg_counts)
         {
         }
         void reverse_join( CumulativeCount& a )
@@ -120,7 +120,7 @@ class CumulativeCount
 
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 void RDF::reduceRDF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins);

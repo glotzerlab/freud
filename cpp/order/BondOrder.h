@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <tbb/tbb.h>
 #include <ostream>
@@ -90,22 +90,20 @@ class BondOrder
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_k;                        //!< Multiplier in the exponent
+        box::Box m_box;                //!< Simulation box where the particles belong
         float m_dt;
         float m_dp;
-        unsigned int m_n_ref;                //!< Last number of points computed
-        unsigned int m_n_p;                //!< Last number of points computed
-        unsigned int m_nbins_t;           //!< number of bins for theta
-        unsigned int m_nbins_p;           //!< number of bins for phi
-        unsigned int m_frame_counter;       //!< number of frames calc'd
+        unsigned int m_n_ref;          //!< Last number of points computed
+        unsigned int m_n_p;            //!< Last number of points computed
+        unsigned int m_nbins_t;        //!< number of bins for theta
+        unsigned int m_nbins_p;        //!< number of bins for phi
+        unsigned int m_frame_counter;  //!< number of frames calc'd
 
-        std::shared_ptr<unsigned int> m_bin_counts;         //!< bin counts computed
-        std::shared_ptr<float> m_bo_array;         //!< bond order array computed
-        std::shared_ptr<float> m_sa_array;         //!< bond order array computed
-        std::shared_ptr<float> m_theta_array;         //!< theta array computed
-        std::shared_ptr<float> m_phi_array;         //!< phi order array computed
+        std::shared_ptr<unsigned int> m_bin_counts;  //!< bin counts computed
+        std::shared_ptr<float> m_bo_array;           //!< bond order array computed
+        std::shared_ptr<float> m_sa_array;           //!< bond order array computed
+        std::shared_ptr<float> m_theta_array;        //!< theta array computed
+        std::shared_ptr<float> m_phi_array;          //!< phi order array computed
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
