@@ -19,8 +19,8 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float rmax, float dr)
-    : m_box(box::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
+RDF::RDF(float rmax, float dr, float rmin)
+    : m_box(box::Box()), m_rmin(rmin), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
     {
     if (dr <= 0.0f)
         throw invalid_argument("dr must be positive");
@@ -28,8 +28,12 @@ RDF::RDF(float rmax, float dr)
         throw invalid_argument("rmax must be positive");
     if (dr > rmax)
         throw invalid_argument("rmax must be greater than dr");
+    if (rmax <= rmin)
+        throw invalid_argument("rmax must be greater than rmin");
+    if (rmax-rmin < dr)
+        throw invalid argument("dr must be greater than rdf range");
 
-    m_nbins = int(floorf(m_rmax / m_dr));
+    m_nbins = int(floorf((m_rmax-m_rmin) / m_dr));
     assert(m_nbins > 0);
     m_rdf_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_rdf_array.get(), 0, sizeof(float)*m_nbins);
@@ -40,16 +44,8 @@ RDF::RDF(float rmax, float dr)
     m_N_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_N_r_array.get(), 0, sizeof(unsigned int)*m_nbins);
 
-    // precompute the bin center positions
+    // precompute the bin center positions and cell volumes
     m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_nbins; i++)
-        {
-        float r = float(i) * m_dr;
-        float nextr = float(i+1) * m_dr;
-        m_r_array.get()[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
-        }
-
-    // precompute cell volumes
     m_vol_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*)m_vol_array.get(), 0, sizeof(float)*m_nbins);
     m_vol_array2D = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
@@ -58,12 +54,14 @@ RDF::RDF(float rmax, float dr)
     memset((void*)m_vol_array3D.get(), 0, sizeof(float)*m_nbins);
     for (unsigned int i = 0; i < m_nbins; i++)
         {
-        float r = float(i) * m_dr;
-        float nextr = float(i+1) * m_dr;
+        float r = float(i) * m_dr + m_rmin;
+        float nextr = float(i+1) * m_dr + m_rmin;
+        m_r_array.get()[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         m_vol_array2D.get()[i] = M_PI * (nextr*nextr - r*r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr*nextr*nextr - r*r*r);
         }
-    }
+
+    }  // end RDF::RDF
 
 RDF::~RDF()
     {
@@ -222,6 +220,7 @@ void RDF::accumulate(box::Box& box,
       assert(Np > 0);
 
       float dr_inv = 1.0f / m_dr;
+      float rminsq = m_rmin * m_rmin;
       float rmaxsq = m_rmax * m_rmax;
 
       bool exists;
@@ -252,12 +251,12 @@ void RDF::accumulate(box::Box& box,
 
           float rsq = dot(delta, delta);
 
-          if (rsq < rmaxsq)
+          if (rsq < rmaxsq && rsq > rminsq)
           {
               float r = sqrtf(rsq);
 
               // bin that r
-              float binr = r * dr_inv;
+              float binr = (r - m_rmin) * dr_inv;
               // fast float to int conversion with truncation
 #ifdef __SSE2__
               unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
@@ -265,6 +264,7 @@ void RDF::accumulate(box::Box& box,
               unsigned int bin = (unsigned int)(binr);
 #endif
 
+              // how would this ever happen if rsq < rmaxsq ?
               if (bin < m_nbins)
               {
                   ++m_local_bin_counts.local()[bin];
