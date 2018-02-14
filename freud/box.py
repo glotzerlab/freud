@@ -123,3 +123,58 @@ class Box(_Box):
         :type L: float
         """
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
+
+    @property
+    def L(self):
+        """Return the lengths of the box as a tuple (x, y, z)
+        """
+        return self.getL()
+
+    @L.setter
+    def L(self, value):
+        """Set all side lengths of box to L
+        """
+        self.setL(value)
+
+    @property
+    def Lx(self):
+        """Length of the x-dimension of the box
+
+        :getter: Returns this box's x-dimension length
+        :setter: Sets this box's x-dimension length
+        :type: float
+        """
+        return self.getLx()
+
+    @Lx.setter
+    def Lx(self, value):
+        self.setL([value, self.Ly, self.Lz])
+
+    @property
+    def Ly(self):
+        """Length of the y-dimension of the box
+
+        :getter: Returns this box's y-dimension length
+        :setter: Sets this box's y-dimension length
+        :type: float
+        """
+        return self.getLy()
+
+    @Ly.setter
+    def Ly(self, value):
+        self.setL([self.Lx, value, self.Lz])
+
+    @property
+    def Lz(self):
+        """Length of the z-dimension of the box
+
+        :getter: Returns this box's z-dimension length
+        :setter: Sets this box's z-dimension length
+        :type: float
+        """
+        return self.getLz()
+
+    @Lz.setter
+    def Lz(self, value):
+        self.setL([self.Lx, self.Ly, value])
+

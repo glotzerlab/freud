@@ -110,18 +110,6 @@ cdef class Box:
                     "no effect!"))
         self.thisptr.setL(L[0], L[1], L[2])
 
-    @property
-    def L(self):
-        """Return the lengths of the box as a tuple (x, y, z)
-        """
-        return self.getL()
-
-    @L.setter
-    def L(self, value):
-        """Set all side lengths of box to L
-        """
-        self.setL(value)
-
     def getLx(self):
         """Length of the x-dimension of the box
 
@@ -129,20 +117,6 @@ cdef class Box:
         :rtype: float
         """
         return self.thisptr.getLx()
-
-    @property
-    def Lx(self):
-        """Length of the x-dimension of the box
-
-        :getter: Returns this box's x-dimension length
-        :setter: Sets this box's x-dimension length
-        :type: float
-        """
-        return self.getLx()
-
-    @Lx.setter
-    def Lx(self, value):
-        self.setL([value, self.Ly, self.Lz])
 
     def getLy(self):
         """Length of the y-dimension of the box
@@ -152,20 +126,6 @@ cdef class Box:
         """
         return self.thisptr.getLy()
 
-    @property
-    def Ly(self):
-        """Length of the y-dimension of the box
-
-        :getter: Returns this box's y-dimension length
-        :setter: Sets this box's y-dimension length
-        :type: float
-        """
-        return self.getLy()
-
-    @Ly.setter
-    def Ly(self, value):
-        self.setL([self.Lx, value, self.Lz])
-
     def getLz(self):
         """Length of the z-dimension of the box
 
@@ -173,20 +133,6 @@ cdef class Box:
         :rtype: float
         """
         return self.thisptr.getLz()
-
-    @property
-    def Lz(self):
-        """Length of the z-dimension of the box
-
-        :getter: Returns this box's z-dimension length
-        :setter: Sets this box's z-dimension length
-        :type: float
-        """
-        return self.getLz()
-
-    @Lz.setter
-    def Lz(self, value):
-        self.setL([self.Lx, self.Ly, value])
 
     def getTiltFactorXY(self):
         """
