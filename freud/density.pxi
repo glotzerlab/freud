@@ -847,6 +847,7 @@ cdef class RDF:
     """
     cdef density.RDF * thisptr
     cdef rmax
+    cdef rmin
 
     def __cinit__(self, float rmax, float dr, float rmin=0):
         if dr <= 0.0:
