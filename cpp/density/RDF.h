@@ -30,7 +30,7 @@ class RDF
     {
     public:
         //! Constructor
-        RDF(float rmax, float dr, float rmin);
+        RDF(float rmax, float dr, float rmin=0);
 
         //! Destructor
         ~RDF();

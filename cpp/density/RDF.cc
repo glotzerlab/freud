@@ -19,7 +19,7 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float rmax, float dr, float rmin)
+RDF::RDF(float rmax, float dr, float rmin=0)
     : m_box(box::Box()), m_rmin(rmin), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
     {
     if (dr <= 0.0f)
@@ -264,7 +264,6 @@ void RDF::accumulate(box::Box& box,
               unsigned int bin = (unsigned int)(binr);
 #endif
 
-              // how would this ever happen if rsq < rmaxsq ?
               if (bin < m_nbins)
               {
                   ++m_local_bin_counts.local()[bin];
