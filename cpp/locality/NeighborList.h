@@ -1,10 +1,10 @@
-// Copyright (c) 2010-2017 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
 
 #include "VectorMath.h"
-#include "../box/box.h"
+#include "box.h"
 
 #ifndef _NEIGHBOR_LIST_H__
 #define _NEIGHBOR_LIST_H__

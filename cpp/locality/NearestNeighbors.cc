@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
 #include <stdexcept>
@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 #include <tbb/tbb.h>
-#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "NearestNeighbors.h"
 #include "ScopedGILRelease.h"
@@ -24,7 +23,7 @@ namespace freud { namespace locality {
 
 // stop using
 NearestNeighbors::NearestNeighbors():
-    m_box(box::Box()), m_rmax(0), m_num_neighbors(0), m_scale(0), m_strict_cut(false), m_num_points(0), m_num_ref(0),
+    m_box(box::Box()), m_rmax(0), m_num_neighbors(0), m_strict_cut(false), m_num_points(0), m_num_ref(0),
     m_deficits()
     {
     m_lc = new locality::LinkCell();
@@ -35,7 +34,7 @@ NearestNeighbors::NearestNeighbors(float rmax,
                                    unsigned int num_neighbors,
                                    float scale,
                                    bool strict_cut):
-    m_box(box::Box()), m_rmax(rmax), m_num_neighbors(num_neighbors), m_scale(scale), m_strict_cut(strict_cut), m_num_points(0),
+    m_box(box::Box()), m_rmax(rmax), m_num_neighbors(num_neighbors), m_strict_cut(strict_cut), m_num_points(0),
     m_num_ref(0), m_deficits()
     {
     m_lc = new locality::LinkCell(m_box, m_rmax);
@@ -78,7 +77,9 @@ void NearestNeighbors::compute(const box::Box& box,
             bond_vector_vectors.emplace_back();
             BondVector &bond_vector(bond_vector_vectors.back());
             const Index3D &indexer(m_lc->getCellIndexer());
-            const unsigned int max_cell_distance(min(min(indexer.getW(), indexer.getH()), indexer.getD()));
+            const unsigned int max_cell_distance_2d(min(indexer.getW(), indexer.getH()));
+            const unsigned int max_cell_distance_3d(min(max_cell_distance_2d, indexer.getD()));
+            const unsigned int max_cell_distance(m_box.is2D()? max_cell_distance_2d: max_cell_distance_3d);
 
             // neighbors is the set of bonds we find that are within the cutoff radius
             vector<pair<float, size_t> > neighbors;

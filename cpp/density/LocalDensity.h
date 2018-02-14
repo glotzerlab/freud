@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <tbb/tbb.h>
 #include <ostream>
@@ -62,11 +62,11 @@ class LocalDensity
         std::shared_ptr< float > getNumNeighbors();
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;                   //!< Simulation box where the particles belong
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles
-        unsigned int m_n_ref;                //!< Last number of points computed
+        unsigned int m_n_ref;             //!< Last number of points computed
 
         std::shared_ptr< float > m_density_array;         //!< density array computed
         std::shared_ptr< float > m_num_neighbors_array;   //!< number of neighbors array computed

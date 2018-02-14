@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "PMFTXY2D.h"
 #include "ScopedGILRelease.h"
@@ -9,10 +9,7 @@
 #include <emmintrin.h>
 #endif
 
-#include "VectorMath.h"
-
 using namespace std;
-
 using namespace tbb;
 
 /*! \internal
@@ -82,7 +79,7 @@ PMFTXY2D::~PMFTXY2D()
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 void PMFTXY2D::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);

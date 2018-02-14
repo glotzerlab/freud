@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "ScopedGILRelease.h"
 
@@ -13,8 +13,6 @@
 #include "CorrelationFunction.h"
 
 using namespace std;
-// using namespace freud;
-
 using namespace tbb;
 
 /*! \file CorrelationFunction.cc
@@ -66,7 +64,7 @@ CorrelationFunction<T>::~CorrelationFunction()
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 template<typename T>
 void CorrelationFunction<T>::reduceCorrelationFunction()
     {
@@ -74,12 +72,13 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
     for(size_t i(0); i < m_nbins; ++i)
         m_rdf_array.get()[i] = T();
     // now compute the rdf
-    parallel_for(tbb::blocked_range<size_t>(0,m_nbins), CombineOCF<T>(m_nbins,
-                                                              m_bin_counts.get(),
-                                                              m_local_bin_counts,
-                                                              m_rdf_array.get(),
-                                                              m_local_rdf_array,
-                                                              (float)m_n_ref));
+    parallel_for(tbb::blocked_range<size_t>(0,m_nbins),
+                 CombineOCF<T>(m_nbins,
+                               m_bin_counts.get(),
+                               m_local_bin_counts,
+                               m_rdf_array.get(),
+                               m_local_rdf_array,
+                               (float) m_n_ref));
     }
 
 //! Get a reference to the RDF array
@@ -91,7 +90,7 @@ std::shared_ptr<T> CorrelationFunction<T>::getRDF()
     }
 
 //! \internal
-/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
+/*! \brief Function to reset the PCF array if needed e.g. calculating between new particle types
 */
 template<typename T>
 void CorrelationFunction<T>::resetCorrelationFunction()
@@ -121,19 +120,20 @@ void CorrelationFunction<T>::accumulate(const box::Box &box,
     {
     m_box = box;
     nlist->validate(n_ref, Np);
-    parallel_for(tbb::blocked_range<size_t>(0, n_ref), ComputeOCF<T>(m_nbins,
-                                                                    m_local_bin_counts,
-                                                                    m_local_rdf_array,
-                                                                    m_box,
-                                                                    nlist,
-                                                                    m_rmax,
-                                                                    m_dr,
-                                                                    ref_points,
-                                                                    ref_values,
-                                                                    n_ref,
-                                                                    points,
-                                                                    point_values,
-                                                                    Np));
+    parallel_for(tbb::blocked_range<size_t>(0, n_ref),
+                 ComputeOCF<T>(m_nbins,
+                               m_local_bin_counts,
+                               m_local_rdf_array,
+                               m_box,
+                               nlist,
+                               m_rmax,
+                               m_dr,
+                               ref_points,
+                               ref_values,
+                               n_ref,
+                               points,
+                               point_values,
+                               Np));
     m_frame_counter += 1;
     }
 
@@ -232,17 +232,4 @@ void ComputeOCF<T>::operator()( const blocked_range<size_t> &myR ) const
 template class CorrelationFunction< complex<double> >;
 template class CorrelationFunction< double >;
 
-}} // end namespace freud::density
-
-// // Default implementation: assume we're dealing with floats
-// template<typename T>
-// void checkCFType(boost::python::numeric::array values)
-//     {
-//     num_util::check_type(values, NPY_FLOAT);
-//     }
-
-// template<>
-// void checkCFType<std::complex<float> >(boost::python::numeric::array values)
-//     {
-//     num_util::check_type(values, NPY_COMPLEX64);
-//     }
+}; }; // end namespace freud::density

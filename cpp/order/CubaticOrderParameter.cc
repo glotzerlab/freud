@@ -1,16 +1,15 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "CubaticOrderParameter.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
+#include <complex>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <stdexcept>
-#include <complex>
 
 using namespace std;
 using namespace tbb;
@@ -23,7 +22,7 @@ namespace freud { namespace order {
 
 CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, float scale, float *r4_tensor,
     unsigned int n_replicates, unsigned int seed)
-    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_seed(seed), m_n(0), m_n_replicates(n_replicates)
+    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_n_replicates(n_replicates), m_seed(seed)
     {
     // sanity checks, should be caught in python
     if (m_t_initial < m_t_final)
@@ -35,19 +34,20 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     // create tensor arrays
     m_particle_tensor = std::shared_ptr<float>(new float[m_n*81], std::default_delete<float[]>());
     m_particle_order_parameter = std::shared_ptr<float>(new float[m_n], std::default_delete<float[]>());
+    m_sp_global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+    m_sp_cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+    // required to not have memory overwritten
     memset((void*)&m_global_tensor.data, 0, sizeof(float)*81);
     memset((void*)&m_cubatic_tensor.data, 0, sizeof(float)*81);
     memset((void*)m_particle_tensor.get(), 0, sizeof(float)*m_n*81);
     memset((void*)m_particle_order_parameter.get(), 0, sizeof(float)*m_n);
-    // required to not have memory overwritten
+    memset((void*)m_sp_global_tensor.get(), 0, sizeof(float)*m_n*81);
+    memset((void*)m_sp_cubatic_tensor.get(), 0, sizeof(float)*m_n*81);
     memcpy((void*)&m_gen_r4_tensor.data, r4_tensor, sizeof(float)*81);
+    memset((void*)m_sp_gen_r4_tensor.get(), 0, sizeof(float)*m_n*81);
     // create random number generator.
     Saru m_saru(m_seed, 0, 0xffaabb);
     }
-
-// CubaticOrderParameter::~CubaticOrderParameter()
-//     {
-//     }
 
 void CubaticOrderParameter::calcCubaticTensor(float *cubatic_tensor, quat<float> orientation)
     {
@@ -101,23 +101,20 @@ std::shared_ptr<float> CubaticOrderParameter::getParticleTensor()
 
 std::shared_ptr<float> CubaticOrderParameter::getGlobalTensor()
     {
-    std::shared_ptr<float> global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
-    memcpy(global_tensor.get(), (void*)&m_global_tensor.data, sizeof(float)*81);
-    return global_tensor;
+    memcpy(m_sp_global_tensor.get(), (void*)&m_global_tensor.data, sizeof(float)*81);
+    return m_sp_global_tensor;
     }
 
 std::shared_ptr<float> CubaticOrderParameter::getCubaticTensor()
     {
-    std::shared_ptr<float> cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
-    memcpy(cubatic_tensor.get(), (void*)&m_cubatic_tensor.data, sizeof(float)*81);
-    return cubatic_tensor;
+    memcpy(m_sp_cubatic_tensor.get(), (void*)&m_cubatic_tensor.data, sizeof(float)*81);
+    return m_sp_cubatic_tensor;
     }
 
 std::shared_ptr<float> CubaticOrderParameter::getGenR4Tensor()
     {
-    std::shared_ptr<float> gen_r4_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
-    memcpy(gen_r4_tensor.get(), (void*)&m_gen_r4_tensor.data, sizeof(float)*81);
-    return gen_r4_tensor;
+    memcpy(m_sp_gen_r4_tensor.get(), (void*)&m_gen_r4_tensor.data, sizeof(float)*81);
+    return m_sp_gen_r4_tensor;
     }
 
 unsigned int CubaticOrderParameter::getNumParticles()
@@ -314,18 +311,19 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
     parallel_for(blocked_range<size_t>(0,n),
         [=] (const blocked_range<size_t>& r)
             {
-            Index2D a_i = Index2D(n, 81);
             tensor4<float> l_mbar;
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                tensor4<float> l_particle_tensor = tensor4<float>((float*)&m_particle_tensor.get()[a_i(i,0)]);
-                for (unsigned int j = 0; j < 81; j++)
-                    {
-                    l_mbar = l_particle_tensor - m_gen_r4_tensor;
-                    }
-                tensor4<float> diff;
-                diff = l_mbar - m_cubatic_tensor;
-                m_particle_order_parameter.get()[i] = 1.0 - dot(diff, diff)/dot(m_cubatic_tensor, m_cubatic_tensor);
+                // use the cubatic OP calc to compute per-particle OP
+                // i.e. what is the value of the COP
+                // if the global orientation were the particle orientation
+                // load the orientation
+                tensor4<float> l_particle_tensor;
+                float l_particle_op;
+                quat<float> l_orientation = orientations[i];
+                calcCubaticTensor((float*)&l_particle_tensor.data, l_orientation);
+                calcCubaticOrderParameter(l_particle_op, (float*)&l_particle_tensor.data);
+                m_particle_order_parameter.get()[i] = l_particle_op;
                 }
             });
     // save the last computed number of particles

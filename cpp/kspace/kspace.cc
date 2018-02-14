@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "kspace.h"
 #include "ScopedGILRelease.h"
@@ -8,7 +8,6 @@
 #include <cmath>
 #include <complex>
 
-
 using namespace std;
 
 namespace freud { namespace kspace {
@@ -16,14 +15,15 @@ namespace freud { namespace kspace {
 FTdelta::FTdelta()
     : m_NK(0),
       m_Np(0),
-      m_density_Im(0),
-      m_density_Re(1)
+      m_density_Re(1),
+      m_density_Im(0)
     {
     }
 
 FTdelta::~FTdelta()
     {
-    // S_Re and S_Im are boost::shared_array which need to be passed to Python and which should clean up after themselves.
+    // m_S_Re and m_S_Im are std::shared_ptr which need to be passed to
+    // Python and which should clean up after themselves.
     // m_K, m_r, and m_q should point to arrays managed by the calling code.
     }
 
@@ -35,11 +35,8 @@ void FTdelta::compute()
     */
     unsigned int NK = m_NK;
     unsigned int Np = m_Np;
-    // float3* K = m_K;
-    // float3* r = m_r;
     vec3<float>* K = &m_K.front();
     vec3<float>* r = &m_r.front();
-    // float4* q = m_q;
     float density_Im = m_density_Im;
     float density_Re = m_density_Re;
     m_S_Re = std::shared_ptr<float>(new float[NK], std::default_delete<float[]>());
@@ -51,7 +48,6 @@ void FTdelta::compute()
         for(unsigned int j=0; j < Np; j++)
             {
             float d = dot(K[i], r[j]); // dot product of K and r
-            // d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
             float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
             CosKr = cos(d);
             negSinKr = sin(d);
@@ -62,29 +58,20 @@ void FTdelta::compute()
         }
     }
 
-void FTdelta::computePy()
-    {
-    // compute with the GIL released
-    util::ScopedGILRelease gil;
-    compute();
-    }
-
 FTsphere::FTsphere()
     : m_radius(0.5f), m_volume(4.0f * M_PI * 0.125f / 3.0f)
     {
     }
 
 // Calculate complex FT value of a list of uniform spheres
-// Complex scattering amplitude S(K) = F(K) * f(K) for the structure factor F(K) and form factor f(K).
+// Complex scattering amplitude S(K) = F(K) * f(K) for the structure
+// factor F(K) and form factor f(K).
 void FTsphere::compute()
     {
     unsigned int NK = m_NK;
     unsigned int Np = m_Np;
-    // float3* K = m_K;
-    // float3* r = m_r;
     vec3<float>* K = &m_K.front();
     vec3<float>* r = &m_r.front();
-    // float4* q = m_q;
     float radius = m_radius;
 
     /* S += e**(-i * dot(K, r))
@@ -104,7 +91,6 @@ void FTsphere::compute()
             float f_Im(m_density_Im);
             float f_Re(m_density_Re);
 
-            // float K2 = K[i].x * K[i].x + K[i].y * K[i].y + K[i].z * K[i].z;
             float K2 = dot(K[i], K[i]);
             // FT evaluated at K=0 is just the scattering volume
             // f(0) = volume
@@ -125,7 +111,6 @@ void FTsphere::compute()
             // Get structure factor
             float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
             float d = dot(K[i], r[j]); // dot product of K and r
-            // d = K[i].x * r[j].x + K[i].y * r[j].y + K[i].z * r[j].z;
             CosKr = cos(d);
             negSinKr = sin(d);
 
@@ -146,10 +131,6 @@ void FTpolyhedron::compute()
     float rho_Im(m_density_Im);
     float rho_Re(m_density_Re);
 
-    //float3* K_array = m_K;
-    //float3* r = m_r;
-    //float4* q = m_q;
-
     unsigned int N_facet = m_params.facet.size();
 
     /* S += e**(-i * dot(K, r))
@@ -169,11 +150,12 @@ void FTpolyhedron::compute()
         for(unsigned int p_idx=0; p_idx < Np; p_idx++)
             {
             vec3<float> r(m_r[p_idx]);
-            /* The FT of an object with orientation q at a given k-space point is the same as the FT
-               of the unrotated object at a k-space point rotated the opposite way.
-               The opposite of the rotation represented by a quaternion is the conjugate of the quaternion,
-               found by inverting the sign of the imaginary components.
-            */
+            /* The FT of an object with orientation q at a given k-space point
+             * is the same as the FT of the unrotated object at a k-space
+             * point rotated the opposite way. The opposite of the rotation
+             * represented by a quaternion is the conjugate of the quaternion,
+             * found by inverting the sign of the imaginary components.
+             */
             quat<float> q(m_q[p_idx]);
             vec3<float> K(m_K[K_idx]);
             K = rotate(conj(q), K);
@@ -214,12 +196,15 @@ void FTpolyhedron::compute()
                         }
                     else
                         {
-                        // f2D = -i/k^2 * \sum_0^{Nfacets - 1) \hat(z) \cdot (l_n \times k) \exp(-ik \cdot c_n) \sinc (k \cdot l/2)
-                        // Noting that -i \exp(-i x) == \sin(x) - i \cos(x), we can get the real and imarginary parts as
-                        // For each element in the sum,
-                        // f_n = \hat(z) \cdot (l_n \times k) \sinc (k \cdot l/2) / k^2
-                        // f_Re = \sin(k \cdot c_n) * f_n
-                        // f_Im = - \cos(k \cdot c_n) * f_n
+                        /* f2D = -i/k^2 * \sum_0^{Nfacets - 1) \hat(z) \cdot
+                         * (l_n \times k) \exp(-ik \cdot c_n) \sinc (k \cdot l/2)
+                         * Noting that -i \exp(-i x) == \sin(x) - i \cos(x),
+                         * we can get the real and imaginary parts as
+                         * For each element in the sum,
+                         * f_n = \hat(z) \cdot (l_n \times k) \sinc (k \cdot l/2) / k^2
+                         * f_Re = \sin(k \cdot c_n) * f_n
+                         * f_Im = - \cos(k \cdot c_n) * f_n
+                         */
                         unsigned int N_vert = m_params.facet[facet_idx].size();
                         float f_n(0.0f);
                         float K2inv = 1.0f/K_proj2;
@@ -236,14 +221,13 @@ void FTpolyhedron::compute()
                             vec3<float> crosslK = cross(l_n, K_proj);
 
                             float x = dotKl*0.5f; // argument to sinc function
-//                            float x = dotKl; // argument to sinc function
                             float sinc = 1.0;
                             const float eps = 0.000001;
                             if (fabs(x) > eps) sinc = sinf(x)/x;
                             f_n = dot(norm, crosslK) * sinc * K2inv;
                             f2D_Re -= sinf(dotKc) * f_n;
                             f2D_Im -= cosf(dotKc) * f_n;
-                            } // end foreach edge
+                            } // end loop over edges
                         }
 
                     float d = m_params.d[facet_idx];
@@ -253,7 +237,7 @@ void FTpolyhedron::compute()
                     float im_exp = -sinf(dotKnorm*d);
                     f_Im += dotKnorm*(f2D_Re*re_exp-f2D_Im*im_exp);
                     f_Re -= dotKnorm*(f2D_Im*re_exp+f2D_Re*im_exp);
-                    } // end for each facet
+                    } // end loop over facets
 
                 f_Re /= K2;
                 f_Im /= K2;
@@ -262,18 +246,17 @@ void FTpolyhedron::compute()
             // Get structure factor
             float CosKr, negSinKr; // real and (negative) imaginary components of exp(-i K r)
             float d = dot(K, rotate(conj(q),r)); // dot product of K and r (rotated back)
-            // d = K.x * r.x + K.y * r.y + K.z * r.z;
             CosKr = cosf(d);
             negSinKr = sinf(d);
 
             // S += rho * f * exp(-i K r)
             S_Re += CosKr * f_Re + negSinKr * f_Im;
             S_Im += CosKr * f_Im - negSinKr * f_Re;
-            } // end for each ptl
+            } // end loop over particles
 
         m_S_Re.get()[K_idx] = S_Re * rho_Re - S_Im * rho_Im;
         m_S_Im.get()[K_idx] = S_Re * rho_Im + S_Im * rho_Re;
-        } // end foreach K
+        } // end loop over Ks
     }
 
 //! Helper function to build FTpolyhedron parameters

@@ -13,7 +13,7 @@ class TestPairing(unittest.TestCase):
     c_ang = np.zeros(shape=(pos.shape[0],2), dtype=np.float32)
     c_ang[:,1] = np.pi
     myPair.compute(fbox, pos, ang, c_ang)
-    match_list = np.copy(myPair.getMatch())
-    pair_list = np.copy(myPair.getPair())
+    match_list = np.copy(myPair.match)
+    pair_list = np.copy(myPair.pair)
     npt.assert_equal(match_list, [1,1,1], err_msg="Incorrect matches reported")
     npt.assert_equal(pair_list, [1,0,1], err_msg="Incorrect pairs reported")

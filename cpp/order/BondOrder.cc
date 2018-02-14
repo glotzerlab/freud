@@ -1,16 +1,14 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "BondOrder.h"
 #include "ScopedGILRelease.h"
 
 #include <stdexcept>
+#include <complex>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
-
-#include <stdexcept>
-#include <complex>
 
 using namespace std;
 using namespace tbb;
@@ -22,7 +20,7 @@ using namespace tbb;
 namespace freud { namespace order {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
-    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_n_p(0), m_n_ref(0),
+    : m_box(box::Box()), m_n_ref(0), m_n_p(0), m_nbins_t(nbins_t), m_nbins_p(nbins_p),
       m_frame_counter(0)
     {
     // sanity checks, but this is actually kinda dumb if these values are 1

@@ -1,5 +1,5 @@
-# Copyright (c) 2010-2016 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
@@ -15,9 +15,9 @@ cimport freud._locality
 cdef extern from "BondOrder.h" namespace "freud::order":
     cdef cppclass BondOrder:
         BondOrder(float, float, unsigned int, unsigned int, unsigned int)
-        const box.Box &getBox() const
+        const box.Box & getBox() const
         void resetBondOrder()
-        void accumulate(box.Box &,
+        void accumulate(box.Box & ,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         quat[float]*,
@@ -35,7 +35,13 @@ cdef extern from "BondOrder.h" namespace "freud::order":
 
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter(float, float, float, float*, unsigned int, unsigned int)
+        CubaticOrderParameter(
+                float,
+                float,
+                float,
+                float*,
+                unsigned int,
+                unsigned int)
         void resetCubaticOrderParameter()
         void compute(quat[float]*,
                      unsigned int,
@@ -53,18 +59,32 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         float getScale()
         quat[float] getCubaticOrientation()
 
+cdef extern from "NematicOrderParameter.h" namespace "freud::order":
+    cdef cppclass NematicOrderParameter:
+        NematicOrderParameter(vec3[float])
+        void resetNematicOrderParameter()
+        void compute(quat[float]*,
+                     unsigned int) nogil except +
+        unsigned int getNumParticles()
+        float getNematicOrderParameter()
+        shared_ptr[float] getParticleTensor()
+        shared_ptr[float] getNematicTensor()
+        vec3[float] getNematicDirector()
+
+
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
-        HexOrderParameter(float, float, unsigned int)
-        const box.Box &getBox() const
-        void compute(box.Box &,
+        HexOrderParameter(float, unsigned int, unsigned int)
+        const box.Box & getBox() const
+        void compute(box.Box & ,
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        # unsure how to pass back the std::complex, but this seems to compile...
+        # unsure how to pass back the std::complex,
+        # but this seems to compile...
         shared_array[float complex] getPsi()
         unsigned int getNP()
-        float getK()
+        unsigned int getK()
 
 cdef extern from "LocalDescriptors.h" namespace "freud::order":
     ctypedef enum LocalDescriptorOrientation:
@@ -82,18 +102,20 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
         unsigned int getSphWidth() const
         float getRMax() const
         unsigned int getNP()
-        void computeNList(const box.Box&, const vec3[float]*, unsigned int,
+        void computeNList(const box.Box &, const vec3[float]*, unsigned int,
                           const vec3[float]*, unsigned int) nogil except +
-        void compute(const box.Box&, const freud._locality.NeighborList*, unsigned int, const vec3[float]*,
-                     unsigned int, const vec3[float]*, unsigned int,
-                     const quat[float]*, LocalDescriptorOrientation) nogil except +
+        void compute(
+                const box.Box &, const freud._locality.NeighborList*,
+                unsigned int, const vec3[float]*,
+                unsigned int, const vec3[float]*, unsigned int,
+                const quat[float]*, LocalDescriptorOrientation) nogil except +
         shared_array[float complex] getSph()
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
         TransOrderParameter(float, float, unsigned int)
-        const box.Box &getBox() const,
-        void compute(box.Box &,
+        const box.Box & getBox() const,
+        void compute(box.Box & ,
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int) nogil except +
@@ -102,13 +124,13 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
 
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
-        LocalQl(const box.Box&, float, unsigned int, float)
-        const box.Box& getBox() const
+        LocalQl(const box.Box &, float, unsigned int, float)
+        const box.Box & getBox() const
         void setBox(const box.Box)
-        void compute(const freud._locality.NeighborList *,
+        void compute(const freud._locality.NeighborList * ,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        void computeAve(const freud._locality.NeighborList *,
+        void computeAve(const freud._locality.NeighborList * ,
                         const vec3[float]*,
                         unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
@@ -124,13 +146,13 @@ cdef extern from "LocalQl.h" namespace "freud::order":
 
 cdef extern from "LocalWl.h" namespace "freud::order":
     cdef cppclass LocalWl:
-        LocalWl(const box.Box&, float, unsigned int)
-        const box.Box& getBox() const
+        LocalWl(const box.Box &, float, unsigned int)
+        const box.Box & getBox() const
         void setBox(const box.Box)
-        void compute(const freud._locality.NeighborList *,
+        void compute(const freud._locality.NeighborList * ,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        void computeAve(const freud._locality.NeighborList *,
+        void computeAve(const freud._locality.NeighborList * ,
                         const vec3[float]*,
                         unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
@@ -148,17 +170,17 @@ cdef extern from "LocalWl.h" namespace "freud::order":
 
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
-        SolLiq(const box.Box&, float, float, unsigned int, unsigned int)
-        const box.Box& getBox() const
+        SolLiq(const box.Box &, float, float, unsigned int, unsigned int)
+        const box.Box & getBox() const
         void setBox(const box.Box)
         void setClusteringRadius(float)
-        void compute(const freud._locality.NeighborList *,
+        void compute(const freud._locality.NeighborList * ,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        void computeSolLiqVariant(const freud._locality.NeighborList *,
+        void computeSolLiqVariant(const freud._locality.NeighborList * ,
                                   const vec3[float]*,
                                   unsigned int) nogil except +
-        void computeSolLiqNoNorm(const freud._locality.NeighborList *,
+        void computeSolLiqNoNorm(const freud._locality.NeighborList * ,
                                  const vec3[float]*,
                                  unsigned int) nogil except +
         unsigned int getLargestClusterSize()
@@ -172,9 +194,10 @@ cdef extern from "SolLiq.h" namespace "freud::order":
 
 cdef extern from "MatchEnv.h" namespace "freud::order":
     cdef cppclass MatchEnv:
-        MatchEnv(const box.Box&, float, unsigned int) nogil except +
+        MatchEnv(const box.Box &, float, unsigned int) nogil except +
         void setBox(const box.Box)
         void cluster(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int,
                      float,
@@ -189,22 +212,22 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
                         float,
                         bool) nogil except +
         vector[float] minRMSDMotif(
-                        const freud._locality.NeighborList*,
-                        const vec3[float]*,
-                        unsigned int,
-                        const vec3[float]*,
-                        unsigned int,
-                        bool) nogil except +
+            const freud._locality.NeighborList*,
+            const vec3[float]*,
+            unsigned int,
+            const vec3[float]*,
+            unsigned int,
+            bool) nogil except +
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
-                                        vec3[float]*,
-                                        unsigned int,
-                                        float,
-                                        bool) nogil except +
+                                                  vec3[float]*,
+                                                  unsigned int,
+                                                  float,
+                                                  bool) nogil except +
         map[unsigned int, unsigned int] minimizeRMSD(const vec3[float]*,
-                                        vec3[float]*,
-                                        unsigned int,
-                                        float&,
-                                        bool) nogil except +
+                                                     vec3[float]*,
+                                                     unsigned int,
+                                                     float &,
+                                                     bool) nogil except +
         shared_array[unsigned int] getClusters()
         shared_array[vec3[float]] getEnvironment(unsigned int)
         shared_array[vec3[float]] getTotEnvironment()
@@ -216,9 +239,9 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
 cdef extern from "Pairing2D.h" namespace "freud::order":
     cdef cppclass Pairing2D:
         Pairing2D(const float, const unsigned int, float)
-        const box.Box &getBox() const
+        const box.Box & getBox() const
         void resetBondOrder()
-        void compute(box.Box &,
+        void compute(box.Box & ,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
                      float*,
