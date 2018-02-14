@@ -19,8 +19,8 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float rmax, float dr, float rmin=0)
-    : m_box(box::Box()), m_rmin(rmin), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
+RDF::RDF(float rmax, float dr, float rmin)
+    : m_box(box::Box()), m_rmax(rmax), m_rmin(rmin), m_dr(dr), m_frame_counter(0)
     {
     if (dr <= 0.0f)
         throw invalid_argument("dr must be positive");
@@ -31,7 +31,7 @@ RDF::RDF(float rmax, float dr, float rmin=0)
     if (rmax <= rmin)
         throw invalid_argument("rmax must be greater than rmin");
     if (rmax-rmin < dr)
-        throw invalid_argument("dr must be greater than rdf range");
+        throw invalid_argument("rdf range must be greater than dr");
 
     m_nbins = int(floorf((m_rmax-m_rmin) / m_dr));
     assert(m_nbins > 0);
