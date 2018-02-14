@@ -657,8 +657,6 @@ void MatchEnv::cluster(const freud::locality::NeighborList *env_nlist, const fre
 
     nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
-    size_t bond(0);
-    const size_t num_bonds(nlist->getNumBonds());
 
     env_nlist->validate(Np, Np);
     const size_t *env_neighbor_list(env_nlist->getNeighbors());
@@ -684,7 +682,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList *env_nlist, const fre
     unsigned int array_size = Np*m_maxk;
     m_tot_env = std::shared_ptr<vec3<float> >(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
 
-    bond = 0;
+    size_t bond(0);
     // loop through points
     for (unsigned int i = 0; i < m_Np; i++)
         {
