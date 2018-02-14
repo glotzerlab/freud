@@ -31,7 +31,7 @@ RDF::RDF(float rmax, float dr, float rmin)
     if (rmax <= rmin)
         throw invalid_argument("rmax must be greater than rmin");
     if (rmax-rmin < dr)
-        throw invalid argument("dr must be greater than rdf range");
+        throw invalid_argument("dr must be greater than rdf range");
 
     m_nbins = int(floorf((m_rmax-m_rmin) / m_dr));
     assert(m_nbins > 0);
