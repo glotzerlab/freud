@@ -205,21 +205,6 @@ cdef class Box:
         """
         self.thisptr.set2D(bool(val))
 
-    @property
-    def dimensions(self):
-        """Number of dimensions of this box (only 2 or 3 are supported)
-
-        :getter: Returns this box's number of dimensions
-        :setter: Sets this box's number of dimensions
-        :type: int
-        """
-        return 2 if self.is2D() else 3
-
-    @dimensions.setter
-    def dimensions(self, value):
-        assert value == 2 or value == 3
-        self.set2D(value == 2)
-
     def getLinv(self):
         """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz)
 

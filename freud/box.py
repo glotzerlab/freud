@@ -178,3 +178,18 @@ class Box(_Box):
     def Lz(self, value):
         self.setL([self.Lx, self.Ly, value])
 
+    @property
+    def dimensions(self):
+        """Number of dimensions of this box (only 2 or 3 are supported)
+
+        :getter: Returns this box's number of dimensions
+        :setter: Sets this box's number of dimensions
+        :type: int
+        """
+        return 2 if self.is2D() else 3
+
+    @dimensions.setter
+    def dimensions(self, value):
+        assert value == 2 or value == 3
+        self.set2D(value == 2)
+
