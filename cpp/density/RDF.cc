@@ -264,6 +264,9 @@ void RDF::accumulate(box::Box& box,
               unsigned int bin = (unsigned int)(binr);
 #endif
 
+              // There may be a case where rsq < rmaxsq but
+              // (r - m_rmin) * dr_inv rounds up to m_nbins.
+              // This additional check prevents a seg fault.
               if (bin < m_nbins)
               {
                   ++m_local_bin_counts.local()[bin];
