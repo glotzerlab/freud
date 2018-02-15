@@ -850,6 +850,10 @@ cdef class RDF:
     cdef rmax
 
     def __cinit__(self, float rmax, float dr, float rmin=0):
+        if rmax <= 0:
+            raise ValueError("rmax must be > 0")
+        if rmax <= rmin:
+            raise ValueError("rmax must be > rmin")
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
         self.thisptr = new density.RDF(rmax, dr, rmin)
