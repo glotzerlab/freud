@@ -840,10 +840,11 @@ cdef class RDF:
         [x, y, 0]. Failing to z=0 will lead to undefined behavior.
 
     :param rmax: maximum distance to calculate
-    :param rmin: minimum distance to calculate
     :param dr: distance between histogram bins
+    :param rmin: minimum distance to calculate, default 0
     :type rmax: float
     :type dr: float
+    :type rmin: float
     """
     cdef density.RDF * thisptr
     cdef rmax
@@ -950,7 +951,7 @@ cdef class RDF:
 
     def resetRDF(self):
         """
-        resets the values of RDF in memory
+        Resets the values of RDF in memory
         """
         self.thisptr.resetRDF()
 
