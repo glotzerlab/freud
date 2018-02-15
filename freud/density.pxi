@@ -839,12 +839,12 @@ cdef class RDF:
         2D: RDF properly handles 2D boxes. Requires the points to be passed in
         [x, y, 0]. Failing to z=0 will lead to undefined behavior.
 
-    :param rmax: maximum distance to calculate
-    :param dr: distance between histogram bins
-    :param rmin: minimum distance to calculate, default 0
-    :type rmax: float
-    :type dr: float
-    :type rmin: float
+    :param float rmax: maximum distance to calculate
+    :param float dr: distance between histogram bins
+    :param float rmin: minimum distance to calculate, default 0
+
+    .. versionchanged:: 0.7.0
+       Added optional `rmin` argument.
     """
     cdef density.RDF * thisptr
     cdef rmax
