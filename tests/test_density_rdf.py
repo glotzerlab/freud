@@ -3,13 +3,14 @@ import numpy.testing as npt
 from freud import box, locality, density
 import unittest
 
-class TestR(unittest.TestCase):
+
+class TestRDF(unittest.TestCase):
+
     def test_generateR(self):
         rmax = 51.23
         dr = 0.1
         for rmin in [0, 0.05, 0.1, 1.0, 3.0]:
             nbins = int((rmax - rmin) / dr)
-            print(nbins)
 
             # make sure the radius for each bin is generated correctly
             r_list = np.zeros(nbins, dtype=np.float32)
@@ -19,10 +20,16 @@ class TestR(unittest.TestCase):
                 r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
             rdf = density.RDF(rmax, dr, rmin=rmin)
             npt.assert_almost_equal(rdf.R, r_list, decimal=3)
-            print('rmin = {:.2f} is good'.format(rmin))
 
+    def test_invalid_rdf(self):
+        # Make sure that invalid RDF objects raise errors
+        with self.assertRaises(ValueError):
+            rdf = density.RDF(rmax=-1, dr=0.1)
+        with self.assertRaises(ValueError):
+            rdf = density.RDF(rmax=1, dr=0)
+        with self.assertRaises(ValueError):
+            rdf = density.RDF(rmax=1, dr=0.1, rmin=2)
 
-class TestRDF(unittest.TestCase):
     def test_random_point(self):
         for rmin in [0, 0.05, 0.1, 1.0, 3.0]:
             rmax = 10.0
