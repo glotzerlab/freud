@@ -60,7 +60,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
-        RDF(float, float)
+        RDF(float, float, float)
         const box.Box & getBox() const
         void resetRDF()
         void accumulate(box.Box & ,

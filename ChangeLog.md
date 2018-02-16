@@ -8,6 +8,7 @@
 * Ensured PEP 8 compliance everywhere
 * Minimized boost dependence
 * Added Nematic OP
+* Added optional rmin argument to density.RDF
 
 ## v0.6.4
 
