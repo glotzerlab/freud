@@ -782,13 +782,14 @@ cdef class RDF:
     The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
     calculates them against themselves. Computing the RDF results in an rdf
-    array listing the value of the RDF at each given :math:`r`, listed in the
-    r array.
+    array listing the value of the RDF at each given :math:`r`, listed in the r
+    array.
 
-    The values of :math:`r` to compute the rdf are set by the values of rmax,
-    dr in the constructor. rmax sets the maximum distance at which to calculate
-    the :math:`g \\left( r \\right)` while dr determines the step size for each
-    bin.
+    The values of :math:`r` to compute the rdf are set by the values of rmin,
+    rmax, dr in the constructor. rmax sets the maximum distance at which to
+    calculate the :math:`g \\left( r \\right)`, rmin sets the minimum distance
+    at which to calculate the :math:`g \\left( r \\right)`, and dr determines
+    the step size for each bin.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -796,18 +797,24 @@ cdef class RDF:
         2D: RDF properly handles 2D boxes. Requires the points to be passed in
         [x, y, 0]. Failing to z=0 will lead to undefined behavior.
 
-    :param rmax: maximum distance to calculate
-    :param dr: distance between histogram bins
-    :type rmax: float
-    :type dr: float
+    :param float rmax: maximum distance to calculate
+    :param float dr: distance between histogram bins
+    :param float rmin: minimum distance to calculate, default 0
+
+    .. versionchanged:: 0.7.0
+       Added optional `rmin` argument.
     """
     cdef density.RDF * thisptr
     cdef rmax
 
-    def __cinit__(self, float rmax, float dr):
+    def __cinit__(self, float rmax, float dr, float rmin=0):
+        if rmax <= 0:
+            raise ValueError("rmax must be > 0")
+        if rmax <= rmin:
+            raise ValueError("rmax must be > rmin")
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new density.RDF(rmax, dr)
+        self.thisptr = new density.RDF(rmax, dr, rmin)
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -900,7 +907,7 @@ cdef class RDF:
 
     def resetRDF(self):
         """
-        resets the values of RDF in memory
+        Resets the values of RDF in memory
         """
         self.thisptr.resetRDF()
 

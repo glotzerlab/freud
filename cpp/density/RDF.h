@@ -30,7 +30,7 @@ class RDF
     {
     public:
         //! Constructor
-        RDF(float rmax, float dr);
+        RDF(float rmax, float dr, float rmin=0);
 
         //! Destructor
         ~RDF();
@@ -70,6 +70,7 @@ class RDF
     private:
         box::Box m_box;                   //!< Simulation box where the particles belong
         float m_rmax;                     //!< Maximum r at which to compute g(r)
+        float m_rmin;                     //!< Minimum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
         unsigned int m_n_ref;             //!< number of reference particles

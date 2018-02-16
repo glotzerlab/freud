@@ -28,5 +28,5 @@ Local Density
 Radial Distribution Function
 ============================
 
-.. autoclass:: freud.density.RDF(rmax, dr)
+.. autoclass:: freud.density.RDF(rmax, dr, rmin=0)
     :members:

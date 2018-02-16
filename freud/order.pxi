@@ -2418,7 +2418,7 @@ cdef class MatchEnv:
         self.m_box = box
 
     def cluster(self, points, threshold, hard_r=False, registration=False,
-                global_search=False, nlist=None):
+                global_search=False, env_nlist=None, nlist=None):
         """Determine clusters of particles with matching environments.
 
         :param points: particle positions
@@ -2436,7 +2436,9 @@ cdef class MatchEnv:
                               compare the environments of neighboring
                               particles.
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds
+                        find neighbors of every particle, to compare environments
+        :param env_nlist: :py:class:`freud.locality.NeighborList` object to use
+                        to find the environment of every particle
         :type points: :class:`numpy.ndarray`,
                       shape= :math:`\\left(N_{particles}, 3\\right)`,
                       dtype= :class:`numpy.float32`
@@ -2444,6 +2446,7 @@ cdef class MatchEnv:
         :type hard_r: bool
         :type registration: bool
         :type nlist: :py:class:`freud.locality.NeighborList`
+        :type env_nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
@@ -2458,11 +2461,17 @@ cdef class MatchEnv:
 
         cdef locality.NeighborList * nlist_ptr
         cdef NeighborList nlist_
+        cdef locality.NeighborList *env_nlist_ptr
+        cdef NeighborList env_nlist_
         if hard_r:
             defaulted_nlist = make_default_nlist(
                 self.m_box, points, points, self.rmax, nlist, True)
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
+
+            defaulted_env_nlist = make_default_nlist(self.m_box, points, points, self.rmax, env_nlist, True)
+            env_nlist_ = defaulted_env_nlist[0]
+            env_nlist_ptr = env_nlist_.get_ptr()
         else:
             defaulted_nlist = make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, nlist,
@@ -2470,10 +2479,14 @@ cdef class MatchEnv:
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
+            defaulted_env_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, env_nlist, None, self.rmax)
+            env_nlist_ = defaulted_env_nlist[0]
+            env_nlist_ptr = env_nlist_.get_ptr()
+
         # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.cluster(
-                nlist_ptr, < vec3[float]*> & l_points[0], nP, threshold,
-                hard_r, registration, global_search)
+                env_nlist_ptr, nlist_ptr, < vec3[float]*> & l_points[0], nP,
+                threshold, hard_r, registration, global_search)
 
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
