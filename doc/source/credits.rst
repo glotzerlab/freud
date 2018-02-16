@@ -7,11 +7,23 @@ freud Developers
 The following people contributed to the development of freud.
 
 Eric Harper, University of Michigan - **Former lead developer**
+* PMFT module
+
 Joshua A. Anderson, University of Michigan - **Creator**
-Matthew Spellings
+
+Matthew Spellings - **Former lead developer**
+* Added generic neighbor list
+* Enabled neighbor list usage across freud modules
+
 Erin Teich
+* Environment matching
+
 M. Eric Irrgang
+* Authored kspace module
+
 Chrisy Du
+* Authored all Steinhardt order parameters
+
 Antonio Osorio
 
 Vyas Ramasubramani - **Lead developer**
@@ -22,10 +34,15 @@ Vyas Ramasubramani - **Lead developer**
 * Add properties for accessing class members
 * Various minor bug fixes
 
-
 Bradley Dice - **Lead developer**
+* Cleaned up various docstrings
+* HexOrderParameter bug fixes
+* Cleaned up testing code
+* Bumpversion support
+* Reduced all compile warnings
 
 Richmond Newman
+* Developed the freud box
 
 Carl Simon Adorf
 
