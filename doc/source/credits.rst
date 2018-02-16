@@ -57,6 +57,8 @@ Rose Cersonsky
 Wenbo Shen
 Andrew Karas
 Paul Dodd
+Tim Moore
+* Added optional rmin argument to density.RDF
 
 Source code
 -----------
