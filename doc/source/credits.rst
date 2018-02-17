@@ -14,6 +14,8 @@ Joshua A. Anderson, University of Michigan - **Creator**
 Matthew Spellings - **Former lead developer**
 * Added generic neighbor list
 * Enabled neighbor list usage across freud modules
+* Correlation functions
+* LocalDescriptors class
 
 Erin Teich
 * Environment matching
@@ -57,6 +59,8 @@ Ryan Marson
 Tom Grubb
 
 Yina Geng
+* Co-wrote Voronoi neighbor list module
+* Add properties for accessing class members
 
 Carolyn Phillips
 
@@ -65,6 +69,7 @@ Ben Swerdlow
 James Antonaglia
 
 Mayank Agrawal
+* Co-wrote Voronoi neighbor list module
 
 William Zygmunt
 
