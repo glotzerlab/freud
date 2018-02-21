@@ -113,6 +113,7 @@ set(FREUD_SOURCES
             order/Pairing2D.cc
             order/Pairing2D.h
             pmft/PMFT.cc
+            pmft/PMFT.h
             pmft/PMFTXYZ.cc
             pmft/PMFTXYZ.h
             pmft/PMFTXY2D.cc
