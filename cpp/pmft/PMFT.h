@@ -50,11 +50,12 @@ class PMFTXYZ
             }
 
         //! Reset the PCF array to all zeros
-        void resetPCF();
+        virtual void resetPCF();
 
         //! \internal
         //! helper function to reduce the thread specific arrays into one array
-        void reducePCF();
+        //! Must be implemented by subclasses
+        virtual void reducePCF();
 
         //! Get a reference to the PCF array
         std::shared_ptr<float> getPCF();
