@@ -1,5 +1,5 @@
 from freud import box, density
-import numpy
+import numpy as np
 import math
 import nose
 from nose.tools import assert_equal, assert_almost_equal, assert_less, raises
@@ -13,7 +13,7 @@ class TestLD:
 
         self.box = box.Box.cube(10)
         np.random.seed(0)
-        self.pos = numpy.array(numpy.random.random(size=(10000,3)), dtype=numpy.float32)*10 - 5
+        self.pos = np.array(np.random.random(size=(10000,3)), dtype=np.float32)*10 - 5
         self.ld = density.LocalDensity(3, 1, 1)
 
     @unittest.skip("Skip for CircleCI")
