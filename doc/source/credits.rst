@@ -8,20 +8,35 @@ The following people contributed to the development of freud.
 
 Eric Harper, University of Michigan - **Former lead developer**
 * PMFT module
+* NearestNeighbors
+* RDF
+* Bonding module
+* Cubatic OP
+* Hexatic OP
+* Pairing2D
 
 Joshua A. Anderson, University of Michigan - **Creator**
+* IteratorLinkCell
+* LinkCell
+* Various density modules
+* freud.parallel
+* Indexing modules
+* cluster.pxi
 
 Matthew Spellings - **Former lead developer**
 * Added generic neighbor list
 * Enabled neighbor list usage across freud modules
 * Correlation functions
 * LocalDescriptors class
+* interface.pxi
 
 Erin Teich
 * Environment matching
+* BondOrder
+* Angular separation
 
 M. Eric Irrgang
-* Authored kspace module
+* Authored kspace CPP code
 
 Chrisy Du
 * Authored all Steinhardt order parameters
@@ -45,12 +60,17 @@ Bradley Dice - **Lead developer**
 
 Richmond Newman
 * Developed the freud box
+* Solid liquid order parameter
 
 Carl Simon Adorf
+* Developed the python box module
 
 Jens Glaser
+* Wrote kspace.pxi front-end
+* Nematic OP
 
 Benjamin Schultz
+* Wrote Voronoi module
 
 Bryan VanSaders
 
@@ -82,11 +102,15 @@ Rose Cersonsky
 Wenbo Shen
 
 Andrew Karas
+* Angular separation
 
 Paul Dodd
 
 Tim Moore
 * Added optional rmin argument to density.RDF
+
+Michael Engel
+* Translational order parameter
 
 Source code
 -----------
