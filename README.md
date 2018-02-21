@@ -84,8 +84,8 @@ import freud
 # create a freud compute object (rdf is the canonical example)
 rdf = freud.density.rdf(rmax=5, dr=0.1)
 # load in your data (freud does not provide a data reader)
-box_data = np.load("pth/to/box_data.npy")
-pos_data = np.load("pth/to/pos_data.npy")
+box_data = np.load("path/to/box_data.npy")
+pos_data = np.load("path/to/pos_data.npy")
 
 # create freud box
 box = freud.box.Box(Lx=box_data[0]["Lx"], Ly=box_data[0]["Ly"], is2D=True)

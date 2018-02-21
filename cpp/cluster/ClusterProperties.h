@@ -10,7 +10,7 @@
 #define _CLUSTER_PROPERTIES_H__
 
 /*! \file ClusterProperties.h
-    \brief Routines for computing properties of point clusters
+    \brief Routines for computing properties of point clusters.
 */
 
 namespace freud { namespace cluster {

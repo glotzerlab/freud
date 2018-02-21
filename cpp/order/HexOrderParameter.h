@@ -19,11 +19,11 @@
 #include "box.h"
 #include "Index1D.h"
 
-#ifndef _HEX_ORDER_PARAMTER_H__
-#define _HEX_ORDER_PARAMTER_H__
+#ifndef _HEX_ORDER_PARAMETER_H__
+#define _HEX_ORDER_PARAMETER_H__
 
 /*! \file HexOrderParameter.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the hexatic order parameter for each particle.
 */
 
 namespace freud { namespace order {
@@ -78,4 +78,4 @@ class HexOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _HEX_ORDER_PARAMTER_H__
+#endif // _HEX_ORDER_PARAMETER_H__

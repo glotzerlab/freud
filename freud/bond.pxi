@@ -14,9 +14,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class BondingAnalysis:
-    """Analyze the bonds as calculated by freud's Bonding modules.
-
-    Determines the bond lifetimes and flux present in the system.
+    """Analyze the bond lifetimes and flux present in the system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -94,16 +92,13 @@ cdef class BondingAnalysis:
 
     @property
     def bond_lifetimes(self):
-        """
-        :return: lifetime of bonds
-        :rtype: :class:`numpy.ndarray`,
-                shape=(:math:`N_{particles}`, varying),
-                dtype= :class:`numpy.uint32`
+        """The bond lifetimes
         """
         return self.getBondLifetimes()
 
     def getBondLifetimes(self):
-        """
+        """The bond lifetimes
+
         :return: lifetime of bonds
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{particles}`, varying),
@@ -114,16 +109,13 @@ cdef class BondingAnalysis:
 
     @property
     def overall_lifetimes(self):
-        """
-        :return: lifetime of bonds
-        :rtype: :class:`numpy.ndarray`,
-                shape=(:math:`N_{particles}`, varying),
-                dtype= :class:`numpy.uint32`
+        """The overall lifetimes
         """
         return self.getOverallLifetimes()
 
     def getOverallLifetimes(self):
-        """
+        """The overall lifetimes
+
         :return: lifetime of bonds
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{particles}`, varying),
@@ -135,14 +127,12 @@ cdef class BondingAnalysis:
 
     @property
     def transition_matrix(self):
-        """
-        :return: transition matrix
-        :rtype: :class:`numpy.ndarray`
+        """The transition matrix
         """
         return self.getTransitionMatrix()
 
     def getTransitionMatrix(self):
-        """
+        """The transition matrix
         :return: transition matrix
         :rtype: :class:`numpy.ndarray`
         """
@@ -158,11 +148,7 @@ cdef class BondingAnalysis:
 
     @property
     def num_frames(self):
-        """
-        Get number of frames calculated
-
-        :return: number of frames
-        :rtype: unsigned int
+        """Get number of frames calculated
         """
         return self.getNumFrames()
 
@@ -177,11 +163,7 @@ cdef class BondingAnalysis:
 
     @property
     def num_particles(self):
-        """
-        Get number of particles being tracked
-
-        :return: number of particles
-        :rtype: unsigned int
+        """Get number of particles being tracked
         """
         return self.getNumParticles()
 
@@ -196,11 +178,7 @@ cdef class BondingAnalysis:
 
     @property
     def num_bonds(self):
-        """
-        Get number of bonds being tracked
-
-        :return: number of bonds
-        :rtype: unsigned int
+        """Get number of bonds being tracked
         """
         return self.getNumBonds()
 
@@ -322,14 +300,13 @@ cdef class BondingR12:
 
     @property
     def bonds(self):
-        """
-        :return: particle bonds
-        :rtype: :class:`numpy.ndarray`
+        """The particle bonds
         """
         return self.getBonds()
 
     def getBonds(self):
-        """
+        """Return the particle bonds
+
         :return: particle bonds
         :rtype: :class:`numpy.ndarray`
         """
@@ -344,11 +321,7 @@ cdef class BondingR12:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:meth:`freud.box.Box()`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -363,13 +336,7 @@ cdef class BondingR12:
 
     @property
     def list_map(self):
-        """
-        Get the dict used to map list idx to bond idx
-
-        :return: list_map
-        :rtype: dict
-
-        >>> list_idx = list_map[bond_idx]
+        """Get the dict used to map list idx to bond idx
         """
         return self.getListMap()
 
@@ -386,13 +353,7 @@ cdef class BondingR12:
 
     @property
     def rev_list_map(self):
-        """
-        Get the dict used to map list idx to bond idx
-
-        :return: list_map
-        :rtype: dict
-
-        >>> bond_idx = list_map[list_idx]
+        """Get the dict used to map list idx to bond idx
         """
         return self.getRevListMap()
 
@@ -520,14 +481,13 @@ cdef class BondingXY2D:
 
     @property
     def bonds(self):
-        """
-        :return: particle bonds
-        :rtype: :class:`numpy.ndarray`
+        """The particle bonds
         """
         return self.getBonds()
 
     def getBonds(self):
-        """
+        """Return the particle bonds
+
         :return: particle bonds
         :rtype: :class:`numpy.ndarray`
         """
@@ -542,11 +502,7 @@ cdef class BondingXY2D:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:meth:`freud.box.Box()`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -561,13 +517,7 @@ cdef class BondingXY2D:
 
     @property
     def list_map(self):
-        """
-        Get the dict used to map list idx to bond idx
-
-        :return: list_map
-        :rtype: dict
-
-        >>> list_idx = list_map[bond_idx]
+        """Get the dict used to map list idx to bond idx
         """
         return self.getListMap()
 
@@ -584,13 +534,7 @@ cdef class BondingXY2D:
 
     @property
     def rev_list_map(self):
-        """
-        Get the dict used to map list idx to bond idx
-
-        :return: list_map
-        :rtype: dict
-
-        >>> bond_idx = list_map[list_idx]
+        """Get the dict used to map list idx to bond idx
         """
         return self.getRevListMap()
 
@@ -718,14 +662,13 @@ cdef class BondingXYT:
 
     @property
     def bonds(self):
-        """
-        :return: particle bonds
-        :rtype: :class:`numpy.ndarray`
+        """The particle bonds
         """
         return self.getBonds()
 
     def getBonds(self):
-        """
+        """Return the particle bonds
+
         :return: particle bonds
         :rtype: :class:`numpy.ndarray`
         """
@@ -740,11 +683,7 @@ cdef class BondingXYT:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:meth:`freud.box.Box()`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -759,13 +698,7 @@ cdef class BondingXYT:
 
     @property
     def list_map(self):
-        """
-        Get the dict used to map list idx to bond idx
-
-        :return: list_map
-        :rtype: dict
-
-        >>> list_idx = list_map[bond_idx]
+        """Get the dict used to map list idx to bond idx
         """
         return self.getListMap()
 
@@ -782,13 +715,7 @@ cdef class BondingXYT:
 
     @property
     def rev_list_map(self):
-        """
-        Get the dict used to map list idx to bond idx
-
-        :return: list_map
-        :rtype: dict
-
-        >>> bond_idx = list_map[list_idx]
+        """Get the dict used to map list idx to bond idx
         """
         return self.getRevListMap()
 
@@ -928,14 +855,13 @@ cdef class BondingXYZ:
 
     @property
     def bonds(self):
-        """
-        :return: particle bonds
-        :rtype: :class:`numpy.ndarray`
+        """The particle bonds
         """
         return self.getBonds()
 
     def getBonds(self):
-        """
+        """Return the particle bonds
+
         :return: particle bonds
         :rtype: :class:`numpy.ndarray`
         """
@@ -950,11 +876,7 @@ cdef class BondingXYZ:
 
     @property
     def box(self):
-        """
-        Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:meth:`freud.box.Box()`
+        """Get the box used in the calculation
         """
         return self.getBox()
 
@@ -969,13 +891,7 @@ cdef class BondingXYZ:
 
     @property
     def list_map(self):
-        """
-        Get the dict used to map list idx to bond idx
-
-        :return: list_map
-        :rtype: dict
-
-        >>> list_idx = list_map[bond_idx]
+        """Get the dict used to map list idx to bond idx
         """
         return self.getListMap()
 
@@ -992,13 +908,7 @@ cdef class BondingXYZ:
 
     @property
     def rev_list_map(self):
-        """
-        Get the dict used to map list idx to bond idx
-
-        :return: list_map
-        :rtype: dict
-
-        >>> bond_idx = list_map[list_idx]
+        """Get the dict used to map list idx to bond idx
         """
         return self.getRevListMap()
 

@@ -2,8 +2,8 @@
 Interface Module
 ================
 
-The interface module contains functions to measure the interface
-between sets of points.
+The interface module contains functions to measure the interface between sets
+of points.
 
 InterfaceMeasure
 ================

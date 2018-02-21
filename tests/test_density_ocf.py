@@ -105,20 +105,20 @@ def test_summation():
 
     # With a small number of particles, we won't get the average exactly right, so we need to check for
     # different behavior with different numbers of threads
-    parallel.setNumThreads(1);
+    parallel.setNumThreads(1)
     # A very large bin size exacerbates the problem
     cf = density.ComplexCF(500, 40)
     cf.compute(fbox, pos2d, phi, pos2d, phi)
-    c1 = cf.getCounts();
-    f1 = numpy.real(cf.rdf);
+    c1 = cf.getCounts()
+    f1 = numpy.real(cf.rdf)
 
-    parallel.setNumThreads(20);
+    parallel.setNumThreads(20)
     cf.compute(fbox, pos2d, phi, pos2d, phi)
-    c2 = cf.getCounts();
-    f2 = numpy.real(cf.rdf);
+    c2 = cf.getCounts()
+    f2 = numpy.real(cf.rdf)
 
-    numpy.testing.assert_allclose(f1, f2);
-    numpy.testing.assert_array_equal(c1, c2);
+    numpy.testing.assert_allclose(f1, f2)
+    numpy.testing.assert_array_equal(c1, c2)
 
 if __name__ == '__main__':
     unittest.main()

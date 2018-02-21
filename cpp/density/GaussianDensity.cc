@@ -11,7 +11,7 @@ using namespace std;
 using namespace tbb;
 
 /*! \file GaussianDensity.cc
-    \brief Routines for computing Gaussian smeared densities from points
+    \brief Routines for computing Gaussian smeared densities from points.
 */
 
 namespace freud { namespace density {

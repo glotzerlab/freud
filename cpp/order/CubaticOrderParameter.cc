@@ -15,7 +15,7 @@ using namespace std;
 using namespace tbb;
 
 /*! \file CubaticOrderParameter.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the cubatic order parameter for each particle.
 */
 
 namespace freud { namespace order {

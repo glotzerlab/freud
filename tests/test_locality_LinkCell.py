@@ -25,7 +25,7 @@ class TestLinkCell(unittest.TestCase):
         rcut = 3; #Cutoff radius
 
         #Initialize test points across periodic BC
-        testpoints = np.array([[-5.0,0,0],[2.05,0,0]], dtype=np.float32);
+        testpoints = np.array([[-5.0,0,0],[2.05,0,0]], dtype=np.float32)
         fbox = box.Box.cube(L);#Initialize Box
         cl = locality.LinkCell(fbox,rcut);#Initialize cell list
         cl.computeCellList(fbox,testpoints);#Compute cell list
@@ -35,12 +35,12 @@ class TestLinkCell(unittest.TestCase):
         cell_index1 = cl.getCell(testpoints[1])
 
         #Get cell neighbors
-        neighbors0 = cl.getCellNeighbors(cell_index0);
-        neighbors1 = cl.getCellNeighbors(cell_index1);
+        neighbors0 = cl.getCellNeighbors(cell_index0)
+        neighbors1 = cl.getCellNeighbors(cell_index1)
 
         #Check if particle 0 is in a cell neighboring particle 1
         test0 = np.where(neighbors1 == cell_index0)[0]; #where returns [[index]] if found, otherwise [[]]
-        test1 = np.where(neighbors0 == cell_index1)[0];
+        test1 = np.where(neighbors0 == cell_index1)[0]
         self.assertEqual(len(test0), len(test1))
 
     def test_symmetric(self):

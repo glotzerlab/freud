@@ -163,7 +163,7 @@ class Voronoi:
         neighbor_list = copy.copy(self.firstShellNeighborList)
         # delete [] in neighbor_list
         neighbor_list = [x for x in neighbor_list if len(x) > 0]
-        for _ in range(numShells-1):
+        for _ in range(numShells - 1):
             dummy_neighbor_list = copy.copy(neighbor_list)
             for i in range(len(neighbor_list)):
                 numNeighbors = len(neighbor_list[i])
@@ -199,9 +199,9 @@ class Voronoi:
         j = 0
         for i in range(len(neighbor_list)):
             N = len(neighbor_list[i])
-            indexAry[j:j+N, 0] = i
-            indexAry[j:j+N, 1] = np.array(neighbor_list[i])
-            indexAry[j:j+N, 2] = np.array(weight[i])
+            indexAry[j:j + N, 0] = i
+            indexAry[j:j + N, 1] = np.array(neighbor_list[i])
+            indexAry[j:j + N, 2] = np.array(weight[i])
             j += N
 
         result = NeighborList.from_arrays(

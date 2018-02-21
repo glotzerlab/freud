@@ -10,8 +10,8 @@
 using namespace std;
 using namespace tbb;
 
-/*! \file HexOrderParameter.h
-    \brief Compute the hexatic order parameter for each particle
+/*! \file HexOrderParameter.cc
+    \brief Compute the hexatic order parameter for each particle.
 */
 
 namespace freud { namespace order {

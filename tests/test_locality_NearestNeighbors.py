@@ -10,7 +10,7 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
@@ -25,7 +25,7 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 2 #Cutoff radius
         N = 2; # number of particles
-        num_neighbors = 1;
+        num_neighbors = 1
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors, strict_cut=False)#Initialize cell list
@@ -45,7 +45,7 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
@@ -65,7 +65,7 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 2 #Cutoff radius
         N = 2; # number of particles
-        num_neighbors = 1;
+        num_neighbors = 1
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors, strict_cut=True)#Initialize cell list
@@ -85,7 +85,7 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 2.01 #Cutoff radius
         N = 3; # number of particles
-        num_neighbors = 2;
+        num_neighbors = 2
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors, strict_cut=True)#Initialize cell list
@@ -128,7 +128,7 @@ class TestNearestNeighbors(unittest.TestCase):
     def test_repeated_neighbors(self):
         L = 10 #Box Dimensions
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
 
@@ -151,7 +151,7 @@ class TestNearestNeighbors(unittest.TestCase):
     def test_small_box(self):
         L = 10 #Box Dimensions
         N = 8; # number of particles
-        num_neighbors = N - 1;
+        num_neighbors = N - 1
 
         fbox = box.Box.cube(L)#Initialize Box
 

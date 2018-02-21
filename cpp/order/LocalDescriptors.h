@@ -16,7 +16,7 @@
 #define _LOCAL_DESCRIPTORS_H__
 
 /*! \file LocalDescriptors.h
-  \brief Compute the hexatic order parameter for each particle
+  \brief Computes local descriptors.
 */
 
 namespace freud { namespace order {

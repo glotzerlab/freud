@@ -10,8 +10,8 @@
 using namespace std;
 using namespace tbb;
 
-/*! \file LocalDensity.h
-    \brief Routines for computing local density around a point
+/*! \file LocalDensity.cc
+    \brief Routines for computing local density around a point.
 */
 
 namespace freud { namespace density {

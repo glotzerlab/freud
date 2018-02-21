@@ -2,16 +2,20 @@
 Bond Module
 ===========
 
-The bond modules allows for the computation of bonds as defined by a map. Depending on the coordinate system desired, \
-either a two or three dimensional array is supplied, with each element containing the bond index mapped to \
-the pair geometry of that element. The user provides a list of indices to track, so that not all bond indices \
-contained in the bond map need to be tracked in computation.
+The bond module allows for the computation of bonds as defined by a map.
+Depending on the coordinate system desired, either a two or three
+dimensional array is supplied, with each element containing the bond index
+mapped to the pair geometry of that element. The user provides a list of
+indices to track, so that not all bond indices contained in the bond map need
+to be tracked in computation.
 
-The bonding module is designed to take in arrays using the same coordinate systems in the :doc:`pmft` in freud.
+The bond module is designed to take in arrays using the same coordinate systems
+in the :doc:`pmft` in freud.
 
 .. note::
-    the coordinate system in which the calculation is performed is not the same as the coordinate system in which \
-    particle positions and orientations should be supplied; only certain coordinate systems are available for certain \
+    The coordinate system in which the calculation is performed is not the same
+    as the coordinate system in which particle positions and orientations should
+    be supplied. Only certain coordinate systems are available for certain
     particle positions and orientations:
 
     * 2D particle coordinates (position: [:math:`x`, :math:`y`, :math:`0`], orientation: :math:`\theta`):
@@ -19,7 +23,8 @@ The bonding module is designed to take in arrays using the same coordinate syste
         * :math:`X`, :math:`Y`, :math:`\theta_2`
         * :math:`r`, :math:`\theta_1`, :math:`\theta_2`
 
-    * 3D particle coordinates -> :math:`X`, :math:`Y`, :math:`Z`
+    * 3D particle coordinates:
+        * :math:`X`, :math:`Y`, :math:`Z`
 
 Bonding Analysis
 ================

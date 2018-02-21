@@ -16,8 +16,9 @@ using namespace std;
 using namespace tbb;
 
 /*! \file CorrelationFunction.cc
-    \brief Generic pairwise correlation functions
+    \brief Generic pairwise correlation functions.
 */
+
 namespace freud { namespace density {
 
 template<typename T>
