@@ -1181,10 +1181,6 @@ class FTconvexPolyhedron(FTpolyhedron):
             S *= 1.j / (np.dot(k, k))
         return S
 
-# The below are currently undocumented...need to determine if these belong
-# or should be removed
-
-
 def mkSCcoords(nx, ny, nz):
     coords = list()
     for i in range(-int(nx / 2), -int(nx / 2) + nx):
@@ -1215,14 +1211,10 @@ def mkFCCcoords(nx, ny, nz):
                     coords.append([i, j, k])
     return np.array(coords, dtype=float)
 
-# Given that these are potentially used elsewhere,
-# they should be added to the new freud.common (v0.7.0)
 # Axis angle rotation
 # \param v vector to be rotated
 # \param u rotation axis
 # \param theta rotation angle
-
-
 def rotate(v, u, theta):
     v = np.array(v)  # need an actual array and not a view
     u = np.array(u)
@@ -1247,8 +1239,6 @@ def rotate(v, u, theta):
 # Apply a rotation quaternion
 # \param b vector to be rotated
 # \param a rotation quaternion
-
-
 def quatrot(a, b):
     s = a[0]
     v = a[1:4]
