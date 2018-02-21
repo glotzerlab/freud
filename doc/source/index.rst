@@ -21,7 +21,8 @@ Contents:
    modules
    design
    citations
-
+   license
+   credits
 
 
 Indices and tables
