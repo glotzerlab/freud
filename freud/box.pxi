@@ -38,25 +38,6 @@ cdef class Box:
 
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,
                   is2D=None):
-        # BEGIN Check for and warn about possible use of deprecated API
-        # Should be removed in version version 0.7!
-        args = (Lx, Ly, Lz, xy, xz, yz, is2D)
-        if None in args:
-            nargs = args.index(None)
-            if nargs == 1:
-                warnings.warn(
-                    ("You may be using a deprecated Box constructor API!"
-                        "Did you mean Box.cube()?"),
-                    DeprecationWarning)
-            elif nargs == 2 and isinstance(Ly, bool):
-                raise ValueError(
-                    ("You are using a deprecated Box constructor API!"
-                        "Did you mean Box.square()?"))
-            elif isinstance(Lz, bool) or isinstance(xy, bool) or isinstance(
-                    xz, bool) or isinstance(yz, bool):
-                raise ValueError(
-                    "You are using a deprecated Box constructor API!")
-        # END Check for and warn about possible use of deprecated API
         if Lx is None:
             Lx = 0
         if Ly is None:
