@@ -32,7 +32,8 @@ namespace freud { namespace pmft {
 /*! The PMFT class is an abstract class providing the basis for all classes calculating PMFTs for specific
  *  dimensional cases. The PMFT class defines some of the key interfaces required for all PMFT classes, such
  *  as the ability to access the underlying PCF and box. Many of the specific methods must be implemented by
- *  subclasses that account for the proper set of dimensions.
+ *  subclasses that account for the proper set of dimensions.The required functions are implemented as pure
+ *  virtual functions here to enforce this.
 */
 class PMFT
     {
@@ -50,12 +51,12 @@ class PMFT
             }
 
         //! Reset the PCF array to all zeros
-        virtual void resetPCF();
+        virtual void resetPCF() = 0;
 
         //! \internal
         //! helper function to reduce the thread specific arrays into one array
         //! Must be implemented by subclasses
-        virtual void reducePCF();
+        virtual void reducePCF() = 0;
 
         //! Get a reference to the PCF array
         std::shared_ptr<float> getPCF();
