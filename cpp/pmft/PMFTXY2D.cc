@@ -70,14 +70,6 @@ PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int
     m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
     }
 
-PMFTXY2D::~PMFTXY2D()
-    {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
-        {
-        delete[] (*i);
-        }
-    }
-
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTXY2D::reducePCF()
@@ -112,28 +104,6 @@ void PMFTXY2D::reducePCF()
                 m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
                 }
             });
-    }
-
-//! Get a reference to the PCF array
-std::shared_ptr<float> PMFTXY2D::getPCF()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_pcf_array;
-    }
-
-//! Get a reference to the bin counts array
-std::shared_ptr<unsigned int> PMFTXY2D::getBinCounts()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_bin_counts;
     }
 
 //! \internal
