@@ -12,6 +12,7 @@ class TestLD:
         """ Initialize a box with randomly placed particles"""
 
         self.box = box.Box.cube(10)
+        np.random.seed(0)
         self.pos = numpy.array(numpy.random.random(size=(10000,3)), dtype=numpy.float32)*10 - 5
         self.ld = density.LocalDensity(3, 1, 1)
 

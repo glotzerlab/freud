@@ -10,6 +10,7 @@ class TestInterface(unittest.TestCase):
         one particle is removed from an FCC structure"""
         (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
 
+        np.random.seed(0)
         index = np.random.randint(0, len(positions))
 
         point = positions[index].reshape((1, 3))

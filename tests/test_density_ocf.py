@@ -27,6 +27,7 @@ class TestOCF(unittest.TestCase):
         dr = 1.0
         num_points = 10000
         box_size = rmax*3.1
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         ang = np.random.random_sample((num_points)).astype(np.float64)*np.pi*2.0
         comp = np.cos(ang) + 1j * np.sin(ang)
@@ -45,6 +46,7 @@ class TestOCF(unittest.TestCase):
         dr = 1.0
         num_points = 10000
         box_size = rmax*2
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         ang = np.random.random_sample((num_points)).astype(np.float64)*np.pi*2.0
         comp = np.cos(ang) + 1j * np.sin(ang)
@@ -62,6 +64,7 @@ class TestOCF(unittest.TestCase):
         dr = 1.0
         num_points = 10000
         box_size = rmax*3.1
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.cos(ang) + 1j * np.sin(ang)
@@ -79,6 +82,7 @@ class TestOCF(unittest.TestCase):
         dr = 1.0
         num_points = 10000
         box_size = rmax*2
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.cos(ang) + 1j * np.sin(ang)
@@ -98,6 +102,7 @@ def test_summation():
     # robustly
     N = 20000
     phi = numpy.zeros(N, dtype=numpy.complex128)
+    np.random.seed(0)
     phi[:] = numpy.random.rand(N)
     pos2d = numpy.array(numpy.random.random(size=(N,3)), dtype=numpy.float32)*1000 - 500
     pos2d[:,2] = 0

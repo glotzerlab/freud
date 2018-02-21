@@ -53,6 +53,7 @@ class TestLinkCell(unittest.TestCase):
             N = 40; # number of particles
 
             #Initialize test points randomly
+            np.random.seed(0)
             points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
             fbox = box.Box.cube(L);#Initialize Box
             cl = locality.LinkCell(fbox,rcut);#Initialize cell list
@@ -111,19 +112,14 @@ class TestLinkCell(unittest.TestCase):
         L, rcut, N = (10, 2.01, 1024)
 
         fbox = box.Box.cube(L)
-        seed = np.random.randint(0, 2**32)
-        np.random.seed(seed)
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         lc = locality.LinkCell(fbox, rcut).compute(fbox, points)
 
         ij = set(zip(lc.nlist.index_i, lc.nlist.index_j))
         ji = set((j, i) for (i, j) in ij)
 
-        try:
-            self.assertEqual(ij, ji)
-        except:
-            print('Failed random seed: {}'.format(seed))
-            raise
+        self.assertEqual(ij, ji)
 
     def test_reciprocal_twoset(self):
         """Test that, for a random set of points, for each (i, j) neighbor
@@ -133,8 +129,7 @@ class TestLinkCell(unittest.TestCase):
         L, rcut, N = (10, 2.01, 1024)
 
         fbox = box.Box.cube(L)
-        seed = np.random.randint(0, 2**32)
-        np.random.seed(seed)
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = np.random.uniform(-L/2, L/2, (N//6, 3)).astype(np.float32)
         lc = locality.LinkCell(fbox, rcut).compute(fbox, points, points2)
@@ -143,18 +138,13 @@ class TestLinkCell(unittest.TestCase):
         ij = set(zip(lc.nlist.index_i, lc.nlist.index_j))
         ij2 = set(zip(lc2.nlist.index_j, lc2.nlist.index_i))
 
-        try:
-            self.assertEqual(ij, ij2)
-        except:
-            print('Failed random seed: {}'.format(seed))
-            raise
+        self.assertEqual(ij, ij2)
 
     def test_exclude_ii(self):
         L, rcut, N = (10, 2.01, 1024)
 
         fbox = box.Box.cube(L)
-        seed = np.random.randint(0, 2**32)
-        np.random.seed(seed)
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = points[:N//6]
         lc = locality.LinkCell(fbox, rcut).compute(fbox, points, points2, exclude_ii=False)
@@ -165,25 +155,17 @@ class TestLinkCell(unittest.TestCase):
 
         ij2 = set(zip(lc.nlist.index_i, lc.nlist.index_j))
 
-        try:
-            self.assertTrue(all((i, i) not in ij2 for i in range(N)))
-        except:
-            print('Failed random seed: {}'.format(seed))
-            raise
+        self.assertTrue(all((i, i) not in ij2 for i in range(N)))
 
         ij2.update((i, i) for i in range(points2.shape[0]))
 
-        try:
-            self.assertEqual(ij1, ij2)
-        except:
-            print('Failed random seed: {}'.format(seed))
-            raise
+        self.assertEqual(ij1, ij2)
 
     def test_exhaustive_search(self):
         L, rcut, N = (10, 1.999, 32)
 
         fbox = box.Box.cube(L)
-        seed = np.random.randint(0, 2**32)
+        seed = 0
         lc = locality.LinkCell(fbox, rcut)
 
         for i in range(10):
