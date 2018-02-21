@@ -18,8 +18,8 @@
 #include "box.h"
 #include "Index1D.h"
 
-#ifndef _PMFTXYZ_H__
-#define _PMFTXYZ_H__
+#ifndef _PMFT_H__
+#define _PMFT_H__
 
 /*! \internal
     \file PMFT.h
@@ -34,7 +34,7 @@ namespace freud { namespace pmft {
  *  as the ability to access the underlying PCF and box. Many of the specific methods must be implemented by
  *  subclasses that account for the proper set of dimensions.
 */
-class PMFTXYZ
+class PMFT
     {
     public:
         //! Constructor
