@@ -1,4 +1,3 @@
-import numpy
 import numpy as np
 import numpy.testing as npt
 from freud import box, density, parallel
@@ -27,6 +26,7 @@ class TestOCF(unittest.TestCase):
         dr = 1.0
         num_points = 10000
         box_size = rmax*3.1
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         ang = np.random.random_sample((num_points)).astype(np.float64)*np.pi*2.0
         comp = np.cos(ang) + 1j * np.sin(ang)
@@ -45,6 +45,7 @@ class TestOCF(unittest.TestCase):
         dr = 1.0
         num_points = 10000
         box_size = rmax*2
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         ang = np.random.random_sample((num_points)).astype(np.float64)*np.pi*2.0
         comp = np.cos(ang) + 1j * np.sin(ang)
@@ -62,6 +63,7 @@ class TestOCF(unittest.TestCase):
         dr = 1.0
         num_points = 10000
         box_size = rmax*3.1
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.cos(ang) + 1j * np.sin(ang)
@@ -79,6 +81,7 @@ class TestOCF(unittest.TestCase):
         dr = 1.0
         num_points = 10000
         box_size = rmax*2
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.cos(ang) + 1j * np.sin(ang)
@@ -97,9 +100,10 @@ def test_summation():
     # This leads to vastly different results with different numbers of threads if the summation is not done
     # robustly
     N = 20000
-    phi = numpy.zeros(N, dtype=numpy.complex128)
-    phi[:] = numpy.random.rand(N)
-    pos2d = numpy.array(numpy.random.random(size=(N,3)), dtype=numpy.float32)*1000 - 500
+    phi = np.zeros(N, dtype=np.complex128)
+    np.random.seed(0)
+    phi[:] = np.random.rand(N)
+    pos2d = np.array(np.random.random(size=(N,3)), dtype=np.float32)*1000 - 500
     pos2d[:,2] = 0
     fbox = box.Box.square(1000)
 
@@ -110,15 +114,15 @@ def test_summation():
     cf = density.ComplexCF(500, 40)
     cf.compute(fbox, pos2d, phi, pos2d, phi)
     c1 = cf.getCounts()
-    f1 = numpy.real(cf.rdf)
+    f1 = np.real(cf.rdf)
 
     parallel.setNumThreads(20)
     cf.compute(fbox, pos2d, phi, pos2d, phi)
     c2 = cf.getCounts()
-    f2 = numpy.real(cf.rdf)
+    f2 = np.real(cf.rdf)
 
-    numpy.testing.assert_allclose(f1, f2)
-    numpy.testing.assert_array_equal(c1, c2)
+    np.testing.assert_allclose(f1, f2)
+    np.testing.assert_array_equal(c1, c2)
 
 if __name__ == '__main__':
     unittest.main()
