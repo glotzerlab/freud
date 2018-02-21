@@ -68,16 +68,19 @@ class PMFT
             return m_r_cut;
             }
 
-    private:
+    protected:
         box::Box m_box;                    //!< Simulation box where the particles belong
         float m_r_cut;                     //!< r_cut used in cell list construction
         unsigned int m_frame_counter;      //!< number of frames calc'd
         unsigned int m_n_ref;              //!<TODO: Document this
+        unsigned int m_n_p;                //!<TODO: Document this
         bool m_reduce;                     //!< Whether or not the PCF has been reduced yet
 
         std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
         std::shared_ptr<unsigned int> m_bin_counts;    //!< Counts for each bin (will differ for each PMFT)
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts; //!< TODO: Dcoument this
+
+    private:
     };
 
 }; }; // end namespace freud::pmft

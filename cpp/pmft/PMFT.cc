@@ -19,6 +19,13 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
+/*! Initialize box
+ */
+PMFT::PMFT()
+    : m_box(box::Box()), m_frame_counter(0), m_n_ref(0), m_n_p(0), m_reduce(true)
+    {
+    }
+
 /*! All PMFT classes have the same deletion logic
  */
 PMFT::~PMFT()
