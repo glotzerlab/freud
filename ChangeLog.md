@@ -9,6 +9,8 @@
 * Minimized boost dependence
 * Added Nematic OP
 * Added optional rmin argument to density.RDF
+* Added credits file
+* Many documentation rewrites
 
 ## v0.6.4
 
