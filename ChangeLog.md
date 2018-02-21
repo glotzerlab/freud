@@ -11,6 +11,7 @@
 * Added optional rmin argument to density.RDF
 * Added credits file
 * Many documentation rewrites
+* Wrote development guide
 
 ## v0.6.4
 
