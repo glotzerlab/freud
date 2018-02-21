@@ -223,6 +223,7 @@ class TestCluster(unittest.TestCase):
         fbox = box.Box.cube(L)
         ## 2. Re-index the environment randomly to create a second environment.
         e1 = np.copy(e0)
+        np.random.seed(0)
         np.random.shuffle(e1)
         ## 3. Verify that OUR method isSimilar gives that these two environments are similar.
         match = MatchEnv(fbox, r_cut, num_neigh)

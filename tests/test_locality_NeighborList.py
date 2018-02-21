@@ -15,6 +15,7 @@ class TestNeighborList(unittest.TestCase):
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         cl.compute(fbox, points, points)
 
@@ -40,6 +41,7 @@ class TestNeighborList(unittest.TestCase):
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = points[:N//2]
 
@@ -62,6 +64,7 @@ class TestNeighborList(unittest.TestCase):
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
 
         cl.compute(fbox, points, points)
@@ -85,6 +88,7 @@ class TestNeighborList(unittest.TestCase):
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
 
         cl.compute(fbox, points, points)
@@ -102,6 +106,7 @@ class TestNeighborList(unittest.TestCase):
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
 
         cl.compute(fbox, points, points)

@@ -2,6 +2,7 @@ import unittest
 import numpy.testing as npt
 import numpy as np
 import random
+random.seed(0)
 import freud
 
 ## Returns a random quaternion culled from a uniform distribution on the surface of a 3-sphere.
@@ -42,6 +43,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         box = freud.box.Box.square(boxlen)
 
+        np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N,3)), dtype=np.float32)
         ors = []
         for i in range(N):
@@ -79,6 +81,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         box = freud.box.Box.square(boxlen)
 
+        np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N,3)), dtype=np.float32)
         ors = []
         for i in range(N):
