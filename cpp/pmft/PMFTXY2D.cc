@@ -59,14 +59,12 @@ PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int
         m_y_array.get()[i] = -m_max_y + ((y + nexty) / 2.0);
         }
 
-    // create and populate the pcf_array
+    // Set r_cut
+    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
     m_pcf_array = std::shared_ptr<float>(new float[m_n_bins_x * m_n_bins_y], std::default_delete<float[]>());
     memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y);
     m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_bins_x * m_n_bins_y], std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
-
-
-    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
     }
 
 //! \internal

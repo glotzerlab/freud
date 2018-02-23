@@ -79,14 +79,10 @@ class PMFTXY2D : public PMFT
             return m_y_array;
             }
 
+        //! Get the jacobian determinant (not the matrix)
         float getJacobian()
             {
             return m_jacobian;
-            }
-
-        float getRCut()
-            {
-            return m_r_cut;
             }
 
         unsigned int getNBinsX()
