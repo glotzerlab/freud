@@ -12,6 +12,9 @@
 * Added credits file
 * Many documentation rewrites
 * Wrote development guide
+* Made tests deterministic (seeded RNGs)
+* Removed deprecated Box API warnings
+* Standardized numpy usage
 
 ## v0.6.4
 

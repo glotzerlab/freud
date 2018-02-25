@@ -16,6 +16,7 @@ Eric Harper, University of Michigan - **Former lead developer**
 * Pairing2D
 
 Joshua A. Anderson, University of Michigan - **Creator**
+* Initial design and implementation
 * IteratorLinkCell
 * LinkCell
 * Various density modules
@@ -83,6 +84,8 @@ Yina Geng
 * Add properties for accessing class members
 
 Carolyn Phillips
+* Initial design and implementation
+* Package name
 
 Ben Swerdlow
 
