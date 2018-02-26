@@ -19,7 +19,7 @@ dependencies:
 - libssh2=1.8.0=2
 - libuv=1.11.0=0
 - libxml2=2.9.7=0
-- llvmdev=5.0.0=default_0
+- llvmdev=5.0.0
 - ncurses=5.9=10
 - numpy=1.14.0=py36_blas_openblas_200
 - openblas=0.2.20=7
