@@ -96,19 +96,19 @@ class Box
         //! Set L, box lengths, inverses.  Box is also centered at zero.
         void setL(const float Lx, const float Ly, const float Lz)
             {
-            m_L = vec3<float>(Lx,Ly,Lz);
-            m_hi = m_L/float(2.0);
-            m_lo = -m_hi;
-
-            if(m_2d)
+            if (m_2d)
                 {
+                m_L = vec3<float>(Lx, Ly, 0);
                 m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 0);
-                m_L.z = float(0);
                 }
             else
                 {
+                m_L = vec3<float>(Lx, Ly, Lz);
                 m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 1/m_L.z);
                 }
+
+            m_hi = m_L / float(2.0);
+            m_lo = -m_hi;
             }
 
         //! Set whether box is 2D
@@ -116,7 +116,7 @@ class Box
             {
             m_2d = _2d;
             m_L.z = 0;
-            m_Linv.z =0;
+            m_Linv.z = 0;
             }
 
         //! Returns whether box is two dimensional
