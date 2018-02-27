@@ -32,9 +32,10 @@ Matthew Spellings - **Former lead developer**
  * interface.pxi
 
 Erin Teich
- * Environment matching
- * BondOrder
- * Angular separation
+ * Wrote environment matching module
+ * BondOrder (with Julia Dshemuchadse)
+ * Angular separation (with Andrew Karas)
+ * Contributed to LocalQl development
 
 M. Eric Irrgang
  * Authored kspace CPP code
