@@ -15,6 +15,7 @@
 * Made tests deterministic (seeded RNGs)
 * Removed deprecated Box API warnings
 * Standardized numpy usage
+* Added Python interface for box periodicity
 
 ## v0.6.4
 
