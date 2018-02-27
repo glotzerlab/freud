@@ -7,6 +7,7 @@ freud Developers
 The following people contributed to the development of freud.
 
 Eric Harper, University of Michigan - **Former lead developer**
+ * TBB parallelism
  * PMFT module
  * NearestNeighbors
  * RDF
