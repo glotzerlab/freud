@@ -193,3 +193,17 @@ class Box(_Box):
         assert value == 2 or value == 3
         self.set2D(value == 2)
 
+    @property
+    def periodic(self):
+        """Box periodicity in each dimension
+
+        :getter: Returns this box's periodicity in each dimension
+                 (True if periodic, False if not)
+        :setter: Set this box's periodicity in each dimension
+        :type: list[bool, bool, bool]
+        """
+        return self.getPeriodic()
+
+    @periodic.setter
+    def periodic(self, periodic):
+        self.setPeriodic(periodic[0], periodic[1], periodic[2])

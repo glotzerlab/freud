@@ -351,6 +351,77 @@ cdef class Box:
             result.z = 0.0
         return [result.x, result.y, result.z]
 
+    def getPeriodic(self):
+        """
+        Get the box's periodicity in each dimension
+
+        :return: list of periodic attributes in x, y, z
+        :rtype: list[bool, bool, bool]
+        """
+        periodic = self.thisptr.getPeriodic()
+        return [periodic.x, periodic.y, periodic.z]
+
+    def setPeriodic(self, x, y, z):
+        """
+        Set the box's periodicity in each dimension
+
+        :param bool x: True if periodic in x, False if not
+        :param bool y: True if periodic in y, False if not
+        :param bool z: True if periodic in z, False if not
+        """
+        self.thisptr.setPeriodic(x, y, z)
+
+    def getPeriodicX(self):
+        """
+        Get the box periodicity in the x direction
+
+        :return: True if periodic, False if not
+        :rtype: bool
+        """
+        return self.thisptr.getPeriodicX()
+
+    def setPeriodicX(self, val):
+        """
+        Set the box periodicity in the x direction
+
+        :param bool val: True if periodic, False if not
+        """
+        return self.thisptr.setPeriodicX(val)
+
+    def getPeriodicY(self):
+        """
+        Get the box periodicity in the y direction
+
+        :return: True if periodic, False if not
+        :rtype: bool
+        """
+        return self.thisptr.getPeriodicY()
+
+    def setPeriodicY(self, val):
+        """
+        Set the box periodicity in the y direction
+
+        :param bool val: True if periodic, False if not
+        """
+        return self.thisptr.setPeriodicY(val)
+
+    def getPeriodicZ(self):
+        """
+        Get the box periodicity in the z direction
+
+        :return: True if periodic, False if not
+        :rtype: bool
+        """
+        return self.thisptr.getPeriodicZ()
+
+    def setPeriodicZ(self, val):
+        """
+        Set the box periodicity in the z direction
+
+        :param bool val: True if periodic, False if not
+        """
+        return self.thisptr.setPeriodicZ(val)
+
     # Enable pickling of internal classes
     # Box
     def __getinitargs__(self):

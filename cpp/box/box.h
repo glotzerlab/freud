@@ -493,6 +493,46 @@ class Box
             m_periodic = periodic;
             }
 
+        void setPeriodic(bool x, bool y, bool z)
+            {
+            m_periodic = make_uchar3(x, y, z);
+            }
+
+        void setPeriodicX(bool x)
+            {
+            m_periodic = make_uchar3(x, m_periodic.y, m_periodic.z);
+            }
+
+        void setPeriodicY(bool y)
+            {
+            m_periodic = make_uchar3(m_periodic.x, y, m_periodic.z);
+            }
+
+        void setPeriodicZ(bool z)
+            {
+            m_periodic = make_uchar3(m_periodic.x, m_periodic.y, z);
+            }
+
+        vec3<bool> getPeriodic()
+            {
+            return vec3<bool>(m_periodic.x, m_periodic.y, m_periodic.z);
+            }
+
+        bool getPeriodicX()
+            {
+            return m_periodic.x;
+            }
+
+        bool getPeriodicY()
+            {
+            return m_periodic.y;
+            }
+
+        bool getPeriodicZ()
+            {
+            return m_periodic.z;
+            }
+
     private:
         vec3<float> m_lo;      //!< Minimum coords in the box
         vec3<float> m_hi;      //!< Maximum coords in the box
