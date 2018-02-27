@@ -498,36 +498,43 @@ class Box
             m_periodic = make_uchar3(x, y, z);
             }
 
+        //! Set the periodic flag along x
         void setPeriodicX(bool x)
             {
             m_periodic = make_uchar3(x, m_periodic.y, m_periodic.z);
             }
 
+        //! Set the periodic flag along y
         void setPeriodicY(bool y)
             {
             m_periodic = make_uchar3(m_periodic.x, y, m_periodic.z);
             }
 
+        //! Set the periodic flag along z
         void setPeriodicZ(bool z)
             {
             m_periodic = make_uchar3(m_periodic.x, m_periodic.y, z);
             }
 
+        //! Get the periodic flags
         vec3<bool> getPeriodic()
             {
             return vec3<bool>(m_periodic.x, m_periodic.y, m_periodic.z);
             }
 
+        //! Get the periodic flag along x
         bool getPeriodicX()
             {
             return m_periodic.x;
             }
 
+        //! Get the periodic flag along y
         bool getPeriodicY()
             {
             return m_periodic.y;
             }
 
+        //! Get the periodic flag along z
         bool getPeriodicZ()
             {
             return m_periodic.z;
