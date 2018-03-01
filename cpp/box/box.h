@@ -96,19 +96,19 @@ class Box
         //! Set L, box lengths, inverses.  Box is also centered at zero.
         void setL(const float Lx, const float Ly, const float Lz)
             {
-            m_L = vec3<float>(Lx,Ly,Lz);
-            m_hi = m_L/float(2.0);
-            m_lo = -m_hi;
-
-            if(m_2d)
+            if (m_2d)
                 {
+                m_L = vec3<float>(Lx, Ly, 0);
                 m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 0);
-                m_L.z = float(0);
                 }
             else
                 {
+                m_L = vec3<float>(Lx, Ly, Lz);
                 m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 1/m_L.z);
                 }
+
+            m_hi = m_L / float(2.0);
+            m_lo = -m_hi;
             }
 
         //! Set whether box is 2D
@@ -116,7 +116,7 @@ class Box
             {
             m_2d = _2d;
             m_L.z = 0;
-            m_Linv.z =0;
+            m_Linv.z = 0;
             }
 
         //! Returns whether box is two dimensional
@@ -491,6 +491,53 @@ class Box
         void setPeriodic(uchar3 periodic)
             {
             m_periodic = periodic;
+            }
+
+        void setPeriodic(bool x, bool y, bool z)
+            {
+            m_periodic = make_uchar3(x, y, z);
+            }
+
+        //! Set the periodic flag along x
+        void setPeriodicX(bool x)
+            {
+            m_periodic = make_uchar3(x, m_periodic.y, m_periodic.z);
+            }
+
+        //! Set the periodic flag along y
+        void setPeriodicY(bool y)
+            {
+            m_periodic = make_uchar3(m_periodic.x, y, m_periodic.z);
+            }
+
+        //! Set the periodic flag along z
+        void setPeriodicZ(bool z)
+            {
+            m_periodic = make_uchar3(m_periodic.x, m_periodic.y, z);
+            }
+
+        //! Get the periodic flags
+        vec3<bool> getPeriodic()
+            {
+            return vec3<bool>(m_periodic.x, m_periodic.y, m_periodic.z);
+            }
+
+        //! Get the periodic flag along x
+        bool getPeriodicX()
+            {
+            return m_periodic.x;
+            }
+
+        //! Get the periodic flag along y
+        bool getPeriodicY()
+            {
+            return m_periodic.y;
+            }
+
+        //! Get the periodic flag along z
+        bool getPeriodicZ()
+            {
+            return m_periodic.z;
             }
 
     private:
