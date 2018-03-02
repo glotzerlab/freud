@@ -10,28 +10,26 @@ from ._freud import Box as _Box
 class Box(_Box):
     """The freud Box class for simulation boxes.
 
+    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
     .. moduleauthor:: Carl Simon Adorf <csadorf@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    .. versionchanged:: 0.7.0
+       Added box periodicity interface
 
     For more information about the definition of the simulation
     box, please see:
 
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
-    :param Lx: Length of side x
-    :type Lx: float
-    :param Ly: Length of side y
-    :type Ly: float
-    :param Lz: Length of side z
-    :type Lz: float
-    :param xy: Tilt of xy plane
-    :type xy: float
-    :param xz: Tilt of xz plane
-    :type xz: float
-    :param yz: Tilt of yz plane
-    :type yz: float
-    :param is2D: Specify that this box is 2-dimensional,
+    :param float Lx: Length of side x
+    :param float Ly: Length of side y
+    :param float Lz: Length of side z
+    :param float xy: Tilt of xy plane
+    :param float xz: Tilt of xz plane
+    :param float yz: Tilt of yz plane
+    :param bool is2D: Specify that this box is 2-dimensional,
         default is 3-dimensional.
-    :type is2D: bool
     """
 
     def to_dict(self):

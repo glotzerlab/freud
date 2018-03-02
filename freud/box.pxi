@@ -16,23 +16,6 @@ np.import_array()
 cdef class Box:
     """freud Box object. Wrapper for the C++ box.Box() class,
     imported by box.py for the user-facing API
-
-    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
-
-    :param Lx: Length of side x
-    :param Ly: Length of side y
-    :param Lz: Length of side z
-    :param xy: tilt of xy plane
-    :param xz: tilt of xz plane
-    :param yz: tilt of yz plane
-    :param is2D: specify if box is 2D
-    :type Lx: float
-    :type Ly: float
-    :type Lz: float
-    :type xy: float
-    :type xz: float
-    :type yz: float
-    :type is2D: bool
     """
     cdef box.Box * thisptr
 

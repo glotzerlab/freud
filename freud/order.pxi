@@ -515,6 +515,8 @@ cdef class NematicOrderParameter:
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
 
+    .. versionadded:: 0.7.0
+
     :type u: The nematic director of a single particle in the reference state (without any rotation applied)
 
     """

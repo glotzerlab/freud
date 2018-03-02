@@ -1,13 +1,12 @@
 # Change Log
 
-## Unreleased
+## v0.7.0
 
-* Added a generic neighbor list interface
 * Various bug fixes and code cleaning
 * Fixed all compile-time warnings
 * Ensured PEP 8 compliance everywhere
 * Minimized boost dependence
-* Added Nematic OP
+* Added Nematic order parameter
 * Added optional rmin argument to density.RDF
 * Added credits file
 * Many documentation rewrites
@@ -19,6 +18,7 @@
 
 ## v0.6.4
 
+* Added a generic neighbor list interface
 * Set up CircleCI for continuous integration
 * Set up documentation on ReadTheDocs
 * Added bumpversion support

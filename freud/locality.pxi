@@ -30,6 +30,8 @@ cdef class NeighborList:
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
+    .. versionadded:: 0.6.4
+
     .. note::
 
        Typically, in python you will only manipulate a
