@@ -9,10 +9,7 @@
 #include <emmintrin.h>
 #endif
 
-#include "VectorMath.h"
-
 using namespace std;
-
 using namespace tbb;
 
 /*! \internal
@@ -107,7 +104,7 @@ PMFTR12::~PMFTR12()
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);

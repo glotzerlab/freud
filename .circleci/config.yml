@@ -16,14 +16,14 @@ references:
 
   get_requirements_ubuntu: &get_requirements_ubuntu
     run:
-      name: install dependencies
+      name: Install dependencies
       command: |
         pip install --user -r requirements.txt
         pip3 install --user -r requirements.txt
 
   get_requirements_arch: &get_requirements_arch
     run:
-      name: install dependencies
+      name: Install dependencies
       command: |
         pip install --user -r requirements.txt
 
@@ -50,13 +50,13 @@ references:
 
   test_ubuntu: &test_ubuntu
     run:
-      name: run tests
+      name: Run unit tests
       command: |
           ${NOSE} ~/ci/freud/tests/
 
   test_arch: &test_arch
     run:
-      name: run tests
+      name: Run unit tests
       command: |
           cd /
           ${NOSE} -v ~/ci/freud/tests/

@@ -75,22 +75,22 @@ class BondingR12
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
-        float m_r_max;                     //!< Maximum r at which to determine neighbors
-        float m_t_max;                     //!< Maximum theta at which to determine neighbors
+        box::Box m_box;                     //!< Simulation box where the particles belong
+        float m_r_max;                      //!< Maximum r at which to determine neighbors
+        float m_t_max;                      //!< Maximum theta at which to determine neighbors
         float m_dr;
         float m_dt1;
         float m_dt2;
-        unsigned int m_nbins_r;             //!< Number of x bins to compute bonds
-        unsigned int m_nbins_t1;             //!< Number of y bins to compute bonds
-        unsigned int m_nbins_t2;             //!< Number of y bins to compute bonds
-        unsigned int m_n_bonds;                        //!< number of bonds to track
-        unsigned int *m_bond_map;                   //!< pointer to bonding map
+        unsigned int m_nbins_r;             //!< Number of r bins to compute bonds
+        unsigned int m_nbins_t2;            //!< Number of t2 bins to compute bonds
+        unsigned int m_nbins_t1;            //!< Number of t1 bins to compute bonds
+        unsigned int m_n_bonds;             //!< number of bonds to track
+        unsigned int *m_bond_map;           //!< pointer to bonding map
         unsigned int *m_bond_list;
-        std::map<unsigned int, unsigned int> m_list_map; //! maps bond index to list index
-        std::map<unsigned int, unsigned int> m_rev_list_map; //! maps list index to bond index
-        unsigned int m_n_ref;                //!< Last number of points computed
-        unsigned int m_n_p;                //!< Last number of points computed
+        std::map<unsigned int, unsigned int> m_list_map;       //! maps bond index to list index
+        std::map<unsigned int, unsigned int> m_rev_list_map;   //! maps list index to bond index
+        unsigned int m_n_ref;               //!< Last number of points computed
+        unsigned int m_n_p;                 //!< Last number of points computed
 
         std::shared_ptr<unsigned int> m_bonds;
     };

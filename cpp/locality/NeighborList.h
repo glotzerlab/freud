@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "VectorMath.h"
-#include "../box/box.h"
+#include "box.h"
 
 #ifndef _NEIGHBOR_LIST_H__
 #define _NEIGHBOR_LIST_H__

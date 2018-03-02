@@ -11,9 +11,9 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12:
         PMFTR12(float, unsigned int, unsigned int, unsigned int)
 
-        const box.Box& getBox() const
+        const box.Box & getBox() const
         void resetPCF()
-        void accumulate(box.Box&,
+        void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -37,9 +37,9 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
     cdef cppclass PMFTXYT:
         PMFTXYT(float, float, unsigned int, unsigned int, unsigned int)
 
-        const box.Box& getBox() const
+        const box.Box & getBox() const
         void resetPCF()
-        void accumulate(box.Box&,
+        void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -63,9 +63,9 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D:
         PMFTXY2D(float, unsigned int, unsigned int, unsigned int)
 
-        const box.Box& getBox() const
+        const box.Box & getBox() const
         void resetPCF()
-        void accumulate(box.Box&,
+        void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -85,11 +85,12 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
 
 cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFTXYZ:
-        PMFTXYZ(float, float, float, unsigned int, unsigned int, unsigned int, vec3[float])
+        PMFTXYZ(float, float, float, unsigned int, unsigned int,
+                unsigned int, vec3[float])
 
-        const box.Box& getBox() const
+        const box.Box & getBox() const
         void resetPCF()
-        void accumulate(box.Box&,
+        void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         quat[float]*,
