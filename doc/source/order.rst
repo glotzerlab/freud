@@ -25,6 +25,12 @@ Cubatic Order Parameter
 .. autoclass:: freud.order.CubaticOrderParameter(t_initial, t_final, scale, n_replicates, seed)
     :members:
 
+Nematic Order Parameter
+=======================
+
+.. autoclass:: freud.order.NematicOrderParameter(u)
+    :members:
+
 Hexatic Order Parameter
 =======================
 

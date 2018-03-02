@@ -13,8 +13,8 @@ Eric Harper, University of Michigan - **Former lead developer**
 * NearestNeighbors
 * RDF
 * Bonding module
-* Cubatic OP
-* Hexatic OP
+* Cubatic order parameter
+* Hexatic order parameter
 * Pairing2D
 
 Joshua A. Anderson, University of Michigan - **Creator**
@@ -57,7 +57,7 @@ Vyas Ramasubramani - **Lead developer**
 * Ensured pep8 compliance
 * Added CircleCI continuous integration support
 * Rewrote docs
-* Fixed nematic OP
+* Fixed nematic order parameter
 * Add properties for accessing class members
 * Various minor bug fixes
 
