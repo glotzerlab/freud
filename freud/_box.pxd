@@ -31,10 +31,18 @@ cdef extern from "box.h" namespace "freud::box":
         float getTiltFactorYZ() const
 
         float getVolume() const
-        vec3[float] makeCoordinates(const vec3[float]&) const
-        vec3[float] makeFraction(const vec3[float]&) const
+        vec3[float] makeCoordinates(const vec3[float] &) const
+        vec3[float] makeFraction(const vec3[float] &) const
         vec3[float] getLatticeVector(unsigned int i) const
-        vec3[float] wrap(vec3[float]&)
-        vec3[float] wrapMultiple(vec3[float]& v) const
-        vec3[float] unwrap(vec3[float]&, vec3[int]&)
+        vec3[float] wrap(vec3[float] &)
+        vec3[float] wrapMultiple(vec3[float] & v) const
+        vec3[float] unwrap(vec3[float] &, vec3[int]&)
 
+        vec3[bool] getPeriodic() const
+        bool getPeriodicX() const
+        bool getPeriodicY() const
+        bool getPeriodicZ() const
+        void setPeriodic(bool, bool, bool)
+        void setPeriodicX(bool)
+        void setPeriodicY(bool)
+        void setPeriodicZ(bool)

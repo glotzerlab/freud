@@ -15,6 +15,10 @@
 using namespace std;
 using namespace tbb;
 
+/*! \file BondingAnalysis.cc
+    \brief Determines the bond lifetimes and flux present in the system.
+*/
+
 namespace freud { namespace bond {
 
 struct FindParticleIndex
@@ -72,85 +76,6 @@ BondingAnalysis::~BondingAnalysis()
     {
     delete m_bond_increment_array;
     }
-
-// void BondingAnalysis::reduceArrays()
-//     {
-//     Index2D transition_indexer = Index2D((m_num_bonds+1), (m_num_bonds+1));
-//     // set all values in the transition matrix to 0
-//     memset((void*)m_transition_matrix.get(), 0, sizeof(unsigned int)*(m_num_bonds+1)*(m_num_bonds+1));
-//     // clear out bond lifetime arrays; don't need to resize cause they are already appropriately sized
-//     for (std::vector< std::vector<unsigned int> >::iterator it = m_bond_lifetime_array.begin();
-//         it != m_bond_lifetime_array.end(); ++it)
-//         {
-//         (*it).clear();
-//         }
-//     for (std::vector< std::vector<unsigned int> >::iterator it = m_overall_lifetime_array.begin();
-//         it != m_overall_lifetime_array.end(); ++it)
-//         {
-//         (*it).clear();
-//         }
-//     // I do not use parallel reduction in this case due to data structures not being thread safe...
-//     // transfer data into bond_lifetime array
-//     // for each pidx
-//     for (unsigned int i = 0; i < m_num_bonds; i++)
-//         {
-//         // for each thread local memory
-//         for (tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > >::const_iterator local_lifetime = m_local_bond_lifetime_array.begin();
-//             local_lifetime != m_local_bond_lifetime_array.end(); ++local_lifetime)
-//             {
-//             for (std::vector< std::vector< unsigned int > >::const_iterator outer_it = (*local_lifetime).begin();
-//                 outer_it != (*local_lifetime).end(); ++outer_it)
-//                 {
-//                 for (std::vector< unsigned int >::const_iterator inner_it = (*outer_it).begin();
-//                     inner_it != (*outer_it).end(); ++inner_it)
-//                     {
-//                     printf("%u ", (*inner_it));
-//                     m_bond_lifetime_array[i].push_back((*inner_it));
-//                     }
-//                 }
-//             }
-//         }
-//     for (unsigned int i = 0; i < m_num_bonds; i++)
-//         {
-//         std::vector< unsigned int >::iterator it;
-//         for (it = m_bond_lifetime_array[i].begin(); it != m_bond_lifetime_array[i].end(); ++it)
-//             {
-//             printf("%u ", (*it));
-//             }
-//         printf("\n");
-//         }
-//     // transfer data into overall_lifetime array
-//     // for each pidx
-//     for (unsigned int i = 0; i < m_num_bonds; i++)
-//         {
-//         // for each thread local memory
-//         for (tbb::enumerable_thread_specific< std::vector< std::vector< unsigned int > > >::const_iterator local_lifetime = m_local_overall_lifetime_array.begin();
-//             local_lifetime != m_local_overall_lifetime_array.end(); ++local_lifetime)
-//             {
-//             for (std::vector< std::vector< unsigned int > >::const_iterator outer_it = (*local_lifetime).begin();
-//                 outer_it != (*local_lifetime).end(); ++outer_it)
-//                 {
-//                 for (std::vector< unsigned int >::const_iterator inner_it = (*outer_it).begin();
-//                     inner_it != (*outer_it).end(); ++inner_it)
-//                     {
-//                     m_overall_lifetime_array[i].push_back((*inner_it));
-//                     }
-//                 }
-//             }
-//         }
-//     // transfer into transition matrix
-//     for (unsigned int i = 0; i < (m_num_bonds+1); i++)
-//         {
-//         for (unsigned int j = 0; j < (m_num_bonds+1); j++)
-//             {
-//             for (tbb::enumerable_thread_specific< unsigned int *>::const_iterator local_transition = m_local_transition_matrix.begin();
-//             local_transition != m_local_transition_matrix.end(); ++local_transition)
-//                 {
-//                 m_transition_matrix.get()[transition_indexer(i, j)] += (*local_transition)[transition_indexer(i, j)];
-//                 }
-//             }
-//         }
-//     }
 
 std::vector< std::vector< unsigned int> > BondingAnalysis::getBondLifetimes()
     {
@@ -416,5 +341,3 @@ void BondingAnalysis::compute(unsigned int* frame0,
     }
 
 }; }; // end namespace freud::bond
-
-

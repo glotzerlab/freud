@@ -31,4 +31,4 @@ from . import pmft
 from . import index
 from . import common
 
-__version__ = '0.6.4'
+__version__ = '0.7.0'

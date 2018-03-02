@@ -10,13 +10,13 @@
 
 #include "tbb/atomic.h"
 
-#include "../../extern/fsph/src/spherical_harmonics.hpp"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_DESCRIPTORS_H__
 #define _LOCAL_DESCRIPTORS_H__
 
 /*! \file LocalDescriptors.h
-  \brief Compute the hexatic order parameter for each particle
+  \brief Computes local descriptors.
 */
 
 namespace freud { namespace order {
@@ -86,10 +86,6 @@ public:
                  const quat<float> *q_ref,
                  LocalDescriptorOrientation orientation);
 
-    // //! Python wrapper for compute
-    // void computePy(boost::python::numeric::array r,
-    //     boost::python::numeric::array q);
-
     //! Get a reference to the last computed spherical harmonic array
     std::shared_ptr<std::complex<float> > getSph()
         {
@@ -102,25 +98,13 @@ public:
             (m_lmax > 0 && m_negative_m ? fsph::sphCount(m_lmax - 1): 0);
         }
 
-    // //! Python wrapper for getSph() (returns a copy)
-    // boost::python::numeric::array getSphPy()
-    //     {
-    //     // we have lmax**2 + 2*lmax + 1 spherical harmonics per
-    //     // neighbor, but we don't keep Y00, so we have lmax**2 +
-    //     // 2*lmax in total.
-    //     const intp cshape[] = {m_Np, m_nNeigh, m_lmax*m_lmax + 2*m_lmax};
-    //     const std::vector<intp> shape(cshape, cshape + sizeof(cshape)/sizeof(intp));
-    //     std::complex<float> *arr = m_sphArray.get();
-    //     return num_util::makeNum(arr, shape);
-    //     }
-
 private:
     unsigned int m_neighmax;          //!< Maximum number of neighbors to calculate
     unsigned int m_lmax;              //!< Maximum spherical harmonic l to calculate
     bool m_negative_m;                //!< true if we should compute Ylm for negative m
     locality::NearestNeighbors m_nn;  //!< NearestNeighbors to find neighbors with
     unsigned int m_Nref;              //!< Last number of points computed
-    unsigned int m_nSphs;            //!< Last number of bond spherical harmonics computed
+    unsigned int m_nSphs;             //!< Last number of bond spherical harmonics computed
 
     //! Spherical harmonics for each neighbor
     std::shared_ptr<std::complex<float> > m_sphArray;

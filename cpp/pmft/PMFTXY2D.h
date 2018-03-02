@@ -58,15 +58,9 @@ class PMFTXY2D
         //! Reset the PCF array to all zeros
         void resetPCF();
 
-        //! Python wrapper for reset method
-        void resetPCFPy()
-            {
-            resetPCF();
-            }
-
-        /*! Compute the PCF for the passed in set of points. The function will be added to previous values
-            of the pcf
-        */
+        /*! Compute the PCF for the passed in set of points. The result will
+         *  be added to previous values of the PCF.
+         */
         void accumulate(box::Box& box,
                         const locality::NeighborList *nlist,
                         vec3<float> *ref_points,
@@ -77,7 +71,7 @@ class PMFTXY2D
                         unsigned int n_p);
 
         //! \internal
-        //! helper function to reduce the thread specific arrays into the boost array
+        //! helper function to reduce the thread specific arrays into one array
         void reducePCF();
 
         //! Get a reference to the PCF array
@@ -108,9 +102,6 @@ class PMFTXY2D
             return m_r_cut;
             }
 
-        // //! Python wrapper for getPCF() (returns a copy)
-        // boost::python::numeric::array getPCFPy();
-
         unsigned int getNBinsX()
             {
             return m_n_bins_x;
@@ -122,24 +113,24 @@ class PMFTXY2D
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
-        float m_max_x;                     //!< Maximum x at which to compute pcf
-        float m_max_y;                     //!< Maximum y at which to compute pcf
-        float m_dx;                       //!< Step size for x in the computation
-        float m_dy;                       //!< Step size for y in the computation
-        unsigned int m_n_bins_x;             //!< Number of x bins to compute pcf over
-        unsigned int m_n_bins_y;             //!< Number of y bins to compute pcf over
-        float m_r_cut;                      //!< r_cut used in cell list construction
-        unsigned int m_frame_counter;       //!< number of frames calc'd
+        box::Box m_box;                //!< Simulation box where the particles belong
+        float m_max_x;                 //!< Maximum x at which to compute pcf
+        float m_max_y;                 //!< Maximum y at which to compute pcf
+        float m_dx;                    //!< Step size for x in the computation
+        float m_dy;                    //!< Step size for y in the computation
+        unsigned int m_n_bins_x;       //!< Number of x bins to compute pcf over
+        unsigned int m_n_bins_y;       //!< Number of y bins to compute pcf over
+        float m_r_cut;                 //!< r_cut used in cell list construction
+        unsigned int m_frame_counter;  //!< number of frames calc'd
         unsigned int m_n_ref;
         unsigned int m_n_p;
         float m_jacobian;
         bool m_reduce;
 
-        std::shared_ptr<float> m_pcf_array;         //!< array of pcf computed
-        std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed
-        std::shared_ptr<float> m_x_array;           //!< array of x values that the pcf is computed at
-        std::shared_ptr<float> m_y_array;           //!< array of y values that the pcf is computed at
+        std::shared_ptr<float> m_pcf_array;          //!< array of pcf computed
+        std::shared_ptr<unsigned int> m_bin_counts;  //!< array of pcf computed
+        std::shared_ptr<float> m_x_array;            //!< array of x values where the pcf is computed
+        std::shared_ptr<float> m_y_array;            //!< array of y values where the pcf is computed
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 

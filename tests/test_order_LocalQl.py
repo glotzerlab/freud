@@ -2,13 +2,14 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import internal
+import util
 
 class TestLocalQl(unittest.TestCase):
     def test_shape(self):
         N = 1000
 
         box = freud.box.Box.cube(10)
+        np.random.seed(0)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
         comp = freud.order.LocalQl(box, 1.5, 6)
@@ -17,7 +18,7 @@ class TestLocalQl(unittest.TestCase):
         npt.assert_equal(comp.Ql.shape[0], N)
 
     def test_identical_environments(self):
-        (box, positions) = internal.make_fcc(4, 4, 4)
+        (box, positions) = util.make_fcc(4, 4, 4)
 
         comp = freud.order.LocalQl(box, 1.5, 6)
 
@@ -38,6 +39,7 @@ class TestLocalQlNear(unittest.TestCase):
         N = 1000
 
         box = freud.box.Box.cube(10)
+        np.random.seed(0)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
         comp = freud.order.LocalQlNear(box, 1.5, 6, 12)
@@ -46,7 +48,7 @@ class TestLocalQlNear(unittest.TestCase):
         npt.assert_equal(comp.Ql.shape[0], N)
 
     def test_identical_environments(self):
-        (box, positions) = internal.make_fcc(4, 4, 4)
+        (box, positions) = util.make_fcc(4, 4, 4)
 
         comp = freud.order.LocalQlNear(box, 1.5, 6, 12)
 

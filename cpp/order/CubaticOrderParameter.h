@@ -24,7 +24,7 @@
 #define _CUBATIC_ORDER_PARAMETER_H__
 
 /*! \file CubaticOrderParameter.h
-    \brief Compute the cubatic order parameter for each particle
+    \brief Compute the cubatic order parameter for each particle.
 */
 
 namespace freud { namespace order {

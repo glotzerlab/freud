@@ -11,6 +11,7 @@ class TestVoronoi(unittest.TestCase):
         N = 50 # Number of particles
         fbox = box.Box.square(L) # Initialize box
         vor = voronoi.Voronoi(fbox)
+        np.random.seed(0)
         positions = np.random.uniform(-L/2, L/2, size=(N, 2)) # Generate random points in the box
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32) # Add a z-component of 0
         vor.compute(positions, buff=L/2)
@@ -81,6 +82,7 @@ class TestVoronoi(unittest.TestCase):
         N = 40 # Number of particles
 
         fbox = box.Box.cube(L) # Initialize box
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         vor = voronoi.Voronoi(fbox)
         vor.computeNeighbors(points, fbox, rbuf)

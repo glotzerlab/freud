@@ -9,14 +9,14 @@
 using namespace std;
 using namespace tbb;
 
-/*! \file AngularSeparation.h
-    \brief Compute the hexatic order parameter for each particle
+/*! \file AngularSeparation.cc
+    \brief Compute the angular separation for each particle.
 */
 
 namespace freud { namespace order {
 
 AngularSeparation::AngularSeparation()
-    : m_Np(0), m_Nref(0), m_Nequiv(0), m_Nglobal(0), m_tot_num_neigh(0)
+    : m_Np(0), m_Nref(0), m_Nglobal(0), m_Nequiv(0), m_tot_num_neigh(0)
     {
     }
 

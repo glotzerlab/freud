@@ -54,7 +54,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_SOURCE_DIR}/registration
-                    ${CMAKE_CURRENT_SOURCE_DIR}/extern
                     ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
@@ -98,6 +97,8 @@ set(FREUD_SOURCES
             order/TransOrderParameter.cc
             order/CubaticOrderParameter.h
             order/CubaticOrderParameter.cc
+            order/NematicOrderParameter.h
+            order/NematicOrderParameter.cc
             order/AngularSeparation.h
             order/AngularSeparation.cc
             order/BondOrder.h

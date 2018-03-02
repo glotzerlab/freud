@@ -67,7 +67,7 @@ class PMFTR12
                         unsigned int n_p);
 
         //! \internal
-        //! helper function to reduce the thread specific arrays into the boost array
+        //! helper function to reduce the thread specific arrays into one array
         void reducePCF();
 
         //! Get a reference to the raw bin counts
@@ -121,27 +121,27 @@ class PMFTR12
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;                    //!< Simulation box where the particles belong
         float m_max_r;                     //!< Maximum x at which to compute pcf
-        float m_max_t1;                     //!< Maximum y at which to compute pcf
-        float m_max_t2;                     //!< Maximum T at which to compute pcf
-        float m_dr;                       //!< Step size for x in the computation
+        float m_max_t1;                    //!< Maximum y at which to compute pcf
+        float m_max_t2;                    //!< Maximum T at which to compute pcf
+        float m_dr;                        //!< Step size for x in the computation
         float m_dt1;                       //!< Step size for y in the computation
         float m_dt2;                       //!< Step size for T in the computation
-        unsigned int m_nbins_r;             //!< Number of x bins to compute pcf over
-        unsigned int m_nbins_t1;             //!< Number of y bins to compute pcf over
-        unsigned int m_nbins_t2;             //!< Number of T bins to compute pcf over
-        unsigned int m_frame_counter;       //!< number of frames calc'd
+        unsigned int m_nbins_r;            //!< Number of x bins to compute pcf over
+        unsigned int m_nbins_t1;           //!< Number of y bins to compute pcf over
+        unsigned int m_nbins_t2;           //!< Number of T bins to compute pcf over
+        unsigned int m_frame_counter;      //!< number of frames calc'd
         unsigned int m_n_ref;
         unsigned int m_n_p;
         bool m_reduce;
         float m_r_cut;
 
-        std::shared_ptr<float> m_pcf_array;         //!< array of pcf computed
-        std::shared_ptr<unsigned int> m_bin_counts;         //!< array of pcf computed
-        std::shared_ptr<float> m_r_array;           //!< array of x values that the pcf is computed at
-        std::shared_ptr<float> m_t1_array;           //!< array of y values that the pcf is computed at
-        std::shared_ptr<float> m_t2_array;           //!< array of T values that the pcf is computed at
+        std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
+        std::shared_ptr<unsigned int> m_bin_counts;    //!< array of pcf computed
+        std::shared_ptr<float> m_r_array;              //!< array of x values that the pcf is computed at
+        std::shared_ptr<float> m_t1_array;             //!< array of y values that the pcf is computed at
+        std::shared_ptr<float> m_t2_array;             //!< array of T values that the pcf is computed at
         std::shared_ptr<float> m_inv_jacobian_array;
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
