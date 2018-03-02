@@ -13,7 +13,7 @@ using namespace std;
 using namespace tbb;
 
 /*! \file LinkCell.cc
-    \brief Build a cell list from a set of points
+    \brief Build a cell list from a set of points.
 */
 
 namespace freud { namespace locality {

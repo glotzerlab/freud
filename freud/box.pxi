@@ -14,78 +14,13 @@ cimport numpy as np
 np.import_array()
 
 cdef class Box:
-    """freud Box object. Wrapper for the c++ box.Box() class
-
-    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
-
-    :param L: Side length of Box
-    :param is2D: specify if box is 2D
-    :param Lx: Length of side x
-    :param Ly: Length of side y
-    :param Lz: Length of side z
-    :param xy: tilt of xy plane
-    :param xz: tilt of xz plane
-    :param yz: tilt of yz plane
-    :param is2D: specify if box is 2D
-    :type L: float
-    :type is2D: bool
-    :type Lx: float
-    :type Ly: float
-    :type Lz: float
-    :type xy: float
-    :type xz: float
-    :type yz: float
-    :type is2D: bool
-
-    - Constructor calls:
-
-        Initialize cubic box of side length L::
-
-            freud.box.Box(L)
-
-        Initialize cubic box of side length L
-            (will create a 2D/3D box based on is2D)::
-
-            freud.box.Box(L, is2D)
-
-        Initialize orthorhombic box of side lengths Lx, Ly, Lz::
-
-            freud.box.Box(Lx, Ly, Lz)
-
-        Initializes box with side lengths Lx, Ly (, Lz if is2D=False)::
-
-            freud.box.Box(Lx, Ly, is2D=False)
-
-        Preferred method to initialize. Pass in as kwargs. Any not set will be
-            set to the above defaults::
-
-            freud.box.Box(Lx=0.0, Ly=0.0, Lz=0.0, xy=0.0, xz=0.0, yz=0.0,
-                          is2D=False)
-
+    """freud Box object. Wrapper for the C++ box.Box() class,
+    imported by box.py for the user-facing API
     """
     cdef box.Box * thisptr
 
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,
                   is2D=None):
-        # BEGIN Check for and warn about possible use of deprecated API
-        # Should be removed in version version 0.7!
-        args = (Lx, Ly, Lz, xy, xz, yz, is2D)
-        if None in args:
-            nargs = args.index(None)
-            if nargs == 1:
-                warnings.warn(
-                    ("You may be using a deprecated Box constructor API!"
-                        "Did you mean Box.cube()?"),
-                    DeprecationWarning)
-            elif nargs == 2 and isinstance(Ly, bool):
-                raise ValueError(
-                    ("You are using a deprecated Box constructor API!"
-                        "Did you mean Box.square()?"))
-            elif isinstance(Lz, bool) or isinstance(xy, bool) or isinstance(
-                    xz, bool) or isinstance(yz, bool):
-                raise ValueError(
-                    "You are using a deprecated Box constructor API!")
-        # END Check for and warn about possible use of deprecated API
         if Lx is None:
             Lx = 0
         if Ly is None:
@@ -109,9 +44,18 @@ cdef class Box:
     def __dealloc__(self):
         del self.thisptr
 
-    def setL(self, L):
+    def getL(self):
         """
-        Set all side lengths of box to L
+        Return the lengths of the box as a tuple (x, y, z)
+
+        :return: dimensions of the box as (x, y, z)
+        :rtype: (float, float, float)
+        """
+        cdef vec3[float] result = self.thisptr.getL()
+        return (result.x, result.y, result.z)
+
+    def setL(self, L):
+        """Set all side lengths of box to L
 
         :param L: Side length of box
         :type L: float
@@ -130,6 +74,92 @@ cdef class Box:
                     "no effect!"))
         self.thisptr.setL(L[0], L[1], L[2])
 
+    def getLx(self):
+        """Length of the x-dimension of the box
+
+        :return: This box's x-dimension length
+        :rtype: float
+        """
+        return self.thisptr.getLx()
+
+    def getLy(self):
+        """Length of the y-dimension of the box
+
+        :return: This box's y-dimension length
+        :rtype: float
+        """
+        return self.thisptr.getLy()
+
+    def getLz(self):
+        """Length of the z-dimension of the box
+
+        :return: This box's z-dimension length
+        :rtype: float
+        """
+        return self.thisptr.getLz()
+
+    def getTiltFactorXY(self):
+        """
+        Return the tilt factor xy
+
+        :return: xy tilt factor
+        :rtype: float
+        """
+        return self.thisptr.getTiltFactorXY()
+
+    @property
+    def xy(self):
+        """Tilt factor xy of the box
+
+        :return: xy tilt factor
+        :rtype: float
+        """
+        return self.getTiltFactorXY()
+
+    def getTiltFactorXZ(self):
+        """
+        Return the tilt factor xz
+
+        :return: xz tilt factor
+        :rtype: float
+        """
+        return self.thisptr.getTiltFactorXZ()
+
+    @property
+    def xz(self):
+        """Tilt factor xz of the box
+
+        :return: xz tilt factor
+        :rtype: float
+        """
+        return self.getTiltFactorXZ()
+
+    def getTiltFactorYZ(self):
+        """
+        Return the tilt factor yz
+
+        :return: yz tilt factor
+        :rtype: float
+        """
+        return self.thisptr.getTiltFactorYZ()
+
+    @property
+    def yz(self):
+        """Tilt factor yz of the box
+
+        :return: yz tilt factor
+        :rtype: float
+        """
+        return self.getTiltFactorYZ()
+
+    def is2D(self):
+        """Return if box is 2D (True) or 3D (False)
+
+        :return: True if 2D, False if 3D
+        :rtype: bool
+        """
+        return self.thisptr.is2D()
+
     def set2D(self, val):
         """
         Set the dimensionality to 2D (True) or 3D (False)
@@ -139,197 +169,40 @@ cdef class Box:
         """
         self.thisptr.set2D(bool(val))
 
-    def is2D(self):
-        """
-        return if box is 2D (True) or 3D (False)
-
-        :return: True if 2D, False if 3D
-        :rtype: bool
-        """
-        return self.thisptr.is2D()
-
-    @property
-    def Lx(self):
-        """
-        return the length of the x-dimension of the box
-
-        :return: x-dimension of the box
-        :rtype: float
-        """
-        return self.getLx()
-
-    def getLx(self):
-        """
-        return the length of the x-dimension of the box
-
-        :return: x-dimension of the box
-        :rtype: float
-        """
-        return self.thisptr.getLx()
-
-    @property
-    def Ly(self):
-        """
-        return the length of the y-dimension of the box
-
-        :return: y-dimension of the box
-        :rtype: float
-        """
-        return self.getLy()
-
-    def getLy(self):
-        """
-        return the length of the y-dimension of the box
-
-        :return: y-dimension of the box
-        :rtype: float
-        """
-        return self.thisptr.getLy()
-
-    @property
-    def Lz(self):
-        """
-        return the length of the z-dimension of the box
-
-        :return: z-dimension of the box
-        :rtype: float
-        """
-        return self.getLz()
-
-    def getLz(self):
-        """
-        return the length of the z-dimension of the box
-
-        :return: z-dimension of the box
-        :rtype: float
-        """
-        return self.thisptr.getLz()
-
-    @property
-    def L(self):
-        """
-        return the lengths of the box as a tuple (x, y, z)
-
-        :return: dimensions of the box as (x, y, z)
-        :rtype: (float, float, float)
-        """
-        return self.getL()
-
-    @L.setter
-    def L(self, value):
-        """
-        Set all side lengths of box to L
-
-        :param L: Side length of box
-        :type L: float
-        """
-        self.setL(value)
-
-    def getL(self):
-        """
-        return the lengths of the box as a tuple (x, y, z)
-
-        :return: dimensions of the box as (x, y, z)
-        :rtype: (float, float, float)
-        """
-        cdef vec3[float] result = self.thisptr.getL()
-        return (result.x, result.y, result.z)
-
-    @property
-    def Linv(self):
-        """
-        return the inverse lengths of the box (1/x, 1/y, 1/z)
-
-        :return: dimensions of the box as (1/x, 1/y, 1/z)
-        :rtype: (float, float, float)
-        """
-        return self.getLinv()
-
     def getLinv(self):
-        """
-        return the inverse lengths of the box (1/x, 1/y, 1/z)
+        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz)
 
-        :return: dimensions of the box as (1/x, 1/y, 1/z)
+        :return: dimensions of the box as (1/Lx, 1/Ly, 1/Lz)
         :rtype: (float, float, float)
         """
         cdef vec3[float] result = self.thisptr.getLinv()
         return (result.x, result.y, result.z)
 
     @property
-    def tilt_factor_xy(self):
-        """
-        return the tilt factor xy
+    def Linv(self):
+        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz)
 
-        :return: xy tilt factor
-        :rtype: float
+        :return: dimensions of the box as (1/Lx, 1/Ly, 1/Lz)
+        :rtype: (float, float, float)
         """
-        return self.getTiltFactorXY()
-
-    def getTiltFactorXY(self):
-        """
-        return the tilt factor xy
-
-        :return: xy tilt factor
-        :rtype: float
-        """
-        return self.thisptr.getTiltFactorXY()
-
-    @property
-    def tilt_factor_xz(self):
-        """
-        return the tilt factor xz
-
-        :return: xz tilt factor
-        :rtype: float
-        """
-        return self.getTiltFactorXZ()
-
-    def getTiltFactorXZ(self):
-        """
-        return the tilt factor xz
-
-        :return: xz tilt factor
-        :rtype: float
-        """
-        return self.thisptr.getTiltFactorXZ()
-
-    @property
-    def tilt_factor_yz(self):
-        """
-        return the tilt factor yz
-
-        :return: yz tilt factor
-        :rtype: float
-        """
-        return self.getTiltFactorYZ()
-
-    def getTiltFactorYZ(self):
-        """
-        return the tilt factor yz
-
-        :return: yz tilt factor
-        :rtype: float
-        """
-        return self.thisptr.getTiltFactorYZ()
-
-    @property
-    def volume(self):
-        """
-        return the box volume
-
-        :return: box volume
-        :rtype: float
-        """
-        return self.getVolume()
+        return self.getLinv()
 
     def getVolume(self):
-        """
-        return the box volume
+        """Return the box volume (area in 2D)
 
         :return: box volume
         :rtype: float
         """
         return self.thisptr.getVolume()
+
+    @property
+    def volume(self):
+        """Return the box volume (area in 2D)
+
+        :return: box volume
+        :rtype: float
+        """
+        return self.getVolume()
 
     def getCoordinates(self, f):
         """
@@ -344,7 +217,6 @@ cdef class Box:
         cdef vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
         cdef vec3[float] resultVec = self.thisptr.makeCoordinates(
                 < const vec3[float]&>fRaw)
-        # check on this
         cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
         return result
 
@@ -461,6 +333,77 @@ cdef class Box:
         if self.thisptr.is2D():
             result.z = 0.0
         return [result.x, result.y, result.z]
+
+    def getPeriodic(self):
+        """
+        Get the box's periodicity in each dimension
+
+        :return: list of periodic attributes in x, y, z
+        :rtype: list[bool, bool, bool]
+        """
+        periodic = self.thisptr.getPeriodic()
+        return [periodic.x, periodic.y, periodic.z]
+
+    def setPeriodic(self, x, y, z):
+        """
+        Set the box's periodicity in each dimension
+
+        :param bool x: True if periodic in x, False if not
+        :param bool y: True if periodic in y, False if not
+        :param bool z: True if periodic in z, False if not
+        """
+        self.thisptr.setPeriodic(x, y, z)
+
+    def getPeriodicX(self):
+        """
+        Get the box periodicity in the x direction
+
+        :return: True if periodic, False if not
+        :rtype: bool
+        """
+        return self.thisptr.getPeriodicX()
+
+    def setPeriodicX(self, val):
+        """
+        Set the box periodicity in the x direction
+
+        :param bool val: True if periodic, False if not
+        """
+        return self.thisptr.setPeriodicX(val)
+
+    def getPeriodicY(self):
+        """
+        Get the box periodicity in the y direction
+
+        :return: True if periodic, False if not
+        :rtype: bool
+        """
+        return self.thisptr.getPeriodicY()
+
+    def setPeriodicY(self, val):
+        """
+        Set the box periodicity in the y direction
+
+        :param bool val: True if periodic, False if not
+        """
+        return self.thisptr.setPeriodicY(val)
+
+    def getPeriodicZ(self):
+        """
+        Get the box periodicity in the z direction
+
+        :return: True if periodic, False if not
+        :rtype: bool
+        """
+        return self.thisptr.getPeriodicZ()
+
+    def setPeriodicZ(self, val):
+        """
+        Set the box periodicity in the z direction
+
+        :param bool val: True if periodic, False if not
+        """
+        return self.thisptr.setPeriodicZ(val)
 
     # Enable pickling of internal classes
     # Box

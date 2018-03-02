@@ -14,7 +14,7 @@ using namespace std;
 using namespace tbb;
 
 /*! \file BondOrder.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the bond order diagram for the system of particles.
 */
 
 namespace freud { namespace order {

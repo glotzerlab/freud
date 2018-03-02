@@ -1,4 +1,3 @@
-import numpy
 import numpy as np
 import numpy.testing as npt
 from freud import box, bond, parallel
@@ -32,9 +31,9 @@ class TestBond(unittest.TestCase):
         theta = theta if (theta < 2.0*np.pi) else theta - 2.0*np.pi
         x = deltaX + xmax
         y = deltaY + ymax
-        binX = int(numpy.floor(x / dx))
-        binY = int(numpy.floor(y / dy))
-        binT = int(numpy.floor(theta / dt))
+        binX = int(np.floor(x / dx))
+        binY = int(np.floor(y / dy))
+        binT = int(np.floor(theta / dt))
         testArray[binT, binY, binX] = 5
         deltaX = posList[0,0] - posList[1,0]
         deltaY = posList[0,1] - posList[1,1]
@@ -45,9 +44,9 @@ class TestBond(unittest.TestCase):
         theta = theta if (theta < 2.0*np.pi) else theta - 2.0*np.pi
         x = deltaX + xmax
         y = deltaY + ymax
-        binX = int(numpy.floor(x / dx))
-        binY = int(numpy.floor(y / dy))
-        binT = int(numpy.floor(theta / dt))
+        binX = int(np.floor(x / dx))
+        binY = int(np.floor(y / dy))
+        binT = int(np.floor(theta / dt))
         testArray[binT, binY, binX] = 5
 
         # create object

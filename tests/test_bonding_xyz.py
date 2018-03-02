@@ -1,4 +1,3 @@
-import numpy
 import numpy as np
 import numpy.testing as npt
 from freud import box, bond, parallel
@@ -57,9 +56,9 @@ class TestBond(unittest.TestCase):
         x = v_rot[0] + xmax
         y = v_rot[1] + ymax
         z = v_rot[2] + zmax
-        binX = int(numpy.floor(x / dx))
-        binY = int(numpy.floor(y / dy))
-        binZ = int(numpy.floor(z / dz))
+        binX = int(np.floor(x / dx))
+        binY = int(np.floor(y / dy))
+        binZ = int(np.floor(z / dz))
         testArray[binZ,binY,binX] = 5
         deltaX = posList[0,0] - posList[1,0]
         deltaY = posList[0,1] - posList[1,1]
@@ -69,9 +68,9 @@ class TestBond(unittest.TestCase):
         x = v_rot[0] + xmax
         y = v_rot[1] + ymax
         z = v_rot[2] + zmax
-        binX = int(numpy.floor(x / dx))
-        binY = int(numpy.floor(y / dy))
-        binZ = int(numpy.floor(z / dz))
+        binX = int(np.floor(x / dx))
+        binY = int(np.floor(y / dy))
+        binZ = int(np.floor(z / dz))
         testArray[binZ,binY,binX] = 5
 
         # create object

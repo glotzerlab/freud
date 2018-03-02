@@ -12,7 +12,7 @@
 using namespace std;
 
 /*! \file ClusterProperties.cc
-    \brief Routines for computing properties of point clusters
+    \brief Routines for computing properties of point clusters.
 */
 
 namespace freud { namespace cluster {

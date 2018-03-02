@@ -13,6 +13,11 @@
 //! \package freud::kspace Provides tools for calculating density in reciprocal space
 /*! For analyzing periodicity or simulating diffraction patterns
 */
+
+/*! \file kspace.h
+    \brief Analyses that compute quantities in kspace
+*/
+
 namespace freud { namespace kspace {
 /*! Compute the Fourier transform of a set of delta peaks at a list of K points.
 Also serves as the base class for Fourier transform calculators of non-delta form factors

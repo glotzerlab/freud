@@ -16,7 +16,7 @@
 #define _CLUSTER_H__
 
 /*! \file Cluster.h
-    \brief Routines for clustering points
+    \brief Routines for clustering points.
 */
 
 namespace freud { namespace cluster {

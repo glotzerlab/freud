@@ -18,10 +18,10 @@ cdef class Index2D:
     :math:`1`-dimensional array with :math:`\prod\limits_i n_i` elements.
 
     .. note:: freud indexes column-first i.e. Index2D(i, j) will return the
-    :math:`1`-dimensional index of the :math:`i^{th}` column and the
-    :math:`j^{th}` row. This is the opposite of what occurs in a numpy array,
-    in which array[i, j] returns the element in the :math:`i^{th}` row and the
-    :math:`j^{th}` column
+              :math:`1`-dimensional index of the :math:`i^{th}` column and the
+              :math:`j^{th}` row. This is the opposite of what occurs in a
+              numpy array, in which array[i, j] returns the element in the
+              :math:`i^{th}` row and the :math:`j^{th}` column
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -64,14 +64,12 @@ cdef class Index2D:
 
     @property
     def num_elements(self):
-        """
-        :return: number of elements in the array
-        :rtype: unsigned int
+        """Number of elements in the array
         """
         return self.getNumElements()
 
     def getNumElements(self):
-        """
+        """Get the number of elements in the array
         :return: number of elements in the array
         :rtype: unsigned int
         """
@@ -85,10 +83,11 @@ cdef class Index3D:
     :math:`1`-dimensional array with :math:`\\prod\\limits_i n_i` elements.
 
     .. note:: freud indexes column-first i.e. Index3D(i, j, k) will return the
-    :math:`1`-dimensional index of the :math:`i^{th}` column, :math:`j^{th}`
-    row, and the :math:`k^{th}` frame. This is the opposite of what occurs in a
-    numpy array, in which array[i, j, k] returns the element in the
-    :math:`i^{th}` frame, :math:`j^{th}` row, and the :math:`k^{th}` column.
+              :math:`1`-dimensional index of the :math:`i^{th}` column,
+              :math:`j^{th}` row, and the :math:`k^{th}` frame. This is the
+              opposite of what occurs in a numpy array, in which
+              array[i, j, k] returns the element in the :math:`i^{th}` frame,
+              :math:`j^{th}` row, and the :math:`k^{th}` column.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -135,14 +134,12 @@ cdef class Index3D:
 
     @property
     def num_elements(self):
-        """
-        :return: number of elements in the array
-        :rtype: unsigned int
+        """Number of elements in the array
         """
         return self.getNumElements()
 
     def getNumElements(self):
-        """
+        """Get the number of elements in the array
         :return: number of elements in the array
         :rtype: unsigned int
         """

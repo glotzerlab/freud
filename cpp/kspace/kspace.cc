@@ -10,6 +10,10 @@
 
 using namespace std;
 
+/*! \file kspace.cc
+    \brief Analyses that compute quantities in kspace
+*/
+
 namespace freud { namespace kspace {
 
 FTdelta::FTdelta()

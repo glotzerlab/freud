@@ -26,7 +26,7 @@
 #define _BONDING_ANALYSIS_H__
 
 /*! \file BondingAnalysis.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Determines the bond lifetimes and flux present in the system.
 */
 
 namespace freud { namespace bond {

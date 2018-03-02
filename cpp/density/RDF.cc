@@ -14,7 +14,7 @@ using namespace std;
 using namespace tbb;
 
 /*! \file RDF.cc
-    \brief Routines for computing radial density functions
+    \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {

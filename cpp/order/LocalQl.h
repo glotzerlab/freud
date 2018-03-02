@@ -18,7 +18,8 @@
     \brief Compute a Ql per particle
 */
 
-namespace freud { namespace order {
+namespace freud {
+namespace order {
 
 //! Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points
 /*!
@@ -145,6 +146,7 @@ class LocalQl
         std::shared_ptr< float > m_QliAveNorm;  //! < QlAveNorm order paramter for each particle i
     };
 
-}; }; // end namespace freud::order
+}; // end namespace freud::order
+}; // end namespace freud
 
 #endif // #define _LOCAL_QL_H__

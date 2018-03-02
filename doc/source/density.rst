@@ -2,8 +2,7 @@
 Density Module
 ==============
 
-The density module contains functions which deal with the density of the system
-
+The density module contains functions which deal with the density of the system.
 
 Correlation Functions
 =====================

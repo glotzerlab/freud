@@ -20,7 +20,7 @@
 #define _GaussianDensity_H__
 
 /*! \file GaussianDensity.h
-    \brief Routines for computing Gaussian smeared densities from points
+    \brief Routines for computing Gaussian smeared densities from points.
 */
 
 namespace freud { namespace density {

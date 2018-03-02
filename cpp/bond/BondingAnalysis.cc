@@ -15,6 +15,10 @@
 using namespace std;
 using namespace tbb;
 
+/*! \file BondingAnalysis.cc
+    \brief Determines the bond lifetimes and flux present in the system.
+*/
+
 namespace freud { namespace bond {
 
 struct FindParticleIndex

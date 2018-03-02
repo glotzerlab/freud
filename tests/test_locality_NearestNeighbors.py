@@ -10,11 +10,12 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         cl.compute(fbox, points, points)
 
@@ -25,7 +26,7 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 2 #Cutoff radius
         N = 2; # number of particles
-        num_neighbors = 1;
+        num_neighbors = 1
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors, strict_cut=False)#Initialize cell list
@@ -45,11 +46,12 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 3 #Cutoff radius
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
 
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         cl.compute(fbox, points, points)
 
@@ -65,7 +67,7 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 2 #Cutoff radius
         N = 2; # number of particles
-        num_neighbors = 1;
+        num_neighbors = 1
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors, strict_cut=True)#Initialize cell list
@@ -85,7 +87,7 @@ class TestNearestNeighbors(unittest.TestCase):
         L = 10 #Box Dimensions
         rcut = 2.01 #Cutoff radius
         N = 3; # number of particles
-        num_neighbors = 2;
+        num_neighbors = 2
 
         fbox = box.Box.cube(L)#Initialize Box
         cl = locality.NearestNeighbors(rcut, num_neighbors, strict_cut=True)#Initialize cell list
@@ -128,12 +130,11 @@ class TestNearestNeighbors(unittest.TestCase):
     def test_repeated_neighbors(self):
         L = 10 #Box Dimensions
         N = 40; # number of particles
-        num_neighbors = 6;
+        num_neighbors = 6
 
         fbox = box.Box.cube(L)#Initialize Box
 
-        seed = np.random.randint(0, 2**32)
-        np.random.seed(seed)
+        np.random.seed(0)
 
         pos = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
 
@@ -146,17 +147,16 @@ class TestNearestNeighbors(unittest.TestCase):
             if len(all_pairs) != len(nlist):
                 raise AssertionError(
                     'Repeated neighbor pair sizes in test_repeated_neighbors, '
-                    'seed={}, rcut={}'.format(seed, rcut))
+                    'rcut={}'.format(rcut))
 
     def test_small_box(self):
         L = 10 #Box Dimensions
         N = 8; # number of particles
-        num_neighbors = N - 1;
+        num_neighbors = N - 1
 
         fbox = box.Box.cube(L)#Initialize Box
 
-        seed = np.random.randint(0, 2**32)
-        np.random.seed(seed)
+        np.random.seed(0)
 
         pos = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
 
@@ -169,7 +169,7 @@ class TestNearestNeighbors(unittest.TestCase):
             if len(nlist) != N*(N - 1):
                 raise AssertionError(
                     'Wrong-sized neighbor list in test_even_cells,'
-                    'seed={}, box_cell_count={}'.format(seed, box_cell_count))
+                    'box_cell_count={}'.format(box_cell_count))
 
     def test_single_neighbor(self):
         pos = np.zeros((10, 3), dtype=np.float32)

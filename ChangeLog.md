@@ -1,17 +1,24 @@
 # Change Log
 
-## Unreleased
+## v0.7.0
 
-* Added a generic neighbor list interface
 * Various bug fixes and code cleaning
 * Fixed all compile-time warnings
 * Ensured PEP 8 compliance everywhere
 * Minimized boost dependence
-* Added Nematic OP
+* Added Nematic order parameter
 * Added optional rmin argument to density.RDF
+* Added credits file
+* Many documentation rewrites
+* Wrote development guide
+* Made tests deterministic (seeded RNGs)
+* Removed deprecated Box API warnings
+* Standardized numpy usage
+* Added Python interface for box periodicity
 
 ## v0.6.4
 
+* Added a generic neighbor list interface
 * Set up CircleCI for continuous integration
 * Set up documentation on ReadTheDocs
 * Added bumpversion support

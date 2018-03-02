@@ -17,7 +17,7 @@
 #define _NEAREST_NEIGHBORS_H__
 
 /*! \file NearestNeighbors.h
-  \brief Find the requested number of nearest neighbors
+  \brief Find the requested number of nearest neighbors.
 */
 
 namespace freud { namespace locality {

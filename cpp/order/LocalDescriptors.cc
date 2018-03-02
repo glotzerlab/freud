@@ -16,8 +16,8 @@ using namespace std;
 using namespace tbb;
 using hoomd::matrix::diagonalize;
 
-/*! \file LocalDescriptors.h
-  \brief Compute the hexatic order parameter for each particle
+/*! \file LocalDescriptors.cc
+  \brief Computes local descriptors.
 */
 
 namespace freud { namespace order {

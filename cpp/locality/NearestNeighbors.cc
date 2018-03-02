@@ -16,7 +16,7 @@ using namespace std;
 using namespace tbb;
 
 /*! \file NearestNeighbors.h
-  \brief Compute the hexatic order parameter for each particle
+  \brief Find the requested number of nearest neighbors.
 */
 
 namespace freud { namespace locality {
