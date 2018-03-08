@@ -75,6 +75,30 @@ class TestVoronoi(unittest.TestCase):
                  [1, 2, 3, 4, 7, 8], [0, 3, 4, 7, 8], [1, 3, 4, 5, 6, 8],
                  [2, 4, 5, 6, 7]])
 
+    def test_voronoi_neighbors_wrapped(self):
+        # Test that voronoi neighbors in the first shell are
+        # correct for a wrapped 3D system
+
+        L = 3.0 # Box length
+        fbox = box.Box.cube(L)
+        rbuf = L/2
+
+        # Make a simple cubic structure
+        positions = np.array([[i + 0.5 - L/2,
+                               j + 0.5 - L/2,
+                               k + 0.5 - L/2]
+                               for i in range(int(L))
+                               for j in range(int(L))
+                               for k in range(int(L))]).astype(np.float32)
+        vor = voronoi.Voronoi(fbox)
+        vor.computeNeighbors(positions, fbox, rbuf)
+        nlist = vor.getNeighborList()
+
+        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
+
+        # Every particle should have six neighbors
+        npt.assert_equal(counts, np.full(len(unique_indices), 6))
+
     def test_nlist_symmetric(self):
         # Test that the voronoi neighborlist is symmetric
         L = 10 # Box length
