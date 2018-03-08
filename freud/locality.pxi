@@ -595,10 +595,10 @@ cdef class NearestNeighbors:
 
     - strict_cut = True: rmax will be strictly obeyed, and any particle which
         has fewer than N neighbors will have values of UINT_MAX assigned
-    - strict_cut = False: rmax will be expanded to find requested number of
-        neighbors. If rmax increases to the  point that a cell list cannot be
-        constructed, a warning will be raised and neighbors found will be
-        returned
+    - strict_cut = False (default): rmax will be expanded to find requested
+        number of neighbors. If rmax increases to the  point that a cell list
+        cannot be constructed, a warning will be raised and neighbors found will
+        be returned
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -610,7 +610,7 @@ cdef class NearestNeighbors:
                     utilized if strict_cut is False. Scale must be greater than
                     1
     :param strict_cut: whether to use a strict rmax or allow for automatic
-                        expansion
+                       expansion, default=False
     :type rmax: float
     :type n_neigh: unsigned int
     :type scale: float
