@@ -2,7 +2,7 @@ from freud import box, density
 import numpy as np
 import math
 import nose
-from nose.tools import assert_equal, assert_almost_equal, assert_less, raises
+from nose.tools import assert_equal, assert_almost_equal, assert_less
 import unittest
 
 class TestLD:
