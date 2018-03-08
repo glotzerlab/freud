@@ -393,13 +393,6 @@ class LinkCell
             return m_cell_index(c.x, c.y, c.z);
             }
 
-        //! Compute the cell id for a given position
-        unsigned int getCell(const float3 p) const
-            {
-            vec3<unsigned int> c = getCellCoord(p);
-            return m_cell_index(c.x, c.y, c.z);
-            }
-
         //! Compute cell coordinates for a given position
         vec3<unsigned int> getCellCoord(const vec3<float> p) const
             {
@@ -414,14 +407,6 @@ class LinkCell
             return c;
             }
 
-        //! Compute cell coordinates for a given position. float3 interface is deprecated.
-        vec3<unsigned int> getCellCoord(const float3 p) const
-            {
-                vec3<float> vec3p;
-                vec3p.x = p.x; vec3p.y = p.y; vec3p.z = p.z;
-                return getCellCoord(vec3p);
-            }
-
         //! Iterate over particles in a cell
         iteratorcell itercell(unsigned int cell) const
             {
@@ -434,9 +419,6 @@ class LinkCell
             {
             return m_cell_neighbors[cell];
             }
-
-        //! Compute the cell list (deprecated float3 interface)
-        void computeCellList(box::Box& box, const float3 *points, unsigned int Np);
 
         //! Compute the cell list
         void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);

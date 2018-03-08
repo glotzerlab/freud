@@ -3,7 +3,7 @@
 import numpy as np
 from cython.view cimport array as cvarray
 from libcpp.vector cimport vector
-from freud.util._cudaTypes cimport float3
+from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 cimport freud._voronoi as voronoi
 cimport freud._box as _box
@@ -31,19 +31,19 @@ cdef class VoronoiBuffer:
                 'Need a list of 3D points for VoronoiBuffer.compute()')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        self.thisptr.compute(< float3*> cPoints.data, Np, buffer)
+        self.thisptr.compute(< vec3[float]*> cPoints.data, Np, buffer)
         return self
 
     def getBufferParticles(self):
         cdef _box.Box cBox = self.thisptr.getBox()
         cdef unsigned int buffer_size = dereference(
                 self.thisptr.getBufferParticles().get()).size()
-        cdef float3 * buffer_points = &dereference(
+        cdef vec3[float] * buffer_points = &dereference(
                 self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
 
-        cdef vector[float3]*bufferPar = self.thisptr.getBufferParticles().get()
+        cdef vector[vec3[float]]*bufferPar = self.thisptr.getBufferParticles().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = buffer_size
         nbins[1] = 3

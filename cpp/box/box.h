@@ -322,28 +322,13 @@ class Box
                 }
            }
 
-        //! Wrap a vector back into the box. Legacy float3 version. Deprecated.
-        /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
-         *  \param img Image of the vector, updated to reflect the new image
-         *  \param flags Vector of flags to force wrapping along certain directions
-         *  \post \a img and \a v are updated appropriately
-         *  \note \a v must not extend more than 1 image beyond the box
-         */
-        void wrap(float3& w, int3& img, char3 flags = make_char3(0,0,0)) const
-            {
-                vec3<float> tempcopy;
-                tempcopy.x = w.x; tempcopy.y = w.y; tempcopy.z = w.z;
-                wrap(tempcopy, img, flags);
-                w.x = tempcopy.x; w.y = tempcopy.y; w.z=tempcopy.z;
-            }
-
         void minimalwrap(vec3<float>& w) const
             {
             vec3<float> L = getL();
 
             if (m_periodic.x)
                 {
-                float tilt_x = (m_xz - m_xy*m_yz) * w.z + m_xy * w.y;
+                float tilt_x = (m_xz - m_xy * m_yz) * w.z + m_xy * w.y;
                 if (w.x >= m_hi.x + tilt_x)
                     {
                     w.x -= L.x;
@@ -400,17 +385,6 @@ class Box
             vec3<float> tempcopy = w;
             minimalwrap(tempcopy);
             return tempcopy;
-            }
-
-        float3 wrap(const float3& w, const char3 flags = make_char3(0,0,0)) const
-            {
-               vec3<float> tempcopy;
-               tempcopy.x = w.x; tempcopy.y = w.y; tempcopy.z = w.z;
-               int3 img = getImage(tempcopy);
-               wrap(tempcopy, img, flags);
-               float3 wrapped;
-               wrapped.x = tempcopy.x; wrapped.y = tempcopy.y; wrapped.z=tempcopy.z;
-               return wrapped;
             }
 
         //! Unwrap a given position to its "real" location

@@ -16,14 +16,14 @@ using namespace std;
 
 namespace freud { namespace voronoi {
 
-void VoronoiBuffer::compute(const float3 *points,
+void VoronoiBuffer::compute(const vec3<float> *points,
                             const unsigned int Np,
                             const float buff)
     {
     assert(points);
 
-    m_buffer_particles = std::shared_ptr<std::vector<float3> >(new std::vector<float3>());
-    std::vector<float3>& buffer_parts = *m_buffer_particles;
+    m_buffer_particles = std::shared_ptr<std::vector< vec3<float> > >(new std::vector< vec3<float> >());
+    std::vector< vec3<float> >& buffer_parts = *m_buffer_particles;
 
     // Get the box dimensions
     float lx = m_box.getLx();
@@ -33,7 +33,7 @@ void VoronoiBuffer::compute(const float3 *points,
     float ly_2_buff = 0.5*ly + buff;
     float lz_2_buff = 0.5*lz + buff;
 
-    float3 img;
+    vec3<float> img;
     buffer_parts.clear();
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
