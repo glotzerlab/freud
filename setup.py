@@ -47,6 +47,7 @@ if on_rtd:
     clang_env = os.environ.copy()
     clang_env['CC'] = shutil.which('clang')
     clang_env['CXX'] = shutil.which('clang++')
+    print('Calling', ' '.join(cmake_command))
     cmake_process = Popen(cmake_command, env=clang_env)
     if cmake_process.wait() != 0:
         print('Errors occurred during CMake.')
@@ -54,6 +55,7 @@ if on_rtd:
     exit_code = call(['make', 'install', '-j1'])
     exit(exit_code)
 else:
+    print('Calling', ' '.join(cmake_command))
     exit_code = call(cmake_command)
     if exit_code != 0:
         exit(exit_code)
