@@ -2,8 +2,9 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <iostream>
-#include "wigner3j.h"
 #include <vector>
+
+#include "wigner3j.h"
 
 using namespace std;
 

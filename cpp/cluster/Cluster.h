@@ -2,15 +2,13 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
-#include <vector>
 #include <set>
 #include <stdint.h>
+#include <vector>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "LinkCell.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "LinkCell.h"
 
 #ifndef _CLUSTER_H__
 #define _CLUSTER_H__

@@ -4,26 +4,26 @@
 #ifndef _MATCH_ENV_H__
 #define _MATCH_ENV_H__
 
+#include <algorithm>
+#include <complex>
+#include <iostream>
+#include <map>
 #include <memory>
+#include <set>
+#include <stdexcept>
+#include <vector>
+
 #include <boost/bimap.hpp>
 
-#include "HOOMDMath.h"
+#include "box.h"
 #include "VectorMath.h"
-
-#include <vector>
-#include <set>
-
 #include "Cluster.h"
 #include "NearestNeighbors.h"
 #include "brute_force.h"
-#include "box.h"
 
-#include <stdexcept>
-#include <complex>
-#include <map>
-#include <algorithm>
-#include <iostream>
-
+/*! \file MatchEnv.h
+    \brief Particle environment matching
+*/
 
 namespace freud { namespace order {
 //! Clusters particles according to whether their local environments match or not, according to various shape matching metrics

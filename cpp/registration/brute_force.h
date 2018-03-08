@@ -2,10 +2,11 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 // stdlib include
-#include <iostream>
-#include <vector>
-#include <random>
 #include <chrono>
+#include <iostream>
+#include <random>
+#include <vector>
+
 // boost include
 #include <boost/shared_ptr.hpp>
 #include <boost/bimap.hpp>
@@ -18,8 +19,8 @@
 #include "Eigen/Eigen/Dense"
 #include "Eigen/Eigen/Sparse"
 
-#ifndef BRUTE_FORCE_H
-#define BRUTE_FORCE_H
+#ifndef _BRUTE_FORCE_H__
+#define _BRUTE_FORCE_H__
 
 namespace freud { namespace registration {
 

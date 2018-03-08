@@ -1,15 +1,13 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "ScopedGILRelease.h"
-
+#include <complex>
 #include <stdexcept>
+#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <tbb/tbb.h>
-#include <complex>
 #include "CorrelationFunction.h"
 
 using namespace std;

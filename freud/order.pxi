@@ -19,32 +19,36 @@ cimport numpy as np
 np.import_array()
 
 cdef class BondOrder:
-    """Compute the bond order diagram for the system of particles.
+    """
+    Compute the bond order diagram for the system of particles.
 
-    Available Modes of Calculation:
-    * If mode=bod (Bond Order Diagram): Create the 2D histogram containing the
-    number of bonds formed through the surface of a unit sphere based on the
-    azimuthal (Theta) and polar (Phi) angles. This is the default.
+    Available modes of calculation:
 
-    * If mode=lbod (Local Bond Order Diagram): Create the 2D histogram
-        containing the number of bonds formed, rotated into the local
-        orientation of the central particle, through the surface of a unit
-        sphere based on the azimuthal :math:`\\left( \\theta \\right)` and
-        polar :math:`\\left( \\phi \\right)` angles.
+    * If :code:`mode='bod'` (Bond Order Diagram, *default*):
+      Create the 2D histogram containing the number of bonds formed through
+      the surface of a unit sphere based on the azimuthal
+      :math:`\\left( \\theta \\right)` and polar
+      :math:`\\left( \\phi \\right)` angles.
 
-    * If mode=obcd (Orientation Bond Correlation Diagram): Create the 2D
-        histogram containing the number of bonds formed, rotated by the
-        rotation that takes the orientation of neighboring particle j to the
-        orientation of each particle i, through the surface of a unit sphere
-        based on the azimuthal :math:`\\left( \\theta \\right)` and polar
-        :math:`\\left( \\phi \\right)` angles.
+    * If :code:`mode='lbod'` (Local Bond Order Diagram):
+      Create the 2D histogram containing the number of bonds formed, rotated
+      into the local orientation of the central particle, through the surface
+      of a unit sphere based on the azimuthal :math:`\\left( \\theta \\right)`
+      and polar :math:`\\left( \\phi \\right)` angles.
 
-    * If mode=oocd (Orientation Orientation Correlation Diagram): Create the 2D
-        histogram containing the directors of neighboring particles
-        (:math:`\\hat{z}` rotated by their quaternion), rotated into the local
-        orientation of the central particle, through the surface of a unit
-        sphere based on the azimuthal :math:`\\left( \\theta \\right)` and
-        polar :math:`\\left( \\phi \\right)` angles.
+    * If :code:`mode='obcd'` (Orientation Bond Correlation Diagram):
+      Create the 2D histogram containing the number of bonds formed, rotated
+      by the rotation that takes the orientation of neighboring particle j to
+      the orientation of each particle i, through the surface of a unit sphere
+      based on the azimuthal :math:`\\left( \\theta \\right)` and polar
+      :math:`\\left( \\phi \\right)` angles.
+
+    * If :code:`mode='oocd'` (Orientation Orientation Correlation Diagram):
+      Create the 2D histogram containing the directors of neighboring particles
+      (:math:`\\hat{z}` rotated by their quaternion), rotated into the local
+      orientation of the central particle, through the surface of a unit
+      sphere based on the azimuthal :math:`\\left( \\theta \\right)` and
+      polar :math:`\\left( \\phi \\right)` angles.
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
@@ -298,7 +302,7 @@ cdef class BondOrder:
         return np
 
 cdef class CubaticOrderParameter:
-    """Compute the Cubatic Order Parameter [Cit1]_ for a system of particles
+    """Compute the cubatic order parameter [Cit1]_ for a system of particles
     using simulated annealing instead of Newton-Raphson root finding.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
@@ -394,7 +398,7 @@ cdef class CubaticOrderParameter:
 
     def get_cubatic_order_parameter(self):
         """
-        :return: Cubatic Order parameter
+        :return: Cubatic order parameter
         :rtype: float
         """
         return self.thisptr.getCubaticOrderParameter()
@@ -415,7 +419,7 @@ cdef class CubaticOrderParameter:
 
     def get_particle_op(self):
         """
-        :return: Cubatic Order parameter
+        :return: Cubatic order parameter
         :rtype: float
         """
         cdef float * particle_op = \
@@ -511,7 +515,7 @@ cdef class CubaticOrderParameter:
 from libcpp.memory cimport shared_ptr
 
 cdef class NematicOrderParameter:
-    """Compute the Nematic order Parameter for a system of particles.
+    """Compute the nematic order parameter for a system of particles.
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
 
@@ -549,7 +553,7 @@ cdef class NematicOrderParameter:
 
     def get_nematic_order_parameter(self):
         """The nematic order parameterr
-        :return: Nematic Order parameter
+        :return: Nematic order parameter
         :rtype: float
         """
         return self.thisptr.getNematicOrderParameter()
