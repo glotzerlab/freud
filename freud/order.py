@@ -15,7 +15,7 @@ from ._freud import LocalDescriptors
 from ._freud import Pairing2D
 from ._freud import AngularSeparation
 
-# everything below is spherical harmonic stuff
+# everything below uses spherical harmonics
 from ._freud import LocalQl
 from ._freud import LocalQlNear
 from ._freud import LocalWl
