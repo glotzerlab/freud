@@ -4,25 +4,19 @@ import freud
 def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
     """Make an FCC crystal for testing
 
-    Args
-    ----
-    nx : int, optional
-        Repeat the unit cell nx times in x direction, default=1
-    ny : int, optional
-        Repeat the unit cell ny times in y direction, default=1
-    nz : int, optional
-        Repeat the unit cell nz times in z direction, default=1
-    scale : float
-        Scale the unit cell by scale, default=1.0
-    noise : float, optional
-        Apply Gaussian noise to particles with width=noise, default=0.0
-
-    Returns
-    -------
-    box : frued.box.Box
-        The box containing the crystal
-    positions : np.ndarray, shape=(nx*ny*nz, 3)
-        The positions of the particles in the crystal
+    :param nx: Number of repeats in the x direction, default is 1
+    :param ny: Number of repeats in the y direction, default is 1
+    :param nz: Number of repeats in the z direction, default is 1
+    :param scale: Amount to scale the unit cell by (in distance units),
+        default is 1.0
+    :param noise: Apply Gaussian noise with this width to the particle positions
+    :type nx: int
+    :type ny: int
+    :type nz: int
+    :type scale: float
+    :type noise: float
+    :return: freud Box, particle positions, shape=(nx*ny*nz, 3)
+    :rtype: (:py:class:`freud.box.Box`, :class:`np.ndarray`)
     """
     fractions = np.array([[.5, .5, 0],
                           [.5, 0, .5],
