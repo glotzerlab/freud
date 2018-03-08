@@ -6,6 +6,8 @@ from freud.util._VectorMath cimport vec3
 from libcpp.vector cimport vector
 cimport freud._box as box
 
+ctypedef unsigned int uint
+
 cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
     cdef cppclass VoronoiBuffer:
         VoronoiBuffer(const box.Box &)
@@ -15,3 +17,4 @@ cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
                 const unsigned int,
                 const float) nogil except +
         shared_ptr[vector[vec3[float]]] getBufferParticles()
+        shared_ptr[vector[uint]] getBufferIds()

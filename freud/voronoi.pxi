@@ -35,7 +35,6 @@ cdef class VoronoiBuffer:
         return self
 
     def getBufferParticles(self):
-        cdef _box.Box cBox = self.thisptr.getBox()
         cdef unsigned int buffer_size = dereference(
                 self.thisptr.getBufferParticles().get()).size()
         cdef vec3[float] * buffer_points = &dereference(
@@ -48,9 +47,28 @@ cdef class VoronoiBuffer:
         nbins[0] = buffer_size
         nbins[1] = 3
 
-        cdef np.ndarray[float, ndim = 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                                2, nbins, np.NPY_FLOAT32, < void*>dereference(
-                                    bufferPar).data())
+        cdef np.ndarray[float, ndim = 2] result = \
+                np.PyArray_SimpleNewFromData(
+                    2, nbins, np.NPY_FLOAT32,
+                    <void*> dereference(bufferPar).data())
+
+        return result
+
+    def getBufferIds(self):
+        cdef unsigned int buffer_size = dereference(
+                self.thisptr.getBufferParticles().get()).size()
+        cdef unsigned int * buffer_ids = &dereference(
+                self.thisptr.getBufferIds().get())[0]
+        if not buffer_size:
+            return np.array([[]], dtype=np.uint32)
+
+        cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = buffer_size
+
+        cdef np.ndarray[unsigned int, ndim = 1] result = \
+                np.PyArray_SimpleNewFromData(
+                    1, nbins, np.NPY_UINT32,
+                    <void*> dereference(bufferIds).data())
 
         return result
