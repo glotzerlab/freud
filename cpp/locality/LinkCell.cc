@@ -1,13 +1,12 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <stdexcept>
 #include <algorithm>
-#include <tuple>
+#include <stdexcept>
 #include <tbb/tbb.h>
+#include <tuple>
 
 #include "LinkCell.h"
-#include "ScopedGILRelease.h"
 
 using namespace std;
 using namespace tbb;

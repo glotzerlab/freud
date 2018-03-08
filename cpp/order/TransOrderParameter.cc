@@ -1,11 +1,10 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "TransOrderParameter.h"
-#include "ScopedGILRelease.h"
-
-#include <stdexcept>
 #include <complex>
+#include <stdexcept>
+
+#include "TransOrderParameter.h"
 
 using namespace std;
 using namespace tbb;

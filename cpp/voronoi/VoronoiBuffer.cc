@@ -1,12 +1,11 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "VoronoiBuffer.h"
-#include "ScopedGILRelease.h"
-
+#include <memory>
 #include <stdexcept>
 #include <vector>
-#include <memory>
+
+#include "VoronoiBuffer.h"
 
 using namespace std;
 

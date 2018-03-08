@@ -1,11 +1,12 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "LocalWl.h"
-#include <stdexcept>
-#include <complex>
 #include <algorithm>
+#include <complex>
 #include <cstring>
+#include <stdexcept>
+
+#include "LocalWl.h"
 
 using namespace std;
 
