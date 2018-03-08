@@ -18,7 +18,7 @@ class SteinhardtBenchmark(benchmark.benchmark):
 
     def run(self, N):
         stein = order.LocalQl(self.box, 2, 6)
-        stein.compute(self.points);
+        stein.compute(self.points)
 
 if __name__ == '__main__':
     times = SteinhardtBenchmark().run_thread_scaling_benchmark([4096, 16384, 65536], number=20)

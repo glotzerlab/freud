@@ -18,7 +18,7 @@ class RDFBenchmark(benchmark.benchmark):
 
     def run(self, N):
         rdf = density.RDF(5.0, 0.05)
-        rdf.compute(self.box, self.points, self.points);
+        rdf.compute(self.box, self.points, self.points)
 
 if __name__ == '__main__':
     times = RDFBenchmark().run_thread_scaling_benchmark([4096, 16384, 65536], number=20)

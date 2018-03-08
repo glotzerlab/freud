@@ -18,7 +18,7 @@ class LocalDensityBenchmark(benchmark.benchmark):
 
     def run(self, N):
         dens = density.LocalDensity(5, 1, 1)
-        dens.compute(self.box, self.points);
+        dens.compute(self.box, self.points)
 
 if __name__ == '__main__':
     times = LocalDensityBenchmark().run_thread_scaling_benchmark([4096, 16384, 65536], number=20)
