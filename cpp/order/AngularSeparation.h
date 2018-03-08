@@ -20,6 +20,11 @@
 
 namespace freud { namespace order {
 
+float computeSeparationAngle(const quat<float> ref_q, const quat<float> q);
+
+float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q,
+    const quat<float> *equiv_qs, unsigned int Nequiv);
+
 //! Compute the angular separation for a set of points
 /*!
 */

@@ -5,7 +5,6 @@
 #include <map>
 
 #include "SolLiq.h"
-#include "Cluster.h"
 
 using namespace std;
 
