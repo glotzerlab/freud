@@ -6,7 +6,6 @@
 
 #include "box.h"
 #include "NeighborList.h"
-#include "HOOMDMath.h"
 #include "Index1D.h"
 
 #ifndef _LINKCELL_H__

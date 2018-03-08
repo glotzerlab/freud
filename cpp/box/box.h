@@ -1,13 +1,13 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <iostream>
-#include <sstream>
 #include <cassert>
-#include <stdexcept>
-#include "HOOMDMath.h"
-#include "VectorMath.h"
+#include <iostream>
 #include <math.h>
+#include <sstream>
+#include <stdexcept>
+
+#include "VectorMath.h"
 
 #ifndef _BOX_H__
 #define _BOX_H__

@@ -8,8 +8,8 @@
 #include "VectorMath.h"
 #include "Index1D.h"
 
-#ifndef _VoronoiBuffer_H__
-#define _VoronoiBuffer_H__
+#ifndef _VORONOIBUFFER_H__
+#define _VORONOIBUFFER_H__
 
 /*! \file VoronoiBuffer.h
     \brief Routines for computing Gaussian smeared densities from points

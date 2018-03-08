@@ -1,25 +1,16 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
 #include <algorithm>
-#include <memory>
-
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "NearestNeighbors.h"
-#include "box.h"
-#include "Index1D.h"
-
 #include <map>
+#include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
+
+#include "box.h"
+#include "VectorMath.h"
+#include "NearestNeighbors.h"
+#include "Index1D.h"
 
 #ifndef _BONDING_XYZ_H__
 #define _BONDING_XYZ_H__

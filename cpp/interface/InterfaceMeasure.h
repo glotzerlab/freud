@@ -3,14 +3,12 @@
 
 #include <memory>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
 #include "box.h"
+#include "VectorMath.h"
 #include "LinkCell.h"
 
-#ifndef _INTERFACEMEASURE_H_
-#define _INTERFACEMEASURE_H_
+#ifndef _INTERFACEMEASURE_H__
+#define _INTERFACEMEASURE_H__
 
 /*! \file InterfaceMeasure.h
     \brief Compute the size of an interface between two point clouds.
