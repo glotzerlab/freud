@@ -40,7 +40,7 @@ class Box
             {
             m_2d = false; // Assign before calling setL!
             setL(0,0,0);
-            m_periodic = make_uchar3(1,1,1);
+            m_periodic = vec3<bool>(true, true, true);
             m_xy = m_xz = m_yz = 0;
             }
 
@@ -49,7 +49,7 @@ class Box
             {
             m_2d = _2d; //Assign before calling setL!
             setL(L,L,L);
-            m_periodic = make_uchar3(1,1,1);
+            m_periodic = vec3<bool>(true, true, true);
             m_xy = m_xz = m_yz = 0;
             }
 
@@ -58,7 +58,7 @@ class Box
             {
             m_2d = _2d;  // Assign before calling setL!
             setL(Lx,Ly,Lz);
-            m_periodic = make_uchar3(1,1,1);
+            m_periodic = vec3<bool>(true, true, true);
             m_xy = m_xz = m_yz = 0;
             }
 
@@ -67,7 +67,7 @@ class Box
             {
             m_2d = _2d;  // Assign before calling setL!
             setL(Lx,Ly,Lz);
-            m_periodic = make_uchar3(1,1,1);
+            m_periodic = vec3<bool>(true, true, true);
             m_xy = xy; m_xz = xz; m_yz = yz;
             }
 
@@ -462,32 +462,32 @@ class Box
          *  \post Period flags are set to \a periodic
          *  \note It is invalid to set 1 for a periodic dimension where lo != -hi. This error is not checked for.
          */
-        void setPeriodic(uchar3 periodic)
+        void setPeriodic(vec3<bool> periodic)
             {
             m_periodic = periodic;
             }
 
         void setPeriodic(bool x, bool y, bool z)
             {
-            m_periodic = make_uchar3(x, y, z);
+            m_periodic = vec3<bool>(x, y, z);
             }
 
         //! Set the periodic flag along x
         void setPeriodicX(bool x)
             {
-            m_periodic = make_uchar3(x, m_periodic.y, m_periodic.z);
+            m_periodic = vec3<bool>(x, m_periodic.y, m_periodic.z);
             }
 
         //! Set the periodic flag along y
         void setPeriodicY(bool y)
             {
-            m_periodic = make_uchar3(m_periodic.x, y, m_periodic.z);
+            m_periodic = vec3<bool>(m_periodic.x, y, m_periodic.z);
             }
 
         //! Set the periodic flag along z
         void setPeriodicZ(bool z)
             {
-            m_periodic = make_uchar3(m_periodic.x, m_periodic.y, z);
+            m_periodic = vec3<bool>(m_periodic.x, m_periodic.y, z);
             }
 
         //! Get the periodic flags
@@ -522,7 +522,7 @@ class Box
         float m_xy;            //!< xy tilt factor
         float m_xz;            //!< xz tilt factor
         float m_yz;            //!< yz tilt factor
-        uchar3 m_periodic;     //!< 0/1 to determine if the box is periodic in each direction
+        vec3<bool> m_periodic; //!< 0/1 to determine if the box is periodic in each direction
         bool m_2d;             //!< Specify whether box is 2D.
     };
 
