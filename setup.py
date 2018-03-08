@@ -20,6 +20,8 @@ if len(sys.argv) > 3:
 
 # Check if running on ReadTheDocs
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    print('Detected ReadTheDocs build environment.')
 
 # Remove the build directory if on ReadTheDocs
 if on_rtd and os.path.isdir('build'):
@@ -36,6 +38,7 @@ try:
 except ModuleNotFoundError:
     print('Cython not found. Using existing Cython cpp files.')
 else:
+    print('Detected Cython. Rebuilding Cython cpp files.')
     cmake_command.append('-DENABLE_CYTHON=ON')
 
 # Run CMake, make install
