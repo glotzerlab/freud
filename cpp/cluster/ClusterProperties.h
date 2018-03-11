@@ -37,16 +37,11 @@ class ClusterProperties
     {
     public:
         //! Constructor
-        ClusterProperties(const box::Box& box);
-
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
+        ClusterProperties();
 
         //! Compute properties of the point clusters
-        void computeProperties(const vec3<float> *points,
+        void computeProperties(const box::Box& box,
+                               const vec3<float> *points,
                                const unsigned int *cluster_idx,
                                unsigned int Np);
 
@@ -75,11 +70,10 @@ class ClusterProperties
             }
 
     private:
-        box::Box m_box;                //!< Simulation box where the particles belong
-        unsigned int m_num_clusters;   //!< Number of clusters found in the last call to computeProperties()
+        unsigned int m_num_clusters;                   //!< Number of clusters found in the last call to computeProperties()
         std::shared_ptr< vec3<float> > m_cluster_com;  //!< Center of mass computed for each cluster (length: m_num_clusters)
-        std::shared_ptr<float> m_cluster_G; //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
-        std::shared_ptr<unsigned int> m_cluster_size; //!< Size per cluster
+        std::shared_ptr<float> m_cluster_G;            //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
+        std::shared_ptr<unsigned int> m_cluster_size;  //!< Size per cluster
     };
 
 }; }; // end namespace freud::cluster
