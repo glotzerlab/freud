@@ -20,9 +20,8 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsigned int nbins_t2)
-    : m_box(box::Box()), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
-      m_nbins_r(nbins_r), m_nbins_t1(nbins_t1), m_nbins_t2(nbins_t2), m_frame_counter(0),
-      m_n_ref(0), m_n_p(0), m_reduce(true)
+    : PMFT(), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
+      m_nbins_r(nbins_r), m_nbins_t1(nbins_t1), m_nbins_t2(nbins_t2)
     {
     if (nbins_r < 1)
         throw invalid_argument("must be at least 1 bin in r");
@@ -95,14 +94,6 @@ PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsig
     m_r_cut = m_max_r;
     }
 
-PMFTR12::~PMFTR12()
-    {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
-        {
-        delete[] (*i);
-        }
-    }
-
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reducePCF()
@@ -128,8 +119,8 @@ void PMFTR12::reducePCF()
                     }
                 }
             });
-    float inv_num_dens = m_box.getVolume() / (float)m_n_p;
-    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
+    float inv_num_dens = m_box.getVolume() / (float)this->m_n_p;
+    float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref);
     // normalize pcf_array
     // avoid need to unravel b/c arrays are in the same index order
     parallel_for(blocked_range<size_t>(0,m_nbins_r*m_nbins_t1*m_nbins_t2),
@@ -142,36 +133,14 @@ void PMFTR12::reducePCF()
             });
     }
 
-//! Get a reference to the PCF array
-std::shared_ptr<unsigned int> PMFTR12::getBinCounts()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_bin_counts;
-    }
-
-//! Get a reference to the PCF array
-std::shared_ptr<float> PMFTR12::getPCF()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_pcf_array;
-    }
-
 void PMFTR12::resetPCF()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
         }
-    m_frame_counter = 0;
-    m_reduce = true;
+    this->m_frame_counter = 0;
+    this->m_reduce = true;
     }
 
 void PMFTR12::accumulate(box::Box& box,
@@ -272,11 +241,11 @@ void PMFTR12::accumulate(box::Box& box,
                     }
                 } // done looping over reference points
             });
-    m_frame_counter++;
-    m_n_ref = n_ref;
-    m_n_p = n_p;
+    this->m_frame_counter++;
+    this->m_n_ref = n_ref;
+    this->m_n_p = n_p;
     // flag to reduce
-    m_reduce = true;
+    this->m_reduce = true;
     }
 
 }; }; // end namespace freud::pmft

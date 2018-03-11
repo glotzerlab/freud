@@ -44,9 +44,6 @@ class PMFTR12 : public PMFT
         //! Constructor
         PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsigned int nbins_t2);
 
-        //! Destructor
-        ~PMFTR12();
-
         //! Reset the PCF array to all zeros
         virtual void resetPCF();
 
