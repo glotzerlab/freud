@@ -18,3 +18,4 @@ Below is a list of modules in freud. To add your own module, read the
    locality
    pmft
    order
+   voronoi

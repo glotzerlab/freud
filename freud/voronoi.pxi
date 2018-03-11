@@ -1,4 +1,5 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan # This file is part of the freud project, released under the BSD 3-Clause License.
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
 from cython.view cimport array as cvarray
@@ -12,6 +13,7 @@ cimport numpy as np
 cdef class VoronoiBuffer:
     """
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
     """
     cdef voronoi.VoronoiBuffer * thisptr
 

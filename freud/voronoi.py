@@ -20,26 +20,46 @@ except ImportError:
 
 
 class Voronoi:
-    # Compute the Voronoi tesselation of a 2D or 3D system using qhull
-    # This essentially just wraps scipy.spatial.Voronoi, but accounts for
-    # periodic boundary conditions
+    """Compute the Voronoi tesselation of a 2D or 3D system using qhull.
+    This essentially just wraps :py:class:`scipy.spatial.Voronoi`, but accounts for
+    periodic boundary conditions.
+
+    Since qhull does not support periodic boundary conditions natively, we
+    expand the box to include a portion of the particles' periodic images.
+    The distance of expansion is given by the parameter :code:`buff`. The
+    computation of Voronoi tesselations and neighbors is only guaranteed
+    to be correct if :code:`buff >= L/2` where :code:`L` is the longest side
+    of the simulation box. For dense systems with particles filling the
+    entire simulation volume, a smaller value for :code:`buff` is acceptable.
+    """
 
     def __init__(self, box, buff=0.1):
-        # Initialize Voronoi
-        # \param box The simulation box
+        """Initialize Voronoi.
+
+        :param box: simulation box
+        :param float buff: buffer width
+        :type box: :py:class:`freud.box.Box`
+        """
         self.box = box
         self.buff = buff
 
     def setBox(self, box):
-        # Set the simulation box
+        """Reset the simulation box
+
+        :param box: simulation box
+        :type box: :py:class:`freud.box.Box`
+        """
         self.box = box
 
     def setBufferWidth(self, buff):
-        # Set the box buffer width
+        """Reset the box buffer width.
+
+        :param float buff: buffer width
+        """
         self.buff = buff
 
     def _qhull_compute(self, positions, box=None, buff=None):
-        """ Calls VoronoiBuffer and qhull """
+        """Calls VoronoiBuffer and qhull"""
         # Compute the buffer particles in C++
         vbuff = VoronoiBuffer(box)
         vbuff.compute(positions, buff)
@@ -62,12 +82,12 @@ class Voronoi:
         self.voronoi = qvoronoi(self.expanded_points)
 
     def compute(self, positions, box=None, buff=None):
-        """ Compute Voronoi tesselation
+        """Compute Voronoi diagram.
 
-        :param box: The simulation box
-        :param buff: The buffer of particles to be duplicated to simulated
-                     PBC, default=0.1
-         """
+        :param box: simulation box
+        :param float buff: buffer width
+        :type box: :py:class:`freud.box.Box`
+        """
 
         # If box or buff is not specified, revert to object quantities
         if box is None:
@@ -83,7 +103,7 @@ class Voronoi:
         if box.is2D():
             vertices = np.insert(vertices, 2, 0, 1)
 
-        # Construct a list of polygon/hedra vertices
+        # Construct a list of polygon/polyhedra vertices
         self.poly_verts = list()
         for region in self.voronoi.point_region[:len(positions)]:
             if -1 in self.voronoi.regions[region]:
@@ -92,11 +112,19 @@ class Voronoi:
         return self
 
     def getBuffer(self):
-        # Return the list of voronoi polytope vertices
+        """Returns the buffer width.
+
+        :returns: buffer width
+        :rtype: float
+        """
         return self.buff
 
     def getVoronoiPolytopes(self):
-        # Return the list of voronoi polytope vertices
+        """Returns a list of Voronoi polytope vertices.
+
+        :returns: Voronoi polytope vertices
+        :rtype: list
+        """
         return self.poly_verts
 
     def computeNeighbors(self, positions, box=None, buff=None, exclude_ii=True):
@@ -106,15 +134,18 @@ class Voronoi:
         up to two voronoi shells for a 2D mesh:
 
         Example::
+
             vor = voronoi.Voronoi(box.Box(5, 5))
             pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                 [2, 0], [2, 1], [2, 2]])
             vor.computeNeighbors(pos)
             neighbors = vor.getNeighbors(2)
 
-        Returns a list of lists of neighbors
-        Note: input positions must be a 3D array. For 2D, set the z value to
-            be 0.
+        :returns: List of lists of neighbors
+        :rtype: list
+
+        .. note:: Input positions must be a 3D array. For 2D, set the z value
+                  to 0.
         """
         # If box or buff is not specified, revert to object quantities
         if box is None:
@@ -217,7 +248,10 @@ class Voronoi:
                 self.firstShellWeight[index_j].append(weight)
 
     def getNeighbors(self, numShells):
-        # Get numShells of neighbors for each particle
+        """Get numShells of neighbors for each particle
+
+        :param int numShells: number of neighbor shells
+        """
         neighbor_list = copy.copy(self.firstShellNeighborList)
         # delete [] in neighbor_list
         neighbor_list = [x for x in neighbor_list if len(x) > 0]
@@ -240,6 +274,11 @@ class Voronoi:
         return neighbor_list
 
     def getNeighborList(self):
+        """Returns a neighbor list.
+
+        :return: Neighbor List
+        :rtype: :py:class:`~.locality.NeighborList`
+        """
         # Build neighbor list based on voronoi neighbors
         neighbor_list = copy.copy(self.firstShellNeighborList)
         weight = copy.copy(self.firstShellWeight)
