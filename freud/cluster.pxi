@@ -35,7 +35,7 @@ cdef class Cluster:
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
-    :param box: :py:class:`freud.box.Box`
+    :param box: simulation box
     :param rcut: Particle distance cutoff
     :type box: :py:class:`freud.box.Box`
     :type rcut: float
@@ -51,11 +51,7 @@ cdef class Cluster:
     cdef rmax
 
     def __cinit__(self, box, float rcut):
-        cdef _box.Box cBox = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(),
-                box.getTiltFactorXY(), box.getTiltFactorXZ(),
-                box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new cluster.Cluster(cBox, rcut)
+        self.thisptr = new cluster.Cluster(rcut)
         self.m_box = box
         self.rmax = rcut
 
@@ -74,18 +70,20 @@ cdef class Cluster:
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        return self.m_box
 
-    def computeClusters(self, points, nlist=None):
+    def computeClusters(self, points, nlist=None, box=None):
         """Compute the clusters for the given set of points
 
         :param points: particle coordinates
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
+                      find bonds
+        :param box: simulation box
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
+        :type box: :py:class:`freud.box.Box`
         """
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True)
@@ -98,11 +96,17 @@ cdef class Cluster:
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
+        if box is None:
+            box = self.m_box
+        cdef _box.Box l_box = _box.Box(
+                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
-                    nlist_ptr, < vec3[float]*> cPoints.data, Np)
+                    l_box, nlist_ptr, < vec3[float]*> cPoints.data, Np)
         return self
 
     def computeClusterMembership(self, keys):
@@ -191,9 +195,6 @@ cdef class Cluster:
 
         :return: list of lists of each key contained in clusters
         :rtype: list
-
-        .. todo: Determine correct way to export. As-is, I do not particularly
-                    like how it was previously handled.
         """
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
@@ -225,13 +226,11 @@ cdef class ClusterProperties:
     :type box: :py:class:`freud.box.Box`
     """
     cdef cluster.ClusterProperties * thisptr
+    cdef m_box
 
     def __cinit__(self, box):
-        cdef _box.Box cBox = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(),
-                box.getTiltFactorXY(), box.getTiltFactorXZ(),
-                box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new cluster.ClusterProperties(cBox)
+        self.thisptr = new cluster.ClusterProperties()
+        self.m_box = box
 
     def __dealloc__(self):
         del self.thisptr
@@ -248,9 +247,9 @@ cdef class ClusterProperties:
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        return self.m_box
 
-    def computeProperties(self, points, cluster_idx):
+    def computeProperties(self, points, cluster_idx, box=None):
         """Compute properties of the point clusters
 
         Loops over all points in the given array and determines the center of
@@ -260,13 +259,21 @@ cdef class ClusterProperties:
 
         :param points: Positions of the particles making up the clusters
         :param cluster_idx: Index of which cluster each point belongs to
+        :param box: simulation box
         :type points: :class:`numpy.ndarray`,
                         shape=(:math:`N_{particles}`, 3),
                         dtype= :class:`numpy.float32`
         :type cluster_idx: :class:`numpy.ndarray`,
                             shape=(:math:`N_{particles}`),
                             dtype= :class:`numpy.uint32`
+        :type box: :py:class:`freud.box.Box`
         """
+        if box is None:
+            box = self.m_box
+        cdef _box.Box l_box = _box.Box(
+                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:
@@ -283,6 +290,7 @@ cdef class ClusterProperties:
         cdef unsigned int Np = points.shape[0]
         with nogil:
             self.thisptr.computeProperties(
+                    l_box,
                     < vec3[float]*> cPoints.data,
                     < unsigned int * > cCluster_idx.data,
                     Np)
