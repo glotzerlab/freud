@@ -20,6 +20,8 @@
 #ifndef _PMFTR12_H__
 #define _PMFTR12_H__
 
+#include "PMFT.h"
+
 /*! \file PMFTR12.h
     \brief Routines for computing radial density functions
 */
@@ -36,7 +38,7 @@ namespace freud { namespace pmft {
     <b>2D:</b><br>
     This PCF works for 3D boxes (while it will work for 2D boxes, you should use the 2D version).
 */
-class PMFTR12
+class PMFTR12 : public PMFT
     {
     public:
         //! Constructor
@@ -45,14 +47,8 @@ class PMFTR12
         //! Destructor
         ~PMFTR12();
 
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
-
         //! Reset the PCF array to all zeros
-        void resetPCF();
+        virtual void resetPCF();
 
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
@@ -68,13 +64,7 @@ class PMFTR12
 
         //! \internal
         //! helper function to reduce the thread specific arrays into one array
-        void reducePCF();
-
-        //! Get a reference to the raw bin counts
-        std::shared_ptr<unsigned int> getBinCounts();
-
-        //! Get a reference to the PCF array
-        std::shared_ptr<float> getPCF();
+        virtual void reducePCF();
 
         //! Get a reference to the R array
         std::shared_ptr<float> getR()
@@ -115,13 +105,7 @@ class PMFTR12
             return m_nbins_t2;
             }
 
-        float getRCut()
-            {
-            return m_r_cut;
-            }
-
     private:
-        box::Box m_box;                    //!< Simulation box where the particles belong
         float m_max_r;                     //!< Maximum x at which to compute pcf
         float m_max_t1;                    //!< Maximum y at which to compute pcf
         float m_max_t2;                    //!< Maximum T at which to compute pcf
@@ -131,19 +115,11 @@ class PMFTR12
         unsigned int m_nbins_r;            //!< Number of x bins to compute pcf over
         unsigned int m_nbins_t1;           //!< Number of y bins to compute pcf over
         unsigned int m_nbins_t2;           //!< Number of T bins to compute pcf over
-        unsigned int m_frame_counter;      //!< number of frames calc'd
-        unsigned int m_n_ref;
-        unsigned int m_n_p;
-        bool m_reduce;
-        float m_r_cut;
 
-        std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
-        std::shared_ptr<unsigned int> m_bin_counts;    //!< array of pcf computed
         std::shared_ptr<float> m_r_array;              //!< array of x values that the pcf is computed at
         std::shared_ptr<float> m_t1_array;             //!< array of y values that the pcf is computed at
         std::shared_ptr<float> m_t2_array;             //!< array of T values that the pcf is computed at
         std::shared_ptr<float> m_inv_jacobian_array;
-        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
 }; }; // end namespace freud::pmft
