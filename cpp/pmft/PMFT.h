@@ -73,8 +73,8 @@ class PMFT
         box::Box m_box;                    //!< Simulation box where the particles belong
         float m_r_cut;                     //!< r_cut used in cell list construction
         unsigned int m_frame_counter;      //!< number of frames calc'd
-        unsigned int m_n_ref;              //!<TODO: Document this
-        unsigned int m_n_p;                //!<TODO: Document this
+        unsigned int m_n_ref;              //!< The number of reference points
+        unsigned int m_n_p;                //!< The number of points
         bool m_reduce;                     //!< Whether or not the PCF has been reduced yet
 
         std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
