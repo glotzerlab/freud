@@ -38,6 +38,29 @@ class Voronoi:
         # Set the box buffer width
         self.buff = buff
 
+    def _qhull_compute(self, positions, box=None, buff=None):
+        """ Calls VoronoiBuffer and qhull """
+        # Compute the buffer particles in C++
+        vbuff = VoronoiBuffer(box)
+        vbuff.compute(positions, buff)
+        self.buff = vbuff.getBufferParticles()
+        self.buff_ids = vbuff.getBufferIds()
+
+        if self.buff.size > 0:
+            self.expanded_points = np.concatenate((positions, self.buff))
+            self.expanded_ids = np.concatenate((
+                np.arange(len(positions)), self.buff_ids))
+        else:
+            self.expanded_points = positions
+            self.expanded_ids = np.arange(len(positions))
+
+        # Use only the first two components if the box is 2D
+        if box.is2D():
+            self.expanded_points = self.expanded_points[:, :2]
+
+        # Use qhull to get the points
+        self.voronoi = qvoronoi(self.expanded_points)
+
     def compute(self, positions, box=None, buff=None):
         """ Compute Voronoi tesselation
 
@@ -52,21 +75,7 @@ class Voronoi:
         if buff is None:
             buff = self.buff
 
-        # Compute the buffer particles in c++
-        vbuff = VoronoiBuffer(box)
-        vbuff.compute(positions, buff)
-        self.buff = buffer_parts = vbuff.getBufferParticles()
-        if self.buff.size > 0:
-            self.expanded_points = np.concatenate((positions, buffer_parts))
-        else:
-            self.expanded_points = positions
-
-        # Use only the first two components if the box is 2D
-        if box.is2D():
-            self.expanded_points = self.expanded_points[:, :2]
-
-        # Use qhull to get the points
-        self.voronoi = qvoronoi(self.expanded_points)
+        self._qhull_compute(positions, box, buff)
 
         vertices = self.voronoi.vertices
 
@@ -90,7 +99,7 @@ class Voronoi:
         # Return the list of voronoi polytope vertices
         return self.poly_verts
 
-    def computeNeighbors(self, positions, box=None, buff=None):
+    def computeNeighbors(self, positions, box=None, buff=None, exclude_ii=True):
         """Compute the neighbors of each particle based on the voronoi
         tessellation. One can include neighbors from multiple voronoi shells by
         specifying 'numShells' variable. An example code to compute neighbors
@@ -107,56 +116,105 @@ class Voronoi:
         Note: input positions must be a 3D array. For 2D, set the z value to
             be 0.
         """
-
         # If box or buff is not specified, revert to object quantities
         if box is None:
             box = self.box
         if buff is None:
             buff = self.buff
 
-        # Compute the buffer particles in c++
-        vbuff = VoronoiBuffer(box)
-        vbuff.compute(positions, buff)
-        self.buff = buffer_parts = vbuff.getBufferParticles()
+        self._qhull_compute(positions, box, buff)
 
-        if self.buff.size > 0:
-            self.expanded_points = np.concatenate((positions, buffer_parts))
-        else:
-            self.expanded_points = positions
-
-        if box.is2D():
-            self.expanded_points = self.expanded_points[:, :2]
-
-        # Use qhull to get the points
-        self.voronoi = qvoronoi(self.expanded_points)
         ridge_points = self.voronoi.ridge_points
         ridge_vertices = self.voronoi.ridge_vertices
         vor_vertices = self.voronoi.vertices
         N = len(positions)
+
         # Nearest neighbor index for each point
         self.firstShellNeighborList = [[] for _ in range(N)]
+
         # Weight between nearest neighbors, which is the length of ridge
-        # between two points
+        # between two points in 2D or the area of the ridge facet in 3D
         self.firstShellWeight = [[] for _ in range(N)]
         for (k, (index_i, index_j)) in enumerate(ridge_points):
-            if index_i >= N or index_j >= N:
+
+            if index_i >= N and index_j >= N:
+                # Ignore the ridges between two buffer particles
                 continue
 
-            self.firstShellNeighborList[index_i].append(index_j)
-            self.firstShellNeighborList[index_j].append(index_i)
+            index_i = self.expanded_ids[index_i]
+            index_j = self.expanded_ids[index_j]
+
+            assert index_i < N
+            assert index_j < N
+
+            if exclude_ii and index_i == index_j:
+                continue
+
+            added_i = False
+            if index_j not in self.firstShellNeighborList[index_i]:
+                self.firstShellNeighborList[index_i].append(index_j)
+                added_i = True
+
+            added_j = False
+            if index_i not in self.firstShellNeighborList[index_j]:
+                self.firstShellNeighborList[index_j].append(index_i)
+                added_j = True
+
+            if not added_i and not added_j:
+                continue
 
             if -1 not in ridge_vertices[k]:
-                # TODO properly account for 3D
-                weight = np.linalg.norm(
-                    vor_vertices[ridge_vertices[k][0]] - vor_vertices[
-                        ridge_vertices[k][1]])
+                if box.is2D():
+                    # The weight for a 2D system is the
+                    # length of the ridge line
+                    weight = np.linalg.norm(
+                        vor_vertices[ridge_vertices[k][0]] -
+                        vor_vertices[ridge_vertices[k][1]])
+                else:
+                    # The weight for a 3D system is the ridge polygon area
+                    # The process to compute this area is:
+                    # 1. Project 3D polygon onto xy, yz, or zx plane,
+                    #    by aligning with max component of the normal vector
+                    # 2. Use shoelace formula to compute 2D area
+                    # 3. Project back to get true area of 3D polygon
+                    # See link below for sample code and further explanation
+                    # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
+                    vertex_coords = np.array([vor_vertices[i]
+                                              for i in ridge_vertices[k]])
+
+                    # Get a unit normal vector to the polygonal facet
+                    r01 = vertex_coords[1] - vertex_coords[0]
+                    r12 = vertex_coords[2] - vertex_coords[1]
+                    norm_vec = np.cross(r01, r12)
+                    norm_vec /= np.linalg.norm(norm_vec)
+
+                    # Determine projection axis:
+                    # c0 is the largest coordinate (x, y, or z) of the normal
+                    # vector. We project along the c0 axis and use c1, c2 axes
+                    # for computing the projected area.
+                    c0 = np.argmax(np.abs(norm_vec))
+                    c1 = (c0 + 1) % 3
+                    c2 = (c0 + 2) % 3
+
+                    vc1 = vertex_coords[:, c1]
+                    vc2 = vertex_coords[:, c2]
+
+                    # Use shoelace formula for the projected area
+                    projected_area = 0.5*np.abs(
+                        np.dot(vc1, np.roll(vc2, 1)) -
+                        np.dot(vc2, np.roll(vc1, 1)))
+
+                    # Project back to get the true area (which is the weight)
+                    weight = projected_area / np.abs(norm_vec[c0])
             else:
-                # this point was on the boundary, so as far as qhull
+                # This point was on the boundary, so as far as qhull
                 # is concerned its ridge goes out to infinity
                 weight = 0
 
-            self.firstShellWeight[index_i].append(weight)
-            self.firstShellWeight[index_j].append(weight)
+            if added_i:
+                self.firstShellWeight[index_i].append(weight)
+            if added_j:
+                self.firstShellWeight[index_j].append(weight)
 
     def getNeighbors(self, numShells):
         # Get numShells of neighbors for each particle

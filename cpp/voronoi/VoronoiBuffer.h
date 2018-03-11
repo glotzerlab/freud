@@ -12,7 +12,7 @@
 #define _VORONOIBUFFER_H__
 
 /*! \file VoronoiBuffer.h
-    \brief Routines for computing Gaussian smeared densities from points
+    \brief Computes a buffer of particles to support wrapped positions in qhull
 */
 
 namespace freud { namespace voronoi {
@@ -40,9 +40,15 @@ class VoronoiBuffer
             return m_buffer_particles;
             }
 
+        std::shared_ptr< std::vector< unsigned int > > getBufferIds()
+            {
+            return m_buffer_ids;
+            }
+
     private:
         const box::Box m_box;    //!< Simulation box where the particles belong
         std::shared_ptr< std::vector< vec3<float> > > m_buffer_particles;
+        std::shared_ptr< std::vector< unsigned int > > m_buffer_ids;
     };
 
 }; }; // end namespace freud::voronoi

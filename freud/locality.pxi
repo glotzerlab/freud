@@ -512,16 +512,16 @@ cdef class LinkCell:
         :param box: simulation box
         :param ref_points: reference point coordinates
         :param points: point coordinates
-        :param exlude_ii: True if pairs of points with identical indices should
-                        be excluded; if None, is set to True if points is None
-                        or the same object as ref_points
+        :param exclude_ii: True if pairs of points with identical indices
+                           should be excluded; if None, is set to True if
+                           points is None or the same object as ref_points
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{refpoints}, 3\\right)`,
-                            dtype= :class:`numpy.float32`
+                          shape= :math:`\\left(N_{refpoints}, 3\\right)`,
+                          dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`,
-                        shape= :math:`\\left(N_{points}, 3\\right)`,
-                        dtype= :class:`numpy.float32`
+                      shape= :math:`\\left(N_{points}, 3\\right)`,
+                      dtype= :class:`numpy.float32`
         """
         exclude_ii = (
             points is ref_points or points is None) \
@@ -570,16 +570,16 @@ cdef class LinkCell:
         :param box: simulation box
         :param ref_points: reference point coordinates
         :param points: point coordinates
-        :param exlude_ii: True if pairs of points with identical indices should
-                            be excluded; if None, is set to True if points is
-                            None or the same object as ref_points
+        :param exclude_ii: True if pairs of points with identical indices should
+                           be excluded; if None, is set to True if points is
+                           None or the same object as ref_points
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{refpoints}, 3\\right)`,
-                            dtype= :class:`numpy.float32`
+                          shape= :math:`\\left(N_{refpoints}, 3\\right)`,
+                          dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`,
-                        shape= :math:`\\left(N_{points}, 3\\right)`,
-                        dtype= :class:`numpy.float32`
+                      shape= :math:`\\left(N_{points}, 3\\right)`,
+                      dtype= :class:`numpy.float32`
         """
         return self.computeCellList(box, ref_points, points, exclude_ii)
 
@@ -603,14 +603,13 @@ cdef class NearestNeighbors:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param rmax: Initial guess of a distance to search within to find N
-                    neighbors
+                 neighbors
     :param n_neigh: Number of neighbors to find for each point
     :param scale: multiplier by which to automatically increase rmax value by
-                    if requested number of neighbors is not found. Only
-                    utilized if strict_cut is False. Scale must be greater than
-                    1
+                  if requested number of neighbors is not found. Only
+                  utilized if strict_cut is False. Scale must be greater than 1
     :param strict_cut: whether to use a strict rmax or allow for automatic
-                        expansion
+                       expansion
     :type rmax: float
     :type n_neigh: unsigned int
     :type scale: float
@@ -875,16 +874,16 @@ cdef class NearestNeighbors:
         :param box: simulation box
         :param ref_points: coordinated of reference points
         :param points: coordinates of points
-        :param exlude_ii: True if pairs of points with identical indices should
-                            be excluded; if None, is set to True if points is
-                            None or the same object as ref_points
+        :param exclude_ii: True if pairs of points with identical indices should
+                           be excluded; if None, is set to True if points is
+                           None or the same object as ref_points
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
+                          shape=(:math:`N_{particles}`, 3),
+                          dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         """
         exclude_ii = (
             points is ref_points or points is None) \

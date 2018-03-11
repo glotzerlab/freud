@@ -2,6 +2,7 @@ from freud import box, voronoi
 import numpy as np
 import numpy.testing as npt
 import unittest
+import util
 
 class TestVoronoi(unittest.TestCase):
     def test_basic(self):
@@ -74,6 +75,54 @@ class TestVoronoi(unittest.TestCase):
                  [0, 1, 4, 5, 6, 7], [0, 1, 2, 3, 5, 6, 7, 8],
                  [1, 2, 3, 4, 7, 8], [0, 3, 4, 7, 8], [1, 3, 4, 5, 6, 8],
                  [2, 4, 5, 6, 7]])
+
+    def test_voronoi_neighbors_wrapped(self):
+        # Test that voronoi neighbors in the first shell are
+        # correct for a wrapped 3D system
+
+        L = 3.0 # Box length
+        fbox = box.Box.cube(L)
+        rbuf = L/2
+
+        # Make a simple cubic structure
+        positions = np.array([[i + 0.5 - L/2,
+                               j + 0.5 - L/2,
+                               k + 0.5 - L/2]
+                               for i in range(int(L))
+                               for j in range(int(L))
+                               for k in range(int(L))]).astype(np.float32)
+        vor = voronoi.Voronoi(fbox)
+        vor.computeNeighbors(positions, fbox, rbuf)
+        nlist = vor.getNeighborList()
+
+        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
+
+        # Every particle should have six neighbors
+        npt.assert_equal(counts, np.full(len(unique_indices), 6))
+
+    def test_voronoi_weights_fcc(self):
+        # Test that voronoi neighbor weights are computed properly for 3D FCC
+
+        L = 3
+        fbox, positions = util.make_fcc(nx=L, ny=L, nz=L)
+        rbuf = np.max(fbox.L)/2
+
+        vor = voronoi.Voronoi(fbox)
+        vor.computeNeighbors(positions, fbox, rbuf)
+        nlist = vor.getNeighborList()
+
+        # Drop the tiny facets that come from numerical imprecision
+        nlist = nlist.filter(nlist.weights > 1e-12)
+
+        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
+
+        # Every FCC particle should have 12 neighbors
+        npt.assert_equal(counts, np.full(len(unique_indices), 12))
+
+        # Every facet area should be sqrt(2)/2
+        npt.assert_allclose(nlist.weights,
+                            np.full(len(nlist.weights), 0.5*np.sqrt(2)),
+                            atol=1e-5)
 
     def test_nlist_symmetric(self):
         # Test that the voronoi neighborlist is symmetric

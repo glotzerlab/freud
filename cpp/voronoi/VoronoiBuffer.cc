@@ -10,7 +10,7 @@
 using namespace std;
 
 /*! \file VoronoiBuffer.cc
-    \brief Computes Voronoi buffer.
+    \brief Computes a buffer of particles to support wrapped positions in qhull
 */
 
 namespace freud { namespace voronoi {
@@ -21,8 +21,12 @@ void VoronoiBuffer::compute(const vec3<float> *points,
     {
     assert(points);
 
-    m_buffer_particles = std::shared_ptr<std::vector< vec3<float> > >(new std::vector< vec3<float> >());
+    m_buffer_particles = std::shared_ptr<std::vector< vec3<float> > >(
+            new std::vector< vec3<float> >());
+    m_buffer_ids = std::shared_ptr<std::vector< unsigned int > >(
+            new std::vector< unsigned int >());
     std::vector< vec3<float> >& buffer_parts = *m_buffer_particles;
+    std::vector< unsigned int >& buffer_ids = *m_buffer_ids;
 
     // Get the box dimensions
     float lx = m_box.getLx();
@@ -34,6 +38,8 @@ void VoronoiBuffer::compute(const vec3<float> *points,
 
     vec3<float> img;
     buffer_parts.clear();
+    buffer_ids.clear();
+
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
         {
@@ -49,11 +55,12 @@ void VoronoiBuffer::compute(const vec3<float> *points,
                         img.x = points[particle].x + i*lx;
                         img.y = points[particle].y + j*ly;
                         img.z = 0.0;
-                        // Check to see if this image in within a
+                        // Check to see if this image is within the buffer
                         if(img.x < lx_2_buff && img.x > -lx_2_buff &&
                            img.y < ly_2_buff && img.y > -ly_2_buff)
                             {
                             buffer_parts.push_back(img);
+                            buffer_ids.push_back(particle);
                             }
                         }
                     }
@@ -73,12 +80,13 @@ void VoronoiBuffer::compute(const vec3<float> *points,
                             img.x = points[particle].x + i*lx;
                             img.y = points[particle].y + j*ly;
                             img.z = points[particle].z + k*lz;
-                            // Check to see if this image in within a
+                            // Check to see if this image is within the buffer
                             if(img.x < lx_2_buff && img.x > -lx_2_buff &&
                                img.y < ly_2_buff && img.y > -ly_2_buff &&
                                img.z < lz_2_buff && img.z > -lz_2_buff)
                                 {
                                 buffer_parts.push_back(img);
+                                buffer_ids.push_back(particle);
                                 }
                             }
                         }
