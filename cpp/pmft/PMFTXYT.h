@@ -20,7 +20,7 @@
 #ifndef _PMFTXYT_H__
 #define _PMFTXYT_H__
 
-#include "PFMT.h"
+#include "PMFT.h"
 
 /*! \file PMFTXYT.h
     \brief Routines for computing radial density functions
