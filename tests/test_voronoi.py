@@ -6,7 +6,7 @@ import util
 
 class TestVoronoi(unittest.TestCase):
     def test_basic(self):
-        # Test that voronoi tesselations of random systems have the same
+        # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
         L = 10 # Box length
         N = 50 # Number of particles
@@ -15,7 +15,7 @@ class TestVoronoi(unittest.TestCase):
         np.random.seed(0)
         positions = np.random.uniform(-L/2, L/2, size=(N, 2)) # Generate random points in the box
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32) # Add a z-component of 0
-        vor.compute(positions, buff=L/2)
+        vor.compute(positions, box=fbox, buff=L/2)
 
         result = vor.getVoronoiPolytopes()
 

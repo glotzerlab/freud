@@ -20,14 +20,14 @@ except ImportError:
 
 
 class Voronoi:
-    """Compute the Voronoi tesselation of a 2D or 3D system using qhull.
-    This essentially just wraps :py:class:`scipy.spatial.Voronoi`, but accounts for
-    periodic boundary conditions.
+    """Compute the Voronoi tessellation of a 2D or 3D system using qhull.
+    This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic
+    boundary conditions.
 
     Since qhull does not support periodic boundary conditions natively, we
     expand the box to include a portion of the particles' periodic images.
-    The distance of expansion is given by the parameter :code:`buff`. The
-    computation of Voronoi tesselations and neighbors is only guaranteed
+    The buffer width is given by the parameter :code:`buff`. The
+    computation of Voronoi tessellations and neighbors is only guaranteed
     to be correct if :code:`buff >= L/2` where :code:`L` is the longest side
     of the simulation box. For dense systems with particles filling the
     entire simulation volume, a smaller value for :code:`buff` is acceptable.
@@ -44,7 +44,7 @@ class Voronoi:
         self.buff = buff
 
     def setBox(self, box):
-        """Reset the simulation box
+        """Reset the simulation box.
 
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
@@ -52,7 +52,7 @@ class Voronoi:
         self.box = box
 
     def setBufferWidth(self, buff):
-        """Reset the box buffer width.
+        """Reset the buffer width.
 
         :param float buff: buffer width
         """
@@ -63,13 +63,13 @@ class Voronoi:
         # Compute the buffer particles in C++
         vbuff = VoronoiBuffer(box)
         vbuff.compute(positions, buff)
-        self.buff = vbuff.getBufferParticles()
-        self.buff_ids = vbuff.getBufferIds()
+        buff_ptls = vbuff.getBufferParticles()
+        buff_ids = vbuff.getBufferIds()
 
-        if self.buff.size > 0:
-            self.expanded_points = np.concatenate((positions, self.buff))
+        if buff_ptls.size > 0:
+            self.expanded_points = np.concatenate((positions, buff_ptls))
             self.expanded_ids = np.concatenate((
-                np.arange(len(positions)), self.buff_ids))
+                np.arange(len(positions)), buff_ids))
         else:
             self.expanded_points = positions
             self.expanded_ids = np.arange(len(positions))
@@ -103,7 +103,7 @@ class Voronoi:
         if box.is2D():
             vertices = np.insert(vertices, 2, 0, 1)
 
-        # Construct a list of polygon/polyhedra vertices
+        # Construct a list of polytope vertices
         self.poly_verts = list()
         for region in self.voronoi.point_region[:len(positions)]:
             if -1 in self.voronoi.regions[region]:
@@ -120,29 +120,42 @@ class Voronoi:
         return self.buff
 
     def getVoronoiPolytopes(self):
-        """Returns a list of Voronoi polytope vertices.
+        """Returns a list of polytope vertices corresponding to Voronoi cells.
 
-        :returns: Voronoi polytope vertices
+        If the buffer width is too small, then some polytopes may not be
+        closed (they may have a boundary at infinity), and these polytopes'
+        vertices are excluded from the list.
+
+        The length of the list returned by this method should be the same
+        as the array of positions used in the :py:meth:`~.compute()`
+        method, if all the polytopes are closed. Otherwise try using a larger
+        buffer width.
+
+        :returns: List of :py:class:`numpy.ndarray` containing Voronoi
+                  polytope vertices
         :rtype: list
         """
         return self.poly_verts
 
     def computeNeighbors(self, positions, box=None, buff=None, exclude_ii=True):
-        """Compute the neighbors of each particle based on the voronoi
-        tessellation. One can include neighbors from multiple voronoi shells by
-        specifying 'numShells' variable. An example code to compute neighbors
-        up to two voronoi shells for a 2D mesh:
+        """Compute the neighbors of each particle based on the Voronoi
+        tessellation. One can include neighbors from multiple Voronoi shells by
+        specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.
+        An example of computing neighbors from the first two Voronoi shells
+        for a 2D mesh is shown below.
 
         Example::
 
-            vor = voronoi.Voronoi(box.Box(5, 5))
-            pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
-                [2, 0], [2, 1], [2, 2]])
-            vor.computeNeighbors(pos)
-            neighbors = vor.getNeighbors(2)
-
-        :returns: List of lists of neighbors
-        :rtype: list
+            from freud import box, voronoi
+            import numpy as np
+            vor = voronoi.Voronoi(box.Box(5, 5, is2D=True))
+            pos = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0],
+                            [1, 0, 0], [1, 1, 0], [1, 2, 0],
+                            [2, 0, 0], [2, 1, 0], [2, 2, 0]], dtype=np.float32)
+            first_shell = vor.computeNeighbors(pos).getNeighbors(1)
+            second_shell = vor.computeNeighbors(pos).getNeighbors(2)
+            print('First shell:', first_shell)
+            print('Second shell:', second_shell)
 
         .. note:: Input positions must be a 3D array. For 2D, set the z value
                   to 0.
@@ -247,8 +260,10 @@ class Voronoi:
             if added_j:
                 self.firstShellWeight[index_j].append(weight)
 
+        return self
+
     def getNeighbors(self, numShells):
-        """Get numShells of neighbors for each particle
+        """Get :code:`numShells` of neighbors for each particle
 
         :param int numShells: number of neighbor shells
         """
@@ -274,9 +289,17 @@ class Voronoi:
         return neighbor_list
 
     def getNeighborList(self):
-        """Returns a neighbor list.
+        """Returns a neighbor list object.
 
-        :return: Neighbor List
+        In the neighbor list, each neighbor pair has a weight value.
+
+        In 2D systems, the bond weight is the "ridge length" of the Voronoi
+        boundary line between the neighboring particles.
+
+        In 3D systems, the bond weight is the "ridge area" of the Voronoi
+        boundary polygon between the neighboring particles.
+
+        :return: Neighbor list
         :rtype: :py:class:`~.locality.NeighborList`
         """
         # Build neighbor list based on voronoi neighbors
