@@ -70,7 +70,7 @@ class SFactor3DPoints:
         """Initalize SFactor3DPoints
 
         :param box: The simulation box
-        :param g: The number of grid points for q in each direction is 2*g+1
+        :param g: The number of grid points for :math:`q` in each direction is 2*g+1
         :type box: :py:meth:`freud.box.Box`
         :type g: int
         """
@@ -145,10 +145,11 @@ class SFactor3DPoints:
         return copy.cpy(self.s_complex)
 
     def getQ(self):
-        """Get the q values at each point
+        """Get the :math:`q` values at each point
 
-        The structure factor S[c,b,c] is evaluated at the vector
-        q = (qx[a], qy[b], qz[c])
+        The structure factor S[c,b,a] is evaluated at the vector
+        :math:`q = \\left(qx\\left[a\\right], qy\\left[b\\right],
+        qz\\left[c\\right]\\right)`.
 
         :return: (qx, qy, qz)
         :rtype: :class:`tuple`
@@ -165,17 +166,17 @@ class AnalyzeSFactor3D:
 
         * Identifies peaks
         * Provides a list of peaks and the vector :math:`\\vec{q}` positions
-            at which they occur
+          at which they occur
         * Provides a list of peaks grouped by :math:`q^2`
         * Provides a full list of :math:`S\\left(\\left|q\\right|\\right)`
-            values vs :math:`q^2` suitable for plotting the 1D analog of the
-            structure factor
+          values vs :math:`q^2` suitable for plotting the 1D analog of the
+          structure factor
         * Scans through the full 3d peaks and reconstructs the Bravais lattice
 
     .. note::
-        All of these operations work in an indexed integer q-space
+        All of these operations work in an indexed integer :math:`q`-space
         :math:`h,k,l`. Any peak position values returned must be multiplied by
-        :math:`2*\\pi/L` to to real q values in simulation units.
+        :math:`2\\pi/L` to get to real :math:`q` values in simulation units.
 
     .. todo::
         need to think if this actually will work with non-cubic boxes...
@@ -196,7 +197,7 @@ class AnalyzeSFactor3D:
 
         :param cut: All :math:`S\\left(q\\right)` values greater than cut will
                     be counted as peaks
-        :return: peaks, q as lists
+        :return: peaks, :math:`q` as lists
         :rtype: :class:`list`
         """
         clist, blist, alist = (self.S > cut).nonzero()
@@ -257,8 +258,8 @@ class AnalyzeSFactor3D:
 class SingleCell3D:
     """SingleCell3D objects manage data structures necessary to call the
     Fourier Transform functions that evaluate FTs for given form factors at a
-    list of K points. SingleCell3D provides an interface to helper functions to
-    calculate K points for a desired grid from the reciprocal lattice vectors
+    list of :math:`K` points. SingleCell3D provides an interface to helper functions to
+    calculate :math:`K` points for a desired grid from the reciprocal lattice vectors
     calculated from an input boxMatrix.  State is maintained as `set_` and
     `update_` functions invalidate internal data structures and as fresh data
     is restored with `update_` function calls. This should facilitate
@@ -543,7 +544,7 @@ class SingleCell3D:
     def set_dK(self, dK):
         """Set grid spacing in diffraction image
 
-        :param dK: difference in K vector between two adjacent diffraction
+        :param dK: difference in :math:`K` vector between two adjacent diffraction
                     image grid points
         :type dK: float
         """
@@ -578,7 +579,7 @@ class SingleCell3D:
         self.K_constraint_valid = False
 
     def update_K_constraint(self):
-        """Recalculate constraint used to select K values
+        """Recalculate constraint used to select :math:`K` values
 
         The constraint used is a slab of epsilon thickness in a plane
         perpendicular to the :math:`k_0` propagation, intended to provide easy
@@ -594,11 +595,11 @@ class SingleCell3D:
         self.Kpoints_valid = False
 
     def update_Kpoints(self):
-        """Update K points at which to evaluate FT
+        """Update :math:`K` points at which to evaluate FT
 
         .. note::
             If the diffraction image dimensions change relative to the
-            reciprocal lattice, the K points need to be recalculated.
+            reciprocal lattice, the :math:`K` points need to be recalculated.
         """
         self.Kpoints_valid = True
         self.Kpoints = np.float32(constrainedLatticePoints(
@@ -608,7 +609,7 @@ class SingleCell3D:
         self.FT_valid = False
 
     def calculate(self, *args, **kwargs):
-        """## Calculate FT. The details and arguments will vary depending on
+        """Calculate FT. The details and arguments will vary depending on
         the form factor chosen for the particles.
 
         For any particle type-dependent parameters passed as keyword arguments,
@@ -768,9 +769,9 @@ class FTbase:
             return self.get_param_map[name]()
 
     def set_K(self, K):
-        """Set K points to be evaluated
+        """Set :math:`K` points to be evaluated
 
-        :param K: list of K vectors at which to evaluate FT
+        :param K: list of :math:`K` vectors at which to evaluate FT
         :type K: :class:`numpy.ndarray`
         """
         self.K = np.asarray(K, dtype=np.float32)
@@ -808,7 +809,7 @@ class FTbase:
         return self.density
 
     def set_rq(self, r, q):
-        """Set r, q values
+        """Set :math:`r`, :math:`q` values
 
         :param r: r
         :param q: q
@@ -842,9 +843,9 @@ class FTdelta(FTbase):
         self.FTobj = _FTdelta()
 
     def set_K(self, K):
-        """Set K points to be evaluated
+        """Set :math:`K` points to be evaluated
 
-        :param K: list of K vectors at which to evaluate FT
+        :param K: list of :math:`K` vectors at which to evaluate FT
         :type K: :class:`numpy.ndarray`
         """
         FTbase.set_K(self, K)
@@ -875,7 +876,7 @@ class FTdelta(FTbase):
         self.FTobj.set_density(complex(self.density))
 
     def set_rq(self, r, q):
-        """Set r, q values
+        """Set :math:`r`, :math:`q` values
 
         :param r: r
         :param q: q
@@ -948,16 +949,16 @@ class FTpolyhedron(FTbase):
         self.get_param_map['radius'] = self.get_radius
 
     def set_K(self, K):
-        """Set K points to be evaluated
+        """Set :math:`K` points to be evaluated
 
-        :param K: list of K vectors at which to evaluate FT
+        :param K: list of :math:`K` vectors at which to evaluate FT
         :type K: :class:`numpy.ndarray`
         """
         FTbase.set_K(self, K)
         self.FTobj.set_K(self.K * self.scale)
 
     def set_rq(self, r, q):
-        """Set r, q values
+        """Set :math:`r`, :math:`q` values
 
         :param r: r
         :param q: q
@@ -1181,35 +1182,6 @@ class FTconvexPolyhedron(FTpolyhedron):
             S *= 1.j / (np.dot(k, k))
         return S
 
-def mkSCcoords(nx, ny, nz):
-    coords = list()
-    for i in range(-int(nx / 2), -int(nx / 2) + nx):
-        for j in range(-int(ny / 2), -int(ny / 2) + ny):
-            for k in range(-int(nz / 2), -int(nz / 2) + nz):
-                coords.append([i, j, k])
-    return np.array(coords, dtype=float)
-
-
-def mkBCCcoords(nx, ny, nz):
-    # Note that now ni is number of half-lattice vectors
-    coords = list()
-    for i in range(-int(nx / 2), -int(nx / 2) + nx):
-        for j in range(-int(ny / 2), -int(ny / 2) + ny):
-            for k in range(-int(nz / 2), -int(nz / 2) + nz):
-                if (i % 2 == j % 2) and (i % 2 == k % 2):
-                    coords.append([i, j, k])
-    return np.array(coords, dtype=float)
-
-
-def mkFCCcoords(nx, ny, nz):
-    # Note that now ni is number of half-lattice vectors
-    coords = list()
-    for i in range(-int(nx / 2), -int(nx / 2) + nx):
-        for j in range(-int(ny / 2), -int(ny / 2) + ny):
-            for k in range(-int(nz / 2), -int(nz / 2) + nz):
-                if (i + j + k) % 2 == 0:
-                    coords.append([i, j, k])
-    return np.array(coords, dtype=float)
 
 # Axis angle rotation
 # \param v vector to be rotated
