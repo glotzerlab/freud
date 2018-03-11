@@ -94,7 +94,7 @@ cdef class NeighborList:
         cdef np.ndarray[float, ndim = 1] c_weights = weights
 
         cdef size_t last_i
-        cdef int i
+        cdef size_t i
         if n_bonds:
             last_i = c_index_i[0]
             i = last_i

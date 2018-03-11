@@ -411,8 +411,6 @@ cdef class CubaticOrderParameter:
                 dtype= :class:`numpy.float32`
         """
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = 4
         cdef np.ndarray[float, ndim = 1] result = np.array(
                 [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
         return result
