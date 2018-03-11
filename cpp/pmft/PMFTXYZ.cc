@@ -20,54 +20,21 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec)
-    : m_box(box::Box()), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z),
-      m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_z(n_bins_z), m_frame_counter(0),
-      m_n_ref(0), m_n_p(0), m_n_faces(0), m_reduce(true), m_shiftvec(shiftvec)
+    : PMFTXY2D(max_x, max_y, n_bins_x, n_bins_y), m_max_z(max_z),
+      m_n_bins_z(n_bins_z), m_shiftvec(shiftvec)
     {
-    if (n_bins_x < 1)
-        throw invalid_argument("must be at least 1 bin in x");
-    if (n_bins_y < 1)
-        throw invalid_argument("must be at least 1 bin in y");
     if (n_bins_z < 1)
         throw invalid_argument("must be at least 1 bin in z");
-    if (max_x < 0.0f)
-        throw invalid_argument("max_x must be positive");
-    if (max_y < 0.0f)
-        throw invalid_argument("max_y must be positive");
     if (max_z < 0.0f)
         throw invalid_argument("max_z must be positive");
 
     // calculate dx, dy, dz
-    m_dx = 2.0 * m_max_x / float(m_n_bins_x);
-    m_dy = 2.0 * m_max_y / float(m_n_bins_y);
     m_dz = 2.0 * m_max_z / float(m_n_bins_z);
 
-    if (m_dx > max_x)
-        throw invalid_argument("max_x must be greater than dx");
-    if (m_dy > max_y)
-        throw invalid_argument("max_y must be greater than dy");
     if (m_dz > max_z)
         throw invalid_argument("max_z must be greater than dz");
 
     m_jacobian = m_dx * m_dy * m_dz;
-
-    // precompute the bin center positions for x
-    m_x_array = std::shared_ptr<float>(new float[m_n_bins_x], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_n_bins_x; i++)
-        {
-        float x = float(i) * m_dx;
-        float nextx = float(i+1) * m_dx;
-        m_x_array.get()[i] = -m_max_x + ((x + nextx) / 2.0);
-        }
-
-    // precompute the bin center positions for y
-    m_y_array = std::shared_ptr<float>(new float[m_n_bins_y], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_n_bins_y; i++)
-        {
-        float y = float(i) * m_dy;
-        float nexty = float(i+1) * m_dy;
-        m_y_array.get()[i] = -m_max_y + ((y + nexty) / 2.0);
-        }
 
     // precompute the bin center positions for z
     m_z_array = std::shared_ptr<float>(new float[m_n_bins_z], std::default_delete<float[]>());
@@ -78,9 +45,13 @@ PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, u
         m_z_array.get()[i] = -m_max_z + ((z + nextz) / 2.0);
         }
     // create and populate the pcf_array
+    printf("Start PCF\n");
     m_pcf_array = std::shared_ptr<float>(new float[m_n_bins_x*m_n_bins_y*m_n_bins_z], std::default_delete<float[]>());
+    printf("first memset\n");
     memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
+    printf("bin counts\n");
     m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_bins_x*m_n_bins_y*m_n_bins_z], std::default_delete<unsigned int[]>());
+    printf("memset bin counts\n");
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
 
     m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
