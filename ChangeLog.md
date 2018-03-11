@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## v0.7.0 - 2018-03-02
 
 ### Added
-* Added Nematic order parameter
+* Added nematic order parameter
 * Added optional rmin argument to density.RDF
 * Added credits file
 * Wrote development guide
