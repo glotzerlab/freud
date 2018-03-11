@@ -86,14 +86,6 @@ PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, u
     m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
     }
 
-PMFTXYZ::~PMFTXYZ()
-    {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
-        {
-        delete[] (*i);
-        }
-    }
-
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTXYZ::reducePCF()

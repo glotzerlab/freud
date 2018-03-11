@@ -46,9 +46,6 @@ class PMFTXYZ : public PMFT
         //! Constructor
         PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec);
 
-        //! Destructor
-        ~PMFTXYZ();
-
         //! Reset the PCF array to all zeros
         virtual void resetPCF();
 
