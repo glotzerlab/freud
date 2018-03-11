@@ -7,6 +7,17 @@ from libcpp.memory cimport shared_ptr
 cimport freud._box as box
 cimport freud._locality
 
+cdef extern from "PMFT.h" namespace "freud::pmft":
+    cdef cppclass PMFT:
+        PMFT()
+
+        const box.Box & getBox() const
+        void resetPCF()
+        void reducePCF()
+        shared_ptr[unsigned int] getBinCounts()
+        shared_ptr[float] getPCF()
+        float getRCut()
+
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12:
         PMFTR12(float, unsigned int, unsigned int, unsigned int)

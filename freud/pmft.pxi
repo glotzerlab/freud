@@ -11,6 +11,84 @@ cimport freud._box as _box
 cimport freud._pmft as pmft
 cimport numpy as np
 
+cdef class _PMFT:
+    """Parent class for all PMFTs"""
+    cdef pmft.PMFT * thisptr
+    cdef rmax
+
+    @property
+    def box(self):
+        """Get the box used in the calculation
+        """
+        return self.getBox()
+
+    def getBox(self):
+        """Get the box used in the calculation
+
+        :return: freud Box
+        :rtype: :py:class:`freud.box.Box()`
+        """
+        return BoxFromCPP(self.thisptr.getBox())
+
+    def resetPCF(self):
+        """Resets the values of the pcf histograms in memory
+        """
+        self.thisptr.resetPCF()
+
+    def reducePCF(self):
+        """Reduces the histogram in the values over N processors to a single
+        histogram. This is called automatically by
+        :py:meth:`freud.pmft.PMFTR12.getPCF()`.
+        """
+        self.thisptr.reducePCF()
+
+    @property
+    def bin_counts(self):
+        """Get the raw bin counts.
+        """
+        return self.getBinCounts()
+
+
+    @property
+    def PCF(self):
+        """Get the positional correlation function.
+        """
+        return self.getPCF()
+
+    @property
+    def PMFT(self):
+        """Get the PMFT
+        """
+        return self.getPMFT()
+
+    def getPMFT(self):
+        """Get the Potential of Mean Force and Torque.
+
+        :return: PMFT
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{r}, N_{\\theta1},
+                N_{\\theta2}\\right)`,
+                dtype= :class:`numpy.float32`
+        """
+        return -np.log(np.copy(self.getPCF()))
+
+    @property
+    def r_cut(self):
+        """Get the r_cut value used in the cell list
+        """
+        return self.getRCut()
+
+    def getRCut(self):
+        """Get the r_cut value used in the cell list
+
+        :return: r_cut
+        :rtype: float
+        """
+        cdef float r_cut = self.thisptr.getRCut()
+        return r_cut
+
+
+
 cdef class PMFTR12:
     """Computes the PMFT [Cit2]_ for a given set of points.
 
