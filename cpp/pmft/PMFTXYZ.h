@@ -21,8 +21,6 @@
 #ifndef _PMFTXYZ_H__
 #define _PMFTXYZ_H__
 
-#include "PMFTXY2D.h"
-
 /*! \internal
     \file PMFTXYZ.h
     \brief Routines for computing anisotropic potential of mean force in 3D
@@ -40,7 +38,7 @@ namespace freud { namespace pmft {
     <b>2D:</b><br>
     This PCF works for 3D boxes (while it will work for 2D boxes, you should use the 2D version).
 */
-class PMFTXYZ : public PMFTXY2D
+class PMFTXYZ
     {
     public:
         //! Constructor
