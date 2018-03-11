@@ -892,7 +892,7 @@ cdef class RDF:
         :param points: points to calculate the local density
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                         find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
                             shape=(:math:`N_{particles}`, 3),
                             dtype= :class:`numpy.float32`

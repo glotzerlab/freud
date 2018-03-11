@@ -240,7 +240,7 @@ cdef class BondingR12:
         :param orientations: orientations as angles to use in computation
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                         find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
                             shape=(:math:`N_{particles}`, 3),
                             dtype= :class:`numpy.float32`
@@ -420,7 +420,7 @@ cdef class BondingXY2D:
         :param orientations: orientations as angles to use in computation
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                        find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
                             shape=(:math:`N_{particles}`, 3),
                             dtype= :class:`numpy.float32`
@@ -602,7 +602,7 @@ cdef class BondingXYT:
         :param orientations: orientations as angles to use in computation
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                         find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
                             shape=(:math:`N_{particles}`, 3),
                             dtype= :class:`numpy.float32`
@@ -787,7 +787,7 @@ cdef class BondingXYZ:
         :param orientations: orientations as quaternions to use in computation
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                         find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
                             shape=(:math:`N_{particles}`, 3),
                             dtype= :class:`numpy.float32`

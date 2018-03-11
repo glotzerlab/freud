@@ -71,7 +71,7 @@ class SFactor3DPoints:
 
         :param box: The simulation box
         :param g: The number of grid points for q in each direction is 2*g+1
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type g: int
         """
         if box.is2D():

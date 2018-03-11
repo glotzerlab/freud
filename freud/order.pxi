@@ -637,7 +637,7 @@ cdef class HexOrderParameter:
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                       find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`,
                       shape= :math:`\\left(N_{particles}, 3 \\right)`,
                       dtype= :class:`numpy.float32`
@@ -1128,7 +1128,7 @@ cdef class LocalQl:
                  minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param rmin: can look at only the second shell or some arbitrary rdf region
-    :type box: :py:meth:`freud.box.Box`
+    :type box: :py:class:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
     :type rmin: float
@@ -1551,7 +1551,7 @@ cdef class LocalWl:
     :param rmax: Cutoff radius for the local order parameter. Values near first
                  minima of the rdf are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
-    :type box: :py:meth:`freud.box.Box`
+    :type box: :py:class:`freud.box.Box`
     :type rmax: float
     :type l: unsigned int
 
@@ -1980,7 +1980,7 @@ cdef class SolLiq:
                        structures)
     :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and
               even.
-    :type box: :py:meth:`freud.box.Box`
+    :type box: :py:class:`freud.box.Box`
     :type rmax: float
     :type Qthreshold: float
     :type Sthreshold: unsigned int
@@ -3011,7 +3011,7 @@ cdef class AngularSeparation:
                             include both q and -q, for all included quaternions
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                       find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type ref_ors: :class:`numpy.ndarray`,
                        shape= :math:`\\left(N_{particles}, 4 \\right)`,
                        dtype= :class:`numpy.float32`
