@@ -1,22 +1,33 @@
 # Change Log
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v0.7.0
+## Unreleased
 
+### Added
+* Voronoi neighborlist now includes periodic neighbors
+* Voronoi neighborlist computes weight according to the facet area
+
+## v0.7.0 - 2018-03-02
+
+### Added
+* Added Nematic order parameter
+* Added optional rmin argument to density.RDF
+* Added credits file
+* Wrote development guide
+* Added Python interface for box periodicity
+
+### Changed
 * Various bug fixes and code cleaning
 * Fixed all compile-time warnings
 * Ensured PEP 8 compliance everywhere
 * Minimized boost dependence
-* Added Nematic order parameter
-* Added optional rmin argument to density.RDF
-* Added credits file
 * Many documentation rewrites
-* Wrote development guide
 * Made tests deterministic (seeded RNGs)
 * Removed deprecated Box API warnings
 * Standardized numpy usage
-* Added Python interface for box periodicity
 
-## v0.6.4
+## v0.6.4 - 2018-02-05
 
 * Added a generic neighbor list interface
 * Set up CircleCI for continuous integration
