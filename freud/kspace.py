@@ -272,31 +272,27 @@ class SingleCell3D:
     def __init__(self, k=1800, ndiv=16, dK=0.01, boxMatrix=None,
                  *args, **kwargs):
         """Initialize the single-cell data structure for FT calculation
-        :param ndiv: The resolution of the diffraction image grid
-        :param k: The angular wave number of the plane wave probe.
-                    (Currently unused.)
-        :param dK: The k-space unit associated with the diffraction image grid
-                    spacing
+        :param int ndiv: The resolution of the diffraction image grid
+        :param float k: The angular wave number of the plane wave probe.
+                        (Currently unused.)
+        :param float dK: The k-space unit associated with the diffraction
+                         image grid spacing
         :param boxMatrix: The unit cell lattice vectors as columns in a 3x3
-                            matrix
-        :param scale: nm per unit length (default 1.0)
-        :type ndiv: int
-        :type k: float
-        :type dK: int
+                          matrix
+        :param float scale: nm per unit length (default 1.0)
         :type boxMatrix: :class:`numpy.ndarray`,
-                    shape=(3, 3),
-                    dtype= :class:`numpy.float32`
-        :type scale: float
+                         shape=(3, 3),
+                         dtype= :class:`numpy.float32`
 
         .. note::
             * The `set_` functions take a single parameeter and cause other
-                internal data structures to become invalid.
+              internal data structures to become invalid.
             * The `update_` and calculate functions restore the validity of
-                these structures using internal data.
+              these structures using internal data.
             * The functions are separate to make it easier to avoid unnecessary
-                computation such as when changing multiple parameters before
-                seeking output or when wrapping the code with an interface
-                with an event queue.
+              computation such as when changing multiple parameters before
+              seeking output or when wrapping the code with an interface
+              with an event queue.
         """
         # Initialize some state
         self.Kpoints_valid = False
@@ -455,12 +451,9 @@ class SingleCell3D:
     def set_param(self, particle, param, value):
         """Set named parameter for named particle
 
-        :param particle: particle name
-        :param param: parameter name
-        :param value: parameter value
-        :type particle: str
-        :type param: str
-        :type value: float
+        :param str particle: particle name
+        :param str param: parameter name
+        :param float value: parameter value
         """
         i = self.ptype_name.index(particle)
         FTobj = self.ptype_ff[i]
@@ -477,8 +470,7 @@ class SingleCell3D:
     def set_scale(self, scale):
         """Set scale factor. Store global value and set for each particle type
 
-        :param scale: nm per unit for input file coordinates
-        :type scale: float
+        :param float scale: nm per unit for input file coordinates
         """
         self.scale = np.float32(scale)
         for i in range(len(self.ptype_ff)):
@@ -553,8 +545,7 @@ class SingleCell3D:
     def set_k(self, k):
         """Set angular wave number of plane wave probe
 
-        :param k: = :math:`\\left|k_0\\right|`
-        :type k: float
+        :param float k: = :math:`\\left|k_0\\right|`
         """
         self.k = np.float32(k)
 
@@ -738,11 +729,9 @@ class FTbase:
     def set_parambyname(self, name, value):
         """Set named parameter for object
 
-        :param name: parameter name. Must exist in list returned by
-                    :py:meth:`~.FTbase.get_params()`
-        :param value: parameter value to set
-        :type name: str
-        :type value: float
+        :param str name: parameter name. Must exist in list returned by
+                         :py:meth:`~.FTbase.get_params()`
+        :param float value: parameter value to set
         """
         if name not in self.set_param_map.keys():
             msg = 'Object {type} does not have parameter {param}'.format(
@@ -754,9 +743,8 @@ class FTbase:
     def get_parambyname(self, name):
         """Get named parameter for object
 
-        :param name: parameter name. Must exist in list returned by
-                    :py:meth:`~.FTbase.get_params()`
-        :type name: str
+        :param str name: parameter name. Must exist in list returned by
+                         :py:meth:`~.FTbase.get_params()`
         :return: parameter value
         :rtype: float
         """
@@ -778,8 +766,7 @@ class FTbase:
     def set_scale(self, scale):
         """Set scale
 
-        :param scale: scale
-        :type scale: float
+        :param float scale: scale
         """
         self.scale = np.float32(scale)
 
@@ -853,8 +840,7 @@ class FTdelta(FTbase):
     def set_scale(self, scale):
         """Set scale
 
-        :param scale: scale
-        :type scale: float
+        :param float scale: scale
 
         .. note::
             For a scale factor, :math:`\\lambda`, affecting the scattering
@@ -915,9 +901,8 @@ class FTsphere(FTdelta):
     def set_radius(self, radius):
         """Set radius parameter
 
-        :param radius: sphere radius will be stored as given, but scaled by
-                        scale parameter when used by methods
-        :type radius: float
+        :param float radius: sphere radius will be stored as given, but scaled
+                             by scale parameter when used by methods
         """
         self.radius = float(radius)
         self.FTobj.set_radius(self.radius)
@@ -1012,8 +997,8 @@ class FTpolyhedron(FTbase):
     def set_radius(self, radius):
         """Set radius of in-sphere
 
-        :param radius: radius inscribed sphere radius without scale applied
-        :type radius: float
+        :param float radius: radius inscribed sphere radius without scale
+                             applied
         """
         # Find original in-sphere radius, determine necessary scale factor, and
         # scale vertices and surface distances
@@ -1075,8 +1060,8 @@ class FTconvexPolyhedron(FTpolyhedron):
     def set_radius(self, radius):
         """Set radius of in-sphere
 
-        :param radius: radius inscribed sphere radius without scale applied
-        :type radius: float
+        :param float radius: radius inscribed sphere radius without scale
+                             applied
         """
         # Find original in-sphere radius, determine necessary scale factor,
         # and scale vertices and surface distances
@@ -1421,12 +1406,10 @@ class DeltaSpot:
         self.x, self.y = np.float32(0), np.float32(0)
 
     def set_xy(self, x, y):
-        """Set x,y values of spot center
+        """Set :math:`x`, :math:`y` values of spot center
 
-        :param x: x value of spot center
-        :param y: y value of spot center
-        :type x: float
-        :type y: float
+        :param float x: x value of spot center
+        :param float y: y value of spot center
         """
         self.x, self.y = np.float32(x), np.float32(y)
         # round to nearest grid point
@@ -1477,12 +1460,10 @@ class GaussianSpot(DeltaSpot):
         self.set_xy(0, 0)
 
     def set_xy(self, x, y):
-        """Set x,y values of spot center
+        """Set :math:`x`, :math:`y` values of spot center
 
-        :param x: x value of spot center
-        :param y: y value of spot center
-        :type x: float
-        :type y: float
+        :param float x: x value of spot center
+        :param float y: y value of spot center
         """
         self.x, self.y = np.float32(x), np.float32(y)
         # set grid: two index matrices of i and j values
@@ -1525,10 +1506,9 @@ class GaussianSpot(DeltaSpot):
         return val * gaussian
 
     def set_sigma(self, sigma):
-        """Define Gaussian
+        """Define Gaussian.
 
-        :param sigma: width of the Guassian spot
-        :type sigma: float
+        :param float sigma: width of the Gaussian spot
         """
         self.sigma = np.float32(sigma)
         self.ss2 = np.float32(sigma * sigma * 2)

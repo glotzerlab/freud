@@ -55,10 +55,9 @@ cdef class Box:
         return (result.x, result.y, result.z)
 
     def setL(self, L):
-        """Set all side lengths of box to L
+        """Set all side lengths of box to L.
 
-        :param L: Side length of box
-        :type L: float
+        :param float L: Side length of box
         """
         try:
             len(L)
@@ -75,7 +74,7 @@ cdef class Box:
         self.thisptr.setL(L[0], L[1], L[2])
 
     def getLx(self):
-        """Length of the x-dimension of the box
+        """Length of the x-dimension of the box.
 
         :return: This box's x-dimension length
         :rtype: float
@@ -83,7 +82,7 @@ cdef class Box:
         return self.thisptr.getLx()
 
     def getLy(self):
-        """Length of the y-dimension of the box
+        """Length of the y-dimension of the box.
 
         :return: This box's y-dimension length
         :rtype: float
@@ -91,7 +90,7 @@ cdef class Box:
         return self.thisptr.getLy()
 
     def getLz(self):
-        """Length of the z-dimension of the box
+        """Length of the z-dimension of the box.
 
         :return: This box's z-dimension length
         :rtype: float
@@ -109,7 +108,7 @@ cdef class Box:
 
     @property
     def xy(self):
-        """Tilt factor xy of the box
+        """Tilt factor xy of the box.
 
         :return: xy tilt factor
         :rtype: float
@@ -127,7 +126,7 @@ cdef class Box:
 
     @property
     def xz(self):
-        """Tilt factor xz of the box
+        """Tilt factor xz of the box.
 
         :return: xz tilt factor
         :rtype: float
@@ -145,7 +144,7 @@ cdef class Box:
 
     @property
     def yz(self):
-        """Tilt factor yz of the box
+        """Tilt factor yz of the box.
 
         :return: yz tilt factor
         :rtype: float
@@ -153,7 +152,7 @@ cdef class Box:
         return self.getTiltFactorYZ()
 
     def is2D(self):
-        """Return if box is 2D (True) or 3D (False)
+        """Return if box is 2D (True) or 3D (False).
 
         :return: True if 2D, False if 3D
         :rtype: bool
@@ -170,7 +169,7 @@ cdef class Box:
         self.thisptr.set2D(bool(val))
 
     def getLinv(self):
-        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz)
+        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz).
 
         :return: dimensions of the box as (1/Lx, 1/Ly, 1/Lz)
         :rtype: (float, float, float)
@@ -180,7 +179,7 @@ cdef class Box:
 
     @property
     def Linv(self):
-        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz)
+        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz).
 
         :return: dimensions of the box as (1/Lx, 1/Ly, 1/Lz)
         :rtype: (float, float, float)
@@ -188,7 +187,7 @@ cdef class Box:
         return self.getLinv()
 
     def getVolume(self):
-        """Return the box volume (area in 2D)
+        """Return the box volume (area in 2D).
 
         :return: box volume
         :rtype: float
@@ -197,7 +196,7 @@ cdef class Box:
 
     @property
     def volume(self):
-        """Return the box volume (area in 2D)
+        """Return the box volume (area in 2D).
 
         :return: box volume
         :rtype: float

@@ -19,23 +19,22 @@ cdef class PMFTR12:
     array listing the value of the PCF at each given :math:`r`,
     :math:`\\theta_1`, :math:`\\theta_2` listed in the r, t1, and t2 arrays.
 
-    The values of r, t1, t2 to compute the pcf at are controlled by r_max and
+    The values of r, t1, t2 to compute the PCF at are controlled by r_max and
     nbins_r, nbins_t1, nbins_t2 parameters to the constructor. rmax determines
     the minimum/maximum r (:math:`\\min \\left( \\theta_1 \\right) =
     \\min \\left( \\theta_2 \\right) = 0`, (:math:`\\max \\left( \\theta_1
     \\right) = \\max \\left( \\theta_2 \\right) = 2\\pi`) at which to compute
-    the pcf and nbins_r, nbins_t1, nbins_t2 is the number of bins in r, t1, t2.
+    the PCF and nbins_r, nbins_t1, nbins_t2 is the number of bins in r, t1, t2.
 
     .. note:: 2D: This calculation is defined for 2D systems only. However
               particle positions are still required to be (x, y, 0)
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param r_max: maximum distance at which to compute the pmft
+    :param float r_max: maximum distance at which to compute the PMFT
     :param n_r: number of bins in r
     :param n_t1: number of bins in t1
     :param n_t2: number of bins in t2
-    :type r_max: float
     :type n_r: unsigned int
     :type n_t1: unsigned int
     :type n_t2: unsigned int
@@ -53,12 +52,12 @@ cdef class PMFTR12:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box()`
@@ -66,7 +65,7 @@ cdef class PMFTR12:
         return BoxFromCPP(self.thisptr.getBox())
 
     def resetPCF(self):
-        """Resets the values of the pcf histograms in memory
+        """Resets the values of the PCF histograms in memory.
         """
         self.thisptr.resetPCF()
 
@@ -252,7 +251,7 @@ cdef class PMFTR12:
 
     @property
     def R(self):
-        """Get the array of r-values for the PCF histogram
+        """Get the array of r-values for the PCF histogram.
 
         :return: bin centers of r-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -262,7 +261,7 @@ cdef class PMFTR12:
         return self.getR()
 
     def getR(self):
-        """Get the array of r-values for the PCF histogram
+        """Get the array of r-values for the PCF histogram.
 
         :return: bin centers of r-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -279,12 +278,12 @@ cdef class PMFTR12:
 
     @property
     def T1(self):
-        """Get the array of T1-values for the PCF histogram
+        """Get the array of T1-values for the PCF histogram.
         """
         return self.getT1()
 
     def getT1(self):
-        """Get the array of T1-values for the PCF histogram
+        """Get the array of T1-values for the PCF histogram.
 
         :return: bin centers of T1-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -301,7 +300,7 @@ cdef class PMFTR12:
 
     @property
     def T2(self):
-        """Get the array of T2-values for the PCF histogram
+        """Get the array of T2-values for the PCF histogram.
 
         :return: bin centers of T2-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -311,7 +310,7 @@ cdef class PMFTR12:
         return self.getT2()
 
     def getT2(self):
-        """Get the array of T2-values for the PCF histogram
+        """Get the array of T2-values for the PCF histogram.
 
         :return: bin centers of T2-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -328,12 +327,12 @@ cdef class PMFTR12:
 
     @property
     def inverse_jacobian(self):
-        """Get the array of T2-values for the PCF histogram
+        """Get the array of T2-values for the PCF histogram.
         """
         return self.getInverseJacobian()
 
     def getInverseJacobian(self):
-        """Get the inverse jacobian used in the pmft
+        """Get the inverse Jacobian used in the PMFT.
 
         :return: Inverse Jacobian
         :rtype: :class:`numpy.ndarray`,
@@ -353,12 +352,12 @@ cdef class PMFTR12:
 
     @property
     def n_bins_r(self):
-        """Get the number of bins in the r-dimension of histogram
+        """Get the number of bins in the r-dimension of histogram.
         """
         return self.getNBinsR()
 
     def getNBinsR(self):
-        """Get the number of bins in the r-dimension of histogram
+        """Get the number of bins in the r-dimension of histogram.
 
         :return: :math:`N_r`
         :rtype: unsigned int
@@ -368,12 +367,12 @@ cdef class PMFTR12:
 
     @property
     def n_bins_T1(self):
-        """Get the number of bins in the T1-dimension of histogram
+        """Get the number of bins in the T1-dimension of histogram.
         """
         return self.getNBinsT1()
 
     def getNBinsT1(self):
-        """Get the number of bins in the T1-dimension of histogram
+        """Get the number of bins in the T1-dimension of histogram.
 
         :return: :math:`N_{\\theta_1}`
         :rtype: unsigned int
@@ -383,12 +382,12 @@ cdef class PMFTR12:
 
     @property
     def n_bins_T2(self):
-        """Get the number of bins in the T2-dimension of histogram
+        """Get the number of bins in the T2-dimension of histogram.
         """
         return self.getNBinsT2()
 
     def getNBinsT2(self):
-        """Get the number of bins in the T2-dimension of histogram
+        """Get the number of bins in the T2-dimension of histogram.
 
         :return: :math:`N_{\\theta_2}`
         :rtype: unsigned int
@@ -398,12 +397,12 @@ cdef class PMFTR12:
 
     @property
     def r_cut(self):
-        """Get the r_cut value used in the cell list
+        """Get the r_cut value used in the cell list.
         """
         return self.getRCut()
 
     def getRCut(self):
-        """Get the r_cut value used in the cell list
+        """Get the r_cut value used in the cell list.
 
         :return: r_cut
         :rtype: float
@@ -419,11 +418,11 @@ cdef class PMFTXYT:
     array listing the value of the PCF at each given :math:`x`, :math:`y`,
     :math:`\\theta` listed in the x, y, and t arrays.
 
-    The values of x, y, t to compute the pcf at are controlled by x_max, y_max
+    The values of x, y, t to compute the PCF at are controlled by x_max, y_max
     and n_bins_x, n_bins_y, n_bins_t parameters to the constructor. x_max,
     y_max determine the minimum/maximum x, y values (:math:`\\min \\left(
     \\theta \\right) = 0`, (:math:`\\max \\left( \\theta \\right) = 2\\pi`) at
-    which to compute the pcf and n_bins_x, n_bins_y, n_bins_t is the number of
+    which to compute the PCF and n_bins_x, n_bins_y, n_bins_t is the number of
     bins in x, y, t.
 
     .. note:: 2D: This calculation is defined for 2D systems only. However
@@ -431,13 +430,11 @@ cdef class PMFTXYT:
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param x_max: maximum x distance at which to compute the pmft
-    :param y_max: maximum y distance at which to compute the pmft
+    :param float x_max: maximum x distance at which to compute the PMFT
+    :param float y_max: maximum y distance at which to compute the PMFT
     :param n_x: number of bins in x
     :param n_y: number of bins in y
     :param n_t: number of bins in t
-    :type x_max: float
-    :type y_max: float
     :type n_x: unsigned int
     :type n_y: unsigned int
     :type n_t: unsigned int
@@ -455,12 +452,12 @@ cdef class PMFTXYT:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -468,7 +465,7 @@ cdef class PMFTXYT:
         return BoxFromCPP(self.thisptr.getBox())
 
     def resetPCF(self):
-        """Resets the values of the pcf histograms in memory
+        """Resets the values of the PCF histograms in memory.
         """
         self.thisptr.resetPCF()
 
@@ -651,12 +648,12 @@ cdef class PMFTXYT:
 
     @property
     def X(self):
-        """Get the array of x-values for the PCF histogram
+        """Get the array of x-values for the PCF histogram.
         """
         return self.getX()
 
     def getX(self):
-        """Get the array of x-values for the PCF histogram
+        """Get the array of x-values for the PCF histogram.
 
         :return: bin centers of x-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -673,12 +670,12 @@ cdef class PMFTXYT:
 
     @property
     def Y(self):
-        """Get the array of y-values for the PCF histogram
+        """Get the array of y-values for the PCF histogram.
         """
         return self.getY()
 
     def getY(self):
-        """Get the array of y-values for the PCF histogram
+        """Get the array of y-values for the PCF histogram.
 
         :return: bin centers of y-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -695,12 +692,12 @@ cdef class PMFTXYT:
 
     @property
     def T(self):
-        """Get the array of t-values for the PCF histogram
+        """Get the array of t-values for the PCF histogram.
         """
         return self.getT()
 
     def getT(self):
-        """Get the array of t-values for the PCF histogram
+        """Get the array of t-values for the PCF histogram.
 
         :return: bin centers of t-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -717,12 +714,12 @@ cdef class PMFTXYT:
 
     @property
     def jacobian(self):
-        """Get the jacobian used in the pmft
+        """Get the Jacobian used in the PMFT.
         """
         return self.getJacobian()
 
     def getJacobian(self):
-        """Get the jacobian used in the pmft
+        """Get the Jacobian used in the PMFT.
 
         :return: Inverse Jacobian
         :rtype: float
@@ -732,12 +729,12 @@ cdef class PMFTXYT:
 
     @property
     def n_bins_X(self):
-        """Get the number of bins in the x-dimension of histogram
+        """Get the number of bins in the x-dimension of histogram.
         """
         return self.getNBinsX()
 
     def getNBinsX(self):
-        """Get the number of bins in the x-dimension of histogram
+        """Get the number of bins in the x-dimension of histogram.
 
         :return: :math:`N_x`
         :rtype: unsigned int
@@ -747,12 +744,12 @@ cdef class PMFTXYT:
 
     @property
     def n_bins_Y(self):
-        """Get the number of bins in the y-dimension of histogram
+        """Get the number of bins in the y-dimension of histogram.
         """
         return self.getNBinsY()
 
     def getNBinsY(self):
-        """Get the number of bins in the y-dimension of histogram
+        """Get the number of bins in the y-dimension of histogram.
 
         :return: :math:`N_y`
         :rtype: unsigned int
@@ -762,12 +759,12 @@ cdef class PMFTXYT:
 
     @property
     def n_bins_T(self):
-        """Get the number of bins in the T-dimension of histogram
+        """Get the number of bins in the T-dimension of histogram.
         """
         return self.getNBinsT()
 
     def getNBinsT(self):
-        """Get the number of bins in the t-dimension of histogram
+        """Get the number of bins in the t-dimension of histogram.
 
         :return: :math:`N_{\\theta}`
         :rtype: unsigned int
@@ -777,12 +774,12 @@ cdef class PMFTXYT:
 
     @property
     def r_cut(self):
-        """Get the r_cut value used in the cell list
+        """Get the r_cut value used in the cell list.
         """
         return self.getRCut()
 
     def getRCut(self):
-        """Get the r_cut value used in the cell list
+        """Get the r_cut value used in the cell list.
 
         :return: r_cut
         :rtype: float
@@ -798,21 +795,19 @@ cdef class PMFTXY2D:
     array listing the value of the PCF at each given :math:`x`, :math:`y`
     listed in the x and y arrays.
 
-    The values of x and y to compute the pcf at are controlled by x_max, y_max,
+    The values of x and y to compute the PCF at are controlled by x_max, y_max,
     n_x, and n_y parameters to the constructor. x_max and y_max determine the
-    minimum/maximum distance at which to compute the pcf and n_x and n_y are
+    minimum/maximum distance at which to compute the PCF and n_x and n_y are
     the number of bins in x and y.
 
     .. note:: 2D: This calculation is defined for 2D systems only.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param x_max: maximum x distance at which to compute the pmft
-    :param y_max: maximum y distance at which to compute the pmft
+    :param float x_max: maximum x distance at which to compute the PMFT
+    :param float y_max: maximum y distance at which to compute the PMFT
     :param n_x: number of bins in x
     :param n_y: number of bins in y
-    :type x_max: float
-    :type y_max: float
     :type n_x: unsigned int
     :type n_y: unsigned int
     """
@@ -828,12 +823,12 @@ cdef class PMFTXY2D:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -841,7 +836,7 @@ cdef class PMFTXY2D:
         return BoxFromCPP(self.thisptr.getBox())
 
     def resetPCF(self):
-        """Resets the values of the pcf histograms in memory
+        """Resets the values of the PCF histograms in memory.
         """
         self.thisptr.resetPCF()
 
@@ -1022,12 +1017,12 @@ cdef class PMFTXY2D:
 
     @property
     def X(self):
-        """Get the array of x-values for the PCF histogram
+        """Get the array of x-values for the PCF histogram.
         """
         return self.getX()
 
     def getX(self):
-        """Get the array of x-values for the PCF histogram
+        """Get the array of x-values for the PCF histogram.
 
         :return: bin centers of x-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -1044,12 +1039,12 @@ cdef class PMFTXY2D:
 
     @property
     def Y(self):
-        """Get the array of y-values for the PCF histogram
+        """Get the array of y-values for the PCF histogram.
         """
         return self.getY()
 
     def getY(self):
-        """Get the array of y-values for the PCF histogram
+        """Get the array of y-values for the PCF histogram.
 
 
         :return: bin centers of y-dimension of histogram
@@ -1067,12 +1062,12 @@ cdef class PMFTXY2D:
 
     @property
     def n_bins_X(self):
-        """Get the number of bins in the x-dimension of histogram
+        """Get the number of bins in the x-dimension of histogram.
         """
         return self.getNBinsX()
 
     def getNBinsX(self):
-        """Get the number of bins in the x-dimension of histogram
+        """Get the number of bins in the x-dimension of histogram.
 
         :return: :math:`N_x`
         :rtype: unsigned int
@@ -1082,12 +1077,12 @@ cdef class PMFTXY2D:
 
     @property
     def n_bins_Y(self):
-        """Get the number of bins in the y-dimension of histogram
+        """Get the number of bins in the y-dimension of histogram.
         """
         return self.getNBinsY()
 
     def getNBinsY(self):
-        """Get the number of bins in the y-dimension of histogram
+        """Get the number of bins in the y-dimension of histogram.
 
         :return: :math:`N_y`
         :rtype: unsigned int
@@ -1097,14 +1092,14 @@ cdef class PMFTXY2D:
 
     @property
     def jacobian(self):
-        """Get the jacobian used in the pmft
+        """Get the Jacobian used in the PMFT.
         """
         return self.getJacobian()
 
     def getJacobian(self):
-        """Get the jacobian
+        """Get the Jacobian.
 
-        :return: jacobian
+        :return: Jacobian
         :rtype: float
         """
         cdef float j = self.thisptr.getJacobian()
@@ -1112,12 +1107,12 @@ cdef class PMFTXY2D:
 
     @property
     def r_cut(self):
-        """Get the r_cut value used in the cell list
+        """Get the r_cut value used in the cell list.
         """
         return self.getRCut()
 
     def getRCut(self):
-        """Get the r_cut value used in the cell list
+        """Get the r_cut value used in the cell list.
 
         :return: r_cut
         :rtype: float
@@ -1133,7 +1128,7 @@ cdef class PMFTXYZ:
     array listing the value of the PCF at each given :math:`x`, :math:`y`,
     :math:`z`, listed in the x, y, and z arrays.
 
-    The values of x, y, z to compute the pcf at are controlled by x_max, y_max,
+    The values of x, y, z to compute the PCF at are controlled by x_max, y_max,
     z_max, n_x, n_y, and n_z parameters to the constructor. x_max, y_max, and
     z_max determine the minimum/maximum distance at which to compute the PCF
     and n_x, n_y, n_z is the number of bins in x, y, z.
@@ -1142,16 +1137,13 @@ cdef class PMFTXYZ:
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param x_max: maximum x distance at which to compute the pmft
-    :param y_max: maximum y distance at which to compute the pmft
-    :param z_max: maximum z distance at which to compute the pmft
+    :param float x_max: maximum x distance at which to compute the PMFT
+    :param float y_max: maximum y distance at which to compute the PMFT
+    :param float z_max: maximum z distance at which to compute the PMFT
     :param n_x: number of bins in x
     :param n_y: number of bins in y
     :param n_z: number of bins in z
-    :param shiftvec: vector pointing from [0,0,0] to the center of the pmft
-    :type x_max: float
-    :type y_max: float
-    :type z_max: float
+    :param shiftvec: vector pointing from [0,0,0] to the center of the PMFT
     :type n_x: unsigned int
     :type n_y: unsigned int
     :type n_z: unsigned int
@@ -1175,12 +1167,12 @@ cdef class PMFTXYZ:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -1188,7 +1180,7 @@ cdef class PMFTXYZ:
         return BoxFromCPP(self.thisptr.getBox())
 
     def resetPCF(self):
-        """Resets the values of the pcf histograms in memory
+        """Resets the values of the PCF histograms in memory.
         """
         self.thisptr.resetPCF()
 
@@ -1445,12 +1437,12 @@ cdef class PMFTXYZ:
 
     @property
     def X(self):
-        """Get the array of x-values for the PCF histogram
+        """Get the array of x-values for the PCF histogram.
         """
         return self.getX()
 
     def getX(self):
-        """Get the array of x-values for the PCF histogram
+        """Get the array of x-values for the PCF histogram.
 
         :return: bin centers of x-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -1467,12 +1459,12 @@ cdef class PMFTXYZ:
 
     @property
     def Y(self):
-        """Get the array of y-values for the PCF histogram
+        """Get the array of y-values for the PCF histogram.
         """
         return self.getY()
 
     def getY(self):
-        """Get the array of y-values for the PCF histogram
+        """Get the array of y-values for the PCF histogram.
 
         :return: bin centers of y-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -1489,12 +1481,12 @@ cdef class PMFTXYZ:
 
     @property
     def Z(self):
-        """Get the array of z-values for the PCF histogram
+        """Get the array of z-values for the PCF histogram.
         """
         return self.getZ()
 
     def getZ(self):
-        """Get the array of z-values for the PCF histogram
+        """Get the array of z-values for the PCF histogram.
 
         :return: bin centers of z-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
@@ -1511,12 +1503,12 @@ cdef class PMFTXYZ:
 
     @property
     def n_bins_X(self):
-        """Get the number of bins in the x-dimension of histogram
+        """Get the number of bins in the x-dimension of histogram.
         """
         return self.getNBinsX()
 
     def getNBinsX(self):
-        """Get the number of bins in the x-dimension of histogram
+        """Get the number of bins in the x-dimension of histogram.
 
         :return: :math:`N_x`
         :rtype: unsigned int
@@ -1526,12 +1518,12 @@ cdef class PMFTXYZ:
 
     @property
     def n_bins_Y(self):
-        """Get the number of bins in the y-dimension of histogram
+        """Get the number of bins in the y-dimension of histogram.
         """
         return self.getNBinsY()
 
     def getNBinsY(self):
-        """Get the number of bins in the y-dimension of histogram
+        """Get the number of bins in the y-dimension of histogram.
 
         :return: :math:`N_y`
         :rtype: unsigned int
@@ -1541,12 +1533,12 @@ cdef class PMFTXYZ:
 
     @property
     def n_bins_Z(self):
-        """Get the number of bins in the z-dimension of histogram
+        """Get the number of bins in the z-dimension of histogram.
         """
         return self.getNBinsZ()
 
     def getNBinsZ(self):
-        """Get the number of bins in the z-dimension of histogram
+        """Get the number of bins in the z-dimension of histogram.
 
         :return: :math:`N_z`
         :rtype: unsigned int
@@ -1556,14 +1548,14 @@ cdef class PMFTXYZ:
 
     @property
     def jacobian(self):
-        """Get the jacobian used in the pmft
+        """Get the Jacobian used in the PMFT.
         """
         return self.getJacobian()
 
     def getJacobian(self):
-        """Get the jacobian
+        """Get the Jacobian.
 
-        :return: jacobian
+        :return: Jacobian
         :rtype: float
         """
         cdef float j = self.thisptr.getJacobian()

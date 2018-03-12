@@ -108,8 +108,7 @@ class Box(_Box):
     def cube(cls, L):
         """Construct a cubic box with equal lengths.
 
-        :param L: The edge length
-        :type L: float
+        :param float L: The edge length
         """
         return cls(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0, is2D=False)
 
@@ -117,8 +116,7 @@ class Box(_Box):
     def square(cls, L):
         """Construct a 2-dimensional (square) box with equal lengths.
 
-        :param L: The edge length
-        :type L: float
+        :param float L: The edge length
         """
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 

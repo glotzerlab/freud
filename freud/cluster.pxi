@@ -63,7 +63,7 @@ cdef class Cluster:
 
     @property
     def box(self):
-        """Return the stored freud Box
+        """Return the stored freud Box.
         """
         return self.getBox()
 
@@ -289,7 +289,7 @@ cdef class ClusterProperties:
 
     @property
     def num_clusters(self):
-        """Returns the number of clusters
+        """Returns the number of clusters.
         """
         return self.getNumClusters()
 
@@ -304,7 +304,7 @@ cdef class ClusterProperties:
 
     @property
     def cluster_COM(self):
-        """Returns the center of mass of the last computed cluster
+        """Returns the center of mass of the last computed cluster.
         """
         return self.getClusterCOM()
 

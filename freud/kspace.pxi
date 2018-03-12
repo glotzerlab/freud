@@ -48,7 +48,7 @@ cdef class FTdelta:
         return result
 
     def set_K(self, K):
-        """Set the K values to evaluate
+        """Set the K values to evaluate.
 
         :param K: K values to evaluate
         :type K: :class:`numpy.ndarray`,
@@ -67,7 +67,7 @@ cdef class FTdelta:
         self.thisptr.set_K(< vec3[float]*>cK.data, self.NK)
 
     def set_rq(self, position, orientation):
-        """Set particle positions and orientations
+        """Set particle positions and orientations.
 
         :param position: particle position vectors
         :param orientation: particle orientation quaternions
@@ -98,7 +98,7 @@ cdef class FTdelta:
                             < quat[float]*> cq.data)
 
     def set_density(self, float complex density):
-        """Set scattering density
+        """Set scattering density.
 
         :param density: complex value of scattering density
         """
@@ -141,7 +141,7 @@ cdef class FTsphere:
         return result
 
     def set_K(self, K):
-        """Set the K values to evaluate
+        """Set the K values to evaluate.
 
         :param K: K values to evaluate
         :type K: :class:`numpy.ndarray`,
@@ -156,7 +156,7 @@ cdef class FTsphere:
         self.thisptr.set_K(< vec3[float]*>cK.data, self.NK)
 
     def set_rq(self, position, orientation):
-        """Set particle positions and orientations
+        """Set particle positions and orientations.
 
         :param position: particle position vectors
         :param orientation: particle orientation quaternions
@@ -187,7 +187,7 @@ cdef class FTsphere:
                             < quat[float]*> cq.data)
 
     def set_density(self, float complex density):
-        """Set scattering density
+        """Set scattering density.
 
         :param density: complex value of scattering density
         :type density: float complex
@@ -235,7 +235,7 @@ cdef class FTpolyhedron:
         return result
 
     def set_K(self, K):
-        """Set the K values to evaluate
+        """Set the K values to evaluate.
 
         :param K: K values to evaluate
         :type K: :class:`numpy.ndarray`,
@@ -252,7 +252,7 @@ cdef class FTpolyhedron:
         self.thisptr.set_K(< vec3[float]*>cK.data, self.NK)
 
     def set_params(self, verts, facet_offs, facets, norms, d, area, volume):
-        """Set polyhedron geometry
+        """Set polyhedron geometry.
 
         :param verts: vertex coordinates
         :param facet_offs: facet start offsets
@@ -340,7 +340,7 @@ cdef class FTpolyhedron:
                 volume)
 
     def set_rq(self, position, orientation):
-        """Set particle positions and orientations
+        """Set particle positions and orientations.
 
         :param position: particle position vectors
         :param orientation: particle orientation quaternions
@@ -375,7 +375,7 @@ cdef class FTpolyhedron:
                 < quat[float]*> cq.data)
 
     def set_density(self, float complex density):
-        """Set scattering density
+        """Set scattering density.
 
         :param density: complex value of scattering density
         :type density: float complex

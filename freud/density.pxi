@@ -131,7 +131,7 @@ cdef class FloatCF:
 
     @property
     def RDF(self):
-        """Returns the radial distribution function
+        """Returns the radial distribution function.
 
         :return: expected (average) product of all values at a given radial
                  distance
@@ -142,7 +142,7 @@ cdef class FloatCF:
         return self.getRDF()
 
     def getRDF(self):
-        """Returns the radial distribution function
+        """Returns the radial distribution function.
 
         :return: expected (average) product of all values at a given radial
                  distance
@@ -160,7 +160,7 @@ cdef class FloatCF:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
@@ -221,7 +221,7 @@ cdef class FloatCF:
 
     @property
     def counts(self):
-        """The counts
+        """The counts.
         """
         return self.getCounts()
 
@@ -242,7 +242,7 @@ cdef class FloatCF:
 
     @property
     def R(self):
-        """Bin centers
+        """Bin centers.
         """
         return self.getR()
 
@@ -379,12 +379,12 @@ cdef class ComplexCF:
 
     @property
     def RDF(self):
-        """The RDF
+        """The RDF.
         """
         return self.getRDF()
 
     def getRDF(self):
-        """The RDF
+        """The RDF.
 
         :return: expected (average) product of all values at a given radial
                  distance
@@ -402,7 +402,7 @@ cdef class ComplexCF:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
@@ -461,7 +461,7 @@ cdef class ComplexCF:
 
     @property
     def counts(self):
-        """The counts of each histogram
+        """The counts of each histogram.
         """
         return self.getCounts()
 
@@ -482,12 +482,12 @@ cdef class ComplexCF:
 
     @property
     def R(self):
-        """The value of bin centers
+        """The value of bin centers.
         """
         return self.getR()
 
     def getR(self):
-        """The value of bin centers
+        """The value of bin centers.
 
         :return: values of bin centers
         :rtype: :class:`numpy.ndarray`,
@@ -516,14 +516,12 @@ cdef class GaussianDensity:
     :param width_x: number of pixels to make the image in x
     :param width_y: number of pixels to make the image in y
     :param width_z: number of pixels to make the image in z
-    :param r_cut: distance over which to blur
-    :param sigma: sigma parameter for Gaussian
+    :param float r_cut: distance over which to blur
+    :param float sigma: sigma parameter for Gaussian
     :type width: unsigned int
     :type width_x: unsigned int
     :type width_y: unsigned int
     :type width_z: unsigned int
-    :type r_cut: float
-    :type sigma: float
 
     - Constructor Calls:
 
@@ -549,7 +547,7 @@ cdef class GaussianDensity:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
@@ -588,7 +586,7 @@ cdef class GaussianDensity:
 
     @property
     def gaussian_density(self):
-        """The image grid with the Gaussian density
+        """The image grid with the Gaussian density.
         """
         return self.getGaussianDensity()
 
@@ -624,7 +622,7 @@ cdef class GaussianDensity:
         self.thisptr.resetDensity()
 
 cdef class LocalDensity:
-    """ Computes the local density around a particle
+    """ Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
@@ -661,7 +659,7 @@ cdef class LocalDensity:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
@@ -729,12 +727,12 @@ cdef class LocalDensity:
 
     @property
     def density(self):
-        """Density array for each particle
+        """Density array for each particle.
         """
         return self.getDensity()
 
     def getDensity(self):
-        """Get the density array for each particle
+        """Get the density array for each particle.
 
         :return: Density array for each particle
         :rtype: :class:`numpy.ndarray`,
@@ -751,12 +749,12 @@ cdef class LocalDensity:
 
     @property
     def num_neighbors(self):
-        """Number of neighbors for each particle
+        """Number of neighbors for each particle.
         """
         return self.getNumNeighbors()
 
     def getNumNeighbors(self):
-        """Return the number of neighbors for each particle
+        """Return the number of neighbors for each particle.
 
         :return: Number of neighbors for each particle
         :rtype: :class:`numpy.ndarray`,
@@ -772,7 +770,7 @@ cdef class LocalDensity:
         return result
 
 cdef class RDF:
-    """ Computes RDF for supplied data
+    """ Computes RDF for supplied data.
 
     The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
@@ -818,7 +816,7 @@ cdef class RDF:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
@@ -918,12 +916,12 @@ cdef class RDF:
 
     @property
     def RDF(self):
-        """Histogram of RDF values
+        """Histogram of RDF values.
         """
         return self.getRDF()
 
     def getRDF(self):
-        """Histogram of RDF values
+        """Histogram of RDF values.
 
         :return: histogram of RDF values
         :rtype: :class:`numpy.ndarray`,
@@ -940,12 +938,12 @@ cdef class RDF:
 
     @property
     def R(self):
-        """Values of bin centers
+        """Values of bin centers.
         """
         return self.getR()
 
     def getR(self):
-        """Values of the histogram bin centers
+        """Values of the histogram bin centers.
 
         :return: values of the histogram bin centers
         :rtype: :class:`numpy.ndarray`,
@@ -962,12 +960,12 @@ cdef class RDF:
 
     @property
     def n_r(self):
-        """Histogram of cumulative RDF values
+        """Histogram of cumulative RDF values.
         """
         return self.getNr()
 
     def getNr(self):
-        """Get the histogram of cumulative RDF values
+        """Get the histogram of cumulative RDF values.
 
         :return: histogram of cumulative RDF values
         :rtype: :class:`numpy.ndarray`,

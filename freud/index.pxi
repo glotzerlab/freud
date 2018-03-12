@@ -64,7 +64,7 @@ cdef class Index2D:
 
     @property
     def num_elements(self):
-        """Number of elements in the array
+        """Number of elements in the array.
         """
         return self.getNumElements()
 
@@ -134,7 +134,7 @@ cdef class Index3D:
 
     @property
     def num_elements(self):
-        """Number of elements in the array
+        """Number of elements in the array.
         """
         return self.getNumElements()
 
