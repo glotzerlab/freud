@@ -13,12 +13,14 @@ cimport numpy as np
 cdef class _PMFT:
     """Parent class for all PMFTs"""
     cdef pmft.PMFT * pmftptr
+    cdef float rmax
 
     def __cinit__(self):
         pass
 
     def __dealloc__(self):
-        del self.pmftptr
+        if type(self) is _PMFT:
+            del self.pmftptr
 
     @property
     def box(self):
@@ -126,12 +128,13 @@ cdef class PMFTR12(_PMFT):
     cdef pmft.PMFTR12 * pmftr12ptr
 
     def __cinit__(self, r_max, n_r, n_t1, n_t2):
-        self.pmftr12ptr = self.pmftptr = new pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
-        self.rmax = r_max
+        if type(self) is PMFTR12:
+            self.pmftr12ptr = self.pmftptr = new pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
+            self.rmax = r_max
 
     def __dealloc__(self):
-        super(PMFTR12, self).__dealloc__()
-        del self.pmftr12ptr
+        if type(self) is PMFTR12:
+            del self.pmftr12ptr
 
     def accumulate(self, box, ref_points, ref_orientations, points,
                    orientations, nlist=None):
