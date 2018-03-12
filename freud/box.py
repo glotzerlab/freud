@@ -122,19 +122,19 @@ class Box(_Box):
 
     @property
     def L(self):
-        """Return the lengths of the box as a tuple (x, y, z)
+        """Return the lengths of the box as a tuple (x, y, z).
         """
         return self.getL()
 
     @L.setter
     def L(self, value):
-        """Set all side lengths of box to L
+        """Set all side lengths of box to L.
         """
         self.setL(value)
 
     @property
     def Lx(self):
-        """Length of the x-dimension of the box
+        """Length of the x-dimension of the box.
 
         :getter: Returns this box's x-dimension length
         :setter: Sets this box's x-dimension length
@@ -148,7 +148,7 @@ class Box(_Box):
 
     @property
     def Ly(self):
-        """Length of the y-dimension of the box
+        """Length of the y-dimension of the box.
 
         :getter: Returns this box's y-dimension length
         :setter: Sets this box's y-dimension length
@@ -162,7 +162,7 @@ class Box(_Box):
 
     @property
     def Lz(self):
-        """Length of the z-dimension of the box
+        """Length of the z-dimension of the box.
 
         :getter: Returns this box's z-dimension length
         :setter: Sets this box's z-dimension length
@@ -176,7 +176,7 @@ class Box(_Box):
 
     @property
     def dimensions(self):
-        """Number of dimensions of this box (only 2 or 3 are supported)
+        """Number of dimensions of this box (only 2 or 3 are supported).
 
         :getter: Returns this box's number of dimensions
         :setter: Sets this box's number of dimensions
@@ -191,7 +191,7 @@ class Box(_Box):
 
     @property
     def periodic(self):
-        """Box periodicity in each dimension
+        """Box periodicity in each dimension.
 
         :getter: Returns this box's periodicity in each dimension
                  (True if periodic, False if not)
