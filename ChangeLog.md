@@ -12,6 +12,7 @@
 * Added credits file
 * Many documentation rewrites
 * Wrote development guide
+* Refactored PMFT code on python and CPP sides
 
 ## v0.6.4
 
