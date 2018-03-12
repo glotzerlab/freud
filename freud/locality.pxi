@@ -385,14 +385,13 @@ cdef class LinkCell:
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     :param box: simulation box
-    :param cell_width: Maximum distance to find particles within
+    :param float cell_width: Maximum distance to find particles within
     :type box: :py:class:`freud.box.Box`
-    :type cell_width: float
 
     .. note::
-
-       :py:class:`freud.locality.LinkCell` supports 2D boxes; in this case,
-       make sure to set the z coordinate of all points to 0.
+        2D: :py:class:`freud.locality.LinkCell` properly handles 2D boxes.
+        The points must be passed in as :code:`[x, y, 0]`.
+        Failing to set z=0 will lead to undefined behavior.
 
     Example::
 

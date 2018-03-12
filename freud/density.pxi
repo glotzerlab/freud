@@ -30,10 +30,10 @@ cdef class FloatCF:
     determines the maximum r at which to compute the correlation
     function and dr is the step size for each bin.
 
-    2D: CorrelationFunction properly handles 2D boxes. As with everything
-    else in freud, 2D points must be passed in as 3 component vectors
-    x,y,0. Failing to set 0 in the third component will lead to
-    undefined behavior.
+    .. note::
+        2D: :py:class:`freud.density.FloatCF` properly handles 2D boxes.
+        The points must be passed in as :code:`[x, y, 0]`.
+        Failing to set z=0 will lead to undefined behavior.
 
     Self-correlation: It is often the case that we wish to compute the
     correlation function of a set of points with itself. If given the same
@@ -42,10 +42,8 @@ cdef class FloatCF:
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
-    :param r_max: distance over which to calculate
-    :param dr: bin size
-    :type r_max: float
-    :type dr: float
+    :param float r_max: distance over which to calculate
+    :param float dr: bin size
     """
     cdef density.CorrelationFunction[double] * thisptr
     cdef rmax
@@ -70,20 +68,20 @@ cdef class FloatCF:
         :param points: points to calculate the local density
         :param values: values to use in computation
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
+                      find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
+                          shape=(:math:`N_{particles}`, 3),
+                          dtype= :class:`numpy.float32`
         :type refValues: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`),
-                            dtype= :class:`numpy.float64`
+                         shape=(:math:`N_{particles}`),
+                         dtype= :class:`numpy.float64`
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`),
-                        dtype= :class:`numpy.float64`
+                      shape=(:math:`N_{particles}`),
+                      dtype= :class:`numpy.float64`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(
@@ -177,7 +175,7 @@ cdef class FloatCF:
 
     def resetCorrelationFunction(self):
         """
-        resets the values of the correlation function histogram in memory
+        Resets the values of the correlation function histogram in memory
         """
         self.thisptr.resetCorrelationFunction()
 
@@ -192,20 +190,20 @@ cdef class FloatCF:
         :param points: points to calculate the local density
         :param values: values to use in computation
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
+                      find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
+                          shape=(:math:`N_{particles}`, 3),
+                          dtype= :class:`numpy.float32`
         :type refValues: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`),
-                            dtype= :class:`numpy.float64`
+                         shape=(:math:`N_{particles}`),
+                         dtype= :class:`numpy.float64`
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`),
-                        dtype= :class:`numpy.float64`
+                      shape=(:math:`N_{particles}`),
+                      dtype= :class:`numpy.float64`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetCorrelationFunction()
@@ -278,10 +276,10 @@ cdef class ComplexCF:
     determines the maximum r at which to compute the correlation
     function and dr is the step size for each bin.
 
-    2D: CorrelationFunction properly handles 2D boxes. As with everything
-    else in freud, 2D points must be passed in as 3 component vectors
-    x,y,0. Failing to set 0 in the third component will lead to
-    undefined behavior.
+    .. note::
+        2D: :py:class:`freud.density.ComplexCF` properly handles 2D boxes.
+        The points must be passed in as :code:`[x, y, 0]`.
+        Failing to set z=0 will lead to undefined behavior.
 
     Self-correlation: It is often the case that we wish to compute the
     correlation function of a set of points with itself. If given the same
@@ -290,10 +288,8 @@ cdef class ComplexCF:
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
-    :param r_max: distance over which to calculate
-    :param dr: bin size
-    :type r_max: float
-    :type dr: float
+    :param float r_max: distance over which to calculate
+    :param float dr: bin size
     """
     cdef density.CorrelationFunction[np.complex128_t] * thisptr
     cdef rmax
@@ -319,20 +315,20 @@ cdef class ComplexCF:
         :param points: points to calculate the local density
         :param values: values to use in computation
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
+                      find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
+                          shape=(:math:`N_{particles}`, 3),
+                          dtype= :class:`numpy.float32`
         :type refValues: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`),
-                            dtype= :class:`numpy.complex128`
+                         shape=(:math:`N_{particles}`),
+                         dtype= :class:`numpy.complex128`
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         :type values: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`),
-                        dtype= :class:`numpy.complex128`
+                      shape=(:math:`N_{particles}`),
+                      dtype= :class:`numpy.complex128`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(
@@ -413,13 +409,13 @@ cdef class ComplexCF:
     def getBox(self):
         """
         :return: freud Box
-        :rtype: :py:meth:`freud.box.Box()`
+        :rtype: :py:class:`freud.box.Box()`
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """
-        resets the values of the correlation function histogram in memory
+        Resets the values of the correlation function histogram in memory
         """
         self.thisptr.resetCorrelationFunction()
 
@@ -509,7 +505,7 @@ cdef class ComplexCF:
 cdef class GaussianDensity:
     """Computes the density of a system on a grid.
 
-    Replaces particle positions with a gaussian blur and calculates the
+    Replaces particle positions with a Gaussian blur and calculates the
     contribution from the grid based upon the distance of the grid cell from
     the center of the Gaussian. The dimensions of the image (grid) are set in
     the constructor.
@@ -521,7 +517,7 @@ cdef class GaussianDensity:
     :param width_y: number of pixels to make the image in y
     :param width_z: number of pixels to make the image in z
     :param r_cut: distance over which to blur
-    :param sigma: sigma parameter for gaussian
+    :param sigma: sigma parameter for Gaussian
     :type width: unsigned int
     :type width_x: unsigned int
     :type width_y: unsigned int
@@ -566,15 +562,15 @@ cdef class GaussianDensity:
 
     def compute(self, box, points):
         """
-        Calculates the gaussian blur for the specified points. Does not
+        Calculates the Gaussian blur for the specified points. Does not
         accumulate (will overwrite current image).
 
         :param box: simulation box
         :param points: points to calculate the local density
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
@@ -598,9 +594,10 @@ cdef class GaussianDensity:
 
     def getGaussianDensity(self):
         """
-        :return: Image (grid) with values of gaussian
-        :rtype: :class:`numpy.ndarray`, shape=(:math:`w_x`, :math:`w_y`,
-                :math:`w_z`), dtype= :class:`numpy.float32`
+        :return: Image (grid) with values of Gaussian
+        :rtype: :class:`numpy.ndarray`,
+                shape=(:math:`w_x`, :math:`w_y`, :math:`w_z`),
+                dtype= :class:`numpy.float32`
         """
         cdef float * density = self.thisptr.getDensity().get()
         cdef np.npy_intp nbins[1]
@@ -622,7 +619,7 @@ cdef class GaussianDensity:
 
     def resetDensity(self):
         """
-        resets the values of GaussianDensity in memory
+        Resets the values of GaussianDensity in memory
         """
         self.thisptr.resetDensity()
 
@@ -632,8 +629,8 @@ cdef class LocalDensity:
     The density of the local environment is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
     calculates them against themselves. Computing the local density results in
-    an array listing the value of the local density around each reference point
-    . Also available is the number of neighbors for each reference point,
+    an array listing the value of the local density around each reference
+    point. Also available is the number of neighbors for each reference point,
     giving the user the ability to count the number of particles in that
     region.
 
@@ -642,18 +639,16 @@ cdef class LocalDensity:
     is the volume of a single particle. diameter is the diameter of the
     circumsphere of an individual particle.
 
-    2D:
-    RDF properly handles 2D boxes. Requires the points to be passed in
-    [x, y, 0]. Failing to z=0 will lead to undefined behavior.
+    .. note::
+        2D: :py:class:`freud.density.LocalDensity` properly handles 2D boxes.
+        The points must be passed in as :code:`[x, y, 0]`.
+        Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
-    :param r_cut: maximum distance over which to calculate the density
-    :param volume: volume of a single particle
-    :param diameter: diameter of particle circumsphere
-    :type r_cut: float
-    :type volume: float
-    :type diameter: float
+    :param float r_cut: maximum distance over which to calculate the density
+    :param float volume: volume of a single particle
+    :param float diameter: diameter of particle circumsphere
     """
     cdef density.LocalDensity * thisptr
     cdef r_cut
@@ -686,14 +681,14 @@ cdef class LocalDensity:
         :param ref_points: reference points to calculate the local density
         :param points: (optional) points to calculate the local density
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
+                      find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
+                          shape=(:math:`N_{particles}`, 3),
+                          dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         if points is None:
@@ -781,11 +776,11 @@ cdef class RDF:
 
     The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
-    calculates them against themselves. Computing the RDF results in an rdf
+    calculates them against themselves. Computing the RDF results in an RDF
     array listing the value of the RDF at each given :math:`r`, listed in the r
     array.
 
-    The values of :math:`r` to compute the rdf are set by the values of rmin,
+    The values of :math:`r` to compute the RDF are set by the values of rmin,
     rmax, dr in the constructor. rmax sets the maximum distance at which to
     calculate the :math:`g \\left( r \\right)`, rmin sets the minimum distance
     at which to calculate the :math:`g \\left( r \\right)`, and dr determines
@@ -794,8 +789,9 @@ cdef class RDF:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     .. note::
-        2D: RDF properly handles 2D boxes. Requires the points to be passed in
-        [x, y, 0]. Failing to z=0 will lead to undefined behavior.
+        2D: :py:class:`freud.density.RDF` properly handles 2D boxes.
+        The points must be passed in as :code:`[x, y, 0]`.
+        Failing to set z=0 will lead to undefined behavior.
 
     :param float rmax: maximum distance to calculate
     :param float dr: distance between histogram bins
@@ -835,20 +831,20 @@ cdef class RDF:
 
     def accumulate(self, box, ref_points, points, nlist=None):
         """
-        Calculates the rdf and adds to the current rdf histogram.
+        Calculates the RDF and adds to the current RDF histogram.
 
         :param box: simulation box
         :param ref_points: reference points to calculate the local density
         :param points: points to calculate the local density
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
+                      find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
+                          shape=(:math:`N_{particles}`, 3),
+                          dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         ref_points = freud.common.convert_array(
@@ -884,21 +880,21 @@ cdef class RDF:
 
     def compute(self, box, ref_points, points, nlist=None):
         """
-        Calculates the rdf for the specified points. Will overwrite the current
+        Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
         :param box: simulation box
         :param ref_points: reference points to calculate the local density
         :param points: points to calculate the local density
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
+                      find bonds
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
+                          shape=(:math:`N_{particles}`, 3),
+                          dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         self.thisptr.resetRDF()
@@ -922,14 +918,14 @@ cdef class RDF:
 
     @property
     def RDF(self):
-        """Histogram of rdf values
+        """Histogram of RDF values
         """
         return self.getRDF()
 
     def getRDF(self):
-        """Histogram of rdf values
+        """Histogram of RDF values
 
-        :return: histogram of rdf values
+        :return: histogram of RDF values
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{bins}`, 3),
                 dtype= :class:`numpy.float32`
@@ -966,14 +962,14 @@ cdef class RDF:
 
     @property
     def n_r(self):
-        """Histogram of cumulative rdf values
+        """Histogram of cumulative RDF values
         """
         return self.getNr()
 
     def getNr(self):
-        """Get the histogram of cumulative rdf values
+        """Get the histogram of cumulative RDF values
 
-        :return: histogram of cumulative rdf values
+        :return: histogram of cumulative RDF values
         :rtype: :class:`numpy.ndarray`,
                 shape=(:math:`N_{bins}`, 3),
                 dtype= :class:`numpy.float32`
