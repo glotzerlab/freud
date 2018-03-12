@@ -19,11 +19,9 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
         float getRCut()
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
-    cdef cppclass PMFTR12:
+    cdef cppclass PMFTR12(PMFT):
         PMFTR12(float, unsigned int, unsigned int, unsigned int)
 
-        const box.Box & getBox() const
-        void resetPCF()
         void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
@@ -32,9 +30,6 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
                         vec3[float]*,
                         float*,
                         unsigned int) nogil
-        void reducePCF()
-        shared_ptr[unsigned int] getBinCounts()
-        shared_ptr[float] getPCF()
         shared_ptr[float] getR()
         shared_ptr[float] getT1()
         shared_ptr[float] getT2()
@@ -42,7 +37,6 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
         unsigned int getNBinsR()
         unsigned int getNBinsT1()
         unsigned int getNBinsT2()
-        float getRCut()
 
 cdef extern from "PMFTXYT.h" namespace "freud::pmft":
     cdef cppclass PMFTXYT:

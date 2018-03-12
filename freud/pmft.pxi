@@ -6,15 +6,19 @@ import numpy as np
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from libc.string cimport memcpy
-from cython.operator cimport dereference as deref
 cimport freud._box as _box
 cimport freud._pmft as pmft
 cimport numpy as np
 
 cdef class _PMFT:
     """Parent class for all PMFTs"""
-    cdef pmft.PMFT * thisptr
-    cdef rmax
+    cdef pmft.PMFT * pmftptr
+
+    def __cinit__(self):
+        pass
+
+    def __dealloc__(self):
+        del self.pmftptr
 
     @property
     def box(self):
@@ -28,19 +32,20 @@ cdef class _PMFT:
         :return: freud Box
         :rtype: :py:class:`freud.box.Box()`
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        self.pmftptr.getBox()
+        return BoxFromCPP(self.pmftptr.getBox())
 
     def resetPCF(self):
         """Resets the values of the pcf histograms in memory
         """
-        self.thisptr.resetPCF()
+        self.pmftptr.resetPCF()
 
     def reducePCF(self):
         """Reduces the histogram in the values over N processors to a single
         histogram. This is called automatically by
         :py:meth:`freud.pmft.PMFTR12.getPCF()`.
         """
-        self.thisptr.reducePCF()
+        self.pmftptr.reducePCF()
 
     @property
     def bin_counts(self):
@@ -84,12 +89,11 @@ cdef class _PMFT:
         :return: r_cut
         :rtype: float
         """
-        cdef float r_cut = self.thisptr.getRCut()
+        cdef float r_cut = self.pmftptr.getRCut()
         return r_cut
 
 
-
-cdef class PMFTR12:
+cdef class PMFTR12(_PMFT):
     """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed
@@ -119,34 +123,15 @@ cdef class PMFTR12:
     :type n_t2: unsigned int
 
     """
-    cdef pmft.PMFTR12 * thisptr
-    cdef rmax
+    cdef pmft.PMFTR12 * pmftr12ptr
 
     def __cinit__(self, r_max, n_r, n_t1, n_t2):
-        self.thisptr = new pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
+        self.pmftr12ptr = self.pmftptr = new pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
         self.rmax = r_max
 
     def __dealloc__(self):
-        del self.thisptr
-
-    @property
-    def box(self):
-        """Get the box used in the calculation
-        """
-        return self.getBox()
-
-    def getBox(self):
-        """Get the box used in the calculation
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box()`
-        """
-        return BoxFromCPP(self.thisptr.getBox())
-
-    def resetPCF(self):
-        """Resets the values of the pcf histograms in memory
-        """
-        self.thisptr.resetPCF()
+        super(PMFTR12, self).__dealloc__()
+        del self.pmftr12ptr
 
     def accumulate(self, box, ref_points, ref_orientations, points,
                    orientations, nlist=None):
@@ -211,7 +196,7 @@ cdef class PMFTR12:
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box,
+            self.pmftr12ptr.accumulate(l_box,
                                     nlist_ptr,
                                     < vec3[float]*>l_ref_points.data,
                                     < float*>l_ref_orientations.data,
@@ -249,23 +234,10 @@ cdef class PMFTR12:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetPCF()
+        self.pmftr12ptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
-
-    def reducePCF(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.pmft.PMFTR12.getPCF()`.
-        """
-        self.thisptr.reducePCF()
-
-    @property
-    def bin_counts(self):
-        """Get the raw bin counts.
-        """
-        return self.getBinCounts()
 
     def getBinCounts(self):
         """Get the raw bin counts.
@@ -276,21 +248,15 @@ cdef class PMFTR12:
                 N_{\\theta2}\\right)`,
                 dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int * bin_counts = self.thisptr.getBinCounts().get()
+        cdef unsigned int * bin_counts = self.pmftr12ptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsR()
-        nbins[1] = <np.npy_intp > self.thisptr.getNBinsT2()
-        nbins[2] = <np.npy_intp > self.thisptr.getNBinsT1()
+        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsR()
+        nbins[1] = <np.npy_intp > self.pmftr12ptr.getNBinsT2()
+        nbins[2] = <np.npy_intp > self.pmftr12ptr.getNBinsT1()
         cdef np.ndarray[np.uint32_t, ndim = 3
                         ] result = np.PyArray_SimpleNewFromData(
                                 3, nbins, np.NPY_UINT32, < void*>bin_counts)
         return result
-
-    @property
-    def PCF(self):
-        """Get the positional correlation function.
-        """
-        return self.getPCF()
 
     def getPCF(self):
         """Get the positional correlation function.
@@ -301,32 +267,15 @@ cdef class PMFTR12:
                 N_{\\theta2}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * pcf = self.thisptr.getPCF().get()
+        cdef float * pcf = self.pmftr12ptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsR()
-        nbins[1] = <np.npy_intp > self.thisptr.getNBinsT2()
-        nbins[2] = <np.npy_intp > self.thisptr.getNBinsT1()
+        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsR()
+        nbins[1] = <np.npy_intp > self.pmftr12ptr.getNBinsT2()
+        nbins[2] = <np.npy_intp > self.pmftr12ptr.getNBinsT1()
         cdef np.ndarray[np.float32_t, ndim = 3
                         ] result = np.PyArray_SimpleNewFromData(
                                 3, nbins, np.NPY_FLOAT32, < void*>pcf)
         return result
-
-    @property
-    def PMFT(self):
-        """Get the positional correlation function.
-        """
-        return self.getPMFT()
-
-    def getPMFT(self):
-        """Get the Potential of Mean Force and Torque.
-
-        :return: PMFT
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{r}, N_{\\theta1},
-                N_{\\theta2}\\right)`,
-                dtype= :class:`numpy.float32`
-        """
-        return -np.log(np.copy(self.getPCF()))
 
     @property
     def R(self):
@@ -347,9 +296,9 @@ cdef class PMFTR12:
                 shape= :math:`\\left(N_{r}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * r = self.thisptr.getR().get()
+        cdef float * r = self.pmftr12ptr.getR().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsR()
+        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsR()
         cdef np.ndarray[np.float32_t, ndim = 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>r)
@@ -369,9 +318,9 @@ cdef class PMFTR12:
                 shape= :math:`\\left(N_{\\theta1}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * T1 = self.thisptr.getT1().get()
+        cdef float * T1 = self.pmftr12ptr.getT1().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsT1()
+        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsT1()
         cdef np.ndarray[np.float32_t, ndim = 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>T1)
@@ -396,9 +345,9 @@ cdef class PMFTR12:
                 shape= :math:`\\left(N_{\\theta2}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * T2 = self.thisptr.getT2().get()
+        cdef float * T2 = self.pmftr12ptr.getT2().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsT2()
+        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsT2()
         cdef np.ndarray[np.float32_t, ndim = 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>T2)
@@ -419,11 +368,11 @@ cdef class PMFTR12:
                 N_{\\theta2}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * inv_jac = self.thisptr.getInverseJacobian().get()
+        cdef float * inv_jac = self.pmftr12ptr.getInverseJacobian().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsR()
-        nbins[1] = <np.npy_intp > self.thisptr.getNBinsT2()
-        nbins[2] = <np.npy_intp > self.thisptr.getNBinsT1()
+        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsR()
+        nbins[1] = <np.npy_intp > self.pmftr12ptr.getNBinsT2()
+        nbins[2] = <np.npy_intp > self.pmftr12ptr.getNBinsT1()
         cdef np.ndarray[np.float32_t, ndim = 3
                         ] result = np.PyArray_SimpleNewFromData(
                                 3, nbins, np.NPY_FLOAT32, < void*>inv_jac)
@@ -441,7 +390,7 @@ cdef class PMFTR12:
         :return: :math:`N_r`
         :rtype: unsigned int
         """
-        cdef unsigned int r = self.thisptr.getNBinsR()
+        cdef unsigned int r = self.pmftr12ptr.getNBinsR()
         return r
 
     @property
@@ -456,7 +405,7 @@ cdef class PMFTR12:
         :return: :math:`N_{\\theta_1}`
         :rtype: unsigned int
         """
-        cdef unsigned int T1 = self.thisptr.getNBinsT1()
+        cdef unsigned int T1 = self.pmftr12ptr.getNBinsT1()
         return T1
 
     @property
@@ -471,23 +420,8 @@ cdef class PMFTR12:
         :return: :math:`N_{\\theta_2}`
         :rtype: unsigned int
         """
-        cdef unsigned int T2 = self.thisptr.getNBinsT2()
+        cdef unsigned int T2 = self.pmftr12ptr.getNBinsT2()
         return T2
-
-    @property
-    def r_cut(self):
-        """Get the r_cut value used in the cell list
-        """
-        return self.getRCut()
-
-    def getRCut(self):
-        """Get the r_cut value used in the cell list
-
-        :return: r_cut
-        :rtype: float
-        """
-        cdef float r_cut = self.thisptr.getRCut()
-        return r_cut
 
 cdef class PMFTXYT:
     """Computes the PMFT [Cit2]_ for a given set of points.
