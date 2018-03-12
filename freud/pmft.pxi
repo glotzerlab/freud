@@ -193,8 +193,8 @@ cdef class PMFTR12:
 
         :return: Bin Counts
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{r}, N_{\\theta1},
-                N_{\\theta2}\\right)`,
+                shape= :math:`\\left(N_{r}, N_{\\theta2},
+                N_{\\theta1}\\right)`,
                 dtype= :class:`numpy.uint32`
         """
         cdef unsigned int * bin_counts = self.thisptr.getBinCounts().get()
@@ -218,8 +218,8 @@ cdef class PMFTR12:
 
         :return: PCF
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{r}, N_{\\theta1},
-                N_{\\theta2}\\right)`,
+                shape= :math:`\\left(N_{r}, N_{\\theta2},
+                N_{\\theta1}\\right)`,
                 dtype= :class:`numpy.float32`
         """
         cdef float * pcf = self.thisptr.getPCF().get()
@@ -243,8 +243,8 @@ cdef class PMFTR12:
 
         :return: PMFT
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{r}, N_{\\theta1},
-                N_{\\theta2}\\right)`,
+                shape= :math:`\\left(N_{r}, N_{\\theta2},
+                N_{\\theta1}\\right)`,
                 dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
@@ -304,7 +304,7 @@ cdef class PMFTR12:
 
         :return: bin centers of T2-dimension of histogram
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{\\theta1}\\right)`,
+                shape= :math:`\\left(N_{\\theta2}\\right)`,
                 dtype= :class:`numpy.float32`
         """
         return self.getT2()
@@ -327,7 +327,7 @@ cdef class PMFTR12:
 
     @property
     def inverse_jacobian(self):
-        """Get the array of T2-values for the PCF histogram.
+        """Get the inverse Jacobian used in the PMFT.
         """
         return self.getInverseJacobian()
 
@@ -336,8 +336,8 @@ cdef class PMFTR12:
 
         :return: Inverse Jacobian
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{r}, N_{\\theta1},
-                N_{\\theta2}\\right)`,
+                shape= :math:`\\left(N_{r}, N_{\\theta2},
+                N_{\\theta1}\\right)`,
                 dtype= :class:`numpy.float32`
         """
         cdef float * inv_jac = self.thisptr.getInverseJacobian().get()
