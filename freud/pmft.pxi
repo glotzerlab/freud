@@ -45,7 +45,7 @@ cdef class _PMFT:
     def reducePCF(self):
         """Reduces the histogram in the values over N processors to a single
         histogram. This is called automatically by
-        :py:meth:`freud.pmft.PMFTR12.getPCF()`.
+        :py:meth:`freud.pmft.PMFT.PCF`.
         """
         self.pmftptr.reducePCF()
 
