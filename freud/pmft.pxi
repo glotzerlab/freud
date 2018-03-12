@@ -1007,7 +1007,7 @@ cdef class PMFTXY2D(_PMFT):
         return j
 
 
-cdef class PMFTXYZ:
+cdef class PMFTXYZ(_PMFT):
     """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed
@@ -1039,21 +1039,23 @@ cdef class PMFTXYZ:
     :type n_z: unsigned int
     :type shiftvec: list
     """
-    cdef pmft.PMFTXYZ * thisptr
+    cdef pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
-    cdef rmax
 
     def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z,
                   shiftvec=[0, 0, 0]):
-        cdef vec3[float] c_shiftvec = vec3[float](
-                shiftvec[0], shiftvec[1], shiftvec[2])
-        self.thisptr = new pmft.PMFTXYZ(
-                x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
-        self.shiftvec = np.array(shiftvec, dtype=np.float32)
-        self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
+        cdef vec3[float] c_shiftvec
+        if type(self) is PMFTXYZ:
+            c_shiftvec = vec3[float](
+                    shiftvec[0], shiftvec[1], shiftvec[2])
+            self.pmftxyzptr = self.pmftptr = new pmft.PMFTXYZ(
+                    x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
+            self.shiftvec = np.array(shiftvec, dtype=np.float32)
+            self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
 
     def __dealloc__(self):
-        del self.thisptr
+        if type(self) is PMFTXYZ:
+            del self.pmftxyzptr
 
     @property
     def box(self):
@@ -1067,12 +1069,12 @@ cdef class PMFTXYZ:
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        return BoxFromCPP(self.pmftxyzptr.getBox())
 
     def resetPCF(self):
         """Resets the values of the pcf histograms in memory
         """
-        self.thisptr.resetPCF()
+        self.pmftxyzptr.resetPCF()
 
     def accumulate(self, box, ref_points, ref_orientations, points,
                    orientations, face_orientations=None, nlist=None):
@@ -1203,7 +1205,7 @@ cdef class PMFTXYZ:
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.accumulate(l_box,
+            self.pmftxyzptr.accumulate(l_box,
                                     nlist_ptr,
                                     < vec3[float]*>l_ref_points.data,
                                     < quat[float]*>l_ref_orientations.data,
@@ -1249,7 +1251,7 @@ cdef class PMFTXYZ:
                                  dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetPCF()
+        self.pmftxyzptr.resetPCF()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, face_orientations, nlist)
         return self
@@ -1259,7 +1261,7 @@ cdef class PMFTXYZ:
         histogram. This is called automatically by
         :py:meth:`freud.pmft.PMFTXYZ.getPCF()`.
         """
-        self.thisptr.reducePCF()
+        self.pmftxyzptr.reducePCF()
 
     @property
     def bin_counts(self):
@@ -1275,11 +1277,11 @@ cdef class PMFTXYZ:
                 shape= :math:`\\left(N_{z}, N_{y}, N_{x}\\right)`,
                 dtype= :class:`numpy.uint32`
         """
-        cdef unsigned int * bin_counts = self.thisptr.getBinCounts().get()
+        cdef unsigned int * bin_counts = self.pmftxyzptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsZ()
-        nbins[1] = <np.npy_intp > self.thisptr.getNBinsY()
-        nbins[2] = <np.npy_intp > self.thisptr.getNBinsX()
+        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsZ()
+        nbins[1] = <np.npy_intp > self.pmftxyzptr.getNBinsY()
+        nbins[2] = <np.npy_intp > self.pmftxyzptr.getNBinsX()
         cdef np.ndarray[np.uint32_t, ndim = 3
                         ] result = np.PyArray_SimpleNewFromData(
                                 3, nbins, np.NPY_UINT32, < void*>bin_counts)
@@ -1299,11 +1301,11 @@ cdef class PMFTXYZ:
                 shape= :math:`\\left(N_{z}, N_{y}, N_{x}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * pcf = self.thisptr.getPCF().get()
+        cdef float * pcf = self.pmftxyzptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsZ()
-        nbins[1] = <np.npy_intp > self.thisptr.getNBinsY()
-        nbins[2] = <np.npy_intp > self.thisptr.getNBinsX()
+        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsZ()
+        nbins[1] = <np.npy_intp > self.pmftxyzptr.getNBinsY()
+        nbins[2] = <np.npy_intp > self.pmftxyzptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim = 3
                         ] result = np.PyArray_SimpleNewFromData(
                                 3, nbins, np.NPY_FLOAT32, < void*>pcf)
@@ -1339,9 +1341,9 @@ cdef class PMFTXYZ:
                 shape= :math:`\\left(N_{x}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * x = self.thisptr.getX().get()
+        cdef float * x = self.pmftxyzptr.getX().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsX()
+        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim = 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>x)
@@ -1361,9 +1363,9 @@ cdef class PMFTXYZ:
                 shape= :math:`\\left(N_{y}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * y = self.thisptr.getY().get()
+        cdef float * y = self.pmftxyzptr.getY().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsY()
+        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim = 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>y)
@@ -1383,9 +1385,9 @@ cdef class PMFTXYZ:
                 shape= :math:`\\left(N_{z}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * z = self.thisptr.getZ().get()
+        cdef float * z = self.pmftxyzptr.getZ().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsZ()
+        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsZ()
         cdef np.ndarray[np.float32_t, ndim = 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>z)
@@ -1403,7 +1405,7 @@ cdef class PMFTXYZ:
         :return: :math:`N_x`
         :rtype: unsigned int
         """
-        cdef unsigned int x = self.thisptr.getNBinsX()
+        cdef unsigned int x = self.pmftxyzptr.getNBinsX()
         return x
 
     @property
@@ -1418,7 +1420,7 @@ cdef class PMFTXYZ:
         :return: :math:`N_y`
         :rtype: unsigned int
         """
-        cdef unsigned int y = self.thisptr.getNBinsY()
+        cdef unsigned int y = self.pmftxyzptr.getNBinsY()
         return y
 
     @property
@@ -1433,7 +1435,7 @@ cdef class PMFTXYZ:
         :return: :math:`N_z`
         :rtype: unsigned int
         """
-        cdef unsigned int z = self.thisptr.getNBinsZ()
+        cdef unsigned int z = self.pmftxyzptr.getNBinsZ()
         return z
 
     @property
@@ -1448,5 +1450,5 @@ cdef class PMFTXYZ:
         :return: jacobian
         :rtype: float
         """
-        cdef float j = self.thisptr.getJacobian()
+        cdef float j = self.pmftxyzptr.getJacobian()
         return j
