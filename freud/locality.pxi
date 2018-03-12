@@ -613,9 +613,9 @@ cdef class NearestNeighbors:
     * :code:`strict_cut == True`: :code:`rmax` will be strictly obeyed, and any
       particle which has fewer than :math:`N` neighbors will have values of
       :code:`UINT_MAX` assigned.
-    * :code:`strict_cut == False`: :code:`rmax` will be expanded to find the
-      requested number of neighbors. If :code:`rmax` increases to the point
-      that a cell list cannot be constructed, a warning will be raised and
+    * :code:`strict_cut == False` (default): :code:`rmax` will be expanded to
+      find the requested number of neighbors. If :code:`rmax` increases to the
+      point that a cell list cannot be constructed, a warning will be raised and
       the neighbors already found will be returned.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
@@ -628,7 +628,7 @@ cdef class NearestNeighbors:
                         is not found. Only utilized if :code:`strict_cut` is
                         False. Scale must be greater than 1.
     :param bool strict_cut: Whether to use a strict :code:`rmax` or allow for
-                            automatic expansion
+                            automatic expansion, default is False
     :type n_neigh: unsigned int
 
     Example::

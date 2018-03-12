@@ -20,5 +20,5 @@ LinkCell
 NearestNeighbors
 ================
 
-.. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh)
+.. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
    :members:

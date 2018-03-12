@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Voronoi neighborlist now includes periodic neighbors
 * Voronoi neighborlist computes weight according to the facet area
 
+### Changed
+* Cluster module supports box argument in compute methods.
+
 ## v0.7.0 - 2018-03-02
 
 ### Added
