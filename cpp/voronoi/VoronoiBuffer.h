@@ -5,20 +5,19 @@
 #include <vector>
 
 #include "box.h"
+#include "VectorMath.h"
 #include "Index1D.h"
 
-#ifndef _VoronoiBuffer_H__
-#define _VoronoiBuffer_H__
+#ifndef _VORONOIBUFFER_H__
+#define _VORONOIBUFFER_H__
 
 /*! \file VoronoiBuffer.h
-    \brief Routines for computing Gaussian smeared densities from points
+    \brief Computes a buffer of particles to support wrapped positions in qhull
 */
 
 namespace freud { namespace voronoi {
 
 //! Locates the particles near the border of the box and computes their nearest images to pass to qhull
-/*!
-*/
 class VoronoiBuffer
     {
     public:
@@ -32,18 +31,24 @@ class VoronoiBuffer
                 }
 
         //! Compute the particle images
-        void compute(const float3 *points,
+        void compute(const vec3<float> *points,
                      const unsigned int Np,
                      const float buff);
 
-        std::shared_ptr< std::vector<float3> > getBufferParticles()
+        std::shared_ptr< std::vector< vec3<float> > > getBufferParticles()
             {
             return m_buffer_particles;
             }
 
+        std::shared_ptr< std::vector< unsigned int > > getBufferIds()
+            {
+            return m_buffer_ids;
+            }
+
     private:
         const box::Box m_box;    //!< Simulation box where the particles belong
-        std::shared_ptr< std::vector<float3> > m_buffer_particles;
+        std::shared_ptr< std::vector< vec3<float> > > m_buffer_particles;
+        std::shared_ptr< std::vector< unsigned int > > m_buffer_ids;
     };
 
 }; }; // end namespace freud::voronoi

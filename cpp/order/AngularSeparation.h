@@ -1,22 +1,14 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-#include <ostream>
 #include <complex>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "NearestNeighbors.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "NearestNeighbors.h"
 #include "Index1D.h"
 
 #ifndef _ANGULAR_SEPARATION_H__
@@ -27,6 +19,11 @@
 */
 
 namespace freud { namespace order {
+
+float computeSeparationAngle(const quat<float> ref_q, const quat<float> q);
+
+float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q,
+    const quat<float> *equiv_qs, unsigned int Nequiv);
 
 //! Compute the angular separation for a set of points
 /*!

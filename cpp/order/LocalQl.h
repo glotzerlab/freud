@@ -4,11 +4,9 @@
 #include <memory>
 #include <complex>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "LinkCell.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_QL_H__

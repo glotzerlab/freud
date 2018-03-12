@@ -1,13 +1,12 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <stdexcept>
 #include <algorithm>
-#include <tuple>
+#include <stdexcept>
 #include <tbb/tbb.h>
+#include <tuple>
 
 #include "LinkCell.h"
-#include "ScopedGILRelease.h"
 
 using namespace std;
 using namespace tbb;
@@ -156,22 +155,6 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
     if (dim.z == 0)
         dim.z = 1;
     return dim;
-    }
-
-//Deprecated.  Users should use the modern vec3<float> interfaces
-void LinkCell::computeCellList(box::Box& box,
-    const float3 *points,
-    unsigned int Np)
-    {
-    //Copy into appropriate vec3<float>;
-    vec3<float>* pointscopy = new vec3<float>[Np];
-    for(unsigned int i = 0; i < Np; i++) {
-        pointscopy[i].x=points[i].x;
-        pointscopy[i].y=points[i].y;
-        pointscopy[i].z=points[i].z;
-        }
-    computeCellList(box, pointscopy, Np);
-    delete[] pointscopy;
     }
 
 bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float> > &left,

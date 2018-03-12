@@ -3,7 +3,6 @@
 
 #include <memory>
 
-#include "HOOMDMath.h"
 #include "box.h"
 
 #ifndef _CLUSTER_PROPERTIES_H__

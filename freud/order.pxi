@@ -19,41 +19,44 @@ cimport numpy as np
 np.import_array()
 
 cdef class BondOrder:
-    """Compute the bond order diagram for the system of particles.
+    """
+    Compute the bond order diagram for the system of particles.
 
-    Available Modes of Calculation:
-    * If mode=bod (Bond Order Diagram): Create the 2D histogram containing the
-    number of bonds formed through the surface of a unit sphere based on the
-    azimuthal (Theta) and polar (Phi) angles. This is the default.
+    Available modes of calculation:
 
-    * If mode=lbod (Local Bond Order Diagram): Create the 2D histogram
-        containing the number of bonds formed, rotated into the local
-        orientation of the central particle, through the surface of a unit
-        sphere based on the azimuthal :math:`\\left( \\theta \\right)` and
-        polar :math:`\\left( \\phi \\right)` angles.
+    * If :code:`mode='bod'` (Bond Order Diagram, *default*):
+      Create the 2D histogram containing the number of bonds formed through
+      the surface of a unit sphere based on the azimuthal
+      :math:`\\left( \\theta \\right)` and polar
+      :math:`\\left( \\phi \\right)` angles.
 
-    * If mode=obcd (Orientation Bond Correlation Diagram): Create the 2D
-        histogram containing the number of bonds formed, rotated by the
-        rotation that takes the orientation of neighboring particle j to the
-        orientation of each particle i, through the surface of a unit sphere
-        based on the azimuthal :math:`\\left( \\theta \\right)` and polar
-        :math:`\\left( \\phi \\right)` angles.
+    * If :code:`mode='lbod'` (Local Bond Order Diagram):
+      Create the 2D histogram containing the number of bonds formed, rotated
+      into the local orientation of the central particle, through the surface
+      of a unit sphere based on the azimuthal :math:`\\left( \\theta \\right)`
+      and polar :math:`\\left( \\phi \\right)` angles.
 
-    * If mode=oocd (Orientation Orientation Correlation Diagram): Create the 2D
-        histogram containing the directors of neighboring particles
-        (:math:`\\hat{z}` rotated by their quaternion), rotated into the local
-        orientation of the central particle, through the surface of a unit
-        sphere based on the azimuthal :math:`\\left( \\theta \\right)` and
-        polar :math:`\\left( \\phi \\right)` angles.
+    * If :code:`mode='obcd'` (Orientation Bond Correlation Diagram):
+      Create the 2D histogram containing the number of bonds formed, rotated
+      by the rotation that takes the orientation of neighboring particle j to
+      the orientation of each particle i, through the surface of a unit sphere
+      based on the azimuthal :math:`\\left( \\theta \\right)` and polar
+      :math:`\\left( \\phi \\right)` angles.
+
+    * If :code:`mode='oocd'` (Orientation Orientation Correlation Diagram):
+      Create the 2D histogram containing the directors of neighboring particles
+      (:math:`\\hat{z}` rotated by their quaternion), rotated into the local
+      orientation of the central particle, through the surface of a unit
+      sphere based on the azimuthal :math:`\\left( \\theta \\right)` and
+      polar :math:`\\left( \\phi \\right)` angles.
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
-    :param r_max: distance over which to calculate
+    :param float r_max: distance over which to calculate
     :param k: order parameter i. to be removed
     :param n: number of neighbors to find
     :param n_bins_t: number of theta bins
     :param n_bins_p: number of phi bins
-    :type r_max: float
     :type k: unsigned int
     :type n: unsigned int
     :type n_bins_t: unsigned int
@@ -76,7 +79,8 @@ cdef class BondOrder:
 
     def accumulate(self, box, ref_points, ref_orientations, points,
                    orientations, str mode="bod", nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+        """Calculates the correlation function and adds to the current
+        histogram.
 
         :param box: simulation box
         :param ref_points: reference points to calculate the local density
@@ -168,12 +172,12 @@ cdef class BondOrder:
 
     @property
     def bond_order(self):
-        """Bond order
+        """Bond order.
         """
         return self.getBondOrder()
 
     def getBondOrder(self):
-        """Get the bond order
+        """Get the bond order.
 
         :return: bond order
         :rtype: :class:`numpy.ndarray`,
@@ -190,12 +194,12 @@ cdef class BondOrder:
 
     @property
     def box(self):
-        """Box used in the calculation
+        """Box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -280,7 +284,7 @@ cdef class BondOrder:
         return result
 
     def getNBinsTheta(self):
-        """Get the number of bins in the Theta-dimension of histogram
+        """Get the number of bins in the Theta-dimension of histogram.
 
         :return: :math:`N_{\\theta}`
         :rtype: unsigned int
@@ -289,7 +293,7 @@ cdef class BondOrder:
         return nt
 
     def getNBinsPhi(self):
-        """Get the number of bins in the Phi-dimension of histogram
+        """Get the number of bins in the Phi-dimension of histogram.
 
         :return: :math:`N_{\\phi}`
         :rtype: unsigned int
@@ -298,19 +302,16 @@ cdef class BondOrder:
         return np
 
 cdef class CubaticOrderParameter:
-    """Compute the Cubatic Order Parameter [Cit1]_ for a system of particles
+    """Compute the cubatic order parameter [Cit1]_ for a system of particles
     using simulated annealing instead of Newton-Raphson root finding.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param t_initial: Starting temperature
-    :param t_final: Final temperature
-    :param scale: Scaling factor to reduce temperature
+    :param float t_initial: Starting temperature
+    :param float t_final: Final temperature
+    :param float scale: Scaling factor to reduce temperature
     :param n_replicates: Number of replicate simulated annealing runs
     :param seed: random seed to use in calculations. If None, system time used
-    :type t_initial: float
-    :type t_final: float
-    :type scale: float
     :type n_replicates: unsigned int
     :type seed: unsigned int
 
@@ -348,7 +349,7 @@ cdef class CubaticOrderParameter:
                 n_replicates, seed)
 
     def compute(self, orientations):
-        """Calculates the per-particle and global OP
+        """Calculates the per-particle and global order parameter.
 
         :param box: simulation box
         :param orientations: orientations to calculate the order parameter
@@ -394,7 +395,7 @@ cdef class CubaticOrderParameter:
 
     def get_cubatic_order_parameter(self):
         """
-        :return: Cubatic Order parameter
+        :return: Cubatic order parameter
         :rtype: float
         """
         return self.thisptr.getCubaticOrderParameter()
@@ -407,15 +408,13 @@ cdef class CubaticOrderParameter:
                 dtype= :class:`numpy.float32`
         """
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = 4
         cdef np.ndarray[float, ndim = 1] result = np.array(
                 [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
         return result
 
     def get_particle_op(self):
         """
-        :return: Cubatic Order parameter
+        :return: Cubatic order parameter
         :rtype: float
         """
         cdef float * particle_op = \
@@ -511,14 +510,17 @@ cdef class CubaticOrderParameter:
 from libcpp.memory cimport shared_ptr
 
 cdef class NematicOrderParameter:
-    """Compute the Nematic order Parameter for a system of particles.
+    """Compute the nematic order parameter for a system of particles.
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
 
     .. versionadded:: 0.7.0
 
-    :type u: The nematic director of a single particle in the reference state (without any rotation applied)
-
+    :param u: The nematic director of a single particle in the reference
+              state (without any rotation applied)
+    :type u: :class:`numpy.ndarray`,
+             shape= :math:`\\left(3 \\right)`,
+             dtype= :class:`numpy.float32`
     """
     cdef order.NematicOrderParameter *thisptr
 
@@ -527,16 +529,21 @@ cdef class NematicOrderParameter:
         if len(u) != 3:
             raise ValueError('u needs to be a three-dimensional vector')
 
-        cdef np.ndarray[np.float32_t, ndim=1] l_u = np.array(u,dtype=np.float32)
-        self.thisptr = new order.NematicOrderParameter((<vec3[float]*>l_u.data)[0])
+        cdef np.ndarray[np.float32_t, ndim=1] l_u = \
+                np.array(u,dtype=np.float32)
+        self.thisptr = new order.NematicOrderParameter(
+            (<vec3[float]*>l_u.data)[0])
 
     def compute(self, orientations):
-        """Calculates the per-particle and global OP
+        """Calculates the per-particle and global order parameter.
 
         :param orientations: orientations to calculate the order parameter
-        :type orientations: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 4 \\right)`, dtype= :class:`numpy.float32`
+        :type orientations: :class:`numpy.ndarray`,
+                            shape= :math:`\\left(N_{particles}, 4 \\right)`,
+                            dtype= :class:`numpy.float32`
         """
-        orientations = freud.common.convert_array(orientations, 2, dtype=np.float32, contiguous=True,
+        orientations = freud.common.convert_array(
+            orientations, 2, dtype=np.float32, contiguous=True,
             dim_message="orientations must be a 2 dimensional array")
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
@@ -545,51 +552,69 @@ cdef class NematicOrderParameter:
         cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
 
         with nogil:
-            self.thisptr.compute(<quat[float]*>l_orientations.data, num_particles)
+            self.thisptr.compute(<quat[float]*>l_orientations.data,
+                                 num_particles)
 
     def get_nematic_order_parameter(self):
-        """The nematic order parameterr
-        :return: Nematic Order parameter
+        """The nematic order parameter.
+
+        :return: Nematic order parameter
         :rtype: float
         """
         return self.thisptr.getNematicOrderParameter()
 
     def get_director(self):
-        """The director (eigenvector corresponding to the order parameter)
+        """The director (eigenvector corresponding to the order parameter).
+
         :return: The average nematic director
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(3 \\right)`, dtype= :class:`numpy.float32`
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(3 \\right)`,
+                dtype= :class:`numpy.float32`
         """
         cdef vec3[float] n = self.thisptr.getNematicDirector()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.array([n.x,n.y,n.z], dtype=np.float32)
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.array(
+                [n.x,n.y,n.z], dtype=np.float32)
         return result
 
     def get_particle_tensor(self):
-        """The full per-particle tensor of orientation information
-        :return: 3x3 matrix corresponding to each individual particle orientation
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(N_{particles}, 3, 3 \\right)`, dtype= :class:`numpy.float32`
+        """The full per-particle tensor of orientation information.
+
+        :return: 3x3 matrix corresponding to each individual particle
+                 orientation
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{particles}, 3, 3 \\right)`,
+                dtype= :class:`numpy.float32`
         """
         cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
         nbins[1] = <np.npy_intp>3
         nbins[2] = <np.npy_intp>3
-        cdef np.ndarray[np.float32_t, ndim=3] result = np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*>particle_tensor)
+        cdef np.ndarray[np.float32_t, ndim=3] result = \
+                np.PyArray_SimpleNewFromData(
+                    3, nbins, np.NPY_FLOAT32, <void*>particle_tensor)
         return result
 
     def get_nematic_tensor(self):
-        """The nematic Q tensor
+        """The nematic Q tensor.
+
         :return: 3x3 matrix corresponding to the average particle orientation
-        :rtype: :class:`numpy.ndarray`, shape= :math:`\\left(3, 3 \\right)`, dtype= :class:`numpy.float32`
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(3, 3 \\right)`,
+                dtype= :class:`numpy.float32`
         """
         cdef float *nematic_tensor = self.thisptr.getNematicTensor().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp>3
         nbins[1] = <np.npy_intp>3
-        cdef np.ndarray[np.float32_t, ndim=2] result = np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*>nematic_tensor)
+        cdef np.ndarray[np.float32_t, ndim=2] result = \
+                np.PyArray_SimpleNewFromData(
+                    2, nbins, np.NPY_FLOAT32, <void*>nematic_tensor)
         return result
 
 cdef class HexOrderParameter:
-    """Calculates the :math:`k`-atic order parameter for each particle in the system.
+    """Calculates the :math:`k`-atic order parameter for each particle in the
+    system.
 
     The :math:`k`-atic order parameter for a particle :math:`i` and its
     :math:`n` neighbors :math:`j` is given by:
@@ -602,15 +627,15 @@ cdef class HexOrderParameter:
     :math:`i` to average over. :math:`\\phi_{ij}` is the angle between the
     vector :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`
 
-    .. note:: 2D: This calculation is defined for 2D systems only. However
-              particle positions are still required to be (x, y, 0)
+    .. note:: 2D: This calculation is defined for 2D systems only. However,
+              particle positions are still required to be passed in as
+              :code:`[x, y, 0]`.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param rmax: +/- r distance to search for neighbors
+    :param float rmax: +/- r distance to search for neighbors
     :param k: symmetry of order parameter (:math:`k=6` is hexatic)
     :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
-    :type rmax: float
     :type k: unsigned int
     :type n: unsigned int
     """
@@ -627,13 +652,14 @@ cdef class HexOrderParameter:
         del self.thisptr
 
     def compute(self, box, points, nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+        """Calculates the correlation function and adds to the current
+        histogram.
 
         :param box: simulation box
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                       find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`,
                       shape= :math:`\\left(N_{particles}, 3 \\right)`,
                       dtype= :class:`numpy.float32`
@@ -663,12 +689,12 @@ cdef class HexOrderParameter:
 
     @property
     def psi(self):
-        """Order parameter
+        """Order parameter.
         """
         return self.getPsi()
 
     def getPsi(self):
-        """Get the order parameter
+        """Get the order parameter.
 
         :return: order parameter
         :rtype: :class:`numpy.ndarray`,
@@ -685,12 +711,12 @@ cdef class HexOrderParameter:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -699,12 +725,12 @@ cdef class HexOrderParameter:
 
     @property
     def num_particles(self):
-        """Get the number of particles
+        """Get the number of particles.
         """
         return self.getNP()
 
     def getNP(self):
-        """Get the number of particles
+        """Get the number of particles.
 
         :return: :math:`N_{particles}`
         :rtype: unsigned int
@@ -714,12 +740,12 @@ cdef class HexOrderParameter:
 
     @property
     def k(self):
-        """Symmetry of the order parameter
+        """Symmetry of the order parameter.
         """
         return self.getK()
 
     def getK(self):
-        """Get the symmetry of the order parameter
+        """Get the symmetry of the order parameter.
 
         :return: :math:`k`
         :rtype: unsigned int
@@ -736,14 +762,12 @@ cdef class LocalDescriptors:
     :param num_neighbors: Maximum number of neighbors to compute descriptors
                           for
     :param lmax: Maximum spherical harmonic :math:`l` to consider
-    :param rmax: Initial guess of the maximum radius to looks for neighbors
-    :param negative_m: True if we should also calculate :math:`Y_{lm}` for
-                       negative :math:`m`
-    :type box: :py:class:`freud.box.Box`
+    :param float rmax: Initial guess of the maximum radius to looks for
+                       neighbors
+    :param bool negative_m: True if we should also calculate :math:`Y_{lm}` for
+                            negative :math:`m`
     :type num_neighbors: unsigned int
-    :type l: unsigned int
-    :type rmax: float
-
+    :type lmax: unsigned int
     """
     cdef order.LocalDescriptors * thisptr
     cdef num_neigh
@@ -896,12 +920,12 @@ cdef class LocalDescriptors:
 
     @property
     def sph(self):
-        """A reference to the last computed spherical harmonic array
+        """A reference to the last computed spherical harmonic array.
         """
         return self.getSph()
 
     def getSph(self):
-        """Get a reference to the last computed spherical harmonic array
+        """Get a reference to the last computed spherical harmonic array.
 
         :return: order parameter
         :rtype: :class:`numpy.ndarray`,
@@ -919,12 +943,12 @@ cdef class LocalDescriptors:
 
     @property
     def num_particles(self):
-        """Get the number of particles
+        """Get the number of particles.
         """
         return self.getNP()
 
     def getNP(self):
-        """Get the number of particles
+        """Get the number of particles.
 
         :return: :math:`N_{particles}`
         :rtype: unsigned int
@@ -934,12 +958,12 @@ cdef class LocalDescriptors:
 
     @property
     def num_neighbors(self):
-        """Get the number of neighbors
+        """Get the number of neighbors.
         """
         return self.getNSphs()
 
     def getNSphs(self):
-        """Get the number of neighbors
+        """Get the number of neighbors.
 
         :return: :math:`N_{neighbors}`
         :rtype: unsigned int
@@ -950,12 +974,12 @@ cdef class LocalDescriptors:
 
     @property
     def l_max(self):
-        """Get the maximum spherical harmonic l to calculate for
+        """Get the maximum spherical harmonic :math:`l` to calculate for.
         """
         return self.getLMax()
 
     def getLMax(self):
-        """Get the maximum spherical harmonic l to calculate for
+        """Get the maximum spherical harmonic :math:`l` to calculate for.
 
         :return: :math:`l`
         :rtype: unsigned int
@@ -966,12 +990,12 @@ cdef class LocalDescriptors:
 
     @property
     def r_max(self):
-        """Get the cutoff radius
+        """Get the cutoff radius.
         """
         return self.getRMax()
 
     def getRMax(self):
-        """Get the cutoff radius
+        """Get the cutoff radius.
 
         :return: :math:`r`
         :rtype: float
@@ -981,15 +1005,13 @@ cdef class LocalDescriptors:
         return r
 
 cdef class TransOrderParameter:
-    """Compute the translational order parameter for each particle
+    """Compute the translational order parameter for each particle.
 
     .. moduleauthor:: Michael Engel <engelmm@umich.edu>
 
-    :param rmax: +/- r distance to search for neighbors
-    :param k: symmetry of order parameter (:math:`k=6` is hexatic)
+    :param float rmax: +/- r distance to search for neighbors
+    :param float k: symmetry of order parameter (:math:`k=6` is hexatic)
     :param n: number of neighbors (:math:`n=k` if :math:`n` not specified)
-    :type rmax: float
-    :type k: float
     :type n: unsigned int
 
     """
@@ -1042,12 +1064,12 @@ cdef class TransOrderParameter:
 
     @property
     def d_r(self):
-        """Get a reference to the last computed spherical harmonic array
+        """Get a reference to the last computed spherical harmonic array.
         """
         return self.getDr()
 
     def getDr(self):
-        """Get a reference to the last computed spherical harmonic array
+        """Get a reference to the last computed spherical harmonic array.
 
         :return: order parameter
         :rtype: :class:`numpy.ndarray`,
@@ -1064,12 +1086,12 @@ cdef class TransOrderParameter:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -1078,12 +1100,12 @@ cdef class TransOrderParameter:
 
     @property
     def num_particles(self):
-        """Get the number of particles
+        """Get the number of particles.
         """
         return self.getNP()
 
     def getNP(self):
-        """Get the number of particles
+        """Get the number of particles.
 
         :return: :math:`N_{particles}`
         :rtype: unsigned int
@@ -1093,15 +1115,16 @@ cdef class TransOrderParameter:
 
 cdef class LocalQl:
     """
-    Compute the local Steinhardt rotationally invariant Ql [Cit4]_ order
-    parameter for a set of points.
+    Compute the local Steinhardt rotationally invariant :math:`Q_l` [Cit4]_
+    order parameter for a set of points.
 
-    Implements the local rotationally invariant Ql order parameter described by
-    Steinhardt. For a particle i, we calculate the average :math:`Q_l` by
-    summing the spherical harmonics between particle :math:`i` and its
-    neighbors :math:`j` in a local region: :math:`\\overline{Q}_{lm}(i) =
-    \\frac{1}{N_b} \\displaystyle\\sum_{j=1}^{N_b}
-    Y_{lm}(\\theta(\\vec{r}_{ij}), \\phi(\\vec{r}_{ij}))`
+    Implements the local rotationally invariant :math:`Q_l` order parameter
+    described by Steinhardt. For a particle i, we calculate the average
+    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
+    and its neighbors :math:`j` in a local region:
+    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
+    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
+    \\phi(\\vec{r}_{ij}))`
 
     This is then combined in a rotationally invariant fashion to remove local
     orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
@@ -1109,25 +1132,24 @@ cdef class LocalQl:
 
     For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
 
-    Added first/second shell combined average Ql order parameter for a set of
-    points:
+    Added first/second shell combined average :math:`Q_l` order parameter for
+    a set of points:
 
-    * Variation of the Steinhardt Ql order parameter
-    * For a particle i, we calculate the average Q_l by summing the spherical
-      harmonics between particle i and its neighbors j and the neighbors k of
-      neighbor j in a local region
+    * Variation of the Steinhardt :math:`Q_l` order parameter
+    * For a particle i, we calculate the average :math:`Q_l` by summing the
+      spherical harmonics between particle i and its neighbors j and the
+      neighbors k of neighbor j in a local region
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first
-                 minima of the rdf are recommended
+    :param float rmax: Cutoff radius for the local order parameter. Values near
+                       first minima of the RDF are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
-    :param rmin: can look at only the second shell or some arbitrary rdf region
-    :type box: :py:meth:`freud.box.Box`
-    :type rmax: float
+    :param float rmin: can look at only the second shell or some arbitrary RDF
+                       region
+    :type box: :py:class:`freud.box.Box`
     :type l: unsigned int
-    :type rmin: float
 
     .. todo:: move box to compute, this is old API
     """
@@ -1148,7 +1170,8 @@ cdef class LocalQl:
         self.thisptr = <order.LocalQl*>0
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1175,7 +1198,8 @@ cdef class LocalQl:
         return self
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1204,7 +1228,8 @@ cdef class LocalQl:
         return self
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1233,7 +1258,8 @@ cdef class LocalQl:
         return self
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1264,18 +1290,18 @@ cdef class LocalQl:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     @box.setter
     def box(self, value):
-        """Reset the simulation box
+        """Reset the simulation box.
         """
         self.setBox(value)
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -1283,7 +1309,7 @@ cdef class LocalQl:
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
     def setBox(self, box):
-        """Reset the simulation box
+        """Reset the simulation box.
 
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
@@ -1295,13 +1321,14 @@ cdef class LocalQl:
 
     @property
     def Ql(self):
-        """Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
         """
         return self.getQl()
 
     def getQl(self):
-        """Get a reference to the last computed Ql for each particle.  Returns NaN
-        instead of Ql for particles with no neighbors.
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
 
         :return: order parameter
         :rtype: :class:`numpy.ndarray`,
@@ -1318,7 +1345,8 @@ cdef class LocalQl:
 
     @property
     def ave_Ql(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
         """
         return self.getAveQl()
 
@@ -1341,8 +1369,8 @@ cdef class LocalQl:
 
     @property
     def norm_Ql(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for \
-        particles with no neighbors.
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
         """
         return self.getQlNorm()
 
@@ -1365,8 +1393,8 @@ cdef class LocalQl:
 
     @property
     def ave_norm_Ql(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.  Returns NaN instead of :math:`Q_l` for \
-        particles with no neighbors.
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
         """
         return self.getQlAveNorm()
 
@@ -1389,12 +1417,12 @@ cdef class LocalQl:
 
     @property
     def num_particles(self):
-        """Get the number of particles
+        """Get the number of particles.
         """
         return self.getNP()
 
     def getNP(self):
-        """Get the number of particles
+        """Get the number of particles.
 
         :return: :math:`N_p`
         :rtype: unsigned int
@@ -1404,15 +1432,16 @@ cdef class LocalQl:
 
 cdef class LocalQlNear(LocalQl):
     """
-    Compute the local Steinhardt rotationally invariant Ql order parameter
-    [Cit4]_ for a set of points.
+    Compute the local Steinhardt rotationally invariant :math:`Q_l` order
+    parameter [Cit4]_ for a set of points.
 
-    Implements the local rotationally invariant Ql order parameter described by
-    Steinhardt. For a particle i, we calculate the average :math:`Q_l` by
-    summing the spherical harmonics between particle :math:`i` and its
-    neighbors :math:`j` in a local region: :math:`\\overline{Q}_{lm}(i) =
-    \\frac{1}{N_b} \\displaystyle\\sum_{j=1}^{N_b}
-    Y_{lm}(\\theta(\\vec{r}_{ij}), \\phi(\\vec{r}_{ij}))`
+    Implements the local rotationally invariant :math:`Q_l` order parameter
+    described by Steinhardt. For a particle i, we calculate the average
+    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
+    and its neighbors :math:`j` in a local region:
+    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
+    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
+    \\phi(\\vec{r}_{ij}))`
 
     This is then combined in a rotationally invariant fashion to remove local
     orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
@@ -1420,23 +1449,22 @@ cdef class LocalQlNear(LocalQl):
 
     For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
 
-    Added first/second shell combined average Ql order parameter for a set of
-    points:
+    Added first/second shell combined average :math:`Q_l` order parameter for
+    a set of points:
 
-    * Variation of the Steinhardt Ql order parameter
-    * For a particle i, we calculate the average Q_l by summing the spherical
-      harmonics between particle i and its neighbors j and the neighbors k of
-      neighbor j in a local region
+    * Variation of the Steinhardt :math:`Q_l` order parameter
+    * For a particle i, we calculate the average :math:`Q_l` by summing the
+      spherical harmonics between particle i and its neighbors j and the
+      neighbors k of neighbor j in a local region
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first
-                 minima of the rdf are recommended
+    :param float rmax: Cutoff radius for the local order parameter. Values near
+                       first minima of the RDF are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param kn: number of nearest neighbors. must be a positive integer
     :type box: :py:class:`freud.box.Box`
-    :type rmax: float
     :type l: unsigned int
     :type kn: unsigned int
 
@@ -1459,7 +1487,8 @@ cdef class LocalQlNear(LocalQl):
         self.thisptr = <order.LocalQl*>0
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1475,7 +1504,8 @@ cdef class LocalQlNear(LocalQl):
         return LocalQl.compute(self, points, nlist_)
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1491,7 +1521,8 @@ cdef class LocalQlNear(LocalQl):
         return LocalQl.computeAve(self, points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1507,7 +1538,8 @@ cdef class LocalQlNear(LocalQl):
         return LocalQl.computeNorm(self, points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1544,11 +1576,10 @@ cdef class LocalWl:
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first
-                 minima of the rdf are recommended
+    :param float rmax: Cutoff radius for the local order parameter. Values near
+                       first minima of the RDF are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
-    :type box: :py:meth:`freud.box.Box`
-    :type rmax: float
+    :type box: :py:class:`freud.box.Box`
     :type l: unsigned int
 
     .. todo:: move box to compute, this is old API
@@ -1570,7 +1601,8 @@ cdef class LocalWl:
         self.thisptr = <order.LocalWl*>0
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1598,7 +1630,8 @@ cdef class LocalWl:
         return self
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1627,7 +1660,8 @@ cdef class LocalWl:
         return self
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1656,7 +1690,8 @@ cdef class LocalWl:
         return self
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1687,12 +1722,12 @@ cdef class LocalWl:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -1700,7 +1735,7 @@ cdef class LocalWl:
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
     def setBox(self, box):
-        """Reset the simulation box
+        """Reset the simulation box.
 
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
@@ -1712,7 +1747,8 @@ cdef class LocalWl:
 
     @property
     def Ql(self):
-        """Get a reference to the last computed Ql for each particle.  Returns NaN instead of Ql for particles with no neighbors.
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
         """
         return self.getQl()
 
@@ -1735,8 +1771,8 @@ cdef class LocalWl:
 
     @property
     def Wl(self):
-        """Get a reference to the last computed :math:`W_l` for each particle.  Returns NaN instead of :math:`W_l` for \
-        particles with no neighbors.
+        """Get a reference to the last computed :math:`W_l` for each particle.
+        Returns NaN instead of :math:`W_l` for particles with no neighbors.
         """
         return self.getWl()
 
@@ -1831,12 +1867,12 @@ cdef class LocalWl:
 
     @property
     def num_particles(self):
-        """Get the number of particles
+        """Get the number of particles.
         """
         return self.getNP()
 
     def getNP(self):
-        """Get the number of particles
+        """Get the number of particles.
 
         :return: :math:`N_{particles}`
         :rtype: unsigned int
@@ -1866,12 +1902,11 @@ cdef class LocalWlNear(LocalWl):
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
 
     :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first
-                 minima of the rdf are recommended
+    :param float rmax: Cutoff radius for the local order parameter. Values near
+                       first minima of the RDF are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
     :param kn: Number of nearest neighbors. Must be a positive number
     :type box: :py:class:`freud.box.Box`
-    :type rmax: float
     :type l: unsigned int
     :type kn: unsigned int
 
@@ -1893,7 +1928,8 @@ cdef class LocalWlNear(LocalWl):
         self.thisptr = <order.LocalWl*>0
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1909,7 +1945,8 @@ cdef class LocalWlNear(LocalWl):
         return LocalWl.compute(self, points, nlist_)
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1925,7 +1962,8 @@ cdef class LocalWlNear(LocalWl):
         return LocalWl.computeAve(self, points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1941,7 +1979,8 @@ cdef class LocalWlNear(LocalWl):
         return LocalWl.computeNorm(self, points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -1964,21 +2003,20 @@ cdef class SolLiq:
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first
-                 minima of the rdf are recommended
-    :param Qthreshold: Value of dot product threshold when evaluating
-                       :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a
-                       neighbor pair is a solid-like bond. (For :math:`l=6`,
-                       0.7 generally good for FCC or BCC structures)
+    :param float rmax: Cutoff radius for the local order parameter. Values near
+                       first minima of the RDF are recommended
+    :param float Qthreshold: Value of dot product threshold when evaluating
+                             :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a
+                             neighbor pair is a solid-like bond. (For
+                             :math:`l=6`, 0.7 generally good for FCC or BCC
+                             structures)
     :param Sthreshold: Minimum required number of adjacent solid-link bonds for
                        a particle to be considered solid-like for clustering.
                        (For :math:`l=6`, 6-8 generally good for FCC or BCC
                        structures)
     :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and
               even.
-    :type box: :py:meth:`freud.box.Box`
-    :type rmax: float
-    :type Qthreshold: float
+    :type box: :py:class:`freud.box.Box`
     :type Sthreshold: unsigned int
     :type l: unsigned int
 
@@ -2001,7 +2039,8 @@ cdef class SolLiq:
         self.thisptr = <order.SolLiq*>0
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -2029,7 +2068,8 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqVariant(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -2058,7 +2098,8 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqNoNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant Ql order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -2088,13 +2129,13 @@ cdef class SolLiq:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     @box.setter
     def box(self, value):
-        """Reset the simulation box
+        """Reset the simulation box.
 
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
@@ -2102,7 +2143,7 @@ cdef class SolLiq:
         self.setBox(value)
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -2110,15 +2151,14 @@ cdef class SolLiq:
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
     def setClusteringRadius(self, rcutCluster):
-        """Reset the clustering radius
+        """Reset the clustering radius.
 
-        :param rcutCluster: radius for the cluster finding
-        :type rcutCluster: float
+        :param float rcutCluster: radius for the cluster finding
         """
         self.thisptr.setClusteringRadius(rcutCluster)
 
     def setBox(self, box):
-        """Reset the simulation box
+        """Reset the simulation box.
 
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
@@ -2130,12 +2170,12 @@ cdef class SolLiq:
 
     @property
     def largest_cluster_size(self):
-        """Returns the largest cluster size. Must compute sol-liq first
+        """Returns the largest cluster size. Must call a compute method first.
         """
         return self.getLargestClusterSize()
 
     def getLargestClusterSize(self):
-        """Returns the largest cluster size. Must compute sol-liq first
+        """Returns the largest cluster size. Must call a compute method first.
 
         :return: largest cluster size
         :rtype: unsigned int
@@ -2145,12 +2185,12 @@ cdef class SolLiq:
 
     @property
     def cluster_sizes(self):
-        """Return the sizes of all clusters
+        """Return the sizes of all clusters.
         """
         return self.getClusterSizes()
 
     def getClusterSizes(self):
-        """Return the sizes of all clusters
+        """Return the sizes of all clusters.
 
         :return: largest cluster size
         :rtype: :class:`numpy.ndarray`,
@@ -2176,7 +2216,8 @@ cdef class SolLiq:
         return self.getQlmi()
 
     def getQlmi(self):
-        """Get a reference to the last computed :math:`Q_{lmi}` for each particle.
+        """Get a reference to the last computed :math:`Q_{lmi}` for each
+        particle.
 
         :return: order parameter
         :rtype: :class:`numpy.ndarray`,
@@ -2194,13 +2235,13 @@ cdef class SolLiq:
     @property
     def clusters(self):
         """Get a reference to the last computed set of solid-like cluster
-        indices for each particle
+        indices for each particle.
         """
         return self.getClusters()
 
     def getClusters(self):
-        """Get a reference to the last computed set of solid-like cluster indices
-        for each particle
+        """Get a reference to the last computed set of solid-like cluster
+        indices for each particle.
 
         :return: clusters
         :rtype: :class:`numpy.ndarray`,
@@ -2218,12 +2259,12 @@ cdef class SolLiq:
 
     @property
     def num_connections(self):
-        """Get a reference to the number of connections per particle
+        """Get a reference to the number of connections per particle.
         """
         return self.getNumberOfConnections()
 
     def getNumberOfConnections(self):
-        """Get a reference to the number of connections per particle
+        """Get a reference to the number of connections per particle.
 
         :return: clusters
         :rtype: :class:`numpy.ndarray`,
@@ -2242,12 +2283,12 @@ cdef class SolLiq:
 
     @property
     def Ql_dot_ij(self):
-        """Get a reference to the number of connections per particle
+        """Get a reference to the number of connections per particle.
         """
         return self.getNumberOfConnections()
 
     def getQldot_ij(self):
-        """Get a reference to the qldot_ij values
+        """Get a reference to the qldot_ij values.
 
         :return: largest cluster size
         :rtype: :class:`numpy.ndarray`,
@@ -2267,12 +2308,12 @@ cdef class SolLiq:
 
     @property
     def num_particles(self):
-        """Get the number of particles
+        """Get the number of particles.
         """
         return self.getNP()
 
     def getNP(self):
-        """Get the number of particles
+        """Get the number of particles.
 
         :return: np
         :rtype: unsigned int
@@ -2288,22 +2329,21 @@ cdef class SolLiqNear(SolLiq):
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     :param box: simulation box
-    :param rmax: Cutoff radius for the local order parameter. Values near first
-                    minima of the rdf are recommended
-    :param Qthreshold: Value of dot product threshold when evaluating
-                        :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a
-                        neighbor pair is a solid-like bond. (For :math:`l=6`,
-                        0.7 generally good for FCC or BCC structures)
+    :param float rmax: Cutoff radius for the local order parameter. Values near
+                       first minima of the RDF are recommended
+    :param float Qthreshold: Value of dot product threshold when evaluating
+                             :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a
+                             neighbor pair is a solid-like bond. (For
+                             :math:`l=6`, 0.7 generally good for FCC or BCC
+                             structures)
     :param Sthreshold: Minimum required number of adjacent solid-link bonds for
-                        a particle to be considered solid-like for clustering.
-                        (For :math:`l=6`, 6-8 generally good for FCC or BCC
-                        structures)
+                       a particle to be considered solid-like for clustering.
+                       (For :math:`l=6`, 6-8 generally good for FCC or BCC
+                       structures)
     :param l: Choose spherical harmonic :math:`Q_l`.  Must be positive and
-                even.
+              even.
     :param kn: Number of nearest neighbors. Must be a positive number
     :type box: :py:class:`freud.box.Box`
-    :type rmax: float
-    :type Qthreshold: float
     :type Sthreshold: unsigned int
     :type l: unsigned int
     :type kn: unsigned int
@@ -2343,7 +2383,8 @@ cdef class SolLiqNear(SolLiq):
         return SolLiq.compute(self, points, nlist_)
 
     def computeSolLiqVariant(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -2359,7 +2400,8 @@ cdef class SolLiqNear(SolLiq):
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
     def computeSolLiqNoNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order parameter.
+        """Compute the local rotationally invariant :math:`Q_l` order
+        parameter.
 
         :param points: points to calculate the order parameter
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
@@ -2381,12 +2423,11 @@ cdef class MatchEnv:
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     :param box: Simulation box
-    :param rmax: Cutoff radius for cell list and clustering algorithm. Values
-                    near first minimum of the rdf are recommended.
+    :param float rmax: Cutoff radius for cell list and clustering algorithm.
+                       Values near first minimum of the RDF are recommended.
     :param k: Number of nearest neighbors taken to define the local environment
-                of any given particle.
+              of any given particle.
     :type box: :class:`freud.box.Box`
-    :type rmax: float
     :type k: unsigned int
     """
     cdef order.MatchEnv * thisptr
@@ -2408,7 +2449,7 @@ cdef class MatchEnv:
         del self.thisptr
 
     def setBox(self, box):
-        """Reset the simulation box
+        """Reset the simulation box.
 
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
@@ -2424,29 +2465,27 @@ cdef class MatchEnv:
         """Determine clusters of particles with matching environments.
 
         :param points: particle positions
-        :param threshold: maximum magnitude of the vector difference between
-                          two vectors, below which you call them matching
-        :param hard_r: if true, add all particles that fall within the
-                       threshold of m_rmaxsq to the environment
-        :param registration: if true, first use brute force registration to
-                             orient one set of environment vectors with
-                             respect to the other set such that it minimizes
-                             the RMSD between the two sets
-        :param global_search: if true, do an exhaustive search wherein you
-                              compare the environments of every single pair
-                              of particles in the simulation. If false, only
-                              compare the environments of neighboring
-                              particles.
+        :param float threshold: maximum magnitude of the vector difference
+                                between two vectors, below which they are
+                                "matching"
+        :param bool hard_r: If True, add all particles that fall within the
+                            threshold of m_rmaxsq to the environment
+        :param bool registration: If True, first use brute force registration to
+                                  orient one set of environment vectors with
+                                  respect to the other set such that it
+                                  minimizes the RMSD between the two sets.
+        :param bool global_search: If True, do an exhaustive search wherein the
+                                   environments of every single pair of
+                                   particles in the simulation are compared.
+                                   If False, only compare the environments of
+                                   neighboring particles.
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find neighbors of every particle, to compare environments
+                      find neighbors of every particle, to compare environments
         :param env_nlist: :py:class:`freud.locality.NeighborList` object to use
-                        to find the environment of every particle
+                          to find the environment of every particle
         :type points: :class:`numpy.ndarray`,
                       shape= :math:`\\left(N_{particles}, 3\\right)`,
                       dtype= :class:`numpy.float32`
-        :type threshold: float
-        :type hard_r: bool
-        :type registration: bool
         :type nlist: :py:class:`freud.locality.NeighborList`
         :type env_nlist: :py:class:`freud.locality.NeighborList`
         """
@@ -2498,12 +2537,13 @@ cdef class MatchEnv:
         :param points: particle positions
         :param refPoints: vectors that make up the motif against which we are
                           matching
-        :param threshold: maximum magnitude of the vector difference between
-                          two vectors, below which you call them matching
-        :param registration: if true, first use brute force registration to
-                             orient one set of environment vectors with
-                             respect to the other set such that it minimizes
-                             the RMSD between the two sets
+        :param float threshold: maximum magnitude of the vector difference
+                                between two vectors, below which they are
+                                considered "matching"
+        :param bool registration: If true, first use brute force registration
+                                  to orient one set of environment vectors with
+                                  respect to the other set such that it
+                                  minimizes the RMSD between the two sets.
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                       find bonds
         :type points: :class:`numpy.ndarray`,
@@ -2512,8 +2552,6 @@ cdef class MatchEnv:
         :type refPoints: :class:`numpy.ndarray`,
                          shape= :math:`\\left(N_{neighbors}, 3\\right)`,
                          dtype= :class:`numpy.float32`
-        :type threshold: float
-        :type registration: bool
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(
@@ -2554,10 +2592,10 @@ cdef class MatchEnv:
         :param points: particle positions
         :param refPoints: vectors that make up the motif against which we are
                           matching
-        :param registration: if true, first use brute force registration to
-                             orient one set of environment vectors with
-                             respect to the other set such that it minimizes
-                             the RMSD between the two sets
+        :param bool registration: If true, first use brute force registration to
+                                  orient one set of environment vectors with
+                                  respect to the other set such that it
+                                  minimizes the RMSD between the two sets.
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                       find bonds
         :type points: :class:`numpy.ndarray`,
@@ -2566,14 +2604,11 @@ cdef class MatchEnv:
         :type refPoints: :class:`numpy.ndarray`,
                          shape= :math:`\\left(N_{neighbors}, 3\\right)`,
                          dtype= :class:`numpy.float32`
-        :type threshold: float
-        :type hard_r: bool
-        :type registration: bool
+        :type nlist: :py:class:`freud.locality.NeighborList`
         :return: vector of minimal RMSD values, one value per particle.
         :rtype: :class:`numpy.ndarray`,
                 shape= :math:`\\left(N_{particles}\\right)`,
                 dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
@@ -2613,20 +2648,19 @@ cdef class MatchEnv:
 
         :param refPoints1: vectors that make up motif 1
         :param refPoints2: vectors that make up motif 2
-        :param threshold: maximum magnitude of the vector difference between
-                            two vectors, below which you call them matching
-        :param registration: if true, first use brute force registration to
-                                orient one set of environment vectors with
-                                respect to the other set such that it minimizes
-                                the RMSD between the two sets
+        :param float threshold: maximum magnitude of the vector difference
+                                between two vectors, below which they are
+                                considered "matching"
+        :param bool registration: If true, first use brute force registration to
+                                  orient one set of environment vectors with
+                                  respect to the other set such that it
+                                  minimizes the RMSD between the two sets.
         :type refPoints1: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{particles}, 3\\right)`,
-                            dtype= :class:`numpy.float32`
+                          shape= :math:`\\left(N_{particles}, 3\\right)`,
+                          dtype= :class:`numpy.float32`
         :type refPoints2: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{particles}, 3\\right)`,
-                            dtype= :class:`numpy.float32`
-        :type threshold: float
-        :type registration: bool
+                          shape= :math:`\\left(N_{particles}, 3\\right)`,
+                          dtype= :class:`numpy.float32`
         :return: a doublet that gives the rotated (or not) set of refPoints2,
                     and the mapping between the vectors of refPoints1 and
                     refPoints2 that will make them correspond to each other.
@@ -2749,7 +2783,7 @@ cdef class MatchEnv:
         return result
 
     def getEnvironment(self, i):
-        """Returns the set of vectors defining the environment indexed by i
+        """Returns the set of vectors defining the environment indexed by i.
 
         :param i: environment index
         :type i: unsigned int
@@ -2769,13 +2803,14 @@ cdef class MatchEnv:
 
     @property
     def tot_environment(self):
-        """Returns the entire m_Np by m_maxk by 3 matrix of all environments for all particles
+        """Returns the entire m_Np by m_maxk by 3 matrix of all environments
+        for all particles.
         """
         return self.getTotEnvironment()
 
     def getTotEnvironment(self):
-        """Returns the entire m_Np by m_maxk by 3 matrix of all environments for
-        all particles
+        """Returns the entire m_Np by m_maxk by 3 matrix of all environments
+        for all particles.
 
         :return: the array of vectors
         :rtype: :class:`numpy.ndarray`,
@@ -2796,12 +2831,12 @@ cdef class MatchEnv:
 
     @property
     def num_particles(self):
-        """Get the number of particles
+        """Get the number of particles.
         """
         return self.getNP()
 
     def getNP(self):
-        """Get the number of particles
+        """Get the number of particles.
 
         :return: :math:`N_{particles}`
         :rtype: unsigned int
@@ -2811,12 +2846,12 @@ cdef class MatchEnv:
 
     @property
     def num_clusters(self):
-        """Get the number of clusters
+        """Get the number of clusters.
         """
         return self.getNumClusters()
 
     def getNumClusters(self):
-        """Get the number of clusters
+        """Get the number of clusters.
 
         :return: :math:`N_{clusters}`
         :rtype: unsigned int
@@ -2830,13 +2865,11 @@ cdef class Pairing2D:
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param rmax: distance over which to calculate
+    :param float rmax: distance over which to calculate
     :param k: number of neighbors to search
-    :param compDotTol: value of the dot product below which a pair is
-                       determined
-    :type rmax: float
+    :param float compDotTol: value of the dot product below which a pair is
+                             determined
     :type k: unsigned int
-    :type compDotTol: float
     """
     cdef order.Pairing2D * thisptr
     cdef rmax
@@ -2851,7 +2884,8 @@ cdef class Pairing2D:
         del self.thisptr
 
     def compute(self, box, points, orientations, compOrientations, nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+        """Calculates the correlation function and adds to the current
+        histogram.
 
         :param box: simulation box
         :param points: reference points to calculate the local density
@@ -2907,12 +2941,12 @@ cdef class Pairing2D:
 
     @property
     def match(self):
-        """Match
+        """Match.
         """
         return self.getMatch()
 
     def getMatch(self):
-        """Get the match
+        """Get the match.
 
         :return: match
         :rtype: :class:`numpy.ndarray`,
@@ -2929,12 +2963,12 @@ cdef class Pairing2D:
 
     @property
     def pair(self):
-        """Pair
+        """Pair.
         """
         return self.getPair()
 
     def getPair(self):
-        """Get the pair
+        """Get the pair.
 
         :return: pair
         :rtype: :class:`numpy.ndarray`,
@@ -2951,12 +2985,12 @@ cdef class Pairing2D:
 
     @property
     def box(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
         """
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -3007,7 +3041,7 @@ cdef class AngularSeparation:
                             include both q and -q, for all included quaternions
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                       find bonds
-        :type box: :py:meth:`freud.box.Box`
+        :type box: :py:class:`freud.box.Box`
         :type ref_ors: :class:`numpy.ndarray`,
                        shape= :math:`\\left(N_{particles}, 4 \\right)`,
                        dtype= :class:`numpy.float32`
@@ -3083,8 +3117,8 @@ cdef class AngularSeparation:
         return self
 
     def computeGlobal(self, global_ors, ors, equiv_quats):
-        """Calculates the minimum angles of separation between global_ors and ors,
-        checking for underlying symmetry as encoded in equiv_quats.
+        """Calculates the minimum angles of separation between global_ors and
+        ors, checking for underlying symmetry as encoded in equiv_quats.
 
         :param global_ors: global reference orientations to calculate the order
                             parameter
@@ -3191,7 +3225,7 @@ cdef class AngularSeparation:
         return nref
 
     def getNGlobal(self):
-        """Get the number of global orientations to check against
+        """Get the number of global orientations to check against.
 
         :return: :math:`N_{global orientations}`
         :rtype: unsigned int

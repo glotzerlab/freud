@@ -20,46 +20,59 @@ except ImportError:
 
 
 class Voronoi:
-    # Compute the Voronoi tesselation of a 2D or 3D system using qhull
-    # This essentially just wraps scipy.spatial.Voronoi, but accounts for
-    # periodic boundary conditions
+    """Compute the Voronoi tessellation of a 2D or 3D system using qhull.
+    This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic
+    boundary conditions.
+
+    Since qhull does not support periodic boundary conditions natively, we
+    expand the box to include a portion of the particles' periodic images.
+    The buffer width is given by the parameter :code:`buff`. The
+    computation of Voronoi tessellations and neighbors is only guaranteed
+    to be correct if :code:`buff >= L/2` where :code:`L` is the longest side
+    of the simulation box. For dense systems with particles filling the
+    entire simulation volume, a smaller value for :code:`buff` is acceptable.
+    """
 
     def __init__(self, box, buff=0.1):
-        # Initialize Voronoi
-        # \param box The simulation box
+        """Initialize Voronoi.
+
+        :param box: simulation box
+        :param float buff: buffer width
+        :type box: :py:class:`freud.box.Box`
+        """
         self.box = box
         self.buff = buff
 
     def setBox(self, box):
-        # Set the simulation box
+        """Reset the simulation box.
+
+        :param box: simulation box
+        :type box: :py:class:`freud.box.Box`
+        """
         self.box = box
 
     def setBufferWidth(self, buff):
-        # Set the box buffer width
+        """Reset the buffer width.
+
+        :param float buff: buffer width
+        """
         self.buff = buff
 
-    def compute(self, positions, box=None, buff=None):
-        """ Compute Voronoi tesselation
-
-        :param box: The simulation box
-        :param buff: The buffer of particles to be duplicated to simulated
-                     PBC, default=0.1
-         """
-
-        # If box or buff is not specified, revert to object quantities
-        if box is None:
-            box = self.box
-        if buff is None:
-            buff = self.buff
-
-        # Compute the buffer particles in c++
+    def _qhull_compute(self, positions, box=None, buff=None):
+        """Calls VoronoiBuffer and qhull"""
+        # Compute the buffer particles in C++
         vbuff = VoronoiBuffer(box)
         vbuff.compute(positions, buff)
-        self.buff = buffer_parts = vbuff.getBufferParticles()
-        if self.buff.size > 0:
-            self.expanded_points = np.concatenate((positions, buffer_parts))
+        buff_ptls = vbuff.getBufferParticles()
+        buff_ids = vbuff.getBufferIds()
+
+        if buff_ptls.size > 0:
+            self.expanded_points = np.concatenate((positions, buff_ptls))
+            self.expanded_ids = np.concatenate((
+                np.arange(len(positions)), buff_ids))
         else:
             self.expanded_points = positions
+            self.expanded_ids = np.arange(len(positions))
 
         # Use only the first two components if the box is 2D
         if box.is2D():
@@ -68,44 +81,12 @@ class Voronoi:
         # Use qhull to get the points
         self.voronoi = qvoronoi(self.expanded_points)
 
-        vertices = self.voronoi.vertices
+    def compute(self, positions, box=None, buff=None):
+        """Compute Voronoi diagram.
 
-        # Add a z-component of 0 if the box is 2D
-        if box.is2D():
-            vertices = np.insert(vertices, 2, 0, 1)
-
-        # Construct a list of polygon/hedra vertices
-        self.poly_verts = list()
-        for region in self.voronoi.point_region[:len(positions)]:
-            if -1 in self.voronoi.regions[region]:
-                continue
-            self.poly_verts.append(vertices[self.voronoi.regions[region]])
-        return self
-
-    def getBuffer(self):
-        # Return the list of voronoi polytope vertices
-        return self.buff
-
-    def getVoronoiPolytopes(self):
-        # Return the list of voronoi polytope vertices
-        return self.poly_verts
-
-    def computeNeighbors(self, positions, box=None, buff=None):
-        """Compute the neighbors of each particle based on the voronoi
-        tessellation. One can include neighbors from multiple voronoi shells by
-        specifying 'numShells' variable. An example code to compute neighbors
-        up to two voronoi shells for a 2D mesh:
-
-        Example::
-            vor = voronoi.Voronoi(box.Box(5, 5))
-            pos = np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
-                [2, 0], [2, 1], [2, 2]])
-            vor.computeNeighbors(pos)
-            neighbors = vor.getNeighbors(2)
-
-        Returns a list of lists of neighbors
-        Note: input positions must be a 3D array. For 2D, set the z value to
-            be 0.
+        :param box: simulation box
+        :param float buff: buffer width
+        :type box: :py:class:`freud.box.Box`
         """
 
         # If box or buff is not specified, revert to object quantities
@@ -114,52 +95,178 @@ class Voronoi:
         if buff is None:
             buff = self.buff
 
-        # Compute the buffer particles in c++
-        vbuff = VoronoiBuffer(box)
-        vbuff.compute(positions, buff)
-        self.buff = buffer_parts = vbuff.getBufferParticles()
+        self._qhull_compute(positions, box, buff)
 
-        if self.buff.size > 0:
-            self.expanded_points = np.concatenate((positions, buffer_parts))
-        else:
-            self.expanded_points = positions
+        vertices = self.voronoi.vertices
 
+        # Add a z-component of 0 if the box is 2D
         if box.is2D():
-            self.expanded_points = self.expanded_points[:, :2]
+            vertices = np.insert(vertices, 2, 0, 1)
 
-        # Use qhull to get the points
-        self.voronoi = qvoronoi(self.expanded_points)
+        # Construct a list of polytope vertices
+        self.poly_verts = list()
+        for region in self.voronoi.point_region[:len(positions)]:
+            if -1 in self.voronoi.regions[region]:
+                continue
+            self.poly_verts.append(vertices[self.voronoi.regions[region]])
+        return self
+
+    def getBuffer(self):
+        """Returns the buffer width.
+
+        :returns: buffer width
+        :rtype: float
+        """
+        return self.buff
+
+    def getVoronoiPolytopes(self):
+        """Returns a list of polytope vertices corresponding to Voronoi cells.
+
+        If the buffer width is too small, then some polytopes may not be
+        closed (they may have a boundary at infinity), and these polytopes'
+        vertices are excluded from the list.
+
+        The length of the list returned by this method should be the same
+        as the array of positions used in the :py:meth:`~.compute()`
+        method, if all the polytopes are closed. Otherwise try using a larger
+        buffer width.
+
+        :returns: List of :py:class:`numpy.ndarray` containing Voronoi
+                  polytope vertices
+        :rtype: list
+        """
+        return self.poly_verts
+
+    def computeNeighbors(self, positions, box=None, buff=None, exclude_ii=True):
+        """Compute the neighbors of each particle based on the Voronoi
+        tessellation. One can include neighbors from multiple Voronoi shells by
+        specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.
+        An example of computing neighbors from the first two Voronoi shells
+        for a 2D mesh is shown below.
+
+        Example::
+
+            from freud import box, voronoi
+            import numpy as np
+            vor = voronoi.Voronoi(box.Box(5, 5, is2D=True))
+            pos = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0],
+                            [1, 0, 0], [1, 1, 0], [1, 2, 0],
+                            [2, 0, 0], [2, 1, 0], [2, 2, 0]], dtype=np.float32)
+            first_shell = vor.computeNeighbors(pos).getNeighbors(1)
+            second_shell = vor.computeNeighbors(pos).getNeighbors(2)
+            print('First shell:', first_shell)
+            print('Second shell:', second_shell)
+
+        .. note:: Input positions must be a 3D array. For 2D, set the z value
+                  to 0.
+        """
+        # If box or buff is not specified, revert to object quantities
+        if box is None:
+            box = self.box
+        if buff is None:
+            buff = self.buff
+
+        self._qhull_compute(positions, box, buff)
+
         ridge_points = self.voronoi.ridge_points
         ridge_vertices = self.voronoi.ridge_vertices
         vor_vertices = self.voronoi.vertices
         N = len(positions)
+
         # Nearest neighbor index for each point
         self.firstShellNeighborList = [[] for _ in range(N)]
+
         # Weight between nearest neighbors, which is the length of ridge
-        # between two points
+        # between two points in 2D or the area of the ridge facet in 3D
         self.firstShellWeight = [[] for _ in range(N)]
         for (k, (index_i, index_j)) in enumerate(ridge_points):
-            if index_i >= N or index_j >= N:
+
+            if index_i >= N and index_j >= N:
+                # Ignore the ridges between two buffer particles
                 continue
 
-            self.firstShellNeighborList[index_i].append(index_j)
-            self.firstShellNeighborList[index_j].append(index_i)
+            index_i = self.expanded_ids[index_i]
+            index_j = self.expanded_ids[index_j]
+
+            assert index_i < N
+            assert index_j < N
+
+            if exclude_ii and index_i == index_j:
+                continue
+
+            added_i = False
+            if index_j not in self.firstShellNeighborList[index_i]:
+                self.firstShellNeighborList[index_i].append(index_j)
+                added_i = True
+
+            added_j = False
+            if index_i not in self.firstShellNeighborList[index_j]:
+                self.firstShellNeighborList[index_j].append(index_i)
+                added_j = True
+
+            if not added_i and not added_j:
+                continue
 
             if -1 not in ridge_vertices[k]:
-                # TODO properly account for 3D
-                weight = np.linalg.norm(
-                    vor_vertices[ridge_vertices[k][0]] - vor_vertices[
-                        ridge_vertices[k][1]])
+                if box.is2D():
+                    # The weight for a 2D system is the
+                    # length of the ridge line
+                    weight = np.linalg.norm(
+                        vor_vertices[ridge_vertices[k][0]] -
+                        vor_vertices[ridge_vertices[k][1]])
+                else:
+                    # The weight for a 3D system is the ridge polygon area
+                    # The process to compute this area is:
+                    # 1. Project 3D polygon onto xy, yz, or zx plane,
+                    #    by aligning with max component of the normal vector
+                    # 2. Use shoelace formula to compute 2D area
+                    # 3. Project back to get true area of 3D polygon
+                    # See link below for sample code and further explanation
+                    # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
+                    vertex_coords = np.array([vor_vertices[i]
+                                              for i in ridge_vertices[k]])
+
+                    # Get a unit normal vector to the polygonal facet
+                    r01 = vertex_coords[1] - vertex_coords[0]
+                    r12 = vertex_coords[2] - vertex_coords[1]
+                    norm_vec = np.cross(r01, r12)
+                    norm_vec /= np.linalg.norm(norm_vec)
+
+                    # Determine projection axis:
+                    # c0 is the largest coordinate (x, y, or z) of the normal
+                    # vector. We project along the c0 axis and use c1, c2 axes
+                    # for computing the projected area.
+                    c0 = np.argmax(np.abs(norm_vec))
+                    c1 = (c0 + 1) % 3
+                    c2 = (c0 + 2) % 3
+
+                    vc1 = vertex_coords[:, c1]
+                    vc2 = vertex_coords[:, c2]
+
+                    # Use shoelace formula for the projected area
+                    projected_area = 0.5*np.abs(
+                        np.dot(vc1, np.roll(vc2, 1)) -
+                        np.dot(vc2, np.roll(vc1, 1)))
+
+                    # Project back to get the true area (which is the weight)
+                    weight = projected_area / np.abs(norm_vec[c0])
             else:
-                # this point was on the boundary, so as far as qhull
+                # This point was on the boundary, so as far as qhull
                 # is concerned its ridge goes out to infinity
                 weight = 0
 
-            self.firstShellWeight[index_i].append(weight)
-            self.firstShellWeight[index_j].append(weight)
+            if added_i:
+                self.firstShellWeight[index_i].append(weight)
+            if added_j:
+                self.firstShellWeight[index_j].append(weight)
+
+        return self
 
     def getNeighbors(self, numShells):
-        # Get numShells of neighbors for each particle
+        """Get :code:`numShells` of neighbors for each particle
+
+        :param int numShells: number of neighbor shells
+        """
         neighbor_list = copy.copy(self.firstShellNeighborList)
         # delete [] in neighbor_list
         neighbor_list = [x for x in neighbor_list if len(x) > 0]
@@ -182,6 +289,19 @@ class Voronoi:
         return neighbor_list
 
     def getNeighborList(self):
+        """Returns a neighbor list object.
+
+        In the neighbor list, each neighbor pair has a weight value.
+
+        In 2D systems, the bond weight is the "ridge length" of the Voronoi
+        boundary line between the neighboring particles.
+
+        In 3D systems, the bond weight is the "ridge area" of the Voronoi
+        boundary polygon between the neighboring particles.
+
+        :return: Neighbor list
+        :rtype: :py:class:`~.locality.NeighborList`
+        """
         # Build neighbor list based on voronoi neighbors
         neighbor_list = copy.copy(self.firstShellNeighborList)
         weight = copy.copy(self.firstShellWeight)

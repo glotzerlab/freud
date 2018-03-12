@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include "VectorMath.h"
 #include "box.h"
+#include "VectorMath.h"
 
 #ifndef _NEIGHBOR_LIST_H__
 #define _NEIGHBOR_LIST_H__

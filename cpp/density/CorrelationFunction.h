@@ -2,14 +2,11 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
-
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "LinkCell.h"
-#include "box.h"
-
 #include <tbb/tbb.h>
+
+#include "box.h"
+#include "VectorMath.h"
+#include "LinkCell.h"
 
 #ifndef _CORRELATIONFUNCTION_H__
 #define _CORRELATIONFUNCTION_H__

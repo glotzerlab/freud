@@ -1,23 +1,15 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#include <memory>
 #include <tbb/tbb.h>
 
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
-#include <memory>
-
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
 #include "box.h"
+#include "VectorMath.h"
 #include "Index1D.h"
 
-#ifndef _GaussianDensity_H__
-#define _GaussianDensity_H__
+#ifndef _GAUSSIANDENSITY_H__
+#define _GAUSSIANDENSITY_H__
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.

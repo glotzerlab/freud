@@ -6,10 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 * Voronoi neighborlist now includes periodic neighbors
-* Voronoi neighborlist computes weight according to the facet area
+* Voronoi neighborlist computes weight according to the facet area in 3D
 
 ### Changed
 * Cluster module supports box argument in compute methods.
+* Refactored C++ code to reduce extraneous #includes
+
+### Removed
+* Very old, deprecated API for ComplexWRDF and FloatWRDF
 
 ## v0.7.0 - 2018-03-02
 

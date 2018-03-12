@@ -26,8 +26,8 @@ from freud import parallel
 class benchmark(object):
 
     def __init__(self):
-        self.__N = None;
-        self.__t = 0;
+        self.__N = None
+        self.__t = 0
 
     ## Override this method to provide one-time setup for a benchmark
     def setup(self, N):
@@ -46,22 +46,22 @@ class benchmark(object):
     #
     def run_benchmark(self, N=None, number=100, print_stats=False):
         # setup
-        self.setup(N);
-        self.run(N);
+        self.setup(N)
+        self.run(N)
 
         # run the benchmark
-        start = time.time();
+        start = time.time()
         for i in range(0,number):
-            self.run(N);
-        end = time.time();
+            self.run(N)
+        end = time.time()
 
         # save results for later summarization
-        self.__N = N;
-        self.__t = (end - start) / number;
+        self.__N = N
+        self.__t = (end - start) / number
         if print_stats:
-            self.print_stats();
+            self.print_stats()
 
-        return self.__t;
+        return self.__t
 
     ## Print statistics on the last benchmark run
     #
@@ -70,9 +70,9 @@ class benchmark(object):
     #
     def print_stats(self):
         if self.__N is not None:
-            print('{0:8.3f} ms | {1:8.3f} ns per item'.format(self.__t/1e-3, self.__t/self.__N/1e-9));
+            print('{0:8.3f} ms | {1:8.3f} ns per item'.format(self.__t/1e-3, self.__t/self.__N/1e-9))
         else:
-            print('{0:8.3f} ms'.format(self.__t/1e-3));
+            print('{0:8.3f} ms'.format(self.__t/1e-3))
 
     ## Profile a benchmark run
     #
@@ -83,13 +83,13 @@ class benchmark(object):
     #
     def run_profile(self, N=None, number=100):
         # setup
-        self.setup(N);
-        self.run(N);
+        self.setup(N)
+        self.run(N)
 
         # run the profile
-        cProfile.runctx("for i in range(0,number): self.run(N);", globals(), locals(), "Profile.prof");
-        s = pstats.Stats("Profile.prof");
-        s.strip_dirs().sort_stats("time").print_stats();
+        cProfile.runctx("for i in range(0,number): self.run(N);", globals(), locals(), "Profile.prof")
+        s = pstats.Stats("Profile.prof")
+        s.strip_dirs().sort_stats("time").print_stats()
 
     ## System size scaling benchmark
     #
@@ -102,23 +102,23 @@ class benchmark(object):
     #
     def run_size_scaling_benchmark(self, N_list, number=1000, print_stats=True):
         if len(N_list) == 0:
-            raise TypeError('N_list must be iterable');
+            raise TypeError('N_list must be iterable')
 
         # compute benchmark size
-        size = number*N_list[0];
+        size = number*N_list[0]
 
         # loop over N and run the benchmarks
-        results = [];
+        results = []
         for N in N_list:
             if print_stats:
-                print('{0:10d}'.format(N), end=': ');
-                sys.stdout.flush();
+                print('{0:10d}'.format(N), end=': ')
+                sys.stdout.flush()
 
-            current_number = max(int(size // N), 1);
-            t = self.run_benchmark(N, current_number, print_stats);
-            results.append(t);
+            current_number = max(int(size // N), 1)
+            t = self.run_benchmark(N, current_number, print_stats)
+            results.append(t)
 
-        return results;
+        return results
 
 
     ## Thread scaling benchmark
@@ -132,39 +132,39 @@ class benchmark(object):
     #
     def run_thread_scaling_benchmark(self, N_list, number=1000, print_stats=True):
         if len(N_list) == 0:
-            raise TypeError('N_list must be iterable');
+            raise TypeError('N_list must be iterable')
 
         # compute benchmark size
-        size = number*N_list[0];
+        size = number*N_list[0]
 
         # print the header
         if print_stats:
-            print('Threads ', end='');
+            print('Threads ', end='')
             for N in N_list:
-                print('{0:10d}'.format(N), end=' | ');
-            print();
+                print('{0:10d}'.format(N), end=' | ')
+            print()
 
         nproc_increment = int(os.environ.get('BENCHMARK_NPROC_INCREMENT', 1))
         # loop over the cores
-        times = numpy.zeros(shape=(multiprocessing.cpu_count()+1, len(N_list)));
+        times = numpy.zeros(shape=(multiprocessing.cpu_count()+1, len(N_list)))
         for ncores in range(1, multiprocessing.cpu_count()+1, nproc_increment):
-            parallel.setNumThreads(ncores);
+            parallel.setNumThreads(ncores)
 
             if print_stats:
-                print('{0:7d}'.format(ncores), end=' ');
+                print('{0:7d}'.format(ncores), end=' ')
 
             # loop over N and run the benchmarks
             for j,N in enumerate(N_list):
-                current_number = max(int(size // N), 1);
-                times[ncores,j] = self.run_benchmark(N, number=current_number, print_stats=False);
+                current_number = max(int(size // N), 1)
+                times[ncores,j] = self.run_benchmark(N, number=current_number, print_stats=False)
 
                 if print_stats:
-                    t = times[ncores,j]/1e-3;
-                    speedup = times[1,j] / times[ncores,j];
-                    print('{0:9.2f}x'.format(speedup), end=' | ');
-                    # print('{0:10.2f}'.format(t), end=' | ');
-                    sys.stdout.flush();
+                    t = times[ncores,j]/1e-3
+                    speedup = times[1,j] / times[ncores,j]
+                    print('{0:9.2f}x'.format(speedup), end=' | ')
+                    # print('{0:10.2f}'.format(t), end=' | ')
+                    sys.stdout.flush()
 
-            print();
+            print()
 
-        return times;
+        return times
