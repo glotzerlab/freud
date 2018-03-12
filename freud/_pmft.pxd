@@ -39,11 +39,9 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
         unsigned int getNBinsT2()
 
 cdef extern from "PMFTXYT.h" namespace "freud::pmft":
-    cdef cppclass PMFTXYT:
+    cdef cppclass PMFTXYT(PMFT):
         PMFTXYT(float, float, unsigned int, unsigned int, unsigned int)
 
-        const box.Box & getBox() const
-        void resetPCF()
         void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
@@ -52,9 +50,6 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
                         vec3[float]*,
                         float*,
                         unsigned int) nogil
-        void reducePCF()
-        shared_ptr[unsigned int] getBinCounts()
-        shared_ptr[float] getPCF()
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         shared_ptr[float] getT()
@@ -62,14 +57,11 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
         unsigned int getNBinsX()
         unsigned int getNBinsY()
         unsigned int getNBinsT()
-        float getRCut()
 
 cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
-    cdef cppclass PMFTXY2D:
+    cdef cppclass PMFTXY2D(PMFT):
         PMFTXY2D(float, unsigned int, unsigned int, unsigned int)
 
-        const box.Box & getBox() const
-        void resetPCF()
         void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
@@ -78,23 +70,17 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
                         vec3[float]*,
                         float*,
                         unsigned int) nogil
-        void reducePCF()
-        shared_ptr[unsigned int] getBinCounts()
-        shared_ptr[float] getPCF()
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         float getJacobian()
         unsigned int getNBinsX()
         unsigned int getNBinsY()
-        float getRCut()
 
 cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
-    cdef cppclass PMFTXYZ:
+    cdef cppclass PMFTXYZ(PMFT):
         PMFTXYZ(float, float, float, unsigned int, unsigned int,
                 unsigned int, vec3[float])
 
-        const box.Box & getBox() const
-        void resetPCF()
         void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
@@ -105,9 +91,6 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
                         unsigned int,
                         quat[float]*,
                         unsigned int) nogil
-        void reducePCF()
-        shared_ptr[float] getPCF()
-        shared_ptr[unsigned int] getBinCounts()
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         shared_ptr[float] getZ()
@@ -115,4 +98,3 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
         unsigned int getNBinsX()
         unsigned int getNBinsY()
         unsigned int getNBinsZ()
-        float getRCut()
