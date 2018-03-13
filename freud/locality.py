@@ -6,7 +6,6 @@
 # Methods and data structures computing properties that at local in space.
 #
 
-# bring related C++ classes into the locality module
 from ._freud import LinkCell
 from ._freud import IteratorLinkCell
 from ._freud import NearestNeighbors

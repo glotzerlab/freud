@@ -2,7 +2,6 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include "PMFT.h"
-#include "ScopedGILRelease.h"
 
 #include <stdexcept>
 #ifdef __SSE2__

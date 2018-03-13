@@ -3,15 +3,6 @@ import numpy.testing as npt
 from freud import box, bond, parallel
 import unittest
 
-def genQ(axis=[0, 0, 1], angle=0.0):
-    q = np.zeros(shape=(4), dtype=np.float32)
-    q[0] = np.cos(0.5 * angle)
-    q[1] = axis[0] * np.sin(0.5 * angle)
-    q[2] = axis[1] * np.sin(0.5 * angle)
-    q[3] = axis[2] * np.sin(0.5 * angle)
-    q /= np.linalg.norm(q)
-    return q
-
 def quatMult(a, b):
     c = np.zeros(shape=(4), dtype=np.float32)
     c[0] = (a[0] * b[0]) - (a[1] * b[1]) - (a[2] * b[2]) - (a[3] * b[3])

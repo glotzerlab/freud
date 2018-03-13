@@ -11,6 +11,15 @@ if (re.match("flux.", platform.node()) is not None) or (
 
 
 class NumThreads:
+    """Context manager for managing the number of threads to use.
+
+    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+
+    :param N: Number of threads to use in this context. Defaults to
+              :code:`None`, which will use all available threads.
+    :type N: int or None
+    """
+
     def __init__(self, N=None):
         self.restore_N = _freud._numThreads
         self.N = N

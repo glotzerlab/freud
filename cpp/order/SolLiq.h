@@ -1,26 +1,22 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef _SOL_LIQ_H__
-#define _SOL_LIQ_H__
-
+#include <algorithm>
+#include <complex>
+#include <map>
 #include <memory>
-
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include <vector>
 #include <set>
+#include <stdexcept>
+#include <vector>
 
+#include "box.h"
+#include "VectorMath.h"
 #include "Cluster.h"
 #include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
-#include "box.h"
-#include <stdexcept>
-#include <complex>
-#include <map>
-#include <algorithm>
+#ifndef _SOL_LIQ_H__
+#define _SOL_LIQ_H__
 
 namespace freud { namespace order {
 

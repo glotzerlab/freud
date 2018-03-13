@@ -10,28 +10,26 @@ from ._freud import Box as _Box
 class Box(_Box):
     """The freud Box class for simulation boxes.
 
+    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
     .. moduleauthor:: Carl Simon Adorf <csadorf@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    .. versionchanged:: 0.7.0
+       Added box periodicity interface
 
     For more information about the definition of the simulation
     box, please see:
 
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
-    :param Lx: Length of side x
-    :type Lx: float
-    :param Ly: Length of side y
-    :type Ly: float
-    :param Lz: Length of side z
-    :type Lz: float
-    :param xy: Tilt of xy plane
-    :type xy: float
-    :param xz: Tilt of xz plane
-    :type xz: float
-    :param yz: Tilt of yz plane
-    :type yz: float
-    :param is2D: Specify that this box is 2-dimensional,
+    :param float Lx: Length of side x
+    :param float Ly: Length of side y
+    :param float Lz: Length of side z
+    :param float xy: Tilt of xy plane
+    :param float xz: Tilt of xz plane
+    :param float yz: Tilt of yz plane
+    :param bool is2D: Specify that this box is 2-dimensional,
         default is 3-dimensional.
-    :type is2D: bool
     """
 
     def to_dict(self):
@@ -110,8 +108,7 @@ class Box(_Box):
     def cube(cls, L):
         """Construct a cubic box with equal lengths.
 
-        :param L: The edge length
-        :type L: float
+        :param float L: The edge length
         """
         return cls(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0, is2D=False)
 
@@ -119,26 +116,25 @@ class Box(_Box):
     def square(cls, L):
         """Construct a 2-dimensional (square) box with equal lengths.
 
-        :param L: The edge length
-        :type L: float
+        :param float L: The edge length
         """
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
     @property
     def L(self):
-        """Return the lengths of the box as a tuple (x, y, z)
+        """Return the lengths of the box as a tuple (x, y, z).
         """
         return self.getL()
 
     @L.setter
     def L(self, value):
-        """Set all side lengths of box to L
+        """Set all side lengths of box to L.
         """
         self.setL(value)
 
     @property
     def Lx(self):
-        """Length of the x-dimension of the box
+        """Length of the x-dimension of the box.
 
         :getter: Returns this box's x-dimension length
         :setter: Sets this box's x-dimension length
@@ -152,7 +148,7 @@ class Box(_Box):
 
     @property
     def Ly(self):
-        """Length of the y-dimension of the box
+        """Length of the y-dimension of the box.
 
         :getter: Returns this box's y-dimension length
         :setter: Sets this box's y-dimension length
@@ -166,7 +162,7 @@ class Box(_Box):
 
     @property
     def Lz(self):
-        """Length of the z-dimension of the box
+        """Length of the z-dimension of the box.
 
         :getter: Returns this box's z-dimension length
         :setter: Sets this box's z-dimension length
@@ -180,7 +176,7 @@ class Box(_Box):
 
     @property
     def dimensions(self):
-        """Number of dimensions of this box (only 2 or 3 are supported)
+        """Number of dimensions of this box (only 2 or 3 are supported).
 
         :getter: Returns this box's number of dimensions
         :setter: Sets this box's number of dimensions
@@ -193,3 +189,17 @@ class Box(_Box):
         assert value == 2 or value == 3
         self.set2D(value == 2)
 
+    @property
+    def periodic(self):
+        """Box periodicity in each dimension.
+
+        :getter: Returns this box's periodicity in each dimension
+                 (True if periodic, False if not)
+        :setter: Set this box's periodicity in each dimension
+        :type: list[bool, bool, bool]
+        """
+        return self.getPeriodic()
+
+    @periodic.setter
+    def periodic(self, periodic):
+        self.setPeriodic(periodic[0], periodic[1], periodic[2])

@@ -16,5 +16,7 @@ Below is a list of modules in freud. To add your own module, read the
    interface
    kspace
    locality
-   pmft
    order
+   parallel
+   pmft
+   voronoi

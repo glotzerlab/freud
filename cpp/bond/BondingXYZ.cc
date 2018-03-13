@@ -1,16 +1,14 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "BondingXYZ.h"
-#include "ScopedGILRelease.h"
-
+#include <complex>
+#include <map>
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <complex>
-#include <map>
+#include "BondingXYZ.h"
 
 using namespace std;
 using namespace tbb;

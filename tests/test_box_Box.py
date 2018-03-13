@@ -98,6 +98,12 @@ class TestBox(unittest.TestCase):
         abs_coords = box.getCoordinates(rel_coords)
         self.assertTrue(np.isclose(abs_coords, [1, 2, 3]).all())
 
+    def test_periodic(self):
+        box = bx.Box(1, 2, 3, 0, 0, 0)
+        assert box.periodic == [True, True, True]
+        box.periodic = [False, False, False]
+        assert box.periodic == [False, False, False]
+
     def test_equal(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = bx.Box(2, 2, 2, 1, 0, 0)

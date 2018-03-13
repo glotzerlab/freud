@@ -4,14 +4,11 @@
 #include <memory>
 #include <complex>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-
-#include "LinkCell.h"
 #include "box.h"
-#include "wigner3j.h"
+#include "VectorMath.h"
+#include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
+#include "wigner3j.h"
 
 #ifndef _LOCAL_WL_H__
 #define _LOCAL_WL_H__

@@ -3,12 +3,12 @@
 
 cimport freud._parallel as parallel
 
-# override TBB's default autoselection. This is necessary because once the
-# automatic selection runs, the user cannot change it
+# Override TBB's default autoselection. This is necessary because once the
+# automatic selection runs, the user cannot change it.
 
-# on nyx/flux, default to 1 thread. On all other systems, default to as many
-# cores as are available. users on nyx/flux can opt in to more threads by
-# calling setNumThreads again after initialization
+# On nyx/flux, default to 1 thread. On all other systems, default to as many
+# cores as are available. Users on nyx/flux can opt in to more threads by
+# calling setNumThreads again after initialization.
 
 _numThreads = 0
 
@@ -19,7 +19,7 @@ def setNumThreads(nthreads=None):
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     :param nthreads: number of threads to use. If None (default), use all
-                        threads available
+                     threads available
     :type nthreads: int or None
     """
     if nthreads is None or nthreads < 0:
