@@ -25,6 +25,11 @@ class Voronoi:
     This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
 
+    .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>
+    .. moduleauthor:: Yina Geng <yinageng@umich.edu>
+    .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
     Since qhull does not support periodic boundary conditions natively, we
     expand the box to include a portion of the particles' periodic images.
     The buffer width is given by the parameter :code:`buff`. The
