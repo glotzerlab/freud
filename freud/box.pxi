@@ -204,20 +204,78 @@ cdef class Box:
         return self.getVolume()
 
     def getCoordinates(self, f):
+        """Alias for :py:meth:`~.makeCoordinates()`
         """
-        Convert a vector of relative box coordinates (:math:`0 \\leq x, y, z \\leq 1`) into
-        absolute coordinates.
+        return self.makeCoordinates(f)
 
-        :param f: Vector of relative coordinates :math:`\\left(x, y, z\\right)`
-        :type f: list[float, float, float]
-        :return: Vector of absolute coordinates :math:`\\left(x, y, z\\right)`
+    def makeCoordinates(self, f):
+        """
+        Convert fractional coordinates into real coordinates.
+
+        :param f: Fractional coordinates :math:`\\left(x, y, z\\right)` between
+                  0 and 1 within parallelepipedal box
+        :type f: :class:`numpy.ndarray`,
+                 shape= :math:`\\left(3\\right)`,
+                 dtype= :class:`numpy.float32`
+        :return: Vector of real coordinates :math:`\\left(x, y, z\\right)`
         :rtype: list[float, float, float]
         """
-        cdef vec3[float] fRaw = vec3[float](f[0], f[1], f[2])
-        cdef vec3[float] resultVec = self.thisptr.makeCoordinates(
-                < const vec3[float]&>fRaw)
-        cdef float[3] result = [resultVec.x, resultVec.y, resultVec.z]
-        return result
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
+                np.asarray(f, dtype=np.float32).flatten())
+        cdef vec3[float] result = self.thisptr.makeCoordinates(
+                < const vec3[float]&>l_vec[0])
+        return [result.x, result.y, result.z]
+
+    def makeFraction(self, vec):
+        """
+        Convert real coordinates into fractional coordinates.
+
+        :param vec: Real coordinates within parallelepipedal box
+        :type vec: :class:`numpy.ndarray`,
+                   shape= :math:`\\left(3\\right)`,
+                   dtype= :class:`numpy.float32`
+        :return: A fractional coordinate vector
+        """
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
+                np.asarray(vec, dtype=np.float32).flatten())
+        cdef vec3[float] result = self.thisptr.makeFraction(
+                < const vec3[float]&>l_vec[0])
+        return [result.x, result.y, result.z]
+
+    def getImage(self, vec):
+        """
+        Returns the image corresponding to a wrapped vector.
+
+        :param vec: Coordinates of unwrapped vector
+        :type vec: :class:`numpy.ndarray`,
+                   shape= :math:`\\left(3\\right)`,
+                   dtype= :class:`numpy.float32`
+        :return: Image index vector
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(3\\right)`,
+                dtype= :class:`numpy.int32`
+        """
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
+                np.asarray(vec, dtype=np.float32).flatten())
+        cdef vec3[int] result = self.thisptr.getImage(
+                < const vec3[float]&>l_vec[0])
+        return [result.x, result.y, result.z]
+
+
+    def getLatticeVector(self, i):
+        """
+        Get the lattice vector with index :math:`i`.
+
+        :param i: Index (:math:`0 \\leq i < d`) of the lattice vector, where
+                  :math:`d` is the box dimension (2 or 3)
+        :type i: unsigned int
+        :return: lattice vector with index :math:`i`
+        """
+        cdef unsigned int index = i
+        cdef vec3[float] result = self.thisptr.getLatticeVector(i)
+        if self.thisptr.is2D():
+            result.z = 0.0
+        return [result.x, result.y, result.z]
 
     def wrap(self, vecs):
         """
@@ -248,7 +306,7 @@ cdef class Box:
                     "element array (3,), or (N,3) array as input"))
 
     def _wrap(self, vec):
-        cdef np.ndarray[float, ndim = 1] l_vec = np.ascontiguousarray(
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
                 vec.flatten())
         cdef vec3[float] result = self.thisptr.wrapMultiple(
                 < vec3[float]&>l_vec[0])
@@ -295,59 +353,11 @@ cdef class Box:
                 raise RuntimeError("imgs do not match vectors")
 
     def _unwrap(self, vec, img):
-        cdef np.ndarray[float, ndim = 1] l_vec = vec
-        cdef np.ndarray[int, ndim = 1] l_img = img
+        cdef np.ndarray[float, ndim=1] l_vec = vec
+        cdef np.ndarray[int, ndim=1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
                 < vec3[float]&>l_vec[0],
                 < vec3[int]&>l_img[0])
-        return [result.x, result.y, result.z]
-
-    def makeCoordinates(self, f):
-        """
-        Convert fractional coordinates into real coordinates.
-
-        :param f: Fractional coordinates between 0 and 1 within
-                  parallelepipedal box
-        :type f: :class:`numpy.ndarray`,
-                 shape= :math:`\\left(3\\right)`,
-                 dtype= :class:`numpy.float32`
-        :return: A real coordinate vector
-        """
-        cdef np.ndarray[float, ndim = 1] l_vec = np.ascontiguousarray(
-                f.flatten())
-        cdef vec3[float] result = self.thisptr.makeCoordinates(
-                < const vec3[float]&>l_vec[0])
-        return [result.x, result.y, result.z]
-
-    def makeFraction(self, vec):
-        """
-        Convert real coordinates into fractional coordinates.
-
-        :param vec: Real coordinates within parallelepipedal box
-        :type vec: :class:`numpy.ndarray`,
-                   shape= :math:`\\left(3\\right)`,
-                   dtype= :class:`numpy.float32`
-        :return: A fractional coordinate vector
-        """
-        cdef np.ndarray[float, ndim = 1] l_vec = np.ascontiguousarray(
-                vec.flatten())
-        cdef vec3[float] result = self.thisptr.makeFraction(
-                < const vec3[float]&>l_vec[0])
-        return [result.x, result.y, result.z]
-
-    def getLatticeVector(self, i):
-        """
-        Get the lattice vector with index :math:`i`.
-
-        :param i: Index (:math:`0 \\leq i < d`) of the lattice vector, where
-                  :math:`d` is the box dimension (2 or 3)
-        :type i: unsigned int
-        :return: lattice vector with index :math:`i`
-        """
-        cdef unsigned int index = i
-        cdef vec3[float] result = self.thisptr.getLatticeVector(i)
-        if self.thisptr.is2D():
-            result.z = 0.0
         return [result.x, result.y, result.z]
 
     def getPeriodic(self):

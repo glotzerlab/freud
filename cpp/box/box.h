@@ -182,6 +182,23 @@ class Box
                 return m_L.x * m_L.y * m_L.z;
             }
 
+        //! Convert fractional coordinates into real coordinates
+        /*! \param f Fractional coordinates between 0 and 1 within
+         *         parallelpipedal box
+         *  \return A vector inside the box corresponding to f
+         */
+        vec3<float> makeCoordinates(const vec3<float> &f) const
+            {
+            vec3<float> v = m_lo + f*m_L;
+            v.x += m_xy*v.y+m_xz*v.z;
+            v.y += m_yz*v.z;
+            if (m_2d)
+                {
+                v.z = 0.0f;
+                }
+            return v;
+            }
+
         //! Compute the position of the particle in box relative coordinates
         /*! \param p point
          *  \returns alpha
@@ -205,31 +222,14 @@ class Box
             return delta;
             }
 
-        //! Convert fractional coordinates into real coordinates
-        /*! \param f Fractional coordinates between 0 and 1 within
-         *         parallelpipedal box
-         *  \return A vector inside the box corresponding to f
-         */
-        vec3<float> makeCoordinates(const vec3<float> &f) const
-            {
-            vec3<float> v = m_lo + f*m_L;
-            v.x += m_xy*v.y+m_xz*v.z;
-            v.y += m_yz*v.z;
-            if (m_2d)
-                {
-                v.z = 0.0f;
-                }
-            return v;
-            }
-
         //! Get the periodic image a vector belongs to
         /*! \param v The vector to check
          *  \returns the integer coordinates of the periodic image
          */
-        int3 getImage(const vec3<float> &v) const
+        vec3<int> getImage(const vec3<float> &v) const
             {
             vec3<float> f = makeFraction(v) - vec3<float>(0.5,0.5,0.5);
-            int3 img;
+            vec3<int> img;
             img.x = (int)((f.x >= float(0.0)) ? f.x + float(0.5) : f.x - float(0.5));
             img.y = (int)((f.y >= float(0.0)) ? f.y + float(0.5) : f.y - float(0.5));
             img.z = (int)((f.z >= float(0.0)) ? f.z + float(0.5) : f.z - float(0.5));
