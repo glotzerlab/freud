@@ -211,9 +211,9 @@ class Box
         vec3<float> makeFraction(const vec3<float>& v, const vec3<float>& ghost_width=vec3<float>(0.0,0.0,0.0)) const
             {
             vec3<float> delta = v - m_lo;
-            delta.x -= (m_xz-m_yz*m_xy)*v.z+m_xy*v.y;
+            delta.x -= (m_xz - m_yz * m_xy) * v.z + m_xy * v.y;
             delta.y -= m_yz * v.z;
-            delta = (delta + ghost_width)/(m_L + float(2.0)*ghost_width);
+            delta = (delta + ghost_width) / (m_L + float(2.0) * ghost_width);
 
             if (m_2d)
                 {
@@ -260,117 +260,55 @@ class Box
             return makeCoordinates(tmp);
             }
 
-        //! Wrap a vector back into the box
-        /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
-         *  \param img Image of the vector, updated to reflect the new image
-         *  \param flags Vector of flags to force wrapping along certain directions
-         *  \post \a img and \a v are updated appropriately
-         *  \note \a v must not extend more than 1 image beyond the box
-         */
-        void wrap(vec3<float>& w, int3& img, char3 flags = make_char3(0,0,0)) const
-            {
-            vec3<float> L = getL();
-
-            if (m_periodic.x)
-                {
-                float tilt_x = (m_xz - m_xy*m_yz) * w.z + m_xy * w.y;
-                if (((w.x >= m_hi.x + tilt_x) && !flags.x) || flags.x == 1)
-                    {
-                    w.x -= L.x;
-                    img.x++;
-                    }
-                else if (((w.x < m_lo.x + tilt_x) && !flags.x) || flags.x == -1)
-                    {
-                    w.x += L.x;
-                    img.x--;
-                    }
-                }
-
-            if (m_periodic.y)
-                {
-                float tilt_y = m_yz * w.z;
-                if (((w.y >= m_hi.y + tilt_y) && !flags.y)  || flags.y == 1)
-                    {
-                    w.y -= L.y;
-                    w.x -= L.y * m_xy;
-                    img.y++;
-                    }
-                else if (((w.y < m_lo.y + tilt_y) && !flags.y) || flags.y == -1)
-                    {
-                    w.y += L.y;
-                    w.x += L.y * m_xy;
-                    img.y--;
-                    }
-                }
-
-            if (m_periodic.z)
-                {
-                if (((w.z >= m_hi.z) && !flags.z) || flags.z == 1)
-                    {
-                    w.z -= L.z;
-                    w.y -= L.z * m_yz;
-                    w.x -= L.z * m_xz;
-                    img.z++;
-                    }
-                else if (((w.z < m_lo.z) && !flags.z) || flags.z == -1)
-                    {
-                    w.z += L.z;
-                    w.y += L.z * m_yz;
-                    w.x += L.z * m_xz;
-                    img.z--;
-                    }
-                }
-           }
-
         //! Get the minimal image of a vector
         void minimalwrap(vec3<float>& w) const
             {
             vec3<float> L = getL();
 
-            if (m_periodic.x)
-                {
-                float tilt_x = (m_xz - m_xy * m_yz) * w.z + m_xy * w.y;
-                if (w.x >= m_hi.x + tilt_x)
-                    {
-                    w.x -= L.x;
-                    }
-                else if (w.x < m_lo.x + tilt_x)
-                    {
-                    w.x += L.x;
-                    }
-                }
-
-            if (m_periodic.y)
-                {
-                float tilt_y = m_yz * w.z;
-                if (w.y >= m_hi.y + tilt_y)
-                    {
-                    w.y -= L.y;
-                    w.x -= L.y * m_xy;
-                    }
-                else if (w.y < m_lo.y + tilt_y)
-                    {
-                    w.y += L.y;
-                    w.x += L.y * m_xy;
-                    }
-                }
-
             if (m_periodic.z)
                 {
-                if (w.z >= m_hi.z)
+                while (w.z >= m_hi.z)
                     {
                     w.z -= L.z;
                     w.y -= L.z * m_yz;
                     w.x -= L.z * m_xz;
                     }
-                else if (w.z < m_lo.z)
+                while (w.z < m_lo.z)
                     {
                     w.z += L.z;
                     w.y += L.z * m_yz;
                     w.x += L.z * m_xz;
                     }
                 }
-           }
+
+            if (m_periodic.y)
+                {
+                float tilt_y = m_yz * w.z;
+                while (w.y >= m_hi.y + tilt_y)
+                    {
+                    w.y -= L.y;
+                    w.x -= L.y * m_xy;
+                    }
+                while (w.y < m_lo.y + tilt_y)
+                    {
+                    w.y += L.y;
+                    w.x += L.y * m_xy;
+                    }
+                }
+
+            if (m_periodic.x)
+                {
+                float tilt_x = (m_xz - m_xy * m_yz) * w.z + m_xy * w.y;
+                while (w.x >= m_hi.x + tilt_x)
+                    {
+                    w.x -= L.x;
+                    }
+                while (w.x < m_lo.x + tilt_x)
+                    {
+                    w.x += L.x;
+                    }
+                }
+            }
 
 
         //! Wrap a vector back into the box
@@ -381,7 +319,7 @@ class Box
          *
          *  \note \a w must not extend more than 1 image beyond the box
          */
-        vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
+        vec3<float> wrap(const vec3<float>& w) const
             {
             vec3<float> tempcopy = w;
             minimalwrap(tempcopy);
@@ -393,17 +331,6 @@ class Box
          *  \param image image flags for this point
             \returns The unwrapped coordinates
         */
-        vec3<float> unwrap(const vec3<float>& p, const int3& image) const
-            {
-            vec3<float> newp = p;
-
-            newp += getLatticeVector(0) * float(image.x);
-            newp += getLatticeVector(1) * float(image.y);
-            if(!m_2d)
-                newp += getLatticeVector(2) * float(image.z);
-            return newp;
-            }
-
         vec3<float> unwrap(const vec3<float>& p, const vec3<int>& image) const
             {
             vec3<float> newp = p;

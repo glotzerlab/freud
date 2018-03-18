@@ -271,8 +271,12 @@ cdef class Box:
         return [result.x, result.y, result.z]
 
     def wrap(self, vecs):
-        """Wrap a given array of vectors from real space into the box,
-        using the periodic boundaries.
+        """Wrap a given array of vectors from real space into the box, using
+        the periodic boundaries.
+
+        .. note:: Since the origin of the box is in the center, wrapping is
+                  equivalent to applying the minimum image convention to the
+                  input vectors.
 
         :param vecs: Single vector or array of :math:`N` vectors
         :note: vecs are returned in place (nothing returned)
