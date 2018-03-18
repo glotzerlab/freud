@@ -305,7 +305,7 @@ cdef class Box:
     def _wrap(self, vec):
         cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
                 vec.flatten())
-        cdef vec3[float] result = self.thisptr.wrapMultiple(
+        cdef vec3[float] result = self.thisptr.wrap(
                 < vec3[float]&>l_vec[0])
         return (result.x, result.y, result.z)
 
