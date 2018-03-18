@@ -193,7 +193,7 @@ class AnalyzeSFactor3D:
         """
         self.S = S
         self.grid = S.shape[0]
-        self.g = self.grid / 2
+        self.g = self.grid // 2
 
     def getPeakList(self, cut):
         """Get a list of peaks in the structure factor.
