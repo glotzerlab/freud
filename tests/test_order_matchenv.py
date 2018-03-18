@@ -41,7 +41,7 @@ class TestCluster(unittest.TestCase):
         sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:,0],env_cluster[:,1],env_cluster[:,2]))]
         sorted_bcc_env = bcc_env[np.lexsort((bcc_env[:,0],bcc_env[:,1],bcc_env[:,2]))]
         npt.assert_equal(num_cluster, 1, err_msg="Number of BCC cluster fail")
-        npt.assert_almost_equal(sorted_env_cluster, sorted_bcc_env, decimal=5, err_msg="BCC Cluster Environment fail")
+        npt.assert_allclose(sorted_env_cluster, sorted_bcc_env, atol=1e-5, err_msg="BCC Cluster Environment fail")
 
     #by Chrisy
     def test_multi_cluster(self):
@@ -76,7 +76,7 @@ class TestCluster(unittest.TestCase):
         sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:,0],env_cluster[:,1],env_cluster[:,2]))]
         sorted_sc_env = sc_env[np.lexsort((sc_env[:,0],sc_env[:,1],sc_env[:,2]))]
         npt.assert_equal(num_cluster, 6, err_msg="Number of SC cluster fail")
-        npt.assert_almost_equal(sorted_env_cluster, sorted_sc_env, decimal=5, err_msg="SC Cluster Environment fail")
+        npt.assert_allclose(sorted_env_cluster, sorted_sc_env, atol=1e-5, err_msg="SC Cluster Environment fail")
 
 
     #test MatchEnv.cluster function, defining clusters using constant k neighbors, hard_r=false, registration=false
@@ -112,7 +112,7 @@ class TestCluster(unittest.TestCase):
         sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:,0],env_cluster[:,1],env_cluster[:,2]))]
         sorted_bcc_env = bcc_env[np.lexsort((bcc_env[:,0],bcc_env[:,1],bcc_env[:,2]))]
         npt.assert_equal(num_cluster, 1, err_msg="Number of BCC cluster fail")
-        npt.assert_almost_equal(sorted_env_cluster, sorted_bcc_env, decimal=5, err_msg="BCC Cluster Environment fail")
+        npt.assert_allclose(sorted_env_cluster, sorted_bcc_env, atol=1e-5, err_msg="BCC Cluster Environment fail")
 
     #test MatchEnv.cluster function, hard_r=true, registration=false
     def test_cluster_hardr(self):
@@ -147,7 +147,7 @@ class TestCluster(unittest.TestCase):
         sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:,0],env_cluster[:,1],env_cluster[:,2]))]
         sorted_bcc_env = bcc_env[np.lexsort((bcc_env[:,0],bcc_env[:,1],bcc_env[:,2]))]
         npt.assert_equal(num_cluster, 1, err_msg="Number of BCC cluster fail")
-        npt.assert_almost_equal(sorted_env_cluster, sorted_bcc_env, decimal=5, err_msg="BCC Cluster Environment fail")
+        npt.assert_allclose(sorted_env_cluster, sorted_bcc_env, atol=1e-5, err_msg="BCC Cluster Environment fail")
 
 
     #test MatchEnv.cluster function, hard_r=false, registration=true, global=true
@@ -228,14 +228,14 @@ class TestCluster(unittest.TestCase):
         ## 3. Verify that OUR method isSimilar gives that these two environments are similar.
         match = MatchEnv(fbox, r_cut, num_neigh)
         [refPoints2, isSim_vec_map] = match.isSimilar(e0, e1, threshold, registration=False)
-        npt.assert_almost_equal(e0, refPoints2[np.asarray(list(isSim_vec_map.values()))])
+        npt.assert_allclose(e0, refPoints2[np.asarray(list(isSim_vec_map.values()))])
         ## 4. Calculate the minimal RMSD.
         [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(e0, e1, registration=False)
         ## 5. Verify that the minimizeRMSD method finds 0 minimal RMSD (with no registration.)
         npt.assert_equal(0.0, min_rmsd)
         ## 6. Verify that it gives the same vector mapping that isSimilar gave.
         npt.assert_equal(np.asarray(list(isSim_vec_map.values())), np.asarray(list(minRMSD_vec_map.values())))
-        npt.assert_almost_equal(e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+        npt.assert_allclose(e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
         ## 7. Rotate the motif by a known rotation matrix. this matrix MUST be s.t. the minimal rmsd is the rmsd of the 1-1 mapping between the
         # vectors of the pre-rotated environment and the post-rotated environment (with no index-mixing).
         # This isn't guaranteed for any matrix, whatsoever. Work only with environments and rotations for which you know exactly what's going on here.
@@ -249,23 +249,23 @@ class TestCluster(unittest.TestCase):
         analy_rmsd = np.sqrt(deltasum)
         ## 9. Verify that minimizeRMSD gives this minimal RMSD (with no registration).
         [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(e0, e0_rot, registration=False)
-        npt.assert_almost_equal(analy_rmsd, min_rmsd)
-        npt.assert_almost_equal(e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+        npt.assert_allclose(analy_rmsd, min_rmsd, atol=1e-5)
+        npt.assert_allclose(e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))], atol=1e-5)
         ## 10. Re-index the second environment randomly again.
         e1_rot = np.copy(e0_rot)
         np.random.shuffle(e1_rot)
         ## 11. Verify that minimizeRMSD gives this minimal RMSD again (with no registration).
         [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(e0, e1_rot, registration=False)
-        npt.assert_almost_equal(analy_rmsd, min_rmsd)
-        npt.assert_almost_equal(e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+        npt.assert_allclose(analy_rmsd, min_rmsd, atol=1e-5)
+        npt.assert_allclose(e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))], atol=1e-5)
         ## 12. Now use minimizeRMSD with registration turned ON.
         [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(e0, e1_rot, registration=True)
         ## 13. This should get us back to 0 minimal rmsd.
-        npt.assert_almost_equal(0., min_rmsd)
-        npt.assert_almost_equal(e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+        npt.assert_allclose(0., min_rmsd, atol=1e-5)
+        npt.assert_allclose(e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))], atol=1e-5)
         ## 14. Finally use isSimilar with registration turned ON.
         [refPoints2, isSim_vec_map] = match.isSimilar(e0, e1_rot, threshold, registration=True)
-        npt.assert_almost_equal(e0, refPoints2[np.asarray(list(isSim_vec_map.values()))])
+        npt.assert_allclose(e0, refPoints2[np.asarray(list(isSim_vec_map.values()))], atol=1e-5)
 
 
 if __name__ == '__main__':
