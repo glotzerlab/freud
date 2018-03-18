@@ -322,6 +322,7 @@ class Box
                 }
            }
 
+        //! Get the minimal image of a vector
         void minimalwrap(vec3<float>& w) const
             {
             vec3<float> L = getL();
