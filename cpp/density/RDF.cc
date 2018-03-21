@@ -231,7 +231,6 @@ void RDF::accumulate(box::Box& box,
                    sizeof(unsigned int)*m_nbins);
             }
 
-        size_t bond(r.begin());
         size_t last_i(-1);
         vec3<float> ref;
 
