@@ -18,10 +18,8 @@ namespace freud { namespace cluster {
 /*! \param n Number of initial sets
 */
 DisjointSet::DisjointSet(uint32_t n)
+    : s(vector<uint32_t>(n)), rank(vector<uint32_t>(n, 0))
     {
-    s = vector<uint32_t>(n);
-    rank = vector<uint32_t>(n, 0);
-
     // initialize s
     for (uint32_t i = 0; i < n; i++)
         s[i] = i;
