@@ -73,7 +73,7 @@ class Box(_Box):
 
     @classmethod
     def from_box(cls, box):
-        "Initialize a box instance from another box instance."
+        """Initialize a box instance from another box instance."""
         dimensions = getattr(box, 'dimensions', 3)
         return cls(Lx=box.Lx, Ly=box.Ly, Lz=box.Lz,
                    xy=box.xy, xz=box.xz, yz=box.yz, is2D=dimensions == 2)
@@ -122,14 +122,12 @@ class Box(_Box):
 
     @property
     def L(self):
-        """Return the lengths of the box as a tuple (x, y, z).
-        """
+        """Return the lengths of the box as a tuple (x, y, z)."""
         return self.getL()
 
     @L.setter
     def L(self, value):
-        """Set all side lengths of box to L.
-        """
+        """Set all side lengths of box to L."""
         self.setL(value)
 
     @property

@@ -42,11 +42,11 @@ def convert_array(array, dimensions, dtype=None,
     requirements = None
     if contiguous:
         if not array.flags.contiguous:
-            msg = 'converting supplied array to contiguous'
-            logger.warning(msg)
+            msg = 'Converting supplied array to contiguous.'
+            logger.info(msg)
         requirements = ["C"]
     if dtype is not None and dtype != array.dtype:
-        msg = 'converting supplied array dtype {} to dtype {}'.format(
+        msg = 'Converting supplied array dtype {} to dtype {}.'.format(
             array.dtype, dtype)
-        logger.warning(msg)
+        logger.info(msg)
     return np.require(array, dtype=dtype, requirements=requirements)

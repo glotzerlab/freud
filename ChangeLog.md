@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 * Voronoi neighborlist now includes periodic neighbors
 * Voronoi neighborlist computes weight according to the facet area in 3D
+* Box module exposes `getImage(vec)`
 * Voronoi module can compute and return cell volumes/areas
 
 ### Changed
 * Cluster module supports box argument in compute methods.
 * Refactored C++ code to reduce extraneous #includes
+* Refactored box module to remove unused methods
 * Resolved bug in `kspace.AnalyzeSFactor3D`.
+
+### Deprecated
+* Box module `getCoordinates()` in favor of duplicate `box.makeCoordinates()`
 
 ### Removed
 * Very old, deprecated API for ComplexWRDF and FloatWRDF
