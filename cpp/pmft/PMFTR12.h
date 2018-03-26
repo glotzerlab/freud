@@ -8,14 +8,13 @@
 #include "box.h"
 #include "VectorMath.h"
 #include "LinkCell.h"
+#include "PMFT.h"
 
 #ifndef _PMFTR12_H__
 #define _PMFTR12_H__
 
-#include "PMFT.h"
-
 /*! \file PMFTR12.h
-    \brief Routines for computing radial density functions
+    \brief Routines for computing PMFT in the R12 coordinate system
 */
 
 namespace freud { namespace pmft {

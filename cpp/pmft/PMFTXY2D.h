@@ -9,11 +9,10 @@
 #include "VectorMath.h"
 #include "LinkCell.h"
 #include "Index1D.h"
+#include "PMFT.h"
 
 #ifndef _PMFTXY2D_H__
 #define _PMFTXY2D_H__
-
-#include "PMFT.h"
 
 /*! \internal
     \file PMFTXY2D.h
