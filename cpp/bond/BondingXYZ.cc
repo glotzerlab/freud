@@ -116,8 +116,6 @@ void BondingXYZ::compute(box::Box& box,
 
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
-                // huh?
-                std::map<unsigned int, std::vector<unsigned int> > l_bonds;
                 // get position, orientation of particle i
                 vec3<float> ref_pos = ref_points[i];
                 quat<float> ref_q = ref_orientations[i];

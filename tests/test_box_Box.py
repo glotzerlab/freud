@@ -89,6 +89,16 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(testpoints[0,0], 2, decimal=2,
                                 err_msg="WrapFail")
 
+    def test_images(self):
+        box = bx.Box(2, 2, 2, 0, 0, 0)
+        testpoints = np.array([[50, 40, 30],
+                               [-10, 0,  0]], dtype=np.float32)
+        testimages = np.array([box.getImage(vec) for vec in testpoints])
+        npt.assert_equal(testimages,
+                         np.array([[25, 20, 15],
+                                   [-5,  0,  0]], dtype=np.float32),
+                         err_msg="ImageFail")
+
     def test_coordinates(self):
         box = bx.Box(2, 4, 6, 0, 0, 0)
         rel_coords = [0.5, 0.5, 0.5]

@@ -107,7 +107,7 @@ class Box
                 m_Linv = vec3<float>(1/m_L.x, 1/m_L.y, 1/m_L.z);
                 }
 
-            m_hi = m_L / float(2.0);
+            m_hi = m_L / 2.0f;
             m_lo = -m_hi;
             }
 
@@ -182,29 +182,6 @@ class Box
                 return m_L.x * m_L.y * m_L.z;
             }
 
-        //! Compute the position of the particle in box relative coordinates
-        /*! \param p point
-         *  \returns alpha
-         *
-         *  alpha.x is 0 when \a x is on the far left side of the box and
-         *  1.0 when it is on the far right. If x is outside of the box in
-         *  either direction, it will go larger than 1 or less than 0
-         *  keeping the same scaling.
-         */
-        vec3<float> makeFraction(const vec3<float>& v, const vec3<float>& ghost_width=vec3<float>(0.0,0.0,0.0)) const
-            {
-            vec3<float> delta = v - m_lo;
-            delta.x -= (m_xz-m_yz*m_xy)*v.z+m_xy*v.y;
-            delta.y -= m_yz * v.z;
-            delta = (delta + ghost_width)/(m_L + float(2.0)*ghost_width);
-
-            if (m_2d)
-                {
-                delta.z = 0.0f;
-                }
-            return delta;
-            }
-
         //! Convert fractional coordinates into real coordinates
         /*! \param f Fractional coordinates between 0 and 1 within
          *         parallelpipedal box
@@ -222,28 +199,53 @@ class Box
             return v;
             }
 
+        //! Compute the position of the particle in box relative coordinates
+        /*! \param p point
+         *  \returns alpha
+         *
+         *  alpha.x is 0 when \a x is on the far left side of the box and
+         *  1.0 when it is on the far right. If x is outside of the box in
+         *  either direction, it will go larger than 1 or less than 0
+         *  keeping the same scaling.
+         */
+        vec3<float> makeFraction(const vec3<float>& v, const vec3<float>& ghost_width=vec3<float>(0.0,0.0,0.0)) const
+            {
+            vec3<float> delta = v - m_lo;
+            delta.x -= (m_xz - m_yz * m_xy) * v.z + m_xy * v.y;
+            delta.y -= m_yz * v.z;
+            delta = (delta + ghost_width) / (m_L + 2.0f * ghost_width);
+
+            if (m_2d)
+                {
+                delta.z = 0.0f;
+                }
+            return delta;
+            }
+
         //! Get the periodic image a vector belongs to
         /*! \param v The vector to check
          *  \returns the integer coordinates of the periodic image
          */
-        int3 getImage(const vec3<float> &v) const
+        vec3<int> getImage(const vec3<float> &v) const
             {
             vec3<float> f = makeFraction(v) - vec3<float>(0.5,0.5,0.5);
-            int3 img;
-            img.x = (int)((f.x >= float(0.0)) ? f.x + float(0.5) : f.x - float(0.5));
-            img.y = (int)((f.y >= float(0.0)) ? f.y + float(0.5) : f.y - float(0.5));
-            img.z = (int)((f.z >= float(0.0)) ? f.z + float(0.5) : f.z - float(0.5));
+            vec3<int> img;
+            img.x = (int)((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
+            img.y = (int)((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
+            img.z = (int)((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
             return img;
             }
 
-        //! wrap a vector back into the box. This function is specifically designed to be
-        // called from Python and wrap vectors which are greater than one image away
-        vec3<float> wrapMultiple(const vec3<float>& v) const
+        //! Wrap a vector back into the box
+        /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
+         *  \returns Wrapped vector
+         */
+        vec3<float> wrap(const vec3<float>& v) const
             {
             vec3<float> tmp = makeFraction(v);
-            tmp.x = fmod(tmp.x,(float)1);
-            tmp.y = fmod(tmp.y,(float)1);
-            tmp.z = fmod(tmp.z,(float)1);
+            tmp.x = fmod(tmp.x, 1.0f);
+            tmp.y = fmod(tmp.y, 1.0f);
+            tmp.z = fmod(tmp.z, 1.0f);
             // handle negative mod
             if (tmp.x < 0)
                 {
@@ -260,157 +262,21 @@ class Box
             return makeCoordinates(tmp);
             }
 
-        //! Wrap a vector back into the box
-        /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
-         *  \param img Image of the vector, updated to reflect the new image
-         *  \param flags Vector of flags to force wrapping along certain directions
-         *  \post \a img and \a v are updated appropriately
-         *  \note \a v must not extend more than 1 image beyond the box
-         */
-        void wrap(vec3<float>& w, int3& img, char3 flags = make_char3(0,0,0)) const
-            {
-            vec3<float> L = getL();
-
-            if (m_periodic.x)
-                {
-                float tilt_x = (m_xz - m_xy*m_yz) * w.z + m_xy * w.y;
-                if (((w.x >= m_hi.x + tilt_x) && !flags.x) || flags.x == 1)
-                    {
-                    w.x -= L.x;
-                    img.x++;
-                    }
-                else if (((w.x < m_lo.x + tilt_x) && !flags.x) || flags.x == -1)
-                    {
-                    w.x += L.x;
-                    img.x--;
-                    }
-                }
-
-            if (m_periodic.y)
-                {
-                float tilt_y = m_yz * w.z;
-                if (((w.y >= m_hi.y + tilt_y) && !flags.y)  || flags.y == 1)
-                    {
-                    w.y -= L.y;
-                    w.x -= L.y * m_xy;
-                    img.y++;
-                    }
-                else if (((w.y < m_lo.y + tilt_y) && !flags.y) || flags.y == -1)
-                    {
-                    w.y += L.y;
-                    w.x += L.y * m_xy;
-                    img.y--;
-                    }
-                }
-
-            if (m_periodic.z)
-                {
-                if (((w.z >= m_hi.z) && !flags.z) || flags.z == 1)
-                    {
-                    w.z -= L.z;
-                    w.y -= L.z * m_yz;
-                    w.x -= L.z * m_xz;
-                    img.z++;
-                    }
-                else if (((w.z < m_lo.z) && !flags.z) || flags.z == -1)
-                    {
-                    w.z += L.z;
-                    w.y += L.z * m_yz;
-                    w.x += L.z * m_xz;
-                    img.z--;
-                    }
-                }
-           }
-
-        void minimalwrap(vec3<float>& w) const
-            {
-            vec3<float> L = getL();
-
-            if (m_periodic.x)
-                {
-                float tilt_x = (m_xz - m_xy * m_yz) * w.z + m_xy * w.y;
-                if (w.x >= m_hi.x + tilt_x)
-                    {
-                    w.x -= L.x;
-                    }
-                else if (w.x < m_lo.x + tilt_x)
-                    {
-                    w.x += L.x;
-                    }
-                }
-
-            if (m_periodic.y)
-                {
-                float tilt_y = m_yz * w.z;
-                if (w.y >= m_hi.y + tilt_y)
-                    {
-                    w.y -= L.y;
-                    w.x -= L.y * m_xy;
-                    }
-                else if (w.y < m_lo.y + tilt_y)
-                    {
-                    w.y += L.y;
-                    w.x += L.y * m_xy;
-                    }
-                }
-
-            if (m_periodic.z)
-                {
-                if (w.z >= m_hi.z)
-                    {
-                    w.z -= L.z;
-                    w.y -= L.z * m_yz;
-                    w.x -= L.z * m_xz;
-                    }
-                else if (w.z < m_lo.z)
-                    {
-                    w.z += L.z;
-                    w.y += L.z * m_yz;
-                    w.x += L.z * m_xz;
-                    }
-                }
-           }
-
-
-        //! Wrap a vector back into the box
-        /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
-         *  \param img Image of the vector, updated to reflect the new image
-         *  \param flags Vector of flags to force wrapping along certain directions
-         *  \returns w;
-         *
-         *  \note \a w must not extend more than 1 image beyond the box
-         */
-        vec3<float> wrap(const vec3<float>& w, const char3 flags = make_char3(0,0,0)) const
-            {
-            vec3<float> tempcopy = w;
-            minimalwrap(tempcopy);
-            return tempcopy;
-            }
-
         //! Unwrap a given position to its "real" location
         /*! \param p coordinates to unwrap
          *  \param image image flags for this point
             \returns The unwrapped coordinates
         */
-        vec3<float> unwrap(const vec3<float>& p, const int3& image) const
-            {
-            vec3<float> newp = p;
-
-            newp += getLatticeVector(0) * float(image.x);
-            newp += getLatticeVector(1) * float(image.y);
-            if(!m_2d)
-                newp += getLatticeVector(2) * float(image.z);
-            return newp;
-            }
-
         vec3<float> unwrap(const vec3<float>& p, const vec3<int>& image) const
             {
             vec3<float> newp = p;
 
             newp += getLatticeVector(0) * float(image.x);
             newp += getLatticeVector(1) * float(image.y);
-            if(!m_2d)
+            if (!m_2d)
+                {
                 newp += getLatticeVector(2) * float(image.z);
+                }
             return newp;
             }
 
@@ -452,7 +318,7 @@ class Box
                 }
             else
                 {
-                throw std::out_of_range("box lattice vector index requested does not exist");
+                throw std::out_of_range("Box lattice vector index requested does not exist.");
                 }
             return vec3<float>(0.0,0.0,0.0);
             }

@@ -212,7 +212,6 @@ void BondingAnalysis::compute(unsigned int* frame0,
                 {
                 unsigned int bond_0 = UINT_MAX;
                 unsigned int bond_1 = m_num_bonds;
-                unsigned int current_count;
                 // find, increment, delete
                 std::vector<std::pair< unsigned int, unsigned int> >::iterator it_pair;
                 it_pair = std::find_if(m_overall_increment_array[pidx].begin(),
@@ -222,7 +221,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                     // bond found
                     std::vector<unsigned int>::iterator it_bond;
                     // found it, exists, get value
-                    current_count = (*it_pair).second;
+                    unsigned int current_count = (*it_pair).second;
                     // delete old pjdx
                     m_overall_increment_array[pidx].erase(it_pair);
                     // increment
@@ -233,7 +232,7 @@ void BondingAnalysis::compute(unsigned int* frame0,
                         bond_0 = it_bond-l_bonds_0.begin();
                     m_transition_matrix.get()[transition_indexer(bond_0, bond_1)]++;
                     // the bond changed; extract count and stop tracking
-                    unsigned int current_count = m_bond_increment_array[m_frame_indexer(bond_0,pidx)].second;
+                    current_count = m_bond_increment_array[m_frame_indexer(bond_0,pidx)].second;
                     if ((current_count != 0) && (current_count != UINT_MAX))
                         m_bond_lifetime_array[bond_0].push_back(current_count);
                     // let's check to make sure the increment array matches

@@ -132,19 +132,20 @@ void RDF::reduceRDF()
         m_vol_array = m_vol_array3D;
     // now compute the rdf
     parallel_for(blocked_range<size_t>(1,m_nbins),
-      [=] (const blocked_range<size_t>& r)
-      {
-      for (size_t i = r.begin(); i != r.end(); i++)
-          {
-          for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
-               local_bins != m_local_bin_counts.end(); ++local_bins)
-              {
-              m_bin_counts.get()[i] += (*local_bins)[i];
-              }
-          m_avg_counts.get()[i] = (float)m_bin_counts.get()[i] / m_n_ref;
-          m_rdf_array.get()[i] = m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
-          }
-      });
+            [=] (const blocked_range<size_t>& r)
+        {
+        for (size_t i = r.begin(); i != r.end(); i++)
+            {
+            for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator \
+                 local_bins = m_local_bin_counts.begin();
+                 local_bins != m_local_bin_counts.end(); ++local_bins)
+                {
+                m_bin_counts.get()[i] += (*local_bins)[i];
+                }
+            m_avg_counts.get()[i] = (float)m_bin_counts.get()[i] / m_n_ref;
+            m_rdf_array.get()[i] = m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
+            }
+        });
 
     CumulativeCount myN_r(m_N_r_array.get(), m_avg_counts.get());
     parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
@@ -210,69 +211,69 @@ void RDF::accumulate(box::Box& box,
     nlist->validate(Nref, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
     parallel_for(blocked_range<size_t>(0, nlist->getNumBonds()),
-      [=] (const blocked_range<size_t>& r)
-      {
-      assert(ref_points);
-      assert(points);
-      assert(m_n_ref > 0);
-      assert(Np > 0);
+            [=] (const blocked_range<size_t>& r)
+        {
+        assert(ref_points);
+        assert(points);
+        assert(m_n_ref > 0);
+        assert(Np > 0);
 
-      float dr_inv = 1.0f / m_dr;
-      float rminsq = m_rmin * m_rmin;
-      float rmaxsq = m_rmax * m_rmax;
+        float dr_inv = 1.0f / m_dr;
+        float rminsq = m_rmin * m_rmin;
+        float rmaxsq = m_rmax * m_rmax;
 
-      bool exists;
-      m_local_bin_counts.local(exists);
-      if (! exists)
-          {
-          m_local_bin_counts.local() = new unsigned int [m_nbins];
-          memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
-          }
+        bool exists;
+        m_local_bin_counts.local(exists);
+        if (!exists)
+            {
+            m_local_bin_counts.local() = new unsigned int [m_nbins];
+            memset((void*) m_local_bin_counts.local(), 0,
+                   sizeof(unsigned int)*m_nbins);
+            }
 
-      size_t bond(r.begin());
-      size_t i(neighbor_list[2*bond]);
-      size_t last_i(-1);
-      vec3<float> ref;
+        size_t last_i(-1);
+        vec3<float> ref;
 
-      // for each bond
-      for (size_t bond = r.begin(); bond != r.end(); bond++)
-      {
-          i = neighbor_list[2*bond];
+        // for each bond
+        for (size_t bond = r.begin(); bond != r.end(); bond++)
+            {
+            size_t i(neighbor_list[2*bond]);
 
-          if(i != last_i)
-              ref = ref_points[i];
-          last_i = i;
+            if (i != last_i)
+                {
+                ref = ref_points[i];
+                }
+            last_i = i;
 
-          const unsigned int j(neighbor_list[2*bond + 1]);
-          // compute r between the two particles
-          vec3<float> delta = m_box.wrap(points[j] - ref);
+            const unsigned int j(neighbor_list[2*bond + 1]);
+            // compute r between the two particles
+            vec3<float> delta = m_box.wrap(points[j] - ref);
 
-          float rsq = dot(delta, delta);
+            float rsq = dot(delta, delta);
 
-          if (rsq < rmaxsq && rsq > rminsq)
-          {
-              float r = sqrtf(rsq);
+            if (rsq < rmaxsq && rsq > rminsq)
+                {
+                float r = sqrtf(rsq);
 
-              // bin that r
-              float binr = (r - m_rmin) * dr_inv;
-              // fast float to int conversion with truncation
+                // bin that r
+                float binr = (r - m_rmin) * dr_inv;
+                // fast float to int conversion with truncation
 #ifdef __SSE2__
-              unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+                unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
 #else
-              unsigned int bin = (unsigned int)(binr);
+                unsigned int bin = (unsigned int)(binr);
 #endif
 
-              // There may be a case where rsq < rmaxsq but
-              // (r - m_rmin) * dr_inv rounds up to m_nbins.
-              // This additional check prevents a seg fault.
-              if (bin < m_nbins)
-              {
-                  ++m_local_bin_counts.local()[bin];
-              }
-          }
-      } // done looping over bonds
-      });
+                // There may be a case where rsq < rmaxsq but
+                // (r - m_rmin) * dr_inv rounds up to m_nbins.
+                // This additional check prevents a seg fault.
+                if (bin < m_nbins)
+                    {
+                    ++m_local_bin_counts.local()[bin];
+                    }
+                }
+            } // done looping over bonds
+        });
     m_frame_counter += 1;
     }
-
 }; }; // end namespace freud::density

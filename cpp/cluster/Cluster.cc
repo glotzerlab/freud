@@ -18,10 +18,8 @@ namespace freud { namespace cluster {
 /*! \param n Number of initial sets
 */
 DisjointSet::DisjointSet(uint32_t n)
+    : s(vector<uint32_t>(n)), rank(vector<uint32_t>(n, 0))
     {
-    s = vector<uint32_t>(n);
-    rank = vector<uint32_t>(n, 0);
-
     // initialize s
     for (uint32_t i = 0; i < n; i++)
         s[i] = i;
@@ -72,7 +70,7 @@ uint32_t DisjointSet::find(const uint32_t c)
     }
 
 Cluster::Cluster(float rcut)
-    : m_rcut(rcut), m_num_particles(0)
+    : m_rcut(rcut), m_num_particles(0), m_num_clusters(0)
     {
     if (m_rcut < 0.0f)
         throw invalid_argument("rcut must be positive");

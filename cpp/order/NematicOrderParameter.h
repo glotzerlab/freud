@@ -51,9 +51,8 @@ class NematicOrderParameter
         vec3<float> getNematicDirector();
 
     private:
-        vec3<float> m_u;                 //!< The molecular axis
         unsigned int m_n;                //!< Last number of points computed
-
+        vec3<float> m_u;                 //!< The molecular axis
         float m_nematic_order_parameter; //!< Current value of the order parameter
         vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
         float m_nematic_tensor[9];       //!< The Q tensor
