@@ -69,6 +69,9 @@ Bradley Dice - **Lead developer**
 * Bumpversion support
 * Reduced all compile warnings
 * Added Python interface for box periodicity
+* Added Voronoi support for neighbor lists across periodic boundaries
+* Added Voronoi weights for 3D
+* Added Voronoi cell volume computation
 
 Richmond Newman
 
