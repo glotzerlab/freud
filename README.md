@@ -5,9 +5,9 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org:/repo/harperic/freud-examples)
 [![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
 
-Please use the above citation when using freud.
+The freud library provides users the ability to analyze molecular dynamics and Monte Carlo simulation trajectories for advanced metrics such as the radial distribution function and various order parameters. Its modules work with and return NumPy arrays, and are able to process both 2D and 3D data. Features in freud include computing the radial distribution function, local density, hexagonal order parameter and local bond order parameters, Voronoi tessellations, k-space quantities, and more.
 
-Welcome to freud! freud provides users the ability to analyze generic data from a variety of sources, including simulation and experimental data, for advanced metrics such as the radial distribution function and various order parameters.
+When using freud to process data for publication, please [use this citation](https://doi.org/10.5281/zenodo.166564).
 
 ## Mailing List
 
@@ -39,7 +39,7 @@ make -j20
 ```
 
 By default, freud installs to the [USER_SITE](https://docs.python.org/2/install/index.html) directory. Which is in
-`~/.local` on linux and in `~/Library` on mac. `USER_SITE` is on the python search path by default, there is no need to
+`~/.local` on Linux and in `~/Library` on macOS. `USER_SITE` is on the Python search path by default, so there is no need to
 modify `PYTHONPATH`.
 
 To run out of the build directory, add the build directory to your `PYTHONPATH`:
@@ -138,11 +138,10 @@ open build/latex/freud.pdf
 
 ## Unit Tests
 
-Run all unit tests with `nosetests` in the source directory. To add a test, simply add a file to the `tests` directory,
-and nosetests will automatically discover it. See http://pythontesting.net/framework/nose/nose-introduction/ for
-an introduction to writing nose tests.
+Run all unit tests with `nosetests .` in the `tests` directory. To add a test, simply add a file to the `tests` directory, and nosetests will automatically discover it.
+Refer to this [introduction to nose](http://pythontesting.net/framework/nose/nose-introduction/) for help writing tests.
 
 ~~~
-cd source
-nosetests
+cd tests
+nosetests .
 ~~~
