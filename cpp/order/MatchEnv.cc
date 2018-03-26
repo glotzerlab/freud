@@ -10,8 +10,8 @@ namespace freud { namespace order {
 // Constructor for EnvDisjointSet
 // Taken partially from Cluster.cc
 EnvDisjointSet::EnvDisjointSet(unsigned int Np)
+    : rank(std::vector<unsigned int>(Np, 0))
     {
-    rank = std::vector<unsigned int>(Np, 0);
     }
 
 // Merge the two sets that elements a and b belong to.

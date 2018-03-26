@@ -117,8 +117,6 @@ void BondingR12::compute(box::Box& box,
             size_t bond(nlist->find_first_index(br.begin()));
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
-                // huh?
-                std::map<unsigned int, std::vector<unsigned int> > l_bonds;
                 // get position, orientation of particle i
                 vec3<float> ref_pos = ref_points[i];
                 float ref_angle = ref_orientations[i];
