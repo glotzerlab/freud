@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Cluster module supports box argument in compute methods.
 * Refactored C++ code to reduce extraneous #includes
 * Refactored PMFT code
+* Resolved bug in `kspace.AnalyzeSFactor3D`.
 
 ### Removed
 * Very old, deprecated API for ComplexWRDF and FloatWRDF
