@@ -11,7 +11,7 @@ cimport freud._pmft as pmft
 cimport numpy as np
 
 cdef class _PMFT:
-    """Parent class for all PMFTs"""
+    """Parent class for all PMFTs."""
     cdef pmft.PMFT * pmftptr
     cdef float rmax
 
@@ -24,22 +24,20 @@ cdef class _PMFT:
 
     @property
     def box(self):
-        """Get the box used in the calculation
-        """
+        """Get the box used in the calculation."""
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
-        :rtype: :py:class:`freud.box.Box()`
+        :rtype: :py:class:`freud.box.Box`
         """
         self.pmftptr.getBox()
         return BoxFromCPP(self.pmftptr.getBox())
 
     def resetPCF(self):
-        """Resets the values of the pcf histograms in memory
-        """
+        """Resets the values of the PCF histograms in memory."""
         self.pmftptr.resetPCF()
 
     def reducePCF(self):
@@ -51,42 +49,37 @@ cdef class _PMFT:
 
     @property
     def bin_counts(self):
-        """Get the raw bin counts.
-        """
+        """Get the raw bin counts."""
         return self.getBinCounts()
 
 
     @property
     def PCF(self):
-        """Get the positional correlation function.
-        """
+        """Get the positional correlation function."""
         return self.getPCF()
 
     @property
     def PMFT(self):
-        """Get the PMFT
-        """
+        """Get the potential of mean force and torque."""
         return self.getPMFT()
 
     def getPMFT(self):
-        """Get the Potential of Mean Force and Torque.
+        """Get the potential of mean force and torque.
 
         :return: PMFT
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{r}, N_{\\theta1},
-                N_{\\theta2}\\right)`,
+                shape= (matches PCF),
                 dtype= :class:`numpy.float32`
         """
         return -np.log(np.copy(self.getPCF()))
 
     @property
     def r_cut(self):
-        """Get the r_cut value used in the cell list
-        """
+        """Get the r_cut value used in the cell list."""
         return self.getRCut()
 
     def getRCut(self):
-        """Get the r_cut value used in the cell list
+        """Get the r_cut value used in the cell list.
 
         :return: r_cut
         :rtype: float
@@ -99,7 +92,7 @@ cdef class PMFTR12(_PMFT):
     """Computes the PMFT [Cit2]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed
-    and averaged in a sea of data points. Computing the PCF results in a pcf
+    and averaged in a sea of data points. Computing the PCF results in a PCF
     array listing the value of the PCF at each given :math:`r`,
     :math:`\\theta_1`, :math:`\\theta_2` listed in the r, t1, and t2 arrays.
 
@@ -110,8 +103,10 @@ cdef class PMFTR12(_PMFT):
     \\right) = \\max \\left( \\theta_2 \\right) = 2\\pi`) at which to compute
     the PCF and nbins_r, nbins_t1, nbins_t2 is the number of bins in r, t1, t2.
 
-    .. note:: 2D: This calculation is defined for 2D systems only. However
-              particle positions are still required to be (x, y, 0)
+    .. note::
+        2D: :py:class:`freud.pmft.PMFTR12` is only defined for 2D systems.
+        The points must be passed in as :code:`[x, y, 0]`.
+        Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -357,8 +352,7 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def inverse_jacobian(self):
-        """Get the inverse Jacobian used in the PMFT.
-        """
+        """Get the inverse Jacobian used in the PMFT."""
         return self.getInverseJacobian()
 
     def getInverseJacobian(self):
@@ -440,8 +434,10 @@ cdef class PMFTXYT(_PMFT):
     which to compute the PCF and n_bins_x, n_bins_y, n_bins_t is the number of
     bins in x, y, t.
 
-    .. note:: 2D: This calculation is defined for 2D systems only. However
-              particle positions are still required to be (x, y, 0)
+    .. note::
+        2D: :py:class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
+        The points must be passed in as :code:`[x, y, 0]`.
+        Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -676,8 +672,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def jacobian(self):
-        """Get the Jacobian used in the PMFT.
-        """
+        """Get the Jacobian used in the PMFT."""
         return self.getJacobian()
 
     def getJacobian(self):
@@ -748,7 +743,10 @@ cdef class PMFTXY2D(_PMFT):
     minimum/maximum distance at which to compute the PCF and n_x and n_y are
     the number of bins in x and y.
 
-    .. note:: 2D: This calculation is defined for 2D systems only.
+    .. note::
+        2D: :py:class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
+        The points must be passed in as :code:`[x, y, 0]`.
+        Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -881,7 +879,7 @@ cdef class PMFTXY2D(_PMFT):
 
         :return: PCF
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{y}, N_{y}\\right)`,
+                shape= :math:`\\left(N_{y}, N_{x}\\right)`,
                 dtype= :class:`numpy.float32`
         """
         cdef float * pcf = self.pmftxy2dptr.getPCF().get()
@@ -987,8 +985,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def jacobian(self):
-        """Get the Jacobian used in the PMFT.
-        """
+        """Get the Jacobian used in the PMFT."""
         return self.getJacobian()
 
     def getJacobian(self):
@@ -1014,7 +1011,9 @@ cdef class PMFTXYZ(_PMFT):
     z_max determine the minimum/maximum distance at which to compute the PCF
     and n_x, n_y, n_z is the number of bins in x, y, z.
 
-    .. note:: 3D: This calculation is defined for 3D systems only.
+    .. note::
+        3D: :py:class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
+        The points must be passed in as :code:`[x, y, z]`.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -1050,8 +1049,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def box(self):
-        """Get the box used in the calculation.
-        """
+        """Get the box used in the calculation."""
         return self.getBox()
 
     def getBox(self):
@@ -1063,8 +1061,7 @@ cdef class PMFTXYZ(_PMFT):
         return BoxFromCPP(self.pmftxyzptr.getBox())
 
     def resetPCF(self):
-        """Resets the values of the PCF histograms in memory.
-        """
+        """Resets the values of the PCF histograms in memory."""
         self.pmftxyzptr.resetPCF()
 
     def accumulate(self, box, ref_points, ref_orientations, points,
@@ -1250,14 +1247,13 @@ cdef class PMFTXYZ(_PMFT):
     def reducePCF(self):
         """Reduces the histogram in the values over N processors to a single
         histogram. This is called automatically by
-        :py:meth:`freud.pmft.PMFTXYZ.getPCF()`.
+        :py:meth:`freud.pmft.PMFTXYZ.PCF`.
         """
         self.pmftxyzptr.reducePCF()
 
     @property
     def bin_counts(self):
-        """Get the raw bin counts.
-        """
+        """Get the raw bin counts."""
         return self.getBinCounts()
 
     def getBinCounts(self):
@@ -1280,8 +1276,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def PCF(self):
-        """Get the positional correlation function.
-        """
+        """Get the positional correlation function."""
         return self.getPCF()
 
     def getPCF(self):
@@ -1304,12 +1299,11 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def PMFT(self):
-        """Get the Potential of Mean Force and Torque.
-        """
+        """Get the potential of mean force and torque."""
         return self.getPMFT()
 
     def getPMFT(self):
-        """Get the Potential of Mean Force and Torque.
+        """Get the potential of mean force and torque.
 
         :return: PMFT
         :rtype: :class:`numpy.ndarray`,
@@ -1431,8 +1425,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def jacobian(self):
-        """Get the Jacobian used in the PMFT.
-        """
+        """Get the Jacobian used in the PMFT."""
         return self.getJacobian()
 
     def getJacobian(self):
