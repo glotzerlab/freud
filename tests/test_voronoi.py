@@ -34,6 +34,9 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_equal(vor.getVoronoiPolytopes(),
                 [np.array([[ 1.5,  1.5, 0], [ 0.5,  1.5, 0],
                            [ 0.5,  0.5, 0], [ 1.5,  0.5, 0]])])
+        # Verify the cell areas
+        vor.computeVolumes()
+        npt.assert_equal(vor.getVolumes(), [1])
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
@@ -55,6 +58,9 @@ class TestVoronoi(unittest.TestCase):
                 [np.array([[1.5, 1.5, 1.5], [1.5, 0.5, 1.5], [1.5, 0.5, 0.5],
                            [1.5, 1.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 1.5],
                            [0.5, 1.5, 0.5], [0.5, 1.5, 1.5]])])
+        # Verify the cell volumes
+        vor.computeVolumes()
+        npt.assert_equal(vor.getVolumes(), [1])
 
     def test_voronoi_neighbors(self):
         # Test that voronoi neighbors in the first and second shells are
@@ -122,6 +128,11 @@ class TestVoronoi(unittest.TestCase):
         # Every facet area should be sqrt(2)/2
         npt.assert_allclose(nlist.weights,
                             np.full(len(nlist.weights), 0.5*np.sqrt(2)),
+                            atol=1e-5)
+        # Every cell should have volume 2
+        vor.compute(positions)
+        npt.assert_allclose(vor.computeVolumes().getVolumes(),
+                            np.full(len(vor.getVoronoiPolytopes()), 2.),
                             atol=1e-5)
 
     def test_nlist_symmetric(self):

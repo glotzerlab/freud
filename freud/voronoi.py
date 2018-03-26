@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from scipy.spatial import Voronoi as qvoronoi
+    from scipy.spatial import ConvexHull
 except ImportError:
     qvoronoi = None
     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
@@ -23,6 +24,11 @@ class Voronoi:
     """Compute the Voronoi tessellation of a 2D or 3D system using qhull.
     This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
+
+    .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>
+    .. moduleauthor:: Yina Geng <yinageng@umich.edu>
+    .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Since qhull does not support periodic boundary conditions natively, we
     expand the box to include a portion of the particles' periodic images.
@@ -143,6 +149,8 @@ class Voronoi:
         specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.
         An example of computing neighbors from the first two Voronoi shells
         for a 2D mesh is shown below.
+
+        Retrieve the results with :py:meth:`~.getNeighbors()`.
 
         Example::
 
@@ -265,6 +273,8 @@ class Voronoi:
     def getNeighbors(self, numShells):
         """Get :code:`numShells` of neighbors for each particle
 
+        Must call :py:meth:`~.computeNeighbors()` before this method.
+
         :param int numShells: number of neighbor shells
         """
         neighbor_list = copy.copy(self.firstShellNeighborList)
@@ -328,3 +338,43 @@ class Voronoi:
             len(neighbor_list), len(neighbor_list),
             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
         return result
+
+    def computeVolumes(self):
+        """Computes volumes (areas in 2D) of Voronoi cells.
+
+        Must call :py:meth:`~.compute()` before this method.
+
+        Retrieve the results with :py:meth:`~.getVolumes()`.
+        """
+        polytope_verts = self.getVoronoiPolytopes()
+        self.poly_volumes = np.zeros(shape=len(polytope_verts))
+
+        for i, verts in enumerate(polytope_verts):
+            is2D = np.all(self.poly_verts[0][:,-1] == 0)
+            hull = ConvexHull(verts[:,:2 if is2D else 3])
+            self.poly_volumes[i] = hull.volume
+
+        return self
+
+    def getVolumes(self):
+        """Returns an array of volumes (areas in 2D) corresponding to Voronoi
+        cells.
+
+        Must call :py:meth:`~.computeVolumes()` before this method.
+
+        If the buffer width is too small, then some polytopes may not be
+        closed (they may have a boundary at infinity), and these polytopes'
+        volumes/areas are excluded from the list.
+
+        The length of the list returned by this method should be the same
+        as the array of positions used in the :py:meth:`~.compute()`
+        method, if all the polytopes are closed. Otherwise try using a larger
+        buffer width.
+
+        :returns: :py:class:`numpy.ndarray` containing Voronoi
+                  polytope volumes/areas.
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{cells} \\right)`,
+                dtype= :class:`numpy.float32`
+        """
+        return self.poly_volumes
