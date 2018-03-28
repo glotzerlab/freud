@@ -206,7 +206,6 @@ void PMFTXYZ::accumulate(box::Box& box,
                             }
                         for (unsigned int k=0; k<n_faces; k++)
                             {
-                            // rotate vector
                             // create the extra quaternion
                             quat<float> qe(face_orientations[q_i(k, i)]);
                             // create point vector

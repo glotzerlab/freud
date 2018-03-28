@@ -42,7 +42,7 @@ class PMFT
         PMFT();
 
         //! Destructor
-        ~PMFT();
+        virtual ~PMFT();
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -78,8 +78,8 @@ class PMFT
         bool m_reduce;                     //!< Whether or not the PCF has been reduced yet
 
         std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
-        std::shared_ptr<unsigned int> m_bin_counts;    //!< Counts for each bin (will differ for each PMFT)
-        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts; //!< TODO: Dcoument this
+        std::shared_ptr<unsigned int> m_bin_counts;    //!< Counts for each bin
+        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
 
     private:
     };
