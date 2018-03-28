@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 * Cluster module supports box argument in compute methods.
 * Refactored C++ code to reduce extraneous #includes
+* Refactored PMFT code
 * Refactored box module to remove unused methods
 * Resolved bug in `kspace.AnalyzeSFactor3D`.
 
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Ensured PEP 8 compliance everywhere
 * Minimized boost dependence
 * Many documentation rewrites
+* Wrote development guide
 * Made tests deterministic (seeded RNGs)
 * Removed deprecated Box API warnings
 * Standardized numpy usage

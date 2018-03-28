@@ -19,8 +19,7 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y)
-    : m_box(box::Box()), m_max_x(max_x), m_max_y(max_y), m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y),
-      m_frame_counter(0), m_n_ref(0), m_n_p(0), m_reduce(true)
+    : PMFT(), m_max_x(max_x), m_max_y(max_y), m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y)
     {
     if (n_bins_x < 1)
         throw invalid_argument("must be at least 1 bin in x");
@@ -59,22 +58,12 @@ PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int
         m_y_array.get()[i] = -m_max_y + ((y + nexty) / 2.0);
         }
 
-    // create and populate the pcf_array
+    // Set r_cut
+    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
     m_pcf_array = std::shared_ptr<float>(new float[m_n_bins_x * m_n_bins_y], std::default_delete<float[]>());
     memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y);
     m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_bins_x * m_n_bins_y], std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
-
-
-    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
-    }
-
-PMFTXY2D::~PMFTXY2D()
-    {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
-        {
-        delete[] (*i);
-        }
     }
 
 //! \internal
@@ -99,9 +88,9 @@ void PMFTXY2D::reducePCF()
                     }
                 }
             });
-    float inv_num_dens = m_box.getVolume() / (float)m_n_p;
+    float inv_num_dens = this->m_box.getVolume() / (float)this->m_n_p;
     float inv_jacobian = (float) 1.0 / m_jacobian;
-    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
+    float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref);
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0,m_n_bins_x*m_n_bins_y),
         [=] (const blocked_range<size_t>& r)
@@ -111,28 +100,6 @@ void PMFTXY2D::reducePCF()
                 m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
                 }
             });
-    }
-
-//! Get a reference to the PCF array
-std::shared_ptr<float> PMFTXY2D::getPCF()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_pcf_array;
-    }
-
-//! Get a reference to the bin counts array
-std::shared_ptr<unsigned int> PMFTXY2D::getBinCounts()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_bin_counts;
     }
 
 //! \internal
@@ -145,8 +112,8 @@ void PMFTXY2D::resetPCF()
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
         }
-    m_frame_counter = 0;
-    m_reduce = true;
+    this->m_frame_counter = 0;
+    this->m_reduce = true;
     }
 
 //! \internal
@@ -162,7 +129,7 @@ void PMFTXY2D::accumulate(box::Box& box,
                          float *orientations,
                          unsigned int n_p)
     {
-    m_box = box;
+    this->m_box = box;
 
     nlist->validate(n_ref, n_p);
     const size_t *neighbor_list(nlist->getNeighbors());
@@ -200,7 +167,7 @@ void PMFTXY2D::accumulate(box::Box& box,
                     {
                     const size_t j(neighbor_list[2*bond + 1]);
                         {
-                        vec3<float> delta = m_box.wrap(points[j] - ref);
+                        vec3<float> delta = this->m_box.wrap(points[j] - ref);
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
@@ -238,11 +205,11 @@ void PMFTXY2D::accumulate(box::Box& box,
                     }
                 } // done looping over reference points
             });
-    m_frame_counter++;
-    m_n_ref = n_ref;
-    m_n_p = n_p;
+    this->m_frame_counter++;
+    this->m_n_ref = n_ref;
+    this->m_n_p = n_p;
     // flag to reduce
-    m_reduce = true;
+    this->m_reduce = true;
     }
 
 }; }; // end namespace freud::pmft
