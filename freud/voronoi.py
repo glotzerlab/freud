@@ -342,6 +342,8 @@ class Voronoi:
     def computeVolumes(self):
         """Computes volumes (areas in 2D) of Voronoi cells.
 
+        .. versionadded:: 0.8
+
         Must call :py:meth:`~.compute()` before this method.
 
         Retrieve the results with :py:meth:`~.getVolumes()`.
@@ -359,6 +361,8 @@ class Voronoi:
     def getVolumes(self):
         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
         cells.
+
+        .. versionadded:: 0.8
 
         Must call :py:meth:`~.computeVolumes()` before this method.
 

@@ -241,6 +241,8 @@ cdef class Box:
     def getImage(self, vec):
         """Returns the image corresponding to a wrapped vector.
 
+        .. versionadded:: 0.8
+
         :param vec: Coordinates of unwrapped vector
         :type vec: :class:`numpy.ndarray`,
                    shape= :math:`\\left(3\\right)`,

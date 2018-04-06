@@ -2,7 +2,7 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## v0.8.0 - 2018-04-05
 
 ### Added
 * Voronoi neighborlist now includes periodic neighbors
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Box module `getCoordinates()` in favor of duplicate `box.makeCoordinates()`
 
 ### Removed
-* Very old, deprecated API for ComplexWRDF and FloatWRDF
+* Removed deprecated API for ComplexWRDF and FloatWRDF
 
 ## v0.7.0 - 2018-03-02
 
