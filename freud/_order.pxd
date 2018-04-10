@@ -290,8 +290,8 @@ cdef extern from "LocalBondProjection.h" namespace "freud::order":
                      unsigned int,
                      unsigned int) nogil except +
 
-         shared_array[float] getProjections()
-         unsigned int getNP()
-         unsigned int getNref()
-         unsigned int getNproj()
-         const box.Box & getBox() const
+        shared_array[float] getProjections()
+        unsigned int getNP()
+        unsigned int getNref()
+        unsigned int getNproj()
+        const box.Box & getBox() const

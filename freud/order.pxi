@@ -3367,7 +3367,7 @@ cdef class LocalBondProjection:
 
         cdef float * proj = self.thisptr.getProjections().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > len(self.nlist)*self.thisptr.getNProj()
+        nbins[0] = <np.npy_intp > len(self.nlist)*self.thisptr.getNproj()
         cdef np.ndarray[float, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>proj)
