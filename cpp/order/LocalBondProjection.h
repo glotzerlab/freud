@@ -54,6 +54,12 @@ class LocalBondProjection
             return m_local_bond_proj;
             }
 
+        //! Get a reference to the last computed normalized maximal local bond projection array
+        std::shared_ptr<float> getNormedProjections()
+            {
+            return m_local_bond_proj_norm;
+            }
+
         unsigned int getNP()
             {
             return m_Np;
@@ -82,7 +88,8 @@ class LocalBondProjection
         unsigned int m_Nequiv;          //!< Last number of equivalent reference orientations used for computation
         unsigned int m_tot_num_neigh;   //!< Last number of total bonds used for computation
 
-        std::shared_ptr<float> m_local_bond_proj;   //!< local bond projection array computed
+        std::shared_ptr<float> m_local_bond_proj;       //!< local bond projection array computed
+        std::shared_ptr<float> m_local_bond_proj_norm;  //!< normalized local bond projection array computed
 
     };
 

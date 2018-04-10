@@ -3359,13 +3359,29 @@ cdef class LocalBondProjection:
 
     def getProjections(self):
         """
-        :return: projections (unitless)
+        :return: projections (units of squared length)
         :rtype: :class:`numpy.ndarray`,
                 shape= :math:`\\left(N_{reference}, N_{neighbors}, N_{projection_vecs} \\right)`,
                 dtype= :class:`numpy.float32`
         """
 
         cdef float * proj = self.thisptr.getProjections().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp > len(self.nlist)*self.thisptr.getNproj()
+        cdef np.ndarray[float, ndim= 1
+                        ] result = np.PyArray_SimpleNewFromData(
+                                1, nbins, np.NPY_FLOAT32, < void*>proj)
+        return result
+
+    def getNormedProjections(self):
+        """
+        :return: normalized projections (units of length)
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{reference}, N_{neighbors}, N_{projection_vecs} \\right)`,
+                dtype= :class:`numpy.float32`
+        """
+
+        cdef float * proj = self.thisptr.getNormedProjections().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp > len(self.nlist)*self.thisptr.getNproj()
         cdef np.ndarray[float, ndim= 1

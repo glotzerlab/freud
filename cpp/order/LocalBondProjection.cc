@@ -96,6 +96,7 @@ void LocalBondProjection::compute(
     if (tot_num_neigh != m_tot_num_neigh || Nproj != m_Nproj)
         {
         m_local_bond_proj = std::shared_ptr<float>(new float [tot_num_neigh*Nproj], std::default_delete<float[]>());
+        m_local_bond_proj_norm = std::shared_ptr<float>(new float [tot_num_neigh*Nproj], std::default_delete<float[]>());
         }
 
     // compute the order parameter
@@ -116,12 +117,15 @@ void LocalBondProjection::compute(
             vec3<float> local_bond(delta);
             // rotate bond vector into the local frame of particle p
             local_bond = rotate(conj(q), local_bond);
+            // store the length of this local bond
+            float local_bond_len = sqrt(dot(local_bond, local_bond));
 
             for (unsigned int k=0; k<Nproj; k++)
                 {
                 vec3<float> proj_vec = proj_vecs[k];
                 float max_proj = computeMaxProjection(proj_vec, local_bond, ref_equiv_ors, Nequiv);
                 m_local_bond_proj.get()[bond*Nproj+k] = max_proj;
+                m_local_bond_proj_norm.get()[bond*Nproj+k] = max_proj/local_bond_len;
                 }
             }
         }
