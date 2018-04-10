@@ -274,3 +274,24 @@ cdef extern from "AngularSeparation.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getNref()
         unsigned int getNglobal()
+
+cdef extern from "LocalBondProjection.h" namespace "freud::order":
+    cdef cppclass LocalBondProjection:
+        LocalBondProjection()
+        void compute(box.Box &,
+                     const freud._locality.NeighborList*,
+                     vec3[float]*,
+                     vec3[float]*,
+                     quat[float]*,
+                     quat[float]*,
+                     vec3[float]*,
+                     unsigned int,
+                     unsigned int,
+                     unsigned int,
+                     unsigned int) nogil except +
+
+         shared_array[float] getProjections()
+         unsigned int getNP()
+         unsigned int getNref()
+         unsigned int getNproj()
+         const box.Box & getBox() const

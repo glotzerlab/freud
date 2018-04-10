@@ -14,6 +14,7 @@ from ._freud import TransOrderParameter
 from ._freud import LocalDescriptors
 from ._freud import Pairing2D
 from ._freud import AngularSeparation
+from ._freud import LocalBondProjection
 
 # everything below uses spherical harmonics
 from ._freud import LocalQl

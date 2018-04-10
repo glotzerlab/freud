@@ -3232,3 +3232,179 @@ cdef class AngularSeparation:
         """
         cdef unsigned int nglobal = self.thisptr.getNglobal()
         return nglobal
+
+cdef class LocalBondProjection:
+    """Calculates the maximal projection of nearest neighbor bonds for each particle onto
+    some set of reference vectors, defined in the particles' local reference frame.
+
+    .. moduleauthor:: Erin Teich
+
+    """
+
+    cdef order.LocalBondProjection * thisptr
+    cdef num_neigh
+    cdef rmax
+    cdef nlist_
+
+    def __cinit__(self, rmax, n):
+        self.thisptr = new order.LocalBondProjection()
+        self.rmax = rmax
+        self.num_neigh = int(n)
+        self.nlist_ = None
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    @property
+    def nlist(self):
+        return self.nlist_
+
+    def compute(self, box, ref_points, ref_ors, points, equiv_quats, proj_vecs, nlist=None):
+        """Calculates the maximal projections of nearest neighbor bonds (btw ref_points and points)
+        onto the set of reference vectors proj_vecs, defined in ref_points' local reference frame.
+        Takes into account the underlying symmetry of the reference frame as encoded in equiv_quats.
+
+        :param box: simulation box
+        :param ref_points: points to calculate the order parameter
+        :param ref_ors: orientations to calculate the order parameter
+        :param points: points (neighbors of ref_points) to calculate the order parameter
+        :param equiv_quats: the set of all equivalent quaternions that takes
+                            the particle as it is defined to some global
+                            reference orientation. IMPT: does not need to
+                            include both q and -q, for all included quaternions,
+                            since q and -q effect the same rotation on vectors.
+        :param proj_vecs: the set of reference vectors, define in the reference particles'
+                            reference frame, to calculate maximal local bond projections onto.
+        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
+        :type box: :py:class:`freud.box.Box`
+        :type ref_points: :class:`numpy.ndarray`,
+                          shape= :math:`\\left(N_{reference}, 3 \\right)`,
+                          dtype= :class:`numpy.float32`
+        :type ref_ors: :class:`numpy.ndarray`,
+                        shape= :math:`\\left(N_{reference}, 4 \\right)`,
+                        dtype= :class:`numpy.float32`
+        :type points: :class:`numpy.ndarray`,
+                      shape= :math:`\\left(N_{particles}, 3 \\right)`,
+                      dtype= :class:`numpy.float32`
+        :type equiv_quats: :class:`numpy.ndarray`,
+                            shape= :math:`\\left(N_{equiv}, 4 \\right)`,
+                            dtype= :class:`numpy.float32`
+        :type proj_vecs: :class:`numpy.ndarray`,
+                            shape= :math:`\\left(N_{projection_vecs}, 3 \\right)`,
+                            dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.locality.NeighborList`
+        """
+        ref_points = freud.common.convert_array(
+                ref_points, 2, dtype=np.float32, contiguous=True,
+                dim_message="ref_points must be a 2 dimensional array")
+        if ref_points.shape[1] != 3:
+            raise TypeError('ref_points should be an Nx3 array')
+
+        ref_ors = freud.common.convert_array(
+                ref_ors, 2, dtype=np.float32, contiguous=True,
+                dim_message="ref_ors must be a 2 dimensional array")
+        if ref_ors.shape[1] != 4:
+            raise TypeError('ref_ors should be an Nx4 array')
+
+        points = freud.common.convert_array(
+                points, 2, dtype=np.float32, contiguous=True,
+                dim_message="points must be a 2 dimensional array")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        equiv_quats = freud.common.convert_array(
+                equiv_quats, 2, dtype=np.float32, contiguous=True,
+                dim_message="equiv_quats must be a 2 dimensional array")
+        if equiv_quats.shape[1] != 4:
+            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+
+        proj_vecs = freud.common.convert_array(
+                proj_vecs, 2, dtype=np.float32, contiguous=True,
+                dim_message="proj_vecs must be a 2 dimensional array")
+        if proj_vecs.shape[1] != 3:
+            raise TypeError('proj_vecs should be an Nx3 array')
+
+        cdef _box.Box l_box = _box.Box(
+                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+
+        defaulted_nlist = make_default_nlist_nn(
+            box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        self.nlist_ = nlist_
+
+        cdef np.ndarray[float, ndim = 2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim = 2] l_ref_ors = ref_ors
+        cdef np.ndarray[float, ndim = 2] l_points = points
+        cdef np.ndarray[float, ndim = 2] l_equiv_quats = equiv_quats
+        cdef np.ndarray[float, ndim = 2] l_proj_vecs = proj_vecs
+
+        cdef unsigned int nRef = <unsigned int > ref_points.shape[0]
+        cdef unsigned int nP = <unsigned int > points.shape[0]
+        cdef unsigned int nEquiv = <unsigned int > equiv_quats.shape[0]
+        cdef unsigned int nProj = <unsigned int> proj_vecs.shape[0]
+
+        with nogil:
+            self.thisptr.compute(
+                    l_box,
+                    nlist_ptr,
+                    < vec3[float]*>l_points.data,
+                    < vec3[float]*>l_ref_points.data,
+                    < quat[float]*>l_ref_ors.data,
+                    < quat[float]*>l_equiv_quats.data,
+                    < vec3[float]*>l_proj_vecs.data,
+                    nP, nRef, nEquiv, nProj)
+        return self
+
+    def getProjections(self):
+        """
+        :return: projections (unitless)
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{reference}, N_{neighbors}, N_{projection_vecs} \\right)`,
+                dtype= :class:`numpy.float32`
+        """
+
+        cdef float * proj = self.thisptr.getProjections().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp > len(self.nlist)*self.thisptr.getNProj()
+        cdef np.ndarray[float, ndim= 1
+                        ] result = np.PyArray_SimpleNewFromData(
+                                1, nbins, np.NPY_FLOAT32, < void*>proj)
+        return result
+
+    def getNP(self):
+        """Get the number of particles used in computing the maximal projections.
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
+    def getNReference(self):
+        """Get the number of reference particles used in computing the maximal projections.
+
+        :return: :math:`N_{reference}`
+        :rtype: unsigned int
+        """
+        cdef unsigned int nref = self.thisptr.getNref()
+        return nref
+
+    def getNProj(self):
+        """Get the number of projection vectors used in computing the maximal projections.
+
+        :return: :math:`N_{projection_vecs}`
+        :rtype: unsigned int
+        """
+        cdef unsigned int nproj = self.thisptr.getNproj()
+        return nproj
+
+    def getBox(self):
+        """Get the box used in the calculation.
+
+        :return: freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return BoxFromCPP(< box.Box > self.thisptr.getBox())

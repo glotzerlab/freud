@@ -101,6 +101,8 @@ set(FREUD_SOURCES
             order/NematicOrderParameter.cc
             order/AngularSeparation.h
             order/AngularSeparation.cc
+            order/LocalBondProjection.h
+            order/LocalBondProjection.cc
             order/BondOrder.h
             order/BondOrder.cc
             order/LocalDescriptors.h
