@@ -127,8 +127,6 @@ cdef class FloatCF:
                     < vec3[float]*>l_points.data,
                     < double*>l_values.data,
                     n_p)
-        if nlist is None:
-            nlist_.base = None
         return self
 
     @property
