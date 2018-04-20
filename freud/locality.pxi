@@ -334,6 +334,17 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     cdef LinkCell lc = LinkCell(box, rmax).computeCellList(
             box, ref_points, points, exclude_ii)
 
+    # Python does not appear to garbage collect appropriately in this case.
+    # If a new neighbor list is created, the associated link cell keeps the
+    # reference to it alive even if it goes out of scope in the calling
+    # program, and since the neighbor list also references the link cell the
+    # resulting cycle causes a memory leak. The below block explicitly breaks
+    # this cycle. Alternatively, we could force garbage collection using the
+    # gc module, but this is simpler.
+    cdef NeighborList cnlist = lc.nlist
+    if nlist is None:
+        cnlist.base = None
+
     # Return the owner of the neighbor list as well to prevent gc problems
     return lc.nlist, lc
 
@@ -348,6 +359,17 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     cdef NearestNeighbors nn = NearestNeighbors(
             rmax_guess, n_neigh).compute(
                     box, ref_points, points)
+
+    # Python does not appear to garbage collect appropriately in this case.
+    # If a new neighbor list is created, the associated link cell keeps the
+    # reference to it alive even if it goes out of scope in the calling
+    # program, and since the neighbor list also references the link cell the
+    # resulting cycle causes a memory leak. The below block explicitly breaks
+    # this cycle. Alternatively, we could force garbage collection using the
+    # gc module, but this is simpler.
+    cdef NeighborList cnlist = nn.nlist
+    if nlist is None:
+        cnlist.base = None
 
     # Return the owner of the neighbor list as well to prevent gc problems
     return nn.nlist, nn
