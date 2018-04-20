@@ -127,6 +127,8 @@ cdef class FloatCF:
                     < vec3[float]*>l_points.data,
                     < double*>l_values.data,
                     n_p)
+        if nlist is None:
+            nlist_.base = None
         return self
 
     @property
@@ -874,6 +876,8 @@ cdef class RDF:
                     n_ref,
                     < vec3[float]*>l_points.data,
                     n_p)
+        if nlist is None:
+            nlist_.base = None
         return self
 
     def compute(self, box, ref_points, points, nlist=None):
