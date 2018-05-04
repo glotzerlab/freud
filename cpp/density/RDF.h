@@ -1,28 +1,20 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "NeighborList.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "NeighborList.h"
 #include "Index1D.h"
 
 #ifndef _RDF_H__
 #define _RDF_H__
 
 /*! \file RDF.h
-    \brief Routines for computing radial density functions
+    \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {
@@ -30,7 +22,7 @@ class RDF
     {
     public:
         //! Constructor
-        RDF(float rmax, float dr);
+        RDF(float rmax, float dr, float rmin=0);
 
         //! Destructor
         ~RDF();
@@ -70,6 +62,7 @@ class RDF
     private:
         box::Box m_box;                   //!< Simulation box where the particles belong
         float m_rmax;                     //!< Maximum r at which to compute g(r)
+        float m_rmin;                     //!< Minimum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
         unsigned int m_n_ref;             //!< number of reference particles

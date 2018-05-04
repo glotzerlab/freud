@@ -1,17 +1,16 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "HexOrderParameter.h"
-#include "ScopedGILRelease.h"
-
-#include <stdexcept>
 #include <complex>
+#include <stdexcept>
+
+#include "HexOrderParameter.h"
 
 using namespace std;
 using namespace tbb;
 
-/*! \file HexOrderParameter.h
-    \brief Compute the hexatic order parameter for each particle
+/*! \file HexOrderParameter.cc
+    \brief Compute the hexatic order parameter for each particle.
 */
 
 namespace freud { namespace order {

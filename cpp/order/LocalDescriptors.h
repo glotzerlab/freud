@@ -3,20 +3,18 @@
 
 #include <memory>
 
-#include "NearestNeighbors.h"
-// hack to keep VectorMath's swap from polluting the global namespace
-#include "VectorMath.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "NearestNeighbors.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 #include "tbb/atomic.h"
-
-#include "fsph/src/spherical_harmonics.hpp"
 
 #ifndef _LOCAL_DESCRIPTORS_H__
 #define _LOCAL_DESCRIPTORS_H__
 
 /*! \file LocalDescriptors.h
-  \brief Compute the hexatic order parameter for each particle
+  \brief Computes local descriptors.
 */
 
 namespace freud { namespace order {

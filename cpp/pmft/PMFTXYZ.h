@@ -1,22 +1,15 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "LinkCell.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "LinkCell.h"
 #include "Index1D.h"
+#include "PMFT.h"
 
 #ifndef _PMFTXYZ_H__
 #define _PMFTXYZ_H__
@@ -38,23 +31,14 @@ namespace freud { namespace pmft {
     <b>2D:</b><br>
     This PCF works for 3D boxes (while it will work for 2D boxes, you should use the 2D version).
 */
-class PMFTXYZ
+class PMFTXYZ : public PMFT
     {
     public:
         //! Constructor
         PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec);
 
-        //! Destructor
-        ~PMFTXYZ();
-
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
-
         //! Reset the PCF array to all zeros
-        void resetPCF();
+        virtual void resetPCF();
 
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
@@ -72,13 +56,7 @@ class PMFTXYZ
 
         //! \internal
         //! helper function to reduce the thread specific arrays into one array
-        void reducePCF();
-
-        //! Get a reference to the PCF array
-        std::shared_ptr<float> getPCF();
-
-        //! Get a reference to the bin counts array
-        std::shared_ptr<unsigned int> getBinCounts();
+        virtual void reducePCF();
 
         //! Get a reference to the x array
         std::shared_ptr<float> getX()
@@ -103,11 +81,6 @@ class PMFTXYZ
             return m_jacobian;
             }
 
-        float getRCut()
-            {
-            return m_r_cut;
-            }
-
         unsigned int getNBinsX()
             {
             return m_n_bins_x;
@@ -124,7 +97,6 @@ class PMFTXYZ
             }
 
     private:
-        box::Box m_box;                    //!< Simulation box where the particles belong
         float m_max_x;                     //!< Maximum x at which to compute pcf
         float m_max_y;                     //!< Maximum y at which to compute pcf
         float m_max_z;                     //!< Maximum z at which to compute pcf
@@ -134,21 +106,14 @@ class PMFTXYZ
         unsigned int m_n_bins_x;           //!< Number of x bins to compute pcf over
         unsigned int m_n_bins_y;           //!< Number of y bins to compute pcf over
         unsigned int m_n_bins_z;           //!< Number of z bins to compute pcf over
-        float m_r_cut;                     //!< r_cut used in cell list construction
-        unsigned int m_frame_counter;      //!< number of frames calc'd
-        unsigned int m_n_ref;
-        unsigned int m_n_p;
         unsigned int m_n_faces;
         float m_jacobian;
         bool m_reduce;
         vec3<float> m_shiftvec;            //!< vector that points from [0,0,0] to the origin of the pmft
 
-        std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
-        std::shared_ptr<unsigned int> m_bin_counts;    //!< array of pcf computed
         std::shared_ptr<float> m_x_array;              //!< array of x values that the pcf is computed at
         std::shared_ptr<float> m_y_array;              //!< array of y values that the pcf is computed at
         std::shared_ptr<float> m_z_array;              //!< array of z values that the pcf is computed at
-        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
 }; }; // end namespace freud::pmft

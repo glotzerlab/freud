@@ -1,10 +1,10 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "SolLiq.h"
-#include "Cluster.h"
-#include <map>
 #include <cstring>
+#include <map>
+
+#include "SolLiq.h"
 
 using namespace std;
 

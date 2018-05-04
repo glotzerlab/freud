@@ -1,17 +1,10 @@
-// Copyright (c) 2010-2017 The Regents of the University of Michigan
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the Freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
 #include "VectorMath.h"
 
 #ifndef _SYMMETRIC_ORIENTATION_H__
@@ -33,7 +26,7 @@ class SymmetricOrientation
         SymmetricOrientation();
 
         //! Destructor
-        //~SymmetricOrientation();
+        ~SymmetricOrientation();
 
         //! Get the symmetric orientation
         quat<float> getSymmetricOrientation();

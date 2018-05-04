@@ -21,15 +21,14 @@ from . import box
 from . import bond
 from . import cluster
 from . import density
+from . import index
+from . import interface
 from . import kspace
 from . import locality
 from . import order
 from . import symmetry
-from . import interface
-# from . import shape
-from . import voronoi
 from . import pmft
-from . import index
+from . import voronoi
 from . import common
 
-__version__ = '0.6.4'
+__version__ = '0.8.0'

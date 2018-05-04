@@ -2,22 +2,21 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
-#include <stdexcept>
 #include <complex>
+#include <stdexcept>
+#include <tbb/tbb.h>
 #include <utility>
 #include <vector>
-#include <tbb/tbb.h>
 
 #include "LocalDescriptors.h"
-#include "ScopedGILRelease.h"
 #include "HOOMDMatrix.h"
 
 using namespace std;
 using namespace tbb;
 using hoomd::matrix::diagonalize;
 
-/*! \file LocalDescriptors.h
-  \brief Compute the hexatic order parameter for each particle
+/*! \file LocalDescriptors.cc
+  \brief Computes local descriptors.
 */
 
 namespace freud { namespace order {

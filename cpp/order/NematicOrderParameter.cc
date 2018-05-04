@@ -1,18 +1,16 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "NematicOrderParameter.h"
-#include "ScopedGILRelease.h"
-
+#include <complex>
+#include <limits>
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <stdexcept>
-#include <complex>
-#include <limits>
 #include "Eigen/Eigen/Dense"
+
+#include "NematicOrderParameter.h"
 
 using namespace std;
 using namespace tbb;
@@ -23,12 +21,12 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
+// m_u is the molecular axis, normalized to a unit vector
 NematicOrderParameter::NematicOrderParameter(vec3<float> u)
-    : m_n(0)
+    : m_n(0), m_u(u/sqrt(dot(u,u))), m_sp_nematic_tensor(
+            std::shared_ptr<float>(
+                new float [9], std::default_delete<float[]>()))
     {
-    // Normalize the molecular axis to be a unit vector
-    m_sp_nematic_tensor = std::shared_ptr<float>(new float [9], std::default_delete<float[]>());
-    m_u = u/sqrt(dot(u,u));
     }
 
 float NematicOrderParameter::getNematicOrderParameter()

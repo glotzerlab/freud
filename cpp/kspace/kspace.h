@@ -1,19 +1,25 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <memory>
 #include <complex>
+#include <memory>
 #include <vector>
 
-#include "HOOMDMath.h"
 #include "VectorMath.h"
+
 #ifndef _KSPACE_H__
 #define _KSPACE_H__
 
 //! \package freud::kspace Provides tools for calculating density in reciprocal space
 /*! For analyzing periodicity or simulating diffraction patterns
 */
+
+/*! \file kspace.h
+    \brief Analyses that compute quantities in kspace
+*/
+
 namespace freud { namespace kspace {
+
 /*! Compute the Fourier transform of a set of delta peaks at a list of K points.
 Also serves as the base class for Fourier transform calculators of non-delta form factors
 */

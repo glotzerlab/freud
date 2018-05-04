@@ -1,23 +1,15 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
+#include "box.h"
 #include "VectorMath.h"
 #include "TensorMath.h"
 #include "saruprng.h"
-
 #include "NearestNeighbors.h"
-#include "box.h"
 #include "Index1D.h"
 
 #ifndef _NEMATIC_ORDER_PARAMETER_H__
@@ -59,13 +51,12 @@ class NematicOrderParameter
         vec3<float> getNematicDirector();
 
     private:
-        vec3<float> m_u;                 //!< The molecular axis
         unsigned int m_n;                //!< Last number of points computed
-
+        vec3<float> m_u;                 //!< The molecular axis
         float m_nematic_order_parameter; //!< Current value of the order parameter
         vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
         float m_nematic_tensor[9];       //!< The Q tensor
-        
+
         std::shared_ptr<float> m_sp_nematic_tensor; //!< Pointer to nematic tensor that is passed back
                                                     //!< to python to provide a view into the object
         std::shared_ptr<float> m_particle_tensor;   //!< The per-particle tensor that is summed up to Q

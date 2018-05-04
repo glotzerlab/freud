@@ -1,16 +1,51 @@
 # Change Log
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## v0.8.0 - 2018-04-06
 
-* Added a generic neighbor list interface
+### Added
+* Voronoi neighborlist now includes periodic neighbors
+* Voronoi neighborlist computes weight according to the facet area in 3D
+* Box module exposes `getImage(vec)`
+* Voronoi module can compute and return cell volumes/areas
+
+### Changed
+* Cluster module supports box argument in compute methods.
+* Refactored C++ code to reduce extraneous #includes
+* Refactored PMFT code
+* Refactored box module to remove unused methods
+* Resolved bug in `kspace.AnalyzeSFactor3D`.
+
+### Deprecated
+* Box module `getCoordinates()` in favor of duplicate `box.makeCoordinates()`
+
+### Removed
+* Removed deprecated API for ComplexWRDF and FloatWRDF
+
+## v0.7.0 - 2018-03-02
+
+### Added
+* Added nematic order parameter
+* Added optional rmin argument to density.RDF
+* Added credits file
+* Wrote development guide
+* Added Python interface for box periodicity
+
+### Changed
 * Various bug fixes and code cleaning
 * Fixed all compile-time warnings
 * Ensured PEP 8 compliance everywhere
 * Minimized boost dependence
-* Added Nematic OP
+* Many documentation rewrites
+* Wrote development guide
+* Made tests deterministic (seeded RNGs)
+* Removed deprecated Box API warnings
+* Standardized numpy usage
 
-## v0.6.4
+## v0.6.4 - 2018-02-05
 
+* Added a generic neighbor list interface
 * Set up CircleCI for continuous integration
 * Set up documentation on ReadTheDocs
 * Added bumpversion support

@@ -2,6 +2,7 @@ import unittest
 import numpy.testing as npt
 import numpy as np
 import random
+random.seed(0)
 import freud
 
 ## Returns a random quaternion culled from a uniform distribution on the surface of a 3-sphere.
@@ -42,6 +43,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         box = freud.box.Box.square(boxlen)
 
+        np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N,3)), dtype=np.float32)
         ors = []
         for i in range(N):
@@ -79,6 +81,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         box = freud.box.Box.square(boxlen)
 
+        np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N,3)), dtype=np.float32)
         ors = []
         for i in range(N):
@@ -97,7 +100,7 @@ class TestAngularSeparation(unittest.TestCase):
         N = 3
         num_neigh = 1
         rmax = 2
-        
+
         box = freud.box.Box.square(boxlen)
 
         #Create three points in a line.
@@ -115,14 +118,14 @@ class TestAngularSeparation(unittest.TestCase):
 
         ang = freud.order.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
-        
+
         #Should find that the angular separation between the first particle and its neighbor is pi/3
         #The second particle's nearest neighbor will have the same orientation
         npt.assert_almost_equal(ang.getNeighborAngles()[0], np.pi/3, 6)
         npt.assert_almost_equal(ang.getNeighborAngles()[1], 0, 6)
 
     def test_compute_global(self):
-        N = 4 
+        N = 4
         num_neigh = 1
         rmax = 2
 

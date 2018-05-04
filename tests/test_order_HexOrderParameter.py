@@ -31,6 +31,7 @@ class TestHexOrderParameter(unittest.TestCase):
 
         box = freud.box.Box.square(boxlen)
 
+        np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
         points[:,2] = 0.0
@@ -45,6 +46,7 @@ class TestHexOrderParameter(unittest.TestCase):
 
         box = freud.box.Box.square(boxlen)
 
+        np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
         points[:,2] = 0.0

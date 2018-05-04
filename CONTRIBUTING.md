@@ -59,12 +59,10 @@ before their pull request can be merged.
 
 ## Use a consistent style
 
-It is important to have a consistent style throughout the source code. See [SourceConventions.md](SourceConventions.md)
-for the defined style guidelines for freud code.
+It is important to have a consistent style throughout the source code. Follow
+the source conventions defined in the documentation for all freud code.
 
 ## Document code with comments
-
-TODO?
 
 Use doxygen header comments for classes, functions, etc... Also comment complex sections of code so that other
 developers can understand them.
@@ -101,7 +99,7 @@ The master command index needs a reference to new script commands so they are ea
 ## Document version status
 
 Each user-facing python class, method, etc... with a docstring should have [versionadded, versionchanged, and
-deprecated sphinx paragraphs](www.sphinx-doc.org/en/stable/markup/para.html) so that users will be aware of
+deprecated sphinx paragraphs](http://www.sphinx-doc.org/en/stable/markup/para.html) so that users will be aware of
 how functionality changes from version to version (post-0.6).
 
 ## Add developer to the credits

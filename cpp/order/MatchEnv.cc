@@ -2,6 +2,7 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <cstdio>
+
 #include "MatchEnv.h"
 
 namespace freud { namespace order {
@@ -9,8 +10,8 @@ namespace freud { namespace order {
 // Constructor for EnvDisjointSet
 // Taken partially from Cluster.cc
 EnvDisjointSet::EnvDisjointSet(unsigned int Np)
+    : rank(std::vector<unsigned int>(Np, 0))
     {
-    rank = std::vector<unsigned int>(Np, 0);
     }
 
 // Merge the two sets that elements a and b belong to.

@@ -9,6 +9,7 @@ class TestLocalWl(unittest.TestCase):
         N = 1000
 
         box = freud.box.Box.cube(10)
+        np.random.seed(0)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
         comp = freud.order.LocalWl(box, 1.5, 6)
@@ -38,6 +39,7 @@ class TestLocalWlNear(unittest.TestCase):
         N = 1000
 
         box = freud.box.Box.cube(10)
+        np.random.seed(0)
         positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
 
         comp = freud.order.LocalWlNear(box, 1.5, 6, 12)

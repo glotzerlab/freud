@@ -1,14 +1,18 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "kspace.h"
-#include "ScopedGILRelease.h"
-
-#include <stdexcept>
 #include <cmath>
+#include <cstring>
 #include <complex>
+#include <stdexcept>
+
+#include "kspace.h"
 
 using namespace std;
+
+/*! \file kspace.cc
+    \brief Analyses that compute quantities in kspace
+*/
 
 namespace freud { namespace kspace {
 
@@ -206,7 +210,6 @@ void FTpolyhedron::compute()
                          * f_Im = - \cos(k \cdot c_n) * f_n
                          */
                         unsigned int N_vert = m_params.facet[facet_idx].size();
-                        float f_n(0.0f);
                         float K2inv = 1.0f/K_proj2;
                         for(unsigned int edge_idx=0; edge_idx < N_vert; edge_idx++)
                             {
@@ -224,7 +227,7 @@ void FTpolyhedron::compute()
                             float sinc = 1.0;
                             const float eps = 0.000001;
                             if (fabs(x) > eps) sinc = sinf(x)/x;
-                            f_n = dot(norm, crosslK) * sinc * K2inv;
+                            float f_n = dot(norm, crosslK) * sinc * K2inv;
                             f2D_Re -= sinf(dotKc) * f_n;
                             f2D_Im -= cosf(dotKc) * f_n;
                             } // end loop over edges

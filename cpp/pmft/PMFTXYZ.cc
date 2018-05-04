@@ -1,13 +1,12 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "PMFTXYZ.h"
-#include "ScopedGILRelease.h"
-
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
+
+#include "PMFTXYZ.h"
 
 using namespace std;
 using namespace tbb;
@@ -20,9 +19,9 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec)
-    : m_box(box::Box()), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z),
-      m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_z(n_bins_z), m_frame_counter(0),
-      m_n_ref(0), m_n_p(0), m_n_faces(0), m_reduce(true), m_shiftvec(shiftvec)
+    : PMFT(), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z),
+      m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_z(n_bins_z), 
+      m_n_faces(0), m_shiftvec(shiftvec)
     {
     if (n_bins_x < 1)
         throw invalid_argument("must be at least 1 bin in x");
@@ -86,14 +85,6 @@ PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, u
     m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
     }
 
-PMFTXYZ::~PMFTXYZ()
-    {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
-        {
-        delete[] (*i);
-        }
-    }
-
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTXYZ::reducePCF()
@@ -119,9 +110,9 @@ void PMFTXYZ::reducePCF()
                     }
                 }
             });
-    float inv_num_dens = m_box.getVolume() / (float)m_n_p;
+    float inv_num_dens = m_box.getVolume() / (float)this->m_n_p;
     float inv_jacobian = (float) 1.0 / (float) m_jacobian;
-    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref * (float) m_n_faces);
+    float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref * (float) m_n_faces);
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0,m_n_bins_x*m_n_bins_y*m_n_bins_z),
         [=] (const blocked_range<size_t>& r)
@@ -133,28 +124,6 @@ void PMFTXYZ::reducePCF()
             });
     }
 
-//! Get a reference to the PCF array
-std::shared_ptr<unsigned int> PMFTXYZ::getBinCounts()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_bin_counts;
-    }
-
-//! Get a reference to the PCF array
-std::shared_ptr<float> PMFTXYZ::getPCF()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_pcf_array;
-    }
-
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
@@ -164,8 +133,8 @@ void PMFTXYZ::resetPCF()
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
         }
-    m_frame_counter = 0;
-    m_reduce = true;
+    this->m_frame_counter = 0;
+    this->m_reduce = true;
     }
 
 //! \internal
@@ -237,7 +206,6 @@ void PMFTXYZ::accumulate(box::Box& box,
                             }
                         for (unsigned int k=0; k<n_faces; k++)
                             {
-                            // rotate vector
                             // create the extra quaternion
                             quat<float> qe(face_orientations[q_i(k, i)]);
                             // create point vector
@@ -275,12 +243,12 @@ void PMFTXYZ::accumulate(box::Box& box,
                     }
                 } // done looping over reference points
             });
-    m_frame_counter++;
-    m_n_ref = n_ref;
-    m_n_p = n_p;
+    this->m_frame_counter++;
+    this->m_n_ref = n_ref;
+    this->m_n_p = n_p;
     m_n_faces = n_faces;
     // flag to reduce
-    m_reduce = true;
+    this->m_reduce = true;
     }
 
 }; }; // end namespace freud::pmft

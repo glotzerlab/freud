@@ -1,6 +1,8 @@
-# \package freud.common
-#
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# This file is part of the freud project, released under the BSD 3-Clause License.
+
 # Methods used throughout freud for convenience
+
 import logging
 import numpy as np
 
@@ -40,11 +42,11 @@ def convert_array(array, dimensions, dtype=None,
     requirements = None
     if contiguous:
         if not array.flags.contiguous:
-            msg = 'converting supplied array to contiguous'
-            logger.warning(msg)
+            msg = 'Converting supplied array to contiguous.'
+            logger.info(msg)
         requirements = ["C"]
     if dtype is not None and dtype != array.dtype:
-        msg = 'converting supplied array dtype {} to dtype {}'.format(
+        msg = 'Converting supplied array dtype {} to dtype {}.'.format(
             array.dtype, dtype)
-        logger.warning(msg)
+        logger.info(msg)
     return np.require(array, dtype=dtype, requirements=requirements)

@@ -7,6 +7,11 @@
 #include "Index1D.h"
 
 using namespace std;
+
+/*! \file box.cc
+    \brief Represents simulation boxes and contains helpful wrapping functions.
+*/
+
 namespace freud { namespace box {
 
 }; }; // end namespace freud::box

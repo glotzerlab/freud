@@ -1,27 +1,19 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "NeighborList.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "NeighborList.h"
 
 #ifndef _LOCAL_DENSITY_H__
 #define _LOCAL_DENSITY_H__
 
 /*! \file LocalDensity.h
-    \brief Routines for computing local density around a point
+    \brief Routines for computing local density around a point.
 */
 
 namespace freud { namespace density {

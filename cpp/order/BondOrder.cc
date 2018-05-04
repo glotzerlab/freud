@@ -1,20 +1,19 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "BondOrder.h"
-#include "ScopedGILRelease.h"
-
-#include <stdexcept>
 #include <complex>
+#include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
+
+#include "BondOrder.h"
 
 using namespace std;
 using namespace tbb;
 
 /*! \file BondOrder.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the bond order diagram for the system of particles.
 */
 
 namespace freud { namespace order {

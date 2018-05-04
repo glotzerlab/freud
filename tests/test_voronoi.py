@@ -2,18 +2,20 @@ from freud import box, voronoi
 import numpy as np
 import numpy.testing as npt
 import unittest
+import util
 
 class TestVoronoi(unittest.TestCase):
     def test_basic(self):
-        # Test that voronoi tesselations of random systems have the same
+        # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
         L = 10 # Box length
         N = 50 # Number of particles
         fbox = box.Box.square(L) # Initialize box
         vor = voronoi.Voronoi(fbox)
+        np.random.seed(0)
         positions = np.random.uniform(-L/2, L/2, size=(N, 2)) # Generate random points in the box
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32) # Add a z-component of 0
-        vor.compute(positions, buff=L/2)
+        vor.compute(positions, box=fbox, buff=L/2)
 
         result = vor.getVoronoiPolytopes()
 
@@ -32,6 +34,9 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_equal(vor.getVoronoiPolytopes(),
                 [np.array([[ 1.5,  1.5, 0], [ 0.5,  1.5, 0],
                            [ 0.5,  0.5, 0], [ 1.5,  0.5, 0]])])
+        # Verify the cell areas
+        vor.computeVolumes()
+        npt.assert_equal(vor.getVolumes(), [1])
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
@@ -53,6 +58,9 @@ class TestVoronoi(unittest.TestCase):
                 [np.array([[1.5, 1.5, 1.5], [1.5, 0.5, 1.5], [1.5, 0.5, 0.5],
                            [1.5, 1.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 1.5],
                            [0.5, 1.5, 0.5], [0.5, 1.5, 1.5]])])
+        # Verify the cell volumes
+        vor.computeVolumes()
+        npt.assert_equal(vor.getVolumes(), [1])
 
     def test_voronoi_neighbors(self):
         # Test that voronoi neighbors in the first and second shells are
@@ -74,6 +82,59 @@ class TestVoronoi(unittest.TestCase):
                  [1, 2, 3, 4, 7, 8], [0, 3, 4, 7, 8], [1, 3, 4, 5, 6, 8],
                  [2, 4, 5, 6, 7]])
 
+    def test_voronoi_neighbors_wrapped(self):
+        # Test that voronoi neighbors in the first shell are
+        # correct for a wrapped 3D system
+
+        L = 3.0 # Box length
+        fbox = box.Box.cube(L)
+        rbuf = L/2
+
+        # Make a simple cubic structure
+        positions = np.array([[i + 0.5 - L/2,
+                               j + 0.5 - L/2,
+                               k + 0.5 - L/2]
+                               for i in range(int(L))
+                               for j in range(int(L))
+                               for k in range(int(L))]).astype(np.float32)
+        vor = voronoi.Voronoi(fbox)
+        vor.computeNeighbors(positions, fbox, rbuf)
+        nlist = vor.getNeighborList()
+
+        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
+
+        # Every particle should have six neighbors
+        npt.assert_equal(counts, np.full(len(unique_indices), 6))
+
+    def test_voronoi_weights_fcc(self):
+        # Test that voronoi neighbor weights are computed properly for 3D FCC
+
+        L = 3
+        fbox, positions = util.make_fcc(nx=L, ny=L, nz=L)
+        rbuf = np.max(fbox.L)/2
+
+        vor = voronoi.Voronoi(fbox)
+        vor.computeNeighbors(positions, fbox, rbuf)
+        nlist = vor.getNeighborList()
+
+        # Drop the tiny facets that come from numerical imprecision
+        nlist = nlist.filter(nlist.weights > 1e-12)
+
+        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
+
+        # Every FCC particle should have 12 neighbors
+        npt.assert_equal(counts, np.full(len(unique_indices), 12))
+
+        # Every facet area should be sqrt(2)/2
+        npt.assert_allclose(nlist.weights,
+                            np.full(len(nlist.weights), 0.5*np.sqrt(2)),
+                            atol=1e-5)
+        # Every cell should have volume 2
+        vor.compute(positions)
+        npt.assert_allclose(vor.computeVolumes().getVolumes(),
+                            np.full(len(vor.getVoronoiPolytopes()), 2.),
+                            atol=1e-5)
+
     def test_nlist_symmetric(self):
         # Test that the voronoi neighborlist is symmetric
         L = 10 # Box length
@@ -81,6 +142,7 @@ class TestVoronoi(unittest.TestCase):
         N = 40 # Number of particles
 
         fbox = box.Box.cube(L) # Initialize box
+        np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         vor = voronoi.Voronoi(fbox)
         vor.computeNeighbors(points, fbox, rbuf)

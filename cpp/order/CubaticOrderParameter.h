@@ -1,30 +1,22 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
-
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
+#include "box.h"
 #include "VectorMath.h"
 #include "TensorMath.h"
 #include "saruprng.h"
-
 #include "NearestNeighbors.h"
-#include "box.h"
 #include "Index1D.h"
 
 #ifndef _CUBATIC_ORDER_PARAMETER_H__
 #define _CUBATIC_ORDER_PARAMETER_H__
 
 /*! \file CubaticOrderParameter.h
-    \brief Compute the cubatic order parameter for each particle
+    \brief Compute the cubatic order parameter for each particle.
 */
 
 namespace freud { namespace order {

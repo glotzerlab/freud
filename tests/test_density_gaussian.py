@@ -14,6 +14,7 @@ class TestDensity(unittest.TestCase):
         sigma=0.1
         num_points = 10000
         box_size = rcut*3.1
+        np.random.seed(0)
         points = np.random.random_sample((num_points,3)).astype(np.float32)*box_size - box_size/2
         points[:,2] = 0
         diff = density.GaussianDensity(width, rcut, sigma)

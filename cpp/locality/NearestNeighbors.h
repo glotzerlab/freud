@@ -1,14 +1,12 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <memory>
 
-#include <algorithm>
-#include "LinkCell.h"
-// hack to keep VectorMath's swap from polluting the global namespace
-// if this is a problem, we need to solve it
-#include "VectorMath.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "LinkCell.h"
 #include "Index1D.h"
 
 #include "tbb/atomic.h"
@@ -17,7 +15,7 @@
 #define _NEAREST_NEIGHBORS_H__
 
 /*! \file NearestNeighbors.h
-  \brief Find the requested number of nearest neighbors
+  \brief Find the requested number of nearest neighbors.
 */
 
 namespace freud { namespace locality {

@@ -1,16 +1,14 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "BondingR12.h"
-#include "ScopedGILRelease.h"
-
+#include <complex>
+#include <map>
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <complex>
-#include <map>
+#include "BondingR12.h"
 
 using namespace std;
 using namespace tbb;
@@ -119,8 +117,6 @@ void BondingR12::compute(box::Box& box,
             size_t bond(nlist->find_first_index(br.begin()));
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
-                // huh?
-                std::map<unsigned int, std::vector<unsigned int> > l_bonds;
                 // get position, orientation of particle i
                 vec3<float> ref_pos = ref_points[i];
                 float ref_angle = ref_orientations[i];

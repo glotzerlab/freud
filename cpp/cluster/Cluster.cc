@@ -1,16 +1,16 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "Cluster.h"
-
+#include <map>
 #include <stdexcept>
 #include <vector>
-#include <map>
+
+#include "Cluster.h"
 
 using namespace std;
 
 /*! \file Cluster.cc
-    \brief Routines for clustering points
+    \brief Routines for clustering points.
 */
 
 namespace freud { namespace cluster {
@@ -18,10 +18,8 @@ namespace freud { namespace cluster {
 /*! \param n Number of initial sets
 */
 DisjointSet::DisjointSet(uint32_t n)
+    : s(vector<uint32_t>(n)), rank(vector<uint32_t>(n, 0))
     {
-    s = vector<uint32_t>(n);
-    rank = vector<uint32_t>(n, 0);
-
     // initialize s
     for (uint32_t i = 0; i < n; i++)
         s[i] = i;
@@ -71,14 +69,15 @@ uint32_t DisjointSet::find(const uint32_t c)
     return r;
     }
 
-Cluster::Cluster(const box::Box& box, float rcut)
-    : m_box(box), m_rcut(rcut), m_num_particles(0)
+Cluster::Cluster(float rcut)
+    : m_rcut(rcut), m_num_particles(0), m_num_clusters(0)
     {
     if (m_rcut < 0.0f)
         throw invalid_argument("rcut must be positive");
     }
 
-void Cluster::computeClusters(const freud::locality::NeighborList *nlist,
+void Cluster::computeClusters(const box::Box& box,
+                              const freud::locality::NeighborList *nlist,
                               const vec3<float> *points,
                               unsigned int Np)
     {
@@ -112,12 +111,8 @@ void Cluster::computeClusters(const freud::locality::NeighborList *nlist,
                     {
                     // compute r between the two particles
                     vec3<float> delta = p - points[j];
-                    // float dx = float(p.x - points[j].x);
-                    // float dy = float(p.y - points[j].y);
-                    // float dz = float(p.z - points[j].z);
-                    delta = m_box.wrap(delta);
+                    delta = box.wrap(delta);
 
-                    // float rsq = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
                     float rsq = dot(delta, delta);
                     if (rsq < rmaxsq)
                         {

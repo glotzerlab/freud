@@ -2,21 +2,19 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
-#include <vector>
 #include <set>
 #include <stdint.h>
+#include <vector>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "LinkCell.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "LinkCell.h"
 
 #ifndef _CLUSTER_H__
 #define _CLUSTER_H__
 
 /*! \file Cluster.h
-    \brief Routines for clustering points
+    \brief Routines for clustering points.
 */
 
 namespace freud { namespace cluster {
@@ -65,16 +63,11 @@ class Cluster
     {
     public:
         //! Constructor
-        Cluster(const box::Box& box, float rcut);
-
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
+        Cluster(float rcut);
 
         //! Compute the point clusters
-        void computeClusters(const freud::locality::NeighborList *nlist,
+        void computeClusters(const box::Box& box,
+                             const freud::locality::NeighborList *nlist,
                              const vec3<float> *points,
                              unsigned int Np);
 
@@ -106,13 +99,11 @@ class Cluster
             }
 
     private:
-        box::Box m_box;                  //!< Simulation box where the particles belong
         float m_rcut;                    //!< Maximum r at which points will be counted in the same cluster
         unsigned int m_num_particles;    //!< Number of particles processed in the last call to compute()
         unsigned int m_num_clusters;     //!< Number of clusters found in the last call to compute()
         std::shared_ptr<unsigned int> m_cluster_idx;   //!< Cluster index determined for each particle
         std::vector< std::vector<unsigned int> > m_cluster_keys;   //!< List of keys in each cluster
-
     };
 
 }; }; // end namespace freud::cluster

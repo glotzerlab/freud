@@ -16,7 +16,7 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(Lz, 2, decimal=2, err_msg="LzFail")
 
     def test_TiltFactor(self):
-        box = freud.box.Box(2,	2, 2, 1, 0, 0);
+        box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
         tiltxy = box.getTiltFactorXY()
         tiltxz = box.getTiltFactorXZ()

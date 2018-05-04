@@ -20,13 +20,11 @@ class TestCluster(unittest.TestCase):
         positions = np.array(positions).reshape((-1, 3))
 
         clust = freud.cluster.Cluster(box, 0.5)
-        clust.computeClusters(positions)
+        clust.computeClusters(positions, box=box)
 
         props = freud.cluster.ClusterProperties(box)
-        props.computeProperties(positions, clust.cluster_idx)
-
+        props.computeProperties(positions, clust.cluster_idx, box=box)
         self.assertEqual(props.num_clusters, Ngrid)
-
         self.assertTrue(np.all(props.cluster_sizes == Nrep))
 
     def test_cluster_keys(self):
@@ -43,7 +41,7 @@ class TestCluster(unittest.TestCase):
         positions = np.array(positions).reshape((-1, 3))
 
         clust = freud.cluster.Cluster(box, 0.5)
-        clust.computeClusters(positions)
+        clust.computeClusters(positions, box=box)
         clust.computeClusterMembership(np.array(range(Nrep*Ngrid)))
 
         self.assertEqual(len(clust.cluster_keys), Ngrid)

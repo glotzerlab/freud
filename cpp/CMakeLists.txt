@@ -55,7 +55,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_SOURCE_DIR}/registration
-                    ${CMAKE_CURRENT_SOURCE_DIR}/extern
                     ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
@@ -116,6 +115,8 @@ set(FREUD_SOURCES
             interface/InterfaceMeasure.h
             order/Pairing2D.cc
             order/Pairing2D.h
+            pmft/PMFT.cc
+            pmft/PMFT.h
             pmft/PMFTXYZ.cc
             pmft/PMFTXYZ.h
             pmft/PMFTXY2D.cc
