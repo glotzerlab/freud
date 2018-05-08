@@ -2,7 +2,7 @@
 PMFT Module
 ===========
 
-The PMFT Module allows for the calculation of the Potential of Mean Force and Torque (PMFT) [Cit2]_ in a number of \
+The PMFT Module allows for the calculation of the Potential of Mean Force and Torque (PMFT) [Cit2]_ [Cit3]_ in a number of \
 different coordinate systems.
 
 .. note::

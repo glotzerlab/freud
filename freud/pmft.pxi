@@ -89,7 +89,7 @@ cdef class _PMFT:
 
 
 cdef class PMFTR12(_PMFT):
-    """Computes the PMFT [Cit2]_ for a given set of points.
+    """Computes the PMFT [Cit2]_ [Cit3]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed
     and averaged in a sea of data points. Computing the PCF results in a PCF
@@ -420,7 +420,7 @@ cdef class PMFTR12(_PMFT):
         return T2
 
 cdef class PMFTXYT(_PMFT):
-    """Computes the PMFT [Cit2]_ for a given set of points.
+    """Computes the PMFT [Cit2]_ [Cit3]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed
     and averaged in a sea of data points. Computing the PCF results in a PCF
@@ -731,7 +731,7 @@ cdef class PMFTXYT(_PMFT):
 
 
 cdef class PMFTXY2D(_PMFT):
-    """Computes the PMFT [Cit2]_ for a given set of points.
+    """Computes the PMFT [Cit2]_ [Cit3]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed
     and averaged in a sea of data points. Computing the PCF results in a PCF
@@ -999,7 +999,7 @@ cdef class PMFTXY2D(_PMFT):
 
 
 cdef class PMFTXYZ(_PMFT):
-    """Computes the PMFT [Cit2]_ for a given set of points.
+    """Computes the PMFT [Cit2]_ [Cit3]_ for a given set of points.
 
     A given set of reference points is given around which the PCF is computed
     and averaged in a sea of data points. Computing the PCF results in a PCF
