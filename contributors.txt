@@ -1,8 +1,8 @@
   1030	Eric Harper <harperic@umich.edu>
    278	Joshua A. Anderson <joaander@umich.edu>
    221	Matthew Spellings <mspells@umich.edu>
-   201	Bradley Dice <bdice@bradleydice.com>
-   171	Vyas Ramasubramani <vramasub@umich.edu>
+   205	Bradley Dice <bdice@bradleydice.com>
+   177	Vyas Ramasubramani <vramasub@umich.edu>
     98	Erin Teich <erteich@umich.edu>
     66	M. Eric Irrgang <eirrgang@umich.edu>
     52	Chrisy Du <xiyudu@umich.edu>
