@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2017 The Regents of the University of Michigan
+# Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is part of the Freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
@@ -12,7 +12,14 @@ from libcpp.map cimport map
 cimport freud._box as box
 cimport freud._locality
 
-cdef extern from "SymmetricOrientation.h" namespace "freud::symmetry":
-    cdef cppclass SymmetricOrientation:
-        SymmetricOrientation()
-        quat[float] getSymmetricOrientation()
+cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
+    cdef cppclass SymmetryCollection:
+        SymmetryCollection()
+        void compute(box.Box & ,
+                     vec3[float]*,
+                     const freud._locality.NeighborList*,
+                     unsigned int) nogil except +
+        quat[float] getHighestOrderQuat()
+        shared_ptr[quat[float]] getOrderQuats()
+        shared_ptr[float complex] getMlm()
+        int getNP()

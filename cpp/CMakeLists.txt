@@ -106,8 +106,8 @@ set(FREUD_SOURCES
             order/BondOrder.cc
             order/LocalDescriptors.h
             order/LocalDescriptors.cc
-            symmetry/SymmetricOrientation.h
-            symmetry/SymmetricOrientation.cc
+            symmetry/SymmetryCollection.h
+            symmetry/SymmetryCollection.cc
             util/Index1D.h
             util/HOOMDMath.h
             util/HOOMDMatrix.cc
