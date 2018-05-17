@@ -6,13 +6,14 @@ from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
 cimport freud._box as _box
 cimport freud._symmetry as symmetry
-from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 from libcpp.pair cimport pair
+from libcpp.unordered_set cimport unordered_set
 import numpy as np
 cimport numpy as np
 import time
+from cython.operator cimport dereference
 
 # Numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -26,9 +27,11 @@ cdef class SymmetryCollection:
 
     """
     cdef symmetry.SymmetryCollection *thisptr
+    cdef num_neigh
 
-    def __cinit__(self):
-        self.thisptr = new symmetry.SymmetryCollection()
+    def __cinit__(self, maxL=int(30)):
+        self.thisptr = new symmetry.SymmetryCollection(maxL)
+        self.num_neigh = maxL
 
     def __dealloc__(self):
         del self.thisptr
@@ -65,6 +68,8 @@ cdef class SymmetryCollection:
         self.thisptr.compute(l_box, < vec3[float]*>l_points.data, nlist_ptr, nP)
         return self
 
+    cdef measure(self, shared_ptr[float] Mlm, unsigned int type):
+        return self.thisptr.measure(Mlm, type)
 
     def getMlm(self):
         """Get a reference to Mlm.
@@ -72,15 +77,24 @@ cdef class SymmetryCollection:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`,
                 shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.complex64`
+                dtype= :class:`numpy.float64`
         """
-        cdef float complex * Mlm = self.thisptr.getMlm().get()
+        cdef float * Mlm = self.thisptr.getMlm().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim= 1
+        nbins[0] = <np.npy_intp > self.thisptr.getMaxL()
+        cdef np.ndarray[np.float64_t, ndim= 1
                 ] result = np.PyArray_SimpleNewFromData(
-                        1, nbins, np.NPY_COMPLEX64, < void*>Mlm)
+                        1, nbins, np.NPY_FLOAT64, < void*>Mlm)
         return result
+
+
+    def getMaxL(self):
+        """Maximum l value
+
+        :return: maximum l value
+        :rtype: int
+        """
+        return self.thisptr.getMaxL()
 
 
     # def get_symmetric_orientation(self):
@@ -91,3 +105,101 @@ cdef class SymmetryCollection:
     #     cdef quat[float] q = self.thisptr.getSymmetricOrientation()
     #     cdef np.ndarray[float, ndim=1] result = np.array([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
     #     return result
+
+
+
+cdef class Geodesation:
+    """Compute the 
+
+    .. moduleauthor:: Bradley Dice <bdice@umich.edu>
+    .. moduleauthor:: Yezhi Jin <jinyezhi@umich.edu>
+
+    """
+    cdef symmetry.Geodesation *thisptr
+    cdef num_neigh
+
+    def __cinit__(self, iteration):
+        self.thisptr = new symmetry.Geodesation(iteration)
+        self.num_neigh = iteration
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def createVertex(self, x, y, z):
+        """Returns the index of vertex.
+
+        :return: the index of vertex added to the list
+        :rtype: int
+        """
+        return self.thisptr.createVertex(x, y, z)
+
+    def createSimplex(self, v0, v1, v2):
+        """Returns the index of simplex in the list.
+
+        :return: the index of simplex added to the list
+        :rtype: int
+        """
+        return self.thisptr.createSimplex(v0, v1, v2)
+
+
+    def getVertexList(self):
+        """Return the vertex list.
+
+        :return: list of vertices
+        :rtype: :class:`numpy.ndarray`,
+                shape=(:math:`N_{particles}`, varying),
+                dtype= :class:`numpy.uint32`
+        """
+        cdef vector[vec3[float]] *vertices = self.thisptr.getVertexList().get()
+        cdef np.npy_intp nVerts[2]
+        nVerts[0] = <np.npy_intp > vertices.size()
+        print("vertices.size() = ", vertices.size())
+        nVerts[1] = 3
+        cdef np.ndarray[float, ndim=2
+                        ] result = np.PyArray_SimpleNewFromData(
+                        2, nVerts, np.NPY_FLOAT32, < void*> dereference(vertices).data())
+        return result
+
+    def getNeighborList(self):
+        """Return the neighbor list.
+
+        :return: list of neighbors
+        :rtype: :class:`numpy.ndarray`,
+                shape=(:math:`N_{particles}`, varying),
+                dtype= :class:`numpy.uint32`
+        """
+        return self.thisptr.getNeighborList()
+
+
+    def createMidVertex(self, i0, i1):
+        """Returns the index of vertex.
+
+        :return: the index of vertex added to the list
+        :rtype: int
+        """
+        return self.thisptr.createMidVertex(i0, i1)
+
+    def connectSimplices(self, s0, s1):
+        """Returns the index of vertex.
+
+        :return: the index of vertex added to the list
+        :rtype: int
+        """
+        return self.thisptr.connectSimplices(s0, s1)
+
+    def findNeighborMidVertex(self, points, s):
+        """Returns the index of vertex.
+
+        :return: the index of vertex added to the list
+        :rtype: int
+        """
+        return self.thisptr.findNeighborMidVertex(points, s)
+
+    def geodesate(self):
+        """Returns the index of vertex.
+
+        :return: the index of vertex added to the list
+        :rtype: int
+        """
+        return self.thisptr.geodesate()
+

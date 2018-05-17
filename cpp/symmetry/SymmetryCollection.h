@@ -24,8 +24,8 @@ namespace freud { namespace symmetry {
 class SymmetryCollection
     {
     public:
-        //! Constructor
-        SymmetryCollection();
+        //! Constructor, set default value maxL to 30
+        SymmetryCollection(unsigned int maxL = 30);
 
         //! Destructor
         ~SymmetryCollection();
@@ -44,6 +44,8 @@ class SymmetryCollection
                      const vec3<float> *points,
                      const freud::locality::NeighborList *nlist,
                      unsigned int Np);
+        
+        float measure(std::shared_ptr<float> Mlm, unsigned int type);
 
         //! Returns quaternion corresponding to the highest-symmetry axis
         quat<float> getHighestOrderQuat();
@@ -51,18 +53,34 @@ class SymmetryCollection
         //! Returns quaternions for all detected symmetry axes
         quat<float>* getOrderQuats();
 
-        std::shared_ptr<std::complex<float>> getMlm();
+        std::shared_ptr<float> getMlm();
+        
         unsigned int getNP() {
             return m_Np;
         }
 
+        unsigned int getMaxL() {
+            return m_maxL;
+        }
     private:
         box::Box m_box;
-        const int MAXL = 30;
+        unsigned int m_maxL;
         quat<float> m_symmetric_orientation;
-        std::shared_ptr<std::complex<float>> m_Mlm;
+        std::shared_ptr<float> m_Mlm;
         unsigned int m_Np;
+        const int TOTAL = -1;
+        const int AXIAL = 0;
+        const int MIRROR = 1;
+        const int TWOFold = 2;
+        const int THREEFold = 3;
+        const int FOURFold = 4;
+        const int FIVEFold = 5;
+        const int SIXFold = 6;
+        const int EIGHTFold = 8;
+        const int TENFold = 10;
+        const int TWELVEFold = 12;
     };
+
 
 }; }; // end namespace freud::symmetry
 

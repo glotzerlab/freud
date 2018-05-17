@@ -108,6 +108,8 @@ set(FREUD_SOURCES
             order/LocalDescriptors.cc
             symmetry/SymmetryCollection.h
             symmetry/SymmetryCollection.cc
+            symmetry/Geodesation.h
+            symmetry/Geodesation.cc
             util/Index1D.h
             util/HOOMDMath.h
             util/HOOMDMatrix.cc

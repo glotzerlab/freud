@@ -9,17 +9,32 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
+from libcpp.unordered_set cimport unordered_set
 cimport freud._box as box
 cimport freud._locality
 
 cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
     cdef cppclass SymmetryCollection:
-        SymmetryCollection()
+        SymmetryCollection(unsigned int)
         void compute(box.Box & ,
                      vec3[float]*,
                      const freud._locality.NeighborList*,
                      unsigned int) nogil except +
         quat[float] getHighestOrderQuat()
         shared_ptr[quat[float]] getOrderQuats()
-        shared_ptr[float complex] getMlm()
+        shared_ptr[float] getMlm()
+        float measure(shared_ptr[float], unsigned int)
         int getNP()
+        int getMaxL()
+
+cdef extern from "Geodesation.h" namespace "freud::symmetry":
+    cdef cppclass Geodesation:
+        Geodesation(unsigned int)
+        int createVertex(float, float, float)
+        int createSimplex(int, int, int)
+        shared_ptr[vector[vec3[float]]] getVertexList()
+        vector[unordered_set[int]] getNeighborList()
+        void connectSimplices(int, int)
+        int findNeighborMidVertex(vector[int], int)
+        int createMidVertex(int, int)
+        void geodesate()

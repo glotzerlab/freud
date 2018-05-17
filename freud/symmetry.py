@@ -7,4 +7,5 @@
 #
 
 from ._freud import SymmetryCollection
+from ._freud import Geodesation
 import numpy as np
