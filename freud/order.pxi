@@ -757,6 +757,13 @@ cdef class LocalDescriptors:
     """Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
 
+    The resulting spherical harmonic array will be a complex-valued
+    array of shape `(num_bonds, num_sphs)`. Spherical harmonic
+    calculation can be restricted to some number of nearest neighbors
+    through the `num_neighbors` argument; if a particle has more bonds
+    than this number, the last one or more rows of bond spherical
+    harmonics for each particle will not be set.
+
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     :param num_neighbors: Maximum number of neighbors to compute descriptors
@@ -790,7 +797,6 @@ cdef class LocalDescriptors:
         """Compute the neighbor list for bonds from a set of source points to
         a set of destination points.
 
-        :param num_neighbors: Number of neighbors to compute with
         :param points_ref: source points to calculate the order parameter
         :param points: destination points to calculate the order parameter
         :type points_ref: :class:`numpy.ndarray`,
@@ -832,7 +838,8 @@ cdef class LocalDescriptors:
         """Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
-        :param num_neighbors: Number of neighbors to compute with
+        :param num_neighbors: Number of neighbors to compute with or to limit to,
+                     if the neighbor list is precomputed
         :param points_ref: source points to calculate the order parameter
         :param points: destination points to calculate the order parameter
         :param orientations: Orientation of each reference point
@@ -842,7 +849,7 @@ cdef class LocalDescriptors:
                      particle orientations, or 'global' to not rotate
                      environments
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds
+                      find bonds or 'precomputed' if using :py:fun:`computeNList`
         :type points_ref: :class:`numpy.ndarray`,
                           shape= :math:`\\left(N_{particles}, 3 \\right)`,
                           dtype= :class:`numpy.float32`
@@ -905,10 +912,16 @@ cdef class LocalDescriptors:
         l_mode = self.known_modes[mode]
 
         self.num_neigh = num_neighbors
-        defaulted_nlist = make_default_nlist_nn(
-            box, points_ref, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+
+        cdef NeighborList nlist_
+        cdef locality.NeighborList *nlist_ptr
+        if nlist == 'precomputed':
+            nlist_ptr = <locality.NeighborList*> 0
+        else:
+            defaulted_nlist = make_default_nlist_nn(
+                box, points_ref, points, self.num_neigh, nlist, True, self.rmax)
+            nlist_ = defaulted_nlist[0]
+            nlist_ptr = nlist_.get_ptr()
 
         with nogil:
             self.thisptr.compute(
