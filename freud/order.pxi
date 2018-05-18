@@ -916,7 +916,7 @@ cdef class LocalDescriptors:
         cdef NeighborList nlist_
         cdef locality.NeighborList *nlist_ptr
         if nlist == 'precomputed':
-            nlist_ptr = <locality.NeighborList*> 0
+            nlist_ptr = NULL
         else:
             defaulted_nlist = make_default_nlist_nn(
                 box, points_ref, points, self.num_neigh, nlist, True, self.rmax)
