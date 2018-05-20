@@ -4,6 +4,7 @@ import numpy.testing as npt
 import warnings
 import unittest
 
+
 class TestBox(unittest.TestCase):
 
     def setUp(self):
@@ -66,7 +67,7 @@ class TestBox(unittest.TestCase):
                                [0, 0.5,  0]], dtype=np.float32)
         box.wrap(testpoints)
 
-        npt.assert_almost_equal(testpoints[0,0], -2, decimal=2,
+        npt.assert_almost_equal(testpoints[0, 0], -2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_WrapMultipleImages(self):
@@ -75,18 +76,18 @@ class TestBox(unittest.TestCase):
                                [0, 0.5, 0]], dtype=np.float32)
         box.wrap(testpoints)
 
-        npt.assert_almost_equal(testpoints[0,0], -2, decimal=2,
+        npt.assert_almost_equal(testpoints[0, 0], -2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_unwrap(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
         testpoints = np.array([[0,  -1, -1],
                                [0, 0.5,  0]], dtype=np.float32)
-        imgs = np.array([[1,0,0],
-                         [1,1,0]], dtype=np.int32)
+        imgs = np.array([[1, 0, 0],
+                         [1, 1, 0]], dtype=np.int32)
         box.unwrap(testpoints, imgs)
 
-        npt.assert_almost_equal(testpoints[0,0], 2, decimal=2,
+        npt.assert_almost_equal(testpoints[0, 0], 2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_images(self):
@@ -182,7 +183,6 @@ class TestBox(unittest.TestCase):
         self.assertEqual(square.xz, 0)
         self.assertEqual(square.yz, 0)
         self.assertEqual(square.dimensions, 2)
-
 
 
 if __name__ == '__main__':

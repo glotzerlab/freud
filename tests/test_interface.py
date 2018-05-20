@@ -1,8 +1,8 @@
 import numpy as np
-import numpy.testing as npt
 import freud
 import unittest
 import util
+
 
 class TestInterface(unittest.TestCase):
     def test_take_one(self):
@@ -20,6 +20,7 @@ class TestInterface(unittest.TestCase):
 
         self.assertEqual(inter.compute(point, others), 1)
         self.assertEqual(inter.compute(others, point), 12)
+
 
 if __name__ == '__main__':
     unittest.main()

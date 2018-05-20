@@ -1,19 +1,19 @@
 from freud import locality, box
 import numpy as np
-import numpy.testing as npt
-import itertools
 import unittest
 import freud
 
+
 class TestNeighborList(unittest.TestCase):
     def test_writable(self):
-        L = 10 #Box Dimensions
-        rcut = 3 #Cutoff radius
-        N = 40; # number of particles
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+        N = 40  # number of particles
         num_neighbors = 6
 
-        fbox = box.Box.cube(L)#Initialize Box
-        cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
+        # Initialize Box and cell list
+        fbox = box.Box.cube(L)
+        cl = locality.NearestNeighbors(rcut, num_neighbors)
 
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
@@ -33,13 +33,14 @@ class TestNeighborList(unittest.TestCase):
         self.assertEqual(cl.nlist.weights[18], 3)
 
     def test_validation(self):
-        L = 10 #Box Dimensions
-        rcut = 3 #Cutoff radius
-        N = 40; # number of particles
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+        N = 40  # number of particles
         num_neighbors = 6
 
-        fbox = box.Box.cube(L)#Initialize Box
-        cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
+        # Initialize Box and cell list
+        fbox = box.Box.cube(L)
+        cl = locality.NearestNeighbors(rcut, num_neighbors)
 
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
@@ -56,13 +57,14 @@ class TestNeighborList(unittest.TestCase):
         cl.nlist.filter_r(fbox, points, points2, 2.5)
 
     def test_filter(self):
-        L = 10 #Box Dimensions
-        rcut = 3 #Cutoff radius
-        N = 40; # number of particles
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+        N = 40  # number of particles
         num_neighbors = 6
 
-        fbox = box.Box.cube(L)#Initialize Box
-        cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
+        # Initialize Box and cell list
+        fbox = box.Box.cube(L)
+        cl = locality.NearestNeighbors(rcut, num_neighbors)
 
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
@@ -71,7 +73,8 @@ class TestNeighborList(unittest.TestCase):
 
         old_size = len(cl.nlist)
 
-        filt = (cl.nlist.index_j.astype(np.int32) - cl.nlist.index_i.astype(np.int32))%2 == 0
+        filt = (cl.nlist.index_j.astype(np.int32) -
+                cl.nlist.index_i.astype(np.int32)) % 2 == 0
         cl.nlist.filter(filt)
 
         self.assertLessEqual(len(cl.nlist), old_size)
@@ -80,13 +83,14 @@ class TestNeighborList(unittest.TestCase):
         cl.nlist.filter_r(fbox, points, points, 2.5)
 
     def test_find_first_index(self):
-        L = 10 #Box Dimensions
-        rcut = 3 #Cutoff radius
-        N = 40; # number of particles
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+        N = 40  # number of particles
         num_neighbors = 6
 
-        fbox = box.Box.cube(L)#Initialize Box
-        cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
+        # Initialize Box and cell list
+        fbox = box.Box.cube(L)
+        cl = locality.NearestNeighbors(rcut, num_neighbors)
 
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
@@ -98,13 +102,14 @@ class TestNeighborList(unittest.TestCase):
             self.assertLessEqual(nlist.find_first_index(i), idx)
 
     def test_segments(self):
-        L = 10 #Box Dimensions
-        rcut = 3 #Cutoff radius
-        N = 40; # number of particles
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+        N = 40  # number of particles
         num_neighbors = 6
 
-        fbox = box.Box.cube(L)#Initialize Box
-        cl = locality.NearestNeighbors(rcut, num_neighbors)#Initialize cell list
+        # Initialize Box and cell list
+        fbox = box.Box.cube(L)
+        cl = locality.NearestNeighbors(rcut, num_neighbors)
 
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
@@ -112,7 +117,8 @@ class TestNeighborList(unittest.TestCase):
         cl.compute(fbox, points, points)
 
         ones = np.ones(len(cl.nlist), dtype=np.float32)
-        self.assertTrue(np.allclose(np.add.reduceat(ones, cl.nlist.segments), 6))
+        self.assertTrue(np.allclose(np.add.reduceat(ones, cl.nlist.segments),
+                                    6))
         self.assertTrue(np.allclose(cl.nlist.neighbor_counts, 6))
 
     def test_from_arrays(self):
@@ -125,29 +131,37 @@ class TestNeighborList(unittest.TestCase):
 
         # explicit weights
         weights = np.ones((len(index_i),))*4.
-        nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j, weights)
+        nlist = freud.locality.NeighborList.from_arrays(
+            4, 4, index_i, index_j, weights)
         self.assertTrue(np.allclose(nlist.weights, 4))
 
         # too few reference particles
         with self.assertRaises(RuntimeError):
-            nlist = freud.locality.NeighborList.from_arrays(3, 4, index_i, index_j)
+            nlist = freud.locality.NeighborList.from_arrays(
+                3, 4, index_i, index_j)
 
         # too few target particles
         with self.assertRaises(RuntimeError):
-            nlist = freud.locality.NeighborList.from_arrays(4, 3, index_i, index_j)
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 3, index_i, index_j)
 
         # reference particles not sorted
         with self.assertRaises(RuntimeError):
-            nlist = freud.locality.NeighborList.from_arrays(4, 4, index_j, index_i)
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, index_j, index_i)
 
         # mismatched array sizes
         with self.assertRaises(TypeError):
-            nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i[:-1], index_j)
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, index_i[:-1], index_j)
         with self.assertRaises(TypeError):
-            nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j[:-1])
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, index_i, index_j[:-1])
         with self.assertRaises(TypeError):
             weights = np.ones((len(index_i) - 1,))
-            nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j, weights)
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, index_i, index_j, weights)
+
 
 if __name__ == '__main__':
     unittest.main()

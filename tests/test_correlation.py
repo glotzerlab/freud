@@ -1,7 +1,7 @@
 import unittest
-
 import numpy as np
 import freud
+
 
 class TestCorrelationFunction(unittest.TestCase):
     def test_type_check(self):
@@ -20,6 +20,7 @@ class TestCorrelationFunction(unittest.TestCase):
         values = np.asarray(values, dtype=np.complex128)
         corrfun.compute(box, points, values, points, values.conj())
         assert True
+
 
 if __name__ == '__main__':
     unittest.main()

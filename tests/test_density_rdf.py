@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from freud import box, locality, density
+from freud import box, density
 import unittest
 
 
@@ -24,11 +24,11 @@ class TestRDF(unittest.TestCase):
     def test_invalid_rdf(self):
         # Make sure that invalid RDF objects raise errors
         with self.assertRaises(ValueError):
-            rdf = density.RDF(rmax=-1, dr=0.1)
+            density.RDF(rmax=-1, dr=0.1)
         with self.assertRaises(ValueError):
-            rdf = density.RDF(rmax=1, dr=0)
+            density.RDF(rmax=1, dr=0)
         with self.assertRaises(ValueError):
-            rdf = density.RDF(rmax=1, dr=0.1, rmin=2)
+            density.RDF(rmax=1, dr=0.1, rmin=2)
 
     def test_random_point(self):
         for rmin in [0, 0.05, 0.1, 1.0, 3.0]:
@@ -39,7 +39,7 @@ class TestRDF(unittest.TestCase):
             box_size = rmax*3.1
             np.random.seed(0)
             points = np.random.random_sample(
-                    (num_points,3)).astype(np.float32)*box_size - box_size/2
+                    (num_points, 3)).astype(np.float32) * box_size - box_size/2
             rdf = density.RDF(rmax, dr, rmin=rmin)
             fbox = box.Box.cube(box_size)
             rdf.accumulate(fbox, points, points)
@@ -47,6 +47,7 @@ class TestRDF(unittest.TestCase):
             correct[0] = 0.0
             absolute_tolerance = 0.1
             npt.assert_allclose(rdf.RDF, correct, atol=absolute_tolerance)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,45 +1,52 @@
-
 import sys
 from freud import locality, box
 import numpy as np
 import numpy.testing as npt
 import unittest
 
+
 class TestLinkCell(unittest.TestCase):
     def test_unique_neighbors(self):
-        L = 10 #Box Dimensions
-        rcut = 3 #Cutoff radius
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
 
-        fbox = box.Box.cube(L)#Initialize Box
-        cl = locality.LinkCell(fbox, rcut)#Initialize cell list
-        cl.computeCellList(fbox,np.zeros((1,3), dtype=np.float32))#Compute cell list
+        # Initialize Box, initialize and compute cell list
+        fbox = box.Box.cube(L)
+        cl = locality.LinkCell(fbox, rcut)
+        cl.computeCellList(fbox, np.zeros((1, 3), dtype=np.float32))
 
         # 27 is the total number of cells
         for i in range(27):
             neighbors = cl.getCellNeighbors(i)
-            self.assertEqual(len(np.unique(neighbors)), 27,
-                             msg="Cell %d does not have 27 unique adjacent cell indices, it has %d" % (i, len(np.unique(neighbors))))
+            self.assertEqual(
+                len(np.unique(neighbors)), 27,
+                msg="Cell %d does not have 27 unique adjacent cell indices, "
+                "it has %d" % (i, len(np.unique(neighbors))))
 
     def test_bug2100(self):
-        L = 31; #Box Dimensions
-        rcut = 3; #Cutoff radius
+        L = 31  # Box Dimensions
+        rcut = 3  # Cutoff radius
 
-        #Initialize test points across periodic BC
-        testpoints = np.array([[-5.0,0,0],[2.05,0,0]], dtype=np.float32)
-        fbox = box.Box.cube(L);#Initialize Box
-        cl = locality.LinkCell(fbox,rcut);#Initialize cell list
-        cl.computeCellList(fbox,testpoints);#Compute cell list
+        # Initialize test points across periodic boundary condition
+        testpoints = np.array([[-5.0, 0, 0],
+                               [2.05, 0, 0]], dtype=np.float32)
 
-        #Get cell index
+        # Initialize Box, initialize and compute cell list
+        fbox = box.Box.cube(L)
+        cl = locality.LinkCell(fbox, rcut)
+        cl.computeCellList(fbox, testpoints)
+
+        # Get cell index
         cell_index0 = cl.getCell(testpoints[0])
         cell_index1 = cl.getCell(testpoints[1])
 
-        #Get cell neighbors
+        # Get cell neighbors
         neighbors0 = cl.getCellNeighbors(cell_index0)
         neighbors1 = cl.getCellNeighbors(cell_index1)
 
-        #Check if particle 0 is in a cell neighboring particle 1
-        test0 = np.where(neighbors1 == cell_index0)[0]; #where returns [[index]] if found, otherwise [[]]
+        # Check if particle 0 is in a cell neighboring particle 1
+        # np.where returns [[index]] if found, otherwise [[]]
+        test0 = np.where(neighbors1 == cell_index0)[0]
         test1 = np.where(neighbors0 == cell_index1)[0]
         self.assertEqual(len(test0), len(test1))
 
@@ -48,16 +55,16 @@ class TestLinkCell(unittest.TestCase):
         if current_version.major < 3:
             self.assertEqual(1, 1)
         else:
-            L = 10; #Box Dimensions
-            rcut = 2; #Cutoff radius
-            N = 40; # number of particles
+            L = 10  # Box Dimensions
+            rcut = 2  # Cutoff radius
+            N = 40  # number of particles
 
-            #Initialize test points randomly
+            # Initialize test points randomly
             np.random.seed(0)
             points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
-            fbox = box.Box.cube(L);#Initialize Box
-            cl = locality.LinkCell(fbox,rcut);#Initialize cell list
-            cl.computeCellList(fbox, points);#Compute cell list
+            fbox = box.Box.cube(L)  # Initialize Box
+            cl = locality.LinkCell(fbox, rcut)  # Initialize cell list
+            cl.computeCellList(fbox, points)  # Compute cell list
 
             neighbors_ij = set()
             for i in range(N):
@@ -70,11 +77,11 @@ class TestLinkCell(unittest.TestCase):
             self.assertEqual(neighbors_ij, neighbors_ji)
 
     def test_first_index(self):
-        L = 10 #Box Dimensions
-        rcut = 2.01 #Cutoff radius
-        N = 4; # number of particles
+        L = 10  # Box Dimensions
+        rcut = 2.01  # Cutoff radius
+        N = 4  # number of particles
 
-        fbox = box.Box.cube(L)#Initialize Box
+        fbox = box.Box.cube(L)  # Initialize Box
         lc = locality.LinkCell(fbox, rcut)
 
         points = np.zeros(shape=(N, 3), dtype=np.float32)
@@ -84,7 +91,7 @@ class TestLinkCell(unittest.TestCase):
         points[3] = [2.0, 0.0, 0.0]
 
         lc.compute(fbox, points)
-        # particle 0 has 2 bonds
+        # particle 0 has 2 bonds`
         npt.assert_equal(lc.nlist.find_first_index(0), 0)
         # particle 1 has 3 bonds
         npt.assert_equal(lc.nlist.find_first_index(1), 2)
@@ -147,7 +154,8 @@ class TestLinkCell(unittest.TestCase):
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = points[:N//6]
-        lc = locality.LinkCell(fbox, rcut).compute(fbox, points, points2, exclude_ii=False)
+        lc = locality.LinkCell(fbox, rcut).compute(
+            fbox, points, points2, exclude_ii=False)
 
         ij1 = set(zip(lc.nlist.index_i, lc.nlist.index_j))
 
@@ -179,12 +187,11 @@ class TestLinkCell(unittest.TestCase):
             exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
 
             lc.compute(fbox, points, points, exclude_ii=False)
-            index_i, index_j = (lc.nlist.index_i, lc.nlist.index_j)
             ijs = set(zip(lc.nlist.index_i, lc.nlist.index_j))
 
             try:
                 self.assertEqual(exhaustive_ijs, ijs)
-            except:
+            except AssertionError:
                 print('Failed random seed: {} (i={})'.format(seed, i))
                 raise
 
@@ -199,6 +206,7 @@ class TestLinkCell(unittest.TestCase):
         locality.LinkCell(fbox, L/2.0001)
         with self.assertRaises(RuntimeError):
             locality.LinkCell(fbox, L/1.9999)
+
 
 if __name__ == '__main__':
     unittest.main()

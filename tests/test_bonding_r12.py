@@ -1,9 +1,11 @@
 import numpy as np
 import numpy.testing as npt
-from freud import box, bond, parallel
+from freud import box, bond
 import unittest
 
+
 class TestBond(unittest.TestCase):
+
     def test_correct_bond(self):
         # generate the bonding map
         nr = 10
@@ -16,12 +18,13 @@ class TestBond(unittest.TestCase):
         dt1 = 2.0 * np.pi / float(nt1)
 
         # make sure the radius for each bin is generated correctly
-        posList = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 0.0]], dtype=np.float32)
+        posList = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 0.0]],
+                           dtype=np.float32)
         anglist = np.zeros(shape=(2), dtype=np.float32)
 
         # calculate the bin
-        deltaX = posList[1,0] - posList[0,0]
-        deltaY = posList[1,1] - posList[0,1]
+        deltaX = posList[1, 0] - posList[0, 0]
+        deltaY = posList[1, 1] - posList[0, 1]
         delta = np.array([deltaX, deltaY], dtype=np.float32)
         r = np.sqrt(np.dot(delta, delta))
         theta1 = anglist[0] - np.arctan2(deltaY, deltaX)
@@ -33,9 +36,9 @@ class TestBond(unittest.TestCase):
         binR = int(np.floor(r / dr))
         binT1 = int(np.floor(theta1 / dt1))
         binT2 = int(np.floor(theta2 / dt2))
-        testArray[binR,binT2,binT1] = 5
-        deltaX = posList[0,0] - posList[1,0]
-        deltaY = posList[0,1] - posList[1,1]
+        testArray[binR, binT2, binT1] = 5
+        deltaX = posList[0, 0] - posList[1, 0]
+        deltaY = posList[0, 1] - posList[1, 1]
         delta = np.array([deltaX, deltaY], dtype=np.float32)
         r = np.sqrt(np.dot(delta, delta))
         theta1 = anglist[0] - np.arctan2(deltaY, deltaX)
@@ -47,7 +50,7 @@ class TestBond(unittest.TestCase):
         binR = int(np.floor(r / dr))
         binT1 = int(np.floor(theta1 / dt1))
         binT2 = int(np.floor(theta2 / dt2))
-        testArray[binR,binT2,binT1] = 5
+        testArray[binR, binT2, binT1] = 5
 
         # create object
         bondList = np.array([0, 5], dtype=np.uint32)
@@ -63,8 +66,8 @@ class TestBond(unittest.TestCase):
 
         bonds = EB.bonds
 
-        npt.assert_equal(bonds[0,1], 1)
-        npt.assert_equal(bonds[1,1], 0)
+        npt.assert_equal(bonds[0, 1], 1)
+        npt.assert_equal(bonds[1, 1], 0)
 
     def test_mapping(self):
         # generate the bonding map
@@ -73,9 +76,6 @@ class TestBond(unittest.TestCase):
         nt2 = 50
         testArray = np.zeros(shape=(nr, nt2, nt1), dtype=np.uint32)
         rmax = 3.0
-        dr = rmax / float(nr)
-        dt2 = 2.0 * np.pi / float(nt2)
-        dt1 = 2.0 * np.pi / float(nt1)
 
         # create object
         bondList = np.array([0, 3, 4, 5], dtype=np.uint32)
@@ -92,9 +92,6 @@ class TestBond(unittest.TestCase):
         nt2 = 50
         testArray = np.zeros(shape=(nr, nt2, nt1), dtype=np.uint32)
         rmax = 3.0
-        dr = rmax / float(nr)
-        dt2 = 2.0 * np.pi / float(nt2)
-        dt1 = 2.0 * np.pi / float(nt1)
 
         # create object
         bondList = np.array([0, 3, 4, 5], dtype=np.uint32)
@@ -103,6 +100,7 @@ class TestBond(unittest.TestCase):
         bond_map = EB.rev_list_map
 
         npt.assert_equal(bond_map[1], bondList[1])
+
 
 if __name__ == '__main__':
     unittest.main()
