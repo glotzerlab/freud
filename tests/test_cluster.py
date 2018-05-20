@@ -10,6 +10,7 @@ class TestCluster(unittest.TestCase):
         Nlattice = 4
         Nrep = 5
 
+        np.random.seed(0)
         positions = []
         for _ in range(Nrep):
             (box, pos) = util.make_fcc(Nlattice, Nlattice, Nlattice,
@@ -32,6 +33,7 @@ class TestCluster(unittest.TestCase):
         Nlattice = 4
         Nrep = 5
 
+        np.random.seed(0)
         positions = []
         for _ in range(Nrep):
             (box, pos) = util.make_fcc(Nlattice, Nlattice, Nlattice,
