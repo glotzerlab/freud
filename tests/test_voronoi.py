@@ -1,6 +1,6 @@
-from freud import box, voronoi
 import numpy as np
 import numpy.testing as npt
+from freud import box, voronoi
 import unittest
 import util
 

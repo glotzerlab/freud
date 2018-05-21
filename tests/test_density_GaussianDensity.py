@@ -1,8 +1,8 @@
 import numpy as np
 import numpy.testing as npt
-from scipy.fftpack import fft, fftshift
 from freud import box, density
 import unittest
+from scipy.fftpack import fft, fftshift
 
 
 class TestDensity(unittest.TestCase):

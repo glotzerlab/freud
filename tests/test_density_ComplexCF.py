@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.testing as npt
-import unittest
 from freud import box, density, parallel
+import unittest
 
 
 class TestCorrelationFunction(unittest.TestCase):

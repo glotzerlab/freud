@@ -1,8 +1,8 @@
-from freud import box as bx
 import numpy as np
 import numpy.testing as npt
-import warnings
+from freud import box as bx
 import unittest
+import warnings
 
 
 class TestBox(unittest.TestCase):

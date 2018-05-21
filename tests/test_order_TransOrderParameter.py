@@ -1,7 +1,7 @@
 import numpy as np
 import freud
-import itertools
 import unittest
+import itertools
 
 
 class TestTransOrder(unittest.TestCase):

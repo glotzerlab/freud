@@ -1,8 +1,7 @@
-import unittest
 import numpy.testing as npt
 import numpy as np
-import random
 import freud
+import unittest
 
 
 def quatRandom():
@@ -14,23 +13,23 @@ def quatRandom():
 
     The output quaternion is an array of four numbers: [q0, q1, q2, q3]"""
 
-    # random.uniform(a, b) gives number in [a, b]
-    v1 = random.uniform(-1, 1)
-    v2 = random.uniform(-1, 1)
-    v3 = random.uniform(-1, 1)
-    v4 = random.uniform(-1, 1)
+    # np.random.uniform(low, high) gives a number from the interval [low, high)
+    v1 = np.random.uniform(-1, 1)
+    v2 = np.random.uniform(-1, 1)
+    v3 = np.random.uniform(-1, 1)
+    v4 = np.random.uniform(-1, 1)
 
     s1 = v1*v1 + v2*v2
     s2 = v3*v3 + v4*v4
 
     while (s1 >= 1.):
-        v1 = random.uniform(-1, 1)
-        v2 = random.uniform(-1, 1)
+        v1 = np.random.uniform(-1, 1)
+        v2 = np.random.uniform(-1, 1)
         s1 = v1*v1 + v2*v2
 
     while (s2 >= 1. or s2 == 0.):
-        v3 = random.uniform(-1, 1)
-        v4 = random.uniform(-1, 1)
+        v3 = np.random.uniform(-1, 1)
+        v4 = np.random.uniform(-1, 1)
         s2 = v3*v3 + v4*v4
 
     s3 = np.sqrt((1.-s1)/s2)
@@ -48,7 +47,6 @@ class TestAngularSeparation(unittest.TestCase):
 
         box = freud.box.Box.square(boxlen)
 
-        random.seed(0)
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
@@ -68,7 +66,6 @@ class TestAngularSeparation(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        random.seed(0)
         ors = []
         for i in range(N):
             ors.append(quatRandom())
@@ -89,7 +86,6 @@ class TestAngularSeparation(unittest.TestCase):
 
         box = freud.box.Box.square(boxlen)
 
-        random.seed(0)
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)

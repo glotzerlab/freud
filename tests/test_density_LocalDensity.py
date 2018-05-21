@@ -1,16 +1,14 @@
-from freud import box, density
 import numpy as np
-import math
-import nose
-from nose.tools import assert_less
+import numpy.testing as npt
+from freud import box, density
 import unittest
 
 
-class TestLD:
+class TestLD(unittest.TestCase):
     """Test fixture for LocalDensity"""
 
-    def setup(self):
-        """ Initialize a box with randomly placed particles"""
+    def setUp(self):
+        """Initialize a box with randomly placed particles"""
 
         self.box = box.Box.cube(10)
         np.random.seed(0)
@@ -35,12 +33,10 @@ class TestLD:
         self.ld.compute(self.box, self.pos, self.pos)
         density = self.ld.getDensity()
 
-        for i in range(0, len(self.pos)):
-            assert_less(math.fabs(density[i]-10.0), 1.5)
+        npt.assert_array_less(np.fabs(density - 10.0), 1.5)
 
         neighbors = self.ld.num_neighbors
-        for i in range(0, len(neighbors)):
-            assert_less(math.fabs(neighbors[i]-1130.973355292), 200)
+        npt.assert_array_less(np.fabs(neighbors - 1130.973355292), 200)
 
     @unittest.skip("Skip for CircleCI")
     def test_oldapi(self):
@@ -50,13 +46,11 @@ class TestLD:
         self.ld.compute(self.box, self.pos)
         density = self.ld.getDensity()
 
-        for i in range(0, len(self.pos)):
-            assert_less(math.fabs(density[i]-10.0), 1.5)
+        npt.assert_array_less(np.fabs(density - 10.0), 1.5)
 
         neighbors = self.ld.num_neighbors
-        for i in range(0, len(neighbors)):
-            assert_less(math.fabs(neighbors[i]-1130.973355292), 200)
+        npt.assert_array_less(np.fabs(neighbors - 1130.973355292), 200)
 
 
 if __name__ == '__main__':
-    nose.core.runmodule()
+    unittest.main()

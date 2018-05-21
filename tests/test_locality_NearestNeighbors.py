@@ -1,10 +1,9 @@
-from freud import locality, box
 import numpy as np
 import numpy.testing as npt
-import itertools
+from freud import locality, box, parallel
 import unittest
-import freud
-freud.parallel.setNumThreads(1)
+import itertools
+parallel.setNumThreads(1)
 
 
 class TestNearestNeighbors(unittest.TestCase):
@@ -114,19 +113,19 @@ class TestNearestNeighbors(unittest.TestCase):
     def test_cheap_hexatic(self):
         """Construct a poor man's hexatic order parameter using
         NeighborList properties"""
-        box = freud.box.Box.square(10)
+        fbox = box.Box.square(10)
 
         # make a square grid
-        xs = np.linspace(-box.getLx()/2, box.getLx()/2, 10, endpoint=False)
+        xs = np.linspace(-fbox.getLx()/2, fbox.getLx()/2, 10, endpoint=False)
         positions = np.zeros((len(xs)**2, 3), dtype=np.float32)
         positions[:, :2] = np.array(list(itertools.product(xs, xs)),
                                     dtype=np.float32)
 
         nn = locality.NearestNeighbors(1.5, 4)
-        nn.compute(box, positions, positions)
+        nn.compute(fbox, positions, positions)
 
         rijs = positions[nn.nlist.index_j] - positions[nn.nlist.index_i]
-        box.wrap(rijs)
+        fbox.wrap(rijs)
         thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
 
         cplx = np.exp(4*1j*thetas)
@@ -191,8 +190,8 @@ class TestNearestNeighbors(unittest.TestCase):
         pos[:, 1] = pos[:, 0]
         pos[0] = (9, 7, 0)
 
-        box = freud.box.Box.square(L=4*len(pos))
-        nn = freud.locality.NearestNeighbors(1, 1).compute(box, pos, pos)
+        fbox = box.Box.square(L=4*len(pos))
+        nn = locality.NearestNeighbors(1, 1).compute(fbox, pos, pos)
         nlist = nn.nlist
 
         self.assertEqual(len(nlist), len(pos))

@@ -1,8 +1,8 @@
-import sys
-from freud import locality, box
 import numpy as np
 import numpy.testing as npt
+from freud import locality, box
 import unittest
+import sys
 
 
 class TestLinkCell(unittest.TestCase):

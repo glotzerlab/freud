@@ -1,7 +1,7 @@
-import unittest
 import numpy.testing as npt
 import numpy as np
 import freud
+import unittest
 
 
 class TestHexOrderParameter(unittest.TestCase):
