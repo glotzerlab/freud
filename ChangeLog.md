@@ -2,6 +2,15 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+* Allow specification of maximum number of neighbors to use when computing LocalDescriptors 
+
+### Changed
+* Using the default neighbor list with LocalDescriptors requires specifying the
+  precompute argument
+
 ## v0.8.1 - 2018-05-09
 
 ### Fixed
@@ -20,7 +29,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Refactored C++ code to reduce extraneous #includes
 * Refactored PMFT code
 * Refactored box module to remove unused methods
-* Resolved bug in `kspace.AnalyzeSFactor3D`.
+* Resolved bug in `kspace.AnalyzeSFactor3D`
 
 ### Deprecated
 * Box module `getCoordinates()` in favor of duplicate `box.makeCoordinates()`

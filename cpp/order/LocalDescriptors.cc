@@ -66,10 +66,10 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
         [=] (const blocked_range<size_t>& br)
         {
         fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
-        size_t bond(nlist->find_first_index(br.begin()));
 
         for(size_t i=br.begin(); i!=br.end(); ++i)
             {
+            size_t bond(nlist->find_first_index(i));
             const vec3<float> r_i(r_ref[i]);
 
             vec3<float> rotation_0, rotation_1, rotation_2;
@@ -81,8 +81,11 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
                     for(size_t jj(0); jj < 3; ++jj)
                         inertiaTensor[ii][jj] = 0;
 
-                for(size_t bond_copy(bond); bond_copy < nlist->getNumBonds() &&
-                        neighbor_list[2*bond_copy] == i; ++bond_copy)
+                for(size_t bond_copy(bond);
+                    bond_copy < nlist->getNumBonds() &&
+                        neighbor_list[2*bond_copy] == i &&
+                        bond_copy < bond + nNeigh;
+                    ++bond_copy)
                     {
                     const size_t j(neighbor_list[2*bond_copy + 1]);
                     const vec3<float> r_j(r[j]);
@@ -153,7 +156,9 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
                 throw std::runtime_error("Uncaught orientation mode in LocalDescriptors::compute");
                 }
 
-            for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+            for(unsigned int count(0);
+                bond < nlist->getNumBonds() && neighbor_list[2*bond] == i && count < nNeigh;
+                ++bond, ++count)
                 {
                 const unsigned int sphCount(bond*getSphWidth());
                 const size_t j(neighbor_list[2*bond + 1]);
