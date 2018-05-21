@@ -143,7 +143,8 @@ class Voronoi:
         """
         return self.poly_verts
 
-    def computeNeighbors(self, positions, box=None, buff=None, exclude_ii=True):
+    def computeNeighbors(self, positions, box=None, buff=None,
+                         exclude_ii=True):
         """Compute the neighbors of each particle based on the Voronoi
         tessellation. One can include neighbors from multiple Voronoi shells by
         specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.
@@ -352,8 +353,8 @@ class Voronoi:
         self.poly_volumes = np.zeros(shape=len(polytope_verts))
 
         for i, verts in enumerate(polytope_verts):
-            is2D = np.all(self.poly_verts[0][:,-1] == 0)
-            hull = ConvexHull(verts[:,:2 if is2D else 3])
+            is2D = np.all(self.poly_verts[0][:, -1] == 0)
+            hull = ConvexHull(verts[:, :2 if is2D else 3])
             self.poly_volumes[i] = hull.volume
 
         return self

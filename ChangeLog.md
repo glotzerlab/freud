@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 * Using the default neighbor list with LocalDescriptors requires specifying the
   precompute argument
+* Updated and improved tests
 
 ## v0.8.1 - 2018-05-09
 

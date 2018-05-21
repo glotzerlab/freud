@@ -73,7 +73,8 @@ class SFactor3DPoints:
         """Initalize SFactor3DPoints.
 
         :param box: The simulation box
-        :param g: The number of grid points for :math:`q` in each direction is 2*g+1
+        :param g: The number of grid points for :math:`q` in each direction
+                  is 2*g+1
         :type box: :py:class:`freud.box.Box`
         :type g: int
         """
@@ -81,11 +82,11 @@ class SFactor3DPoints:
             raise ValueError("SFactor3DPoints does not support 2D boxes")
         self.grid = 2 * g + 1
         self.qx = np.linspace(-g * 2 * math.pi / box.getLx(),
-                                 g * 2 * math.pi / box.getLx(), num=self.grid)
+                              g * 2 * math.pi / box.getLx(), num=self.grid)
         self.qy = np.linspace(-g * 2 * math.pi / box.getLy(),
-                                 g * 2 * math.pi / box.getLy(), num=self.grid)
+                              g * 2 * math.pi / box.getLy(), num=self.grid)
         self.qz = np.linspace(-g * 2 * math.pi / box.getLz(),
-                                 g * 2 * math.pi / box.getLz(), num=self.grid)
+                              g * 2 * math.pi / box.getLz(), num=self.grid)
 
         # make meshgrid versions of qx,qy,qz for easy computation later
         self.qx_grid, self.qy_grid, self.qz_grid = meshgrid2(
@@ -541,8 +542,8 @@ class SingleCell3D:
     def set_dK(self, dK):
         """Set grid spacing in diffraction image.
 
-        :param dK: difference in :math:`K` vector between two adjacent diffraction
-                    image grid points
+        :param dK: difference in :math:`K` vector between two adjacent
+                   diffraction image grid points
         :type dK: float
         """
         self.dK = np.float32(dK)
@@ -609,10 +610,10 @@ class SingleCell3D:
         the form factor chosen for the particles.
 
         For any particle type-dependent parameters passed as keyword arguments,
-        the parameter must be passed as a list of length :code:`max(p_type)+1` with
-        indices corresponding to the particle types defined. In other words,
-        type-dependent parameters are optional (depending on the set of form
-        factors being calculated), but if included must be defined for all
+        the parameter must be passed as a list of length :code:`max(p_type)+1`
+        with indices corresponding to the particle types defined. In other
+        words, type-dependent parameters are optional (depending on the set of
+        form factors being calculated), but if included must be defined for all
         particle types.
 
         :param position: array of particle positions in nm
@@ -1198,10 +1199,13 @@ def rotate(v, u, theta):
                vz * (ct + uz * uz * (1 - ct)))
     return vout
 
-# Apply a rotation quaternion
-# \param b vector to be rotated
-# \param a rotation quaternion
+
 def quatrot(a, b):
+    """Apply a rotation quaternion.
+
+    :param b: Vector to be rotated
+    :param a: Rotation quaternion
+    """
     s = a[0]
     v = a[1:4]
     return ((s * s - np.dot(v, v)) * b +

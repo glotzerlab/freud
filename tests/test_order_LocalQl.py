@@ -4,13 +4,15 @@ import freud
 import unittest
 import util
 
+
 class TestLocalQl(unittest.TestCase):
     def test_shape(self):
         N = 1000
 
         box = freud.box.Box.cube(10)
         np.random.seed(0)
-        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
+        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2,
+                                      size=(N, 3)).astype(np.float32)
 
         comp = freud.order.LocalQl(box, 1.5, 6)
         comp.compute(positions)
@@ -33,6 +35,7 @@ class TestLocalQl(unittest.TestCase):
 
         comp.computeAveNorm(positions)
         assert np.allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0])
+
 
 class TestLocalQlNear(unittest.TestCase):
     def test_shape(self):
@@ -40,7 +43,8 @@ class TestLocalQlNear(unittest.TestCase):
 
         box = freud.box.Box.cube(10)
         np.random.seed(0)
-        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2, size=(N, 3)).astype(np.float32)
+        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2,
+                                      size=(N, 3)).astype(np.float32)
 
         comp = freud.order.LocalQlNear(box, 1.5, 6, 12)
         comp.compute(positions)
@@ -63,6 +67,7 @@ class TestLocalQlNear(unittest.TestCase):
 
         comp.computeAveNorm(positions)
         assert np.allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,8 +1,8 @@
 import numpy as np
-import numpy.testing as npt
 import freud
 import unittest
 import util
+
 
 class TestCluster(unittest.TestCase):
 
@@ -10,9 +10,11 @@ class TestCluster(unittest.TestCase):
         Nlattice = 4
         Nrep = 5
 
+        np.random.seed(0)
         positions = []
         for _ in range(Nrep):
-            (box, pos) = util.make_fcc(Nlattice, Nlattice, Nlattice, noise=1e-2)
+            (box, pos) = util.make_fcc(Nlattice, Nlattice, Nlattice,
+                                       noise=1e-2)
             positions.append(pos)
 
         # number of grid points (N = Nrep*Ngrid)
@@ -31,9 +33,11 @@ class TestCluster(unittest.TestCase):
         Nlattice = 4
         Nrep = 5
 
+        np.random.seed(0)
         positions = []
         for _ in range(Nrep):
-            (box, pos) = util.make_fcc(Nlattice, Nlattice, Nlattice, noise=1e-2)
+            (box, pos) = util.make_fcc(Nlattice, Nlattice, Nlattice,
+                                       noise=1e-2)
             positions.append(pos)
 
         # number of grid points (N = Nrep*Ngrid)
@@ -50,6 +54,7 @@ class TestCluster(unittest.TestCase):
         check_values = np.arange(Ngrid)[:, np.newaxis].repeat(Nrep, axis=1)
 
         self.assertTrue(np.all(ckeys == check_values))
+
 
 if __name__ == '__main__':
     unittest.main()

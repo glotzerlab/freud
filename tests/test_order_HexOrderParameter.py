@@ -1,26 +1,18 @@
-import unittest
 import numpy.testing as npt
 import numpy as np
 import freud
+import unittest
+
 
 class TestHexOrderParameter(unittest.TestCase):
     def test_getK(self):
-        boxlen = 10
-        N = 500
         rmax = 3
-
-        box = freud.box.Box.square(boxlen)
-
         hop = freud.order.HexOrderParameter(rmax)
         npt.assert_equal(hop.k, 6)
 
     def test_getK_pass(self):
-        boxlen = 10
-        N = 500
         rmax = 3
         k = 3
-
-        box = freud.box.Box.square(boxlen)
         hop = freud.order.HexOrderParameter(rmax, k)
         npt.assert_equal(hop.k, 3)
 
@@ -34,7 +26,7 @@ class TestHexOrderParameter(unittest.TestCase):
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
-        points[:,2] = 0.0
+        points[:, 2] = 0.0
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_equal(hop.num_particles, N)
@@ -49,14 +41,13 @@ class TestHexOrderParameter(unittest.TestCase):
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
-        points[:,2] = 0.0
+        points[:, 2] = 0.0
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_almost_equal(np.mean(hop.psi), 0. + 0.j, decimal=1)
 
     def test_compute(self):
         boxlen = 10
-        N = 7
         rmax = 3
 
         box = freud.box.Box.square(boxlen)
@@ -69,10 +60,11 @@ class TestHexOrderParameter(unittest.TestCase):
                            0.0])
 
         points = np.asarray(points, dtype=np.float32)
-        points[:,2] = 0.0
+        points[:, 2] = 0.0
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_almost_equal(hop.psi[0], 1. + 0.j, decimal=1)
+
 
 if __name__ == '__main__':
     unittest.main()
