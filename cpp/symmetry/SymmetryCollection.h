@@ -45,13 +45,25 @@ class SymmetryCollection
                      const freud::locality::NeighborList *nlist,
                      unsigned int Np);
         
-        float measure(std::shared_ptr<float> Mlm, unsigned int type);
+        //! fill in Mlm table
+        float measure(std::shared_ptr<float> Mlm, int type);
+
+
+        // quat<float> initMirrorZ(vector<float> p); 
+
+        // int searchSymmetry(bool perpendicular);
+
+
+
+
 
         //! Returns quaternion corresponding to the highest-symmetry axis
         quat<float> getHighestOrderQuat();
 
         //! Returns quaternions for all detected symmetry axes
         quat<float>* getOrderQuats();
+
+
 
         std::shared_ptr<float> getMlm();
         

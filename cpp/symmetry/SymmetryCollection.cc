@@ -16,55 +16,114 @@ using namespace std;
 
 namespace freud { namespace symmetry {
 
-    SymmetryCollection::SymmetryCollection(unsigned int maxL) {
-        m_symmetric_orientation = quat<float>();
-        m_maxL = maxL;
+    SymmetryCollection::SymmetryCollection(unsigned int maxL) :
+    m_maxL(maxL), m_symmetric_orientation(quat<float>())
+    {
+        m_Mlm = shared_ptr<float>(new float[(m_maxL + 1) * (m_maxL + 1)],
+                                           default_delete<float[]>());
+
+        memset((void*)m_Mlm.get(), 0, sizeof(float)*((m_maxL + 1) * (m_maxL + 1)));
+
     }
 
     SymmetryCollection::~SymmetryCollection() {
     }
 
     shared_ptr<float > SymmetryCollection::getMlm() {
+        
+        cout << endl << "getMlm() starts" << endl;
+        int c = 0;
+        for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+            cout << m_Mlm.get()[l] << " ";
+            if( l == c*c+2*c) {
+                ++c;
+                cout << endl;
+            }
+        }
+        cout <<endl;
+        cout << endl << "getMlm() ends" << endl << endl;
+
         return m_Mlm;
     }
 
-    float SymmetryCollection::measure(shared_ptr<float> Mlm, unsigned int type) { // 1. possible that Mlm past in does not fit our Mlm format? or make it private later?
-                                                                                  // 2. memory leak: new and delete? 3. lots of casting
+    float SymmetryCollection::measure(shared_ptr<float> Mlm, int type) { // 1. possible that Mlm past in does not fit our Mlm format? or make it private later?
+                                                                        
         float select = 0.0;
         float all = 0.0;
         int numSelect = 0;
         int numAll = 0;
-     
-        if (Mlm.get()[0] == 0.0f) {
+
+        //cout << "measure() starts" << endl;
+        //cout << "only for test part11" << endl;
+        // int a = 0;
+        // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+        //     cout << m_Mlm.get()[l] << " ";
+        //     if( l == a*a+2*a) {
+        //         ++a;
+        //         cout << endl;
+        //     }
+        // }
+        // cout <<endl;
+        // cout << "only for test part ends11" << endl;
+
+        if (m_Mlm.get()[0] == 0.0f) {
+            //cout << "measure test ends 0 " << endl;
             return 0.0;
         }
-
+        //cout << "measure test starts" << endl;
         for (int l = 2; l < (m_maxL + 1); l += 2) {
+            //cout << "l is: " << l << endl;
            int count = -l - 1;
             for (int m = l * l; m < (l + 1) * (l + 1); ++m) {
                 ++numAll;
-                all += Mlm.get()[m] * Mlm.get()[m];
+               // cout << "numAll is: " << numAll << "   m is: " << m << "  ";
+                all += m_Mlm.get()[m] * m_Mlm.get()[m];
+              //  cout << "all: " << all << "  ";
                 ++count;
-                if ((type == TOTAL) || (type == AXIAL && m == l * (l + 1)) || 
-                   (type == MIRROR && m >= l * (l + 1)) || 
-                   (type >= 2 && count % type == 0)) {
+                if ((type == TOTAL) || 
+                    (type == AXIAL && (m == l * (l + 1))) || 
+                    (type == MIRROR && (m >= l * (l + 1))) || 
+                    (type >= 2 && (count % type == 0))) {
                     ++numSelect;
-                    select += Mlm.get()[m] * Mlm.get()[m];
+                  //  cout << "numSelect is: " << numSelect << "   m is: " << m << "  ";
+                    select += m_Mlm.get()[m] * m_Mlm.get()[m];
+                  //  cout << "select is: " << select << "  ";
                 }
-
-
+                //cout << endl;
             }
+            //cout << endl;
         }
-
+        // cout << endl;
+        // cout << "only for test part" << endl;
+        // for (int l = 2; l < (m_maxL + 1); l+=2) {
+        //     for (int m = l * l; m < (l+1)*(l+1); ++m) {
+        //         cout << m_Mlm.get()[m] << " ";
+        //     }
+        //     cout << endl;
+        // }
+        // int b = 0;
+        // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+        //     cout << m_Mlm.get()[l] << " ";
+        //     if( l == b*b+2*b) {
+        //         ++b;
+        //         cout << endl;
+        //     }
+        // }
+        // cout <<endl;
+        // cout << "only for test part ends" << endl;
 
         if (type == TOTAL || type == AXIAL) {
-            return (select / Mlm.get()[0] / (float)numSelect - (float)1.0);
+            //cout << "measure test ends 1 " << endl;
+            //cout << "return value: " << (select / m_Mlm.get()[0] / (float)numSelect - 1.0f) << endl;
+            return (select / m_Mlm.get()[0] / (float)numSelect - 1.0f);
         }
 
         if (type == MIRROR || type >= 2) {
-            return (select / all - (float)numSelect / (float)numAll) / ((float)1.0 - (float)numSelect / (float)numAll);
+            //cout << "measure test ends 2 " << endl;
+            //cout << "return value: " << (select / all - (float)numSelect / (float)numAll) / (1.0f - (float)numSelect / (float)numAll) << endl;
+            return (select / all - (float)numSelect / (float)numAll) / (1.0f - (float)numSelect / (float)numAll);
         }
-
+        //cout << "measure test ends 3 " << endl;
         return 0.0;
         
     }
@@ -77,13 +136,6 @@ namespace freud { namespace symmetry {
         m_box = box;
         unsigned int Nbonds = nlist->getNumBonds();
         const size_t *neighbor_list = nlist->getNeighbors();
-        m_Np = Np;
-
-        // Initialize Mlm as a vector with all 0s
-        m_Mlm = shared_ptr<float >(new float[(m_maxL + 1) * (m_maxL + 1)],
-                                           default_delete<float[]>());
-
-        memset((void*)m_Mlm.get(), 0, sizeof(float)*((m_maxL + 1) * (m_maxL + 1))); // better to put in constructor since this is the initialization?
 
         vector<vec3<float> > delta;
         vector<float> phi;
@@ -95,40 +147,76 @@ namespace freud { namespace symmetry {
         theta.resize(Nbonds);
 
         // Fill in delta vector
-        for (unsigned int i = 0; i < m_Np; ++i) {
-            for (size_t bond = 0; bond < Nbonds && neighbor_list[2 * bond] == i; ++bond) {
+        size_t bond = 0;
+        size_t valid_bonds = 0;
+        for (unsigned int i = 0; i < Np; ++i) {
+            for (; bond < Nbonds && neighbor_list[2 * bond] == i; ++bond) {
                 const unsigned int j = neighbor_list[2 * bond + 1];
 
                 if (i != j) {
-                    delta[i] = m_box.wrap(points[j] - points[i]);
-                    phi[i] = atan2(delta[i].y, delta[i].x);
-                    theta[i] = acos(delta[i].z / sqrt(dot(delta[i], delta[i])));
+                    delta[valid_bonds] = m_box.wrap(points[j] - points[i]);
+                    phi[valid_bonds] = atan2(delta[valid_bonds].y, delta[valid_bonds].x);
+                    theta[valid_bonds] = acos(delta[valid_bonds].z / sqrt(
+                        dot(delta[valid_bonds], delta[valid_bonds])));
+                    valid_bonds++;
                 }
-
             }
         }
 
+
+        // cout << "only for test part in computermlm" << endl;
+        // cout << "before anything starts.. " << endl;
+        // int a = 0;
+        // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+        //     cout << m_Mlm.get()[l] << " ";
+        //     if( l == a*a+2*a) {
+        //         ++a;
+        //         cout << endl;
+        //     }
+        // }
+        // cout <<endl;
+        // cout << "only for test part ends in computerMlm" << endl;
+
+        //cout << "fsph test starts" << endl;
         fsph::PointSPHEvaluator<float> eval(m_maxL);
-        for(unsigned int i = 0; i < Nbonds; ++i) {
+        for(unsigned int i = 0; i < valid_bonds; ++i) {
             unsigned int l0_index = 0;
             unsigned int l = 0;
             unsigned int m = 0;
             eval.compute(phi[i], theta[i]);
-            for(typename fsph::PointSPHEvaluator<float>::iterator iter(eval.begin(true)); iter != eval.end(); ++iter) {
+            for(typename fsph::PointSPHEvaluator<float>::iterator iter(eval.begin(false));
+                iter != eval.end(); ++iter) {
                 if (m > l) {
                     l++;
                     l0_index += 2*l;
                     m = 0;
                 }
                 if (m == 0) {
-                    m_Mlm.get()[l0_index + m] += (*iter).real();
+                    m_Mlm.get()[l0_index] += (*iter).real();
+                    //cout <<"fsph eval2: " << m_Mlm.get()[l0_index] << " " << endl;
                 } else {
+                    
                     m_Mlm.get()[l0_index + m] += sqrt(2) * (*iter).real();
+                    //cout <<"fsph l0_index + m: " << m_Mlm.get()[l0_index + m]<< " " << endl;
                     m_Mlm.get()[l0_index - m] += sqrt(2) * (*iter).imag();
+                    //cout <<"fsph l0_index - m: " << m_Mlm.get()[l0_index - m] << " " << endl;
                 }
                 m++;
             }
         }
+        // cout << "only for test part in computermlm2" << endl;
+        // cout << "after fsph ends.. " << endl;
+        // int b = 0;
+        // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+        //     cout << m_Mlm.get()[l] << " ";
+        //     if( l == b*b+2*b) {
+        //         ++b;
+        //         cout << endl;
+        //     }
+        // }
+        // cout <<endl;
+        // cout << "only for test part ends in computerMlm2" << endl;
+        //  cout << "fsph test ends" << endl;
     }
 
 
@@ -147,5 +235,28 @@ namespace freud { namespace symmetry {
 
         computeMlm(box, points, nlist, Np);
     }
+
+
+    // quat<float> initMirrorZ(vec3<float> p) {
+    //     float x = p.x;
+    //     float y = p.y;
+    //     float z = p.z + 1.0;
+    //     float n = Math.sqrt(x * x + y * y + z * z);
+    //     if (n == 0.0) return null;
+    //     quat<float> temp = 
+    //     return temp;
+
+    //     return m_symmetric_orientation;
+
+
+    //     return m_symmetric_orientation
+    // }
+
+    // int searchSymmetry(bool perpendicular);
+
+
+
+
+
 
 }; }; // end namespace freud::symmetry

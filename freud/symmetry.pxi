@@ -7,7 +7,6 @@ from freud.util._Boost cimport shared_array
 cimport freud._box as _box
 cimport freud._symmetry as symmetry
 from libcpp.vector cimport vector
-from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.unordered_set cimport unordered_set
 import numpy as np
@@ -68,8 +67,16 @@ cdef class SymmetryCollection:
         self.thisptr.compute(l_box, < vec3[float]*>l_points.data, nlist_ptr, nP)
         return self
 
-    cdef measure(self, shared_ptr[float] Mlm, unsigned int type):
-        return self.thisptr.measure(Mlm, type)
+    #cdef measure(self, shared_ptr[float] Mlm, unsigned int type):
+    #    return self.thisptr.measure(Mlm, type)
+
+
+    def measure(self, Mlm, int type):
+        #cdef np.npy_intp nbins[1]
+       # nbins[0] = <np.npy_intp > self.thisptr.getMaxL()
+
+        return self.thisptr.measure(self.thisptr.getMlm(), type)
+
 
     def getMlm(self):
         """Get a reference to Mlm.
@@ -77,14 +84,14 @@ cdef class SymmetryCollection:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`,
                 shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float64`
+                dtype= :class:`numpy.float64
         """
         cdef float * Mlm = self.thisptr.getMlm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getMaxL()
+        cdef np.npy_intp Mlm_shape[1]
+        Mlm_shape[0] = <np.npy_intp > (self.thisptr.getMaxL() + 1)**2 - 1
         cdef np.ndarray[np.float64_t, ndim= 1
                 ] result = np.PyArray_SimpleNewFromData(
-                        1, nbins, np.NPY_FLOAT64, < void*>Mlm)
+                        1, Mlm_shape, np.NPY_FLOAT64, < void*>Mlm)
         return result
 
 
@@ -116,11 +123,11 @@ cdef class Geodesation:
 
     """
     cdef symmetry.Geodesation *thisptr
-    cdef num_neigh
+    cdef iterations
 
-    def __cinit__(self, iteration):
-        self.thisptr = new symmetry.Geodesation(iteration)
-        self.num_neigh = iteration
+    def __cinit__(self, iterations):
+        self.thisptr = new symmetry.Geodesation(iterations)
+        self.iterations = iterations
 
     def __dealloc__(self):
         del self.thisptr
@@ -142,6 +149,20 @@ cdef class Geodesation:
         return self.thisptr.createSimplex(v0, v1, v2)
 
 
+    def getNVertices(self):
+        """Returns the index of vertex.
+
+        :return: the index of vertex added to the list
+        :rtype: int
+        """
+        return self.thisptr.getNVertices()
+
+    @property
+    def NVertices(self):
+
+        return self.getNVertices()
+
+
     def getVertexList(self):
         """Return the vertex list.
 
@@ -153,7 +174,6 @@ cdef class Geodesation:
         cdef vector[vec3[float]] *vertices = self.thisptr.getVertexList().get()
         cdef np.npy_intp nVerts[2]
         nVerts[0] = <np.npy_intp > vertices.size()
-        print("vertices.size() = ", vertices.size())
         nVerts[1] = 3
         cdef np.ndarray[float, ndim=2
                         ] result = np.PyArray_SimpleNewFromData(
@@ -168,8 +188,13 @@ cdef class Geodesation:
                 shape=(:math:`N_{particles}`, varying),
                 dtype= :class:`numpy.uint32`
         """
-        return self.thisptr.getNeighborList()
+        cdef vector[unordered_set[int]] network = dereference(self.thisptr.getNeighborList().get())
 
+        result = []
+        for i, neighbors in enumerate(network):
+            for j in neighbors:
+                result.append([i, j])
+        return result
 
     def createMidVertex(self, i0, i1):
         """Returns the index of vertex.
