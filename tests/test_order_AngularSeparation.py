@@ -108,17 +108,15 @@ class TestAngularSeparation(unittest.TestCase):
         box = freud.box.Box.square(boxlen)
 
         # Create three points in a line.
-        points = [[0, 0, 0]]
-        points.append([1, 0, 0])
-        points.append([1.5, 0, 0])
+        points = np.asarray([[0, 0, 0], [1, 0, 0], [1.5, 0, 0]],
+                            dtype=np.float32)
         # Use two separate orientations. The second orientation is a pi/3
         # rotation from the identity quaternion
-        ors = [[1, 0, 0, 0]]
-        ors.append([np.cos(np.pi/6), np.sin(np.pi/6), 0, 0])
-        ors.append([np.cos(np.pi/6), np.sin(np.pi/6), 0, 0])
+        ors = np.asarray([[1, 0, 0, 0],
+                          [np.cos(np.pi/6), np.sin(np.pi/6), 0, 0],
+                          [np.cos(np.pi/6), np.sin(np.pi/6), 0, 0]],
+                         dtype=np.float32)
 
-        ors = np.asarray(ors, dtype=np.float32)
-        points = np.asarray(points, dtype=np.float32)
         equiv_quats = np.asarray([[1, 0, 0, 0], [-1, 0, 0, 0]],
                                  dtype=np.float32)
 

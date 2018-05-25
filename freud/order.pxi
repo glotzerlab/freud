@@ -3037,7 +3037,7 @@ cdef class AngularSeparation:
                        parameter
         :param equiv_quats: the set of all equivalent quaternions that takes
                             the particle as it is defined to some global
-                            reference orientation. IMPT: equiv_quats must
+                            reference orientation. Important: equiv_quats must
                             include both q and -q, for all included quaternions
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
                       find bonds
@@ -3125,7 +3125,7 @@ cdef class AngularSeparation:
         :param ors: orientations to calculate the order parameter
         :param equiv_quats: the set of all equivalent quaternions that takes
                             the particle as it is defined to some global
-                            reference orientation. IMPT: equiv_quats must
+                            reference orientation. Important: equiv_quats must
                             include both q and -q, for all included quaternions
         :type ref_ors: :class:`numpy.ndarray`,
                         shape= :math:`\\left(N_{particles}, 4 \\right)`,
