@@ -84,14 +84,32 @@ cdef class SymmetryCollection:
         :return: order parameter
         :rtype: :class:`numpy.ndarray`,
                 shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float64
+                dtype= :class:`numpy.float32
         """
         cdef float * Mlm = self.thisptr.getMlm().get()
         cdef np.npy_intp Mlm_shape[1]
         Mlm_shape[0] = <np.npy_intp > (self.thisptr.getMaxL() + 1)**2 - 1
-        cdef np.ndarray[np.float64_t, ndim= 1
+        cdef np.ndarray[np.float32_t, ndim= 1
                 ] result = np.PyArray_SimpleNewFromData(
-                        1, Mlm_shape, np.NPY_FLOAT64, < void*>Mlm)
+                        1, Mlm_shape, np.NPY_FLOAT32, < void*>Mlm)
+        return result
+
+
+
+    def getMlm_rotated(self):
+        """Get a reference to Mlm.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{particles}\\right)`,
+                dtype= :class:`numpy.float32
+        """
+        cdef float * Mlm_rotated = self.thisptr.getMlm_rotated().get()
+        cdef np.npy_intp Mlm_shape[1]
+        Mlm_shape[0] = <np.npy_intp > (self.thisptr.getMaxL() + 1)**2 - 1
+        cdef np.ndarray[np.float32_t, ndim= 1
+                ] result = np.PyArray_SimpleNewFromData(
+                        1, Mlm_shape, np.NPY_FLOAT32, < void*>Mlm_rotated)
         return result
 
 
@@ -102,6 +120,35 @@ cdef class SymmetryCollection:
         :rtype: int
         """
         return self.thisptr.getMaxL()
+
+
+    def rotate(self, q):
+    
+        q = freud.common.convert_array(q, 1, dtype=np.float32, contiguous=True,
+                dim_message="q must be a 1x4 dimensional array")
+        if q.shape[0] != 4:
+            raise TypeError('q should be an 1x4 array')
+        cdef np.ndarray[float, ndim= 1] l_q = q
+
+        self.thisptr.rotate(< const quat[float] &> l_q.data)
+        
+        cdef float * l_Mlm_rotated = self.thisptr.getMlm_rotated().get()
+        cdef np.npy_intp Mlm_shape[1]
+        Mlm_shape[0] = <np.npy_intp > (self.thisptr.getMaxL() + 1)**2 - 1
+        cdef np.ndarray[np.float32_t, ndim= 1] result = np.PyArray_SimpleNewFromData(
+                        1, Mlm_shape, np.NPY_FLOAT32, < void*>l_Mlm_rotated)
+        return result
+        
+
+    def initMirrorZ(self, p):
+        
+        
+
+        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(np.asarray(p, dtype=np.float32).flatten())
+        cdef quat[float] q = self.thisptr.initMirrorZ(< const vec3 [float]&> l_vec[0])
+        cdef np.ndarray[float, ndim = 1] result = np.array(
+                [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
+        return result
 
 
     # def get_symmetric_orientation(self):
