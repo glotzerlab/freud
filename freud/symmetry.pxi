@@ -129,8 +129,8 @@ cdef class SymmetryCollection:
         if q.shape[0] != 4:
             raise TypeError('q should be an 1x4 array')
         cdef np.ndarray[float, ndim= 1] l_q = q
-
-        self.thisptr.rotate(< const quat[float] &> l_q.data)
+        
+        self.thisptr.rotate(< const quat[float] &> l_q[0])
         
         cdef float * l_Mlm_rotated = self.thisptr.getMlm_rotated().get()
         cdef np.npy_intp Mlm_shape[1]

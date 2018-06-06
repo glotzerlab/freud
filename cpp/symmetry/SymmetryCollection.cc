@@ -31,43 +31,27 @@ namespace freud { namespace symmetry {
         memset((void*)m_Mlm_rotated.get(), 0, sizeof(float)*((m_maxL + 1) * (m_maxL + 1)));
         int a = (1/6) * (1 + m_maxL) * (2 + m_maxL) * (3 + 2*m_maxL);
 
-        cout << "constructor starts" << endl;
-        for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
-            cout << m_Mlm_rotated.get()[l] << " ";
-            if( l == a*a+2*a) {
-                ++a;
-                cout << endl;
-            }
-        }
-        cout <<endl;
-        cout << "constructor ends" << endl;
+        // cout << "constructor starts" << endl;
+        // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+        //     cout << m_Mlm_rotated.get()[l] << " ";
+        //     if( l == a*a+2*a) {
+        //         ++a;
+        //         cout << endl;
+        //     }
+        // }
+        // cout <<endl;
+        // cout << "constructor ends" << endl;
 
 
         WDTable.resize(10416);
         rot.s = 1.0f;
-        rot.v = {0.0, 0.0, 0.0};
+        rot.v = {0.0f, 0.0f, 0.0f};
 
     }
 
     SymmetryCollection::~SymmetryCollection() {
     }
 
-    // shared_ptr<float> SymmetryCollection::getMlm() {
-        
-    //    // cout << endl << "getMlm() starts" << endl;
-    //     int c = 0;
-    //     for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
-    //         //cout << m_Mlm.get()[l] << " ";
-    //         if( l == c*c+2*c) {
-    //             ++c;
-    //             //cout << endl;
-    //         }
-    //     }
-    //     //cout <<endl;
-    //    // cout << endl << "getMlm() ends" << endl << endl;
-
-    //     return m_Mlm;
-    // }
 
     float SymmetryCollection::measure(shared_ptr<float> Mlm, int type) { // 1. possible that Mlm past in does not fit our Mlm format? or make it private later?
                                                                         
@@ -250,24 +234,22 @@ namespace freud { namespace symmetry {
         float q12 = q.v.x * q.v.y;
         float q13 = q.v.x * q.v.z;
         float q23 = q.v.y * q.v.z;
-        float angle1 = atan2(2.0 * (q23 - q01), 2.0 * (q13 + q02));
-        float angle2 = acos (q00 - q11 - q22 + q33);
-        float angle3 = atan2(2.0 * (q01 + q23), 2.0 * (q02 - q13));
-        cout << "pre-angle is: " << angle1 << " "  << angle2 << " " << angle3 << endl;
+        
+        float angle1 = atan2(2.0 * (q23 - q01), 2.0 * (q13 + q02)); //phi
+        float angle2 = acos (q00 - q11 - q22 + q33);                //theta
+        float angle3 = atan2(2.0 * (q01 + q23), 2.0 * (q02 - q13)); //psi
         if (q01 == 0.0 && q23 == 0.0 && q13 == 0.0 && q02 == 0.0) {
             // degenerate case, rotation around z-axis only
             angle1 = atan2(2.0 * (q03 - q12), q00 + q11 - q22 - q33);
             angle2 = 0.0;
             angle3 = 0.0;
         }
-        cout << "Pi is: " << PI << endl;
-        cout << "mid-angle is: " << angle1 << " "  << angle2 << " " << angle3 << endl;
+        
         if (isnan(angle1)) angle1 = 0.5 * PI;
         if (isnan(angle2)) angle2 = 0.5 * PI;
         if (isnan(angle3)) angle3 = 0.5 * PI;
-        cout << "after-angle is: " << angle1 << " "  << angle2 << " " << angle3 << endl;
+
         vector<float> angles{angle1, angle2, angle3};
-        cout << "angle is: " << angles[0] << " "  << angles[1] << " " << angles[2] << endl;
         return angles;
     }
 
@@ -277,27 +259,11 @@ namespace freud { namespace symmetry {
         cout << endl << endl << "rotation starts" << endl;
         vector<float> eulerAngles = toEulerAngles323(q);
 
-       for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+        cout << "angle is: " << eulerAngles[0] << " "  << eulerAngles[1] << " " << eulerAngles[2] << endl;
+
+        for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
             m_Mlm_rotated.get()[l] = m_Mlm.get()[l];
         }
-
-
-    cout << "before anything starts.. " << endl;
-        int a = 0;
-        for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
-            cout << m_Mlm_rotated.get()[l] << " ";
-            if( l == a*a+2*a) {
-                ++a;
-                cout << endl;
-            }
-        }
-        cout <<endl;
-        cout << "1.check computerMlm ends" << endl;
-
-
-
-
-
 
         cout << "WDTable.size(): " << WDTable.size() << endl;
         // generate Wigner-D table
@@ -306,90 +272,78 @@ namespace freud { namespace symmetry {
         float sH = -s * 0.5;
         float cc = (1.0 + c) * 0.5;
         float ss = (1.0 - c) * 0.5;
-        cout << "c is: " << eulerAngles[1] << " " << cos(eulerAngles[1]) << endl;
-        cout << "s is: " << eulerAngles[1] << " " << sin(eulerAngles[1]) << endl;
+        // cout << "c is: " << eulerAngles[1] << " " << cos(eulerAngles[1]) << endl;
+        // cout << "s is: " << eulerAngles[1] << " " << sin(eulerAngles[1]) << endl;
 
         // initial values
         WDTable[WDindex(0, 0, 0)] = 1.0;                  // l = 0, m2 = 0, m1 = 0
         WDTable[WDindex(1, 0, 0)] = c;                    // l = 1, m2 = 0, m1 = 0
-        WDTable[WDindex(1, 1, -1)] = ss;                   // l = 1, m2 = 1, m1 = -1
+        WDTable[WDindex(1, 1, -1)] = ss;                  // l = 1, m2 = 1, m1 = -1
         WDTable[WDindex(1, 1, 0)] = -s * sqrt(0.5);       // l = 1, m2 = 1, m1 = 0
         WDTable[WDindex(1, 1, 1)] = cc;                   // l = 1, m2 = 1, m1 = 1
 
-        cout <<  "WDTable[WDindex(0, 0, 0)]: " << WDindex(0, 0, 0) << " "  <<WDindex(1, 0, 0)<<WDindex(1, 1, -1) 
-             << " " <<WDindex(1, 1, 0) << " " <<WDindex(1, 1, 1) << " " <<endl;
-
         // recursion for other values
         for (int j = 2; j <= m_maxL; ++j) {
- 
             // mprime = 0:
-            {
-                WDTable[WDindex(j, 0, 0)] = (c * WDTable[WDindex(j - 1, 0, 0)] +
-                                             s * WDTable[WDindex(j - 1, 1, 0)] * sqrt((float)(j - 1) / j));//no change?
-            }
-
+            WDTable[WDindex(j, 0, 0)] = (c * WDTable[WDindex(j - 1, 0, 0)] +
+                                         s * WDTable[WDindex(j - 1, 1, 0)] * sqrt((float)(j - 1) / j));
             // 0 < mprime < j:
             for (int mprime = 1; mprime < j - 1; ++mprime) {
                 float Npp = sqrt((j + mprime) * (j + mprime - 1));
                 float Npn = sqrt((j + mprime) * (j - mprime    ));
                 float Nnn = sqrt((j - mprime) * (j - mprime - 1));
+               
                 // m = -mprime:
-                {
-                    WDTable[WDindex(j, mprime, -mprime)] = (ss * WDTable[WDindex(j - 1, mprime - 1, -mprime)] -
-                                                            s  * WDTable[WDindex(j - 1, mprime    , -mprime + 1)] * Npn / Npp +
-                                                            cc * WDTable[WDindex(j - 1, mprime + 1, -mprime + 2)] * Nnn / Npp);
-                }
+                WDTable[WDindex(j, mprime, -mprime)] = (ss * WDTable[WDindex(j - 1, mprime - 1, 1 - mprime)] -
+                                                        s  * WDTable[WDindex(j - 1, mprime    , 1 - mprime)] * Npn / Npp +
+                                                        cc * WDTable[WDindex(j - 1, mprime + 1, 1 - mprime)] * Nnn / Npp);
+                    
                 // -mprime < m < mprime:
                 for (int m = -mprime + 1; m < mprime; ++m) {
-                    WDTable[WDindex(j, mprime, m)] = (sH * WDTable[WDindex(j - 1, mprime - 1, m - 1)] * Npp +
+                    WDTable[WDindex(j, mprime, m)] = (sH * WDTable[WDindex(j - 1, mprime - 1, m)] * Npp +
                                                       c  * WDTable[WDindex(j - 1, mprime,     m)] * Npn -
-                                                      sH * WDTable[WDindex(j - 1, mprime + 1, m + 1)] * Nnn) / sqrt((j + m) * (j - m));
+                                                      sH * WDTable[WDindex(j - 1, mprime + 1, m)] * Nnn) / sqrt((j + m) * (j - m));
                 }
+
                 // m = mprime:
-                {
-                    WDTable[WDindex(j, mprime, mprime)] = (cc * WDTable[WDindex(j - 1, mprime - 1, mprime - 2)] +
-                                                           s  * WDTable[WDindex(j - 1, mprime, mprime - 1)] * Npn / Npp +
-                                                           ss * WDTable[WDindex(j - 1, mprime + 1, mprime)] * Nnn / Npp);
-                }
+                WDTable[WDindex(j, mprime, mprime)] = (cc * WDTable[WDindex(j - 1, mprime - 1, mprime - 1)] +
+                                                       s  * WDTable[WDindex(j - 1, mprime,     mprime - 1)] * Npn / Npp +
+                                                       ss * WDTable[WDindex(j - 1, mprime + 1, mprime - 1)] * Nnn / Npp);
+                
             }
 
-            // mprime = j - 1:
-            {
-                float Npp = sqrt(((j * 2) - 1) * ((j * 2) - 2));
-                float Npn = sqrt((j * 2) - 1);
-                // m = -mprime:
-                {
-                    WDTable[WDindex(j, j - 1, 1 - j)] = (ss * WDTable[WDindex(j - 1, j - 2, 1 - j)] -
-                                                         s  * WDTable[WDindex(j - 1, j - 1, -j)] * Npn / Npp);//change?
-                }
-                // -mprime < m < mprime:
-                for (int m = -j + 2; m < j - 1; ++m) {
-                    WDTable[WDindex(j, j - 1, m)] = (sH * WDTable[WDindex(j - 1, j - 2, m - 1)] * Npp +
-                                                     c  * WDTable[WDindex(j - 1, j - 1, m)] * Npn) / sqrt((j + m) * (j - m));
-                }
-                // m = mprime:
-                {
-                    WDTable[WDindex(j, j - 1, j - 1)] = (cc * WDTable[WDindex(j - 1, j - 2, j - 3)] +
-                                                         s  * WDTable[WDindex(j - 1, j - 1, j - 2)] * Npn / Npp);
-                }
+            // mprime = j - 1:    
+            float Npp = sqrt(((j * 2) - 1) * ((j * 2) - 2));
+            float Npn = sqrt((j * 2) - 1);
+    
+            // m = -mprime:
+            WDTable[WDindex(j, j - 1, 1 - j)] = (ss * WDTable[WDindex(j - 1, j - 2, 2 - j)] -
+                                                 s  * WDTable[WDindex(j - 1, j - 1, -j)] * Npn / Npp);
+        
+            // -mprime < m < mprime:
+            for (int m = -j + 2; m < j - 1; ++m) {
+                WDTable[WDindex(j, j - 1, m)] = (sH * WDTable[WDindex(j - 1, j - 2, m)] * Npp +
+                                                 c  * WDTable[WDindex(j - 1, j - 1, m)] * Npn) / sqrt((j + m) * (j - m));
             }
-
+    
+            // m = mprime:
+            WDTable[WDindex(j, j - 1, j - 1)] = (cc * WDTable[WDindex(j - 1, j - 2, j - 2)] +
+                                                 s  * WDTable[WDindex(j - 1, j - 1, j - 2)] * Npn / Npp);
+        
             // mprime = j:
-            {
-                float Npp = sqrt((j * 2) * ((j * 2) - 1));
-                // m = -mprime:
-                {
-                    WDTable[WDindex(j, j, -j)] = ss * WDTable[WDindex(j - 1, j - 1, -j)];
-                }
-                // -mprime < m < mprime:
-                for (int m = -j + 1; m < j; ++m) {
-                    WDTable[WDindex(j, j, m)] = sH * WDTable[WDindex(j - 1, j - 1, m - 1)] * Npp / sqrt((j + m) * (j - m));
-                }
-                // m = mprime:
-                {
-                    WDTable[WDindex(j, j, j)] = cc * WDTable[WDindex(j - 1, j - 1, j - 2)];
-                }
+            Npp = sqrt((j * 2) * ((j * 2) - 1));
+            
+            // m = -mprime:
+            WDTable[WDindex(j, j, -j)] = ss * WDTable[WDindex(j - 1, j - 1, 1 - j)];
+            
+            // -mprime < m < mprime:
+            for (int m = -j + 1; m < j; ++m) {
+                WDTable[WDindex(j, j, m)] = sH * WDTable[WDindex(j - 1, j - 1, m)] * Npp / sqrt((j + m) * (j - m));
             }
+
+            // m = mprime:    
+            WDTable[WDindex(j, j, j)] = cc * WDTable[WDindex(j - 1, j - 1, j - 1)];
+                
         }
 
         // rotate spherical harmonics expansion
@@ -400,6 +354,7 @@ namespace freud { namespace symmetry {
                 float arg = k * eulerAngles[2];
                 float cosarg = cos(arg);
                 float sinarg = sin(arg);
+                // cout << "index is: " << j * (j + 1) + k <<", " << j * (j + 1) - k << endl;
                 float Mml1  = m_Mlm_rotated.get()[j * (j + 1) + k]; //one cell right from the central line
                 float Mml2  = m_Mlm_rotated.get()[j * (j + 1) - k]; //one cell left from the central line
                 m_Mlm_rotated.get()[j * (j + 1) + k] = Mml1 * cosarg - Mml2 * sinarg;
@@ -408,16 +363,17 @@ namespace freud { namespace symmetry {
 
             // rotate around x-axis
             vector<float> Mm2(2 * j + 1, 0);
+            // cout << "Mm2.size(): " << Mm2.size() << endl;
+            
             // mprime = 0:
-            {
-                float mm = WDTable[WDindex(j, 0, 0)] * m_Mlm_rotated.get()[j * (j + 1)];
-                for (int m = 1; m <= j; ++m) {
-                    float WD1 = WDTable[WDindex(j, m, 0)];//center?
-                    if ((m & 1) != 0) WD1 = -WD1;
-                    mm += WD1 * m_Mlm_rotated.get()[j * (j + 1) + m] * sqrt(2.0);
-                }
-                Mm2[j] = mm;
+            float mm = WDTable[WDindex(j, 0, 0)] * m_Mlm_rotated.get()[j * (j + 1)];
+            for (int m = 1; m <= j; ++m) {
+                float WD1 = WDTable[WDindex(j, m, 0)];//center?
+                if ((m & 1) != 0) WD1 = -WD1;
+                mm += WD1 * m_Mlm_rotated.get()[j * (j + 1) + m] * sqrt(2.0);
             }
+            Mm2[j] = mm;
+            
             // mprime > 0:
             for (int mprime = 1; mprime <= j; ++mprime) {
                 float mmp = WDTable[WDindex(j, mprime, 0)] * m_Mlm_rotated.get()[j * (j + 1)] * sqrt(2.0);
@@ -431,7 +387,7 @@ namespace freud { namespace symmetry {
                     mmm += (WD1 - WD2) * m_Mlm_rotated.get()[j * (j + 1) - m] ;
                 }
                 // m >= mprime:
-                for (int m = mprime; m <= j; m++) {
+                for (int m = mprime; m <= j; ++m) {
                     float WD1 = WDTable[WDindex(j, m, mprime)];
                     float WD2 = WDTable[WDindex(j, m, -mprime)];
                     if ((mprime & 1) != 0) WD1 = -WD1;
@@ -453,13 +409,18 @@ namespace freud { namespace symmetry {
                 Mm2[j + k] = Mml1 * cosarg - Mml2 * sinarg;
                 Mm2[j - k] = Mml1 * sinarg + Mml2 * cosarg;
             }
-            cout << "Mm2[i] is: " << endl;
-            for (int i = 0; i < 2 * j + j; ++i) {
+            // cout << "Mm2[i] is: " << endl;
+            // cout << "first test" <<endl;
+            for(auto i = Mm2.begin(); i!= Mm2.end(); ++i) {
+                //cout << *i << " ";
+            }
+            // cout << endl<< "second test" <<endl;
+            for (int i = 0; i < 2 * j + 1; ++i) {
                 
-                cout << Mm2[i] << " "; 
+                //cout << Mm2[i] << " "; 
                 m_Mlm_rotated.get()[j * j + i] = Mm2[i];
             }
-            cout << endl << "ends" << endl;
+            // cout << endl << "ends" << endl;
 
         }
     }

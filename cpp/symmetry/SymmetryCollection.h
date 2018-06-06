@@ -80,36 +80,33 @@ class SymmetryCollection
 
 
         std::shared_ptr<float> getMlm() {
-             cout << "getMlm() Test starts" << endl;
-        int a = 0;
-        for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
-            cout << m_Mlm.get()[l] << " ";
-            if( l == a*a+2*a) {
-                ++a;
-                cout << endl;
-            }
-        }
-        cout <<endl;
-        cout << "getMlm() Test ends" << endl;
-
-
-
+            // cout << "getMlm() Test starts" << endl;
+            // int a = 0;
+            // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+            //     cout << m_Mlm.get()[l] << " ";
+            //     if(l == a*a+2*a) {
+            //         ++a;
+            //         cout << endl;
+            //     }
+            // }
+            // cout <<endl;
+            // cout << "getMlm() Test ends" << endl;
 
             return m_Mlm;
         }
 
         std::shared_ptr<float> getMlm_rotated() {
-            cout << "getMlm_rotated() Test starts" << endl;
-        int a = 0;
-        for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
-            cout << m_Mlm_rotated.get()[l] << " ";
-            if( l == a*a+2*a) {
-                ++a;
-                cout << endl;
-            }
-        }
-        cout <<endl;
-        cout << "getMlm_rotated() Test ends" << endl;
+        //     cout << "getMlm_rotated() Test starts" << endl;
+        // int a = 0;
+        // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
+        //     cout << m_Mlm_rotated.get()[l] << " ";
+        //     if( l == a*a+2*a) {
+        //         ++a;
+        //         cout << endl;
+        //     }
+        // }
+        // cout <<endl;
+        // cout << "getMlm_rotated() Test ends" << endl;
 
             return m_Mlm_rotated;
         }
@@ -149,7 +146,7 @@ class SymmetryCollection
         //float WDTable[(1/6) * (1 + 30) * (2 + 30) * (3 + 2 * 30)];
         const bool USETABLES = true;
         const int TABLESIZE = 1024;
-        const float PI = atan(1.0) * 4;
+        const float PI = atan(1.0) * 4.0;
         //vector<pair<float> > m_found_symmetries; //saves the axis of symmetry that was found
 
 
