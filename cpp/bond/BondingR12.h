@@ -1,25 +1,16 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
-
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
-#include <memory>
-
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "NearestNeighbors.h"
-#include "box.h"
-#include "Index1D.h"
-
 #include <map>
+#include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
+
+#include "box.h"
+#include "VectorMath.h"
+#include "NearestNeighbors.h"
+#include "Index1D.h"
 
 #ifndef _BONDING_R12_H__
 #define _BONDING_R12_H__
@@ -49,6 +40,7 @@ class BondingR12
 
         //! Compute the bond order
         void compute(box::Box& box,
+                     const freud::locality::NeighborList *nlist,
                      vec3<float> *ref_points,
                      float *ref_orientations,
                      unsigned int n_ref,
@@ -74,23 +66,22 @@ class BondingR12
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
-        float m_r_max;                     //!< Maximum r at which to determine neighbors
-        float m_t_max;                     //!< Maximum theta at which to determine neighbors
+        box::Box m_box;                     //!< Simulation box where the particles belong
+        float m_r_max;                      //!< Maximum r at which to determine neighbors
+        float m_t_max;                      //!< Maximum theta at which to determine neighbors
         float m_dr;
         float m_dt1;
         float m_dt2;
-        unsigned int m_nbins_r;             //!< Number of x bins to compute bonds
-        unsigned int m_nbins_t1;             //!< Number of y bins to compute bonds
-        unsigned int m_nbins_t2;             //!< Number of y bins to compute bonds
-        unsigned int m_n_bonds;                        //!< number of bonds to track
-        unsigned int *m_bond_map;                   //!< pointer to bonding map
+        unsigned int m_nbins_r;             //!< Number of r bins to compute bonds
+        unsigned int m_nbins_t2;            //!< Number of t2 bins to compute bonds
+        unsigned int m_nbins_t1;            //!< Number of t1 bins to compute bonds
+        unsigned int m_n_bonds;             //!< number of bonds to track
+        unsigned int *m_bond_map;           //!< pointer to bonding map
         unsigned int *m_bond_list;
-        std::map<unsigned int, unsigned int> m_list_map; //! maps bond index to list index
-        std::map<unsigned int, unsigned int> m_rev_list_map; //! maps list index to bond index
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
-        unsigned int m_n_ref;                //!< Last number of points computed
-        unsigned int m_n_p;                //!< Last number of points computed
+        std::map<unsigned int, unsigned int> m_list_map;       //! maps bond index to list index
+        std::map<unsigned int, unsigned int> m_rev_list_map;   //! maps list index to bond index
+        unsigned int m_n_ref;               //!< Last number of points computed
+        unsigned int m_n_p;                 //!< Last number of points computed
 
         std::shared_ptr<unsigned int> m_bonds;
     };

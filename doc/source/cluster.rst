@@ -2,9 +2,6 @@
 Cluster Module
 ==============
 
-Lorem Ipsum
-
-
 Cluster Functions
 =====================
 

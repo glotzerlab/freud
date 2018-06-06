@@ -1,9 +1,9 @@
-==============
+============
 Order Module
-==============
+============
 
-The order module contains functions which deal with the order of the system
-
+The order module contains functions which compute order parameters for the whole
+system or individual particles.
 
 Bond Order
 ==========
@@ -14,12 +14,21 @@ Bond Order
 Order Parameters
 ================
 
-Lorem Ipsum
+Order parameters take bond order data and interpret it in some way to quantify
+the degree of order in a system. This is often done through computing spherical
+harmonics of the bond order diagram, which are the spherical analogue of Fourier
+Transforms.
 
 Cubatic Order Parameter
 =======================
 
 .. autoclass:: freud.order.CubaticOrderParameter(t_initial, t_final, scale, n_replicates, seed)
+    :members:
+
+Nematic Order Parameter
+=======================
+
+.. autoclass:: freud.order.NematicOrderParameter(u)
     :members:
 
 Hexatic Order Parameter
@@ -86,7 +95,7 @@ Pairing
 =======
 
 .. note::
-    This module is deprecated is is replaced with :doc:`bond`
+    This module is deprecated and is replaced with :doc:`bond`.
 
 .. autoclass:: freud.order.Pairing2D(rmax, k, compDotTol)
     :members:

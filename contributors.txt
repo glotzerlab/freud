@@ -1,24 +1,29 @@
-Eric Harper <harperic@umich.edu> 942
-Joshua A. Anderson <joaander@umich.edu> 273
-Matthew Spellings <mspells@umich.edu> 160
-Erin Teich <erteich@umich.edu> 83
-M. Eric Irrgang <eirrgang@umich.edu> 66
-Chrisy Du <xiyudu@umich.edu> 52
-Antonio Osario <aosorio@umich.edu> 40
-Richmond Newman <newmanrs@umich.edu> 30
-Carl Simon Adorf <csadorf@umich.edu> 13
-Jens Glaser <jsglaser@umich.edu> 10
-Ryan Marson <rmarson@umich.edu> 8
-Ben Schultz <benjamin.a.schultz@gmail.com> 10
-Thomas Grubb <tgrubb@lolich.engin.umich.edu> 6
-Bryan VanSaders <bvansade@umich.edu> 4
-James Antonaglia <jamesaan@umich.edu> 4
-William Zygmunt <wzygmunt@umich.edu> 4
-James Proctor <jproc@umich.edu> 3
-Wenbo Shen <shenwb@umich.edu> 3
-Greg van Anders <grva@umich.edu> 3
-Rose Cersonsky <rosecers@umich.edu> 3
-Carolyn Phillips <phillicl@umich.edu> 5
-Mayank Agrawal <amayank@whitaker.engin.umich.edu> 4
-Yina Geng <yinageng@umich.edu> 2
-Paul Dodd <pdodd@umich.edu> 1
+  1030	Eric Harper <harperic@umich.edu>
+   278	Joshua A. Anderson <joaander@umich.edu>
+   221	Matthew Spellings <mspells@umich.edu>
+   205	Bradley Dice <bdice@bradleydice.com>
+   177	Vyas Ramasubramani <vramasub@umich.edu>
+    98	Erin Teich <erteich@umich.edu>
+    66	M. Eric Irrgang <eirrgang@umich.edu>
+    52	Chrisy Du <xiyudu@umich.edu>
+    40	Antonio Osorio <aosorio@umich.edu>
+    31	Richmond Newman <newmanrs@umich.edu>
+    22	Jens Glaser <jsglaser@umich.edu>
+    13	Carl Simon Adorf <csadorf@umich.edu>
+    11	Tim Moore <mootimot@umich.edu>
+    10	Benjamin Schultz <baschult@umich.edu>
+    10	Bryan VanSaders <bvansade@umich.edu>
+     8	Ryan Marson <rmarson@umich.edu>
+     6	Tom Grubb <tgrubb@umich.edu>
+     6	Yina Geng <yinageng@umich.edu>
+     5	Carolyn Phillips <phillicl@umich.edu>
+     4	Ben Swerdlow <benswerd@umich.edu>
+     4	James Antonaglia <jamesaan@umich.edu>
+     4	Mayank Agrawal <amayank@umich.edu>
+     4	William Zygmunt <wzygmunt@umich.edu>
+     3	Greg van Anders <grva@umich.edu>
+     3	James Proctor <jproc@umich.edu>
+     3	Rose Cersonsky <rosecers@umich.edu>
+     3	Wenbo Shen <shenwb@umich.edu>
+     1	Andrew Karas <askaras@codeblue.umich.edu>
+     1	Paul Dodd <pdodd@umich.edu>

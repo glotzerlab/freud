@@ -9,3 +9,4 @@ Simulation Box
 
 .. autoclass:: freud.box.Box(*args, **kwargs)
     :members:
+    :inherited-members:

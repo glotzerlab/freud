@@ -1,18 +1,14 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
-
-#include "PMFTXY2D.h"
-#include "ScopedGILRelease.h"
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include "VectorMath.h"
+#include "PMFTXY2D.h"
 
 using namespace std;
-
 using namespace tbb;
 
 /*! \internal
@@ -23,8 +19,7 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y)
-    : m_box(box::Box()), m_max_x(max_x), m_max_y(max_y), m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y),
-      m_frame_counter(0), m_n_ref(0), m_n_p(0), m_reduce(true)
+    : PMFT(), m_max_x(max_x), m_max_y(max_y), m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y)
     {
     if (n_bins_x < 1)
         throw invalid_argument("must be at least 1 bin in x");
@@ -63,29 +58,16 @@ PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int
         m_y_array.get()[i] = -m_max_y + ((y + nexty) / 2.0);
         }
 
-    // create and populate the pcf_array
+    // Set r_cut
+    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
     m_pcf_array = std::shared_ptr<float>(new float[m_n_bins_x * m_n_bins_y], std::default_delete<float[]>());
     memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y);
     m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_bins_x * m_n_bins_y], std::default_delete<unsigned int[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
-
-
-    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
-
-    m_lc = new locality::LinkCell(m_box, m_r_cut);
-    }
-
-PMFTXY2D::~PMFTXY2D()
-    {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
-        {
-        delete[] (*i);
-        }
-    delete m_lc;
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 void PMFTXY2D::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
@@ -106,9 +88,9 @@ void PMFTXY2D::reducePCF()
                     }
                 }
             });
-    float inv_num_dens = m_box.getVolume() / (float)m_n_p;
+    float inv_num_dens = this->m_box.getVolume() / (float)this->m_n_p;
     float inv_jacobian = (float) 1.0 / m_jacobian;
-    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
+    float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref);
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0,m_n_bins_x*m_n_bins_y),
         [=] (const blocked_range<size_t>& r)
@@ -118,28 +100,6 @@ void PMFTXY2D::reducePCF()
                 m_pcf_array.get()[i] = (float)m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
                 }
             });
-    }
-
-//! Get a reference to the PCF array
-std::shared_ptr<float> PMFTXY2D::getPCF()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_pcf_array;
-    }
-
-//! Get a reference to the bin counts array
-std::shared_ptr<unsigned int> PMFTXY2D::getBinCounts()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_bin_counts;
     }
 
 //! \internal
@@ -152,8 +112,8 @@ void PMFTXY2D::resetPCF()
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
         }
-    m_frame_counter = 0;
-    m_reduce = true;
+    this->m_frame_counter = 0;
+    this->m_reduce = true;
     }
 
 //! \internal
@@ -161,6 +121,7 @@ void PMFTXY2D::resetPCF()
 */
 
 void PMFTXY2D::accumulate(box::Box& box,
+                          const locality::NeighborList *nlist,
                          vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int n_ref,
@@ -168,8 +129,11 @@ void PMFTXY2D::accumulate(box::Box& box,
                          float *orientations,
                          unsigned int n_p)
     {
-    m_box = box;
-    m_lc->computeCellList(m_box, points, n_p);
+    this->m_box = box;
+
+    nlist->validate(n_ref, n_p);
+    const size_t *neighbor_list(nlist->getNeighbors());
+
     parallel_for(blocked_range<size_t>(0,n_ref),
         [=] (const blocked_range<size_t>& r)
             {
@@ -192,24 +156,18 @@ void PMFTXY2D::accumulate(box::Box& box,
                 memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
                 }
 
+            size_t bond(nlist->find_first_index(r.begin()));
+
             // for each reference point
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 vec3<float> ref = ref_points[i];
-                // get the cell the point is in
-                unsigned int ref_cell = m_lc->getCell(ref);
 
-                // loop over all neighboring cells
-                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                     {
-                    unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                    // iterate over the particles in that cell
-                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                    const size_t j(neighbor_list[2*bond + 1]);
                         {
-                        vec3<float> delta = m_box.wrap(points[j] - ref);
+                        vec3<float> delta = this->m_box.wrap(points[j] - ref);
                         float rsq = dot(delta, delta);
 
                         // check that the particle is not checking itself
@@ -247,11 +205,11 @@ void PMFTXY2D::accumulate(box::Box& box,
                     }
                 } // done looping over reference points
             });
-    m_frame_counter++;
-    m_n_ref = n_ref;
-    m_n_p = n_p;
+    this->m_frame_counter++;
+    this->m_n_ref = n_ref;
+    this->m_n_p = n_p;
     // flag to reduce
-    m_reduce = true;
+    this->m_reduce = true;
     }
 
 }; }; // end namespace freud::pmft

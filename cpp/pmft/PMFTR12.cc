@@ -1,18 +1,14 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
-
-#include "PMFTR12.h"
-#include "ScopedGILRelease.h"
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include "VectorMath.h"
+#include "PMFTR12.h"
 
 using namespace std;
-
 using namespace tbb;
 
 /*! \internal
@@ -23,9 +19,8 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsigned int nbins_t2)
-    : m_box(box::Box()), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
-      m_nbins_r(nbins_r), m_nbins_t1(nbins_t1), m_nbins_t2(nbins_t2), m_frame_counter(0),
-      m_n_ref(0), m_n_p(0), m_reduce(true)
+    : PMFT(), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
+      m_nbins_r(nbins_r), m_nbins_t1(nbins_t1), m_nbins_t2(nbins_t2)
     {
     if (nbins_r < 1)
         throw invalid_argument("must be at least 1 bin in r");
@@ -96,21 +91,10 @@ PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsig
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
 
     m_r_cut = m_max_r;
-
-    m_lc = new locality::LinkCell(m_box, m_max_r);
-    }
-
-PMFTR12::~PMFTR12()
-    {
-    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
-        {
-        delete[] (*i);
-        }
-    delete m_lc;
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reducePCF()
     {
     memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
@@ -134,8 +118,8 @@ void PMFTR12::reducePCF()
                     }
                 }
             });
-    float inv_num_dens = m_box.getVolume() / (float)m_n_p;
-    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
+    float inv_num_dens = m_box.getVolume() / (float)this->m_n_p;
+    float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref);
     // normalize pcf_array
     // avoid need to unravel b/c arrays are in the same index order
     parallel_for(blocked_range<size_t>(0,m_nbins_r*m_nbins_t1*m_nbins_t2),
@@ -148,39 +132,18 @@ void PMFTR12::reducePCF()
             });
     }
 
-//! Get a reference to the PCF array
-std::shared_ptr<unsigned int> PMFTR12::getBinCounts()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_bin_counts;
-    }
-
-//! Get a reference to the PCF array
-std::shared_ptr<float> PMFTR12::getPCF()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_pcf_array;
-    }
-
 void PMFTR12::resetPCF()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
         memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
         }
-    m_frame_counter = 0;
-    m_reduce = true;
+    this->m_frame_counter = 0;
+    this->m_reduce = true;
     }
 
 void PMFTR12::accumulate(box::Box& box,
+                         const locality::NeighborList *nlist,
                          vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int n_ref,
@@ -189,7 +152,10 @@ void PMFTR12::accumulate(box::Box& box,
                          unsigned int n_p)
     {
     m_box = box;
-    m_lc->computeCellList(m_box, points, n_p);
+
+    nlist->validate(n_ref, n_p);
+    const size_t *neighbor_list(nlist->getNeighbors());
+
     parallel_for(blocked_range<size_t>(0, n_ref),
         [=] (const blocked_range<size_t>& br)
             {
@@ -213,22 +179,16 @@ void PMFTR12::accumulate(box::Box& box,
                 memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
                 }
 
+            size_t bond(nlist->find_first_index(br.begin()));
+
             // for each reference point
             for (size_t i = br.begin(); i != br.end(); i++)
                 {
-                // get the cell the point is in
                 vec3<float> ref = ref_points[i];
-                unsigned int ref_cell = m_lc->getCell(ref);
 
-                // loop over all neighboring cells
-                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                     {
-                    unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                    // iterate over the particles in that cell
-                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                    const size_t j(neighbor_list[2*bond + 1]);
                         {
                         vec3<float> delta = m_box.wrap(points[j] - ref);
 
@@ -280,11 +240,11 @@ void PMFTR12::accumulate(box::Box& box,
                     }
                 } // done looping over reference points
             });
-    m_frame_counter++;
-    m_n_ref = n_ref;
-    m_n_p = n_p;
+    this->m_frame_counter++;
+    this->m_n_ref = n_ref;
+    this->m_n_p = n_p;
     // flag to reduce
-    m_reduce = true;
+    this->m_reduce = true;
     }
 
 }; }; // end namespace freud::pmft

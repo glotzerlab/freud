@@ -1,21 +1,20 @@
-==============
+=============
 KSpace Module
-==============
+=============
 
-Modules for calculating quantities in reciprocal space, including fourier transforms of shapes and diffraction pattern
-generation.
+Modules for calculating quantities in reciprocal space, including Fourier
+transforms of shapes and diffraction pattern generation.
 
 Meshgrid
 ========
 
-.. autoclass:: freud.kspace.meshgrid2(*arrs)
-    :members:
+.. autofunction:: freud.kspace.meshgrid2(*arrs)
 
 
 Structure Factor
 ================
 
-Methods for calculating the structure factor of different systems
+Methods for calculating the structure factor of different systems.
 
 .. autoclass:: freud.kspace.SFactor3DPoints(box, g)
     :members:
@@ -47,7 +46,7 @@ Methods for calculating the structure factor of different systems
 Diffraction Patterns
 ====================
 
-Methods for calculating diffraction patterns of various systems
+Methods for calculating diffraction patterns of various systems.
 
 .. autoclass:: freud.kspace.DeltaSpot()
     :members:
@@ -58,7 +57,7 @@ Methods for calculating diffraction patterns of various systems
 Utilities
 =========
 
-Classes and methods used by other kspace modules
+Classes and methods used by other kspace modules.
 
 .. autoclass:: freud.kspace.Constraint()
     :members:
@@ -66,8 +65,6 @@ Classes and methods used by other kspace modules
 .. autoclass:: freud.kspace.AlignedBoxConstraint()
     :members:
 
-.. autoclass:: freud.kspace.constrainedLatticePoints()
-    :members:
+.. autofunction:: freud.kspace.constrainedLatticePoints()
 
-.. autoclass:: freud.kspace.reciprocalLattice3D()
-    :members:
+.. autofunction:: freud.kspace.reciprocalLattice3D()

@@ -1,26 +1,18 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
-
-#include <tbb/tbb.h>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
-
-#include "HOOMDMath.h"
-#include "VectorMath.h"
+#include <tbb/tbb.h>
 
 #include "box.h"
+#include "VectorMath.h"
 #include "Index1D.h"
 
-#ifndef _GaussianDensity_H__
-#define _GaussianDensity_H__
+#ifndef _GAUSSIANDENSITY_H__
+#define _GAUSSIANDENSITY_H__
 
 /*! \file GaussianDensity.h
-    \brief Routines for computing Gaussian smeared densities from points
+    \brief Routines for computing Gaussian smeared densities from points.
 */
 
 namespace freud { namespace density {
@@ -56,7 +48,7 @@ class GaussianDensity
         void resetDensity();
 
         //! \internal
-        //! helper function to reduce the thread specific arrays into the boost array
+        //! helper function to reduce the thread specific arrays into one array
         void reduceDensity();
 
         //! Compute the Density
@@ -72,12 +64,11 @@ class GaussianDensity
         unsigned int getWidthZ();
 
     private:
-        box::Box m_box;    //!< Simulation box the particles belong in
+        box::Box m_box;    //!< Simulation box where the particles belong
         unsigned int m_width_x,m_width_y,m_width_z;           //!< Num of bins on one side of the cube
         float m_rcut;                  //!< Max r at which to compute density
         float m_sigma;                  //!< Variance
         Index3D m_bi;                   //!< Bin indexer
-        unsigned int m_frame_counter;       //!< number of frames calc'd
 
         std::shared_ptr<float> m_Density_array;            //! computed density array
         tbb::enumerable_thread_specific<float *> m_local_bin_counts;

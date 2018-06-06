@@ -1,13 +1,72 @@
 # Change Log
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v0.7.0
+## Unreleased
 
-* Improved API
-    - Named Tuples for Boxes intelligently converted for user
-    - inputs to compute functions converted to proper type, made contiguous if necessary
-    - if a single input is passed to a function requiring two, it is assumed the user wants that input duplicated
-* Boost dependence removed
-    - migration of boost bimap to custom implementation
+### Added
+* Allow specification of maximum number of neighbors to use when computing LocalDescriptors 
+
+### Changed
+* Using the default neighbor list with LocalDescriptors requires specifying the
+  precompute argument
+* Updated and improved tests
+
+## v0.8.1 - 2018-05-09
+
+### Fixed
+* Memory issue in nlist resolved
+
+## v0.8.0 - 2018-04-06
+
+### Added
+* Voronoi neighborlist now includes periodic neighbors
+* Voronoi neighborlist computes weight according to the facet area in 3D
+* Box module exposes `getImage(vec)`
+* Voronoi module can compute and return cell volumes/areas
+
+### Changed
+* Cluster module supports box argument in compute methods.
+* Refactored C++ code to reduce extraneous #includes
+* Refactored PMFT code
+* Refactored box module to remove unused methods
+* Resolved bug in `kspace.AnalyzeSFactor3D`
+
+### Deprecated
+* Box module `getCoordinates()` in favor of duplicate `box.makeCoordinates()`
+
+### Removed
+* Removed deprecated API for ComplexWRDF and FloatWRDF
+
+## v0.7.0 - 2018-03-02
+
+### Added
+* Added nematic order parameter
+* Added optional rmin argument to density.RDF
+* Added credits file
+* Wrote development guide
+* Added Python interface for box periodicity
+
+### Changed
+* Various bug fixes and code cleaning
+* Fixed all compile-time warnings
+* Ensured PEP 8 compliance everywhere
+* Minimized boost dependence
+* Many documentation rewrites
+* Wrote development guide
+* Made tests deterministic (seeded RNGs)
+* Removed deprecated Box API warnings
+* Standardized numpy usage
+
+## v0.6.4 - 2018-02-05
+
+* Added a generic neighbor list interface
+* Set up CircleCI for continuous integration
+* Set up documentation on ReadTheDocs
+* Added bumpversion support
+* Various bug fixes
+* Added python-style properties for accessing data
+* Fixed issues with voronoi neighbor list
 
 ## v0.6.0
 
@@ -24,7 +83,7 @@
 
 ## v0.5.0
 
-* Replace boost::shared_array with std::shared_ptr (C++ 11)
+* Replace boost::shared\_array with std::shared\_ptr (C++ 11)
 * Moved all tbb template classes to lambda expressions
 * Moved trajectory.Box to box.Box
 * trajectory is deprecated

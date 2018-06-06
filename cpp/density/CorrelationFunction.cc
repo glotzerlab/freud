@@ -1,25 +1,22 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "ScopedGILRelease.h"
-
+#include <complex>
 #include <stdexcept>
+#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <tbb/tbb.h>
-#include <complex>
 #include "CorrelationFunction.h"
 
 using namespace std;
-// using namespace freud;
-
 using namespace tbb;
 
 /*! \file CorrelationFunction.cc
-    \brief Generic pairwise correlation functions
+    \brief Generic pairwise correlation functions.
 */
+
 namespace freud { namespace density {
 
 template<typename T>
@@ -50,7 +47,6 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
         float nextr = float(i+1) * m_dr;
         m_r_array.get()[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
-    m_lc = new locality::LinkCell(m_box, m_rmax);
     }
 
 template<typename T>
@@ -64,11 +60,10 @@ CorrelationFunction<T>::~CorrelationFunction()
         {
         delete[] (*i);
         }
-    delete m_lc;
     }
 
 //! \internal
-//! helper function to reduce the thread specific arrays into the boost array
+//! helper function to reduce the thread specific arrays into one array
 template<typename T>
 void CorrelationFunction<T>::reduceCorrelationFunction()
     {
@@ -76,12 +71,13 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
     for(size_t i(0); i < m_nbins; ++i)
         m_rdf_array.get()[i] = T();
     // now compute the rdf
-    parallel_for(tbb::blocked_range<size_t>(0,m_nbins), CombineOCF<T>(m_nbins,
-                                                              m_bin_counts.get(),
-                                                              m_local_bin_counts,
-                                                              m_rdf_array.get(),
-                                                              m_local_rdf_array,
-                                                              (float)m_n_ref));
+    parallel_for(tbb::blocked_range<size_t>(0,m_nbins),
+                 CombineOCF<T>(m_nbins,
+                               m_bin_counts.get(),
+                               m_local_bin_counts,
+                               m_rdf_array.get(),
+                               m_local_rdf_array,
+                               (float) m_n_ref));
     }
 
 //! Get a reference to the RDF array
@@ -93,7 +89,7 @@ std::shared_ptr<T> CorrelationFunction<T>::getRDF()
     }
 
 //! \internal
-/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
+/*! \brief Function to reset the PCF array if needed e.g. calculating between new particle types
 */
 template<typename T>
 void CorrelationFunction<T>::resetCorrelationFunction()
@@ -113,6 +109,7 @@ void CorrelationFunction<T>::resetCorrelationFunction()
 
 template<typename T>
 void CorrelationFunction<T>::accumulate(const box::Box &box,
+                             const freud::locality::NeighborList *nlist,
                              const vec3<float> *ref_points,
                              const T *ref_values,
                              unsigned int n_ref,
@@ -121,20 +118,21 @@ void CorrelationFunction<T>::accumulate(const box::Box &box,
                              unsigned int Np)
     {
     m_box = box;
-    m_lc->computeCellList(m_box, points, Np);
-    parallel_for(tbb::blocked_range<size_t>(0, n_ref), ComputeOCF<T>(m_nbins,
-                                                                    m_local_bin_counts,
-                                                                    m_local_rdf_array,
-                                                                    m_box,
-                                                                    m_rmax,
-                                                                    m_dr,
-                                                                    m_lc,
-                                                                    ref_points,
-                                                                    ref_values,
-                                                                    n_ref,
-                                                                    points,
-                                                                    point_values,
-                                                                    Np));
+    nlist->validate(n_ref, Np);
+    parallel_for(tbb::blocked_range<size_t>(0, n_ref),
+                 ComputeOCF<T>(m_nbins,
+                               m_local_bin_counts,
+                               m_local_rdf_array,
+                               m_box,
+                               nlist,
+                               m_rmax,
+                               m_dr,
+                               ref_points,
+                               ref_values,
+                               n_ref,
+                               points,
+                               point_values,
+                               Np));
     m_frame_counter += 1;
     }
 
@@ -172,6 +170,7 @@ void ComputeOCF<T>::operator()( const blocked_range<size_t> &myR ) const
 
     float dr_inv = 1.0f / m_dr;
     float rmaxsq = m_rmax * m_rmax;
+    const size_t *neighbor_list(m_nlist->getNeighbors());
 
     bool bin_exists;
     m_bin_counts.local(bin_exists);
@@ -189,22 +188,15 @@ void ComputeOCF<T>::operator()( const blocked_range<size_t> &myR ) const
         memset((void*)m_rdf_array.local(), 0, sizeof(T)*m_nbins);
         }
 
+    size_t bond(m_nlist->find_first_index(myR.begin()));
     // for each reference point
     for (size_t i = myR.begin(); i != myR.end(); i++)
         {
         // get the cell the point is in
         vec3<float> ref = m_ref_points[i];
-        unsigned int ref_cell = m_lc->getCell(ref);
-
-        // loop over all neighboring cells
-        const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-        for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+        for(; bond < m_nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
-            unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-            // iterate over the particles in that cell
-            locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-            for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+            const size_t j(neighbor_list[2*bond + 1]);
                 {
                 // compute r between the two particles
                 vec3<float> delta = m_box.wrap(m_points[j] - ref);
@@ -239,17 +231,4 @@ void ComputeOCF<T>::operator()( const blocked_range<size_t> &myR ) const
 template class CorrelationFunction< complex<double> >;
 template class CorrelationFunction< double >;
 
-}} // end namespace freud::density
-
-// // Default implementation: assume we're dealing with floats
-// template<typename T>
-// void checkCFType(boost::python::numeric::array values)
-//     {
-//     num_util::check_type(values, NPY_FLOAT);
-//     }
-
-// template<>
-// void checkCFType<std::complex<float> >(boost::python::numeric::array values)
-//     {
-//     num_util::check_type(values, NPY_COMPLEX64);
-//     }
+}; }; // end namespace freud::density

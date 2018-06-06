@@ -1,28 +1,20 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
-
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "NearestNeighbors.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "NearestNeighbors.h"
 #include "Index1D.h"
 
 #ifndef _BOND_ORDER_H__
 #define _BOND_ORDER_H__
 
 /*! \file BondOrder.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the bond order diagram for the system of particles.
 */
 
 namespace freud { namespace order {
@@ -53,6 +45,7 @@ class BondOrder
 
         //! accumulate the bond order
         void accumulate(box::Box& box,
+                        const freud::locality::NeighborList *nlist,
                         vec3<float> *ref_points,
                         quat<float> *ref_orientations,
                         unsigned int n_ref,
@@ -89,23 +82,20 @@ class BondOrder
             }
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
-        float m_rmax;                     //!< Maximum r at which to determine neighbors
-        float m_k;                        //!< Multiplier in the exponent
+        box::Box m_box;                //!< Simulation box where the particles belong
         float m_dt;
         float m_dp;
-        locality::NearestNeighbors *m_nn;          //!< Nearest Neighbors for the computation
-        unsigned int m_n_ref;                //!< Last number of points computed
-        unsigned int m_n_p;                //!< Last number of points computed
-        unsigned int m_nbins_t;           //!< number of bins for theta
-        unsigned int m_nbins_p;           //!< number of bins for phi
-        unsigned int m_frame_counter;       //!< number of frames calc'd
+        unsigned int m_n_ref;          //!< Last number of points computed
+        unsigned int m_n_p;            //!< Last number of points computed
+        unsigned int m_nbins_t;        //!< number of bins for theta
+        unsigned int m_nbins_p;        //!< number of bins for phi
+        unsigned int m_frame_counter;  //!< number of frames calc'd
 
-        std::shared_ptr<unsigned int> m_bin_counts;         //!< bin counts computed
-        std::shared_ptr<float> m_bo_array;         //!< bond order array computed
-        std::shared_ptr<float> m_sa_array;         //!< bond order array computed
-        std::shared_ptr<float> m_theta_array;         //!< theta array computed
-        std::shared_ptr<float> m_phi_array;         //!< phi order array computed
+        std::shared_ptr<unsigned int> m_bin_counts;  //!< bin counts computed
+        std::shared_ptr<float> m_bo_array;           //!< bond order array computed
+        std::shared_ptr<float> m_sa_array;           //!< bond order array computed
+        std::shared_ptr<float> m_theta_array;        //!< theta array computed
+        std::shared_ptr<float> m_phi_array;          //!< phi order array computed
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 

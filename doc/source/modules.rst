@@ -1,10 +1,9 @@
-=============
-Freud modules
-=============
+=======
+Modules
+=======
 
-Freud modules may be imported individually or as a whole as part of a python script.
-
-Several modules are available currently. Feel free to contribute your own modules to the source.
+Below is a list of modules in freud. To add your own module, read the
+:doc:`development guide </development>`.
 
 .. toctree::
    :maxdepth: 3
@@ -17,5 +16,7 @@ Several modules are available currently. Feel free to contribute your own module
    interface
    kspace
    locality
-   pmft
    order
+   parallel
+   pmft
+   voronoi

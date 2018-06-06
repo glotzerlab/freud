@@ -1,31 +1,25 @@
 from freud import box
 from freud import density
+from freud import locality
 import random
 import numpy
 import time
 
-N = 64000;
-L = 55.0;
+import benchmark
+import internal
 
-points = numpy.zeros(shape=(N,3), dtype=numpy.float32)
+class RDFBenchmark(benchmark.benchmark):
 
-box = box.Box.cube(L);
+    def setup(self, N):
+        nx = ny = int(numpy.round((N/4)**(1./3)))
+        nz = N//4//nx//ny
 
-for i in range(0,N):
-    points[i,0] = (random.random() - 0.5) * L
-    points[i,1] = (random.random() - 0.5) * L
-    points[i,2] = (random.random() - 0.5) * L
+        (self.box, self.points) = internal.make_fcc(nx, ny, nz, noise=1e-2)
 
-# benchmark rdf
-trials = 5;
-avg_time = 0;
+    def run(self, N):
+        rdf = density.RDF(5.0, 0.05)
+        rdf.compute(self.box, self.points, self.points)
 
-# warm up
-rdf = density.RDF( 5.0, 0.05)
-rdf.compute(box, points, points);
-
-start = time.time();
-for trial in range(0,trials):
-    rdf.compute(box, points, points);
-end = time.time();
-print("avg time per trial: {}".format((end-start)/float(trials)))
+if __name__ == '__main__':
+    times = RDFBenchmark().run_thread_scaling_benchmark([4096, 16384, 65536], number=20)
+    print(times)

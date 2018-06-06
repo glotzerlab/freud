@@ -1,28 +1,25 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "BondOrder.h"
-#include "ScopedGILRelease.h"
-
+#include <complex>
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <stdexcept>
-#include <complex>
+#include "BondOrder.h"
 
 using namespace std;
 using namespace tbb;
 
 /*! \file BondOrder.h
-    \brief Compute the hexatic order parameter for each particle
+    \brief Compute the bond order diagram for the system of particles.
 */
 
 namespace freud { namespace order {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
-    : m_box(box::Box()), m_rmax(rmax), m_k(k), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_n_p(0), m_n_ref(0),
+    : m_box(box::Box()), m_n_ref(0), m_n_p(0), m_nbins_t(nbins_t), m_nbins_p(nbins_p),
       m_frame_counter(0)
     {
     // sanity checks, but this is actually kinda dumb if these values are 1
@@ -82,12 +79,6 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
     // initialize the bond order array
     m_bo_array = std::shared_ptr<float>(new float[m_nbins_t*m_nbins_p], std::default_delete<float[]>());
     memset((void*)m_bin_counts.get(), 0, sizeof(float)*m_nbins_t*m_nbins_p);
-
-    // create NearestNeighbors object
-    // if n is zero, set the number of neighbors to k
-    // otherwise set to n
-    // this is super dangerous...
-    m_nn = new locality::NearestNeighbors(m_rmax, n==0? (unsigned int) k: n);
     }
 
 BondOrder::~BondOrder()
@@ -97,7 +88,6 @@ BondOrder::~BondOrder()
         {
         delete[] (*i);
         }
-    delete m_nn;
     }
 
 void BondOrder::reduceBondOrder()
@@ -148,6 +138,7 @@ void BondOrder::resetBondOrder()
     }
 
 void BondOrder::accumulate(box::Box& box,
+                           const freud::locality::NeighborList *nlist,
                            vec3<float> *ref_points,
                            quat<float> *ref_orientations,
                            unsigned int n_ref,
@@ -160,9 +151,9 @@ void BondOrder::accumulate(box::Box& box,
     BondOrderMode b_mode = static_cast<BondOrderMode>(mode);
 
     m_box = box;
-    // compute the cell list
-    m_nn->compute(m_box,ref_points,n_ref,points,n_p);
-    m_nn->setRMax(m_rmax);
+
+    nlist->validate(n_ref, n_p);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,n_ref),
@@ -180,15 +171,16 @@ void BondOrder::accumulate(box::Box& box,
                 memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins_t*m_nbins_p);
                 }
 
+            size_t bond(nlist->find_first_index(br.begin()));
+
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
                 vec3<float> ref_pos = ref_points[i];
                 quat<float> ref_q(ref_orientations[i]);
 
-                //loop over neighbors
-                locality::NearestNeighbors::iteratorneighbor it = m_nn->iterneighbor(i);
-                for (unsigned int j = it.begin(); !it.atEnd(); j = it.next())
+                for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                     {
+                    const size_t j(neighbor_list[2*bond + 1]);
                     //compute r between the two particles
                     vec3<float> delta = m_box.wrap(points[j] - ref_pos);
 

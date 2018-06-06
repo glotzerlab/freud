@@ -2,8 +2,7 @@
 Density Module
 ==============
 
-The density module contains functions which deal with the density of the system
-
+The density module contains functions which deal with the density of the system.
 
 Correlation Functions
 =====================
@@ -29,5 +28,5 @@ Local Density
 Radial Distribution Function
 ============================
 
-.. autoclass:: freud.density.RDF(rmax, dr)
+.. autoclass:: freud.density.RDF(rmax, dr, rmin=0)
     :members:

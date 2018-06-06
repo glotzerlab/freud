@@ -1,30 +1,22 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
-
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
+#include "box.h"
 #include "VectorMath.h"
 #include "TensorMath.h"
 #include "saruprng.h"
-
 #include "NearestNeighbors.h"
-#include "box.h"
 #include "Index1D.h"
 
 #ifndef _CUBATIC_ORDER_PARAMETER_H__
 #define _CUBATIC_ORDER_PARAMETER_H__
 
 /*! \file CubaticOrderParameter.h
-    \brief Compute the cubatic order parameter for each particle
+    \brief Compute the cubatic order parameter for each particle.
 */
 
 namespace freud { namespace order {
@@ -96,8 +88,11 @@ class CubaticOrderParameter
         quat<float> m_cubatic_orientation;
         std::shared_ptr<float> m_particle_order_parameter;
         tensor4<float> m_global_tensor;
+        std::shared_ptr<float> m_sp_global_tensor;
         tensor4<float> m_cubatic_tensor;
+        std::shared_ptr<float> m_sp_cubatic_tensor;
         std::shared_ptr<float> m_particle_tensor;
+        std::shared_ptr<float> m_sp_gen_r4_tensor;
 
         // saru rng
         Saru m_saru;

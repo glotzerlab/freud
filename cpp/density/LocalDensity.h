@@ -1,27 +1,19 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
-
-#include <tbb/tbb.h>
-#include <ostream>
-
-// work around nasty issue where python #defines isalpha, toupper, etc....
-#undef __APPLE__
-#include <Python.h>
-#define __APPLE__
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
+#include <ostream>
+#include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
-
-#include "LinkCell.h"
 #include "box.h"
+#include "VectorMath.h"
+#include "NeighborList.h"
 
 #ifndef _LOCAL_DENSITY_H__
 #define _LOCAL_DENSITY_H__
 
 /*! \file LocalDensity.h
-    \brief Routines for computing local density around a point
+    \brief Routines for computing local density around a point.
 */
 
 namespace freud { namespace density {
@@ -46,6 +38,7 @@ class LocalDensity
 
         //! Compute the local density
         void compute(const box::Box &box,
+                     const freud::locality::NeighborList *nlist,
                      const vec3<float> *ref_points,
                      unsigned int n_ref,
                      const vec3<float> *points,
@@ -61,12 +54,11 @@ class LocalDensity
         std::shared_ptr< float > getNumNeighbors();
 
     private:
-        box::Box m_box;            //!< Simulation box the particles belong in
+        box::Box m_box;                   //!< Simulation box where the particles belong
         float m_rcut;                     //!< Maximum neighbor distance
         float m_volume;                   //!< Volume (area in 2d) of a single particle
         float m_diameter;                 //!< Diameter of the particles
-        locality::LinkCell* m_lc;          //!< LinkCell to bin particles for the computation
-        unsigned int m_n_ref;                //!< Last number of points computed
+        unsigned int m_n_ref;             //!< Last number of points computed
 
         std::shared_ptr< float > m_density_array;         //!< density array computed
         std::shared_ptr< float > m_num_neighbors_array;   //!< number of neighbors array computed

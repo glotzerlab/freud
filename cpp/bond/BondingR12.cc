@@ -1,16 +1,14 @@
-// Copyright (c) 2010-2016 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "BondingR12.h"
-#include "ScopedGILRelease.h"
-
+#include <complex>
+#include <map>
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
-#include <complex>
-#include <map>
+#include "BondingR12.h"
 
 using namespace std;
 using namespace tbb;
@@ -61,14 +59,10 @@ BondingR12::BondingR12(float r_max,
         {
         m_rev_list_map[i] = m_bond_list[i];
         }
-
-    // create cell list
-    m_lc = new locality::LinkCell(m_box, m_r_max);
     }
 
 BondingR12::~BondingR12()
     {
-    delete m_lc;
     }
 
 std::shared_ptr<unsigned int> BondingR12::getBonds()
@@ -87,6 +81,7 @@ std::map<unsigned int, unsigned int> BondingR12::getRevListMap()
     }
 
 void BondingR12::compute(box::Box& box,
+                         const freud::locality::NeighborList *nlist,
                          vec3<float> *ref_points,
                          float *ref_orientations,
                          unsigned int n_ref,
@@ -95,13 +90,16 @@ void BondingR12::compute(box::Box& box,
                          unsigned int n_p)
     {
     m_box = box;
-    // compute the cell list
-    m_lc->computeCellList(m_box,points,n_p);
+
+    nlist->validate(n_ref, n_p);
+    const size_t *neighbor_list(nlist->getNeighbors());
+
     if (n_ref != m_n_ref)
         {
         // make sure to clear this out at some point
         m_bonds = std::shared_ptr<unsigned int>(new unsigned int[n_ref*m_n_bonds], std::default_delete<unsigned int[]>());
         }
+
     std::fill(m_bonds.get(), m_bonds.get()+int(n_ref*m_n_bonds), UINT_MAX);
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0,n_ref),
@@ -116,26 +114,16 @@ void BondingR12::compute(box::Box& box,
             // indexer for bond map
             Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
 
+            size_t bond(nlist->find_first_index(br.begin()));
             for(size_t i=br.begin(); i!=br.end(); ++i)
                 {
-                // huh?
-                std::map<unsigned int, std::vector<unsigned int> > l_bonds;
                 // get position, orientation of particle i
                 vec3<float> ref_pos = ref_points[i];
                 float ref_angle = ref_orientations[i];
-                // get cell for particle i
-                unsigned int ref_cell = m_lc->getCell(ref_pos);
 
-                //loop over neighbor cells
-                const std::vector<unsigned int>& neigh_cells = m_lc->getCellNeighbors(ref_cell);
-                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                     {
-                    // get neighbor cell
-                    unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                    // iterate over the particles in that cell
-                    locality::LinkCell::iteratorcell it = m_lc->itercell(neigh_cell);
-                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                    const size_t j(neighbor_list[2*bond + 1]);
                         {
                         //compute r between the two particles
                         vec3<float> delta = m_box.wrap(points[j] - ref_pos);
@@ -200,5 +188,3 @@ void BondingR12::compute(box::Box& box,
     }
 
 }; }; // end namespace freud::bond
-
-
