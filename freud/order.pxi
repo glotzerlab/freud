@@ -849,7 +849,7 @@ cdef class LocalDescriptors:
                      particle orientations, or 'global' to not rotate
                      environments
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds or 'precomputed' if using :py:fun:`computeNList`
+                      find bonds or 'precomputed' if using :py:meth:`~.computeNList`
         :type points_ref: :class:`numpy.ndarray`,
                           shape= :math:`\\left(N_{particles}, 3 \\right)`,
                           dtype= :class:`numpy.float32`

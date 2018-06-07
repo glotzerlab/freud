@@ -5,12 +5,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
-* Allow specification of maximum number of neighbors to use when computing LocalDescriptors 
+* Allow specification of maximum number of neighbors to use when computing LocalDescriptors
 
 ### Changed
 * Using the default neighbor list with LocalDescriptors requires specifying the
   precompute argument
 * Updated and improved tests
+* Cleaned AngularSeparation module and documentation
 
 ## v0.8.1 - 2018-05-09
 
