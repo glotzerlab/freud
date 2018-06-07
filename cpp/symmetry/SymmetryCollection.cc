@@ -5,9 +5,11 @@
 #include <cstring>
 #include <stdexcept>
 #include <cmath>
+#include <unordered_set>
 
 #include "SymmetryCollection.h"
 #include "VectorMath.h"
+#include "Geodesation.h"
 
 using namespace std;
 
@@ -29,7 +31,7 @@ namespace freud { namespace symmetry {
                                            default_delete<float[]>());
 
         memset((void*)m_Mlm_rotated.get(), 0, sizeof(float)*((m_maxL + 1) * (m_maxL + 1)));
-        int a = (1/6) * (1 + m_maxL) * (2 + m_maxL) * (3 + 2*m_maxL);
+        //int a = (1/6) * (1 + m_maxL) * (2 + m_maxL) * (3 + 2*m_maxL);
 
         // cout << "constructor starts" << endl;
         // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
@@ -43,9 +45,29 @@ namespace freud { namespace symmetry {
         // cout << "constructor ends" << endl;
 
 
-        WDTable.resize(10416);
+        WDTable.resize((1/6) * (1 + MAXL) * (2 + MAXL) * (3 + 2 * MAXL));
         rot.s = 1.0f;
         rot.v = {0.0f, 0.0f, 0.0f};
+
+         SYMMETRIES[0].type = 
+
+
+        for (int i = 0; i < LENGTH; ++i) {
+
+            SYMMETRIES[i].type = i - 1;
+            SYMMETRIES[i].threshold = 0.75; 
+            if (i == 0) {
+                SYMMETRIES[i].threshold = 0.5;
+            } else if (i == 1) {
+                SYMMETRIES[i].threshold = 15.0;
+            } else if (i == 8) {
+                SYMMETRIES[i].type = 8;
+            } else if (i == 9) {
+                SYMMETRIES[i].type = 10;
+            } else if (i == 10) {
+                SYMMETRIES[i].type = 12;
+            }
+        }
 
     }
 
@@ -411,9 +433,9 @@ namespace freud { namespace symmetry {
             }
             // cout << "Mm2[i] is: " << endl;
             // cout << "first test" <<endl;
-            for(auto i = Mm2.begin(); i!= Mm2.end(); ++i) {
+            //for(auto i = Mm2.begin(); i!= Mm2.end(); ++i) {
                 //cout << *i << " ";
-            }
+           // }
             // cout << endl<< "second test" <<endl;
             for (int i = 0; i < 2 * j + 1; ++i) {
                 
@@ -450,147 +472,143 @@ namespace freud { namespace symmetry {
 
     }
 
-    // Symmetry SymmetryCollection::findSymmetry(int type) {
-    //     for (Symmetry &symmetry: SYMMETRIES) {
-    //         if(symmetry.type == type) {
-    //             return symmetry;
-    //         }
-    //     }
-    //     return nullptr;
-    // }
+    SymmetryCollection::Symmetry SymmetryCollection::findSymmetry(int type) {
+        for (SymmetryCollection::Symmetry symmetry: SYMMETRIES) {
+            if(symmetry.type == type) {
+                return symmetry;
+            }
+        }
+        return nullptr;
+    }
 
 
-    // int SymmetryCollection::searchSymmetry(bool perpendicular) {
+    int SymmetryCollection::searchSymmetry(bool perpendicular) {
 
-    //     // brute-force search for the best symmetry, initialize triangulation for search directions
-    //     int highestSymmetry = TOTAL;
-    //     shared_ptr<vector<vec3<float> > > vertexList;
-    //     shared_ptr<vector<unordered_set<int> > > neighborList;
-    //     if (perpendicular) {
-    //         // using a lattice on the circle (128 points)
-    //         const int CIRCLENUMBER = 128;
-    //         vertexList = shared_ptr<vector<vec3<float> > >(new vector<vec3<float> >());
-    //         neighborList = shared_ptr<vector<unordered_set<int> > >(new vector<unordered_set<int> >[m_vertexList->size()],
-    //                                                                 default_delete<vector<unordered_set<int> >[]>());
+        // brute-force search for the best symmetry, initialize triangulation for search directions
+        int highestSymmetry = TOTAL;
+        shared_ptr<vector<vec3<float> > > vertexList;
+        shared_ptr<vector<unordered_set<int> > > neighborList;
+        if (perpendicular) {
+            // using a lattice on the circle (128 points)
+            const int CIRCLENUMBER = 128;
+            vertexList = shared_ptr<vector<vec3<float> > >(new vector<vec3<float> >());
+            neighborList = shared_ptr<vector<unordered_set<int> > >(new vector<unordered_set<int> >(),
+                                                                    default_delete<vector<unordered_set<int> >[]>());
             
-    //         for (int i = 0; i < CIRCLENUMBER; ++i) {
-    //             // only need to search one side of the circle
-    //             float angle = PI * i / CIRCLENUMBER;
-    //             vec3<float> temp(cos(angle), sin(angle), 0.0);
-    //             vertexList->pushback(temp);
-    //             unordered_set<int> neighbors;
-    //             neighbors.insert(i + 1 < CIRCLENUMBER ? i + 1 : 0);
-    //             neighbors.insert(i - 1 >= 0 ? i - 1 : CIRCLENUMBER - 1);
-    //             neighborList->pushback(neighbors);
-    //         }
-    //     }
-    //     else {
-    //         // using a grid on the sphere (5 iterations)
-    //         Geodesation geodesation(5);
-    //         vertexList = geodesation.getVertexList();
-    //         neighborList = geodesation.getNeighborList();
-    //     }
+            for (int i = 0; i < CIRCLENUMBER; ++i) {
+                // only need to search one side of the circle
+                float angle = PI * i / CIRCLENUMBER;
+                vec3<float> temp(cos(angle), sin(angle), 0.0);
+                vertexList->push_back(temp);
+                unordered_set<int> neighbors;
+                neighbors.insert(i + 1 < CIRCLENUMBER ? i + 1 : 0);
+                neighbors.insert(i - 1 >= 0 ? i - 1 : CIRCLENUMBER - 1);
+                neighborList->push_back(neighbors);
+            }
+        } else {
+            // using a grid on the sphere (5 iterations)
+            Geodesation geodesation(5);
+            vertexList = geodesation.getVertexList();
+            neighborList = geodesation.getNeighborList();
+        }
         
-    //     // measure the order for each vertex and each symmetry (except TOTAL and MIRROR)
-    //     double[][] orderTable = new double[vertexList.size()][SYMMETRIES.length]; // ASK, one vertex can have several symmetries?
-    //     for (int vi = 0; vi < vertexList.size(); vi++) {
-    //         quat<float> quat;
-    //         if (perpendicular) {
-    //             // rotation around z-axis and then the x-axis in z-direction
-    //             quat<float> roty(sqrt(0.5), 0,0f, sqrt(0.5), 0.0f);
-    //             quat<float> rotz = (vertexList->at(vi)[0], 0.0f, 0.0f, vertexList->at(vi)[1]);
-    //             quat = roty * (rotz * rot);
-    //         }
-    //         else {
-    //             // rotate vertex in z-direction
-    //             quat = initMirrorZ(vertexList->at(vi));
-    //         }
+        // measure the order for each vertex and each symmetry (except TOTAL and MIRROR)
+        vector<vector<float>> orderTable(vertexList->size(), vector<float>(11, 0)); // ASK, one vertex can have several symmetries?
+        for (int vi = 0; vi < vertexList->size(); vi++) {
+            quat<float> quaternion;
+            if (perpendicular) {
+                // rotation around z-axis and then the x-axis in z-direction
+                quat<float> roty(sqrt(0.5), {0.0f, sqrt(0.5), 0.0f});
+                quat<float> rotz(vertexList->at(vi).x, {0.0f, 0.0f, vertexList->at(vi).y});
+                quaternion = roty * (rotz * rot);
+            }
+            else {
+                // rotate vertex in z-direction
+                quaternion = initMirrorZ(vertexList->at(vi));
+            }
 
-    //         double[][] Mlm2 = sphericalHarmonics.rotate(ArrayTools.clone(Mlm), quat);
-    //         for (int sym = 0; sym < SYMMETRIES.length; sym++) {// inner loop, for each vertex, measure the order for each symmetry
-    //             Symmetry symmetry = SYMMETRIES[sym];
-    //             if (symmetry.type == TOTAL || symmetry.type == MIRROR) continue;
-    //             orderTable[vi][sym] = symmetry.measure(Mlm2);
-    //         }
-    //     }
+            rotate(quaternion);
+            shared_ptr<float> Mlm2 = getMlm_rotated();
+            for (int sym = 0; sym < 11; ++sym) {// inner loop, for each vertex, measure the order for each symmetry
+                Symmetry symmetry = SYMMETRIES[sym];
+                if (symmetry.type == TOTAL || symmetry.type == MIRROR) continue;
+                orderTable[vi][sym] = measure(Mlm2, symmetry.type);
+            }
+        }
         
-    //     // test each symmetry separately, start with highest symmetry and then search downwards
-    //     vector<bool> foundBefore(vertexList.size());
-    //     for (int sym = SYMMETRIES.length - 1; sym >= 0; sym--) {
-    //         Symmetry symmetry = SYMMETRIES[sym];
-    //         if (symmetry.type == TOTAL || symmetry.type == MIRROR) continue;
-    //         vector<bool> alreadyChecked(vertexList.size());
+        // test each symmetry separately, start with highest symmetry and then search downwards
+        vector<bool> foundBefore(vertexList->size());
+        for (int sym = 11 - 1; sym >= 0; sym--) {
+            Symmetry symmetry = SYMMETRIES[sym];
+            if (symmetry.type == TOTAL || symmetry.type == MIRROR) continue;
+            vector<bool> alreadyChecked(vertexList->size());
             
-    //         // now loop recursively through the geodesation and determine ordered directions
-    //         float orderFoundGlobal = -1.0;
-    //         int directionFoundGlobal = -1;
-    //         for (int vi = 0; vi < vertexList.size(); vi++) {
-    //             // search iteratively through all neighboring directions // ASK I did not see any recursion here
-    //             vector<int> searchList;
-    //             searchList.pushback(vi);
+            // now loop recursively through the geodesation and determine ordered directions
+            float orderFoundGlobal = -1.0;
+            int directionFoundGlobal = -1;
+            for (int vi = 0; vi < vertexList->size(); vi++) {
+                // search iteratively through all neighboring directions // ASK I did not see any recursion here
+                vector<int> searchList;
+                searchList.push_back(vi);
                 
-    //             bool overlapsWithOther = false;
-    //             float orderFound = -1.0;
-    //             int directionFound = -1;
-    //             for (int j = 0; j < searchList.size(); j++)
-    //             {
-    //                 int vj = searchList[j];
+                bool overlapsWithOther = false;
+                float orderFound = -1.0;
+                int directionFound = -1;
+                for (int j = 0; j < searchList.size(); j++) {
+                    int vj = searchList[j];
                     
-    //                 // did we already check this axis and have we found it before?
-    //                 if (alreadyChecked[vj]) continue;
-    //                 alreadyChecked[vj] = true;
-    //                 if (orderTable[vj][sym] < symmetry.threshold) continue;
-    //                 if (foundBefore[vj]) overlapsWithOther = true;
-    //                 foundBefore[vj] = true;
+                    // did we already check this axis and have we found it before?
+                    if (alreadyChecked[vj]) continue;
+                    alreadyChecked[vj] = true;
+                    if (orderTable[vj][sym] < symmetry.threshold) continue;
+                    if (foundBefore[vj]) overlapsWithOther = true;
+                    foundBefore[vj] = true;
                     
-    //                 // keep track of 'best' symmetry found so far for this axis
-    //                 if (orderTable[vj][sym] > orderFound)
-    //                 {
-    //                     orderFound = orderTable[vj][sym];
-    //                     directionFound = vj;
-    //                 }
+                    // keep track of 'best' symmetry found so far for this axis
+                    if (orderTable[vj][sym] > orderFound) {
+                        orderFound = orderTable[vj][sym];
+                        directionFound = vj;
+                    }
                     
-    //                 // check in the neighborhood for symmetries
-    //                 for (int vk: neighborList->at(vj)) 
-    //                     searchList.pushback(vk);
-    //             }
+                    // check in the neighborhood for symmetries
+                    for (int vk: neighborList->at(vj)) 
+                        searchList.push_back(vk);
+                }
                 
-    //             // if we have a valid symmetry axis
-    //             if (directionFound >= 0 && !overlapsWithOther) {
-    //                 // add a marker on the BOD plot
-    //                 if (symmetry.type >= 2 && !perpendicular) {
-    //                     plot.addMarker(symmetry.type, vertexList->at(directionFound));
-    //                 }
+                // if we have a valid symmetry axis
+                if (directionFound >= 0 && !overlapsWithOther) {
+                    // add a marker on the BOD plot
+                    if (symmetry.type >= 2 && !perpendicular) {
+                        m_found_symmetries.push_back(make_pair(symmetry.type, vertexList->at(directionFound)));
+                    }
                     
-    //                 if (orderFound > orderFoundGlobal) {
-    //                     // keep track of 'best' symmetry found so far for a symmetry type
-    //                     orderFoundGlobal = orderFound;
-    //                     directionFoundGlobal = directionFound;
-    //                 }
-    //             }
-    //         }
+                    if (orderFound > orderFoundGlobal) {
+                        // keep track of 'best' symmetry found so far for a symmetry type
+                        orderFoundGlobal = orderFound;
+                        directionFoundGlobal = directionFound;
+                    }
+                }
+            }
 
-    //         // handle best overall axis for a given symmetry type
-    //         if (directionFoundGlobal >= 0 && symmetry.type >= highestSymmetry) {
-    //             highestSymmetry = symmetry.type;
+            // handle best overall axis for a given symmetry type
+            if (directionFoundGlobal >= 0 && symmetry.type >= highestSymmetry) {
+                highestSymmetry = symmetry.type;
                 
-    //             vec3<float> vertex = vertexList->at(directionFoundGlobal);
-    //             if (perpendicular) {
-    //                 // rotation around z-axis
-    //                 quat<float> rotz(vertex[0], 0.0, 0.0, vertex[1]);
-    //                 rot = rotz * rot; //ASK confirm
-    //                 // don't have to keep searching
-    //                 break;
-    //             }
+                vec3<float> vertex = vertexList->at(directionFoundGlobal);
+                if (perpendicular) {
+                    // rotation around z-axis
+                    quat<float> rotz(vertex.x, {0.0, 0.0, vertex.y});
+                    rot = rotz * rot; //ASK confirm
+                    // don't have to keep searching
+                    break;
+                }
                 
-    //             rot = initMirrorZ(vertex);
-    //         }
-    //     }
-    //     return highestSymmetry;
+                rot = initMirrorZ(vertex);
+            }
+        }
+        return highestSymmetry;
 
-
-
-    // }
+    }
 
 
 

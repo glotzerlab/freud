@@ -29,6 +29,7 @@ cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
         int getMaxL()
         void rotate(const quat[float]&)
         quat[float] initMirrorZ(const vec3[float]&)
+        int searchSymmetry(bool)
 
 cdef extern from "Geodesation.h" namespace "freud::symmetry":
     cdef cppclass Geodesation:

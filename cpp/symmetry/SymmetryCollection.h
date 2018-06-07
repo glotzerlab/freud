@@ -5,6 +5,7 @@
 #include <ostream>
 #include <tbb/tbb.h>
 #include <cmath>
+#include <unordered_set>
 
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
@@ -66,11 +67,6 @@ class SymmetryCollection
 
         int searchSymmetry(bool perpendicular);
 
-
-
-
-
-
         //! Returns quaternion corresponding to the highest-symmetry axis
         quat<float> getHighestOrderQuat();
 
@@ -119,8 +115,16 @@ class SymmetryCollection
             return m_maxL;
         }
 
-        //Symmetry findSymmetry(int type); //need to be private at last
+        struct Symmetry {
+            Symmetry():type(nullptr), threshold(nullptr) {}
+            int type;
+            float threshold;
+        };
+        
 
+        Symmetry findSymmetry(int type); //need to be private at last
+
+        
 
     private:
         box::Box m_box;
@@ -147,17 +151,20 @@ class SymmetryCollection
         const bool USETABLES = true;
         const int TABLESIZE = 1024;
         const float PI = atan(1.0) * 4.0;
-        //vector<pair<float> > m_found_symmetries; //saves the axis of symmetry that was found
+        vector<pair<int, vec3<float> > > m_found_symmetries; //saves the axis of symmetry that was found
+        
+        
+        const int LENGTH = 11; // numbers of types of symmetry
+        const Symmetry SYMMETRIES[LENGTH];
+
+
+        
 
 
     };
 
 
-    struct Symmetry {
-        int type;
-        float threshold;
-
-    };
+    
 
 
 }; }; // end namespace freud::symmetry

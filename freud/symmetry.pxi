@@ -150,6 +150,9 @@ cdef class SymmetryCollection:
                 [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
         return result
 
+    def searchSymmetry(self, perpendicular):
+
+        return self.thisptr.searchSymmetry(bool(perpendicular))
 
     # def get_symmetric_orientation(self):
     #     """
