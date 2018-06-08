@@ -33,7 +33,6 @@ cdef class _PMFT:
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
-        self.pmftptr.getBox()
         return BoxFromCPP(self.pmftptr.getBox())
 
     def resetPCF(self):
@@ -1046,19 +1045,6 @@ cdef class PMFTXYZ(_PMFT):
     def __dealloc__(self):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
-
-    @property
-    def box(self):
-        """Get the box used in the calculation."""
-        return self.getBox()
-
-    def getBox(self):
-        """Get the box used in the calculation.
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
-        """
-        return BoxFromCPP(self.pmftxyzptr.getBox())
 
     def resetPCF(self):
         """Resets the values of the PCF histograms in memory."""
