@@ -1126,7 +1126,50 @@ cdef class TransOrderParameter:
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
-cdef class LocalQl:
+cdef class _Steinhardt:
+    """Parent class for all Steinhardt OPs."""
+    cdef order.Steinhardt * steinhardtptr
+
+    def __cinit__(self):
+        pass
+
+    def __dealloc__(self):
+        if type(self) is _Steinhardt:
+            del self.steinhardtptr
+
+    @property
+    def box(self):
+        """Get the box used in the calculation.
+        """
+        return self.getBox()
+
+    @box.setter
+    def box(self, value):
+        """Reset the simulation box.
+        """
+        self.setBox(value)
+
+    def getBox(self):
+        """Get the box used in the calculation.
+
+        :return: freud Box
+        :rtype: :py:class:`freud.box.Box`
+        """
+        return BoxFromCPP(< box.Box > self.steinhardtptr.getBox())
+
+    def setBox(self, box):
+        """Reset the simulation box.
+
+        :param box: simulation box
+        :type box: :py:class:`freud.box.Box`
+        """
+        cdef _box.Box l_box = _box.Box(
+                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        self.steinhardtptr.setBox(l_box)
+
+
+cdef class LocalQl(_Steinhardt):
     """
     Compute the local Steinhardt rotationally invariant :math:`Q_l` [Cit4]_
     order parameter for a set of points.
@@ -1170,17 +1213,20 @@ cdef class LocalQl:
     cdef m_box
     cdef rmax
 
-    def __init__(self, box, rmax, l, rmin=0):
-        cdef _box.Box l_box = _box.Box(
+    def __cinit__(self, box, rmax, l, rmin=0):
+        cdef _box.Box l_box
+        if type(self) is LocalQl:
+            l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.m_box = box
-        self.rmax = rmax
-        self.thisptr = new order.LocalQl(l_box, rmax, l, rmin)
-
+            self.m_box = box
+            self.rmax = rmax
+            self.thisptr = new order.LocalQl(l_box, rmax, l, rmin)
+            
     def __dealloc__(self):
-        del self.thisptr
-        self.thisptr = <order.LocalQl*>0
+        if type(self) is LocalQl:
+            del self.thisptr
+            self.thisptr = <order.LocalQl*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1300,37 +1346,6 @@ cdef class LocalQl:
         self.thisptr.computeAve(nlist_ptr, < vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm( < vec3[float]*>l_points.data, nP)
         return self
-
-    @property
-    def box(self):
-        """Get the box used in the calculation.
-        """
-        return self.getBox()
-
-    @box.setter
-    def box(self, value):
-        """Reset the simulation box.
-        """
-        self.setBox(value)
-
-    def getBox(self):
-        """Get the box used in the calculation.
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
-        """
-        return BoxFromCPP(< box.Box > self.thisptr.getBox())
-
-    def setBox(self, box):
-        """Reset the simulation box.
-
-        :param box: simulation box
-        :type box: :py:class:`freud.box.Box`
-        """
-        cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.setBox(l_box)
 
     @property
     def Ql(self):

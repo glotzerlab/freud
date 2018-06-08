@@ -12,6 +12,12 @@ from libcpp.map cimport map
 cimport freud._box as box
 cimport freud._locality
 
+cdef extern from "Steinhardt.h" namespace "freud::order":
+    cdef cppclass Steinhardt:
+        Steinhardt(const box.Box &)
+        const box.Box & getBox() const
+        void setBox(const box.Box)
+
 cdef extern from "BondOrder.h" namespace "freud::order":
     cdef cppclass BondOrder:
         BondOrder(float, float, unsigned int, unsigned int, unsigned int)
@@ -125,8 +131,6 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
         LocalQl(const box.Box &, float, unsigned int, float)
-        const box.Box & getBox() const
-        void setBox(const box.Box)
         void compute(const freud._locality.NeighborList * ,
                      const vec3[float]*,
                      unsigned int) nogil except +

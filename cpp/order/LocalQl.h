@@ -8,6 +8,7 @@
 #include "VectorMath.h"
 #include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
+#include "Steinhardt.h"
 
 #ifndef _LOCAL_QL_H__
 #define _LOCAL_QL_H__
@@ -41,7 +42,7 @@ namespace order {
  * neighbor j in a local region:
  * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
-class LocalQl
+class LocalQl : public Steinhardt
     {
     public:
         //! LocalQl Class Constructor
@@ -57,16 +58,10 @@ class LocalQl
          */
         LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0);
 
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
-
         //! Reset the simulation box size
         void setBox(const box::Box newbox)
             {
-            m_box = newbox;
+            this->m_box = newbox;
             m_rmax_cluster = 0;
             m_rmax_cluster = 0;
             }
@@ -128,7 +123,6 @@ class LocalQl
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        box::Box m_box;        //!< Simulation box where the particles belong
         float m_rmin;          //!< Minimum r at which to determine neighbors
         float m_rmax;          //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;  //!< Maximum radius at which to cluster one crystal
