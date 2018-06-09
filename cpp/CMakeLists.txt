@@ -125,6 +125,7 @@ set(FREUD_SOURCES
             shapesplit/shapesplit.cc
             shapesplit/shapesplit.h
             interface/InterfaceMeasure.h
+            order/Steinhardt.h
             order/LocalQl.h
             order/LocalQl.cc
             order/LocalWl.h
