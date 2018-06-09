@@ -48,6 +48,8 @@ class LocalWl : public Steinhardt
 
         LocalWl(const box::Box& box, float rmax, unsigned int l);
 
+        ~LocalWl() {}
+
         //! Compute the local rotationally invariant Wl order parameter
         void compute(const locality::NeighborList *nlist,
                      const vec3<float> *points,

@@ -33,6 +33,8 @@ class Steinhardt
         //! Steinhardt Class Constructor
         Steinhardt(const box::Box& box):m_box(box){}
 
+        virtual ~Steinhardt() = 0;
+
         //! Get the simulation box
         const box::Box& getBox() const
             {

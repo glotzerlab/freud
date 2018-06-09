@@ -51,6 +51,8 @@ class LocalQl : public Steinhardt
          */
         LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0);
 
+        ~LocalQl() {}
+
         //! Reset the simulation box size
         void setBox(const box::Box newbox)
             {
