@@ -2,15 +2,16 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## v0.8.2 - 2018-06-07
 
 ### Added
-* Allow specification of maximum number of neighbors to use when computing LocalDescriptors 
+* Allow specification of maximum number of neighbors to use when computing LocalDescriptors
 
 ### Changed
 * Using the default neighbor list with LocalDescriptors requires specifying the
   precompute argument
 * Updated and improved tests
+* Cleaned AngularSeparation module and documentation
 
 ## v0.8.1 - 2018-05-09
 
