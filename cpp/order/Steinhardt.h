@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <complex>
+#include <cstring>
+#include <stdexcept>
 
 #include "box.h"
 #include "VectorMath.h"
@@ -31,7 +33,15 @@ class Steinhardt
     {
     public:
         //! Steinhardt Class Constructor
-        Steinhardt(const box::Box& box, float rmax):m_box(box), m_rmax(rmax) {}
+        Steinhardt(const box::Box& box, float rmax, unsigned int l, float rmin=0):m_box(box), m_rmax(rmax), m_l(l) , m_rmin(rmin)
+            {
+            if (m_rmax < 0.0f or m_rmin < 0.0f)
+                throw std::invalid_argument("rmin and rmax must be positive!");
+            if (m_rmin >= m_rmax)
+                throw std::invalid_argument("rmin should be smaller than rmax!");
+            if (m_l < 2)
+                throw std::invalid_argument("l must be two or greater!");
+            }
 
         virtual ~Steinhardt() = 0;
 
@@ -75,7 +85,14 @@ class Steinhardt
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong
         float m_rmax;          //!< Maximum r at which to determine neighbors
+        unsigned int m_l;      //!< Spherical harmonic l value.
+        float m_rmin;          //!< Minimum r at which to determine neighbors (default 0)
 
+        std::shared_ptr< std::complex<float> > m_Qlmi;  //!  Qlm for each particle i
+        std::shared_ptr< std::complex<float> > m_Qlm;         //!< Normalized Qlm for the whole system
+        std::shared_ptr<float> m_Qli;  //!< Ql locally invariant order parameter for each particle i
+        std::shared_ptr< std::complex<float> > m_AveQlmi;     //!< Averaged Qlm with 2nd neighbor shell for each particle i
+        std::shared_ptr< std::complex<float> > m_AveQlm;      //!< Normalized AveQlmi for the whole system
     private:
 
     };

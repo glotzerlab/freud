@@ -1,10 +1,6 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <complex>
-#include <cstring>
-#include <stdexcept>
-
 #include "LocalQl.h"
 
 using namespace std;
@@ -16,15 +12,7 @@ using namespace std;
 namespace freud { namespace order {
 
 LocalQl::LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin)
-    :Steinhardt(box, rmax), m_rmin(rmin), m_l(l)
-    {
-    if (m_rmax < 0.0f or m_rmin < 0.0f)
-        throw invalid_argument("rmin and rmax must be positive!");
-    if (m_rmin >= m_rmax)
-        throw invalid_argument("rmin should be smaller than rmax!");
-    if (m_l < 2)
-        throw invalid_argument("l must be two or greater!");
-    }
+    :Steinhardt(box, rmax, l, rmin) {}
 
 // Calculating Ylm using fsph module
 void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)

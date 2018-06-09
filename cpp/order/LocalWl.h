@@ -46,7 +46,7 @@ class LocalWl : public Steinhardt
 
 
 
-        LocalWl(const box::Box& box, float rmax, unsigned int l);
+        LocalWl(const box::Box& box, float rmax, unsigned int l, float rmin=0);
 
         ~LocalWl() {}
 
@@ -110,19 +110,13 @@ class LocalWl : public Steinhardt
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        unsigned int m_l;        //!< Spherical harmonic l value.
         unsigned int m_counter;  //!< Length of wigner3jvalues
         bool m_normalizeWl;      //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.
 
-        std::shared_ptr< std::complex<float> > m_Qlm;         //!< Normalized Qlm for the whole system
-        std::shared_ptr< std::complex<float> > m_Qlmi;        //!< Qlm for each particle i
-        std::shared_ptr< std::complex<float> > m_AveQlmi;     //!< Averaged Qlm with 2nd neighbor shell for each particle i
-        std::shared_ptr< std::complex<float> > m_AveQlm;      //!< Normalized AveQlmi for the whole system
         std::shared_ptr< std::complex<float> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
         std::shared_ptr< std::complex<float> > m_AveWli;      //!< Averaged Wl with 2nd neighbor shell for each particle i
         std::shared_ptr< std::complex<float> > m_WliNorm;     //!< Normalized Wl for the whole system
         std::shared_ptr< std::complex<float> > m_WliAveNorm;  //!< Normalized AveWl for the whole system
-        std::shared_ptr< float > m_Qli;             //!<  Need copy of Qli for normalization
         std::shared_ptr< float > m_wigner3jvalues;  //!<Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
     };
 

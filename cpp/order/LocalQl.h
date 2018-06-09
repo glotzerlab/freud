@@ -57,8 +57,6 @@ class LocalQl : public Steinhardt
         void setBox(const box::Box newbox)
             {
             this->m_box = newbox;
-            m_rmax_cluster = 0;
-            m_rmax_cluster = 0;
             }
 
 
@@ -113,16 +111,8 @@ class LocalQl : public Steinhardt
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        float m_rmin;          //!< Minimum r at which to determine neighbors
-        float m_rmax_cluster;  //!< Maximum radius at which to cluster one crystal
-        unsigned int m_l;      //!< Spherical harmonic l value.
-        std::shared_ptr< std::complex<float> > m_Qlmi;  //!  Qlm for each particle i
-        std::shared_ptr<float> m_Qli;  //!< Ql locally invariant order parameter for each particle i
-        std::shared_ptr< std::complex<float> > m_AveQlmi;  //! AveQlm for each particle i
         std::shared_ptr< float > m_AveQli;  //!< AveQl locally invariant order parameter for each particle i
-        std::shared_ptr< std::complex<float> > m_Qlm;  //! NormQlm for the system
         std::shared_ptr< float > m_QliNorm;  //!< QlNorm order parameter for each particle i
-        std::shared_ptr< std::complex<float> > m_AveQlm; //! AveNormQlm for the system
         std::shared_ptr< float > m_QliAveNorm;  //! < QlAveNorm order paramter for each particle i
     };
 

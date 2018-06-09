@@ -2,9 +2,6 @@
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
-#include <complex>
-#include <cstring>
-#include <stdexcept>
 
 #include "LocalWl.h"
 
@@ -16,18 +13,9 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalWl::LocalWl(const box::Box& box, float rmax, unsigned int l)
-    :Steinhardt(box, rmax), m_l(l)
+LocalWl::LocalWl(const box::Box& box, float rmax, unsigned int l, float rmin)
+    :Steinhardt(box, rmax, l, rmin)
     {
-    if (m_rmax < 0.0f)
-        throw invalid_argument("rmax must be positive!");
-    if (m_l < 2)
-        throw invalid_argument("l must be two or greater (and even)!");
-    if (m_l%2 == 1)
-        {
-        fprintf(stderr,"Current value of m_l is %d\n",m_l);
-        throw invalid_argument("This method requires even values of l!");
-        }
     m_normalizeWl = false;
     }
 
