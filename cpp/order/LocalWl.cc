@@ -13,8 +13,7 @@ using namespace std;
 
 namespace freud { namespace order {
 
-LocalWl::LocalWl(const box::Box& box, float rmax, unsigned int l, float rmin)
-    :Steinhardt(box, rmax, l, rmin)
+LocalWl::LocalWl(const box::Box& box, float rmax, unsigned int l, float rmin) : Steinhardt(box, rmax, l, rmin)
     {
     m_normalizeWl = false;
     }
@@ -86,82 +85,19 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
 void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
+    this->computeQlAve(nlist, points, Np);
+
     // Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};
     std::vector<float> m_wigner3jvalues (m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
-    // Set local data size
-    m_Np = Np;
-
-    nlist->validate(Np, Np);
-    const size_t *neighbor_list(nlist->getNeighbors());
-
-    float rmaxsq = m_rmax * m_rmax;
-
     // Maybe consider if Np != m_Np, we could not reallocate these
-    m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
-    m_AveQlm = std::shared_ptr<complex<float> > (new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
     m_AveWli = std::shared_ptr<complex<float> >(new complex<float> [m_Np], std::default_delete<complex<float>[]>());
-    memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
-    memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
     memset((void*)m_AveWli.get(), 0, sizeof(float)*m_Np);
-
-    size_t bond(0);
 
     for (unsigned int i = 0; i<m_Np; i++)
         {
-        // Get cell point is in
-        vec3<float> ref = points[i];
-        unsigned int neighborcount=1;
-
-        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
-            {
-            const unsigned int n1(neighbor_list[2*bond + 1]);
-                {
-                vec3<float> ref1 = points[n1];
-                if (n1 == i)
-                    {
-                    continue;
-                    }
-                // rij = rj - ri, from i pointing to j.
-                vec3<float> delta = m_box.wrap(points[n1] - ref);
-                float rsq = dot(delta, delta);
-                if (rsq < rmaxsq)
-                    {
-                    size_t neighborhood_bond(nlist->find_first_index(n1));
-                    for (; neighborhood_bond < nlist->getNumBonds() && neighbor_list[2*neighborhood_bond] == n1; ++neighborhood_bond)
-                        {
-                        const unsigned int j(neighbor_list[2*neighborhood_bond + 1]);
-                            {
-                            if (n1 == j)
-                                {
-                                continue;
-                                }
-                            // rij = rj - ri, from i pointing to j.
-                            vec3<float> delta1 = m_box.wrap(points[j] - ref1);
-                            float rsq1 = dot(delta1, delta1);
-
-                            if (rsq1 < rmaxsq)
-                                {
-                                for(unsigned int k = 0; k < (2*m_l+1); ++k)
-                                    {
-                                    m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*j+k];
-                                    }
-                                neighborcount++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-         // Normalize!
-        for (unsigned int k = 0; k < (2*m_l+1); ++k)
-            {
-            m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*i+k];
-            m_AveQlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
-            m_AveQlm.get()[k] += m_AveQlmi.get()[(2*m_l+1)*i+k];
-            }
         // Ave Wli calculation
         unsigned int counter = 0;
         for(unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)

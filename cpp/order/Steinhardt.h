@@ -80,6 +80,11 @@ class Steinhardt
                         const vec3<float> *points,
                         unsigned int Np);
 
+        //! Compute the local rotationally invariant Ql order parameter
+        void computeQlAve(const locality::NeighborList *nlist,
+                           const vec3<float> *points,
+                           unsigned int Np);
+
         //! Compute the order parameter averaged over the second neighbor shell
         virtual void computeAve(const locality::NeighborList *nlist,
                         const vec3<float> *points,
@@ -107,6 +112,8 @@ class Steinhardt
         std::shared_ptr<float> m_Qli;  //!< Ql locally invariant order parameter for each particle i
         std::shared_ptr< std::complex<float> > m_AveQlmi;     //!< Averaged Qlm with 2nd neighbor shell for each particle i
         std::shared_ptr< std::complex<float> > m_AveQlm;      //!< Normalized AveQlmi for the whole system
+        std::shared_ptr< float > m_AveQli;  //!< AveQl locally invariant order parameter for each particle i
+
     private:
 
     };

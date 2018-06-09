@@ -103,7 +103,6 @@ class LocalQl : public Steinhardt
         virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        std::shared_ptr< float > m_AveQli;  //!< AveQl locally invariant order parameter for each particle i
         std::shared_ptr< float > m_QliNorm;  //!< QlNorm order parameter for each particle i
         std::shared_ptr< float > m_QliAveNorm;  //! < QlAveNorm order paramter for each particle i
     };
