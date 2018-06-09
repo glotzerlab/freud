@@ -1,14 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <memory>
-#include <complex>
-
-#include "box.h"
-#include "VectorMath.h"
-#include "LinkCell.h"
-#include "fsph/src/spherical_harmonics.hpp"
 #include "wigner3j.h"
+#include "Steinhardt.h"
 
 #ifndef _LOCAL_WL_H__
 #define _LOCAL_WL_H__
@@ -37,7 +31,7 @@ namespace freud { namespace order {
  * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
 
-class LocalWl
+class LocalWl : public Steinhardt
     {
     public:
         //! LocalWl Class Constructor
@@ -53,18 +47,6 @@ class LocalWl
 
 
         LocalWl(const box::Box& box, float rmax, unsigned int l);
-
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
-
-        //! Reset the simulation box size
-        void setBox(const box::Box newbox)
-            {
-            m_box = newbox;
-            }
 
         //! Compute the local rotationally invariant Wl order parameter
         void compute(const locality::NeighborList *nlist,
@@ -131,7 +113,6 @@ class LocalWl
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        box::Box m_box;          //!< Simulation box where the particles belong
         float m_rmax;            //!< Maximum r at which to determine neighbors
 
         unsigned int m_l;        //!< Spherical harmonic l value.

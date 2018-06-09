@@ -1130,7 +1130,7 @@ cdef class _Steinhardt:
     """Parent class for all Steinhardt OPs."""
     cdef order.Steinhardt * steinhardtptr
 
-    def __cinit__(self):
+    def __cinit__(self, *args, **kwargs):
         pass
 
     def __dealloc__(self):
@@ -1582,7 +1582,7 @@ cdef class LocalQlNear(LocalQl):
         cdef NeighborList nlist_ = defaulted_nlist[0]
         return LocalQl.computeAveNorm(self, points, nlist_)
 
-cdef class LocalWl:
+cdef class LocalWl(_Steinhardt):
     """
     Compute the local Steinhardt rotationally invariant :math:`W_l` order
     parameter [Cit4]_ for a set of points.
@@ -1616,17 +1616,20 @@ cdef class LocalWl:
     cdef m_box
     cdef rmax
 
-    def __init__(self, box, rmax, l):
-        cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.LocalWl(l_box, rmax, l)
-        self.m_box = box
-        self.rmax = rmax
+    def __cinit__(self, box, rmax, l, *args, **kwargs):
+        cdef _box.Box l_box
+        if type(self) is LocalWl:
+            l_box = _box.Box(
+                    box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+                    box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            self.thisptr = new order.LocalWl(l_box, rmax, l)
+            self.m_box = box
+            self.rmax = rmax
 
     def __dealloc__(self):
-        del self.thisptr
-        self.thisptr = <order.LocalWl*>0
+        if type(self) is LocalWl:
+            del self.thisptr
+            self.thisptr = <order.LocalWl*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1747,31 +1750,6 @@ cdef class LocalWl:
         self.thisptr.computeAve(nlist_ptr, < vec3[float]*>l_points.data, nP)
         self.thisptr.computeAveNorm(< vec3[float]*>l_points.data, nP)
         return self
-
-    @property
-    def box(self):
-        """Get the box used in the calculation.
-        """
-        return self.getBox()
-
-    def getBox(self):
-        """Get the box used in the calculation.
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
-        """
-        return BoxFromCPP(< box.Box > self.thisptr.getBox())
-
-    def setBox(self, box):
-        """Reset the simulation box.
-
-        :param box: simulation box
-        :type box: :py:class:`freud.box.Box`
-        """
-        cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.setBox(l_box)
 
     @property
     def Ql(self):
@@ -1942,14 +1920,16 @@ cdef class LocalWlNear(LocalWl):
     """
     cdef num_neigh
 
-    def __init__(self, box, rmax, l, kn=12):
-        cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.LocalWl(l_box, rmax, l)
-        self.m_box = box
-        self.rmax = rmax
-        self.num_neigh = kn
+    def __cinit__(self, box, rmax, l, kn=12):
+        cdef _box.Box l_box
+        if type(self) is LocalWlNear:
+            l_box = _box.Box(
+                    box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+                    box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            self.thisptr = new order.LocalWl(l_box, rmax, l)
+            self.m_box = box
+            self.rmax = rmax
+            self.num_neigh = kn
 
     def __dealloc__(self):
         del self.thisptr
