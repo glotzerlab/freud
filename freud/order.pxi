@@ -1132,12 +1132,12 @@ cdef class _Steinhardt:
     cdef m_box
     cdef rmax
 
+    # The underlying CPP class is abstract and cannot be initiated
     def __cinit__(self, *args, **kwargs):
         pass
 
     def __dealloc__(self):
-        if type(self) is _Steinhardt:
-            del self.steinhardtptr
+        pass
 
     @property
     def box(self):
@@ -1359,7 +1359,7 @@ cdef class LocalQl(_Steinhardt):
     def __dealloc__(self):
         if type(self) is LocalQl:
             del self.thisptr
-            self.thisptr = <order.LocalQl*>0
+            self.thisptr = NULL
 
     @property
     def Ql(self):
@@ -1514,7 +1514,7 @@ cdef class LocalQlNear(LocalQl):
     def __dealloc__(self):
         if type(self) == LocalQlNear:
             del self.thisptr
-            self.thisptr = <order.LocalQl*>0
+            self.thisptr = NULL
 
     def computeAve(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1612,7 +1612,7 @@ cdef class LocalWl(_Steinhardt):
     def __dealloc__(self):
         if type(self) is LocalWl:
             del self.thisptr
-            self.thisptr = <order.LocalWl*>0
+            self.thisptr = NULL
 
     @property
     def Ql(self):
@@ -1781,7 +1781,7 @@ cdef class LocalWlNear(LocalWl):
 
     def __dealloc__(self):
         del self.thisptr
-        self.thisptr = <order.LocalWl*>0
+        self.thisptr = NULL
 
     def computeAve(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1875,7 +1875,7 @@ cdef class SolLiq:
 
     def __dealloc__(self):
         del self.thisptr
-        self.thisptr = <order.SolLiq*>0
+        self.thisptr = NULL
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -2202,7 +2202,7 @@ cdef class SolLiqNear(SolLiq):
 
     def __dealloc__(self):
         del self.thisptr
-        self.thisptr = <order.SolLiq*>0
+        self.thisptr = NULL
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order

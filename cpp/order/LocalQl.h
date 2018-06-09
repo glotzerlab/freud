@@ -114,7 +114,6 @@ class LocalQl : public Steinhardt
 
     private:
         float m_rmin;          //!< Minimum r at which to determine neighbors
-        float m_rmax;          //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;  //!< Maximum radius at which to cluster one crystal
         unsigned int m_l;      //!< Spherical harmonic l value.
         std::shared_ptr< std::complex<float> > m_Qlmi;  //!  Qlm for each particle i

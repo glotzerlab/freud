@@ -17,7 +17,7 @@ using namespace std;
 namespace freud { namespace order {
 
 LocalWl::LocalWl(const box::Box& box, float rmax, unsigned int l)
-    :Steinhardt(box), m_rmax(rmax), m_l(l)
+    :Steinhardt(box, rmax), m_l(l)
     {
     if (m_rmax < 0.0f)
         throw invalid_argument("rmax must be positive!");

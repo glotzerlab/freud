@@ -31,7 +31,7 @@ class Steinhardt
     {
     public:
         //! Steinhardt Class Constructor
-        Steinhardt(const box::Box& box):m_box(box){}
+        Steinhardt(const box::Box& box, float rmax):m_box(box), m_rmax(rmax) {}
 
         virtual ~Steinhardt() = 0;
 
@@ -74,6 +74,7 @@ class Steinhardt
     protected:
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong
+        float m_rmax;          //!< Maximum r at which to determine neighbors
 
     private:
 
