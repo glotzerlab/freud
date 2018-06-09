@@ -63,9 +63,9 @@ class LocalQl : public Steinhardt
 
 
         //! Compute the local rotationally invariant Ql order parameter
-        void compute(const locality::NeighborList *nlist,
-                     const vec3<float> *points,
-                     unsigned int Np);
+        virtual void compute(const locality::NeighborList *nlist,
+                             const vec3<float> *points,
+                             unsigned int Np);
 
         //! Compute the local rotationally invariant (with 2nd shell) Ql order parameter
         void computeAve(const locality::NeighborList *nlist,

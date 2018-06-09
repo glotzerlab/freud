@@ -53,6 +53,12 @@ class Steinhardt
             return m_Np;
             }
 
+        //! Compute the order parameter
+        virtual void compute(const locality::NeighborList *nlist,
+                             const vec3<float> *points,
+                             unsigned int Np) = 0;
+
+
     protected:
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong

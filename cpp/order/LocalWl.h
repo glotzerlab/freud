@@ -51,9 +51,9 @@ class LocalWl : public Steinhardt
         ~LocalWl() {}
 
         //! Compute the local rotationally invariant Wl order parameter
-        void compute(const locality::NeighborList *nlist,
-                     const vec3<float> *points,
-                     unsigned int Np);
+        virtual void compute(const locality::NeighborList *nlist,
+                             const vec3<float> *points,
+                             unsigned int Np);
 
         //! Compute the Wl order parameter globally (averaging over the system Qlm)
         void computeNorm(const vec3<float> *points,
