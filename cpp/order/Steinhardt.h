@@ -58,6 +58,18 @@ class Steinhardt
                              const vec3<float> *points,
                              unsigned int Np) = 0;
 
+        //! Compute the order parameter averaged over the second neighbor shell
+        virtual void computeAve(const locality::NeighborList *nlist,
+                        const vec3<float> *points,
+                        unsigned int Np) = 0;
+
+        //! Compute the order parameter globally (averaging over the system Qlm)
+        virtual void computeNorm(const vec3<float> *points,
+                         unsigned int Np) = 0;
+
+        //! Compute the order parameter averaged over the second neighbor shell, then take a global average over the entire system
+        virtual void computeAveNorm(const vec3<float> *points,
+                         unsigned int Np) = 0;
 
     protected:
         unsigned int m_Np;     //!< Last number of points computed

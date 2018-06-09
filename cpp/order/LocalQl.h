@@ -68,16 +68,16 @@ class LocalQl : public Steinhardt
                              unsigned int Np);
 
         //! Compute the local rotationally invariant (with 2nd shell) Ql order parameter
-        void computeAve(const locality::NeighborList *nlist,
+        virtual void computeAve(const locality::NeighborList *nlist,
                         const vec3<float> *points,
                         unsigned int Np);
 
         //! Compute the Ql order parameter globally (averaging over the system Qlm)
-        void computeNorm(const vec3<float> *points,
+        virtual void computeNorm(const vec3<float> *points,
                          unsigned int Np);
 
         //! Compute the Ql order parameter globally (averaging over the system AveQlm)
-        void computeAveNorm(const vec3<float> *points,
+        virtual void computeAveNorm(const vec3<float> *points,
                          unsigned int Np);
 
         //! Get a reference to the last computed Ql for each particle.

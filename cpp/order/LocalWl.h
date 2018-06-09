@@ -56,16 +56,16 @@ class LocalWl : public Steinhardt
                              unsigned int Np);
 
         //! Compute the Wl order parameter globally (averaging over the system Qlm)
-        void computeNorm(const vec3<float> *points,
+        virtual void computeNorm(const vec3<float> *points,
                          unsigned int Np);
 
         //! Compute the Wl order parameter with second shell (averaging over the second shell Qlm)
-        void computeAve(const locality::NeighborList *nlist,
+        virtual void computeAve(const locality::NeighborList *nlist,
                         const vec3<float> *points,
                         unsigned int Np);
 
         //! Compute the global Wl order parameter with second shell (averaging over the second shell Qlm)
-        void computeAveNorm(const vec3<float> *points,
+        virtual void computeAveNorm(const vec3<float> *points,
                             unsigned int Np);
 
         //! Get a reference to the last computed Wl/WlNorm for each particle.
