@@ -45,7 +45,14 @@ class Steinhardt
             this->m_box = newbox;
             }
 
+        //! Get the number of particles used in the last compute
+        unsigned int getNP()
+            {
+            return m_Np;
+            }
+
     protected:
+        unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong
 
     private:

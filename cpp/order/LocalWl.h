@@ -103,11 +103,6 @@ class LocalWl : public Steinhardt
                 m_normalizeWl=false;
             }
 
-        unsigned int getNP()
-            {
-            return m_Np;
-            }
-
         //! Spherical harmonics calculation for Ylm filling a
         //  vector<complex<float>> with values for m = -l..l
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
@@ -116,7 +111,6 @@ class LocalWl : public Steinhardt
         float m_rmax;            //!< Maximum r at which to determine neighbors
 
         unsigned int m_l;        //!< Spherical harmonic l value.
-        unsigned int m_Np;       //!< Last number of points computed
         unsigned int m_counter;  //!< Length of wigner3jvalues
         bool m_normalizeWl;      //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.
 

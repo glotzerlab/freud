@@ -1168,6 +1168,21 @@ cdef class _Steinhardt:
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.steinhardtptr.setBox(l_box)
 
+    @property
+    def num_particles(self):
+        """Get the number of particles.
+        """
+        return self.getNP()
+
+    def getNP(self):
+        """Get the number of particles.
+
+        :return: :math:`N_{particles}`
+        :rtype: unsigned int
+        """
+        cdef unsigned int np = self.steinhardtptr.getNP()
+        return np
+
 
 cdef class LocalQl(_Steinhardt):
     """
@@ -1221,7 +1236,7 @@ cdef class LocalQl(_Steinhardt):
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
             self.m_box = box
             self.rmax = rmax
-            self.thisptr = new order.LocalQl(l_box, rmax, l, rmin)
+            self.thisptr = self.steinhardtptr = new order.LocalQl(l_box, rmax, l, rmin)
             
     def __dealloc__(self):
         if type(self) is LocalQl:
@@ -1365,7 +1380,7 @@ cdef class LocalQl(_Steinhardt):
         """
         cdef float * Ql = self.thisptr.getQl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[float, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>Ql)
@@ -1389,7 +1404,7 @@ cdef class LocalQl(_Steinhardt):
         """
         cdef float * Ql = self.thisptr.getAveQl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[float, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>Ql)
@@ -1413,7 +1428,7 @@ cdef class LocalQl(_Steinhardt):
         """
         cdef float * Ql = self.thisptr.getQlNorm().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[float, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                             1, nbins, np.NPY_FLOAT32, < void*>Ql)
@@ -1437,26 +1452,11 @@ cdef class LocalQl(_Steinhardt):
         """
         cdef float * Ql = self.thisptr.getQlAveNorm().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[float, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>Ql)
         return result
-
-    @property
-    def num_particles(self):
-        """Get the number of particles.
-        """
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles.
-
-        :return: :math:`N_p`
-        :rtype: unsigned int
-        """
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
 
 cdef class LocalQlNear(LocalQl):
     """
@@ -1500,19 +1500,22 @@ cdef class LocalQlNear(LocalQl):
     """
     cdef num_neigh
 
-    def __init__(self, box, rmax, l, kn=12):
-        cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(),
-                box.getTiltFactorXY(), box.getTiltFactorXZ(),
-                box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.LocalQl(l_box, rmax, l, 0)
-        self.m_box = box
-        self.rmax = rmax
-        self.num_neigh = kn
+    def __cinit__(self, box, rmax, l, kn=12):
+        cdef _box.Box l_box
+        if type(self) == LocalQlNear:
+            l_box = _box.Box(
+                    box.getLx(), box.getLy(), box.getLz(),
+                    box.getTiltFactorXY(), box.getTiltFactorXZ(),
+                    box.getTiltFactorYZ(), box.is2D())
+            self.thisptr = self.steinhardtptr = new order.LocalQl(l_box, rmax, l, 0)
+            self.m_box = box
+            self.rmax = rmax
+            self.num_neigh = kn
 
     def __dealloc__(self):
-        del self.thisptr
-        self.thisptr = <order.LocalQl*>0
+        if type(self) == LocalQlNear:
+            del self.thisptr
+            self.thisptr = <order.LocalQl*>0
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1622,7 +1625,7 @@ cdef class LocalWl(_Steinhardt):
             l_box = _box.Box(
                     box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                     box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = new order.LocalWl(l_box, rmax, l)
+            self.thisptr = self.steinhardtptr = new order.LocalWl(l_box, rmax, l)
             self.m_box = box
             self.rmax = rmax
 
@@ -1769,7 +1772,7 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float * Ql = self.thisptr.getQl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[float, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>Ql)
@@ -1793,7 +1796,7 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float complex * Wl = self.thisptr.getWl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_COMPLEX64, < void*>Wl)
@@ -1817,7 +1820,7 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float complex * Wl = self.thisptr.getAveWl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim= 1
                 ] result = np.PyArray_SimpleNewFromData(
                         1, nbins, np.NPY_COMPLEX64, < void*>Wl)
@@ -1841,7 +1844,7 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float complex * Wl = self.thisptr.getWlNorm().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_COMPLEX64, < void*>Wl)
@@ -1865,26 +1868,11 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float complex * Wl = self.thisptr.getAveNormWl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                             1, nbins, np.NPY_COMPLEX64, < void*>Wl)
         return result
-
-    @property
-    def num_particles(self):
-        """Get the number of particles.
-        """
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles.
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
-        """
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
 
 cdef class LocalWlNear(LocalWl):
     """
@@ -1926,7 +1914,7 @@ cdef class LocalWlNear(LocalWl):
             l_box = _box.Box(
                     box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                     box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = new order.LocalWl(l_box, rmax, l)
+            self.thisptr = self.steinhardtptr = new order.LocalWl(l_box, rmax, l)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn

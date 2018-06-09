@@ -106,11 +106,6 @@ class LocalQl : public Steinhardt
             return m_QliAveNorm;
             }
 
-        unsigned int getNP()
-            {
-            return m_Np;
-            }
-
         //! Spherical harmonics calculation for Ylm filling a
         //  vector<complex<float>> with values for m = -l..l.
         void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
@@ -120,7 +115,6 @@ class LocalQl : public Steinhardt
         float m_rmax;          //!< Maximum r at which to determine neighbors
         float m_rmax_cluster;  //!< Maximum radius at which to cluster one crystal
         unsigned int m_l;      //!< Spherical harmonic l value.
-        unsigned int m_Np;     //!< Last number of points computed
         std::shared_ptr< std::complex<float> > m_Qlmi;  //!  Qlm for each particle i
         std::shared_ptr<float> m_Qli;  //!< Ql locally invariant order parameter for each particle i
         std::shared_ptr< std::complex<float> > m_AveQlmi;  //! AveQlm for each particle i
