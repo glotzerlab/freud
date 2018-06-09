@@ -59,7 +59,6 @@ class LocalQl : public Steinhardt
             this->m_box = newbox;
             }
 
-
         //! Compute the local rotationally invariant Ql order parameter
         virtual void compute(const locality::NeighborList *nlist,
                              const vec3<float> *points,
@@ -108,7 +107,7 @@ class LocalQl : public Steinhardt
 
         //! Spherical harmonics calculation for Ylm filling a
         //  vector<complex<float>> with values for m = -l..l.
-        void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
+        virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
         std::shared_ptr< float > m_AveQli;  //!< AveQl locally invariant order parameter for each particle i

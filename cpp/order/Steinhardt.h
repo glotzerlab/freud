@@ -68,6 +68,11 @@ class Steinhardt
                              const vec3<float> *points,
                              unsigned int Np) = 0;
 
+        //! Compute the local rotationally invariant Ql order parameter
+        void computeQl(const locality::NeighborList *nlist,
+                        const vec3<float> *points,
+                        unsigned int Np);
+
         //! Compute the order parameter averaged over the second neighbor shell
         virtual void computeAve(const locality::NeighborList *nlist,
                         const vec3<float> *points,
@@ -82,6 +87,8 @@ class Steinhardt
                          unsigned int Np) = 0;
 
     protected:
+        virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y) = 0;
+
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong
         float m_rmax;          //!< Maximum r at which to determine neighbors

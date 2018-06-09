@@ -107,7 +107,7 @@ class LocalWl : public Steinhardt
 
         //! Spherical harmonics calculation for Ylm filling a
         //  vector<complex<float>> with values for m = -l..l
-        void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
+        virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
         unsigned int m_counter;  //!< Length of wigner3jvalues
