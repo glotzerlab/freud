@@ -77,13 +77,6 @@ class LocalQl : public Steinhardt
         virtual void computeAveNorm(const vec3<float> *points,
                          unsigned int Np);
 
-        //! Get a reference to the last computed Ql for each particle.
-        //  Returns NaN for particles with no neighbors.
-        std::shared_ptr<float> getQl()
-            {
-            return m_Qli;
-            }
-
         //! Get a reference to the last computed AveQl for each particle.
         //  Returns NaN for particles with no neighbors.
         std::shared_ptr< float > getAveQl()

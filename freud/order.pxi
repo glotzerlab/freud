@@ -1185,6 +1185,30 @@ cdef class _Steinhardt:
         cdef unsigned int np = self.steinhardtptr.getNP()
         return np
 
+    @property
+    def Ql(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+        """
+        return self.getQl()
+
+    def getQl(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{particles}\\right)`,
+                dtype= :class:`numpy.float32`
+        """
+        cdef float * Ql = self.steinhardtptr.getQl().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
+        cdef np.ndarray[float, ndim= 1
+                        ] result = np.PyArray_SimpleNewFromData(
+                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
+        return result
+
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
         parameter.
@@ -1613,30 +1637,6 @@ cdef class LocalWl(_Steinhardt):
         if type(self) is LocalWl:
             del self.thisptr
             self.thisptr = NULL
-
-    @property
-    def Ql(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-        """
-        return self.getQl()
-
-    def getQl(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float32`
-        """
-        cdef float * Ql = self.thisptr.getQl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
-        cdef np.ndarray[float, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
-        return result
 
     @property
     def Wl(self):

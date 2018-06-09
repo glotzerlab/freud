@@ -63,6 +63,13 @@ class Steinhardt
             return m_Np;
             }
 
+        //! Get a reference to the last computed Ql for each particle.
+        //  Returns NaN for particles with no neighbors.
+        std::shared_ptr<float> getQl() const
+            {
+            return m_Qli;
+            }
+
         //! Compute the order parameter
         virtual void compute(const locality::NeighborList *nlist,
                              const vec3<float> *points,

@@ -90,12 +90,6 @@ class LocalWl : public Steinhardt
             return m_WliAveNorm;
             }
 
-        //! Get a reference to last computed Ql for each particle.
-        std::shared_ptr< float > getQl()
-            {
-            return m_Qli;
-            }
-
         void enableNormalization()
             {
                 m_normalizeWl=true;

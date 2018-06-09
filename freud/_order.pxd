@@ -128,6 +128,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         const box.Box & getBox() const
         unsigned int getNP()
         void setBox(const box.Box)
+        shared_array[float] getQl()
 
         void compute(const freud._locality.NeighborList * ,
                      const vec3[float]*,
@@ -143,7 +144,6 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl(Steinhardt):
         LocalQl(const box.Box &, float, unsigned int, float)
-        shared_array[float] getQl()
         shared_array[float] getAveQl()
         shared_array[float] getQlNorm()
         shared_array[float] getQlAveNorm()
@@ -152,7 +152,6 @@ cdef extern from "LocalQl.h" namespace "freud::order":
 cdef extern from "LocalWl.h" namespace "freud::order":
     cdef cppclass LocalWl(Steinhardt):
         LocalWl(const box.Box &, float, unsigned int)
-        shared_array[float] getQl()
         shared_array[float complex] getWl()
         shared_array[float complex] getAveWl()
         shared_array[float complex] getWlNorm()
