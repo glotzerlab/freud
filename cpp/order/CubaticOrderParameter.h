@@ -27,10 +27,10 @@ class CubaticOrderParameter
     {
     public:
         //! Constructor
-        CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor, unsigned int n_replicates, unsigned int seed);
+        CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor, unsigned int replicates, unsigned int seed);
 
         //! Destructor
-        // ~CubaticOrderParameter();
+        ~CubaticOrderParameter();
 
         //! Reset the bond order array to all zeros
         void reset();
@@ -38,7 +38,7 @@ class CubaticOrderParameter
         //! Compute the cubatic order parameter
         void compute(quat<float> *orientations,
                      unsigned int n,
-                     unsigned int n_replicates);
+                     unsigned int replicates);
 
         //! Calculate the cubatic tensor
         void calcCubaticTensor(float *cubatic_tensor, quat<float> orientation);
@@ -82,7 +82,7 @@ class CubaticOrderParameter
         float m_scale;
         tensor4<float> m_gen_r4_tensor;
         unsigned int m_n;                //!< Last number of points computed
-        unsigned int m_n_replicates;                //!< Last number of points computed
+        unsigned int m_replicates;       //!< Number of replicates
 
         float m_cubatic_order_parameter;
         quat<float> m_cubatic_orientation;
