@@ -33,8 +33,8 @@ class RDF
             return m_box;
             }
 
-        //! Reset the PCF array to all zeros
-        void resetRDF();
+        //! Reset the RDF array to all zeros
+        void reset();
 
         //! Compute the RDF
         void accumulate(box::Box& box,

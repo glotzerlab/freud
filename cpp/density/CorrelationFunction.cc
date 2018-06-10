@@ -92,7 +92,7 @@ std::shared_ptr<T> CorrelationFunction<T>::getRDF()
 /*! \brief Function to reset the PCF array if needed e.g. calculating between new particle types
 */
 template<typename T>
-void CorrelationFunction<T>::resetCorrelationFunction()
+void CorrelationFunction<T>::reset()
     {
     // zero the bin counts for totaling
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
