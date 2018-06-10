@@ -44,7 +44,7 @@ class PMFT
             }
 
         //! Reset the PCF array to all zeros
-        virtual void resetPCF() = 0;
+        virtual void reset() = 0;
 
         //! \internal
         //! helper function to reduce the thread specific arrays into one array

@@ -106,7 +106,7 @@ void PMFTXY2D::reducePCF()
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
 
-void PMFTXY2D::resetPCF()
+void PMFTXY2D::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
