@@ -16,15 +16,7 @@
 namespace freud { namespace order {
 
 //! Computes the number of matches for a given set of points
-/*! A given set of reference points is given around which the RDF is computed and averaged in a sea of data points.
-    Computing the RDF results in an rdf array listing the value of the RDF at each given r, listed in the r array.
-
-    The values of r to compute the rdf at are controlled by the rmax and dr parameters to the constructor. rmax
-    determines the maximum r at which to compute g(r) and dr is the step size for each bin.
-
-    <b>2D:</b><br>
-    RDF properly handles 2D boxes. As with everything else in freud, 2D points must be passed in as
-    3 component vectors x,y,0. Failing to set 0 in the third component will lead to undefined behavior.
+/*!
 */
 class Pairing2D
     {
@@ -91,4 +83,4 @@ class Pairing2D
 
 }; }; // end namespace freud::order
 
-#endif // _Pairing2D_H__
+#endif // _PAIRING2D_H__

@@ -32,14 +32,14 @@ class NematicOrderParameter
         //! Destructor
         virtual ~NematicOrderParameter() {};
 
-        //! Reset the bond order array to all zeros
-        void resetNematicOrderParameter();
+        //! Reset the nematic order parameter array to all zeros
+        void reset();
 
-        //! accumulate the bond order
+        //! Compute the nematic order parameter
         void compute(quat<float> *orientations,
                      unsigned int n);
 
-        //! Get a reference to the last computed OP
+        //! Get the value of the last computed nematic order parameter
         float getNematicOrderParameter();
 
         std::shared_ptr<float> getParticleTensor();

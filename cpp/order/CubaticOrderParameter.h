@@ -33,21 +33,21 @@ class CubaticOrderParameter
         // ~CubaticOrderParameter();
 
         //! Reset the bond order array to all zeros
-        void resetCubaticOrderParameter(quat<float> orientation);
+        void reset();
 
-        //! accumulate the bond order
+        //! Compute the cubatic order parameter
         void compute(quat<float> *orientations,
                      unsigned int n,
                      unsigned int n_replicates);
 
-        // calculate the cubatic tensor
+        //! Calculate the cubatic tensor
         void calcCubaticTensor(float *cubatic_tensor, quat<float> orientation);
 
         void calcCubaticOrderParameter(float &cubatic_order_parameter, float *cubatic_tensor);
 
         void reduceCubaticOrderParameter();
 
-        //! Get a reference to the last computed rdf
+        //! Get a reference to the last computed cubatic order parameter
         float getCubaticOrderParameter();
 
         quat<float> calcRandomQuaternion(Saru &saru, float angle_multiplier);
