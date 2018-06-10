@@ -252,6 +252,7 @@ cdef class BondingR12:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -427,6 +428,7 @@ cdef class BondingXY2D:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -604,6 +606,7 @@ cdef class BondingXYT:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -786,6 +789,7 @@ cdef class BondingXYZ:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")

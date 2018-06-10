@@ -106,6 +106,7 @@ cdef class BondOrder:
         :type mode: str
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -665,6 +666,7 @@ cdef class HexOrderParameter:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 dim_message="points must be a 2 dimensional array")
@@ -806,6 +808,7 @@ cdef class LocalDescriptors:
                       shape= :math:`\\left(N_{particles}, 3 \\right)`,
                       dtype= :class:`numpy.float32`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -862,6 +865,7 @@ cdef class LocalDescriptors:
         :type mode: str
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1053,6 +1057,7 @@ cdef class TransOrderParameter:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 dim_message="points must be a 2 dimensional array")
@@ -1171,6 +1176,7 @@ cdef class LocalQl:
     cdef rmax
 
     def __init__(self, box, rmax, l, rmin=0):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1327,6 +1333,7 @@ cdef class LocalQl:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1486,6 +1493,7 @@ cdef class LocalQlNear(LocalQl):
     cdef num_neigh
 
     def __init__(self, box, rmax, l, kn=12):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(),
                 box.getTiltFactorXY(), box.getTiltFactorXZ(),
@@ -1602,6 +1610,7 @@ cdef class LocalWl:
     cdef rmax
 
     def __init__(self, box, rmax, l):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1753,6 +1762,7 @@ cdef class LocalWl:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1928,6 +1938,7 @@ cdef class LocalWlNear(LocalWl):
     cdef num_neigh
 
     def __init__(self, box, rmax, l, kn=12):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -2040,6 +2051,7 @@ cdef class SolLiq:
     cdef rmax
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -2176,6 +2188,7 @@ cdef class SolLiq:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -2366,6 +2379,7 @@ cdef class SolLiqNear(SolLiq):
     cdef num_neigh
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -2449,6 +2463,7 @@ cdef class MatchEnv:
     cdef m_box
 
     def __cinit__(self, box, rmax, k):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -2467,6 +2482,7 @@ cdef class MatchEnv:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -2918,6 +2934,7 @@ cdef class Pairing2D:
                                 dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 dim_message="points must be a 2 dimensional array")
@@ -3072,6 +3089,7 @@ cdef class AngularSeparation:
                            dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")

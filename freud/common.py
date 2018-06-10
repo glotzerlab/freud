@@ -5,6 +5,7 @@
 
 import logging
 import numpy as np
+from . import box as bx
 
 logger = logging.getLogger(__name__)
 
@@ -50,3 +51,13 @@ def convert_array(array, dimensions, dtype=None,
             array.dtype, dtype)
         logger.info(msg)
     return np.require(array, dtype=dtype, requirements=requirements)
+
+
+def convert_box(box):
+    if not isinstance(box, bx.Box):
+        try:
+            box = bx.Box.from_box(box)
+        except:
+            raise TypeError(
+                "Supplied box cannot be converted to type freud.box.Box.")
+    return box

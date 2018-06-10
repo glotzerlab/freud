@@ -294,6 +294,7 @@ cdef class NeighborList:
 
         .. note:: This method modifies this object in-place.
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -330,6 +331,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     construct one using LinkCell if it is not."""
     if nlist is not None:
         return nlist, nlist
+    box = freud.common.convert_box(box)
 
     cdef LinkCell lc = LinkCell(box, rmax).computeCellList(
             box, ref_points, points, exclude_ii)
@@ -355,6 +357,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     construct one using NearestNeighbors if it is not."""
     if nlist is not None:
         return nlist, nlist
+    box = freud.common.convert_box(box)
 
     cdef NearestNeighbors nn = NearestNeighbors(
             rmax_guess, n_neigh).compute(
@@ -454,6 +457,7 @@ cdef class LinkCell:
     cdef NeighborList _nlist
 
     def __cinit__(self, box, cell_width):
+        box = freud.common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(),
                 box.getTiltFactorXY(), box.getTiltFactorXZ(),
@@ -561,6 +565,7 @@ cdef class LinkCell:
                       shape= :math:`\\left(N_{points}, 3\\right)`,
                       dtype= :class:`numpy.float32`
         """
+        box = freud.common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
@@ -920,6 +925,7 @@ cdef class NearestNeighbors:
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`
         """
+        box = freud.common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii

@@ -74,9 +74,31 @@ class Box(_Box):
     @classmethod
     def from_box(cls, box):
         """Initialize a box instance from another box instance."""
-        dimensions = getattr(box, 'dimensions', 3)
-        return cls(Lx=box.Lx, Ly=box.Ly, Lz=box.Lz,
-                   xy=box.xy, xz=box.xz, yz=box.yz, is2D=dimensions == 2)
+        # TODO: Need to determine how much / how little information is valid
+        # and raise an Exception. What if only Lx, Ly are provided?
+        # Should this support box matrix format, or only key-value structures?
+        if isinstance(box, dict):
+            Lx = box.get('Lx', 0)
+            Ly = box.get('Ly', 0)
+            Lz = box.get('Lz', 0)
+            xy = box.get('xy', 0)
+            xz = box.get('xz', 0)
+            yz = box.get('yz', 0)
+            is2D = box.get('is2D', False) or \
+                (box.get('dimensions', 3) == 2)
+        else:
+            # Handles freud.box.Box and namedtuple
+            Lx = getattr(box, 'Lx', 0)
+            Ly = getattr(box, 'Ly', 0)
+            Lz = getattr(box, 'Lz', 0)
+            xy = getattr(box, 'xy', 0)
+            xz = getattr(box, 'xz', 0)
+            yz = getattr(box, 'yz', 0)
+            is2D = getattr(box, 'is2D', False) or \
+                (getattr(box, 'dimensions', 3) == 2)
+        if callable(is2D):
+            is2D = is2D()
+        return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
     def from_matrix(cls, boxMatrix, dimensions=None):
