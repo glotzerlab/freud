@@ -40,6 +40,7 @@ class TestCommon(unittest.TestCase):
         npt.assert_almost_equal(box.xy, 4, decimal=2, err_msg="TiltXYFail")
         npt.assert_almost_equal(box.xz, 5, decimal=2, err_msg="TiltXZFail")
         npt.assert_almost_equal(box.yz, 6, decimal=2, err_msg="TiltYZFail")
+        self.assertTrue(box.dimensions == 3)
 
     def test_convert_dict_box(self):
         dict_box = dict(Lx=1, Ly=2, Lz=3, xy=4, xz=5, yz=6)
@@ -50,6 +51,40 @@ class TestCommon(unittest.TestCase):
         npt.assert_almost_equal(box.xy, 4, decimal=2, err_msg="TiltXYFail")
         npt.assert_almost_equal(box.xz, 5, decimal=2, err_msg="TiltXZFail")
         npt.assert_almost_equal(box.yz, 6, decimal=2, err_msg="TiltYZFail")
+        self.assertTrue(box.dimensions == 3)
+
+    def test_convert_array_len_2_box(self):
+        array_box = [1, 2]
+        box = common.convert_box(array_box)
+        npt.assert_almost_equal(box.Lx, 1, decimal=2, err_msg="LxFail")
+        npt.assert_almost_equal(box.Ly, 2, decimal=2, err_msg="LyFail")
+        npt.assert_almost_equal(box.Lz, 0, decimal=2, err_msg="LzFail")
+        npt.assert_almost_equal(box.xy, 0, decimal=2, err_msg="TiltXYFail")
+        npt.assert_almost_equal(box.xz, 0, decimal=2, err_msg="TiltXZFail")
+        npt.assert_almost_equal(box.yz, 0, decimal=2, err_msg="TiltYZFail")
+        self.assertTrue(box.dimensions == 2)
+
+    def test_convert_array_len_3_box(self):
+        array_box = [1, 2, 3]
+        box = common.convert_box(array_box)
+        npt.assert_almost_equal(box.Lx, 1, decimal=2, err_msg="LxFail")
+        npt.assert_almost_equal(box.Ly, 2, decimal=2, err_msg="LyFail")
+        npt.assert_almost_equal(box.Lz, 3, decimal=2, err_msg="LzFail")
+        npt.assert_almost_equal(box.xy, 0, decimal=2, err_msg="TiltXYFail")
+        npt.assert_almost_equal(box.xz, 0, decimal=2, err_msg="TiltXZFail")
+        npt.assert_almost_equal(box.yz, 0, decimal=2, err_msg="TiltYZFail")
+        self.assertTrue(box.dimensions == 3)
+
+    def test_convert_array_len_6_box(self):
+        array_box = [1, 2, 3, 4, 5, 6]
+        box = common.convert_box(array_box)
+        npt.assert_almost_equal(box.Lx, 1, decimal=2, err_msg="LxFail")
+        npt.assert_almost_equal(box.Ly, 2, decimal=2, err_msg="LyFail")
+        npt.assert_almost_equal(box.Lz, 3, decimal=2, err_msg="LzFail")
+        npt.assert_almost_equal(box.xy, 4, decimal=2, err_msg="TiltXYFail")
+        npt.assert_almost_equal(box.xz, 5, decimal=2, err_msg="TiltXZFail")
+        npt.assert_almost_equal(box.yz, 6, decimal=2, err_msg="TiltYZFail")
+        self.assertTrue(box.dimensions == 3)
 
 
 if __name__ == '__main__':

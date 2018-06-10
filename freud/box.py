@@ -74,30 +74,48 @@ class Box(_Box):
     @classmethod
     def from_box(cls, box):
         """Initialize a box instance from another box instance."""
-        # TODO: Need to determine how much / how little information is valid
-        # and raise an Exception. What if only Lx, Ly are provided?
-        # Should this support box matrix format, or only key-value structures?
-        if isinstance(box, dict):
-            Lx = box.get('Lx', 0)
-            Ly = box.get('Ly', 0)
-            Lz = box.get('Lz', 0)
-            xy = box.get('xy', 0)
-            xz = box.get('xz', 0)
-            yz = box.get('yz', 0)
-            is2D = box.get('is2D', False) or \
-                (box.get('dimensions', 3) == 2)
-        else:
+        try:
             # Handles freud.box.Box and namedtuple
-            Lx = getattr(box, 'Lx', 0)
-            Ly = getattr(box, 'Ly', 0)
-            Lz = getattr(box, 'Lz', 0)
-            xy = getattr(box, 'xy', 0)
-            xz = getattr(box, 'xz', 0)
-            yz = getattr(box, 'yz', 0)
-            is2D = getattr(box, 'is2D', False) or \
-                (getattr(box, 'dimensions', 3) == 2)
-        if callable(is2D):
-            is2D = is2D()
+            Lx = box.Lx
+            Ly = box.Ly
+            Lz = box.Lz
+            xy = box.xy
+            xz = box.xz
+            yz = box.yz
+            try:
+                is2D = (box.dimensions == 2)
+            except AttributeError:
+                is2D = (Lz == 0)
+        except AttributeError:
+            try:
+                Lx = box['Lx']
+                Ly = box['Ly']
+                Lz = box['Lz']
+                xy = box['xy']
+                xz = box['xz']
+                yz = box['yz']
+                try:
+                    is2D = (box['dimensions'] == 2)
+                except KeyError:
+                    is2D = (Lz == 0)
+            except (KeyError, TypeError):
+                Lx = box[0]
+                Ly = box[1]
+                if len(box) > 2:
+                    Lz = box[2]
+                else:
+                    Lz = 0
+                if len(box) > 3:
+                    xy = box[3]
+                    xz = box[4]
+                    yz = box[5]
+                else:
+                    xy = 0
+                    xz = 0
+                    yz = 0
+                is2D = (Lz == 0)
+        except Exception:
+            raise ValueError('Unable to create Box instance from this box.')
         return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
