@@ -12,7 +12,7 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
         PMFT()
 
         const box.Box & getBox() const
-        void resetPCF()
+        void reset()
         void reducePCF()
         shared_ptr[unsigned int] getBinCounts()
         shared_ptr[float] getPCF()
