@@ -10,7 +10,13 @@ cimport freud._pmft as pmft
 cimport numpy as np
 
 cdef class _PMFT:
-    """Parent class for all PMFTs."""
+    """Compute the PMFT [Cit2]_ [Cit3]_ for a given set of points.
+
+    This class provides an abstract interface for computing the PMFT.
+    It must be specialized for a specific coordinate system; although in principle the PMFT is coordinate independent, the binning process must be performed in a particular coordinate system.
+    
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
     cdef pmft.PMFT * pmftptr
     cdef float rmax
 
@@ -107,6 +113,7 @@ cdef class PMFTR12(_PMFT):
         Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param float r_max: maximum distance at which to compute the PMFT
     :param n_r: number of bins in r
@@ -438,6 +445,7 @@ cdef class PMFTXYT(_PMFT):
         Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param float x_max: maximum x distance at which to compute the PMFT
     :param float y_max: maximum y distance at which to compute the PMFT
@@ -747,6 +755,7 @@ cdef class PMFTXY2D(_PMFT):
         Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param float x_max: maximum x distance at which to compute the PMFT
     :param float y_max: maximum y distance at which to compute the PMFT
@@ -1014,6 +1023,7 @@ cdef class PMFTXYZ(_PMFT):
         The points must be passed in as :code:`[x, y, z]`.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param float x_max: maximum x distance at which to compute the PMFT
     :param float y_max: maximum y distance at which to compute the PMFT
