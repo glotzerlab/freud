@@ -4,7 +4,6 @@
 import numpy as np
 import logging
 import copy
-
 from ._freud import VoronoiBuffer
 from ._freud import NeighborList
 

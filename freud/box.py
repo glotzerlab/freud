@@ -3,7 +3,6 @@
 
 from collections import namedtuple
 import numpy as np
-
 from ._freud import Box as _Box
 
 
