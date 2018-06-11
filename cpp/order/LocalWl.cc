@@ -43,7 +43,8 @@ void LocalWl::Ylm(const float theta, const float phi, std::vector<std::complex<f
 
 void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
-    this->computeQl(nlist, points, Np);
+    // Call parent to compute Ql values used for calculating Wl.
+    Steinhardt::compute(nlist, points, Np);
 
     // This normalization happens in the Ql calculation but
     // not for Wl, so we need to undo it. In that calculation
@@ -85,7 +86,7 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
 void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
-    this->computeQlAve(nlist, points, Np);
+    Steinhardt::computeAve(nlist, points, Np);
 
     // Get wigner3j coefficients from wigner3j.cc
     int m_wignersize[10]={19,61,127,217,331,469,631,817,1027,1261};

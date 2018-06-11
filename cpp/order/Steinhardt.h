@@ -73,33 +73,46 @@ class Steinhardt
         //! Compute the order parameter
         virtual void compute(const locality::NeighborList *nlist,
                              const vec3<float> *points,
-                             unsigned int Np) = 0;
-
-        //! Compute the local rotationally invariant Ql order parameter
-        void computeQl(const locality::NeighborList *nlist,
-                        const vec3<float> *points,
-                        unsigned int Np);
-
-        //! Compute the local rotationally invariant Ql order parameter
-        void computeQlAve(const locality::NeighborList *nlist,
-                           const vec3<float> *points,
-                           unsigned int Np);
+                             unsigned int Np);
 
         //! Compute the order parameter averaged over the second neighbor shell
         virtual void computeAve(const locality::NeighborList *nlist,
                         const vec3<float> *points,
-                        unsigned int Np) = 0;
+                        unsigned int Np);
 
         //! Compute the order parameter globally (averaging over the system Qlm)
         virtual void computeNorm(const vec3<float> *points,
-                         unsigned int Np) = 0;
+                         unsigned int Np);
 
         //! Compute the order parameter averaged over the second neighbor shell, then take a global average over the entire system
         virtual void computeAveNorm(const vec3<float> *points,
-                         unsigned int Np) = 0;
+                         unsigned int Np);
+
+        //! Get a reference to the last computed AveQl for each particle.
+        //  Returns NaN for particles with no neighbors.
+        std::shared_ptr< float > getAveQl()
+            {
+            return m_AveQli;
+            }
+
+        //! Get a reference to the last computed QlNorm for each particle.
+        //  Returns NaN for particles with no neighbors.
+        std::shared_ptr< float > getQlNorm()
+            {
+            return m_QliNorm;
+            }
+
+        //! Get a reference to the last computed QlAveNorm for each particle.
+        //  Returns NaN for particles with no neighbors.
+        std::shared_ptr< float > getQlAveNorm()
+            {
+            return m_QliAveNorm;
+            }
 
     protected:
-        virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y) = 0;
+        //! Spherical harmonics calculation for Ylm filling a
+        //  vector<complex<float>> with values for m = -l..l.
+        virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong
@@ -113,6 +126,8 @@ class Steinhardt
         std::shared_ptr< std::complex<float> > m_AveQlmi;     //!< Averaged Qlm with 2nd neighbor shell for each particle i
         std::shared_ptr< std::complex<float> > m_AveQlm;      //!< Normalized AveQlmi for the whole system
         std::shared_ptr< float > m_AveQli;  //!< AveQl locally invariant order parameter for each particle i
+        std::shared_ptr< float > m_QliNorm;  //!< QlNorm order parameter for each particle i
+        std::shared_ptr< float > m_QliAveNorm;  //! < QlAveNorm order paramter for each particle i
 
     private:
 

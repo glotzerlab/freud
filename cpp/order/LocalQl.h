@@ -52,59 +52,6 @@ class LocalQl : public Steinhardt
         LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0);
 
         ~LocalQl() {}
-
-        //! Reset the simulation box size
-        void setBox(const box::Box newbox)
-            {
-            this->m_box = newbox;
-            }
-
-        //! Compute the local rotationally invariant Ql order parameter
-        virtual void compute(const locality::NeighborList *nlist,
-                             const vec3<float> *points,
-                             unsigned int Np);
-
-        //! Compute the local rotationally invariant (with 2nd shell) Ql order parameter
-        virtual void computeAve(const locality::NeighborList *nlist,
-                        const vec3<float> *points,
-                        unsigned int Np);
-
-        //! Compute the Ql order parameter globally (averaging over the system Qlm)
-        virtual void computeNorm(const vec3<float> *points,
-                         unsigned int Np);
-
-        //! Compute the Ql order parameter globally (averaging over the system AveQlm)
-        virtual void computeAveNorm(const vec3<float> *points,
-                         unsigned int Np);
-
-        //! Get a reference to the last computed AveQl for each particle.
-        //  Returns NaN for particles with no neighbors.
-        std::shared_ptr< float > getAveQl()
-            {
-            return m_AveQli;
-            }
-
-        //! Get a reference to the last computed QlNorm for each particle.
-        //  Returns NaN for particles with no neighbors.
-        std::shared_ptr< float > getQlNorm()
-            {
-            return m_QliNorm;
-            }
-
-        //! Get a reference to the last computed QlAveNorm for each particle.
-        //  Returns NaN for particles with no neighbors.
-        std::shared_ptr< float > getQlAveNorm()
-            {
-            return m_QliAveNorm;
-            }
-
-        //! Spherical harmonics calculation for Ylm filling a
-        //  vector<complex<float>> with values for m = -l..l.
-        virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
-
-    private:
-        std::shared_ptr< float > m_QliNorm;  //!< QlNorm order parameter for each particle i
-        std::shared_ptr< float > m_QliAveNorm;  //! < QlAveNorm order paramter for each particle i
     };
 
 }; // end namespace freud::order

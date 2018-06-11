@@ -1132,7 +1132,7 @@ cdef class _Steinhardt:
     cdef m_box
     cdef rmax
 
-    # The underlying CPP class is abstract and cannot be initiated
+    # The underlying CPP class is abstract and cannot be instantiated.
     def __cinit__(self, *args, **kwargs):
         pass
 
