@@ -5,7 +5,7 @@
 #define _LOCAL_WL_H__
 
 #include "wigner3j.h"
-#include "Steinhardt.h"
+#include "LocalQl.h"
 
 /*! \file LocalWl.h
     \brief Compute a Wl per particle
@@ -31,7 +31,7 @@ namespace freud { namespace order {
  * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
 
-class LocalWl : public Steinhardt
+class LocalWl : public LocalQl
     {
     public:
         //! LocalWl Class Constructor

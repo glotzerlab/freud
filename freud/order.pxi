@@ -1126,18 +1126,65 @@ cdef class TransOrderParameter:
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
-cdef class _Steinhardt:
-    """Parent class for all Steinhardt OPs."""
-    cdef order.Steinhardt * steinhardtptr
+cdef class LocalQl:
+    """
+    Compute the local Steinhardt rotationally invariant :math:`Q_l` [Cit4]_
+    order parameter for a set of points.
+
+    Implements the local rotationally invariant :math:`Q_l` order parameter
+    described by Steinhardt. For a particle i, we calculate the average
+    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
+    and its neighbors :math:`j` in a local region:
+    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
+    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
+    \\phi(\\vec{r}_{ij}))`
+
+    This is then combined in a rotationally invariant fashion to remove local
+    orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
+    \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`
+
+    For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
+
+    Added first/second shell combined average :math:`Q_l` order parameter for
+    a set of points:
+
+    * Variation of the Steinhardt :math:`Q_l` order parameter
+    * For a particle i, we calculate the average :math:`Q_l` by summing the
+      spherical harmonics between particle i and its neighbors j and the
+      neighbors k of neighbor j in a local region
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+
+    :param box: simulation box
+    :param float rmax: Cutoff radius for the local order parameter. Values near
+                       first minima of the RDF are recommended
+    :param l: Spherical harmonic quantum number l.  Must be a positive number
+    :param float rmin: can look at only the second shell or some arbitrary RDF
+                       region
+    :type box: :py:class:`freud.box.Box`
+    :type l: unsigned int
+
+    .. todo:: move box to compute, this is old API
+    """
+    cdef order.LocalQl * qlptr
     cdef m_box
     cdef rmax
 
-    # The underlying CPP class is abstract and cannot be instantiated.
-    def __cinit__(self, *args, **kwargs):
-        pass
+    def __cinit__(self, box, rmax, l, rmin=0):
+        cdef _box.Box l_box
+        if type(self) is LocalQl:
+            l_box = _box.Box(
+                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            self.m_box = box
+            self.rmax = rmax
+            self.qlptr = new order.LocalQl(l_box, rmax, l, rmin)
 
     def __dealloc__(self):
-        pass
+        if type(self) is LocalQl:
+            del self.qlptr
+            self.qlptr = NULL
 
     @property
     def box(self):
@@ -1157,7 +1204,7 @@ cdef class _Steinhardt:
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
-        return BoxFromCPP(< box.Box > self.steinhardtptr.getBox())
+        return BoxFromCPP(< box.Box > self.qlptr.getBox())
 
     def setBox(self, box):
         """Reset the simulation box.
@@ -1168,7 +1215,7 @@ cdef class _Steinhardt:
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.steinhardtptr.setBox(l_box)
+        self.qlptr.setBox(l_box)
 
     @property
     def num_particles(self):
@@ -1182,7 +1229,7 @@ cdef class _Steinhardt:
         :return: :math:`N_{particles}`
         :rtype: unsigned int
         """
-        cdef unsigned int np = self.steinhardtptr.getNP()
+        cdef unsigned int np = self.qlptr.getNP()
         return np
 
     @property
@@ -1191,6 +1238,78 @@ cdef class _Steinhardt:
         Returns NaN instead of :math:`Q_l` for particles with no neighbors.
         """
         return self.getQl()
+
+    @property
+    def ave_Ql(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+        """
+        return self.getAveQl()
+
+    def getAveQl(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{particles}\\right)`,
+                dtype= :class:`numpy.float32`
+        """
+        cdef float * Ql = self.qlptr.getAveQl().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
+        cdef np.ndarray[float, ndim= 1
+                        ] result = np.PyArray_SimpleNewFromData(
+                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
+        return result
+
+    @property
+    def norm_Ql(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+        """
+        return self.getQlNorm()
+
+    def getQlNorm(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{particles}\\right)`,
+                dtype= :class:`numpy.float32`
+        """
+        cdef float * Ql = self.qlptr.getQlNorm().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
+        cdef np.ndarray[float, ndim= 1
+                        ] result = np.PyArray_SimpleNewFromData(
+                            1, nbins, np.NPY_FLOAT32, < void*>Ql)
+        return result
+
+    @property
+    def ave_norm_Ql(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+        """
+        return self.getQlAveNorm()
+
+    def getQlAveNorm(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{particles}\\right)`,
+                dtype= :class:`numpy.float32`
+        """
+        cdef float * Ql = self.qlptr.getQlAveNorm().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
+        cdef np.ndarray[float, ndim= 1
+                        ] result = np.PyArray_SimpleNewFromData(
+                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
+        return result
 
     def getQl(self):
         """Get a reference to the last computed :math:`Q_l` for each particle.
@@ -1201,9 +1320,9 @@ cdef class _Steinhardt:
                 shape= :math:`\\left(N_{particles}\\right)`,
                 dtype= :class:`numpy.float32`
         """
-        cdef float * Ql = self.steinhardtptr.getQl().get()
+        cdef float * Ql = self.qlptr.getQl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
         cdef np.ndarray[float, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_FLOAT32, < void*>Ql)
@@ -1234,7 +1353,7 @@ cdef class _Steinhardt:
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        self.steinhardtptr.compute(nlist_ptr, < vec3[float]*>l_points.data, nP)
+        self.qlptr.compute(nlist_ptr, < vec3[float]*>l_points.data, nP)
         return self
 
     def computeAve(self, points, nlist=None):
@@ -1263,8 +1382,8 @@ cdef class _Steinhardt:
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        self.steinhardtptr.compute(nlist_ptr, < vec3[float]*>l_points.data, nP)
-        self.steinhardtptr.computeAve(nlist_ptr, < vec3[float]*>l_points.data, nP)
+        self.qlptr.compute(nlist_ptr, < vec3[float]*>l_points.data, nP)
+        self.qlptr.computeAve(nlist_ptr, < vec3[float]*>l_points.data, nP)
         return self
 
     def computeNorm(self, points, nlist=None):
@@ -1293,8 +1412,8 @@ cdef class _Steinhardt:
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        self.steinhardtptr.compute(nlist_ptr, < vec3[float]*>l_points.data, nP)
-        self.steinhardtptr.computeNorm( < vec3[float]*>l_points.data, nP)
+        self.qlptr.compute(nlist_ptr, < vec3[float]*>l_points.data, nP)
+        self.qlptr.computeNorm( < vec3[float]*>l_points.data, nP)
         return self
 
     def computeAveNorm(self, points, nlist=None):
@@ -1323,163 +1442,10 @@ cdef class _Steinhardt:
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        self.steinhardtptr.compute(nlist_ptr, < vec3[float]*>l_points.data, nP)
-        self.steinhardtptr.computeAve(nlist_ptr, < vec3[float]*>l_points.data, nP)
-        self.steinhardtptr.computeAveNorm( < vec3[float]*>l_points.data, nP)
+        self.qlptr.compute(nlist_ptr, < vec3[float]*>l_points.data, nP)
+        self.qlptr.computeAve(nlist_ptr, < vec3[float]*>l_points.data, nP)
+        self.qlptr.computeAveNorm( < vec3[float]*>l_points.data, nP)
         return self
-
-cdef class LocalQl(_Steinhardt):
-    """
-    Compute the local Steinhardt rotationally invariant :math:`Q_l` [Cit4]_
-    order parameter for a set of points.
-
-    Implements the local rotationally invariant :math:`Q_l` order parameter
-    described by Steinhardt. For a particle i, we calculate the average
-    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
-    and its neighbors :math:`j` in a local region:
-    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
-    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`
-
-    This is then combined in a rotationally invariant fashion to remove local
-    orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
-    \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`
-
-    For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
-
-    Added first/second shell combined average :math:`Q_l` order parameter for
-    a set of points:
-
-    * Variation of the Steinhardt :math:`Q_l` order parameter
-    * For a particle i, we calculate the average :math:`Q_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region
-
-    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
-
-    :param box: simulation box
-    :param float rmax: Cutoff radius for the local order parameter. Values near
-                       first minima of the RDF are recommended
-    :param l: Spherical harmonic quantum number l.  Must be a positive number
-    :param float rmin: can look at only the second shell or some arbitrary RDF
-                       region
-    :type box: :py:class:`freud.box.Box`
-    :type l: unsigned int
-
-    .. todo:: move box to compute, this is old API
-    """
-    cdef order.Steinhardt * thisptr
-
-    def __cinit__(self, box, rmax, l, rmin=0):
-        cdef _box.Box l_box
-        if type(self) is LocalQl:
-            l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.m_box = box
-            self.rmax = rmax
-            self.thisptr = self.steinhardtptr = new order.Steinhardt(l_box, rmax, l, rmin)
-            
-    def __dealloc__(self):
-        if type(self) is LocalQl:
-            del self.thisptr
-            self.thisptr = NULL
-
-    @property
-    def Ql(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-        """
-        return self.getQl()
-
-    def getQl(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float32`
-        """
-        cdef float * Ql = self.thisptr.getQl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
-        cdef np.ndarray[float, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
-        return result
-
-    @property
-    def ave_Ql(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-        """
-        return self.getAveQl()
-
-    def getAveQl(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float32`
-        """
-        cdef float * Ql = self.thisptr.getAveQl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
-        cdef np.ndarray[float, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
-        return result
-
-    @property
-    def norm_Ql(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-        """
-        return self.getQlNorm()
-
-    def getQlNorm(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float32`
-        """
-        cdef float * Ql = self.thisptr.getQlNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
-        cdef np.ndarray[float, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                            1, nbins, np.NPY_FLOAT32, < void*>Ql)
-        return result
-
-    @property
-    def ave_norm_Ql(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-        """
-        return self.getQlAveNorm()
-
-    def getQlAveNorm(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float32`
-        """
-        cdef float * Ql = self.thisptr.getQlAveNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
-        cdef np.ndarray[float, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
-        return result
 
 cdef class LocalQlNear(LocalQl):
     """
@@ -1509,6 +1475,7 @@ cdef class LocalQlNear(LocalQl):
       neighbors k of neighbor j in a local region
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param box: simulation box
     :param float rmax: Cutoff radius for the local order parameter. Values near
@@ -1524,21 +1491,25 @@ cdef class LocalQlNear(LocalQl):
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
+        # Note that we cannot leverage super here because the
+        # type conditional in the parent will prevent it.
+        # Unforunately, this is necessary for proper memory
+        # management in this inheritance structure.
         cdef _box.Box l_box
         if type(self) == LocalQlNear:
             l_box = _box.Box(
                     box.getLx(), box.getLy(), box.getLz(),
                     box.getTiltFactorXY(), box.getTiltFactorXZ(),
                     box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.steinhardtptr = new order.Steinhardt(l_box, rmax, l, 0)
+            self.qlptr = new order.LocalQl(l_box, rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn
 
     def __dealloc__(self):
         if type(self) == LocalQlNear:
-            del self.thisptr
-            self.thisptr = NULL
+            del self.qlptr
+            self.qlptr = NULL
 
     def computeAve(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1555,7 +1526,7 @@ cdef class LocalQlNear(LocalQl):
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return LocalQl.computeAve(self, points, nlist_)
+        return super(LocalQlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1572,7 +1543,7 @@ cdef class LocalQlNear(LocalQl):
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return LocalQl.computeNorm(self, points, nlist_)
+        return super(LocalQlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1589,9 +1560,9 @@ cdef class LocalQlNear(LocalQl):
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return LocalQl.computeAveNorm(self, points, nlist_)
+        return super(LocalQlNear, self).computeAveNorm(points, nlist_)
 
-cdef class LocalWl(_Steinhardt):
+cdef class LocalWl(LocalQl):
     """
     Compute the local Steinhardt rotationally invariant :math:`W_l` order
     parameter [Cit4]_ for a set of points.
@@ -1611,6 +1582,7 @@ cdef class LocalWl(_Steinhardt):
       neighbors k of neighbor j in a local region
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param box: simulation box
     :param float rmax: Cutoff radius for the local order parameter. Values near
@@ -1630,7 +1602,7 @@ cdef class LocalWl(_Steinhardt):
             l_box = _box.Box(
                     box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                     box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.steinhardtptr = new order.LocalWl(l_box, rmax, l, rmin)
+            self.thisptr = self.qlptr = new order.LocalWl(l_box, rmax, l, rmin)
             self.m_box = box
             self.rmax = rmax
 
@@ -1657,7 +1629,7 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float complex * Wl = self.thisptr.getWl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_COMPLEX64, < void*>Wl)
@@ -1681,7 +1653,7 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float complex * Wl = self.thisptr.getAveWl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim= 1
                 ] result = np.PyArray_SimpleNewFromData(
                         1, nbins, np.NPY_COMPLEX64, < void*>Wl)
@@ -1705,7 +1677,7 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float complex * Wl = self.thisptr.getWlNorm().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                                 1, nbins, np.NPY_COMPLEX64, < void*>Wl)
@@ -1729,7 +1701,7 @@ cdef class LocalWl(_Steinhardt):
         """
         cdef float complex * Wl = self.thisptr.getAveNormWl().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.steinhardtptr.getNP()
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
         cdef np.ndarray[np.complex64_t, ndim= 1
                         ] result = np.PyArray_SimpleNewFromData(
                             1, nbins, np.NPY_COMPLEX64, < void*>Wl)
@@ -1755,6 +1727,7 @@ cdef class LocalWlNear(LocalWl):
       neighbors k of neighbor j in a local region
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param box: simulation box
     :param float rmax: Cutoff radius for the local order parameter. Values near
@@ -1775,7 +1748,7 @@ cdef class LocalWlNear(LocalWl):
             l_box = _box.Box(
                     box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                     box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.steinhardtptr = new order.LocalWl(l_box, rmax, l, 0)
+            self.thisptr = self.qlptr = new order.LocalWl(l_box, rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn
@@ -1799,7 +1772,7 @@ cdef class LocalWlNear(LocalWl):
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return LocalWl.computeAve(self, points, nlist_)
+        return super(LocalWlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1816,7 +1789,7 @@ cdef class LocalWlNear(LocalWl):
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return LocalWl.computeNorm(self, points, nlist_)
+        return super(LocalWlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1833,7 +1806,7 @@ cdef class LocalWlNear(LocalWl):
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        return LocalWl.computeAveNorm(self, points, nlist_)
+        return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
 cdef class SolLiq:
     """

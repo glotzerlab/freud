@@ -11,20 +11,20 @@
 #include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
-#ifndef _STEINHARDT_H__
-#define _STEINHARDT_H__
+#ifndef _LOCAL_QL_H__
+#define _LOCAL_QL_H__
 
-/*! \file Steinhardt.h
-    \brief Compute the Ql Steinhardt order parameter.
+/*! \file LocalQl.h
+    \brief Compute the Ql LocalQl order parameter.
 */
 
 namespace freud {
 namespace order {
 
-//! Compute the local Steinhardt rotationally invariant Ql order parameter for a set of points
+//! Compute the local LocalQl rotationally invariant Ql order parameter for a set of points
 /*!
  * Implements the local rotationally invariant Ql order parameter described
- * by Steinhardt. For a particle i, we calculate the average Q_l by summing
+ * by LocalQl. For a particle i, we calculate the average Q_l by summing
  * the spherical harmonics between particle i and its neighbors j in a local
  * region:
  * \f$ \overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),\phi(\vec{r}_{ij})) \f$
@@ -33,9 +33,9 @@ namespace order {
  * orientational order as follows:
  * \f$ Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }  \f$
  *
- * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
+ * For more details see PJ LocalQl (1983) (DOI: 10.1103/PhysRevB.28.784)
  *
- * The computeAve functions compute a variation of the Steinhardt Ql order parameter that attempts to account for a second neighbor shell.
+ * The computeAve functions compute a variation of the LocalQl Ql order parameter that attempts to account for a second neighbor shell.
  * For a particle i, we calculate the average Q_l by summing the spherical
  * harmonics between particle i and its neighbors j and the neighbors k of
  * neighbor j in a local region:
@@ -43,7 +43,7 @@ namespace order {
  *
  * The computeNorm method normalizes the Ql value by the average qlm value for the system.
 */
-class Steinhardt
+class LocalQl
     {
     public:
         //! LocalQl Class Constructor
@@ -57,7 +57,7 @@ class Steinhardt
          *  \param rmin (optional) Lower bound for computing the local order parameter.
          *                         Allows looking at, for instance, only the second shell, or some other arbitrary rdf region.
          */
-        Steinhardt(const box::Box& box, float rmax, unsigned int l, float rmin=0):m_box(box), m_rmax(rmax), m_l(l) , m_rmin(rmin)
+        LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0):m_box(box), m_rmax(rmax), m_l(l) , m_rmin(rmin)
             {
             if (m_rmax < 0.0f or m_rmin < 0.0f)
                 throw std::invalid_argument("rmin and rmax must be positive!");
@@ -67,7 +67,8 @@ class Steinhardt
                 throw std::invalid_argument("l must be two or greater!");
             }
 
-        virtual ~Steinhardt();
+        //! Empty destructor; all memory management is handled by shared pointers as member variables.
+        virtual ~LocalQl() {};
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -160,4 +161,4 @@ class Steinhardt
 }; // end namespace freud::order
 }; // end namespace freud
 
-#endif // #define _STEINHARDT_H__
+#endif // #define _LOCAL_QL_H__

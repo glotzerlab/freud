@@ -1,21 +1,19 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "Steinhardt.h"
+#include "LocalQl.h"
 
 using namespace std;
 
-/*! \file Steinhardt.cc
-    \brief Compute some variant of Steinhardt order parameter.
+/*! \file LocalQl.cc
+    \brief Compute the rotationally invariant Ql parameter.
 */
 
 namespace freud {
 namespace order {
 
-Steinhardt::~Steinhardt() {}
-
 // Calculating Ylm using fsph module
-void Steinhardt::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
+void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
     {
     if(Y.size() != 2*m_l+1)
         Y.resize(2*m_l+1);
@@ -35,7 +33,7 @@ void Steinhardt::Ylm(const float theta, const float phi, std::vector<std::comple
         }
     }
 
-void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
+void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     //Set local data size
     m_Np = Np;
@@ -115,7 +113,7 @@ void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> 
         } // Ends loop over particles i for Qlmi calcs
     }
 
-void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
+void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     //Set local data size
     m_Np = Np;
@@ -203,7 +201,7 @@ void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<floa
         } // Ends loop over particles i for Qlmi calcs
     }
 
-void Steinhardt::computeNorm(const vec3<float> *points, unsigned int Np)
+void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
     {
 
     //Set local data size
@@ -232,7 +230,7 @@ void Steinhardt::computeNorm(const vec3<float> *points, unsigned int Np)
         }
     }
 
-void Steinhardt::computeAveNorm(const vec3<float> *points, unsigned int Np)
+void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
     {
 
     //Set local data size
