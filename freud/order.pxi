@@ -1239,6 +1239,23 @@ cdef class LocalQl:
         """
         return self.getQl()
 
+    def getQl(self):
+        """Get a reference to the last computed :math:`Q_l` for each particle.
+        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
+
+        :return: order parameter
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(N_{particles}\\right)`,
+                dtype= :class:`numpy.float32`
+        """
+        cdef float * Ql = self.qlptr.getQl().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp > self.qlptr.getNP()
+        cdef np.ndarray[float, ndim= 1
+                        ] result = np.PyArray_SimpleNewFromData(
+                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
+        return result
+
     @property
     def ave_Ql(self):
         """Get a reference to the last computed :math:`Q_l` for each particle.
@@ -1304,23 +1321,6 @@ cdef class LocalQl:
                 dtype= :class:`numpy.float32`
         """
         cdef float * Ql = self.qlptr.getQlAveNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.qlptr.getNP()
-        cdef np.ndarray[float, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_FLOAT32, < void*>Ql)
-        return result
-
-    def getQl(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float32`
-        """
-        cdef float * Ql = self.qlptr.getQl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp > self.qlptr.getNP()
         cdef np.ndarray[float, ndim= 1
@@ -1596,6 +1596,10 @@ cdef class LocalWl(LocalQl):
     """
     cdef order.LocalWl * thisptr
 
+    # List of Ql attributes to remove
+    delattrs = ['Ql', 'getQl', 'ave_Ql', 'getAveQl',
+                'norm_ql', 'getQlNorm', 'ave_norm_Ql', 'getQlAveNorm']
+
     def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef _box.Box l_box
         if type(self) is LocalWl:
@@ -1610,6 +1614,19 @@ cdef class LocalWl(LocalQl):
         if type(self) is LocalWl:
             del self.thisptr
             self.thisptr = NULL
+
+    def __getattribute__(self, name):
+        # Remove access to Ql methods from this class, their values may be
+        # uninitialized and are not dependable.
+        if name in LocalWl.delattrs:
+            raise AttributeError(name)
+        else:
+            return super(LocalWl, self).__getattribute__(name)
+
+    def __dir__(self):
+        # Prevent unwanted Ql methods from appearing in dir output
+        return sorted(set(dir(self.__class__)) -
+                      set(self.__class__.delattrs))
 
     @property
     def Wl(self):
