@@ -1368,7 +1368,7 @@ cdef class LocalQl(_Steinhardt):
 
     .. todo:: move box to compute, this is old API
     """
-    cdef order.LocalQl * thisptr
+    cdef order.Steinhardt * thisptr
 
     def __cinit__(self, box, rmax, l, rmin=0):
         cdef _box.Box l_box
@@ -1378,7 +1378,7 @@ cdef class LocalQl(_Steinhardt):
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
             self.m_box = box
             self.rmax = rmax
-            self.thisptr = self.steinhardtptr = new order.LocalQl(l_box, rmax, l, rmin)
+            self.thisptr = self.steinhardtptr = new order.Steinhardt(l_box, rmax, l, rmin)
             
     def __dealloc__(self):
         if type(self) is LocalQl:
@@ -1530,7 +1530,7 @@ cdef class LocalQlNear(LocalQl):
                     box.getLx(), box.getLy(), box.getLz(),
                     box.getTiltFactorXY(), box.getTiltFactorXZ(),
                     box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.steinhardtptr = new order.LocalQl(l_box, rmax, l, 0)
+            self.thisptr = self.steinhardtptr = new order.Steinhardt(l_box, rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn
@@ -1616,6 +1616,7 @@ cdef class LocalWl(_Steinhardt):
     :param float rmax: Cutoff radius for the local order parameter. Values near
                        first minima of the RDF are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
+    :param float rmin: can look at only the second shell or some arbitrary RDF
     :type box: :py:class:`freud.box.Box`
     :type l: unsigned int
 
@@ -1623,13 +1624,13 @@ cdef class LocalWl(_Steinhardt):
     """
     cdef order.LocalWl * thisptr
 
-    def __cinit__(self, box, rmax, l, *args, **kwargs):
+    def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef _box.Box l_box
         if type(self) is LocalWl:
             l_box = _box.Box(
                     box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                     box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.steinhardtptr = new order.LocalWl(l_box, rmax, l)
+            self.thisptr = self.steinhardtptr = new order.LocalWl(l_box, rmax, l, rmin)
             self.m_box = box
             self.rmax = rmax
 
@@ -1774,7 +1775,7 @@ cdef class LocalWlNear(LocalWl):
             l_box = _box.Box(
                     box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                     box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.steinhardtptr = new order.LocalWl(l_box, rmax, l)
+            self.thisptr = self.steinhardtptr = new order.LocalWl(l_box, rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn

@@ -124,7 +124,7 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
-        Steinhardt(const box.Box &)
+        Steinhardt(const box.Box &, float, unsigned int, float)
         const box.Box & getBox() const
         unsigned int getNP()
         void setBox(const box.Box)
@@ -140,18 +140,13 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
                          unsigned int) nogil except +
         void computeAveNorm(const vec3[float]*,
                             unsigned int) nogil except +
-
-cdef extern from "LocalQl.h" namespace "freud::order":
-    cdef cppclass LocalQl(Steinhardt):
-        LocalQl(const box.Box &, float, unsigned int, float)
         shared_array[float] getAveQl()
         shared_array[float] getQlNorm()
         shared_array[float] getQlAveNorm()
 
-
 cdef extern from "LocalWl.h" namespace "freud::order":
     cdef cppclass LocalWl(Steinhardt):
-        LocalWl(const box.Box &, float, unsigned int)
+        LocalWl(const box.Box &, float, unsigned int, float)
         shared_array[float complex] getWl()
         shared_array[float complex] getAveWl()
         shared_array[float complex] getWlNorm()

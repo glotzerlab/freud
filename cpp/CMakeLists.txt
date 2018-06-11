@@ -127,8 +127,6 @@ set(FREUD_SOURCES
             interface/InterfaceMeasure.h
             order/Steinhardt.h
             order/Steinhardt.cc
-            order/LocalQl.h
-            order/LocalQl.cc
             order/LocalWl.h
             order/LocalWl.cc
             order/SolLiq.h

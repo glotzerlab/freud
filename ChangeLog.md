@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Allow specification of rmin for LocalWl (previously was only possible for LocalQl).
 
 ### Changed
-* Complete refactoring of LocalQl and LocalWl Steinhardt order parameters.
+* Refactoring of LocalQl and LocalWl Steinhardt order parameters.
 
 ## v0.8.2 - 2018-06-07
 
