@@ -48,8 +48,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, BiMap<uns
             for (unsigned int proper_a_ind=0;
                  proper_a_ind<vec_map.size(); proper_a_ind++)
                 {
-                boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(proper_a_ind);
-                unsigned int proper_b_ind = it->second;
+                unsigned int proper_b_ind = vec_map.left[proper_a_ind];
 
                 // old_node_vec_ind[proper_b_ind] is "relative_b_ind"
                 s[node].vec_ind[proper_a_ind] = old_node_vec_ind[proper_b_ind];
@@ -354,7 +353,7 @@ Environment MatchEnv::buildEnv(const size_t *neighbor_list, size_t num_bonds,
 // The bool registration controls whether we first use brute force registration
 // to orient the second set of vectors such that it minimizes the RMSD between
 // the two sets.
-std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::isSimilar(
+std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > MatchEnv::isSimilar(
         Environment& e1, Environment& e2, float threshold_sq, bool registration)
     {
     BiMap<unsigned int, unsigned int> vec_map;
