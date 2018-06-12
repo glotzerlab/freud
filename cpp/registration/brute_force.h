@@ -264,9 +264,9 @@ class RegisterBruteForce  // : public Register
                         // KabschAlgorithm actually acts on P^T.
                         matrix rot_points = Rotate(r, points.transpose());
 
-                        BiMap<unsigned int, unsigned int> vec_map;
                         // feed back in the TRANSPOSE of rot_points such that
                         // the input matrix is (Nx3).
+                        BiMap<unsigned int, unsigned int> vec_map;
                         double rmsd = AlignedRMSDTree(rot_points.transpose(), vec_map);
                         if (rmsd < rmsd_min || rmsd_min < 0.0)
                             {
@@ -335,9 +335,9 @@ class RegisterBruteForce  // : public Register
         // optimal permutation of BOTH sets of vectors to minimize the RMSD.
         // Rather, it just figures out the optimal permutation of the second
         // set, the vector set used in the argument below.
-        double AlignedRMSDTree(const matrix& points, BiMap<unsigned int, unsigned int>& m)
         // To fully solve this, we need to use the Hungarian algorithm or some
         // other way of solving the so-called assignment problem.
+        double AlignedRMSDTree(const matrix& points, BiMap<unsigned int, unsigned int>& m)
             {
             // Also brute force.
             assert(points.rows() == m_data.rows());

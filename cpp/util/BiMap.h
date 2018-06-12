@@ -1,5 +1,5 @@
-#ifndef BIMAP
-#define BIMAP
+#ifndef _BIMAP_H__
+#define _BIMAP_H__
 
 #include <set>
 #include <vector>
@@ -12,10 +12,10 @@
 
 /* BiMap container modelled after Boost::BiMap with templatization.
  *
- * "A Bimap is a data structure that represents bidirectional relations between
+ * "A BiMap is a data structure that represents bidirectional relations between
  * elements of two collections. The container is designed to work as two opposed
- * STL maps. A bimap between a collection X and a collection Y can be viewed as a
- * map from X to Y or as a map from Y to X. Additionally, the bimap can also be
+ * STL maps. A BiMap between a collection X and a collection Y can be viewed as a
+ * map from X to Y or as a map from Y to X. Additionally, the BiMap can also be
  * viewed as a set of relations between X and Y."
  *
  * Public Functions:
