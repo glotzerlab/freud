@@ -54,7 +54,7 @@
  *     bm.left[5] = "you";
  *
  *     for (int i = 1; i < 6; ++i){
- *         std::cout << bm.left[i] << '\n';
+ *         std::cout << bm.left[i] << std::endl;
  *     }
  *
  *     std::cout << bm.right["hello"] << " " << bm.right["world"];
@@ -199,8 +199,9 @@ class BiMap
                     {
                     if(!this->has(Key_in))
                         {
-                        U foo = U();
-                        return foo;
+                        // Add a new item, initializing U to the default
+                        // then return a reference to U
+                        b().emplace(Key_in, U());
                         }
                     return getVal(*(this->b().set_A.find(&Key_in)));
                     }
@@ -282,8 +283,9 @@ class BiMap
                     {
                     if (!this->has(Key_in))
                         {
-                        T foo = T();
-                        return foo;
+                        // Add a new item, initializing T to the default
+                        // then return a reference to T
+                        b().emplace(T(), Key_in);
                         }
                     return getVal(*(this->b().set_B.find(&Key_in)));
                     }
