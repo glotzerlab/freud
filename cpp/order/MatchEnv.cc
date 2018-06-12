@@ -489,9 +489,7 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(
     rotmat3<float> rotation = mapping.first;
     BiMap<unsigned int, unsigned int> vec_map = mapping.second;
 
-    // convert to a std::map
-    // the lamest.
-    // from stackoverflow.com/questions/20667187/convert-boostbimap-to-stdmap
+    // Convert BiMap to a std::map
     std::map<unsigned int, unsigned int> std_vec_map;
     for (BiMap<unsigned int, unsigned int>::const_iterator it = vec_map.begin();
             it != vec_map.end(); ++it)
@@ -632,8 +630,7 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(
     BiMap<unsigned int, unsigned int> vec_map = mapping.second;
     min_rmsd = tmp_min_rmsd;
 
-    // lamely convert to a std::map
-    // from stackoverflow.com/questions/20667187/convert-boostbimap-to-stdmap
+    // Convert BiMap to a std::map
     std::map<unsigned int, unsigned int> std_vec_map;
     for (BiMap<unsigned int, unsigned int>::const_iterator it = vec_map.begin();
             it != vec_map.end(); ++it)
