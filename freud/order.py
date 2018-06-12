@@ -6,7 +6,7 @@
 # Methods to compute order parameters
 #
 import warnings
-warnings.simplefilter('always', DeprecationWarning)
+from .errors import FreudDeprecationWarning
 
 from ._freud import CubaticOrderParameter
 from ._freud import NematicOrderParameter
@@ -23,14 +23,14 @@ from ._freud import SolLiqNear
 
 # The below are maintained for backwards compatibility
 # but have been moved to the environment module
-from ._freud import BondOrder as EBO
-from ._freud import LocalDescriptors as ELD
-from ._freud import MatchEnv as EME
-from ._freud import Pairing2D as EP
-from ._freud import AngularSeparation as EAS
+from ._freud import BondOrder as _EBO
+from ._freud import LocalDescriptors as _ELD
+from ._freud import MatchEnv as _EME
+from ._freud import Pairing2D as _EP
+from ._freud import AngularSeparation as _EAS
 
 
-class BondOrder(EBO):
+class BondOrder(_EBO):
     """
     .. note::
         This class is only retained for backwards compatibility.
@@ -41,9 +41,9 @@ class BondOrder(EBO):
 
     """
     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
-        warnings.warn("This class is deprecated, use freud.environment.BondOrder instead!", DeprecationWarning)
+        warnings.warn("This class is deprecated, use freud.environment.BondOrder instead!", FreudDeprecationWarning)
 
-class LocalDescriptors(ELD):
+class LocalDescriptors(_ELD):
     """
     .. note::
         This class is only retained for backwards compatibility.
@@ -54,9 +54,9 @@ class LocalDescriptors(ELD):
 
     """
     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
-        warnings.warn("This class is deprecated, use freud.environment.LocalDescriptors instead!", DeprecationWarning)
+        warnings.warn("This class is deprecated, use freud.environment.LocalDescriptors instead!", FreudDeprecationWarning)
 
-class MatchEnv(EME):
+class MatchEnv(_EME):
     """
     .. note::
         This class is only retained for backwards compatibility.
@@ -67,9 +67,9 @@ class MatchEnv(EME):
 
     """
     def __init__(self, box, rmax, k):
-        warnings.warn("This class is deprecated, use freud.environment.MatchEnv instead!", DeprecationWarning)
+        warnings.warn("This class is deprecated, use freud.environment.MatchEnv instead!", FreudDeprecationWarning)
 
-class Pairing2D(EP):
+class Pairing2D(_EP):
     """
     .. note::
         This class is only retained for backwards compatibility.
@@ -80,9 +80,9 @@ class Pairing2D(EP):
 
     """
     def __init__(self, rmax, k, compDotTol):
-        warnings.warn("This class is deprecated, use freud.bond instead!", DeprecationWarning)
+        warnings.warn("This class is deprecated, use freud.bond instead!", FreudDeprecationWarning)
 
-class AngularSeparation(EAS):
+class AngularSeparation(_EAS):
     """
     .. note::
         This class is only retained for backwards compatibility.
@@ -93,4 +93,4 @@ class AngularSeparation(EAS):
 
     """
     def __init__(self, rmax, n):
-        warnings.warn("This class is deprecated, use freud.environment.AngularSeparation instead!", DeprecationWarning)
+        warnings.warn("This class is deprecated, use freud.environment.AngularSeparation instead!", FreudDeprecationWarning)

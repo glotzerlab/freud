@@ -4,7 +4,7 @@
 import numpy as np
 import time
 import warnings
-warnings.simplefilter('always', DeprecationWarning)
+from .errors import FreudDeprecationWarning
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
@@ -1030,7 +1030,7 @@ cdef class Pairing2D:
     cdef num_neigh
 
     def __cinit__(self, rmax, k, compDotTol):
-        warnings.warn("This class is deprecated, use freud.bond instead!", DeprecationWarning)
+        warnings.warn("This class is deprecated, use freud.bond instead!", FreudDeprecationWarning)
         self.thisptr = new order.Pairing2D(rmax, k, compDotTol)
         self.rmax = rmax
         self.num_neigh = k
