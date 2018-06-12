@@ -186,15 +186,15 @@ namespace freud { namespace symmetry {
 
     shared_ptr<vector<vec3<float> > > Geodesation::getVertexList() {
         
-        /*test starts*/
-        cout << "getVertexList" << endl;
-        cout << "m_vertexList.size(): " << m_vertexList->size() << endl;   
-        for (int i = 0; i < m_vertexList->size(); ++i) {
-            cout << "m_vertexList[" << i << "]: "
-                 << m_vertexList->at(i).x << "\t" << m_vertexList->at(i).y 
-                 << "\t" << m_vertexList->at(i).z << endl;
-        }
-        /*test ends*/
+        // /*test starts*/
+        // cout << "getVertexList" << endl;
+        // cout << "m_vertexList.size(): " << m_vertexList->size() << endl;   
+        // for (int i = 0; i < m_vertexList->size(); ++i) {
+        //     cout << "m_vertexList[" << i << "]: "
+        //          << m_vertexList->at(i).x << "\t" << m_vertexList->at(i).y 
+        //          << "\t" << m_vertexList->at(i).z << endl;
+        // }
+        // /*test ends*/
         //m_vertexList = make_shared<vector<vec3<float> > >(vertexList);
         return m_vertexList;
     }

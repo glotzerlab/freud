@@ -5,7 +5,6 @@
 #include <ostream>
 #include <tbb/tbb.h>
 #include <cmath>
-#include <unordered_set>
 
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
@@ -59,13 +58,16 @@ class SymmetryCollection
         //rotate Mlm array by certain quat
         void rotate(const quat<float> &q);//private function
 
-        // int searchSymmetry(bool perpendicular);
-
         int WDindex(int j, int mprime, int m);//private function
 
         vector<float> toEulerAngles323(const quat<float> &q);//private function
 
         int searchSymmetry(bool perpendicular);
+
+
+
+
+
 
         //! Returns quaternion corresponding to the highest-symmetry axis
         quat<float> getHighestOrderQuat();
@@ -116,15 +118,29 @@ class SymmetryCollection
         }
 
         struct Symmetry {
-            Symmetry():type(nullptr), threshold(nullptr) {}
             int type;
             float threshold;
         };
         
+        Symmetry *findSymmetry(int type);//need to be private at last
 
-        Symmetry findSymmetry(int type); //need to be private at last
+        float optimize(bool perpendicular, Symmetry *symm);
 
-        
+        void symmetrize(bool onlyLocal);
+
+        quat<float> normalize(quat<float> &q) { //private helper function, normalize a quaternion.
+            float norm = 1.0f / sqrt(norm2(q));
+            //float norm = 1.0f / sqrt(q.s * q.s + q.v.i * q.v.i + q.v.j * q.v.j + q.v.k * q.v.k);
+            q.s *= norm;
+            q.v.x *= norm;
+            q.v.y *= norm;
+            q.v.z *= norm;
+            return q;
+        }
+
+        quat<float> getHighestSymmetryQuat() {
+            return m_highest_symm_quat;
+        }
 
     private:
         box::Box m_box;
@@ -133,7 +149,7 @@ class SymmetryCollection
         std::shared_ptr<float> m_Mlm;
         std::shared_ptr<float> m_Mlm_rotated;//hold the rotated Mlm
         unsigned int m_Np;
-        quat<float> rot; // rotate the view after the global detecton == gData.rotation
+        quat<float> m_highest_symm_quat; // rotate the view after the global detecton == gData.rotation
         const int TOTAL = -1;
         const int AXIAL = 0;
         const int MIRROR = 1;
@@ -152,19 +168,22 @@ class SymmetryCollection
         const int TABLESIZE = 1024;
         const float PI = atan(1.0) * 4.0;
         vector<pair<int, vec3<float> > > m_found_symmetries; //saves the axis of symmetry that was found
-        
-        
+
         const int LENGTH = 11; // numbers of types of symmetry
-        const Symmetry SYMMETRIES[LENGTH];
+        Symmetry SYMMETRIES[11];
 
-
-        
+        const float OPTIMIZESTART = 0.5;
+        const float OPTIMIZEEND   = 1e-6;
+        const float OPTIMIZESCALE = 0.9;
 
 
     };
 
 
-    
+       
+
+
+
 
 
 }; }; // end namespace freud::symmetry

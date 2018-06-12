@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <unordered_set>
+#include <time.h>
 
 #include "SymmetryCollection.h"
 #include "VectorMath.h"
@@ -45,11 +46,9 @@ namespace freud { namespace symmetry {
         // cout << "constructor ends" << endl;
 
 
-        WDTable.resize((1/6) * (1 + MAXL) * (2 + MAXL) * (3 + 2 * MAXL));
-        rot.s = 1.0f;
-        rot.v = {0.0f, 0.0f, 0.0f};
-
-         SYMMETRIES[0].type = 
+        WDTable.resize(10416);
+        m_highest_symm_quat.s = 1.0f;
+        m_highest_symm_quat.v = {0.0f, 0.0f, 0.0f};
 
 
         for (int i = 0; i < LENGTH; ++i) {
@@ -87,7 +86,7 @@ namespace freud { namespace symmetry {
         //cout << "only for test part11" << endl;
         // int a = 0;
         // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
-        //     cout << m_Mlm.get()[l] << " ";
+        //     cout << Mlm.get()[l] << " ";
         //     if( l == a*a+2*a) {
         //         ++a;
         //         cout << endl;
@@ -96,33 +95,37 @@ namespace freud { namespace symmetry {
         // cout <<endl;
         // cout << "only for test part ends11" << endl;
 
-        if (m_Mlm.get()[0] == 0.0f) {
+        if (Mlm.get()[0] == 0.0f) {
             //cout << "measure test ends 0 " << endl;
             return 0.0f;
         }
         //cout << "measure test starts" << endl;
         for (int l = 2; l < (m_maxL + 1); l += 2) {
             //cout << "l is: " << l << endl;
+            //cout << "numAll is: ";
            int count = -l - 1;
             for (int m = l * l; m < (l + 1) * (l + 1); ++m) {
                 ++numAll;
-                all += m_Mlm.get()[m] * m_Mlm.get()[m];
+                //cout << numAll << endl;
+                all += Mlm.get()[m] * Mlm.get()[m];
                 ++count;
                 if ((type == TOTAL) || 
                     (type == AXIAL && (m == l * (l + 1))) || 
                     (type == MIRROR && (m >= l * (l + 1))) || 
                     (type >= 2 && (count % type == 0))) {
                     ++numSelect;
-                    select += m_Mlm.get()[m] * m_Mlm.get()[m];
+                    select += Mlm.get()[m] * Mlm.get()[m];
                 }
             }
         }
 
         if (type == TOTAL || type == AXIAL) {
-            return (select / m_Mlm.get()[0] / (float)numSelect - 1.0f);
+            //cout << "type is: " << type << ": " << (select / Mlm.get()[0] / (float)numSelect - 1.0f);
+            return (select / Mlm.get()[0] / (float)numSelect - 1.0f);
         }
 
         if (type == MIRROR || type >= 2) {
+            //cout << "type is: " << type << ": " << (select / all - (float)numSelect / (float)numAll) / (1.0f - (float)numSelect / (float)numAll);
             return (select / all - (float)numSelect / (float)numAll) / (1.0f - (float)numSelect / (float)numAll);
         }
         return 0.0f;
@@ -235,6 +238,7 @@ namespace freud { namespace symmetry {
         nlist->validate(Np, Np);
 
         computeMlm(box, points, nlist, Np);
+        symmetrize(false);
     }
 
     //utility function
@@ -278,16 +282,16 @@ namespace freud { namespace symmetry {
 
     void SymmetryCollection::rotate(const quat<float> &q) {
 
-        cout << endl << endl << "rotation starts" << endl;
+        //cout << endl << endl << "rotation starts" << endl;
         vector<float> eulerAngles = toEulerAngles323(q);
 
-        cout << "angle is: " << eulerAngles[0] << " "  << eulerAngles[1] << " " << eulerAngles[2] << endl;
+        //cout << "angle is: " << eulerAngles[0] << " "  << eulerAngles[1] << " " << eulerAngles[2] << endl;
 
         for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
             m_Mlm_rotated.get()[l] = m_Mlm.get()[l];
         }
 
-        cout << "WDTable.size(): " << WDTable.size() << endl;
+        //cout << "WDTable.size(): " << WDTable.size() << endl;
         // generate Wigner-D table
         float c = cos(eulerAngles[1]);
         float s = sin(eulerAngles[1]);
@@ -433,9 +437,9 @@ namespace freud { namespace symmetry {
             }
             // cout << "Mm2[i] is: " << endl;
             // cout << "first test" <<endl;
-            //for(auto i = Mm2.begin(); i!= Mm2.end(); ++i) {
+            for(auto i = Mm2.begin(); i!= Mm2.end(); ++i) {
                 //cout << *i << " ";
-           // }
+            }
             // cout << endl<< "second test" <<endl;
             for (int i = 0; i < 2 * j + 1; ++i) {
                 
@@ -448,19 +452,17 @@ namespace freud { namespace symmetry {
     }
 
 
-
-
     // rotate the axis p in z-direction
     quat<float> SymmetryCollection::initMirrorZ(const vec3<float> &p) {
         float x = p.x;
         float y = p.y;
         float z = p.z + 1.0;
         float n = sqrt(x * x + y * y + z * z);
-        cout << "initMirrorZ start" << endl << "x y z is: " << x << " "  << y << " " << z << endl;
+        //cout << "initMirrorZ start" << endl << "x y z is: " << x << " "  << y << " " << z << endl;
 
 
         quat<float> temp(0.0f, {0.0f, 0.0f, 0.0f});
-        cout << "after-assginment is: " << temp.s << " "  << temp.v.x << " " << temp.v.y << " " << temp.v.z << endl;
+        //cout << "after-assginment is: " << temp.s << " "  << temp.v.x << " " << temp.v.y << " " << temp.v.z << endl;
         if (n == 0.0f){
             return temp;
         }
@@ -472,10 +474,10 @@ namespace freud { namespace symmetry {
 
     }
 
-    SymmetryCollection::Symmetry SymmetryCollection::findSymmetry(int type) {
-        for (SymmetryCollection::Symmetry symmetry: SYMMETRIES) {
+    SymmetryCollection::Symmetry *SymmetryCollection::findSymmetry(int type) {
+        for (auto &symmetry: SYMMETRIES) {
             if(symmetry.type == type) {
-                return symmetry;
+                return &symmetry;
             }
         }
         return nullptr;
@@ -486,19 +488,19 @@ namespace freud { namespace symmetry {
 
         // brute-force search for the best symmetry, initialize triangulation for search directions
         int highestSymmetry = TOTAL;
-        shared_ptr<vector<vec3<float> > > vertexList;
+        shared_ptr<vector<vec3<float> > > vertexList; 
         shared_ptr<vector<unordered_set<int> > > neighborList;
         if (perpendicular) {
-            // using a lattice on the circle (128 points)
+            // // using a lattice on the circle (128 points)
             const int CIRCLENUMBER = 128;
             vertexList = shared_ptr<vector<vec3<float> > >(new vector<vec3<float> >());
-            neighborList = shared_ptr<vector<unordered_set<int> > >(new vector<unordered_set<int> >(),
-                                                                    default_delete<vector<unordered_set<int> >[]>());
-            
+            neighborList = shared_ptr<vector<unordered_set<int> > >(new vector<unordered_set<int> >[CIRCLENUMBER],
+                                                                default_delete<vector<unordered_set<int> >[]>());
+
             for (int i = 0; i < CIRCLENUMBER; ++i) {
                 // only need to search one side of the circle
                 float angle = PI * i / CIRCLENUMBER;
-                vec3<float> temp(cos(angle), sin(angle), 0.0);
+                vec3<float> temp(cos(angle), sin(angle), 0.0f);
                 vertexList->push_back(temp);
                 unordered_set<int> neighbors;
                 neighbors.insert(i + 1 < CIRCLENUMBER ? i + 1 : 0);
@@ -512,24 +514,24 @@ namespace freud { namespace symmetry {
             neighborList = geodesation.getNeighborList();
         }
         
-        // measure the order for each vertex and each symmetry (except TOTAL and MIRROR)
+        //measure the order for each vertex and each symmetry (except TOTAL and MIRROR)
         vector<vector<float>> orderTable(vertexList->size(), vector<float>(11, 0)); // ASK, one vertex can have several symmetries?
-        for (int vi = 0; vi < vertexList->size(); vi++) {
+        for (int vi = 0; vi < vertexList->size(); ++vi) {
             quat<float> quaternion;
             if (perpendicular) {
                 // rotation around z-axis and then the x-axis in z-direction
                 quat<float> roty(sqrt(0.5), {0.0f, sqrt(0.5), 0.0f});
                 quat<float> rotz(vertexList->at(vi).x, {0.0f, 0.0f, vertexList->at(vi).y});
-                quaternion = roty * (rotz * rot);
-            }
-            else {
+                quaternion = roty * (rotz * m_highest_symm_quat);
+            } else {
                 // rotate vertex in z-direction
                 quaternion = initMirrorZ(vertexList->at(vi));
             }
 
             rotate(quaternion);
             shared_ptr<float> Mlm2 = getMlm_rotated();
-            for (int sym = 0; sym < 11; ++sym) {// inner loop, for each vertex, measure the order for each symmetry
+            for (int sym = 0; sym < 11; ++sym) {
+                // inner loop, for each vertex, measure the order for each symmetry
                 Symmetry symmetry = SYMMETRIES[sym];
                 if (symmetry.type == TOTAL || symmetry.type == MIRROR) continue;
                 orderTable[vi][sym] = measure(Mlm2, symmetry.type);
@@ -554,7 +556,7 @@ namespace freud { namespace symmetry {
                 bool overlapsWithOther = false;
                 float orderFound = -1.0;
                 int directionFound = -1;
-                for (int j = 0; j < searchList.size(); j++) {
+                for (int j = 0; j < searchList.size(); ++j) {
                     int vj = searchList[j];
                     
                     // did we already check this axis and have we found it before?
@@ -598,18 +600,143 @@ namespace freud { namespace symmetry {
                 if (perpendicular) {
                     // rotation around z-axis
                     quat<float> rotz(vertex.x, {0.0, 0.0, vertex.y});
-                    rot = rotz * rot; //ASK confirm
+                    m_highest_symm_quat = rotz * m_highest_symm_quat; //ASK confirm
                     // don't have to keep searching
                     break;
                 }
                 
-                rot = initMirrorZ(vertex);
+                m_highest_symm_quat = initMirrorZ(vertex);
             }
         }
+
+        // for (int i = 0; i < vertexList->size(); ++i) {
+        //     for (int j =0; j < 11; ++j) {
+        //         cout << orderTable[i][j] << " ";
+        //     }
+        //     cout << endl;
+        // }
+        // cout << "highestSymmetry is: " << highestSymmetry << endl;
         return highestSymmetry;
+
 
     }
 
+    float SymmetryCollection::optimize(bool perpendicular, Symmetry *symm) {//ASK
+        int type = symm->type;
+        // TODO: iterate more efficiently
+        float step = OPTIMIZESTART;
+        quat<float> quaternion= m_highest_symm_quat;
+        quat<float> measureRotate;
+        if (perpendicular) {
+            measureRotate.s = sqrt(0.5);
+            measureRotate.v.x = 0.0f;
+            measureRotate.v.y = sqrt(0.5);
+            measureRotate.v.z = 0.0f;
+        }
+
+        // measure order
+        quat<float> q = measureRotate * quaternion;
+        rotate(q);
+        float order = measure(getMlm_rotated(), type);
+        do {
+            vector<quat<float> > quats;
+            if (perpendicular) {
+                // generate trial rotations around the z-axis
+                float c = cos(step);
+                float s = sin(step);
+                quats.push_back({c, {0.0f, 0.0f, +s}});
+                quats.push_back({c, {0.0f, 0.0f, -s}});
+                
+            } else {
+                // generate trial rotations perpendicular to the z-axis
+                srand((unsigned)time(NULL));
+                float angle = 2.0 * PI * (float)rand()/RAND_MAX;
+                float c = cos(angle) * step;
+                float s = sin(angle) * step;
+                float n = sqrt(1.0 - step * step);
+                quats.push_back({n, {+c, +s, 0.0f}});
+                quats.push_back({n, {-c, +s, 0.0f}});
+                quats.push_back({n, {+c, -s, 0.0f}});
+                quats.push_back({n, {-c, -s, 0.0f}});
+            }
+
+            // search whether the test points have higher order
+            bool found = false;
+            for (quat<float> &testQuat: quats) {
+                testQuat = testQuat * quaternion;
+
+                // measure order
+                q = measureRotate * testQuat;
+                rotate(q);
+                float testOrder = measure(getMlm_rotated(), type);
+                if (testOrder > order) {
+                    quaternion = normalize(testQuat);
+                    order = testOrder;
+                    found = true;
+                }
+            }
+            if (!found) step *= OPTIMIZESCALE;
+        } while (step >= OPTIMIZEEND);
+        m_highest_symm_quat = quaternion;
+        cout << "order is: " << order << endl;
+        return order;
+    }
+
+    void SymmetryCollection::symmetrize(bool onlyLocal) {
+        // Step 1: optimize rotational symmetry around z-axis
+        int highestSymmetry = TOTAL;
+        if (onlyLocal) {
+            // seach for the highest symmetry
+            rotate(m_highest_symm_quat);
+            shared_ptr<float> Mlm2 = getMlm_rotated();
+            for (Symmetry &symmetry: SYMMETRIES) {
+                if (symmetry.type == TOTAL || symmetry.type == MIRROR) continue;
+                if (measure(Mlm2, symmetry.type) > symmetry.threshold) highestSymmetry = symmetry.type;
+            }
+        } else {
+            // Perform geodesation and evaluate each point to find the best z-axis.
+            highestSymmetry = searchSymmetry(false);
+            
+            // // identify Laue group
+            // int n2 = plot.getMarkerNumber(2);
+            // int n3 = plot.getMarkerNumber(3);
+            // int n4 = plot.getMarkerNumber(4);
+            // int n6 = plot.getMarkerNumber(6);
+            // laueGroup = null;
+            // if (n2 == 0 && n3 == 0 && n4 == 0 && n6 == 0) laueGroup = "-1";
+            // if (n2 == 1 && n3 == 0 && n4 == 0 && n6 == 0) laueGroup = "2/m";
+            // if (n2 == 3 && n3 == 0 && n4 == 0 && n6 == 0) laueGroup = "mmm";
+            // if (n2 == 0 && n3 == 1 && n4 == 0 && n6 == 0) laueGroup = "-3";
+            // if (n2 == 3 && n3 == 1 && n4 == 0 && n6 == 0) laueGroup = "-3m";
+            // if (n2 == 0 && n3 == 0 && n4 == 1 && n6 == 0) laueGroup = "4/m";
+            // if (n2 == 4 && n3 == 0 && n4 == 1 && n6 == 0) laueGroup = "4/mmm";
+            // if (n2 == 0 && n3 == 0 && n4 == 0 && n6 == 1) laueGroup = "6/m";
+            // if (n2 == 6 && n3 == 0 && n4 == 0 && n6 == 1) laueGroup = "6/mmm";
+            // if (n2 == 3 && n3 == 4 && n4 == 0 && n6 == 0) laueGroup = "m-3";
+            // if (n2 == 6 && n3 == 4 && n4 == 3 && n6 == 0) laueGroup = "m-3m";
+        }
+        if (highestSymmetry == TOTAL) return;
+        optimize(false, findSymmetry(highestSymmetry));
+
+        // Step 2: optimize in addition symmetry around x-axis
+        highestSymmetry = searchSymmetry(true);
+        if (highestSymmetry == TOTAL) return;
+        optimize(true, findSymmetry(highestSymmetry));
+
+        // print gData.rotation
+        // copy Mlm2 code above
+        // call measure in debug mode on Mlm2
+
+        // set current view
+//      for (Shape3D shape: gData.shapes)
+//      {
+//          shape.rotateShape(gData.rotation);
+//      }
+//      gData.box.set(gData.rotation.operate(gData.box.get()));
+//      gData.rotation = new Quaternion(1.0, 0.0, 0.0, 0.0);
+//      hasNewData = true;
+
+    }
 
 
 

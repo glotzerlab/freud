@@ -142,8 +142,6 @@ cdef class SymmetryCollection:
 
     def initMirrorZ(self, p):
         
-        
-
         cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(np.asarray(p, dtype=np.float32).flatten())
         cdef quat[float] q = self.thisptr.initMirrorZ(< const vec3 [float]&> l_vec[0])
         cdef np.ndarray[float, ndim = 1] result = np.array(
@@ -153,6 +151,19 @@ cdef class SymmetryCollection:
     def searchSymmetry(self, perpendicular):
 
         return self.thisptr.searchSymmetry(bool(perpendicular))
+
+
+
+    def symmetrize(self, onlyLocal):
+
+        return self.thisptr.symmetrize(bool(onlyLocal))
+
+
+    def getHighestSymmetryQuat(self):
+        cdef quat[float] q = self.thisptr.getHighestSymmetryQuat()
+        cdef np.ndarray[float, ndim = 1] result = np.array(
+                [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
+        return result
 
     # def get_symmetric_orientation(self):
     #     """
