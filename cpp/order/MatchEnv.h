@@ -13,13 +13,11 @@
 #include <stdexcept>
 #include <vector>
 
-#include <boost/bimap.hpp>
-#include "BiMap.h"
-
 #include "box.h"
 #include "VectorMath.h"
 #include "Cluster.h"
 #include "NearestNeighbors.h"
+#include "BiMap.h"
 #include "brute_force.h"
 
 /*! \file MatchEnv.h
