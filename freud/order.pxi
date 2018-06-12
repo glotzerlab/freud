@@ -6,6 +6,7 @@ import time
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
+from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -224,7 +225,6 @@ cdef class CubaticOrderParameter:
                                 < void*>gen_r4_tensor)
         return result
 
-from libcpp.memory cimport shared_ptr
 
 cdef class NematicOrderParameter:
     """Compute the nematic order parameter for a system of particles.
