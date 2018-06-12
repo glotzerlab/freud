@@ -1,6 +1,6 @@
 import numpy as np
 import freud
-from freud.order import LocalDescriptors
+from freud.environment import LocalDescriptors
 import unittest
 
 

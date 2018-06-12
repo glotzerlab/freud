@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from freud.order import MatchEnv
+from freud.environment import MatchEnv
 from freud import box
 import unittest
 import os

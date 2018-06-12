@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from freud.order import Pairing2D
+from freud.environment import Pairing2D
 from freud import box
 import unittest
 

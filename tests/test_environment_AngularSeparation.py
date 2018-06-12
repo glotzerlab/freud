@@ -57,7 +57,7 @@ class TestAngularSeparation(unittest.TestCase):
         ors = np.asarray(ors, dtype=np.float32)
         equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
 
-        ang = freud.order.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
         npt.assert_equal(ang.getNP(), N)
 
@@ -74,7 +74,7 @@ class TestAngularSeparation(unittest.TestCase):
         equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
         global_ors = np.array([[1, 0, 0, 0]], dtype=np.float32)
 
-        ang = freud.order.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeGlobal(global_ors, ors, equiv_quats)
         npt.assert_equal(ang.getNGlobal(), 1)
 
@@ -96,7 +96,7 @@ class TestAngularSeparation(unittest.TestCase):
         ors = np.asarray(ors, dtype=np.float32)
         equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
 
-        ang = freud.order.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
         npt.assert_equal(ang.getNReference(), N)
 
@@ -120,7 +120,7 @@ class TestAngularSeparation(unittest.TestCase):
         equiv_quats = np.asarray([[1, 0, 0, 0], [-1, 0, 0, 0]],
                                  dtype=np.float32)
 
-        ang = freud.order.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
 
         # Should find that the angular separation between the first particle
@@ -149,7 +149,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         ors = np.asarray(ors, dtype=np.float32)
 
-        ang = freud.order.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeGlobal(global_ors, ors, equiv_quats)
 
         # Each orientation should be either equal to or pi/16 away from the

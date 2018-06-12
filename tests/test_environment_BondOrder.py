@@ -12,7 +12,7 @@ class TestBondOrder(unittest.TestCase):
         quats = np.zeros((len(positions), 4), dtype=np.float32)
         quats[:, 0] = 1
 
-        bo = freud.order.BondOrder(1.5, 0, 12, 6, 6)
+        bo = freud.environment.BondOrder(1.5, 0, 12, 6, 6)
         bo.compute(box, positions, quats, positions, quats)
 
         self.assertEqual(np.sum(bo.bond_order > 0), 12)
