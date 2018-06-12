@@ -127,7 +127,7 @@ std::shared_ptr<float> BondOrder::getBondOrder()
     return m_bo_array;
     }
 
-void BondOrder::resetBondOrder()
+void BondOrder::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {

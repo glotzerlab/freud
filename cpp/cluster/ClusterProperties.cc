@@ -48,17 +48,17 @@ void ClusterProperties::computeProperties(const box::Box& box,
     m_cluster_com = std::shared_ptr< vec3<float> >(
             new vec3<float>[m_num_clusters],
             std::default_delete< vec3<float>[]>());
-    memset(m_cluster_com.get(), 0, sizeof(vec3<float>)*m_num_clusters);
+    memset((void*)m_cluster_com.get(), 0, sizeof(vec3<float>)*m_num_clusters);
 
     m_cluster_G = std::shared_ptr<float>(
             new float[m_num_clusters*3*3],
             std::default_delete<float[]>());
-    memset(m_cluster_G.get(), 0, sizeof(float)*m_num_clusters*3*3);
+    memset((void*)m_cluster_G.get(), 0, sizeof(float)*m_num_clusters*3*3);
 
     m_cluster_size = std::shared_ptr<unsigned int>(
             new unsigned int[m_num_clusters],
             std::default_delete<unsigned int[]>());
-    memset(m_cluster_size.get(), 0, sizeof(unsigned int)*m_num_clusters);
+    memset((void*)m_cluster_size.get(), 0, sizeof(unsigned int)*m_num_clusters);
 
     // ref_particle is the first particle found in a cluster, it is used as a
     // reference to compute the COM in relation to, for handling of the

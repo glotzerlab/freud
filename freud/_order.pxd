@@ -16,7 +16,7 @@ cdef extern from "BondOrder.h" namespace "freud::order":
     cdef cppclass BondOrder:
         BondOrder(float, float, unsigned int, unsigned int, unsigned int)
         const box.Box & getBox() const
-        void resetBondOrder()
+        void reset()
         void accumulate(box.Box & ,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
@@ -42,7 +42,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                 float*,
                 unsigned int,
                 unsigned int)
-        void resetCubaticOrderParameter()
+        void reset()
         void compute(quat[float]*,
                      unsigned int,
                      unsigned int) nogil except +
@@ -62,7 +62,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
 cdef extern from "NematicOrderParameter.h" namespace "freud::order":
     cdef cppclass NematicOrderParameter:
         NematicOrderParameter(vec3[float])
-        void resetNematicOrderParameter()
+        void reset()
         void compute(quat[float]*,
                      unsigned int) nogil except +
         unsigned int getNumParticles()
@@ -240,7 +240,7 @@ cdef extern from "Pairing2D.h" namespace "freud::order":
     cdef cppclass Pairing2D:
         Pairing2D(const float, const unsigned int, float)
         const box.Box & getBox() const
-        void resetBondOrder()
+        void reset()
         void compute(box.Box & ,
                      const freud._locality.NeighborList*,
                      vec3[float]*,

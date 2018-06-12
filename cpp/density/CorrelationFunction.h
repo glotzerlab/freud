@@ -58,7 +58,7 @@ class CorrelationFunction
             }
 
         //! Reset the PCF array to all zeros
-        void resetCorrelationFunction();
+        void reset();
 
         //! accumulate the correlation function
         void accumulate(const box::Box &box,

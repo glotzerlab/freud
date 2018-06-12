@@ -1,7 +1,6 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
-
 import numpy as np
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
@@ -38,7 +37,7 @@ cdef class _PMFT:
 
     def resetPCF(self):
         """Resets the values of the PCF histograms in memory."""
-        self.pmftptr.resetPCF()
+        self.pmftptr.reset()
 
     def reducePCF(self):
         """Reduces the histogram in the values over N processors to a single
@@ -231,7 +230,7 @@ cdef class PMFTR12(_PMFT):
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.pmftr12ptr.resetPCF()
+        self.pmftr12ptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -563,7 +562,7 @@ cdef class PMFTXYT(_PMFT):
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.pmftxytptr.resetPCF()
+        self.pmftxytptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -869,7 +868,7 @@ cdef class PMFTXY2D(_PMFT):
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.pmftxy2dptr.resetPCF()
+        self.pmftxy2dptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -1062,7 +1061,7 @@ cdef class PMFTXYZ(_PMFT):
 
     def resetPCF(self):
         """Resets the values of the PCF histograms in memory."""
-        self.pmftxyzptr.resetPCF()
+        self.pmftxyzptr.reset()
 
     def accumulate(self, box, ref_points, ref_orientations, points,
                    orientations, face_orientations=None, nlist=None):
@@ -1239,7 +1238,7 @@ cdef class PMFTXYZ(_PMFT):
                                  dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.pmftxyzptr.resetPCF()
+        self.pmftxyzptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, face_orientations, nlist)
         return self

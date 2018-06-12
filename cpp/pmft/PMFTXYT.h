@@ -26,7 +26,7 @@ class PMFTXYT : public PMFT
         PMFTXYT(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_t);
 
         //! Reset the PCF array to all zeros
-        virtual void resetPCF();
+        virtual void reset();
 
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf

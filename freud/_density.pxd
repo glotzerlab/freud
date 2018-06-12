@@ -10,7 +10,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
         CorrelationFunction(float, float)
         const box.Box & getBox() const
-        void resetCorrelationFunction()
+        void reset()
         void accumulate(const box.Box &, const freud._locality.NeighborList*,
                         const vec3[float]*, const T*,
                         unsigned int,
@@ -32,7 +32,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
                         float,
                         float)
         const box.Box & getBox() const
-        void resetDensity()
+        void reset()
         void reduceDensity()
         void compute(
                 const box.Box &,
@@ -62,7 +62,7 @@ cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
         RDF(float, float, float)
         const box.Box & getBox() const
-        void resetRDF()
+        void reset()
         void accumulate(box.Box & ,
                         const freud._locality.NeighborList*,
                         const vec3[float]*,

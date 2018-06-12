@@ -165,8 +165,7 @@ cdef class FloatCF:
         return self.getBox()
 
     def getBox(self):
-        """
-        Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -174,10 +173,9 @@ cdef class FloatCF:
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
+        """Resets the values of the correlation function histogram in memory.
         """
-        Resets the values of the correlation function histogram in memory
-        """
-        self.thisptr.resetCorrelationFunction()
+        self.thisptr.reset()
 
     def compute(self, box, ref_points, refValues, points, values, nlist=None):
         """
@@ -206,7 +204,7 @@ cdef class FloatCF:
                       dtype= :class:`numpy.float64`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetCorrelationFunction()
+        self.thisptr.reset()
         self.accumulate(box, ref_points, refValues, points, values, nlist)
         return self
 
@@ -417,7 +415,7 @@ cdef class ComplexCF:
         """
         Resets the values of the correlation function histogram in memory
         """
-        self.thisptr.resetCorrelationFunction()
+        self.thisptr.reset()
 
     def compute(self, box, ref_points, refValues, points, values, nlist=None):
         """
@@ -446,7 +444,7 @@ cdef class ComplexCF:
                         dtype= :class:`numpy.complex128`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetCorrelationFunction()
+        self.thisptr.reset()
         self.accumulate(box, ref_points, refValues, points, values, nlist)
         return self
 
@@ -619,7 +617,7 @@ cdef class GaussianDensity:
         """
         Resets the values of GaussianDensity in memory
         """
-        self.thisptr.resetDensity()
+        self.thisptr.reset()
 
 cdef class LocalDensity:
     """ Computes the local density around a particle.
@@ -895,15 +893,14 @@ cdef class RDF:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetRDF()
+        self.thisptr.reset()
         self.accumulate(box, ref_points, points, nlist)
         return self
 
     def resetRDF(self):
+        """Resets the values of RDF in memory.
         """
-        Resets the values of RDF in memory
-        """
-        self.thisptr.resetRDF()
+        self.thisptr.reset()
 
     def reduceRDF(self):
         """

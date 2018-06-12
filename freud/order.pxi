@@ -207,10 +207,9 @@ cdef class BondOrder:
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
     def resetBondOrder(self):
+        """Resets the values of the bond order in memory.
         """
-        resets the values of the bond order in memory
-        """
-        self.thisptr.resetBondOrder()
+        self.thisptr.reset()
 
     def compute(self, box, ref_points, ref_orientations, points, orientations,
                 mode="bod", nlist=None):
@@ -241,7 +240,7 @@ cdef class BondOrder:
         :type mode: str
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetBondOrder()
+        self.thisptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, mode, nlist)
         return self
@@ -849,7 +848,7 @@ cdef class LocalDescriptors:
                      particle orientations, or 'global' to not rotate
                      environments
         :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds or 'precomputed' if using :py:fun:`computeNList`
+                      find bonds or 'precomputed' if using :py:meth:`~.computeNList`
         :type points_ref: :class:`numpy.ndarray`,
                           shape= :math:`\\left(N_{particles}, 3 \\right)`,
                           dtype= :class:`numpy.float32`
