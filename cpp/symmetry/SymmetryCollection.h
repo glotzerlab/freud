@@ -186,6 +186,7 @@ class SymmetryCollection
         const float OPTIMIZEEND   = 1e-6;
         const float OPTIMIZESCALE = 0.9;
         bool debug = false;
+        float rmax = 1.5;
 
 
     };
