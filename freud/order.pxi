@@ -1493,7 +1493,7 @@ cdef class LocalQlNear(LocalQl):
     def __cinit__(self, box, rmax, l, kn=12):
         # Note that we cannot leverage super here because the
         # type conditional in the parent will prevent it.
-        # Unforunately, this is necessary for proper memory
+        # Unfortunately, this is necessary for proper memory
         # management in this inheritance structure.
         cdef _box.Box l_box
         if type(self) == LocalQlNear:
@@ -1588,7 +1588,9 @@ cdef class LocalWl(LocalQl):
     :param float rmax: Cutoff radius for the local order parameter. Values near
                        first minima of the RDF are recommended
     :param l: Spherical harmonic quantum number l.  Must be a positive number
-    :param float rmin: can look at only the second shell or some arbitrary RDF
+    :param float rmin: Lower bound for computing the local order parameter.
+                       Allows looking at, for instance, only the second shell,
+                       or some other arbitrary rdf region.
     :type box: :py:class:`freud.box.Box`
     :type l: unsigned int
 

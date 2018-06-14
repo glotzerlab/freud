@@ -48,8 +48,9 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
     // This normalization happens in the Ql calculation but
     // not for Wl, so we need to undo it. In that calculation
-    // the quantity is multiplied and then the result is square
-    // rooted, so here we just divide by the square root.
+    // the quantity is multiplied by the normalization factor
+    // and then the result is square rooted, so here we just
+    // divide by the square root.
     float normalizationfactor = sqrt(4*M_PI/(2*m_l+1));
 
     // Get wigner3j coefficients from wigner3j.cc

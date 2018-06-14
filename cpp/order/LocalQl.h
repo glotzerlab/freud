@@ -15,16 +15,16 @@
 #define _LOCAL_QL_H__
 
 /*! \file LocalQl.h
-    \brief Compute the Ql LocalQl order parameter.
+    \brief Compute the Ql Steinhardt order parameter.
 */
 
 namespace freud {
 namespace order {
 
-//! Compute the local LocalQl rotationally invariant Ql order parameter for a set of points
+//! Compute the Steinhardt local rotationally invariant Ql order parameter for a set of points
 /*!
- * Implements the local rotationally invariant Ql order parameter described
- * by LocalQl. For a particle i, we calculate the average Q_l by summing
+ * Implements the rotationally invariant Ql order parameter described
+ * by Steinhardt. For a particle i, we calculate the average Q_l by summing
  * the spherical harmonics between particle i and its neighbors j in a local
  * region:
  * \f$ \overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),\phi(\vec{r}_{ij})) \f$
@@ -33,13 +33,13 @@ namespace order {
  * orientational order as follows:
  * \f$ Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }  \f$
  *
- * For more details see PJ LocalQl (1983) (DOI: 10.1103/PhysRevB.28.784)
+ * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
  *
- * The computeAve functions compute a variation of the LocalQl Ql order parameter that attempts to account for a second neighbor shell.
+ * The computeAve functions compute a variation of the Steinhardt Ql order parameter that attempts to account for a second neighbor shell.
  * For a particle i, we calculate the average Q_l by summing the spherical
  * harmonics between particle i and its neighbors j and the neighbors k of
  * neighbor j in a local region:
- * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+ * For more details see Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
  *
  * The computeNorm method normalizes the Ql value by the average qlm value for the system.
 */

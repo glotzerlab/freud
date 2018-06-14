@@ -28,7 +28,7 @@ namespace freud { namespace order {
  * harmonics between particle i and its neighbors j and the neighbors k of
  * neighbor j in a local region:
  *
- * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+ * For more details see Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
 
 class LocalWl : public LocalQl
