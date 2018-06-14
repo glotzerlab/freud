@@ -207,10 +207,9 @@ cdef class BondOrder:
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
     def resetBondOrder(self):
+        """Resets the values of the bond order in memory.
         """
-        resets the values of the bond order in memory
-        """
-        self.thisptr.resetBondOrder()
+        self.thisptr.reset()
 
     def compute(self, box, ref_points, ref_orientations, points, orientations,
                 mode="bod", nlist=None):
@@ -241,7 +240,7 @@ cdef class BondOrder:
         :type mode: str
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetBondOrder()
+        self.thisptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, mode, nlist)
         return self

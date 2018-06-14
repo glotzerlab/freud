@@ -41,9 +41,9 @@ class BondOrder
             }
 
         //! Reset the bond order array to all zeros
-        void resetBondOrder();
+        void reset();
 
-        //! accumulate the bond order
+        //! Accumulate the bond order
         void accumulate(box::Box& box,
                         const freud::locality::NeighborList *nlist,
                         vec3<float> *ref_points,
@@ -56,16 +56,16 @@ class BondOrder
 
         void reduceBondOrder();
 
-        //! Get a reference to the last computed rdf
+        //! Get a reference to the last computed bond order
         std::shared_ptr<float> getBondOrder();
 
-        //! Get a reference to the r array
+        //! Get a reference to the theta array
         std::shared_ptr<float> getTheta()
             {
             return m_theta_array;
             }
 
-        //! Get a reference to the N_r array
+        //! Get a reference to the phi array
         std::shared_ptr<float> getPhi()
             {
             return m_phi_array;

@@ -185,7 +185,7 @@ unsigned int RDF::getNBins()
 //! \internal
 /*! \brief Function to reset the rdf array if needed e.g. calculating between new particle types
 */
-void RDF::resetRDF()
+void RDF::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
