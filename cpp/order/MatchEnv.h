@@ -13,12 +13,11 @@
 #include <stdexcept>
 #include <vector>
 
-#include <boost/bimap.hpp>
-
 #include "box.h"
 #include "VectorMath.h"
 #include "Cluster.h"
 #include "NearestNeighbors.h"
+#include "BiMap.h"
 #include "brute_force.h"
 
 /*! \file MatchEnv.h
@@ -66,7 +65,7 @@ class EnvDisjointSet
         //! Constructor
         EnvDisjointSet(unsigned int Np);
         //! Merge two sets
-        void merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation);
+        void merge(const unsigned int a, const unsigned int b, BiMap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation);
         //! Find the set with a given element
         unsigned int find(const unsigned int c);
         //! Return ALL nodes in the tree that correspond to the head index m
@@ -135,7 +134,7 @@ class MatchEnv
         //! The threshold is a unitless number, which we multiply by the length scale of the MatchEnv instance, rmax.
         //! This quantity is the maximum squared magnitude of the vector difference between two vectors, below which you call them matching.
         //! The bool registration controls whether we first use brute force registration to orient the second set of vectors such that it minimizes the RMSD between the two sets
-        std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration);
+        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration);
 
         //! Overload: is the set of vectors refPoints1 similar to the set of vectors refPoints2?
         //! Construct the environments accordingly, and utilize isSimilar() as above.
@@ -151,7 +150,7 @@ class MatchEnv
         // NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't figure out the optimal permutation
         // of BOTH sets of vectors to minimize the RMSD. Rather, it just figures out the optimal permutation of the second set, the vector set used in the argument below.
         // To fully solve this, we need to use the Hungarian algorithm or some other way of solving the so-called assignment problem.
-        std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration);
+        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration);
 
         // Overload: Get the somewhat-optimal RMSD between the set of vectors refPoints1 and the set of vectors refPoints2.
         // Construct the environments accordingly, and utilize minimizeRMSD() as above.
