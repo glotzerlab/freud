@@ -91,6 +91,16 @@ set(FREUD_SOURCES
             cluster/Cluster.cc
             cluster/ClusterProperties.h
             cluster/ClusterProperties.cc
+            environment/AngularSeparation.h
+            environment/AngularSeparation.cc
+            environment/BondOrder.h
+            environment/BondOrder.cc
+            environment/LocalDescriptors.h
+            environment/LocalDescriptors.cc
+            environment/Pairing2D.cc
+            environment/Pairing2D.h
+            environment/MatchEnv.h
+            environment/MatchEnv.cc
             order/HexOrderParameter.h
             order/HexOrderParameter.cc
             order/TransOrderParameter.h
@@ -99,19 +109,19 @@ set(FREUD_SOURCES
             order/CubaticOrderParameter.cc
             order/NematicOrderParameter.h
             order/NematicOrderParameter.cc
-            order/AngularSeparation.h
-            order/AngularSeparation.cc
-            order/BondOrder.h
-            order/BondOrder.cc
-            order/LocalDescriptors.h
-            order/LocalDescriptors.cc
+            order/LocalQl.h
+            order/LocalQl.cc
+            order/LocalWl.h
+            order/LocalWl.cc
+            order/SolLiq.h
+            order/SolLiq.cc
+            order/wigner3j.cc
+            order/wigner3j.h
             util/Index1D.h
             util/HOOMDMath.h
             util/HOOMDMatrix.cc
             interface/InterfaceMeasure.cc
             interface/InterfaceMeasure.h
-            order/Pairing2D.cc
-            order/Pairing2D.h
             pmft/PMFT.cc
             pmft/PMFT.h
             pmft/PMFTXYZ.cc
@@ -125,16 +135,6 @@ set(FREUD_SOURCES
             shapesplit/shapesplit.cc
             shapesplit/shapesplit.h
             interface/InterfaceMeasure.h
-            order/LocalQl.h
-            order/LocalQl.cc
-            order/LocalWl.h
-            order/LocalWl.cc
-            order/SolLiq.h
-            order/SolLiq.cc
-            order/MatchEnv.h
-            order/MatchEnv.cc
-            order/wigner3j.cc
-            order/wigner3j.h
             parallel/tbb_config.h
             parallel/tbb_config.cc
             registration/brute_force.h
