@@ -21,8 +21,7 @@ using namespace std;
 namespace freud { namespace symmetry {
 
     SymmetryCollection::SymmetryCollection(unsigned int maxL) :
-    m_maxL(maxL), m_symmetric_orientation(quat<float>())
-    {
+    m_maxL(maxL), m_symmetric_orientation(quat<float>()) {
         m_Mlm = shared_ptr<float>(new float[(m_maxL + 1) * (m_maxL + 1)],
                                            default_delete<float[]>());
 
@@ -32,24 +31,10 @@ namespace freud { namespace symmetry {
                                            default_delete<float[]>());
 
         memset((void*)m_Mlm_rotated.get(), 0, sizeof(float)*((m_maxL + 1) * (m_maxL + 1)));
-        //int a = (1/6) * (1 + m_maxL) * (2 + m_maxL) * (3 + 2*m_maxL);
-
-        // cout << "constructor starts" << endl;
-        // for (int l = 0; l < (m_maxL + 1) * (m_maxL + 1); ++l) {
-        //     cout << m_Mlm_rotated.get()[l] << " ";
-        //     if( l == a*a+2*a) {
-        //         ++a;
-        //         cout << endl;
-        //     }
-        // }
-        // cout <<endl;
-        // cout << "constructor ends" << endl;
-
-
+       
         WDTable.resize(10416);
         m_highest_symm_quat.s = 1.0f;
         m_highest_symm_quat.v = {0.0f, 0.0f, 0.0f};
-
 
         for (int i = 0; i < LENGTH; ++i) {
 
@@ -114,6 +99,9 @@ namespace freud { namespace symmetry {
                     (type == MIRROR && (m >= l * (l + 1))) || 
                     (type >= 2 && (count % type == 0))) {
                     ++numSelect;
+                if (debug) {
+                     cout << "l: " << l << " m: " << m << " Mlm: " << Mlm.get()[m] << endl;
+                }
                     select += Mlm.get()[m] * Mlm.get()[m];
                 }
             }
@@ -136,7 +124,6 @@ namespace freud { namespace symmetry {
                                         const vec3<float> *points,
                                         const freud::locality::NeighborList *nlist,
                                         unsigned int Np) {
-        //cout << endl << "beginning" << endl;
         m_box = box;
         unsigned int Nbonds = nlist->getNumBonds();
         const size_t *neighbor_list = nlist->getNeighbors();
@@ -166,8 +153,7 @@ namespace freud { namespace symmetry {
                 }
             }
         }
-        //cout << "ending" << endl;
-
+        cout << "valid bonds are: " << valid_bonds << endl;
 
         // cout << "1.check computermlm starts1" << endl;
         // cout << "before anything starts.. " << endl;
@@ -197,14 +183,11 @@ namespace freud { namespace symmetry {
                     m = 0;
                 }
                 if (m == 0) {
-                    m_Mlm.get()[l0_index] += (*iter).real();
-                    //cout <<"fsph eval2: " << m_Mlm.get()[l0_index] << " " << endl;
+                    m_Mlm.get()[l0_index] += (*iter).real() / 2; //normalize Mlm 
                 } else {
                     
-                    m_Mlm.get()[l0_index + m] += sqrt(2) * (*iter).real();
-                    //cout <<"fsph l0_index + m: " << m_Mlm.get()[l0_index + m]<< " " << endl;
-                    m_Mlm.get()[l0_index - m] += sqrt(2) * (*iter).imag();
-                    //cout <<"fsph l0_index - m: " << m_Mlm.get()[l0_index - m] << " " << endl;
+                    m_Mlm.get()[l0_index + m] += sqrt(2) / 2 * (*iter).real(); //normalize Mlm 
+                    m_Mlm.get()[l0_index - m] += sqrt(2) / 2 * (*iter).imag(); //normalize Mlm 
                 }
                 m++;
             }
@@ -239,6 +222,14 @@ namespace freud { namespace symmetry {
 
         computeMlm(box, points, nlist, Np);
         symmetrize(false);
+        //test starts
+        shared_ptr<float> Mlm2 = getMlm_rotated();
+        for (Symmetry &symmetry: SYMMETRIES) {
+            debug = true;
+            //cout << "Measuring symmetry " << symmetry.type << ": " << measure(Mlm2, symmetry.type) << endl;
+            debug = false;
+        }
+        //test ends
     }
 
     //utility function
@@ -344,7 +335,7 @@ namespace freud { namespace symmetry {
     
             // m = -mprime:
             WDTable[WDindex(j, j - 1, 1 - j)] = (ss * WDTable[WDindex(j - 1, j - 2, 2 - j)] -
-                                                 s  * WDTable[WDindex(j - 1, j - 1, -j)] * Npn / Npp);
+                                                 s  * WDTable[WDindex(j - 1, j - 1, 2 - j)] * Npn / Npp);
         
             // -mprime < m < mprime:
             for (int m = -j + 2; m < j - 1; ++m) {
@@ -408,7 +399,7 @@ namespace freud { namespace symmetry {
                 for (int m = 1; m < mprime; ++m) {
                     float WD1 = WDTable[WDindex(j, mprime, m)];
                     float WD2 = WDTable[WDindex(j, mprime, -m)];
-                    if ((m & 1) != 0) WD2 = -WD2;
+                    if ((m & 1) != 0) WD2 = -WD2;//ASK
                     mmp += (WD1 + WD2) * m_Mlm_rotated.get()[j * (j + 1) + m] ;
                     mmm += (WD1 - WD2) * m_Mlm_rotated.get()[j * (j + 1) - m] ;
                 }
@@ -416,8 +407,8 @@ namespace freud { namespace symmetry {
                 for (int m = mprime; m <= j; ++m) {
                     float WD1 = WDTable[WDindex(j, m, mprime)];
                     float WD2 = WDTable[WDindex(j, m, -mprime)];
-                    if ((mprime & 1) != 0) WD1 = -WD1;
-                    if ((m & 1) != 0) WD2 = -WD2;
+                    if ((mprime & 1) != 0) WD1 = -WD1; //ASK
+                    if ((m & 1) != 0) WD2 = -WD2;//ASk
                     mmp += (WD1 + WD2) * m_Mlm_rotated.get()[j * (j + 1) + m];
                     mmm += (WD1 - WD2) * m_Mlm_rotated.get()[j * (j + 1) - m];
                 }
@@ -678,7 +669,19 @@ namespace freud { namespace symmetry {
             if (!found) step *= OPTIMIZESCALE;
         } while (step >= OPTIMIZEEND);
         m_highest_symm_quat = quaternion;
-        cout << "order is: " << order << endl;
+        //cout << "order is: " << order << endl;
+
+        // cout << "test optimize() starts" << endl;
+        //  cout << "[" << m_highest_symm_quat.s << ", " << m_highest_symm_quat.v.x 
+        //         << ", " << m_highest_symm_quat.v.y << ", " << m_highest_symm_quat.v.z << "]" <<endl;
+        rotate(m_highest_symm_quat);
+        // for (Symmetry sym: SYMMETRIES) {
+        //     cout << sym.type << ": " <<  measure(getMlm_rotated(), sym.type) << endl;
+
+        // }
+        //cout << "test optimize() ends" << endl;
+
+
         return order;
     }
 
@@ -722,6 +725,11 @@ namespace freud { namespace symmetry {
         highestSymmetry = searchSymmetry(true);
         if (highestSymmetry == TOTAL) return;
         optimize(true, findSymmetry(highestSymmetry));
+
+
+        
+
+        
 
         // print gData.rotation
         // copy Mlm2 code above

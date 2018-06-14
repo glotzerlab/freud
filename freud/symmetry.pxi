@@ -75,7 +75,7 @@ cdef class SymmetryCollection:
         #cdef np.npy_intp nbins[1]
        # nbins[0] = <np.npy_intp > self.thisptr.getMaxL()
 
-        return self.thisptr.measure(self.thisptr.getMlm(), type)
+        return self.thisptr.measure(self.thisptr.getMlm_rotated(), type)
 
 
     def getMlm(self):

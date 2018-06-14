@@ -47,22 +47,18 @@ class SymmetryCollection
                      const vec3<float> *points,
                      const freud::locality::NeighborList *nlist,
                      unsigned int Np);
-        
-        //! fill in Mlm table
-        float measure(std::shared_ptr<float> Mlm, int type);
+       
 
         quat<float> initMirrorZ(const vec3<float> &p);
 
 
-        //helper functions
-        //rotate Mlm array by certain quat
-        void rotate(const quat<float> &q);//private function
+        
 
         int WDindex(int j, int mprime, int m);//private function
 
         vector<float> toEulerAngles323(const quat<float> &q);//private function
 
-        int searchSymmetry(bool perpendicular);
+       
 
 
 
@@ -117,16 +113,32 @@ class SymmetryCollection
             return m_maxL;
         }
 
+        void toLaueGroup(); //from symmetrize(), identify Laue group
+
+
         struct Symmetry {
             int type;
             float threshold;
         };
-        
-        Symmetry *findSymmetry(int type);//need to be private at last
+
+        //! fill in Mlm table
+        float measure(std::shared_ptr<float> Mlm, int type);
 
         float optimize(bool perpendicular, Symmetry *symm);
 
+        Symmetry *findSymmetry(int type);//need to be private at last
+
+        //helper functions
+        //rotate Mlm array by certain quat
+        void rotate(const quat<float> &q);//private function
+
+        int searchSymmetry(bool perpendicular);
+
         void symmetrize(bool onlyLocal);
+
+        quat<float> getHighestSymmetryQuat() {
+            return m_highest_symm_quat;
+        }
 
         quat<float> normalize(quat<float> &q) { //private helper function, normalize a quaternion.
             float norm = 1.0f / sqrt(norm2(q));
@@ -138,9 +150,7 @@ class SymmetryCollection
             return q;
         }
 
-        quat<float> getHighestSymmetryQuat() {
-            return m_highest_symm_quat;
-        }
+        
 
     private:
         box::Box m_box;
@@ -175,6 +185,7 @@ class SymmetryCollection
         const float OPTIMIZESTART = 0.5;
         const float OPTIMIZEEND   = 1e-6;
         const float OPTIMIZESCALE = 0.9;
+        bool debug = false;
 
 
     };
