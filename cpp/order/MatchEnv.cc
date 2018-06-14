@@ -20,7 +20,9 @@ EnvDisjointSet::EnvDisjointSet(unsigned int Np)
 // of set a are on the left and those of set b are on the right.
 // The rotation must take the set of PROPERLY ROTATED vectors b and rotate
 // them to match the set of PROPERLY ROTATED vectors a
-void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bimap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation)
+void EnvDisjointSet::merge(
+        const unsigned int a, const unsigned int b,
+        BiMap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation)
     {
     assert(a < s.size() && b < s.size());
     assert(s[a].vecs.size() == s[b].vecs.size());
@@ -48,8 +50,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
             for (unsigned int proper_a_ind=0;
                  proper_a_ind<vec_map.size(); proper_a_ind++)
                 {
-                boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(proper_a_ind);
-                unsigned int proper_b_ind = it->second;
+                unsigned int proper_b_ind = vec_map.left[proper_a_ind];
 
                 // old_node_vec_ind[proper_b_ind] is "relative_b_ind"
                 s[node].vec_ind[proper_a_ind] = old_node_vec_ind[proper_b_ind];
@@ -91,8 +92,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 for (unsigned int proper_a_ind=0;
                      proper_a_ind<vec_map.size(); proper_a_ind++)
                     {
-                    boost::bimap<unsigned int, unsigned int>::left_const_iterator it = vec_map.left.find(proper_a_ind);
-                    unsigned int proper_b_ind = it->second;
+                    unsigned int proper_b_ind = vec_map.left[proper_a_ind];
 
                     // old_node_vec_ind[proper_b_ind] is "relative_b_ind"
                     s[node].vec_ind[proper_a_ind] = old_node_vec_ind[proper_b_ind];
@@ -130,8 +130,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b, boost::bi
                 for (unsigned int proper_b_ind=0;
                      proper_b_ind<vec_map.size(); proper_b_ind++)
                     {
-                    boost::bimap<unsigned int, unsigned int>::right_const_iterator it = vec_map.right.find(proper_b_ind);
-                    unsigned int proper_a_ind = it->second;
+                    unsigned int proper_a_ind = vec_map.right[proper_b_ind];
 
                     // old_node_vec_ind[proper_a_ind] is "relative_a_ind"
                     s[node].vec_ind[proper_b_ind] = old_node_vec_ind[proper_a_ind];
@@ -318,10 +317,11 @@ MatchEnv::~MatchEnv()
 
 // Build and return a local environment surrounding a particle.
 // Label its environment with env_ind.
-Environment MatchEnv::buildEnv(const size_t *neighbor_list, size_t num_bonds,
-                               size_t &bond, const vec3<float> *points,
-                               unsigned int i, unsigned int env_ind,
-                               bool hard_r)
+Environment MatchEnv::buildEnv(
+        const size_t *neighbor_list, size_t num_bonds,
+        size_t &bond, const vec3<float> *points,
+        unsigned int i, unsigned int env_ind,
+        bool hard_r)
     {
     Environment ei = Environment();
     // set the environment index equal to the particle index
@@ -356,17 +356,17 @@ Environment MatchEnv::buildEnv(const size_t *neighbor_list, size_t num_bonds,
 // The bool registration controls whether we first use brute force registration
 // to orient the second set of vectors such that it minimizes the RMSD between
 // the two sets.
-std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::isSimilar(
+std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > MatchEnv::isSimilar(
         Environment& e1, Environment& e2, float threshold_sq, bool registration)
     {
-    boost::bimap<unsigned int, unsigned int> vec_map;
+    BiMap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
 
     // If the vector sets do not have equal numbers of vectors, just return
     // an empty map since the 1-1 bimapping will be too weird in this case.
     if (e1.vecs.size() != e2.vecs.size())
         {
-        return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map);
+        return std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> >(rotation, vec_map);
         }
 
     std::vector< vec3<float> > v1(e1.vecs.size());
@@ -391,19 +391,20 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
         // this must be a 3x3 matrix. if it isn't, something has gone wrong.
         assert(rot.size() == 3);
         rotation = rotmat3<float>(rot[0], rot[1], rot[2]);
-        boost::bimap<unsigned int, unsigned int> tmp_vec_map = r.getVecMap();
+        BiMap<unsigned int, unsigned int> tmp_vec_map = r.getVecMap();
 
-        for (boost::bimap<unsigned int, unsigned int>::const_iterator it = tmp_vec_map.begin(); it != tmp_vec_map.end(); ++it)
+        for (BiMap<unsigned int, unsigned int>::const_iterator it = tmp_vec_map.begin();
+                it != tmp_vec_map.end(); ++it)
             {
             // RegisterBruteForce has found the vector mapping that results in
             // minimal RMSD, as best as it can figure out.
             // Does this vector mapping pass the more stringent criterion
             // imposed by the threshold?
-            vec3<float> delta = v1[it->left] - v2[it->right];
+            vec3<float> delta = v1[(*it)->first] - v2[(*it)->second];
             float rsq = dot(delta, delta);
             if (rsq < threshold_sq*m_rmaxsq)
                 {
-                vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(it->left, it->right));
+                vec_map.emplace((*it)->first, (*it)->second);
                 }
             }
         }
@@ -423,7 +424,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
                     // since this is a bimap, this (i,j) pair is only inserted
                     // if j has not already been assigned an i pairing.
                     // (ditto with i not being assigned a j pairing)
-                    vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(i, j));
+                    vec_map.emplace(i, j);
                     }
                 }
             }
@@ -433,13 +434,13 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
     // if every vector has been paired with every other vector, return this bimap
     if (vec_map.size() == e1.vecs.size())
         {
-        return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map);
+        return std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> >(rotation, vec_map);
         }
     // otherwise, return an empty bimap
     else
         {
-        boost::bimap<unsigned int, unsigned int> empty_map;
-        return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, empty_map);
+        BiMap<unsigned int, unsigned int> empty_map;
+        return std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> >(rotation, empty_map);
         }
     }
 
@@ -449,7 +450,9 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::i
 // The bool registration controls whether we first use brute force registration
 // to orient the second set of vectors such that it minimizes the RMSD between
 // the two sets. If registration=True, then refPoints2 is CHANGED by this function.
-std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float threshold_sq, bool registration)
+std::map<unsigned int, unsigned int> MatchEnv::isSimilar(
+        const vec3<float> *refPoints1, vec3<float> *refPoints2,
+        unsigned int numRef, float threshold_sq, bool registration)
     {
     assert(refPoints1);
     assert(refPoints2);
@@ -481,18 +484,17 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refP
         }
 
     // call isSimilar for e0 and e1
-    std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = isSimilar(
+    std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > mapping = isSimilar(
             e0, e1, threshold_sq, registration);
     rotmat3<float> rotation = mapping.first;
-    boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+    BiMap<unsigned int, unsigned int> vec_map = mapping.second;
 
-    // convert to a std::map
-    // the lamest.
-    // from stackoverflow.com/questions/20667187/convert-boostbimap-to-stdmap
+    // Convert BiMap to a std::map
     std::map<unsigned int, unsigned int> std_vec_map;
-    for (boost::bimap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
+    for (BiMap<unsigned int, unsigned int>::const_iterator it = vec_map.begin();
+            it != vec_map.end(); ++it)
         {
-        std_vec_map[it->left] = it->right;
+        std_vec_map[(*it)->first] = (*it)->second;
         }
 
     // update refPoints2 in case registration has taken place
@@ -520,9 +522,10 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float> *refP
 // the vector set used in the argument below.
 // To fully solve this, we need to use the Hungarian algorithm or some other
 // way of solving the so-called assignment problem.
-std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration)
+std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > MatchEnv::minimizeRMSD(
+        Environment& e1, Environment& e2, float& min_rmsd, bool registration)
     {
-    boost::bimap<unsigned int, unsigned int> vec_map;
+    BiMap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
 
     // If the vector sets do not have equal numbers of vectors, force the map
@@ -531,7 +534,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::m
     if (e1.vecs.size() != e2.vecs.size())
         {
         min_rmsd = -1.0;
-        return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map);
+        return std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> >(rotation, vec_map);
         }
 
     std::vector< vec3<float> > v1(e1.vecs.size());
@@ -567,7 +570,7 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::m
         }
 
     // return the rotation matrix and bimap
-    return std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> >(rotation, vec_map);
+    return std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> >(rotation, vec_map);
     }
 
 // Overload: Get the somewhat-optimal RMSD between the set of vectors
@@ -586,7 +589,9 @@ std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > MatchEnv::m
 // set, the vector set used in the argument below.
 // To fully solve this, we need to use the Hungarian algorithm or some other
 // way of solving the so-called assignment problem.
-std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *refPoints1, vec3<float> *refPoints2, unsigned int numRef, float& min_rmsd, bool registration)
+std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(
+        const vec3<float> *refPoints1, vec3<float> *refPoints2,
+        unsigned int numRef, float& min_rmsd, bool registration)
     {
     assert(refPoints1);
     assert(refPoints2);
@@ -619,17 +624,18 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *r
 
     // call minimizeRMSD for e0 and e1
     float tmp_min_rmsd = -1.0;
-    std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = minimizeRMSD(e0, e1, tmp_min_rmsd, registration);
+    std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > mapping = minimizeRMSD(
+            e0, e1, tmp_min_rmsd, registration);
     rotmat3<float> rotation = mapping.first;
-    boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+    BiMap<unsigned int, unsigned int> vec_map = mapping.second;
     min_rmsd = tmp_min_rmsd;
 
-    // lamely convert to a std::map
-    // from stackoverflow.com/questions/20667187/convert-boostbimap-to-stdmap
+    // Convert BiMap to a std::map
     std::map<unsigned int, unsigned int> std_vec_map;
-    for (boost::bimap<unsigned int, unsigned int>::const_iterator it = vec_map.begin(); it != vec_map.end(); ++it)
+    for (BiMap<unsigned int, unsigned int>::const_iterator it = vec_map.begin();
+            it != vec_map.end(); ++it)
         {
-        std_vec_map[it->left] = it->right;
+        std_vec_map[(*it)->first] = (*it)->second;
         }
 
     // update refPoints2 in case registration has taken place
@@ -644,7 +650,11 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float> *r
 
 // Determine clusters of particles with matching environments
 // This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::cluster(const freud::locality::NeighborList *env_nlist, const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, float threshold, bool hard_r, bool registration, bool global)
+void MatchEnv::cluster(
+        const freud::locality::NeighborList *env_nlist,
+        const freud::locality::NeighborList *nlist,
+        const vec3<float> *points, unsigned int Np, float threshold,
+        bool hard_r, bool registration, bool global)
     {
     assert(points);
     assert(Np > 0);
@@ -695,9 +705,10 @@ void MatchEnv::cluster(const freud::locality::NeighborList *env_nlist, const fre
                 const size_t j(neighbor_list[2*bond + 1]);
                 if (i != j)
                     {
-                    std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
+                    std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > mapping = isSimilar(
+                            dj.s[i], dj.s[j], m_threshold_sq, registration);
                     rotmat3<float> rotation = mapping.first;
-                    boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+                    BiMap<unsigned int, unsigned int> vec_map = mapping.second;
                     // if the mapping between the vectors of the environments
                     // is NOT empty, then the environments are similar, so
                     // merge them.
@@ -717,9 +728,10 @@ void MatchEnv::cluster(const freud::locality::NeighborList *env_nlist, const fre
             // loop over all other particles
             for (unsigned int j = i+1; j < m_Np; j++)
                 {
-                std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
+                std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > mapping = isSimilar(
+                        dj.s[i], dj.s[j], m_threshold_sq, registration);
                 rotmat3<float> rotation = mapping.first;
-                boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+                BiMap<unsigned int, unsigned int> vec_map = mapping.second;
                 // if the mapping between the vectors of the environments
                 // is NOT empty, then the environments are similar, so
                 // merge them.
@@ -742,7 +754,11 @@ void MatchEnv::cluster(const freud::locality::NeighborList *env_nlist, const fre
 
 //! Determine whether particles match a given input motif, characterized by
 //  refPoints (of which there are numRef)
-void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, float threshold, bool registration)
+void MatchEnv::matchMotif(
+        const freud::locality::NeighborList *nlist,
+        const vec3<float> *points, unsigned int Np,
+        const vec3<float> *refPoints, unsigned int numRef,
+        float threshold, bool registration)
     {
     assert(points);
     assert(refPoints);
@@ -804,9 +820,10 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
-        std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = isSimilar(dj.s[0], dj.s[dummy], m_threshold_sq, registration);
+        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > mapping = isSimilar(
+                dj.s[0], dj.s[dummy], m_threshold_sq, registration);
         rotmat3<float> rotation = mapping.first;
-        boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+        BiMap<unsigned int, unsigned int> vec_map = mapping.second;
         // if the mapping between the vectors of the environments is NOT empty,
         // then the environments are similar.
         if (!vec_map.empty())
@@ -832,7 +849,11 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList *nlist, const vec3
 //  set, the vector set used in the argument below.
 //  To fully solve this, we need to use the Hungarian algorithm or some other
 //  way of solving the so-called assignment problem.
-std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np, const vec3<float> *refPoints, unsigned int numRef, bool registration)
+std::vector<float> MatchEnv::minRMSDMotif(
+        const freud::locality::NeighborList *nlist,
+        const vec3<float> *points, unsigned int Np,
+        const vec3<float> *refPoints, unsigned int numRef,
+        bool registration)
     {
     assert(points);
     assert(refPoints);
@@ -894,9 +915,10 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList *n
 
         // if the environment matches e0, merge it into the e0 environment set
         float min_rmsd = -1.0;
-        std::pair<rotmat3<float>, boost::bimap<unsigned int, unsigned int> > mapping = minimizeRMSD(dj.s[0], dj.s[dummy], min_rmsd, registration);
+        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> > mapping = minimizeRMSD(
+                dj.s[0], dj.s[dummy], min_rmsd, registration);
         rotmat3<float> rotation = mapping.first;
-        boost::bimap<unsigned int, unsigned int> vec_map = mapping.second;
+        BiMap<unsigned int, unsigned int> vec_map = mapping.second;
         // populate the min_rmsd vector
         min_rmsd_vec[i] = min_rmsd;
 
