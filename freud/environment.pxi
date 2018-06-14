@@ -14,7 +14,7 @@ from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.memory cimport shared_ptr
 cimport freud._box as _box
-cimport freud._order as order
+cimport freud._environment as environment
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -67,13 +67,13 @@ cdef class BondOrder:
 
     .. todo:: remove k, it is not used as such
     """
-    cdef order.BondOrder * thisptr
+    cdef environment.BondOrder * thisptr
     cdef num_neigh
     cdef rmax
 
     def __cinit__(self, float rmax, float k, unsigned int n,
                   unsigned int n_bins_t, unsigned int n_bins_p):
-        self.thisptr = new order.BondOrder(rmax, k, n, n_bins_t, n_bins_p)
+        self.thisptr = new environment.BondOrder(rmax, k, n, n_bins_t, n_bins_p)
         self.rmax = rmax
         self.num_neigh = n
 
@@ -251,7 +251,7 @@ cdef class BondOrder:
     def reduceBondOrder(self):
         """Reduces the histogram in the values over N processors to a single
         histogram. This is called automatically by
-        :py:meth:`freud.order.BondOrder.getBondOrder()`.
+        :py:meth:`freud.environment.BondOrder.getBondOrder()`.
         """
         self.thisptr.reduceBondOrder()
 
@@ -326,16 +326,16 @@ cdef class LocalDescriptors:
     :type num_neighbors: unsigned int
     :type lmax: unsigned int
     """
-    cdef order.LocalDescriptors * thisptr
+    cdef environment.LocalDescriptors * thisptr
     cdef num_neigh
     cdef rmax
 
-    known_modes = {'neighborhood': order.LocalNeighborhood,
-                   'global': order.Global,
-                   'particle_local': order.ParticleLocal}
+    known_modes = {'neighborhood': environment.LocalNeighborhood,
+                   'global': environment.Global,
+                   'particle_local': environment.ParticleLocal}
 
     def __cinit__(self, num_neighbors, lmax, rmax, negative_m=True):
-        self.thisptr = new order.LocalDescriptors(
+        self.thisptr = new environment.LocalDescriptors(
                 num_neighbors, lmax, rmax, negative_m)
         self.num_neigh = num_neighbors
         self.rmax = rmax
@@ -457,7 +457,7 @@ cdef class LocalDescriptors:
         cdef unsigned int nRef = <unsigned int > points_ref.shape[0]
         cdef np.ndarray[float, ndim = 2] l_points = points
         cdef unsigned int nP = <unsigned int > points.shape[0]
-        cdef order.LocalDescriptorOrientation l_mode
+        cdef environment.LocalDescriptorOrientation l_mode
 
         l_mode = self.known_modes[mode]
 
@@ -581,7 +581,7 @@ cdef class MatchEnv:
     :type box: :class:`freud.box.Box`
     :type k: unsigned int
     """
-    cdef order.MatchEnv * thisptr
+    cdef environment.MatchEnv * thisptr
     cdef rmax
     cdef num_neigh
     cdef m_box
@@ -590,7 +590,7 @@ cdef class MatchEnv:
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.MatchEnv(l_box, rmax, k)
+        self.thisptr = new environment.MatchEnv(l_box, rmax, k)
 
         self.rmax = rmax
         self.num_neigh = k
@@ -1025,13 +1025,13 @@ cdef class Pairing2D:
                              determined
     :type k: unsigned int
     """
-    cdef order.Pairing2D * thisptr
+    cdef environment.Pairing2D * thisptr
     cdef rmax
     cdef num_neigh
 
     def __cinit__(self, rmax, k, compDotTol):
         warnings.warn("This class is deprecated, use freud.bond instead!", FreudDeprecationWarning)
-        self.thisptr = new order.Pairing2D(rmax, k, compDotTol)
+        self.thisptr = new environment.Pairing2D(rmax, k, compDotTol)
         self.rmax = rmax
         self.num_neigh = k
 
@@ -1159,13 +1159,13 @@ cdef class AngularSeparation:
     .. moduleauthor:: Erin Teich & Andrew Karas
 
     """
-    cdef order.AngularSeparation * thisptr
+    cdef environment.AngularSeparation * thisptr
     cdef num_neigh
     cdef rmax
     cdef nlist_
 
     def __cinit__(self, rmax, n):
-        self.thisptr = new order.AngularSeparation()
+        self.thisptr = new environment.AngularSeparation()
         self.rmax = rmax
         self.num_neigh = int(n)
         self.nlist_ = None

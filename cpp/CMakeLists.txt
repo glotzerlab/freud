@@ -49,6 +49,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/voronoi
                     ${CMAKE_CURRENT_SOURCE_DIR}/kspace
                     ${CMAKE_CURRENT_SOURCE_DIR}/order
+                    ${CMAKE_CURRENT_SOURCE_DIR}/environment
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/pmft
                     ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
