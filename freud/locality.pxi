@@ -579,19 +579,20 @@ cdef class LinkCell:
                 dim_message="points must be a 2 dimensional array")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
+
         cdef _box.Box cBox = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        cdef np.ndarray cRefPoints = ref_points
-        cdef unsigned int Nref = ref_points.shape[0]
+        cdef np.ndarray cRef_points = ref_points
+        cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
             self.thisptr.compute(
                     cBox,
-                    < vec3[float]*> cRefPoints.data,
-                    Nref,
+                    < vec3[float]*> cRef_points.data,
+                    n_ref,
                     < vec3[float]*> cPoints.data,
                     Np,
                     c_exclude_ii)
@@ -903,21 +904,21 @@ cdef class NearestNeighbors:
         result[blank_mask] = -1
         return result
 
-    def compute(self, box, ref_points, points, exclude_ii=None):
+    def compute(self, box, ref_points, points=None, exclude_ii=None):
         """Update the data structure for the given set of points.
 
         :param box: simulation box
-        :param ref_points: coordinates of reference points
-        :param points: coordinates of points
+        :param ref_points: reference point coordinates
+        :param points: point coordinates
         :param exclude_ii: True if pairs of points with identical indices should
                            be excluded; if None, is set to True if points is
                            None or the same object as ref_points
         :type box: :py:class:`freud.box.Box`
         :type ref_points: :class:`numpy.ndarray`,
-                          shape=(:math:`N_{particles}`, 3),
+                          shape= :math:`\\left(N_{refpoints}, 3\\right)`,
                           dtype= :class:`numpy.float32`
         :type points: :class:`numpy.ndarray`,
-                      shape=(:math:`N_{particles}`, 3),
+                      shape= :math:`\\left(N_{points}, 3\\right)`,
                       dtype= :class:`numpy.float32`
         """
         exclude_ii = (
@@ -929,6 +930,9 @@ cdef class NearestNeighbors:
                 dim_message="ref_points must be a 2 dimensional array")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
+
+        if points is None:
+            points = ref_points
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
@@ -960,7 +964,6 @@ cdef class NearestNeighbors:
         cdef locality.NeighborList * nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
-
         return self
 
     @property
