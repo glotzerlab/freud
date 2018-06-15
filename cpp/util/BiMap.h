@@ -325,7 +325,7 @@ class BiMap
 
         friend class right;
 
-        void clear  ()
+        void clear ()
             {
             container.clear();
             set_A.clear();
@@ -337,7 +337,7 @@ class BiMap
             return container.empty();
             }
 
-        int  size() const
+        size_t size() const
             {
             return container.size();
             }
