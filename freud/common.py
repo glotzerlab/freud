@@ -34,8 +34,7 @@ def convert_array(array, dimensions, dtype=None,
     :return: array
     :rtype: :py:class:`numpy.ndarray`
     """
-    if not isinstance(array, np.ndarray):
-        array = np.asarray(array)
+    array = np.asarray(array)
 
     if array.ndim != dimensions:
         if dim_message is not None:
