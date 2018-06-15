@@ -6,6 +6,7 @@ import time
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
+from libcpp import nullptr
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
@@ -637,7 +638,7 @@ cdef class LocalQl:
     def __dealloc__(self):
         if type(self) is LocalQl:
             del self.qlptr
-            self.qlptr = NULL
+            self.qlptr = nullptr
 
     @property
     def box(self):
@@ -962,7 +963,7 @@ cdef class LocalQlNear(LocalQl):
     def __dealloc__(self):
         if type(self) == LocalQlNear:
             del self.qlptr
-            self.qlptr = NULL
+            self.qlptr = nullptr
 
     def computeAve(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1068,7 +1069,7 @@ cdef class LocalWl(LocalQl):
     def __dealloc__(self):
         if type(self) is LocalWl:
             del self.thisptr
-            self.thisptr = NULL
+            self.thisptr = nullptr
 
     def __getattribute__(self, name):
         # Remove access to Ql methods from this class, their values may be
@@ -1228,7 +1229,7 @@ cdef class LocalWlNear(LocalWl):
 
     def __dealloc__(self):
         del self.thisptr
-        self.thisptr = NULL
+        self.thisptr = nullptr
 
     def computeAve(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1322,7 +1323,7 @@ cdef class SolLiq:
 
     def __dealloc__(self):
         del self.thisptr
-        self.thisptr = NULL
+        self.thisptr = nullptr
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1649,7 +1650,7 @@ cdef class SolLiqNear(SolLiq):
 
     def __dealloc__(self):
         del self.thisptr
-        self.thisptr = NULL
+        self.thisptr = nullptr
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
