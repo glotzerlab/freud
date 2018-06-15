@@ -32,7 +32,7 @@ references:
       name: Configure
       command: |
         if [ -d build ]; then
-            rmdir build
+            rm -rf build
         fi
         rm freud/_freud.cpp
         mkdir build
