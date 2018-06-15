@@ -72,8 +72,19 @@ class Box(_Box):
         return self.to_dict() == other.to_dict()
 
     @classmethod
-    def from_box(cls, box):
-        """Initialize a box instance from another box instance."""
+    def from_box(cls, box, dimensions=None):
+        """Initialize a box instance from a box-like object.
+
+        :param box: A box-like object
+        :param int dimensions: Dimensionality of the box
+
+        .. note:: Objects that can be converted to freud boxes include
+                  lists of the form [Lx, Ly, Lz, xy, xz, yz], dictionaries with
+                  keys ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'], namedtuples with
+                  properties Lx, Ly, Lz, xy, xz, yz, or existing freud box
+                  objects.
+
+        """
         try:
             # Handles freud.box.Box and namedtuple
             Lx = box.Lx
@@ -82,22 +93,21 @@ class Box(_Box):
             xy = box.xy
             xz = box.xz
             yz = box.yz
-            try:
-                is2D = (box.dimensions == 2)
-            except AttributeError:
-                is2D = (Lz == 0)
+            if dimensions is None:
+                try:
+                    dimensions = box.dimensions
+                except AttributeError:
+                    pass
         except AttributeError:
             try:
                 Lx = box['Lx']
                 Ly = box['Ly']
-                Lz = box['Lz']
-                xy = box['xy']
-                xz = box['xz']
-                yz = box['yz']
-                try:
-                    is2D = (box['dimensions'] == 2)
-                except KeyError:
-                    is2D = (Lz == 0)
+                Lz = box['Lz'] if 'Lz' in box else 0
+                xy = box['xy'] if 'xy' in box else 0
+                xz = box['xz'] if 'xz' in box else 0
+                yz = box['yz'] if 'yz' in box else 0
+                if dimensions is None and 'dimensions' in box:
+                    dimensions = box['dimensions']
             except (KeyError, TypeError):
                 Lx = box[0]
                 Ly = box[1]
@@ -113,9 +123,13 @@ class Box(_Box):
                     xy = 0
                     xz = 0
                     yz = 0
-                is2D = (Lz == 0)
         except Exception:
             raise ValueError('Unable to create Box instance from this box.')
+
+        # The dimensions argument should override the box settings
+        if dimensions is None:
+            dimensions = 2 if Lz == 0 else 3
+        is2D = (dimensions == 2)
         return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
