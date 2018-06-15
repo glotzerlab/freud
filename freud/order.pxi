@@ -1218,8 +1218,9 @@ cdef class LocalWlNear(LocalWl):
         cdef _box.Box l_box
         if type(self) is LocalWlNear:
             l_box = _box.Box(
-                    box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                    box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+                    box.getLx(), box.getLy(), box.getLz(),
+                    box.getTiltFactorXY(), box.getTiltFactorXZ(),
+                    box.getTiltFactorYZ(), box.is2D())
             self.thisptr = self.qlptr = new order.LocalWl(l_box, rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
