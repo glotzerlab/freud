@@ -1135,8 +1135,7 @@ cdef class PMFTXYZ(_PMFT):
                 shape=(ref_points.shape[0], 1, 4), dtype=np.float32)
             face_orientations[:, :, 0] = 1.0
         else:
-            if (len(face_orientations.shape) < 2) or (
-                    len(face_orientations.shape) > 3):
+            if face_orientations.ndim < 2 or face_orientations.ndim > 3:
                 raise ValueError("points must be a 2 or 3 dimensional array")
             face_orientations = freud.common.convert_array(
                     face_orientations, face_orientations.ndim,
