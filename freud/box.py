@@ -84,6 +84,7 @@ class Box(_Box):
                   :code:`'Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz', 'dimensions'`,
                   namedtuples with properties
                   :code:`Lx, Ly, Lz, xy, xz, yz, dimensions`,
+                  3x3 matrices (see :py:meth:`~.from_matrix()`),
                   or existing :py:class:`freud.box.Box` objects.
 
                   If any of :code:`Lz, xy, xz, yz` are not provided, they will
@@ -100,6 +101,9 @@ class Box(_Box):
                   of the provided box. If no dimensions can be detected, the
                   box will be 2D if :code:`Lz == 0`, and 3D otherwise.
         """
+        if isinstance(box, np.ndarray) and box.shape == (3, 3):
+            # Handles 3x3 matrices
+            return cls.from_matrix(box)
         try:
             # Handles freud.box.Box and namedtuple
             Lx = box.Lx
@@ -112,29 +116,21 @@ class Box(_Box):
                 dimensions = getattr(box, 'dimensions', None)
         except AttributeError:
             try:
+                # Handle dictionary-like
                 Lx = box['Lx']
                 Ly = box['Ly']
-                Lz = box['Lz'] if 'Lz' in box else 0
-                xy = box['xy'] if 'xy' in box else 0
-                xz = box['xz'] if 'xz' in box else 0
-                yz = box['yz'] if 'yz' in box else 0
-                if dimensions is None and 'dimensions' in box:
-                    dimensions = box['dimensions']
+                Lz = box.get('Lz', 0)
+                xy = box.get('xy', 0)
+                xz = box.get('xz', 0)
+                yz = box.get('yz', 0)
+                if dimensions is None:
+                    dimensions = box.get('dimensions', None)
             except (KeyError, TypeError):
+                # Handle list-like
                 Lx = box[0]
                 Ly = box[1]
-                if len(box) > 2:
-                    Lz = box[2]
-                else:
-                    Lz = 0
-                if len(box) > 3:
-                    xy = box[3]
-                    xz = box[4]
-                    yz = box[5]
-                else:
-                    xy = 0
-                    xz = 0
-                    yz = 0
+                Lz = box[2] if len(box) > 2 else 0
+                xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
         except Exception:
             raise ValueError('Unable to create Box instance from this box.')
 

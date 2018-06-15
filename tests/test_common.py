@@ -30,10 +30,23 @@ class TestCommon(unittest.TestCase):
         except TypeError as e:
             npt.assert_equal(True, True)
 
+    def test_convert_matrix_box(self):
+        matrix_box = np.array([[1, 2, 3],
+                               [0, 2, 3],
+                               [0, 0, 3]])
+        box = common.convert_box(matrix_box)
+        npt.assert_almost_equal(box.Lx, 1, decimal=2, err_msg="LxFail")
+        npt.assert_almost_equal(box.Ly, 2, decimal=2, err_msg="LyFail")
+        npt.assert_almost_equal(box.Lz, 3, decimal=2, err_msg="LzFail")
+        npt.assert_almost_equal(box.xy, 1, decimal=2, err_msg="TiltXYFail")
+        npt.assert_almost_equal(box.xz, 1, decimal=2, err_msg="TiltXZFail")
+        npt.assert_almost_equal(box.yz, 1, decimal=2, err_msg="TiltYZFail")
+        self.assertTrue(box.dimensions == 3)
+
     def test_convert_tuple_box(self):
         TupleBox = namedtuple('TupleBox', ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'])
-        fake_box = TupleBox(1, 2, 3, 4, 5, 6)
-        box = common.convert_box(fake_box)
+        tuple_box = TupleBox(1, 2, 3, 4, 5, 6)
+        box = common.convert_box(tuple_box)
         npt.assert_almost_equal(box.Lx, 1, decimal=2, err_msg="LxFail")
         npt.assert_almost_equal(box.Ly, 2, decimal=2, err_msg="LyFail")
         npt.assert_almost_equal(box.Lz, 3, decimal=2, err_msg="LzFail")

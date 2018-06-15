@@ -58,6 +58,6 @@ def convert_box(box):
         try:
             box = bx.Box.from_box(box)
         except:
-            raise TypeError(
+            raise ValueError(
                 "Supplied box cannot be converted to type freud.box.Box.")
     return box
