@@ -28,6 +28,7 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
 
         size_t find_first_index(size_t)
 
+        # Include separate definitions for resize with and without optional parameter
         void resize(size_t)
         void resize(size_t, bool)
         void copy(const NeighborList &)
