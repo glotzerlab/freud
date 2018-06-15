@@ -79,25 +79,37 @@ class Box(_Box):
         :param int dimensions: Dimensionality of the box
 
         .. note:: Objects that can be converted to freud boxes include
-                  lists of the form [Lx, Ly, Lz, xy, xz, yz], dictionaries with
-                  keys ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'], namedtuples with
-                  properties Lx, Ly, Lz, xy, xz, yz, or existing freud box
-                  objects.
+                  lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
+                  dictionaries with keys
+                  :code:`'Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz', 'dimensions'`,
+                  namedtuples with properties
+                  :code:`Lx, Ly, Lz, xy, xz, yz, dimensions`,
+                  or existing :py:class:`freud.box.Box` objects.
 
+                  If any of :code:`Lz, xy, xz, yz` are not provided, they will
+                  be set to 0.
+
+                  If all values are provided, a triclinic box will be
+                  constructed. If only :code:`Lx, Ly, Lz` are provided, an
+                  orthorhombic box will be constructed. If only :code:`Lx, Ly`
+                  are provided, a rectangular (2D) box will be constructed.
+
+                  If the optional :code:`dimensions` argument is given, this
+                  will be used as the box dimensionality. Otherwise, the box
+                  dimensionality will be detected from the :code:`dimensions`
+                  of the provided box. If no dimensions can be detected, the
+                  box will be 2D if :code:`Lz == 0`, and 3D otherwise.
         """
         try:
             # Handles freud.box.Box and namedtuple
             Lx = box.Lx
             Ly = box.Ly
-            Lz = box.Lz
-            xy = box.xy
-            xz = box.xz
-            yz = box.yz
+            Lz = getattr(box, 'Lz', 0)
+            xy = getattr(box, 'xy', 0)
+            xz = getattr(box, 'xz', 0)
+            yz = getattr(box, 'yz', 0)
             if dimensions is None:
-                try:
-                    dimensions = box.dimensions
-                except AttributeError:
-                    pass
+                dimensions = getattr(box, 'dimensions', None)
         except AttributeError:
             try:
                 Lx = box['Lx']
