@@ -217,8 +217,8 @@ cdef class Box:
         :return: Vector of real coordinates :math:`\\left(x, y, z\\right)`
         :rtype: list[float, float, float]
         """
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
-                np.asarray(f, dtype=np.float32).flatten())
+        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+                f, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeCoordinates(
                 < const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
@@ -232,8 +232,8 @@ cdef class Box:
                    dtype= :class:`numpy.float32`
         :return: A fractional coordinate vector
         """
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
-                np.asarray(vec, dtype=np.float32).flatten())
+        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+            vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeFraction(
                 < const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
@@ -252,8 +252,8 @@ cdef class Box:
                 shape= :math:`\\left(3\\right)`,
                 dtype= :class:`numpy.int32`
         """
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
-                np.asarray(vec, dtype=np.float32).flatten())
+        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+                vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[int] result = self.thisptr.getImage(
                 < const vec3[float]&>l_vec[0])
         return [result.x, result.y, result.z]
@@ -281,32 +281,35 @@ cdef class Box:
                   input vectors.
 
         :param vecs: Single vector or array of :math:`N` vectors
-        :note: vecs are returned in place (nothing returned)
+        :note: vecs are both altered in place and returned
+        :return: vectors wrapped into the box
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(3\\right)` or
+                :math:`\\left(N, 3\\right)`,
+                dtype= :class:`numpy.float32`
         :type vecs: :class:`numpy.ndarray`,
                     shape= :math:`\\left(3\\right)` or
                     :math:`\\left(N, 3\\right)`,
                     dtype= :class:`numpy.float32`
         """
-        if vecs.dtype != np.float32:
-            raise ValueError("vecs must be a numpy float32 array")
-        if len(vecs.shape) == 1:
+        if vecs.ndim > 2 or vecs.shape[-1] != 3:
+            raise ValueError(
+                "Invalid dimensions for vecs given to box.wrap. "
+                "Valid input is an array of shape (3,) or (N,3).")
+
+        vecs = freud.common.convert_array(
+            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+
+        if vecs.ndim == 1:
             # only one vector to wrap
             vecs[:] = self._wrap(vecs)
-        elif len(vecs.shape) == 2:
-            # check to make sure the second dim is x, y, z
-            if vecs.shape[1] != 3:
-                raise ValueError(
-                    "The 2nd dimension must have 3 values: x, y, z")
+        elif vecs.ndim == 2:
             for i, vec in enumerate(vecs):
                 vecs[i] = self._wrap(vec)
-        else:
-            raise ValueError(
-                "Invalid dimensions given to box wrap. "
-                "Valid input is a 3 element array (3,), or (N,3) array.")
+        return vecs
 
     def _wrap(self, vec):
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(
-                vec.flatten())
+        cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef vec3[float] result = self.thisptr.wrap(
                 < vec3[float]&>l_vec[0])
         return (result.x, result.y, result.z)
@@ -318,7 +321,12 @@ cdef class Box:
 
         :param vecs: Single vector or array of :math:`N` vectors
         :param imgs: Single image index or array of :math:`N` image indices
-        :note: vecs are returned in place (nothing returned)
+        :note: vecs are both altered in place and returned
+        :return: vectors unwrapped by the image indices provided
+        :rtype: :class:`numpy.ndarray`,
+                shape= :math:`\\left(3\\right)` or
+                :math:`\\left(N, 3\\right)`,
+                dtype= :class:`numpy.float32`
         :type vecs: :class:`numpy.ndarray`,
                     shape= :math:`\\left(3\\right)` or
                     :math:`\\left(N, 3\\right)`,
@@ -328,29 +336,26 @@ cdef class Box:
                     :math:`\\left(N, 3\\right)`,
                     dtype= :class:`numpy.int32`
         """
-        if vecs.dtype != np.float32:
-            raise ValueError("vecs must be a numpy.float32 array")
-        if imgs.dtype != np.int32:
-            raise ValueError("imgs must be a numpy.int32 array")
-            # edit from here
-        if len(vecs.shape) == 1:
-            # only one vector to wrap
-            # verify only one img
-            if len(imgs.shape == 1):
-                vecs = np.ascontiguousarray(
-                    self._unwrap(vecs, imgs), dtype=np.float32)
-            else:
-                raise RuntimeError("imgs do not match vectors")
-        elif len(vecs.shape) == 2:
-            # check to make sure the second dim is x, y, z
-            if vecs.shape[1] != 3:
-                raise ValueError(
-                    "The 2nd dimension must have 3 values: x, y, z")
-            if len(imgs.shape) == 2:
-                for i, (vec, img) in enumerate(zip(vecs, imgs)):
-                    vecs[i] = self._unwrap(vec, img)
-            else:
-                raise RuntimeError("imgs do not match vectors")
+        if vecs.shape != imgs.shape:
+            raise ValueError("imgs dimensions do not match vecs dimensions.")
+
+        if vecs.ndim > 2 or vecs.shape[-1] != 3:
+            raise ValueError(
+                "Invalid dimensions for vecs given to box.unwrap. "
+                "Valid input is an array of shape (3,) or (N,3).")
+
+        vecs = freud.common.convert_array(
+            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+        imgs = freud.common.convert_array(
+            imgs, vecs.ndim, dtype=np.int32, contiguous=True)
+
+        if vecs.ndim == 1:
+            # only one vector to unwrap
+            vecs = self._unwrap(vecs, imgs)
+        elif vecs.ndim == 2:
+            for i, (vec, img) in enumerate(zip(vecs, imgs)):
+                vecs[i] = self._unwrap(vec, img)
+        return vecs
 
     def _unwrap(self, vec, img):
         cdef np.ndarray[float, ndim=1] l_vec = vec

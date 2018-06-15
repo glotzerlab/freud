@@ -25,6 +25,7 @@ from . import index
 from . import interface
 from . import kspace
 from . import locality
+from . import environment
 from . import order
 from . import pmft
 from . import voronoi
