@@ -157,6 +157,7 @@ cdef class PMFTR12(_PMFT):
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -489,6 +490,7 @@ cdef class PMFTXYT(_PMFT):
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -795,6 +797,7 @@ cdef class PMFTXY2D(_PMFT):
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -1101,6 +1104,7 @@ cdef class PMFTXYZ(_PMFT):
                                  dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")

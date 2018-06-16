@@ -18,6 +18,7 @@ cdef class VoronoiBuffer:
     cdef voronoi.VoronoiBuffer * thisptr
 
     def __cinit__(self, box):
+        box = freud.common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
