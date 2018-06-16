@@ -40,6 +40,7 @@ class TestLocalWl(unittest.TestCase):
         assert np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0])
         self.assertAlmostEqual(np.real(np.average(comp.Wl)), -0.0026260)
 
+
 class TestLocalWlNear(unittest.TestCase):
     def test_shape(self):
         N = 1000
@@ -74,6 +75,7 @@ class TestLocalWlNear(unittest.TestCase):
         comp.computeAveNorm(positions)
         assert np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0])
         self.assertAlmostEqual(np.real(np.average(comp.Wl)), -0.0026260)
+
 
 if __name__ == '__main__':
     unittest.main()

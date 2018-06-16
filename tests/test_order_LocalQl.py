@@ -40,6 +40,7 @@ class TestLocalQl(unittest.TestCase):
         self.assertAlmostEqual(np.average(comp.Ql), 0.57452422)
         assert np.allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0])
 
+
 class TestLocalQlNear(unittest.TestCase):
     def test_shape(self):
         N = 1000
