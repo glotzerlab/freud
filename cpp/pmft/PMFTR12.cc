@@ -132,7 +132,7 @@ void PMFTR12::reducePCF()
             });
     }
 
-void PMFTR12::resetPCF()
+void PMFTR12::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {

@@ -139,6 +139,10 @@ Michael Engel
 
 * Translational order parameter
 
+Alex Dutton
+
+* BiMap class for MatchEnv
+
 Source code
 -----------
 

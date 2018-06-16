@@ -4,7 +4,6 @@
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.map cimport map
 import numpy as np
-
 cimport freud._box as _box
 cimport freud._bond as bond
 cimport numpy as np

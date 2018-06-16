@@ -258,8 +258,8 @@ cdef class ClusterProperties:
 
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the :math:`G` tensor. These can be
-        accessed after the call to `~.computeProperties()` with :py:meth:`~.getClusterCOM()`
-        and :py:meth:`~.getClusterG()`.
+        accessed after the call to :py:meth:`~.computeProperties()` with
+        :py:meth:`~.getClusterCOM()` and :py:meth:`~.getClusterG()`.
 
         :param points: Positions of the particles making up the clusters
         :param cluster_idx: List of cluster indexes for each particle

@@ -36,7 +36,7 @@ class PMFTR12 : public PMFT
         PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsigned int nbins_t2);
 
         //! Reset the PCF array to all zeros
-        virtual void resetPCF();
+        virtual void reset();
 
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf

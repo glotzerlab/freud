@@ -20,7 +20,7 @@ namespace freud { namespace pmft {
 
 PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec)
     : PMFT(), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z),
-      m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_z(n_bins_z), 
+      m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_z(n_bins_z),
       m_n_faces(0), m_shiftvec(shiftvec)
     {
     if (n_bins_x < 1)
@@ -127,7 +127,7 @@ void PMFTXYZ::reducePCF()
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
-void PMFTXYZ::resetPCF()
+void PMFTXYZ::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {

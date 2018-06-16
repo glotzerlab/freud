@@ -45,7 +45,7 @@ class GaussianDensity
                 }
 
         //! Reset the gaussian array to all zeros
-        void resetDensity();
+        void reset();
 
         //! \internal
         //! helper function to reduce the thread specific arrays into one array

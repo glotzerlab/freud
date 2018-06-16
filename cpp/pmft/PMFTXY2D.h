@@ -40,7 +40,7 @@ class PMFTXY2D : public PMFT
         PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y);
 
         //! Reset the PCF array to all zeros
-        virtual void resetPCF();
+        virtual void reset();
 
         /*! Compute the PCF for the passed in set of points. The result will
          *  be added to previous values of the PCF.
