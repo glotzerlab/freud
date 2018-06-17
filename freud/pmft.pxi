@@ -88,19 +88,8 @@ cdef class _PMFT:
 
 
 cdef class PMFTR12(_PMFT):
-    """Computes the PMFT [Cit2]_ [Cit3]_ for a given set of points.
-
-    A given set of reference points is given around which the PCF is computed
-    and averaged in a sea of data points. Computing the PCF results in a PCF
-    array listing the value of the PCF at each given :math:`r`,
-    :math:`\\theta_1`, :math:`\\theta_2` listed in the r, t1, and t2 arrays.
-
-    The values of r, t1, t2 to compute the PCF at are controlled by r_max and
-    nbins_r, nbins_t1, nbins_t2 parameters to the constructor. rmax determines
-    the minimum/maximum r (:math:`\\min \\left( \\theta_1 \\right) =
-    \\min \\left( \\theta_2 \\right) = 0`, (:math:`\\max \\left( \\theta_1
-    \\right) = \\max \\left( \\theta_2 \\right) = 2\\pi`) at which to compute
-    the PCF and nbins_r, nbins_t1, nbins_t2 is the number of bins in r, t1, t2.
+    """Computes the PMFT in a 2D system described by :math:`r`,
+    :math:`\\theta_1`, :math:`\\theta_2`.
 
     .. note::
         2D: :py:class:`freud.pmft.PMFTR12` is only defined for 2D systems.
@@ -420,19 +409,10 @@ cdef class PMFTR12(_PMFT):
         return T2
 
 cdef class PMFTXYT(_PMFT):
-    """Computes the PMFT [Cit2]_ [Cit3]_ for a given set of points.
+    """Computes the PMFT for systems described by coordinates :math:`x`, :math:`y`, :math:`\\theta` listed in the x, y, and t arrays.
 
-    A given set of reference points is given around which the PCF is computed
-    and averaged in a sea of data points. Computing the PCF results in a PCF
-    array listing the value of the PCF at each given :math:`x`, :math:`y`,
-    :math:`\\theta` listed in the x, y, and t arrays.
-
-    The values of x, y, t to compute the PCF at are controlled by x_max, y_max
-    and n_bins_x, n_bins_y, n_bins_t parameters to the constructor. x_max,
-    y_max determine the minimum/maximum x, y values (:math:`\\min \\left(
-    \\theta \\right) = 0`, (:math:`\\max \\left( \\theta \\right) = 2\\pi`) at
-    which to compute the PCF and n_bins_x, n_bins_y, n_bins_t is the number of
-    bins in x, y, t.
+    The values of x, y, t to compute the PCF at are controlled by x_max, y_max and n_bins_x, n_bins_y, n_bins_t parameters to the constructor.
+    The x_max and y_max parameters determine the minimum/maximum x, y values (:math:`\\min \\left(\\theta \\right) = 0`, (:math:`\\max \\left( \\theta \\right) = 2\\pi`) at which to compute the PCF and n_bins_x, n_bins_y, n_bins_t is the number of bins in x, y, t.
 
     .. note::
         2D: :py:class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
@@ -732,17 +712,10 @@ cdef class PMFTXYT(_PMFT):
 
 
 cdef class PMFTXY2D(_PMFT):
-    """Computes the PMFT [Cit2]_ [Cit3]_ for a given set of points.
+    """Computes the PMFT in coordinates :math:`x`, :math:`y` listed in the x and y arrays.
 
-    A given set of reference points is given around which the PCF is computed
-    and averaged in a sea of data points. Computing the PCF results in a PCF
-    array listing the value of the PCF at each given :math:`x`, :math:`y`
-    listed in the x and y arrays.
-
-    The values of x and y to compute the PCF at are controlled by x_max, y_max,
-    n_x, and n_y parameters to the constructor. x_max and y_max determine the
-    minimum/maximum distance at which to compute the PCF and n_x and n_y are
-    the number of bins in x and y.
+    The values of x and y to compute the PCF at are controlled by x_max, y_max, n_x, and n_y parameters to the constructor.
+    The x_max and y_max parameters determine the minimum/maximum distance at which to compute the PCF and n_x and n_y are the number of bins in x and y.
 
     .. note::
         2D: :py:class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
@@ -1001,17 +974,10 @@ cdef class PMFTXY2D(_PMFT):
 
 
 cdef class PMFTXYZ(_PMFT):
-    """Computes the PMFT [Cit2]_ [Cit3]_ for a given set of points.
+    """Computes the PMFT in coordinates :math:`x`, :math:`y`, :math:`z`, listed in the x, y, and z arrays.
 
-    A given set of reference points is given around which the PCF is computed
-    and averaged in a sea of data points. Computing the PCF results in a PCF
-    array listing the value of the PCF at each given :math:`x`, :math:`y`,
-    :math:`z`, listed in the x, y, and z arrays.
-
-    The values of x, y, z to compute the PCF at are controlled by x_max, y_max,
-    z_max, n_x, n_y, and n_z parameters to the constructor. x_max, y_max, and
-    z_max determine the minimum/maximum distance at which to compute the PCF
-    and n_x, n_y, n_z is the number of bins in x, y, z.
+    The values of x, y, z to compute the PCF at are controlled by x_max, y_max, z_max, n_x, n_y, and n_z parameters to the constructor.
+    The x_max, y_max, and z_max parameters determine the minimum/maximum distance at which to compute the PCF and n_x, n_y, and n_z are the number of bins in x, y, z.
 
     .. note::
         3D: :py:class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
