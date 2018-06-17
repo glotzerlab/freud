@@ -14,8 +14,8 @@ Cluster Module
 
 The cluster module aids in finding and computing the properties of clusters of points in a system.
 
-.. autoclass:: freud.cluster.Cluster
+.. autoclass:: freud.cluster.Cluster(box, rcut)
     :members:
 
-.. autoclass:: freud.cluster.ClusterProperties
+.. autoclass:: freud.cluster.ClusterProperties(box)
     :members:

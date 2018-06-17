@@ -34,7 +34,7 @@ The bond module is designed to take in arrays using the same coordinate systems 
         * :math:`X`, :math:`Y`, :math:`Z`
 
 
-.. autoclass:: freud.bond.BondingAnalysis
+.. autoclass:: freud.bond.BondingAnalysis(num_particles, num_bonds)
     :members:
     :inherited-members:
 
@@ -48,27 +48,27 @@ The different classes are specialized for particular coordinate systems in both 
 Coordinate System: :math:`r`, :math:`\theta_1`, :math:`\theta_2`
 ----------------------------------------------------------------
 
-.. autoclass:: freud.bond.BondingR12
+.. autoclass:: freud.bond.BondingR12(r_max, bond_map, bond_list)
     :members:
     :inherited-members:
 
 Coordinate System: :math:`x`, :math:`y`
 ---------------------------------------
 
-.. autoclass:: freud.bond.BondingXY2D
+.. autoclass:: freud.bond.BondingXY2D(x_max, y_max, bond_map, bond_list)
     :members:
     :inherited-members:
 
 Coordinate System: :math:`r`, :math:`y`, :math:`\theta_1`
 ---------------------------------------------------------
 
-.. autoclass:: freud.bond.BondingXYT
+.. autoclass:: freud.bond.BondingXYT(x_max, y_max, bond_map, bond_list)
     :members:
     :inherited-members:
 
 Coordinate System: :math:`r`, :math:`y`, :math:`z`
 ---------------------------------------------------------------
 
-.. autoclass:: freud.bond.BondingXYZ
+.. autoclass:: freud.bond.BondingXYZ(x_max, y_max, z_max, bond_map, bond_list)
     :members:
     :inherited-members:
