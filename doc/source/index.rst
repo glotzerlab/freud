@@ -4,18 +4,37 @@ freud documentation
 
 *"Neurosis is the inability to tolerate ambiguity" - Sigmund Freud*
 
-The freud library is a Python package meant for the analysis of molecular dynamics and Monte Carlo
-simulation trajectories. The freud library works with and returns `NumPy <http://www.numpy.org/>`_ arrays.
+Welcome to the documentation for freud, a Python package for analyzing particle simulation trajectories of periodic systems.
+The library contains a diverse array of analysis routines designed for molecular dynamics and Monte Carlo.
+Since any scientific investigation is likely to benefit from a range of analyses, freud is designed to work as part of a larger analysis pipeline.
+In order to maximize its interoperabiity with other systems, freud works with and returns `NumPy <http://www.numpy.org/>`_ arrays.
 
-Please visit our repository on `Bitbucket <https://bitbucket.org/glotzer/freud>`_ for the library source code, post
-issues or bugs to our `issue tracker <https://bitbucket.org/glotzer/freud/issues?status=new&status=open>`_, and ask
-questions and discuss on our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
+Installing freud
+================
 
-Contents
-========
+The recommended method of installing freud is using [conda](https://conda.io/docs/) through the [glotzer channel](https://anaconda.org/glotzer).
+First download and install [miniconda](https://conda.io/miniconda.html) following [conda's instructions](https://conda.io/docs/user-guide/install/index.html).
+Then, add the `glotzer` channel and install freud:
+
+.. code-block:: bash
+    $ conda config --add channels glotzer
+    $ conda install freud
+
+Alternatively, freud can be installed directly from source using CMake and make.
+
+.. code-block:: bash
+    $ mkdir build
+    $ cd build
+    $ cmake ../
+    $ make -j20
+
+By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
+Note that in this case installation also requires that all freud dependencies, namely Boost, TBB, and NumPy, be available for compilation.
+
 
 .. toctree::
    :maxdepth: 2
+   :caption: Contents
 
    examples
    installation
@@ -26,8 +45,18 @@ Contents
    credits
 
 
-Index
-=====
+Support and Contribution
+========================
+
+Please visit our repository on `Bitbucket <https://bitbucket.org/glotzer/freud>`_ for the library source code.
+Any issues or bugs may be reported at our `issue tracker <https://bitbucket.org/glotzer/freud/issues?status=new&status=open>`_, while questions and discussion can be directed to our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
+All contributions to freud are welcomed via pull requests!
+Please see the :doc:`development guide <development>` for more information on requirements for new code.
+
+
+Indices and tables
+==================
 
 * :ref:`genindex`
+* :ref:`modindex`
 * :ref:`search`
