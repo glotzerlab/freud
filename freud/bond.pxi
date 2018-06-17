@@ -189,10 +189,8 @@ cdef class BondingAnalysis:
         return self.thisptr.getNumBonds()
 
 cdef class BondingR12:
-    """Compute the bonds each particle in the system.
-
-    For each particle in the system determine which other particles are in
-    which bonding sites.
+    """Compute bonds in a 3D system using a 
+    (:math:`r`, :math:`\theta_1`, :math:`\theta_2`) coordinate system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -363,10 +361,8 @@ cdef class BondingR12:
         return self.thisptr.getRevListMap()
 
 cdef class BondingXY2D:
-    """Compute the bonds each particle in the system.
-
-    For each particle in the system determine which other particles are in
-    which bonding sites.
+    """Compute bonds in a 2D system using a 
+    (:math:`x`, :math:`y`) coordinate system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -540,7 +536,8 @@ cdef class BondingXY2D:
         return self.thisptr.getRevListMap()
 
 cdef class BondingXYT:
-    """Compute the bonds each particle in the system.
+    """Compute bonds in a 3D system using a 
+    (:math:`x`, :math:`y`, :math:`\theta_1`) coordinate system.
 
     For each particle in the system determine which other particles are in
     which bonding sites.
@@ -720,7 +717,8 @@ cdef class BondingXYT:
         return self.thisptr.getRevListMap()
 
 cdef class BondingXYZ:
-    """Compute the bonds each particle in the system.
+    """Compute bonds in a 3D system using a 
+    (:math:`x`, :math:`y`, :math:`z`) coordinate system.
 
     For each particle in the system determine which other particles are in
     which bonding sites.
