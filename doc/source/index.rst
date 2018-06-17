@@ -20,17 +20,13 @@ Then, add the `glotzer` channel and install freud:
     $ conda config --add channels glotzer
     $ conda install freud
 
-Alternatively, freud can be installed directly from source using CMake and make.
+Alternatively, freud can be installed directly from source.
 
 .. code-block:: bash
     $ mkdir build
     $ cd build
     $ cmake ../
-    $ make -j20
-
-By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
-Note that in this case installation also requires that all freud dependencies, namely Boost, TBB, and NumPy, be available for compilation.
-
+    $ make install -j4
 
 .. toctree::
    :maxdepth: 2
