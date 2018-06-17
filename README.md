@@ -44,19 +44,11 @@ Use CMake to configure and make freud from source.
 mkdir build
 cd build
 cmake ../
-make -j20
+make install
 ```
 
-By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory,
-which is in `~/.local` on Linux and in `~/Library` on macOS.
+By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
 `USER_SITE` is on the Python search path by default, so there is no need to modify `PYTHONPATH`.
-
-To run out of the build directory, add the build directory to your `PYTHONPATH`:
-
-~~~
-bash
-export PYTHONPATH=`pwd`:$PYTHONPATH
-~~~
 
 For more detailed instructions, see [the documentation](https://freud.readthedocs.io).
 
