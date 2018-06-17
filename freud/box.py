@@ -16,8 +16,9 @@ class Box(_Box):
     .. versionchanged:: 0.7.0
        Added box periodicity interface
 
-    For more information about the definition of the simulation
-    box, please see:
+    The Box class is defined according to the conventions of the
+    HOOMD-blue simulation software.
+    For more information, please see:
 
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
