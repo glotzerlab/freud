@@ -2,23 +2,28 @@
 Locality Module
 ===============
 
-The locality module contains data structures to efficiently locate points based
-on their proximity to other points.
+.. rubric:: Overview
 
-NeighborList
-============
+.. autosummary::
+    :nosignatures:
+
+    freud.locality.LinkCell
+    freud.locality.IteratorLinkCell
+    freud.locality.NearestNeighbors
+    freud.locality.NeighborList
+
+.. rubric:: Details
+
+The locality module contains data structures to efficiently locate points based on their proximity to other points.
 
 .. autoclass:: freud.locality.NeighborList
    :members:
 
-LinkCell
-========
-
 .. autoclass:: freud.locality.LinkCell(box, cell_width)
    :members:
 
-NearestNeighbors
-================
+.. autoclass:: freud.locality.IteratorLinkCell()
+   :members:
 
 .. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
    :members:
