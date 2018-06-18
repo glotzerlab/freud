@@ -40,12 +40,12 @@ cdef class SymmetryCollection:
 
         :param box: simulation box
         :param points: points to calculate the symmetry axes
-        :param nlist: :py:class:`freud.locality.NeighborList` object defining bonds
+        :param nlist: :py:class:`freud.symmetry.SymmetryCollection` object defining bonds
         :type box: :py:class:`freud.box.Box`
         :type points: :class:`numpy.ndarray`,
                       shape= :math:`\\left(N_{particles}, 3 \\right)`,
                       dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        :type nlist: :py:class:`freud.symmetry.SymmetryCollection`
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
@@ -67,23 +67,28 @@ cdef class SymmetryCollection:
         self.thisptr.compute(l_box, < vec3[float]*>l_points.data, nlist_ptr, nP)
         return self
 
-    #cdef measure(self, shared_ptr[float] Mlm, unsigned int type):
-    #    return self.thisptr.measure(Mlm, type)
 
+    def measure(self, int n):
+        """Compute symmetry axes.
 
-    def measure(self, Mlm, int type):
-        #cdef np.npy_intp nbins[1]
-       # nbins[0] = <np.npy_intp > self.thisptr.getMaxL()
-
-        return self.thisptr.measure(self.thisptr.getMlm_rotated(), type)
+        :param box: simulation box
+        :param points: points to calculate the symmetry axes
+        :param nlist: :py:class:`freud.symmetry.SymmetryCollection` object defining bonds
+        :type box: :py:class:`freud.box.Box`
+        :type points: :class:`numpy.ndarray`,
+                      shape= :math:`\\left(N_{particles}, 3 \\right)`,
+                      dtype= :class:`numpy.float32`
+        :type nlist: :py:class:`freud.symmetry.SymmetryCollection`
+        """
+        return self.thisptr.measure(n)
 
 
     def getMlm(self):
         """Get a reference to Mlm.
 
-        :return: order parameter
+        :return: Mlm
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
+                shape= :math: (MAXL + 1) ** 2 - 1,
                 dtype= :class:`numpy.float32
         """
         cdef float * Mlm = self.thisptr.getMlm().get()
@@ -97,11 +102,11 @@ cdef class SymmetryCollection:
 
 
     def getMlm_rotated(self):
-        """Get a reference to Mlm.
+        """Get a reference to Mlm_rotated.
 
-        :return: order parameter
+        :return: Mlm
         :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
+                shape= :math: (MAXL + 1) ** 2 - 1,
                 dtype= :class:`numpy.float32
         """
         cdef float * Mlm_rotated = self.thisptr.getMlm_rotated().get()
@@ -123,6 +128,14 @@ cdef class SymmetryCollection:
 
 
     def rotate(self, q):
+        """rotate Mlm by q.
+
+        :param q: rotation quaternion
+        :type q: class:`numpy.ndarray`,
+                      shape= 4 (r, v.x, v.y, v.z),
+                      dtype= :class:`numpy.float32`
+        :rtype: void
+        """
     
         q = freud.common.convert_array(q, 1, dtype=np.float32, contiguous=True,
                 dim_message="q must be a 1x4 dimensional array")
@@ -131,35 +144,41 @@ cdef class SymmetryCollection:
         cdef np.ndarray[float, ndim= 1] l_q = q
         
         self.thisptr.rotate(< const quat[float] &> l_q[0])
+        return self
         
-        cdef float * l_Mlm_rotated = self.thisptr.getMlm_rotated().get()
-        cdef np.npy_intp Mlm_shape[1]
-        Mlm_shape[0] = <np.npy_intp > (self.thisptr.getMaxL() + 1)**2 - 1
-        cdef np.ndarray[np.float32_t, ndim= 1] result = np.PyArray_SimpleNewFromData(
-                        1, Mlm_shape, np.NPY_FLOAT32, < void*>l_Mlm_rotated)
-        return result
-        
-
-    def initMirrorZ(self, p):
-        
-        cdef np.ndarray[float, ndim=1] l_vec = np.ascontiguousarray(np.asarray(p, dtype=np.float32).flatten())
-        cdef quat[float] q = self.thisptr.initMirrorZ(< const vec3 [float]&> l_vec[0])
-        cdef np.ndarray[float, ndim = 1] result = np.array(
-                [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
-        return result
 
     def searchSymmetry(self, perpendicular):
+        """search for the best symmetry
 
+        :param perpendicular: perpendicular to z axis 
+        :type perpendicualr: bool
+        :return: highestSymmetry
+        :rtype: int
+       
+        """
         return self.thisptr.searchSymmetry(bool(perpendicular))
 
 
-
     def symmetrize(self, onlyLocal):
+        """detect symmetries.
 
+        :param onlyLocal: search for local region
+        :type onlyLocal: bool
+        :rtype: void
+       
+        """
         return self.thisptr.symmetrize(bool(onlyLocal))
 
 
     def getHighestSymmetryQuat(self):
+        """find quaternion to the highest-symmetry axis.
+
+        :return: orientation of highest symmetry axis
+        :rtype: class:`numpy.ndarray`,
+                       shape= 4 (r, v.x, v.y, v.z),
+                       dtype= :class:`numpy.float32`
+       
+        """
         cdef quat[float] q = self.thisptr.getHighestSymmetryQuat()
         cdef np.ndarray[float, ndim = 1] result = np.array(
                 [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
@@ -193,27 +212,11 @@ cdef class Geodesation:
     def __dealloc__(self):
         del self.thisptr
 
-    def createVertex(self, x, y, z):
-        """Returns the index of vertex.
-
-        :return: the index of vertex added to the list
-        :rtype: int
-        """
-        return self.thisptr.createVertex(x, y, z)
-
-    def createSimplex(self, v0, v1, v2):
-        """Returns the index of simplex in the list.
-
-        :return: the index of simplex added to the list
-        :rtype: int
-        """
-        return self.thisptr.createSimplex(v0, v1, v2)
-
 
     def getNVertices(self):
-        """Returns the index of vertex.
+        """Returns the number of vertices.
 
-        :return: the index of vertex added to the list
+        :return: the size of vertex list
         :rtype: int
         """
         return self.thisptr.getNVertices()
@@ -257,35 +260,4 @@ cdef class Geodesation:
                 result.append([i, j])
         return result
 
-    def createMidVertex(self, i0, i1):
-        """Returns the index of vertex.
-
-        :return: the index of vertex added to the list
-        :rtype: int
-        """
-        return self.thisptr.createMidVertex(i0, i1)
-
-    def connectSimplices(self, s0, s1):
-        """Returns the index of vertex.
-
-        :return: the index of vertex added to the list
-        :rtype: int
-        """
-        return self.thisptr.connectSimplices(s0, s1)
-
-    def findNeighborMidVertex(self, points, s):
-        """Returns the index of vertex.
-
-        :return: the index of vertex added to the list
-        :rtype: int
-        """
-        return self.thisptr.findNeighborMidVertex(points, s)
-
-    def geodesate(self):
-        """Returns the index of vertex.
-
-        :return: the index of vertex added to the list
-        :rtype: int
-        """
-        return self.thisptr.geodesate()
-
+  

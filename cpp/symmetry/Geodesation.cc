@@ -62,6 +62,7 @@ namespace freud { namespace symmetry {
         connectSimplices(s7, s9);
         connectSimplices(s8, s9);
 
+        //maybe move to another function and expose it to python.
         for (int i = 0; i < iterations; ++i) {
             geodesate();
         }
