@@ -17,7 +17,7 @@
     \brief Compute the bond order diagram for the system of particles.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 // this is needed for conversion of the type of bond order calculation to be made in accumulate.
 typedef enum {bod=0, lbod=1, obcd=2, oocd=3} BondOrderMode;
@@ -99,6 +99,6 @@ class BondOrder
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
 #endif // _BOND_ORDER_H__

@@ -13,7 +13,7 @@
 #ifndef _PAIRING2D_H__
 #define _PAIRING2D_H__
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 //! Computes the number of matches for a given set of points
 /*!
@@ -81,6 +81,6 @@ class Pairing2D
 
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
 #endif // _PAIRING2D_H__

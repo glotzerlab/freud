@@ -12,7 +12,7 @@ using namespace tbb;
     \brief Compute the angular separation for each particle.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 AngularSeparation::AngularSeparation()
     : m_Np(0), m_Nref(0), m_Nglobal(0), m_Nequiv(0), m_tot_num_neigh(0)
@@ -184,4 +184,4 @@ void AngularSeparation::computeGlobal(
     m_Nequiv = Nequiv;
     }
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment

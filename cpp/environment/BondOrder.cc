@@ -16,7 +16,7 @@ using namespace tbb;
     \brief Compute the bond order diagram for the system of particles.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
     : m_box(box::Box()), m_n_ref(0), m_n_p(0), m_nbins_t(nbins_t), m_nbins_p(nbins_p),
@@ -257,4 +257,4 @@ void BondOrder::accumulate(box::Box& box,
     m_frame_counter++;
     }
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
