@@ -6,6 +6,7 @@ import logging
 import copy
 from ._freud import VoronoiBuffer
 from ._freud import NeighborList
+from . import common
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,7 @@ class Voronoi:
         :param float buff: buffer width
         :type box: :py:class:`freud.box.Box`
         """
+        box = common.convert_box(box)
         self.box = box
         self.buff = buff
 
@@ -54,6 +56,7 @@ class Voronoi:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
+        box = common.convert_box(box)
         self.box = box
 
     def setBufferWidth(self, buff):
@@ -97,6 +100,8 @@ class Voronoi:
         # If box or buff is not specified, revert to object quantities
         if box is None:
             box = self.box
+        else:
+            box = common.convert_box(box)
         if buff is None:
             buff = self.buff
 
@@ -171,6 +176,8 @@ class Voronoi:
         # If box or buff is not specified, revert to object quantities
         if box is None:
             box = self.box
+        else:
+            box = common.convert_box(box)
         if buff is None:
             buff = self.buff
 

@@ -109,6 +109,7 @@ cdef class BondOrder:
         :type mode: str
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -356,6 +357,7 @@ cdef class LocalDescriptors:
                       shape= :math:`\\left(N_{particles}, 3 \\right)`,
                       dtype= :class:`numpy.float32`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -412,6 +414,7 @@ cdef class LocalDescriptors:
         :type mode: str
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -587,6 +590,7 @@ cdef class MatchEnv:
     cdef m_box
 
     def __cinit__(self, box, rmax, k):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -605,6 +609,7 @@ cdef class MatchEnv:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1060,6 +1065,7 @@ cdef class Pairing2D:
                                 dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 dim_message="points must be a 2 dimensional array")
@@ -1213,6 +1219,7 @@ cdef class AngularSeparation:
                            dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")

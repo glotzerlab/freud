@@ -50,6 +50,7 @@ cdef class Cluster:
     cdef rmax
 
     def __cinit__(self, box, float rcut):
+        box = freud.common.convert_box(box)
         self.thisptr = new cluster.Cluster(rcut)
         self.m_box = box
         self.rmax = rcut
@@ -97,6 +98,8 @@ cdef class Cluster:
 
         if box is None:
             box = self.m_box
+        else:
+            box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -229,6 +232,7 @@ cdef class ClusterProperties:
     cdef m_box
 
     def __cinit__(self, box):
+        box = freud.common.convert_box(box)
         self.thisptr = new cluster.ClusterProperties()
         self.m_box = box
 
@@ -270,6 +274,8 @@ cdef class ClusterProperties:
         """
         if box is None:
             box = self.m_box
+        else:
+            box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())

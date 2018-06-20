@@ -7,6 +7,7 @@ import copy
 from ._freud import FTdelta as _FTdelta
 from ._freud import FTsphere as _FTsphere
 from ._freud import FTpolyhedron as _FTpolyhedron
+from . import common
 
 
 def meshgrid2(*arrs):
@@ -78,6 +79,7 @@ class SFactor3DPoints:
         :type box: :py:class:`freud.box.Box`
         :type g: int
         """
+        box = common.convert_box(box)
         if box.is2D():
             raise ValueError("SFactor3DPoints does not support 2D boxes")
         self.grid = 2 * g + 1

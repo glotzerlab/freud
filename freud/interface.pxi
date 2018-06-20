@@ -23,6 +23,7 @@ cdef class InterfaceMeasure:
     cdef rmax
 
     def __cinit__(self, box, float r_cut):
+        box = freud.common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())

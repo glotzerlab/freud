@@ -382,6 +382,7 @@ cdef class HexOrderParameter:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 dim_message="points must be a 2 dimensional array")
@@ -506,6 +507,7 @@ cdef class TransOrderParameter:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 dim_message="points must be a 2 dimensional array")
@@ -625,6 +627,7 @@ cdef class LocalQl:
     cdef rmax
 
     def __cinit__(self, box, rmax, l, rmin=0):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box
         if type(self) is LocalQl:
             l_box = _box.Box(
@@ -665,6 +668,7 @@ cdef class LocalQl:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -950,6 +954,7 @@ cdef class LocalQlNear(LocalQl):
         # management in this inheritance structure.
         cdef _box.Box l_box
         if type(self) == LocalQlNear:
+            box = freud.common.convert_box(box)
             l_box = _box.Box(
                     box.getLx(), box.getLy(), box.getLz(),
                     box.getTiltFactorXY(), box.getTiltFactorXZ(),
@@ -1215,6 +1220,7 @@ cdef class LocalWlNear(LocalWl):
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box
         if type(self) is LocalWlNear:
             l_box = _box.Box(
@@ -1313,6 +1319,7 @@ cdef class SolLiq:
     cdef rmax
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1449,6 +1456,7 @@ cdef class SolLiq:
         :param box: simulation box
         :type box: :py:class:`freud.box.Box`
         """
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1639,6 +1647,7 @@ cdef class SolLiqNear(SolLiq):
     cdef num_neigh
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
+        box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())

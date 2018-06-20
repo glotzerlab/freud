@@ -84,6 +84,7 @@ cdef class FloatCF:
                       dtype= :class:`numpy.float64`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -329,6 +330,7 @@ cdef class ComplexCF:
                       dtype= :class:`numpy.complex128`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
@@ -568,6 +570,7 @@ cdef class GaussianDensity:
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`
         """
+        box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 dim_message="points must be a 2 dimensional array")
@@ -687,6 +690,7 @@ cdef class LocalDensity:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         if points is None:
             points = ref_points
         ref_points = freud.common.convert_array(
@@ -843,6 +847,7 @@ cdef class RDF:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
