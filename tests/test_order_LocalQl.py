@@ -25,19 +25,19 @@ class TestLocalQl(unittest.TestCase):
         comp = freud.order.LocalQl(box, 1.5, 6)
 
         comp.compute(positions)
-        self.assertAlmostEqual(np.average(comp.Ql), 0.57452422)
+        assert np.isclose(np.average(comp.Ql), 0.57452422, atol=1e-5)
         assert np.allclose(comp.Ql, comp.Ql[0])
 
         comp.computeAve(positions)
-        self.assertAlmostEqual(np.average(comp.Ql), 0.57452422)
+        assert np.isclose(np.average(comp.Ql), 0.57452422, atol=1e-5)
         assert np.allclose(comp.ave_Ql, comp.ave_Ql[0])
 
         comp.computeNorm(positions)
-        self.assertAlmostEqual(np.average(comp.Ql), 0.57452422)
+        assert np.isclose(np.average(comp.Ql), 0.57452422, atol=1e-5)
         assert np.allclose(comp.norm_Ql, comp.norm_Ql[0])
 
         comp.computeAveNorm(positions)
-        self.assertAlmostEqual(np.average(comp.Ql), 0.57452422)
+        assert np.isclose(np.average(comp.Ql), 0.57452422, atol=1e-5)
         assert np.allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0])
 
 
@@ -61,19 +61,19 @@ class TestLocalQlNear(unittest.TestCase):
         comp = freud.order.LocalQlNear(box, 1.5, 6, 12)
 
         comp.compute(positions)
-        self.assertAlmostEqual(np.average(comp.Ql), 0.57452416)
+        assert np.isclose(np.average(comp.Ql), 0.57452416, atol=1e-5)
         assert np.allclose(comp.Ql, comp.Ql[0])
 
         comp.computeAve(positions)
-        self.assertAlmostEqual(np.average(comp.Ql), 0.57452416)
+        assert np.isclose(np.average(comp.Ql), 0.57452416, atol=1e-5)
         assert np.allclose(comp.ave_Ql, comp.ave_Ql[0])
 
         comp.computeNorm(positions)
-        self.assertAlmostEqual(np.average(comp.Ql), 0.57452416)
+        assert np.isclose(np.average(comp.Ql), 0.57452416, atol=1e-5)
         assert np.allclose(comp.norm_Ql, comp.norm_Ql[0])
 
         comp.computeAveNorm(positions)
-        self.assertAlmostEqual(np.average(comp.Ql), 0.57452416)
+        assert np.isclose(np.average(comp.Ql), 0.57452416, atol=1e-5)
         assert np.allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0])
 
 
