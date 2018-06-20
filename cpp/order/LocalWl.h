@@ -1,17 +1,11 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <memory>
-#include <complex>
-
-#include "box.h"
-#include "VectorMath.h"
-#include "LinkCell.h"
-#include "fsph/src/spherical_harmonics.hpp"
-#include "wigner3j.h"
-
 #ifndef _LOCAL_WL_H__
 #define _LOCAL_WL_H__
+
+#include "wigner3j.h"
+#include "LocalQl.h"
 
 /*! \file LocalWl.h
     \brief Compute a Wl per particle
@@ -34,10 +28,10 @@ namespace freud { namespace order {
  * harmonics between particle i and its neighbors j and the neighbors k of
  * neighbor j in a local region:
  *
- * For more details see Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+ * For more details see Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
 
-class LocalWl
+class LocalWl : public LocalQl
     {
     public:
         //! LocalWl Class Constructor
@@ -52,36 +46,26 @@ class LocalWl
 
 
 
-        LocalWl(const box::Box& box, float rmax, unsigned int l);
+        LocalWl(const box::Box& box, float rmax, unsigned int l, float rmin=0);
 
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
-
-        //! Reset the simulation box size
-        void setBox(const box::Box newbox)
-            {
-            m_box = newbox;
-            }
+        ~LocalWl() {}
 
         //! Compute the local rotationally invariant Wl order parameter
-        void compute(const locality::NeighborList *nlist,
-                     const vec3<float> *points,
-                     unsigned int Np);
+        virtual void compute(const locality::NeighborList *nlist,
+                             const vec3<float> *points,
+                             unsigned int Np);
 
         //! Compute the Wl order parameter globally (averaging over the system Qlm)
-        void computeNorm(const vec3<float> *points,
+        virtual void computeNorm(const vec3<float> *points,
                          unsigned int Np);
 
         //! Compute the Wl order parameter with second shell (averaging over the second shell Qlm)
-        void computeAve(const locality::NeighborList *nlist,
+        virtual void computeAve(const locality::NeighborList *nlist,
                         const vec3<float> *points,
                         unsigned int Np);
 
         //! Compute the global Wl order parameter with second shell (averaging over the second shell Qlm)
-        void computeAveNorm(const vec3<float> *points,
+        virtual void computeAveNorm(const vec3<float> *points,
                             unsigned int Np);
 
         //! Get a reference to the last computed Wl/WlNorm for each particle.
@@ -106,12 +90,6 @@ class LocalWl
             return m_WliAveNorm;
             }
 
-        //! Get a reference to last computed Ql for each particle.
-        std::shared_ptr< float > getQl()
-            {
-            return m_Qli;
-            }
-
         void enableNormalization()
             {
                 m_normalizeWl=true;
@@ -121,33 +99,18 @@ class LocalWl
                 m_normalizeWl=false;
             }
 
-        unsigned int getNP()
-            {
-            return m_Np;
-            }
-
         //! Spherical harmonics calculation for Ylm filling a
         //  vector<complex<float>> with values for m = -l..l
-        void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
+        virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
 
     private:
-        box::Box m_box;          //!< Simulation box where the particles belong
-        float m_rmax;            //!< Maximum r at which to determine neighbors
-
-        unsigned int m_l;        //!< Spherical harmonic l value.
-        unsigned int m_Np;       //!< Last number of points computed
         unsigned int m_counter;  //!< Length of wigner3jvalues
         bool m_normalizeWl;      //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.
 
-        std::shared_ptr< std::complex<float> > m_Qlm;         //!< Normalized Qlm for the whole system
-        std::shared_ptr< std::complex<float> > m_Qlmi;        //!< Qlm for each particle i
-        std::shared_ptr< std::complex<float> > m_AveQlmi;     //!< Averaged Qlm with 2nd neighbor shell for each particle i
-        std::shared_ptr< std::complex<float> > m_AveQlm;      //!< Normalized AveQlmi for the whole system
         std::shared_ptr< std::complex<float> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
         std::shared_ptr< std::complex<float> > m_AveWli;      //!< Averaged Wl with 2nd neighbor shell for each particle i
         std::shared_ptr< std::complex<float> > m_WliNorm;     //!< Normalized Wl for the whole system
         std::shared_ptr< std::complex<float> > m_WliAveNorm;  //!< Normalized AveWl for the whole system
-        std::shared_ptr< float > m_Qli;             //!<  Need copy of Qli for normalization
         std::shared_ptr< float > m_wigner3jvalues;  //!<Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
     };
 
