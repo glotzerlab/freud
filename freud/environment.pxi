@@ -8,7 +8,6 @@ from .errors import FreudDeprecationWarning
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from freud.util._Boost cimport shared_array
-from libcpp import nullptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -467,7 +466,7 @@ cdef class LocalDescriptors:
         cdef NeighborList nlist_
         cdef locality.NeighborList *nlist_ptr
         if nlist == 'precomputed':
-            nlist_ptr = nullptr
+            nlist_ptr = NULL
         else:
             defaulted_nlist = make_default_nlist_nn(
                 box, points_ref, points, self.num_neigh, nlist, True, self.rmax)
