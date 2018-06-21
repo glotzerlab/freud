@@ -80,7 +80,10 @@ cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
         LocalQl(const box.Box &, float, unsigned int, float)
         const box.Box & getBox() const
+        unsigned int getNP()
         void setBox(const box.Box)
+        shared_array[float] getQl()
+
         void compute(const freud._locality.NeighborList * ,
                      const vec3[float]*,
                      unsigned int) nogil except +
@@ -91,36 +94,19 @@ cdef extern from "LocalQl.h" namespace "freud::order":
                          unsigned int) nogil except +
         void computeAveNorm(const vec3[float]*,
                             unsigned int) nogil except +
-        shared_array[float] getQl()
         shared_array[float] getAveQl()
         shared_array[float] getQlNorm()
         shared_array[float] getQlAveNorm()
-        unsigned int getNP()
-
 
 cdef extern from "LocalWl.h" namespace "freud::order":
-    cdef cppclass LocalWl:
-        LocalWl(const box.Box &, float, unsigned int)
-        const box.Box & getBox() const
-        void setBox(const box.Box)
-        void compute(const freud._locality.NeighborList * ,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
-        void computeAve(const freud._locality.NeighborList * ,
-                        const vec3[float]*,
-                        unsigned int) nogil except +
-        void computeNorm(const vec3[float]*,
-                         unsigned int) nogil except +
-        void computeAveNorm(const vec3[float]*,
-                            unsigned int) nogil except +
-        shared_array[float] getQl()
+    cdef cppclass LocalWl(LocalQl):
+        LocalWl(const box.Box &, float, unsigned int, float)
         shared_array[float complex] getWl()
         shared_array[float complex] getAveWl()
         shared_array[float complex] getWlNorm()
         shared_array[float complex] getAveNormWl()
         void enableNormalization()
         void disableNormalization()
-        unsigned int getNP()
 
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:

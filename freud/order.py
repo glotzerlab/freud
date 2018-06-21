@@ -41,7 +41,10 @@ class BondOrder(_EBO):
 
     """
     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
-        warnings.warn("This class is deprecated, use freud.environment.BondOrder instead!", FreudDeprecationWarning)
+        warnings.warn("This class is deprecated, use "
+                      "freud.environment.BondOrder instead!",
+                      FreudDeprecationWarning)
+
 
 class LocalDescriptors(_ELD):
     """
@@ -54,7 +57,10 @@ class LocalDescriptors(_ELD):
 
     """
     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
-        warnings.warn("This class is deprecated, use freud.environment.LocalDescriptors instead!", FreudDeprecationWarning)
+        warnings.warn("This class is deprecated, use "
+                      "freud.environment.LocalDescriptors instead!",
+                      FreudDeprecationWarning)
+
 
 class MatchEnv(_EME):
     """
@@ -67,7 +73,10 @@ class MatchEnv(_EME):
 
     """
     def __init__(self, box, rmax, k):
-        warnings.warn("This class is deprecated, use freud.environment.MatchEnv instead!", FreudDeprecationWarning)
+        warnings.warn("This class is deprecated, use "
+                      "freud.environment.MatchEnv instead!",
+                      FreudDeprecationWarning)
+
 
 class Pairing2D(_EP):
     """
@@ -80,7 +89,9 @@ class Pairing2D(_EP):
 
     """
     def __init__(self, rmax, k, compDotTol):
-        warnings.warn("This class is deprecated, use freud.bond instead!", FreudDeprecationWarning)
+        warnings.warn("This class is deprecated, use "
+                      "freud.bond instead!", FreudDeprecationWarning)
+
 
 class AngularSeparation(_EAS):
     """
@@ -93,4 +104,6 @@ class AngularSeparation(_EAS):
 
     """
     def __init__(self, rmax, n):
-        warnings.warn("This class is deprecated, use freud.environment.AngularSeparation instead!", FreudDeprecationWarning)
+        warnings.warn("This class is deprecated, use "
+                      "freud.environment.AngularSeparation instead!",
+                      FreudDeprecationWarning)

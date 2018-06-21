@@ -5,7 +5,7 @@
 
 #include "MatchEnv.h"
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 // Constructor for EnvDisjointSet
 // Taken partially from Cluster.cc
@@ -997,4 +997,4 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
     m_num_clusters = cur_set;
     }
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
