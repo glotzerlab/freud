@@ -7,8 +7,8 @@
 
 #include "VectorMath.h"
 
-#ifndef _KSPACE_H__
-#define _KSPACE_H__
+#ifndef __KSPACE_H__
+#define __KSPACE_H__
 
 //! \package freud::kspace Provides tools for calculating density in reciprocal space
 /*! For analyzing periodicity or simulating diffraction patterns
@@ -153,4 +153,4 @@ class FTpolyhedron: public FTdelta
 
 }; }; // end namespace freud::kspace
 
-#endif // _KSPACE_H__
+#endif // __KSPACE_H__

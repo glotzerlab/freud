@@ -12,8 +12,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _NEMATIC_ORDER_PARAMETER_H__
-#define _NEMATIC_ORDER_PARAMETER_H__
+#ifndef __NEMATIC_ORDER_PARAMETER_H__
+#define __NEMATIC_ORDER_PARAMETER_H__
 
 /*! \file NematicOrderParameter.h
     \brief Compute the nematic order parameter for each particle
@@ -65,4 +65,4 @@ class NematicOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _NEMATIC_ORDER_PARAMETER_H__
+#endif // __NEMATIC_ORDER_PARAMETER_H__

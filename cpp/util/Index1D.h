@@ -231,4 +231,3 @@ class Index3D
     };
 
 #endif
-

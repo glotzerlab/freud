@@ -10,8 +10,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _BOND_ORDER_H__
-#define _BOND_ORDER_H__
+#ifndef __BOND_ORDER_H__
+#define __BOND_ORDER_H__
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.
@@ -101,4 +101,4 @@ class BondOrder
 
 }; }; // end namespace freud::order
 
-#endif // _BOND_ORDER_H__
+#endif // __BOND_ORDER_H__

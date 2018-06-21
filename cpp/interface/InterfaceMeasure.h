@@ -7,8 +7,8 @@
 #include "VectorMath.h"
 #include "LinkCell.h"
 
-#ifndef _INTERFACEMEASURE_H__
-#define _INTERFACEMEASURE_H__
+#ifndef __INTERFACE_MEASURE_H__
+#define __INTERFACE_MEASURE_H__
 
 /*! \file InterfaceMeasure.h
     \brief Compute the size of an interface between two point clouds.
@@ -52,4 +52,4 @@ class InterfaceMeasure
 
 }; }; // end namespace freud::interface
 
-#endif // _INTERFACEMEASURE_H__
+#endif // __INTERFACE_MEASURE_H__

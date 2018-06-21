@@ -10,8 +10,8 @@
 #include "LinkCell.h"
 #include "PMFT.h"
 
-#ifndef _PMFTXYT_H__
-#define _PMFTXYT_H__
+#ifndef __PMFTXYT_H__
+#define __PMFTXYT_H__
 
 /*! \file PMFTXYT.h
     \brief Routines for computing PMFT in the XYT coordinate system
@@ -101,4 +101,4 @@ class PMFTXYT : public PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFTXYT_H__
+#endif // __PMFTXYT_H__

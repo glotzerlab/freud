@@ -8,8 +8,8 @@
 #include "VectorMath.h"
 #include "Index1D.h"
 
-#ifndef _VORONOIBUFFER_H__
-#define _VORONOIBUFFER_H__
+#ifndef __VORONOIBUFFER_H__
+#define __VORONOIBUFFER_H__
 
 /*! \file VoronoiBuffer.h
     \brief Computes a buffer of particles to support wrapped positions in qhull
@@ -53,4 +53,4 @@ class VoronoiBuffer
 
 }; }; // end namespace freud::voronoi
 
-#endif
+#endif // __VORONOI_BUFFER_H__

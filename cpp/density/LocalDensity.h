@@ -9,8 +9,8 @@
 #include "VectorMath.h"
 #include "NeighborList.h"
 
-#ifndef _LOCAL_DENSITY_H__
-#define _LOCAL_DENSITY_H__
+#ifndef __LOCAL_DENSITY_H__
+#define __LOCAL_DENSITY_H__
 
 /*! \file LocalDensity.h
     \brief Routines for computing local density around a point.
@@ -66,4 +66,4 @@ class LocalDensity
 
 }; }; // end namespace freud::density
 
-#endif // _LOCAL_DENSITY_H__
+#endif // __LOCAL_DENSITY_H__

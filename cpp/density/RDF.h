@@ -10,8 +10,8 @@
 #include "NeighborList.h"
 #include "Index1D.h"
 
-#ifndef _RDF_H__
-#define _RDF_H__
+#ifndef __RDF_H__
+#define __RDF_H__
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
@@ -82,4 +82,4 @@ class RDF
 
 }; }; // end namespace freud::density
 
-#endif // _RDF_H__
+#endif // __RDF_H__

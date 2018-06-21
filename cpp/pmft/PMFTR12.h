@@ -10,8 +10,8 @@
 #include "LinkCell.h"
 #include "PMFT.h"
 
-#ifndef _PMFTR12_H__
-#define _PMFTR12_H__
+#ifndef __PMFTR12_H__
+#define __PMFTR12_H__
 
 /*! \file PMFTR12.h
     \brief Routines for computing PMFT in the R12 coordinate system
@@ -112,4 +112,4 @@ class PMFTR12 : public PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFTR12_H__
+#endif // __PMFTR12_H__

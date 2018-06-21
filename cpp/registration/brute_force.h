@@ -21,8 +21,8 @@
 #include "Eigen/Eigen/Dense"
 #include "Eigen/Eigen/Sparse"
 
-#ifndef _BRUTE_FORCE_H__
-#define _BRUTE_FORCE_H__
+#ifndef __BRUTE_FORCE_H__
+#define __BRUTE_FORCE_H__
 
 namespace freud { namespace registration {
 

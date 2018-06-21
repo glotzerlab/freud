@@ -9,8 +9,8 @@
 
 #include "VectorMath.h"
 
-#ifndef _BOX_H__
-#define _BOX_H__
+#ifndef __BOX_H__
+#define __BOX_H__
 
 /*! \file box.h
     \brief Represents simulation boxes and contains helpful wrapping functions.
@@ -394,4 +394,4 @@ class Box
 
 }; }; // end namespace freud::box
 
-#endif // _BOX_H__
+#endif // __BOX_H__

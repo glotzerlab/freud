@@ -11,8 +11,8 @@
 
 #include "tbb/atomic.h"
 
-#ifndef _NEAREST_NEIGHBORS_H__
-#define _NEAREST_NEIGHBORS_H__
+#ifndef __NEAREST_NEIGHBORS_H__
+#define __NEAREST_NEIGHBORS_H__
 
 /*! \file NearestNeighbors.h
   \brief Find the requested number of nearest neighbors.
@@ -103,4 +103,4 @@ class NearestNeighbors
 
 }; }; // end namespace freud::locality
 
-#endif // _NEAREST_NEIGHBORS_H__
+#endif // __NEAREST_NEIGHBORS_H__

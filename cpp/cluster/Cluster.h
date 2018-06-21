@@ -10,8 +10,8 @@
 #include "VectorMath.h"
 #include "LinkCell.h"
 
-#ifndef _CLUSTER_H__
-#define _CLUSTER_H__
+#ifndef __CLUSTER_H__
+#define __CLUSTER_H__
 
 /*! \file Cluster.h
     \brief Routines for clustering points.
@@ -108,4 +108,4 @@ class Cluster
 
 }; }; // end namespace freud::cluster
 
-#endif // _CLUSTER_H__
+#endif // __CLUSTER_H__

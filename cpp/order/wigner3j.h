@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#ifndef _WIGNER3J_H
-#define _WIGNER3J_H
+#ifndef __WIGNER3J_H__
+#define __WIGNER3J_H__
 
 /*! \file wigner3j.h
  *  \brief Stores wigner3j coefficients for l ranging from 2 to 20
@@ -44,4 +44,4 @@ with open('wigner3j.json', 'w') as jsonfile:
 sio.savemat('wigner3j.mat',wigner)'''
 */
 
-#endif
+#endif // __WIGNER3J_H__

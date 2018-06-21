@@ -8,8 +8,8 @@
 #include "VectorMath.h"
 #include "LinkCell.h"
 
-#ifndef _CORRELATIONFUNCTION_H__
-#define _CORRELATIONFUNCTION_H__
+#ifndef __CORRELATION_FUNCTION_H__
+#define __CORRELATION_FUNCTION_H__
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.
@@ -175,4 +175,4 @@ class ComputeOCF
 
 }; }; // end namespace freud::density
 
-#endif // _CORRELATIONFUNCTION_H__
+#endif // __CORRELATION_FUNCTION_H__

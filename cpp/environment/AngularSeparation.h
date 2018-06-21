@@ -11,8 +11,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _ANGULAR_SEPARATION_H__
-#define _ANGULAR_SEPARATION_H__
+#ifndef __ANGULAR_SEPARATION_H__
+#define __ANGULAR_SEPARATION_H__
 
 /*! \file AngularSeparation.h
     \brief Compute the angular separation for each particle.
@@ -96,4 +96,4 @@ class AngularSeparation
 
 }; }; // end namespace freud::order
 
-#endif // _ANGULAR_SEPARATION_H__
+#endif // __ANGULAR_SEPARATION_H__

@@ -12,8 +12,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _BONDING_XYT_H__
-#define _BONDING_XYT_H__
+#ifndef __BONDING_XYT_H__
+#define __BONDING_XYT_H__
 
 namespace freud { namespace bond {
 
@@ -91,4 +91,4 @@ class BondingXYT
 
 }; }; // end namespace freud::bond
 
-#endif // _BONDING_XYT_H__
+#endif // __BONDING_XYT_H__

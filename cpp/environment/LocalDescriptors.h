@@ -10,8 +10,8 @@
 
 #include "tbb/atomic.h"
 
-#ifndef _LOCAL_DESCRIPTORS_H__
-#define _LOCAL_DESCRIPTORS_H__
+#ifndef __LOCAL_DESCRIPTORS_H__
+#define __LOCAL_DESCRIPTORS_H__
 
 /*! \file LocalDescriptors.h
   \brief Computes local descriptors.
@@ -110,4 +110,4 @@ private:
 
 }; }; // end namespace freud::order
 
-#endif // _LOCAL_DESCRIPTORS_H__
+#endif // __LOCAL_DESCRIPTORS_H__

@@ -5,8 +5,8 @@
 
 #include "box.h"
 
-#ifndef _CLUSTER_PROPERTIES_H__
-#define _CLUSTER_PROPERTIES_H__
+#ifndef __CLUSTER_PROPERTIES_H__
+#define __CLUSTER_PROPERTIES_H__
 
 /*! \file ClusterProperties.h
     \brief Routines for computing properties of point clusters.
@@ -77,4 +77,4 @@ class ClusterProperties
 
 }; }; // end namespace freud::cluster
 
-#endif // _CLUSTER_PROPERTIES_H__
+#endif // __CLUSTER_PROPERTIES_H__

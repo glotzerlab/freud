@@ -8,8 +8,8 @@
 #include "NeighborList.h"
 #include "Index1D.h"
 
-#ifndef _LINKCELL_H__
-#define _LINKCELL_H__
+#ifndef __LINKCELL_H__
+#define __LINKCELL_H__
 
 /*! \file LinkCell.h
     \brief Build a cell list from a set of points.
@@ -456,4 +456,4 @@ class LinkCell
 
 }; }; // end namespace freud::locality
 
-#endif // _LINKCELL_H__
+#endif // __LINKCELL_H__

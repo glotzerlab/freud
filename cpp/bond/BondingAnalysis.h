@@ -13,8 +13,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _BONDING_ANALYSIS_H__
-#define _BONDING_ANALYSIS_H__
+#ifndef __BONDING_ANALYSIS_H__
+#define __BONDING_ANALYSIS_H__
 
 /*! \file BondingAnalysis.h
     \brief Determines the bond lifetimes and flux present in the system.
@@ -76,4 +76,4 @@ class BondingAnalysis
 
 }; }; // end namespace freud::bond
 
-#endif // _BONDING_ANALYSIS_H__
+#endif // __BONDING_ANALYSIS_H__

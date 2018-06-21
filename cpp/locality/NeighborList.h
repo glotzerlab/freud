@@ -6,8 +6,8 @@
 #include "box.h"
 #include "VectorMath.h"
 
-#ifndef _NEIGHBOR_LIST_H__
-#define _NEIGHBOR_LIST_H__
+#ifndef __NEIGHBOR_LIST_H__
+#define __NEIGHBOR_LIST_H__
 
 namespace freud { namespace locality {
 
@@ -87,4 +87,4 @@ class NeighborList
 
 }; }; // end namespace freud::locality
 
-#endif // _NEIGHBOR_LIST_H__
+#endif // __NEIGHBOR_LIST_H__

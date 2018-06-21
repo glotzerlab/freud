@@ -10,8 +10,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _PAIRING2D_H__
-#define _PAIRING2D_H__
+#ifndef __PAIRING2D_H__
+#define __PAIRING2D_H__
 
 namespace freud { namespace order {
 
@@ -83,4 +83,4 @@ class Pairing2D
 
 }; }; // end namespace freud::order
 
-#endif // _PAIRING2D_H__
+#endif // __PAIRING2D_H__

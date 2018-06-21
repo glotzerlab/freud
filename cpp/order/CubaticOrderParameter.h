@@ -12,8 +12,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _CUBATIC_ORDER_PARAMETER_H__
-#define _CUBATIC_ORDER_PARAMETER_H__
+#ifndef __CUBATIC_ORDER_PARAMETER_H__
+#define __CUBATIC_ORDER_PARAMETER_H__
 
 /*! \file CubaticOrderParameter.h
     \brief Compute the cubatic order parameter for each particle.
@@ -101,4 +101,4 @@ class CubaticOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _CUBATIC_ORDER_PARAMETER_H__
+#endif // __CUBATIC_ORDER_PARAMETER_H__

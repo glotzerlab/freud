@@ -11,8 +11,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _TRANS_ORDER_PARAMETER_H__
-#define _TRANS_ORDER_PARAMETER_H__
+#ifndef __TRANS_ORDER_PARAMETER_H__
+#define __TRANS_ORDER_PARAMETER_H__
 
 /*! \file TransOrderParameter.h
     \brief Compute the translational order parameter for each particle
@@ -65,4 +65,4 @@ class TransOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _TRANS_ORDER_PARAMETER_H__
+#endif // __TRANS_ORDER_PARAMETER_H__

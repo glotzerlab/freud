@@ -15,8 +15,8 @@
 #include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
-#ifndef _SOL_LIQ_H__
-#define _SOL_LIQ_H__
+#ifndef __SOL_LIQ_H__
+#define __SOL_LIQ_H__
 
 namespace freud { namespace order {
 
@@ -177,4 +177,4 @@ class SolLiq
 
 }; }; // end namespace freud::order
 
-#endif // _SOL_LIQ_H__
+#endif // __SOL_LIQ_H__

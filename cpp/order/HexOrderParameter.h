@@ -11,8 +11,8 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _HEX_ORDER_PARAMETER_H__
-#define _HEX_ORDER_PARAMETER_H__
+#ifndef __HEX_ORDER_PARAMETER_H__
+#define __HEX_ORDER_PARAMETER_H__
 
 /*! \file HexOrderParameter.h
     \brief Compute the hexatic order parameter for each particle.
@@ -70,4 +70,4 @@ class HexOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _HEX_ORDER_PARAMETER_H__
+#endif // __HEX_ORDER_PARAMETER_H__

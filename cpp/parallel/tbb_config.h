@@ -4,8 +4,8 @@
 #include <ostream>
 #include <tbb/tbb.h>
 
-#ifndef _TBB_CONFIG_H__
-#define _TBB_CONFIG_H__
+#ifndef __TBB_CONFIG_H__
+#define __TBB_CONFIG_H__
 
 /*! \file tbb_config.h
     \brief Helper functions to configure tbb
@@ -18,4 +18,4 @@ void setNumThreads(unsigned int N);
 
 } } // end namespace freud::parallel
 
-#endif
+#endif // __TBB_CONFIG_H__

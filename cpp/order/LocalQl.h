@@ -11,8 +11,8 @@
 #include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
-#ifndef _LOCAL_QL_H__
-#define _LOCAL_QL_H__
+#ifndef __LOCAL_QL_H__
+#define __LOCAL_QL_H__
 
 /*! \file LocalQl.h
     \brief Compute the Ql Steinhardt order parameter.
@@ -161,4 +161,4 @@ class LocalQl
 }; // end namespace freud::order
 }; // end namespace freud
 
-#endif // #define _LOCAL_QL_H__
+#endif // __LOCAL_QL_H__

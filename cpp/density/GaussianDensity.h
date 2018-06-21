@@ -8,8 +8,8 @@
 #include "VectorMath.h"
 #include "Index1D.h"
 
-#ifndef _GAUSSIANDENSITY_H__
-#define _GAUSSIANDENSITY_H__
+#ifndef __GAUSSIAN_DENSITY_H__
+#define __GAUSSIAN_DENSITY_H__
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.
@@ -76,4 +76,4 @@ class GaussianDensity
 
 }; }; // end namespace freud::density
 
-#endif
+#endif // __GAUSSIAN_DENSITY_H__

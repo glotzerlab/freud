@@ -11,8 +11,8 @@
 #include "Index1D.h"
 #include "PMFT.h"
 
-#ifndef _PMFTXYZ_H__
-#define _PMFTXYZ_H__
+#ifndef __PMFTXYZ_H__
+#define __PMFTXYZ_H__
 
 /*! \internal
     \file PMFTXYZ.h
@@ -118,4 +118,4 @@ class PMFTXYZ : public PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFTXYZ_H__
+#endif // __PMFTXYZ_H__

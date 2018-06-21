@@ -1,5 +1,5 @@
-#ifndef _BIMAP_H__
-#define _BIMAP_H__
+#ifndef __BIMAP_H__
+#define __BIMAP_H__
 
 #include <set>
 #include <vector>
