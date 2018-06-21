@@ -24,7 +24,7 @@
     \brief Particle environment matching
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 //! Clusters particles according to whether their local environments match or not, according to various shape matching metrics
 
 //! My environment data structure
@@ -223,6 +223,6 @@ class MatchEnv
         std::shared_ptr<vec3<float> > m_tot_env;                                //!< m_NP by m_maxk by 3 matrix of all environments for all particles
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
 #endif // MATCH_ENV_H

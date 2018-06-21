@@ -13,7 +13,7 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 //! Computes the number of matches for a given set of points
 /*!
@@ -81,6 +81,6 @@ class Pairing2D
 
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
 #endif // PAIRING2D_H

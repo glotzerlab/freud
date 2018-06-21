@@ -17,7 +17,7 @@
   \brief Computes local descriptors.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 enum LocalDescriptorOrientation {
     LocalNeighborhood,
@@ -108,6 +108,6 @@ private:
     std::shared_ptr<std::complex<float> > m_sphArray;
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
 #endif // LOCAL_DESCRIPTORS_H

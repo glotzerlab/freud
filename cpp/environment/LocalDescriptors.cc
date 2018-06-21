@@ -19,7 +19,7 @@ using hoomd::matrix::diagonalize;
   \brief Computes local descriptors.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 LocalDescriptors::LocalDescriptors(
         unsigned int neighmax, unsigned int lmax, float rmax, bool negative_m):
@@ -187,4 +187,4 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
     m_nSphs = nlist->getNumBonds();
     }
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
