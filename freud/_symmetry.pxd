@@ -10,10 +10,17 @@ from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 from libcpp.unordered_set cimport unordered_set
+from libcpp.string cimport string
 cimport freud._box as box
 cimport freud._locality
 
 cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
+    struct FoundSymmetry:
+        int n
+        vec3[float] v
+        quat[float] q
+        float measured_order
+
     cdef cppclass SymmetryCollection:
         SymmetryCollection(unsigned int)
         void compute(box.Box & ,
@@ -27,9 +34,9 @@ cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
         int getNP()
         int getMaxL()
         void rotate(const quat[float]&)
-        int searchSymmetry(bool)
-        void symmetrize(bool)
-        quat[float] getHighestSymmetryQuat()
+        vector[FoundSymmetry] getSymmetries()
+        string getLaueGroup()
+
 
 cdef extern from "Geodesation.h" namespace "freud::symmetry":
     cdef cppclass Geodesation:

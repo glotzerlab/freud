@@ -69,7 +69,7 @@ namespace freud { namespace symmetry {
     }
 
     Geodesation::~Geodesation(){
-        
+
     }
 
     void Geodesation::geodesate() {
@@ -78,7 +78,7 @@ namespace freud { namespace symmetry {
 
         for (int n = 0; n < oldSimplexList->size(); n++) {
             vector<int> simplex = oldSimplexList->at(n);
-            
+
             // vertex indices
             int i0 = simplex[0];
             int i1 = simplex[1];
@@ -178,7 +178,7 @@ namespace freud { namespace symmetry {
                 i1++;
             }
         }
-        
+
         if (equalNum != 2) return;
         // we found neighbors, update links
         m_simplexList->at(s0)[3 + n0] = s1;
@@ -186,17 +186,6 @@ namespace freud { namespace symmetry {
     }
 
     shared_ptr<vector<vec3<float> > > Geodesation::getVertexList() {
-        
-        // /*test starts*/
-        // cout << "getVertexList" << endl;
-        // cout << "m_vertexList.size(): " << m_vertexList->size() << endl;   
-        // for (int i = 0; i < m_vertexList->size(); ++i) {
-        //     cout << "m_vertexList[" << i << "]: "
-        //          << m_vertexList->at(i).x << "\t" << m_vertexList->at(i).y 
-        //          << "\t" << m_vertexList->at(i).z << endl;
-        // }
-        // /*test ends*/
-        //m_vertexList = make_shared<vector<vec3<float> > >(vertexList);
         return m_vertexList;
     }
 
@@ -214,18 +203,18 @@ namespace freud { namespace symmetry {
             network->at(i[2]).insert(i[0]);
             network->at(i[2]).insert(i[1]);
         }
-        
+
         return network;
     }
-    
+
     unsigned int Geodesation::getNVertices() {
         return m_vertexList->size();
     }
-        
+
     unsigned int Geodesation::getNSimplices() {
         return m_simplexList->size();
     }
-    
+
     int Geodesation::findNeighborMidVertex(vector<int> points, int s) {
         // make use of the previously stored midpoints
         points.resize(6);
@@ -236,7 +225,7 @@ namespace freud { namespace symmetry {
             return points[1];
         }
         if (s == points[5]) {
-            return points[2];   
+            return points[2];
         }
         return -1;
     }

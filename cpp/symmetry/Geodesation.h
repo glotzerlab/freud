@@ -23,7 +23,7 @@ namespace freud { namespace symmetry {
 //! Compute the geodesation
 /*!
 */
-    
+
 
 class Geodesation {
     public:
@@ -36,10 +36,12 @@ class Geodesation {
 
         shared_ptr<vector<unordered_set<int> > > getNeighborList();
 
+        unsigned int getNVertices();
+
         void geodesate();
 
-    //private:
-        
+    private:
+
         int createVertex(float x, float y, float z);
 
         int createSimplex(int v0, int v1, int v2);
@@ -50,18 +52,17 @@ class Geodesation {
 
         int createMidVertex(int i0, int i1);
 
-        unsigned int getNVertices();
+
 
         unsigned int getNSimplices();
 
-        
+
 
     private:
         shared_ptr<vector<vec3<float> > > m_vertexList;
         shared_ptr<vector<vector<int> > > m_simplexList;
-        //vector<vec3<float> > vertexList;
 
-        
+
 
 
 };

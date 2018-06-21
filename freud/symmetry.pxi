@@ -136,53 +136,68 @@ cdef class SymmetryCollection:
                       dtype= :class:`numpy.float32`
         :rtype: void
         """
-    
+
         q = freud.common.convert_array(q, 1, dtype=np.float32, contiguous=True,
                 dim_message="q must be a 1x4 dimensional array")
         if q.shape[0] != 4:
             raise TypeError('q should be an 1x4 array')
         cdef np.ndarray[float, ndim= 1] l_q = q
-        
+
         self.thisptr.rotate(< const quat[float] &> l_q[0])
         return self
-        
-
-    def searchSymmetry(self, perpendicular):
-        """search for the best symmetry
-
-        :param perpendicular: perpendicular to z axis 
-        :type perpendicualr: bool
-        :return: highestSymmetry
-        :rtype: int
-       
-        """
-        return self.thisptr.searchSymmetry(bool(perpendicular))
 
 
-    def symmetrize(self, onlyLocal):
-        """detect symmetries.
+   # def getHighestSymmetryQuat(self):
 
-        :param onlyLocal: search for local region
-        :type onlyLocal: bool
-        :rtype: void
-       
-        """
-        return self.thisptr.symmetrize(bool(onlyLocal))
-
-
-    def getHighestSymmetryQuat(self):
         """find quaternion to the highest-symmetry axis.
 
         :return: orientation of highest symmetry axis
         :rtype: class:`numpy.ndarray`,
                        shape= 4 (r, v.x, v.y, v.z),
                        dtype= :class:`numpy.float32`
-       
+
         """
-        cdef quat[float] q = self.thisptr.getHighestSymmetryQuat()
-        cdef np.ndarray[float, ndim = 1] result = np.array(
-                [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
-        return result
+    #    cdef quat[float] q = self.thisptr.getHighestSymmetryQuat()
+     #   cdef np.ndarray[float, ndim = 1] result = np.array(
+      #          [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
+       # return result
+
+
+    @property
+    def symmetries(self):
+        """Return the found symmetries.
+        """
+        return self.getSymmetries()
+
+    def getSymmetries(self):
+        """Return the found symmetries.
+
+        :return: Symmetry axes detected
+        :rtype: :class:`numpy.ndarray`,
+                shape=(:math:`N_{particles}`, varying),
+                dtype= :class:`numpy.uint32`
+        """
+        cdef vector[symmetry.FoundSymmetry] cpp_symmetries = self.thisptr.getSymmetries()
+        cdef np.ndarray[float, ndim = 1] vert = np.zeros(3, dtype=np.float32)
+        cdef np.ndarray[float, ndim = 1] quat = np.zeros(4, dtype=np.float32)
+        symmetries = []
+        for symm in cpp_symmetries:
+            vert = np.array(
+                [symm.v.x, symm.v.y, symm.v.z], dtype=np.float32)
+            quat = np.array(
+                [symm.q.s, symm.q.v.x, symm.q.v.y, symm.q.v.z], dtype=np.float32)
+            symmetries.append({
+                'n': symm.n,
+                'vertex': vert,
+                'quaternion': quat,
+                'measured_order': symm.measured_order})
+        return symmetries
+
+
+    def getLaueGroup(self):
+        cdef string cpp_string = self.thisptr.getLaueGroup()
+        return cpp_string.decode('UTF-8')
+
 
     # def get_symmetric_orientation(self):
     #     """
@@ -196,7 +211,7 @@ cdef class SymmetryCollection:
 
 
 cdef class Geodesation:
-    """Compute the 
+    """Compute the
 
     .. moduleauthor:: Bradley Dice <bdice@umich.edu>
     .. moduleauthor:: Yezhi Jin <jinyezhi@umich.edu>
@@ -260,4 +275,4 @@ cdef class Geodesation:
                 result.append([i, j])
         return result
 
-  
+
