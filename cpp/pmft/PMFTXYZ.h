@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __PMFTXYZ_H__
+#define __PMFTXYZ_H__
+
 #include <memory>
 #include <ostream>
 #include <tbb/tbb.h>
@@ -10,9 +13,6 @@
 #include "LinkCell.h"
 #include "Index1D.h"
 #include "PMFT.h"
-
-#ifndef __PMFTXYZ_H__
-#define __PMFTXYZ_H__
 
 /*! \internal
     \file PMFTXYZ.h

@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __CUBATIC_ORDER_PARAMETER_H__
+#define __CUBATIC_ORDER_PARAMETER_H__
+
 #include <memory>
 #include <ostream>
 #include <tbb/tbb.h>
@@ -11,9 +14,6 @@
 #include "saruprng.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef __CUBATIC_ORDER_PARAMETER_H__
-#define __CUBATIC_ORDER_PARAMETER_H__
 
 /*! \file CubaticOrderParameter.h
     \brief Compute the cubatic order parameter for each particle.

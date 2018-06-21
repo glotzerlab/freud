@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __LOCAL_QL_H__
+#define __LOCAL_QL_H__
+
 #include <memory>
 #include <complex>
 #include <cstring>
@@ -10,9 +13,6 @@
 #include "VectorMath.h"
 #include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
-
-#ifndef __LOCAL_QL_H__
-#define __LOCAL_QL_H__
 
 /*! \file LocalQl.h
     \brief Compute the Ql Steinhardt order parameter.

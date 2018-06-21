@@ -1,14 +1,14 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __KSPACE_H__
+#define __KSPACE_H__
+
 #include <complex>
 #include <memory>
 #include <vector>
 
 #include "VectorMath.h"
-
-#ifndef __KSPACE_H__
-#define __KSPACE_H__
 
 //! \package freud::kspace Provides tools for calculating density in reciprocal space
 /*! For analyzing periodicity or simulating diffraction patterns

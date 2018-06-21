@@ -4,8 +4,8 @@
 #ifndef __LOCAL_WL_H__
 #define __LOCAL_WL_H__
 
-#include "wigner3j.h"
 #include "LocalQl.h"
+#include "wigner3j.h"
 
 /*! \file LocalWl.h
     \brief Compute a Wl per particle

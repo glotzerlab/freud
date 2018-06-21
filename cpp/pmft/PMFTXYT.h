@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __PMFTXYT_H__
+#define __PMFTXYT_H__
+
 #include <memory>
 #include <ostream>
 #include <tbb/tbb.h>
@@ -9,9 +12,6 @@
 #include "VectorMath.h"
 #include "LinkCell.h"
 #include "PMFT.h"
-
-#ifndef __PMFTXYT_H__
-#define __PMFTXYT_H__
 
 /*! \file PMFTXYT.h
     \brief Routines for computing PMFT in the XYT coordinate system

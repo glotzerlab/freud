@@ -1,10 +1,10 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <vector>
-
 #ifndef __WIGNER3J_H__
 #define __WIGNER3J_H__
+
+#include <vector>
 
 /*! \file wigner3j.h
  *  \brief Stores wigner3j coefficients for l ranging from 2 to 20

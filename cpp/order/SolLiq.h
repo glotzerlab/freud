@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __SOL_LIQ_H__
+#define __SOL_LIQ_H__
+
 #include <algorithm>
 #include <complex>
 #include <map>
@@ -14,9 +17,6 @@
 #include "Cluster.h"
 #include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
-
-#ifndef __SOL_LIQ_H__
-#define __SOL_LIQ_H__
 
 namespace freud { namespace order {
 

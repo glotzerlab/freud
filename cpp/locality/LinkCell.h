@@ -1,15 +1,15 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __LINKCELL_H__
+#define __LINKCELL_H__
+
 #include <memory>
 #include <vector>
 
 #include "box.h"
 #include "NeighborList.h"
 #include "Index1D.h"
-
-#ifndef __LINKCELL_H__
-#define __LINKCELL_H__
 
 /*! \file LinkCell.h
     \brief Build a cell list from a set of points.

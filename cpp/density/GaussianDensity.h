@@ -1,15 +1,15 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __GAUSSIAN_DENSITY_H__
+#define __GAUSSIAN_DENSITY_H__
+
 #include <memory>
 #include <tbb/tbb.h>
 
 #include "box.h"
 #include "VectorMath.h"
 #include "Index1D.h"
-
-#ifndef __GAUSSIAN_DENSITY_H__
-#define __GAUSSIAN_DENSITY_H__
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.

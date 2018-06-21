@@ -1,10 +1,10 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include "HOOMDMath.h"
-
 #ifndef __TENSOR_MATH_H__
 #define __TENSOR_MATH_H__
+
+#include "HOOMDMath.h"
 
 template < class Real >
 struct tensor4

@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __LOCAL_DESCRIPTORS_H__
+#define __LOCAL_DESCRIPTORS_H__
+
 #include <memory>
 
 #include "box.h"
@@ -9,9 +12,6 @@
 #include "fsph/src/spherical_harmonics.hpp"
 
 #include "tbb/atomic.h"
-
-#ifndef __LOCAL_DESCRIPTORS_H__
-#define __LOCAL_DESCRIPTORS_H__
 
 /*! \file LocalDescriptors.h
   \brief Computes local descriptors.

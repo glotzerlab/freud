@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef __BONDING_R12_H__
+#define __BONDING_R12_H__
+
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -11,9 +14,6 @@
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef __BONDING_R12_H__
-#define __BONDING_R12_H__
 
 namespace freud { namespace bond {
 
