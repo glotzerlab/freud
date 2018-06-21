@@ -799,7 +799,7 @@ cdef class LocalQl:
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         cdef np.ndarray[float, ndim = 2] l_points = points
@@ -827,7 +827,7 @@ cdef class LocalQl:
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -857,7 +857,7 @@ cdef class LocalQl:
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -887,7 +887,7 @@ cdef class LocalQl:
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
