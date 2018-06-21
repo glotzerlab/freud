@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 * Fix cython passing C++ the default argument force\_resize to NeighborList::resize.
 
+### Removed
+* Undocumented shapesplit module
+
 ## v0.8.2 - 2018-06-07
 
 ### Added
