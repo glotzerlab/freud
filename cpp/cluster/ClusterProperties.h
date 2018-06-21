@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __CLUSTER_PROPERTIES_H__
-#define __CLUSTER_PROPERTIES_H__
+#ifndef CLUSTER_PROPERTIES_H
+#define CLUSTER_PROPERTIES_H
 
 #include <memory>
 
@@ -77,4 +77,4 @@ class ClusterProperties
 
 }; }; // end namespace freud::cluster
 
-#endif // __CLUSTER_PROPERTIES_H__
+#endif // CLUSTER_PROPERTIES_H

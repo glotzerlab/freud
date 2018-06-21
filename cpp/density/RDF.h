@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __RDF_H__
-#define __RDF_H__
+#ifndef RDF_H
+#define RDF_H
 
 #include <memory>
 #include <ostream>
@@ -82,4 +82,4 @@ class RDF
 
 }; }; // end namespace freud::density
 
-#endif // __RDF_H__
+#endif // RDF_H

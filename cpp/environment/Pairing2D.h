@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __PAIRING2D_H__
-#define __PAIRING2D_H__
+#ifndef PAIRING2D_H
+#define PAIRING2D_H
 
 #include <memory>
 #include <ostream>
@@ -83,4 +83,4 @@ class Pairing2D
 
 }; }; // end namespace freud::order
 
-#endif // __PAIRING2D_H__
+#endif // PAIRING2D_H

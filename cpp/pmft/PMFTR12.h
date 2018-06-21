@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __PMFTR12_H__
-#define __PMFTR12_H__
+#ifndef PMFTR12_H
+#define PMFTR12_H
 
 #include <memory>
 #include <ostream>
@@ -112,4 +112,4 @@ class PMFTR12 : public PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // __PMFTR12_H__
+#endif // PMFTR12_H

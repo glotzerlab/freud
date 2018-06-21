@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __LINKCELL_H__
-#define __LINKCELL_H__
+#ifndef LINKCELL_H
+#define LINKCELL_H
 
 #include <memory>
 #include <vector>
@@ -456,4 +456,4 @@ class LinkCell
 
 }; }; // end namespace freud::locality
 
-#endif // __LINKCELL_H__
+#endif // LINKCELL_H

@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __MATCH_ENV_H__
-#define __MATCH_ENV_H__
+#ifndef MATCH_ENV_H
+#define MATCH_ENV_H
 
 #include <algorithm>
 #include <complex>
@@ -225,4 +225,4 @@ class MatchEnv
 
 }; }; // end namespace freud::order
 
-#endif // __MATCH_ENV_H__
+#endif // MATCH_ENV_H

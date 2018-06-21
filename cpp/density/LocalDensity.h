@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __LOCAL_DENSITY_H__
-#define __LOCAL_DENSITY_H__
+#ifndef LOCAL_DENSITY_H
+#define LOCAL_DENSITY_H
 
 #include <memory>
 #include <ostream>
@@ -66,4 +66,4 @@ class LocalDensity
 
 }; }; // end namespace freud::density
 
-#endif // __LOCAL_DENSITY_H__
+#endif // LOCAL_DENSITY_H

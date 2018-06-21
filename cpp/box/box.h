@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __BOX_H__
-#define __BOX_H__
+#ifndef BOX_H
+#define BOX_H
 
 #include <cassert>
 #include <iostream>
@@ -394,4 +394,4 @@ class Box
 
 }; }; // end namespace freud::box
 
-#endif // __BOX_H__
+#endif // BOX_H

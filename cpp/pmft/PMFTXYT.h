@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __PMFTXYT_H__
-#define __PMFTXYT_H__
+#ifndef PMFTXYT_H
+#define PMFTXYT_H
 
 #include <memory>
 #include <ostream>
@@ -101,4 +101,4 @@ class PMFTXYT : public PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // __PMFTXYT_H__
+#endif // PMFTXYT_H

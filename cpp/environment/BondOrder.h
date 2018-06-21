@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __BOND_ORDER_H__
-#define __BOND_ORDER_H__
+#ifndef BOND_ORDER_H
+#define BOND_ORDER_H
 
 #include <memory>
 #include <ostream>
@@ -101,4 +101,4 @@ class BondOrder
 
 }; }; // end namespace freud::order
 
-#endif // __BOND_ORDER_H__
+#endif // BOND_ORDER_H

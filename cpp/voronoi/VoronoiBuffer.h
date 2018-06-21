@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __VORONOIBUFFER_H__
-#define __VORONOIBUFFER_H__
+#ifndef VORONOIBUFFER_H
+#define VORONOIBUFFER_H
 
 #include <memory>
 #include <vector>
@@ -53,4 +53,4 @@ class VoronoiBuffer
 
 }; }; // end namespace freud::voronoi
 
-#endif // __VORONOI_BUFFER_H__
+#endif // VORONOI_BUFFER_H

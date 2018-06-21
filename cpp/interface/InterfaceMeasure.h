@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __INTERFACE_MEASURE_H__
-#define __INTERFACE_MEASURE_H__
+#ifndef INTERFACE_MEASURE_H
+#define INTERFACE_MEASURE_H
 
 #include <memory>
 
@@ -52,4 +52,4 @@ class InterfaceMeasure
 
 }; }; // end namespace freud::interface
 
-#endif // __INTERFACE_MEASURE_H__
+#endif // INTERFACE_MEASURE_H

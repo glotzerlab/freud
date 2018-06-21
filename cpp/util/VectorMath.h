@@ -49,8 +49,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "HOOMDMath.h"
 
-#ifndef __VECTOR_MATH_H__
-#define __VECTOR_MATH_H__
+#ifndef VECTOR_MATH_H
+#define VECTOR_MATH_H
 
 /*! \file VectorMath.h
     \brief Vector and quaternion math operations
@@ -1240,4 +1240,4 @@ DEVICE inline Vec project(const Vec& a, const Vec& b)
 // end group math
 /*! @}*/
 
-#endif //__VECTOR_MATH_H__
+#endif // VECTOR_MATH_H

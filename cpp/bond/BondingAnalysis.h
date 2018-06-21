@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __BONDING_ANALYSIS_H__
-#define __BONDING_ANALYSIS_H__
+#ifndef BONDING_ANALYSIS_H
+#define BONDING_ANALYSIS_H
 
 #include <algorithm>
 #include <map>
@@ -76,4 +76,4 @@ class BondingAnalysis
 
 }; }; // end namespace freud::bond
 
-#endif // __BONDING_ANALYSIS_H__
+#endif // BONDING_ANALYSIS_H

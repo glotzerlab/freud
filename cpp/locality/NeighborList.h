@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __NEIGHBOR_LIST_H__
-#define __NEIGHBOR_LIST_H__
+#ifndef NEIGHBOR_LIST_H
+#define NEIGHBOR_LIST_H
 
 #include <memory>
 
@@ -87,4 +87,4 @@ class NeighborList
 
 }; }; // end namespace freud::locality
 
-#endif // __NEIGHBOR_LIST_H__
+#endif // NEIGHBOR_LIST_H

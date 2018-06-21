@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __TBB_CONFIG_H__
-#define __TBB_CONFIG_H__
+#ifndef TBB_CONFIG_H
+#define TBB_CONFIG_H
 
 #include <ostream>
 #include <tbb/tbb.h>
@@ -18,4 +18,4 @@ void setNumThreads(unsigned int N);
 
 }; }; // end namespace freud::parallel
 
-#endif // __TBB_CONFIG_H__
+#endif // TBB_CONFIG_H

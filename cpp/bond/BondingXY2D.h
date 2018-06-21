@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __BONDING_XY2D_H__
-#define __BONDING_XY2D_H__
+#ifndef BONDING_XY2D_H
+#define BONDING_XY2D_H
 
 #include <algorithm>
 #include <map>
@@ -87,4 +87,4 @@ class BondingXY2D
 
 }; }; // end namespace freud::bond
 
-#endif // __BONDING_XY2D_H__
+#endif // BONDING_XY2D_H

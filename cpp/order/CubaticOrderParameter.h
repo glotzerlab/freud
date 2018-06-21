@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __CUBATIC_ORDER_PARAMETER_H__
-#define __CUBATIC_ORDER_PARAMETER_H__
+#ifndef CUBATIC_ORDER_PARAMETER_H
+#define CUBATIC_ORDER_PARAMETER_H
 
 #include <memory>
 #include <ostream>
@@ -101,4 +101,4 @@ class CubaticOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // __CUBATIC_ORDER_PARAMETER_H__
+#endif // CUBATIC_ORDER_PARAMETER_H

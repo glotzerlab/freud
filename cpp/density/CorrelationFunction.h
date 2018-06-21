@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __CORRELATION_FUNCTION_H__
-#define __CORRELATION_FUNCTION_H__
+#ifndef CORRELATION_FUNCTION_H
+#define CORRELATION_FUNCTION_H
 
 #include <memory>
 #include <tbb/tbb.h>
@@ -175,4 +175,4 @@ class ComputeOCF
 
 }; }; // end namespace freud::density
 
-#endif // __CORRELATION_FUNCTION_H__
+#endif // CORRELATION_FUNCTION_H

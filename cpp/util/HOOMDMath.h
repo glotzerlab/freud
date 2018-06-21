@@ -43,8 +43,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // $URL$
 // Maintainer: joaander
 
-#ifndef __HOOMD_MATH_H__
-#define __HOOMD_MATH_H__
+#ifndef HOOMD_MATH_H
+#define HOOMD_MATH_H
 
 /*! \file HOOMDMath.h
     \brief Common setup include for all hoomd math operations
@@ -294,4 +294,4 @@ inline HOSTDEVICE double acos(double x)
     }
 }
 
-#endif // __HOOMD_MATH_H__
+#endif // HOOMD_MATH_H

@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __BONDING_XYT_H__
-#define __BONDING_XYT_H__
+#ifndef BONDING_XYT_H
+#define BONDING_XYT_H
 
 #include <algorithm>
 #include <map>
@@ -91,4 +91,4 @@ class BondingXYT
 
 }; }; // end namespace freud::bond
 
-#endif // __BONDING_XYT_H__
+#endif // BONDING_XYT_H

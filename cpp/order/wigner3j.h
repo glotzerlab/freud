@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#ifndef __WIGNER3J_H__
-#define __WIGNER3J_H__
+#ifndef WIGNER3J_H
+#define WIGNER3J_H
 
 #include <vector>
 
@@ -44,4 +44,4 @@ with open('wigner3j.json', 'w') as jsonfile:
 sio.savemat('wigner3j.mat',wigner)'''
 */
 
-#endif // __WIGNER3J_H__
+#endif // WIGNER3J_H
