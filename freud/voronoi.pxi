@@ -27,7 +27,7 @@ cdef class VoronoiBuffer:
     def compute(self, points, float buffer):
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message='points must be a 3 dimensional array')
+                array_name='points')
 
         if points.shape[1] != 3:
             raise RuntimeError(

@@ -131,7 +131,8 @@ class Box(_Box):
                 Lz = box[2] if len(box) > 2 else 0
                 xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
         except Exception:
-            raise ValueError('Unable to create Box instance from this box.')
+            raise ValueError(
+                'Supplied box cannot be converted to type freud.box.Box')
 
         # The dimensions argument should override the box settings
         if dimensions is None:

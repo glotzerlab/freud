@@ -87,10 +87,10 @@ cdef class FloatCF:
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         refValues = freud.common.convert_array(
             refValues, 1, dtype=np.float64, contiguous=True)
         values = freud.common.convert_array(
@@ -333,10 +333,10 @@ cdef class ComplexCF:
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         refValues = freud.common.convert_array(
             refValues, 1, dtype=np.complex128, contiguous=True)
         values = freud.common.convert_array(
@@ -573,7 +573,7 @@ cdef class GaussianDensity:
         box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim= 2] l_points = points
@@ -695,10 +695,10 @@ cdef class LocalDensity:
             points = ref_points
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
@@ -850,10 +850,10 @@ cdef class RDF:
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
