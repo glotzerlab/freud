@@ -52,14 +52,14 @@ references:
     run:
       name: Run unit tests
       command: |
-          ${NOSE} ~/ci/freud/tests/
+          python -m unittest discover ~/ci/freud/tests/ -v
 
   test_arch: &test_arch
     run:
       name: Run unit tests
       command: |
           cd /
-          ${NOSE} -v ~/ci/freud/tests/
+          python -m unittest discover ~/ci/freud/tests/ -v
 
   store: &store
     store_artifacts:
@@ -89,21 +89,18 @@ jobs:
     <<: *test_container_config_ubuntu
     environment:
       PYVER: "2.7"
-      NOSE: "nosetests"
     <<: *build_and_test_ubuntu
 
   test-py35:
     <<: *test_container_config_ubuntu
     environment:
       PYVER: "3.5"
-      NOSE: "python3.5 -m nose"
     <<: *build_and_test_ubuntu
 
   test-py36:
     <<: *test_container_config_arch
     environment:
       PYVER: "3.6"
-      NOSE: "nosetests"
     <<: *build_and_test_arch
 
 workflows:
