@@ -18,7 +18,7 @@
     \brief Compute the angular separation for each particle.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 float computeSeparationAngle(const quat<float> ref_q, const quat<float> q);
 
@@ -94,6 +94,6 @@ class AngularSeparation
         std::shared_ptr<float> m_global_ang_array; //!< global angle array computed
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
 #endif // _ANGULAR_SEPARATION_H__

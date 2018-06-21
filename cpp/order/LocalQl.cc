@@ -1,30 +1,16 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <complex>
-#include <cstring>
-#include <stdexcept>
-
 #include "LocalQl.h"
 
 using namespace std;
 
 /*! \file LocalQl.cc
-    \brief Compute a Ql per particle
+    \brief Compute the rotationally invariant Ql parameter.
 */
 
-namespace freud { namespace order {
-
-LocalQl::LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin)
-    :m_box(box), m_rmin(rmin), m_rmax(rmax), m_l(l)
-    {
-    if (m_rmax < 0.0f or m_rmin < 0.0f)
-        throw invalid_argument("rmin and rmax must be positive!");
-    if (m_rmin >= m_rmax)
-        throw invalid_argument("rmin should be smaller than rmax!");
-    if (m_l < 2)
-        throw invalid_argument("l must be two or greater!");
-    }
+namespace freud {
+namespace order {
 
 // Calculating Ylm using fsph module
 void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y)
@@ -47,10 +33,8 @@ void LocalQl::Ylm(const float theta, const float phi, std::vector<std::complex<f
         }
     }
 
-
 void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
-
     //Set local data size
     m_Np = Np;
 
@@ -106,7 +90,7 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
                     }
 
                 std::vector<std::complex<float> > Y;
-                LocalQl::Ylm(theta, phi,Y);  //Fill up Ylm vector
+                this->Ylm(theta, phi,Y);  //Fill up Ylm vector
 
                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                     {
@@ -275,4 +259,5 @@ void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
         }
     }
 
-}; }; // end namespace freud::order
+}; // end namespace freud::order
+}; // end namespace freud
