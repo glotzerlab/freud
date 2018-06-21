@@ -57,7 +57,7 @@ cdef class FTdelta:
         """
         K = freud.common.convert_array(
                 K, 1, dtype=np.float32, contiguous=True,
-                dim_message="K must be a 1 dimensional array")
+                array_name="K")
         if K.shape[1] != 3:
             raise TypeError('K should be an Nx3 array')
 
@@ -80,10 +80,10 @@ cdef class FTdelta:
         """
         position = freud.common.convert_array(
                 position, 2, dtype=np.float32, contiguous=True,
-                dim_message="position must be a 2 dimensional array")
+                array_name="position")
         orientation = freud.common.convert_array(
                 orientation, 2, dtype=np.float32, contiguous=True,
-                dim_message="orientation must be a 2 dimensional array")
+                array_name="orientation")
         if position.shape[1] != 3:
             raise TypeError('position should be an Nx3 array')
         if orientation.shape[1] != 4:
@@ -169,10 +169,10 @@ cdef class FTsphere:
         """
         position = freud.common.convert_array(
                 position, 2, dtype=np.float32, contiguous=True,
-                dim_message="position must be a 2 dimensional array")
+                array_name="position")
         orientation = freud.common.convert_array(
                 orientation, 2, dtype=np.float32, contiguous=True,
-                dim_message="orientation must be a 2 dimensional array")
+                array_name="orientation")
         if position.shape[1] != 3:
             raise TypeError('position should be an Nx3 array')
         if orientation.shape[1] != 4:
@@ -244,7 +244,7 @@ cdef class FTpolyhedron:
         """
         K = freud.common.convert_array(
             K, 2, dtype=np.float32, contiguous=True,
-            dim_message="K must be a 2 dimensional array")
+            array_name="K")
         if K.shape[1] != 3:
             raise TypeError('K should be an Nx3 array')
         self.NK = K.shape[0]
@@ -283,31 +283,31 @@ cdef class FTpolyhedron:
         """
         verts = freud.common.convert_array(
                 verts, 2, dtype=np.float32, contiguous=True,
-                dim_message="verts must be a 2 dimensional array")
+                array_name="verts")
         if verts.shape[1] != 3:
             raise TypeError('verts should be an Nx3 array')
 
         facet_offs = freud.common.convert_array(
                 facet_offs, 1, dtype=np.uint32, contiguous=True,
-                dim_message="facet_offs must be a 1 dimensional array")
+                array_name="facet_offs")
 
         facets = freud.common.convert_array(
                 facets, 1, dtype=np.uint32, contiguous=True,
-                dim_message="facets must be a 1 dimensional array")
+                array_name="facets")
 
         norms = freud.common.convert_array(
                 norms, 2, dtype=np.float32, contiguous=True,
-                dim_message="norms must be a 2 dimensional array")
+                array_name="norms")
         if norms.shape[1] != 3:
             raise TypeError('norms should be an Nx3 array')
 
         d = freud.common.convert_array(
                 d, 1, dtype=np.float32, contiguous=True,
-                dim_message="d must be a 1 dimensional array")
+                array_name="d")
 
         area = freud.common.convert_array(
                 area, 1, dtype=np.float32, contiguous=True,
-                dim_message="area must be a 1 dimensional array")
+                array_name="area")
 
         if norms.shape[0] != facet_offs.shape[0] - 1:
             raise RuntimeError(
@@ -353,13 +353,13 @@ cdef class FTpolyhedron:
         """
         position = freud.common.convert_array(
                 position, 2, dtype=np.float32, contiguous=True,
-                dim_message="position must be a 2 dimensional array")
+                array_name="position")
         if position.shape[1] != 3:
             raise TypeError('position should be an Nx3 array')
 
         orientation = freud.common.convert_array(
                 orientation, 2, dtype=np.float32, contiguous=True,
-                dim_message="orientation must be a 2 dimensional array")
+                array_name="orientation")
         if orientation.shape[1] != 4:
             raise TypeError('orientation should be an Nx4 array')
 
