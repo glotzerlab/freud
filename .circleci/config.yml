@@ -52,13 +52,14 @@ references:
     run:
       name: Run unit tests
       command: |
+          cd ~
           python -m unittest discover ~/ci/freud/tests/ -v
 
   test_arch: &test_arch
     run:
       name: Run unit tests
       command: |
-          cd /
+          cd ~
           python -m unittest discover ~/ci/freud/tests/ -v
 
   store: &store
