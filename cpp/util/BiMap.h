@@ -1,5 +1,5 @@
-#ifndef _BIMAP_H__
-#define _BIMAP_H__
+#ifndef BIMAP_H
+#define BIMAP_H
 
 #include <set>
 #include <vector>
@@ -383,4 +383,4 @@ class BiMap
             }
     };
 
-#endif
+#endif // BIMAP_H

@@ -39,8 +39,8 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __INDEX1D_H__
-#define __INDEX1D_H__
+#ifndef INDEX1D_H
+#define INDEX1D_H
 
 /*! \file Index1D.h
     \brief Defines utility classes for 1D indexing of multi-dimensional arrays
@@ -230,5 +230,4 @@ class Index3D
         unsigned int m_d;   //!< Depth of the 3D array
     };
 
-#endif
-
+#endif // INDEX1D_H
