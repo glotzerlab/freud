@@ -3,7 +3,7 @@
 
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
-from freud.util._Boost cimport shared_array
+from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 from libc.stdint cimport uint32_t
 cimport freud._box as box
@@ -20,7 +20,7 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
         void computeClusterMembership(const unsigned int*) nogil except +
         unsigned int getNumClusters()
         unsigned int getNumParticles()
-        shared_array[unsigned int] getClusterIdx()
+        shared_ptr[unsigned int] getClusterIdx()
         const vector[vector[uint]] getClusterKeys()
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
@@ -32,6 +32,6 @@ cdef extern from "ClusterProperties.h" namespace "freud::cluster":
                 const unsigned int*,
                 unsigned int) nogil except +
         unsigned int getNumClusters()
-        shared_array[vec3[float]] getClusterCOM()
-        shared_array[float] getClusterG()
-        shared_array[unsigned int] getClusterSize()
+        shared_ptr[vec3[float]] getClusterCOM()
+        shared_ptr[float] getClusterG()
+        shared_ptr[unsigned int] getClusterSize()

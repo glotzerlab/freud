@@ -2,7 +2,6 @@
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
-from freud.util._Boost cimport shared_array
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.complex cimport complex
 from cython.operator cimport dereference
