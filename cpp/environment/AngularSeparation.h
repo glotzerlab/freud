@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef ANGULAR_SEPARATION_H
+#define ANGULAR_SEPARATION_H
+
 #include <complex>
 #include <memory>
 #include <ostream>
@@ -10,9 +13,6 @@
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _ANGULAR_SEPARATION_H__
-#define _ANGULAR_SEPARATION_H__
 
 /*! \file AngularSeparation.h
     \brief Compute the angular separation for each particle.
@@ -96,4 +96,4 @@ class AngularSeparation
 
 }; }; // end namespace freud::environment
 
-#endif // _ANGULAR_SEPARATION_H__
+#endif // ANGULAR_SEPARATION_H

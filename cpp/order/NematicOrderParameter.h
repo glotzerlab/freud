@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef NEMATIC_ORDER_PARAMETER_H
+#define NEMATIC_ORDER_PARAMETER_H
+
 #include <memory>
 #include <ostream>
 #include <tbb/tbb.h>
@@ -11,9 +14,6 @@
 #include "saruprng.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _NEMATIC_ORDER_PARAMETER_H__
-#define _NEMATIC_ORDER_PARAMETER_H__
 
 /*! \file NematicOrderParameter.h
     \brief Compute the nematic order parameter for each particle
@@ -65,4 +65,4 @@ class NematicOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _NEMATIC_ORDER_PARAMETER_H__
+#endif // NEMATIC_ORDER_PARAMETER_H
