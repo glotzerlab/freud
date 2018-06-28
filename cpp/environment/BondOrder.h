@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef BOND_ORDER_H
+#define BOND_ORDER_H
+
 #include <memory>
 #include <ostream>
 #include <tbb/tbb.h>
@@ -9,9 +12,6 @@
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _BOND_ORDER_H__
-#define _BOND_ORDER_H__
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.
@@ -101,4 +101,4 @@ class BondOrder
 
 }; }; // end namespace freud::environment
 
-#endif // _BOND_ORDER_H__
+#endif // BOND_ORDER_H

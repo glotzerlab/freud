@@ -413,4 +413,4 @@ inline double Saru::s(double low, double high)
     }
 
 
-#endif /* SARUPRNGCPU_H */
+#endif // SARUPRNGCPU_H

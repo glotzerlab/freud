@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef BONDING_ANALYSIS_H
+#define BONDING_ANALYSIS_H
+
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -12,9 +15,6 @@
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _BONDING_ANALYSIS_H__
-#define _BONDING_ANALYSIS_H__
 
 /*! \file BondingAnalysis.h
     \brief Determines the bond lifetimes and flux present in the system.
@@ -76,4 +76,4 @@ class BondingAnalysis
 
 }; }; // end namespace freud::bond
 
-#endif // _BONDING_ANALYSIS_H__
+#endif // BONDING_ANALYSIS_H

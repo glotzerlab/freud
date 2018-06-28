@@ -1,28 +1,23 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-// stdlib include
+#ifndef BRUTE_FORCE_H
+#define BRUTE_FORCE_H
+
 #include <chrono>
 #include <iostream>
 #include <random>
 #include <vector>
 
-// BiMap include
-#include "BiMap.h"
-
-// boost include
-#include <boost/shared_ptr.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/index/rtree.hpp>
 
-// eigen include
 #include "Eigen/Eigen/Dense"
 #include "Eigen/Eigen/Sparse"
 
-#ifndef _BRUTE_FORCE_H__
-#define _BRUTE_FORCE_H__
+#include "BiMap.h"
 
 namespace freud { namespace registration {
 
@@ -472,4 +467,4 @@ class RegisterBruteForce  // : public Register
 
 }; }; // end namespace freud::registration
 
-#endif
+#endif // BRUTE_FORCE_H
