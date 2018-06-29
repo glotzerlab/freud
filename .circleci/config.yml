@@ -3,7 +3,7 @@ version: 2
 references:
   container_ubuntu: &test_container_config_ubuntu
     docker:
-      - image: vramasub/freud_py35_ubuntu:20180124
+      - image: vramasub/freud_py35_ubuntu:20180629
     working_directory: ~/ci/freud
 
   container_arch: &test_container_config_arch
@@ -27,7 +27,9 @@ references:
         if [ -d build ]; then
             rm -rf build
         fi
-        rm freud/_freud.cpp
+        if [ -f freud/_freud.cpp ]; then
+            rm freud/_freud.cpp
+        fi
         mkdir build
         cd build
         echo "PYVER=${PYVER}"
