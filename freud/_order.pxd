@@ -4,7 +4,6 @@
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
@@ -61,7 +60,7 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
                      unsigned int) nogil except +
         # unsure how to pass back the std::complex,
         # but this seems to compile...
-        shared_array[float complex] getPsi()
+        shared_ptr[float complex] getPsi()
         unsigned int getNP()
         unsigned int getK()
 
@@ -73,7 +72,7 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        shared_array[float complex] getDr()
+        shared_ptr[float complex] getDr()
         unsigned int getNP()
 
 cdef extern from "LocalQl.h" namespace "freud::order":
@@ -82,7 +81,7 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         const box.Box & getBox() const
         unsigned int getNP()
         void setBox(const box.Box)
-        shared_array[float] getQl()
+        shared_ptr[float] getQl()
 
         void compute(const freud._locality.NeighborList * ,
                      const vec3[float]*,
@@ -94,17 +93,17 @@ cdef extern from "LocalQl.h" namespace "freud::order":
                          unsigned int) nogil except +
         void computeAveNorm(const vec3[float]*,
                             unsigned int) nogil except +
-        shared_array[float] getAveQl()
-        shared_array[float] getQlNorm()
-        shared_array[float] getQlAveNorm()
+        shared_ptr[float] getAveQl()
+        shared_ptr[float] getQlNorm()
+        shared_ptr[float] getQlAveNorm()
 
 cdef extern from "LocalWl.h" namespace "freud::order":
     cdef cppclass LocalWl(LocalQl):
         LocalWl(const box.Box &, float, unsigned int, float)
-        shared_array[float complex] getWl()
-        shared_array[float complex] getAveWl()
-        shared_array[float complex] getWlNorm()
-        shared_array[float complex] getAveNormWl()
+        shared_ptr[float complex] getWl()
+        shared_ptr[float complex] getAveWl()
+        shared_ptr[float complex] getWlNorm()
+        shared_ptr[float complex] getAveNormWl()
         void enableNormalization()
         void disableNormalization()
 
@@ -125,9 +124,9 @@ cdef extern from "SolLiq.h" namespace "freud::order":
                                  unsigned int) nogil except +
         unsigned int getLargestClusterSize()
         vector[unsigned int] getClusterSizes()
-        shared_array[float complex] getQlmi()
-        shared_array[unsigned int] getClusters()
-        shared_array[unsigned int] getNumberOfConnections()
+        shared_ptr[float complex] getQlmi()
+        shared_ptr[unsigned int] getClusters()
+        shared_ptr[unsigned int] getNumberOfConnections()
         vector[float complex] getQldot_ij()
         unsigned int getNP()
         unsigned int getNumClusters()
