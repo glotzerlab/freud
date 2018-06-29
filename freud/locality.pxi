@@ -235,17 +235,17 @@ cdef class NeighborList:
         """
         result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
         cdef size_t * neighbors = self.thisptr.getNeighbors()
-        cdef size_t last_i = -1
-        cdef size_t i = -1
+        cdef int last_i = -1
+        cdef int i = -1
         cdef size_t n = 0
         for bond in range(self.thisptr.getNumBonds()):
             i = neighbors[2*bond]
             if i != last_i and i > 0:
-                result[i - 1] = n
+                result[last_i] = n
                 n = 0
             last_i = i
             n += 1
-        result[-1] = n
+        result[last_i] = n
 
         return result
 

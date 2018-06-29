@@ -1,3 +1,4 @@
+from collections import Counter
 import numpy as np
 import numpy.testing as npt
 from freud import locality, box
@@ -182,17 +183,27 @@ class TestLinkCell(unittest.TestCase):
             all_vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
             fbox.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
-            (exhaustive_i, exhaustive_j) = np.where(all_rsqs < rcut**2)
+            (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
+                all_rsqs < rcut**2, all_rsqs > 0))
 
             exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
+            exhaustive_counts = Counter(exhaustive_i)
+            exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
-            lc.compute(fbox, points, points, exclude_ii=False)
+            lc.compute(fbox, points, points, exclude_ii=True)
             ijs = set(zip(lc.nlist.index_i, lc.nlist.index_j))
+            counts_list = lc.nlist.neighbor_counts.tolist()
 
             try:
                 self.assertEqual(exhaustive_ijs, ijs)
             except AssertionError:
-                print('Failed random seed: {} (i={})'.format(seed, i))
+                print('Failed neighbors, random seed: {} (i={})'.format(seed, i))
+                raise
+
+            try:
+                self.assertEqual(exhaustive_counts_list, counts_list)
+            except AssertionError:
+                print('Failed neighbor counts, random seed: {} (i={})'.format(seed, i))
                 raise
 
     def test_throws(self):
