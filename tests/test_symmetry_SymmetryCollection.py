@@ -105,8 +105,8 @@ class TestSymmetryCollection(unittest.TestCase):
         nlist = nn.compute(box, positions, positions).nlist
         sc = freud.symmetry.SymmetryCollection(30)
         sc.compute(box, positions, nlist)
-        for symm in sc.symmetries:
-            print(symm)
+        #for symm in sc.symmetries:
+         #   print(symm)
 
     def test_laueGroup(self):
         # Make an FCC lattice

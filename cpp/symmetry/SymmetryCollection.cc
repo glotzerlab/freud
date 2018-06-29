@@ -70,14 +70,15 @@ namespace freud { namespace symmetry {
         // Find all approx symmetries
         searchSymmetry();
 
-        /*for (auto &f: m_found_symmetries) {
-            // Optimize the z-axis of the symmetry
+        for (auto &f: m_found_symmetries) {
+
             optimize(false, &f);
-            // Find an approximate best x-axis for the symmetry
+
             searchSymmetry(&f);
-            // Optimize the x-axis of the symmetry
+
             optimize(true, &f);
-        }*/
+
+        }
     }
 
 
@@ -285,13 +286,14 @@ namespace freud { namespace symmetry {
             // using a lattice on the circle (128 points)
             const int CIRCLENUMBER = 128;
             vertexList = shared_ptr<vector<vec3<float> > >(new vector<vec3<float> >());
-            neighborList = shared_ptr<vector<unordered_set<int> > >(new vector<unordered_set<int> >[CIRCLENUMBER],
-                                                                default_delete<vector<unordered_set<int> >[]>());
+            neighborList = shared_ptr<vector<unordered_set<int> > >(
+                new vector<unordered_set<int> >[CIRCLENUMBER],
+                default_delete<vector<unordered_set<int> >[]>());
 
             for (int i = 0; i < CIRCLENUMBER; ++i) {
                 // only need to search one side of the circle
                 float angle = PI * i / CIRCLENUMBER;
-                vec3<float> temp(cos(angle), sin(angle), 0.0f);
+                vec3<float> temp(cos(angle/2), sin(angle/2), 0.0f);
                 vertexList->push_back(temp);
                 unordered_set<int> neighbors;
                 neighbors.insert(i + 1 < CIRCLENUMBER ? i + 1 : 0);
@@ -306,14 +308,16 @@ namespace freud { namespace symmetry {
         }
 
         //measure the order for each vertex and each symmetry (except TOTAL and MIRROR)
-        vector<vector<float>> orderTable(vertexList->size(), vector<float>(11, 0));
+        vector<vector<float> > orderTable(vertexList->size(), vector<float>(11, 0));
+
         for (int vi = 0; vi < vertexList->size(); ++vi) {
             quat<float> quaternion;
             if (foundsym != nullptr) {
                 // rotation around z-axis and then the x-axis in z-direction
                 quat<float> roty(sqrt(0.5), {0.0f, sqrt(0.5), 0.0f});
                 quat<float> rotz(vertexList->at(vi).x, {0.0f, 0.0f, vertexList->at(vi).y});
-                quaternion = roty * (rotz * foundsym->q);
+                quaternion = roty * rotz * foundsym->q;
+                quaternion = normalize(quaternion);
             } else {
                 // rotate vertex in z-direction
                 quaternion = initMirrorZ(vertexList->at(vi));
@@ -377,7 +381,7 @@ namespace freud { namespace symmetry {
                         fs.n = symmetry.type;
                         fs.v = vertexList->at(directionFound);
                         fs.q = initMirrorZ(vertexList->at(directionFound));
-                        fs.measured_order = orderTable[directionFound][symmetry.type];
+                        fs.measured_order = orderTable[directionFound][sym];
                         m_found_symmetries.push_back(fs);
                     }
 
@@ -396,7 +400,10 @@ namespace freud { namespace symmetry {
                 if (foundsym != nullptr) {
                     // rotation around z-axis
                     quat<float> rotz = quat<float>(vertex.x, {0.0, 0.0, vertex.y});
-                    foundsym->q = rotz * foundsym->q;
+                    foundsym->q = (conj(foundsym->q) * rotz * foundsym->q) * foundsym->q;
+                    foundsym->v = ::rotate(foundsym->q, vec3<float>(0, 0, 1));
+                    foundsym->measured_order = orderFoundGlobal;
+
                     // don't have to keep searching
                     break;
                 }
@@ -409,6 +416,7 @@ namespace freud { namespace symmetry {
         float step = OPTIMIZESTART;
         quat<float> quaternion = symm->q;
         quat<float> measureRotate;
+
         if (perpendicular) {
             measureRotate.s = sqrt(0.5);
             measureRotate.v.x = 0.0f;
@@ -418,8 +426,9 @@ namespace freud { namespace symmetry {
 
         // measure order
         quat<float> q = measureRotate * quaternion;
-        rotate(q);
-        float order = measure(type);
+
+        float order = symm->measured_order;
+
         do {
             vector<quat<float> > quats;
             if (perpendicular) {
@@ -428,7 +437,6 @@ namespace freud { namespace symmetry {
                 float s = sin(step);
                 quats.push_back({c, {0.0f, 0.0f, +s}});
                 quats.push_back({c, {0.0f, 0.0f, -s}});
-
             } else {
                 // generate trial rotations perpendicular to the z-axis
                 srand((unsigned)time(NULL));
@@ -446,9 +454,8 @@ namespace freud { namespace symmetry {
             bool found = false;
             for (quat<float> &testQuat: quats) {
                 testQuat = testQuat * quaternion;
-
                 // measure order
-                q = measureRotate * testQuat;
+                q =  measureRotate * testQuat;
                 rotate(q);
                 float testOrder = measure(type);
                 if (testOrder > order) {
@@ -459,8 +466,9 @@ namespace freud { namespace symmetry {
             }
             if (!found) step *= OPTIMIZESCALE;
         } while (step >= OPTIMIZEEND);
+
         symm->q = quaternion;
-        symm->v = ::rotate(quaternion, vec3<float>(0, 0, 1));
+        symm->v = ::rotate(symm->q, vec3<float>(0, 0, 1));
         symm->measured_order = order;
     }
 

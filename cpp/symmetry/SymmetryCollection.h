@@ -101,6 +101,7 @@ class SymmetryCollection {
 
     private:
         //! Compute spherical harmonics from bond array. private function
+        //! Coordinate Descent: https://en.wikipedia.org/wiki/Coordinate_descent
         void computeMlm(const box::Box& box,
                         const vec3<float> *points,
                         const freud::locality::NeighborList *nlist,

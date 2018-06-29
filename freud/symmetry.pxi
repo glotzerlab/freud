@@ -195,6 +195,11 @@ cdef class SymmetryCollection:
 
 
     def getLaueGroup(self):
+        """Identify Laue Group.
+
+        :return: Laue Group
+        :rtype: string
+        """
         cdef string cpp_string = self.thisptr.getLaueGroup()
         return cpp_string.decode('UTF-8')
 
@@ -211,7 +216,7 @@ cdef class SymmetryCollection:
 
 
 cdef class Geodesation:
-    """Compute the
+    """Compute the Geodesation
 
     .. moduleauthor:: Bradley Dice <bdice@umich.edu>
     .. moduleauthor:: Yezhi Jin <jinyezhi@umich.edu>
