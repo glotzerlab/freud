@@ -10,7 +10,13 @@ cimport freud._pmft as pmft
 cimport numpy as np
 
 cdef class _PMFT:
-    """Parent class for all PMFTs."""
+    """Compute the PMFT [Cit2]_ [Cit3]_ for a given set of points.
+
+    This class provides an abstract interface for computing the PMFT.
+    It must be specialized for a specific coordinate system; although in principle the PMFT is coordinate independent, the binning process must be performed in a particular coordinate system.
+    
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
     cdef pmft.PMFT * pmftptr
     cdef float rmax
 
@@ -32,7 +38,6 @@ cdef class _PMFT:
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
         """
-        self.pmftptr.getBox()
         return BoxFromCPP(self.pmftptr.getBox())
 
     def resetPCF(self):
@@ -97,6 +102,7 @@ cdef class PMFTR12(_PMFT):
         Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param float r_max: maximum distance at which to compute the PMFT
     :param n_r: number of bins in r
@@ -149,23 +155,23 @@ cdef class PMFTR12(_PMFT):
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 1 dimensional array")
+                array_name="ref_orientations")
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
                 orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 1 dimensional array")
+                array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
@@ -420,6 +426,7 @@ cdef class PMFTXYT(_PMFT):
         Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param float x_max: maximum x distance at which to compute the PMFT
     :param float y_max: maximum y distance at which to compute the PMFT
@@ -473,23 +480,23 @@ cdef class PMFTXYT(_PMFT):
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 1 dimensional array")
+                array_name="ref_orientations")
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
                 orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 1 dimensional array")
+                array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
@@ -723,6 +730,7 @@ cdef class PMFTXY2D(_PMFT):
         Failing to set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param float x_max: maximum x distance at which to compute the PMFT
     :param float y_max: maximum y distance at which to compute the PMFT
@@ -773,23 +781,23 @@ cdef class PMFTXY2D(_PMFT):
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 1 dimensional array")
+                array_name="ref_orientations")
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
                 orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 1 dimensional array")
+                array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
@@ -984,6 +992,7 @@ cdef class PMFTXYZ(_PMFT):
         The points must be passed in as :code:`[x, y, z]`.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     :param float x_max: maximum x distance at which to compute the PMFT
     :param float y_max: maximum y distance at which to compute the PMFT
@@ -1014,19 +1023,6 @@ cdef class PMFTXYZ(_PMFT):
     def __dealloc__(self):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
-
-    @property
-    def box(self):
-        """Get the box used in the calculation."""
-        return self.getBox()
-
-    def getBox(self):
-        """Get the box used in the calculation.
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
-        """
-        return BoxFromCPP(self.pmftxyzptr.getBox())
 
     def resetPCF(self):
         """Resets the values of the PCF histograms in memory."""
@@ -1073,27 +1069,27 @@ cdef class PMFTXYZ(_PMFT):
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 2 dimensional array")
+                array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise ValueError(
                 "the 2nd dimension must have 4 values: q0, q1, q2, q3")
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         points = points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.common.convert_array(
                 orientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 2 dimensional array")
+                array_name="orientations")
         if orientations.shape[1] != 4:
             raise ValueError(
                 "the 2nd dimension must have 4 values: q0, q1, q2, q3")
@@ -1110,7 +1106,7 @@ cdef class PMFTXYZ(_PMFT):
             face_orientations = freud.common.convert_array(
                     face_orientations, face_orientations.ndim,
                     dtype=np.float32, contiguous=True,
-                    dim_message=("face_orientations must be a {}"
+                    array_name=("face_orientations must be a {}"
                                  "dimensional array").format(
                                         face_orientations.ndim))
             if face_orientations.ndim == 2:

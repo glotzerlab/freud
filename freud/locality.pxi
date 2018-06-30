@@ -297,13 +297,13 @@ cdef class NeighborList:
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -508,7 +508,7 @@ cdef class LinkCell:
         """
         point = freud.common.convert_array(
                 point, 1, dtype=np.float32, contiguous=True,
-                dim_message="point must be a 1 dimensional array")
+                array_name="point")
 
         cdef float[:] cPoint = point
 
@@ -572,7 +572,7 @@ cdef class LinkCell:
 
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
@@ -581,7 +581,7 @@ cdef class LinkCell:
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -933,7 +933,7 @@ cdef class NearestNeighbors:
 
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
@@ -942,7 +942,7 @@ cdef class NearestNeighbors:
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 

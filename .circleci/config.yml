@@ -14,18 +14,11 @@ references:
   load_code: &load_code
     checkout
 
-  get_requirements_ubuntu: &get_requirements_ubuntu
+  get_requirements: &get_requirements
     run:
       name: Install dependencies
       command: |
-        pip install --user -r requirements.txt
-        pip3 install --user -r requirements.txt
-
-  get_requirements_arch: &get_requirements_arch
-    run:
-      name: Install dependencies
-      command: |
-        pip install --user -r requirements.txt
+        pip${PYVER} install --user -r requirements.txt
 
   configure: &configure
     run:
@@ -37,7 +30,7 @@ references:
         rm freud/_freud.cpp
         mkdir build
         cd build
-        echo pyver=${PYVER}
+        echo "PYVER=${PYVER}"
         cmake ../ -DPYTHON_EXECUTABLE=/usr/bin/python${PYVER} -DENABLE_CYTHON=ON
 
   compile: &compile
@@ -48,40 +41,25 @@ references:
         make -j4
         make install
 
-  test_ubuntu: &test_ubuntu
+  test: &test
     run:
       name: Run unit tests
       command: |
-          ${NOSE} ~/ci/freud/tests/
-
-  test_arch: &test_arch
-    run:
-      name: Run unit tests
-      command: |
-          cd /
-          ${NOSE} -v ~/ci/freud/tests/
+          cd ~
+          python${PYVER} -m unittest discover ~/ci/freud/tests/ -v
 
   store: &store
     store_artifacts:
       path: test-reports
       destination: test-reports
 
-  build_and_test_ubuntu: &build_and_test_ubuntu
+  build_and_test: &build_and_test
     steps:
       - *load_code
-      - *get_requirements_ubuntu
+      - *get_requirements
       - *configure
       - *compile
-      - *test_ubuntu
-      - *store
-
-  build_and_test_arch: &build_and_test_arch
-    steps:
-      - *load_code
-      - *get_requirements_arch
-      - *configure
-      - *compile
-      - *test_arch
+      - *test
       - *store
 
 jobs:
@@ -89,22 +67,19 @@ jobs:
     <<: *test_container_config_ubuntu
     environment:
       PYVER: "2.7"
-      NOSE: "nosetests"
-    <<: *build_and_test_ubuntu
+    <<: *build_and_test
 
   test-py35:
     <<: *test_container_config_ubuntu
     environment:
       PYVER: "3.5"
-      NOSE: "python3.5 -m nose"
-    <<: *build_and_test_ubuntu
+    <<: *build_and_test
 
   test-py36:
     <<: *test_container_config_arch
     environment:
       PYVER: "3.6"
-      NOSE: "nosetests"
-    <<: *build_and_test_arch
+    <<: *build_and_test
 
 workflows:
   version: 2

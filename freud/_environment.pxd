@@ -12,7 +12,7 @@ from libcpp.map cimport map
 cimport freud._box as box
 cimport freud._locality
 
-cdef extern from "BondOrder.h" namespace "freud::order":
+cdef extern from "BondOrder.h" namespace "freud::environment":
     cdef cppclass BondOrder:
         BondOrder(float, float, unsigned int, unsigned int, unsigned int)
         const box.Box & getBox() const
@@ -33,7 +33,7 @@ cdef extern from "BondOrder.h" namespace "freud::order":
         unsigned int getNBinsTheta()
         unsigned int getNBinsPhi()
 
-cdef extern from "LocalDescriptors.h" namespace "freud::order":
+cdef extern from "LocalDescriptors.h" namespace "freud::environment":
     ctypedef enum LocalDescriptorOrientation:
         LocalNeighborhood
         Global
@@ -58,7 +58,7 @@ cdef extern from "LocalDescriptors.h" namespace "freud::order":
                 const quat[float]*, LocalDescriptorOrientation) nogil except +
         shared_array[float complex] getSph()
 
-cdef extern from "MatchEnv.h" namespace "freud::order":
+cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
         MatchEnv(const box.Box &, float, unsigned int) nogil except +
         void setBox(const box.Box)
@@ -102,7 +102,7 @@ cdef extern from "MatchEnv.h" namespace "freud::order":
         unsigned int getNumNeighbors()
         unsigned int getMaxNumNeighbors()
 
-cdef extern from "Pairing2D.h" namespace "freud::order":
+cdef extern from "Pairing2D.h" namespace "freud::environment":
     cdef cppclass Pairing2D:
         Pairing2D(const float, const unsigned int, float)
         const box.Box & getBox() const
@@ -118,7 +118,7 @@ cdef extern from "Pairing2D.h" namespace "freud::order":
         shared_array[unsigned int] getPair()
         unsigned int getNumParticles()
 
-cdef extern from "AngularSeparation.h" namespace "freud::order":
+cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparation:
         AngularSeparation()
         void computeNeighbor(const freud._locality.NeighborList*,

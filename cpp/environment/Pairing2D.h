@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef PAIRING2D_H
+#define PAIRING2D_H
+
 #include <memory>
 #include <ostream>
 #include <tbb/tbb.h>
@@ -10,10 +13,7 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _PAIRING2D_H__
-#define _PAIRING2D_H__
-
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 //! Computes the number of matches for a given set of points
 /*!
@@ -81,6 +81,6 @@ class Pairing2D
 
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
-#endif // _PAIRING2D_H__
+#endif // PAIRING2D_H

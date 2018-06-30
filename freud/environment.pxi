@@ -112,25 +112,25 @@ cdef class BondOrder:
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 2 dimensional array")
+                array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise TypeError('ref_orientations should be an Nx4 array')
 
         orientations = freud.common.convert_array(
                 orientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 2 dimensional array")
+                array_name="orientations")
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
@@ -363,7 +363,7 @@ cdef class LocalDescriptors:
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         points_ref = freud.common.convert_array(
                 points_ref, 2, dtype=np.float32, contiguous=True,
-                dim_message="points_ref must be a 2 dimensional array")
+                array_name="points_ref")
         if points_ref.shape[1] != 3:
             raise TypeError('points_ref should be an Nx3 array')
 
@@ -372,7 +372,7 @@ cdef class LocalDescriptors:
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -424,7 +424,7 @@ cdef class LocalDescriptors:
 
         points_ref = freud.common.convert_array(
                 points_ref, 2, dtype=np.float32, contiguous=True,
-                dim_message="points_ref must be a 2 dimensional array")
+                array_name="points_ref")
         if points_ref.shape[1] != 3:
             raise TypeError('points_ref should be an Nx3 array')
 
@@ -433,7 +433,7 @@ cdef class LocalDescriptors:
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -446,7 +446,7 @@ cdef class LocalDescriptors:
 
             orientations = freud.common.convert_array(
                     orientations, 2, dtype=np.float32, contiguous=True,
-                    dim_message="orientations must be a 2 dimensional array")
+                    array_name="orientations")
             if orientations.shape[1] != 4:
                 raise TypeError('orientations should be an Nx4 array')
 
@@ -647,7 +647,7 @@ cdef class MatchEnv:
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -712,13 +712,13 @@ cdef class MatchEnv:
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         refPoints = freud.common.convert_array(
                 refPoints, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints must be a 2 dimensional array")
+                array_name="refPoints")
         if refPoints.shape[1] != 3:
             raise TypeError('refPoints should be an Nx3 array')
 
@@ -768,13 +768,13 @@ cdef class MatchEnv:
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         refPoints = freud.common.convert_array(
                 refPoints, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints must be a 2 dimensional array")
+                array_name="refPoints")
         if refPoints.shape[1] != 3:
             raise TypeError('refPoints should be an Nx3 array')
 
@@ -827,13 +827,13 @@ cdef class MatchEnv:
         """
         refPoints1 = freud.common.convert_array(
                 refPoints1, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints1 must be a 2 dimensional array")
+                array_name="refPoints1")
         if refPoints1.shape[1] != 3:
             raise TypeError('refPoints1 should be an Nx3 array')
 
         refPoints2 = freud.common.convert_array(
                 refPoints2, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints2 must be a 2 dimensional array")
+                array_name="refPoints2")
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
@@ -886,13 +886,13 @@ cdef class MatchEnv:
         """
         refPoints1 = freud.common.convert_array(
                 refPoints1, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints1 must be a 2 dimensional array")
+                array_name="refPoints1")
         if refPoints1.shape[1] != 3:
             raise TypeError('refPoints1 should be an Nx3 array')
 
         refPoints2 = freud.common.convert_array(
                 refPoints2, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints2 must be a 2 dimensional array")
+                array_name="refPoints2")
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
@@ -1068,17 +1068,17 @@ cdef class Pairing2D:
         box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
                 orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 1 dimensional array")
+                array_name="orientations")
 
         compOrientations = freud.common.convert_array(
                 compOrientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="compOrientations must be a 2 dimensional array")
+                array_name="compOrientations")
 
         cdef np.ndarray[float, ndim = 2] l_points = points
         cdef np.ndarray[float, ndim = 2] l_compOrientations = compOrientations
@@ -1222,31 +1222,31 @@ cdef class AngularSeparation:
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         ref_ors = freud.common.convert_array(
                 ref_ors, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_ors must be a 2 dimensional array")
+                array_name="ref_ors")
         if ref_ors.shape[1] != 4:
             raise TypeError('ref_ors should be an Nx4 array')
 
         ors = freud.common.convert_array(
                 ors, 2, dtype=np.float32, contiguous=True,
-                dim_message="ors must be a 2 dimensional array")
+                array_name="ors")
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
         equiv_quats = freud.common.convert_array(
                 equiv_quats, 2, dtype=np.float32, contiguous=True,
-                dim_message="equiv_quats must be a 2 dimensional array")
+                array_name="equiv_quats")
         if equiv_quats.shape[1] != 4:
             raise TypeError('equiv_quats should be an N_equiv x 4 array')
 
@@ -1300,19 +1300,19 @@ cdef class AngularSeparation:
         """
         global_ors = freud.common.convert_array(
                 global_ors, 2, dtype=np.float32, contiguous=True,
-                dim_message="global_ors must be a 2 dimensional array")
+                array_name="global_ors")
         if global_ors.shape[1] != 4:
             raise TypeError('global_ors should be an Nx4 array')
 
         ors = freud.common.convert_array(
                 ors, 2, dtype=np.float32, contiguous=True,
-                dim_message="ors must be a 2 dimensional array")
+                array_name="ors")
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
         equiv_quats = freud.common.convert_array(
                 equiv_quats, 2, dtype=np.float32, contiguous=True,
-                dim_message="equiv_quats must be a 2 dimensional array")
+                array_name="equiv_quats")
         if equiv_quats.shape[1] != 4:
             raise TypeError('equiv_quats should be an N_equiv x 4 array')
 
