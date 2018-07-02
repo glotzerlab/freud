@@ -152,25 +152,25 @@ inline void AlignVectorSets(matrix& P,matrix& Q, matrix* pRotation = NULL)
         *pRotation = rotation;
     }
 
-namespace bg = boost::geometry;
-namespace bgi = boost::geometry::index;
-
-class RegisterBruteForce  // : public Register
+class RegisterBruteForce
     {
-    using point = bg::model::point<double, 3, bg::cs::cartesian>;
+    using point = boost::geometry::model::point<double, 3, boost::geometry::cs::cartesian>;
     using value = std::pair<point, unsigned int>;
 
     public:
-        RegisterBruteForce(std::vector<vec3<float> > vecs) : m_rmsd(0.0), m_tol(1e-6), m_shuffles(1)
+        RegisterBruteForce(std::vector<vec3<float> > vecs)
+            : m_rmsd(0.0), m_tol(1e-6), m_shuffles(1)
             {
             // make the Eigen matrix from vecs
             m_data = makeEigenMatrix(vecs);
 
             // populate the R-tree with (point, index) pairs, from the vectors of vecs
             for(unsigned int r = 0; r < m_data.rows(); r++)
+                {
                 m_rtree.insert(std::make_pair(make_point<matrix>(m_data.row(r)), r));
-            // m_data = Translate(-CenterOfMass(m_data), m_data);
+                }
             }
+
         ~RegisterBruteForce(){}
 
         void Fit(std::vector<vec3<float> >& pts)
@@ -181,9 +181,6 @@ class RegisterBruteForce  // : public Register
             points = makeEigenMatrix(pts);
             int num_pts;
 
-            // m_translation = -CenterOfMass(points);
-            // points = Translate(m_translation, points);
-
             unsigned int N = points.rows();
             if (N != m_data.rows())
                 {
@@ -191,18 +188,32 @@ class RegisterBruteForce  // : public Register
                 fprintf(stderr, "Number of vecs we are trying to match is %d\n", N);
                 throw std::invalid_argument("Brute force matching requires the same number of points!");
                 }
+
             RandomNumber<std::mt19937_64> rng;
             double rmsd_min = -1.0;
             for (size_t shuffles = 0; shuffles < m_shuffles; shuffles++)
                 {
                 int p0 = 0, p1 = 0, p2 = 0;
-                while ( p0 == p1 || p0 == p2 || p1 == p2)
+                while (p0 == p1 || p0 == p2 || p1 == p2)
                     {
-                    p0 = rng.random_int(0,N-1);
-                    if (N == int(1)) { p1 = int(-2); }
-                    else { p1 = rng.random_int(0,N-1); }
-                    if (N == int(2) || N == int(1)) { p2 = int(-1); }
-                    else { p2 = rng.random_int(0,N-1); }
+                    p0 = rng.random_int(0, N-1);
+                    if (N == int(1))
+                        {
+                        p1 = int(-2);
+                        }
+                    else
+                        {
+                        p1 = rng.random_int(0, N-1);
+                        }
+
+                    if (N == int(2) || N == int(1))
+                        {
+                        p2 = int(-1);
+                        }
+                    else
+                        {
+                        p2 = rng.random_int(0, N-1);
+                        }
                     }
 
                 size_t comb[3] = {0, 1, 2};
@@ -279,7 +290,7 @@ class RegisterBruteForce  // : public Register
                                 }
                             }
                         }
-                    while (std::next_permutation(comb,comb+num_pts));
+                    while (std::next_permutation(comb, comb+num_pts));
                     }
                 while (NextCombination(comb, N, num_pts));
                 } // end for loop over shuffles
@@ -352,12 +363,14 @@ class RegisterBruteForce  // : public Register
                 // this is the "query" point we will feed in to the R-tree
                 point query = make_point<Eigen::VectorXd>(pfit);
                 // loop over a set of queries. Each query grabs the next-nearest point in m_rtree to the query point.
-                for ( bgi::rtree< value, bgi::rstar<16> >::const_query_iterator it = m_rtree.qbegin(bgi::nearest(query, m_data.rows())); it != m_rtree.qend(); ++it )
+                for (boost::geometry::index::rtree<value, boost::geometry::index::rstar<16> >::const_query_iterator it = m_rtree.qbegin(
+                            boost::geometry::index::nearest(query, m_data.rows()));
+                        it != m_rtree.qend(); ++it)
                     {
                     // if this point in m_rtree has not been matched already to some point in points
-                    if(!found[it->second])
+                    if (!found[it->second])
                         {
-                        dist = bg::distance(query, it->first);
+                        dist = boost::geometry::distance(query, it->first);
                         found[it->second] = true;
                         // add this pairing to the mapping between vectors
                         vec_map.emplace(it->second, r);
@@ -390,15 +403,15 @@ class RegisterBruteForce  // : public Register
 
         inline bool NextCombination(size_t* comb, int N, int k)
             {
-            //    returns next combination.
-            if(k == 0 || N == 0 || !comb)
+            // returns next combination.
+            if (k == 0 || N == 0 || !comb)
                 return false;
 
             bool bRetVal = false;
 
-            for(int i = k-1; i >= 0; i--)
+            for (int i = k-1; i >= 0; i--)
                 {
-                if(comb[i] + 1 < size_t(N+i-k+1))
+                if (comb[i] + 1 < size_t(N+i-k+1))
                     {
                     comb[i]++;
                     for (int j = i+1; j < k; j++)
@@ -423,7 +436,7 @@ class RegisterBruteForce  // : public Register
                     }
                 int random_int(int a, int b)
                     {
-                    std::uniform_int_distribution<int> distribution(a,b);
+                    std::uniform_int_distribution<int> distribution(a, b);
                     return distribution(m_generator);
                     }
             private:
@@ -433,7 +446,7 @@ class RegisterBruteForce  // : public Register
                     try
                         {
                         std::random_device rd;
-                        for(size_t i = 0; i < n; i++)
+                        for (size_t i = 0; i < n; i++)
                             seeds.push_back(rd());
                         }
                     catch (...)
@@ -462,7 +475,7 @@ class RegisterBruteForce  // : public Register
         // The maximum number of elements in each node is set to 16.
         // R*-trees are more costly to set up than R-trees but apparently
         // can be queried more efficiently.
-        bgi::rtree< value, bgi::rstar<16> > m_rtree;
+        boost::geometry::index::rtree<value, boost::geometry::index::rstar<16> > m_rtree;
 };
 
 }; }; // end namespace freud::registration
