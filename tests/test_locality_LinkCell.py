@@ -1,9 +1,10 @@
-from collections import Counter
 import numpy as np
 import numpy.testing as npt
 from freud import locality, box
-import unittest
+from collections import Counter
+import itertools
 import sys
+import unittest
 
 
 class TestLinkCell(unittest.TestCase):
@@ -217,6 +218,22 @@ class TestLinkCell(unittest.TestCase):
         locality.LinkCell(fbox, L/2.0001)
         with self.assertRaises(RuntimeError):
             locality.LinkCell(fbox, L/1.9999)
+
+    def test_no_bonds(self):
+        N = 10
+        fbox = box.Box.cube(N)
+
+        # make a sc lattice
+        lattice_xs = np.linspace(-float(N)/2, float(N)/2, N, endpoint=False)
+        positions = list(itertools.product(lattice_xs, lattice_xs, lattice_xs))
+        positions = np.array(positions, dtype=np.float32)
+
+        # rcut is slightly smaller than the distance for any particle
+        lc = locality.LinkCell(fbox, 0.99)
+        nlist = lc.compute(fbox, positions, positions).nlist
+
+        self.assertEqual(nlist.neighbor_counts.tolist(),
+                         np.zeros((N**3,), dtype=np.uint32).tolist())
 
 
 if __name__ == '__main__':

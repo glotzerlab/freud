@@ -233,7 +233,8 @@ cdef class NeighborList:
         :math:`N_{ref}` indicating the number of neighbors for each reference
         particle from the last set of points this object was evaluated with.
         """
-        result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
+        cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
+            (self.thisptr.getNumI(),), dtype=np.int64)
         cdef size_t * neighbors = self.thisptr.getNeighbors()
         cdef int last_i = -1
         cdef int i = -1
@@ -245,7 +246,9 @@ cdef class NeighborList:
                 n = 0
             last_i = i
             n += 1
-        result[last_i] = n
+
+        if last_i >= 0:
+            result[last_i] = n
 
         return result
 
