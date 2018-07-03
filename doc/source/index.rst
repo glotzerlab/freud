@@ -25,7 +25,7 @@ Alternatively, freud can be installed directly from source.
     $ mkdir build
     $ cd build
     $ cmake ../
-    $ make install -j4
+    $ make install
 
 .. toctree::
    :maxdepth: 2

@@ -41,7 +41,7 @@ The code that follows creates a build directory inside the freud source director
     cd build
     cmake ../
     # Use `cmake ../ -DENABLE_CYTHON=ON` to rebuild _freud.cpp
-    make install -j
+    make install
 
 By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
 :code:`USER_SITE` is on the Python search path by default, so there is no need to modify :code:`PYTHONPATH`.
