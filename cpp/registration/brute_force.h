@@ -167,7 +167,7 @@ class RegisterBruteForce
             // populate the R-tree with (point, index) pairs, from the vectors of vecs
             for(unsigned int r = 0; r < m_data.rows(); r++)
                 {
-                m_rtree.insert(std::make_pair(make_point<matrix>(m_data.row(r)), r));
+                m_rtree.insert(std::make_pair(make_point(m_data.row(r)), r));
                 }
             }
 
@@ -361,7 +361,7 @@ class RegisterBruteForce
                 // find the rotated point
                 Eigen::VectorXd pfit = points.row(r).transpose();
                 // this is the "query" point we will feed in to the R-tree
-                point query = make_point<Eigen::VectorXd>(pfit);
+                point query = make_point(pfit);
                 // loop over a set of queries. Each query grabs the next-nearest point in m_rtree to the query point.
                 for (boost::geometry::index::rtree<value, boost::geometry::index::rstar<16> >::const_query_iterator it = m_rtree.qbegin(
                             boost::geometry::index::nearest(query, m_data.rows()));
@@ -390,7 +390,6 @@ class RegisterBruteForce
             }
 
     private:
-        template<class MatrixType>
         point make_point(const Eigen::VectorXd& row)
             {
             if(row.rows() == 2)
