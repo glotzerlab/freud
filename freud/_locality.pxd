@@ -4,7 +4,7 @@
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from freud.util._Index1D cimport Index3D
-from freud.util._Boost cimport shared_array
+from libcpp.memory cimport shared_ptr
 cimport freud._box as box
 from libcpp.vector cimport vector
 
@@ -38,7 +38,7 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:
         IteratorLinkCell()
         IteratorLinkCell(
-                const shared_array[unsigned int] &,
+                const shared_ptr[unsigned int] &,
                 unsigned int,
                 unsigned int,
                 unsigned int)

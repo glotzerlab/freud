@@ -5,7 +5,6 @@ import numpy as np
 import time
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector

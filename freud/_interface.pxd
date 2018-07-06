@@ -3,7 +3,6 @@
 
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
-from freud.util._Boost cimport shared_array
 cimport freud._box as box
 cimport freud._locality
 
