@@ -7,7 +7,6 @@ Requirements
 
 - `NumPy <http://www.numpy.org/>`_ is **required** to build freud
 - `Cython <http://cython.org/>`_ >= 0.23 is **required** to compile your own :code:`_freud.cpp` file. Cython **is not required** to install freud
-- `Boost <http://www.boost.org/>`_ is **required** to run freud
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ is **required** to run freud
 
 Documentation
@@ -90,8 +89,6 @@ It is easiest to install freud with a working conda install of the required pack
 
 - python (2.7, 3.4, 3.5, 3.6)
 - numpy
-- boost (2.7, 3.3 provided on flux, 3.4, 3.5)
-- icu (requirement of boost)
 - cython (not required, but a correct :code:`_freud.cpp` file must be present to compile)
 - tbb
 - cmake
