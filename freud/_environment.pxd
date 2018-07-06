@@ -4,7 +4,6 @@
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
@@ -56,7 +55,7 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
                 unsigned int, const vec3[float]*,
                 unsigned int, const vec3[float]*, unsigned int,
                 const quat[float]*, LocalDescriptorOrientation) nogil except +
-        shared_array[float complex] getSph()
+        shared_ptr[float complex] getSph()
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
@@ -94,9 +93,9 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                                                      unsigned int,
                                                      float &,
                                                      bool) nogil except +
-        shared_array[unsigned int] getClusters()
-        shared_array[vec3[float]] getEnvironment(unsigned int)
-        shared_array[vec3[float]] getTotEnvironment()
+        shared_ptr[unsigned int] getClusters()
+        shared_ptr[vec3[float]] getEnvironment(unsigned int)
+        shared_ptr[vec3[float]] getTotEnvironment()
         unsigned int getNP()
         unsigned int getNumClusters()
         unsigned int getNumNeighbors()
@@ -114,8 +113,8 @@ cdef extern from "Pairing2D.h" namespace "freud::environment":
                      float*,
                      unsigned int,
                      unsigned int) nogil except +
-        shared_array[unsigned int] getMatch()
-        shared_array[unsigned int] getPair()
+        shared_ptr[unsigned int] getMatch()
+        shared_ptr[unsigned int] getPair()
         unsigned int getNumParticles()
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
@@ -135,8 +134,8 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
                            unsigned int,
                            unsigned int) nogil except +
 
-        shared_array[float] getNeighborAngles()
-        shared_array[float] getGlobalAngles()
+        shared_ptr[float] getNeighborAngles()
+        shared_ptr[float] getGlobalAngles()
         unsigned int getNP()
         unsigned int getNref()
         unsigned int getNglobal()

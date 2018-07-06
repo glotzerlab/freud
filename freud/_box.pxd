@@ -4,7 +4,6 @@
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from libcpp.string cimport string
-from freud.util._Boost cimport shared_array
 
 cdef extern from "box.h" namespace "freud::box":
     cdef cppclass Box:

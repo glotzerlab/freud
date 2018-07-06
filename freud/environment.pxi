@@ -7,7 +7,6 @@ import warnings
 from .errors import FreudDeprecationWarning
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map

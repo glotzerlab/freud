@@ -2,7 +2,7 @@
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
-from freud.util._Boost cimport shared_array
+from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
 from libc.string cimport memcpy
 import numpy as np
@@ -151,7 +151,8 @@ cdef class FloatCF:
                 shape=(:math:`N_{bins}`),
                 dtype= :class:`numpy.float64`
         """
-        cdef double * rdf = self.thisptr.getRDF().get()
+        cdef shared_ptr[double] rdf_ptr = self.thisptr.getRDF()
+        cdef double * rdf = rdf_ptr.get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp > self.thisptr.getNBins()
         cdef np.ndarray[np.float64_t, ndim = 1
@@ -392,7 +393,8 @@ cdef class ComplexCF:
                 shape=(:math:`N_{bins}`),
                 dtype= :class:`numpy.complex128`
         """
-        cdef np.complex128_t * rdf = self.thisptr.getRDF().get()
+        cdef shared_ptr[np.complex128_t] rdf_ptr = self.thisptr.getRDF()
+        cdef np.complex128_t * rdf = rdf_ptr.get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp > self.thisptr.getNBins()
         cdef np.ndarray[np.complex128_t, ndim = 1
