@@ -84,12 +84,13 @@ cdef class FloatCF:
                       dtype= :class:`numpy.float64`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         refValues = freud.common.convert_array(
             refValues, 1, dtype=np.float64, contiguous=True)
         values = freud.common.convert_array(
@@ -165,8 +166,7 @@ cdef class FloatCF:
         return self.getBox()
 
     def getBox(self):
-        """
-        Get the box used in the calculation
+        """Get the box used in the calculation.
 
         :return: freud Box
         :rtype: :py:class:`freud.box.Box`
@@ -174,10 +174,9 @@ cdef class FloatCF:
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
+        """Resets the values of the correlation function histogram in memory.
         """
-        Resets the values of the correlation function histogram in memory
-        """
-        self.thisptr.resetCorrelationFunction()
+        self.thisptr.reset()
 
     def compute(self, box, ref_points, refValues, points, values, nlist=None):
         """
@@ -206,7 +205,7 @@ cdef class FloatCF:
                       dtype= :class:`numpy.float64`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetCorrelationFunction()
+        self.thisptr.reset()
         self.accumulate(box, ref_points, refValues, points, values, nlist)
         return self
 
@@ -331,12 +330,13 @@ cdef class ComplexCF:
                       dtype= :class:`numpy.complex128`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         refValues = freud.common.convert_array(
             refValues, 1, dtype=np.complex128, contiguous=True)
         values = freud.common.convert_array(
@@ -417,7 +417,7 @@ cdef class ComplexCF:
         """
         Resets the values of the correlation function histogram in memory
         """
-        self.thisptr.resetCorrelationFunction()
+        self.thisptr.reset()
 
     def compute(self, box, ref_points, refValues, points, values, nlist=None):
         """
@@ -446,7 +446,7 @@ cdef class ComplexCF:
                         dtype= :class:`numpy.complex128`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetCorrelationFunction()
+        self.thisptr.reset()
         self.accumulate(box, ref_points, refValues, points, values, nlist)
         return self
 
@@ -570,9 +570,10 @@ cdef class GaussianDensity:
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`
         """
+        box = freud.common.convert_box(box)
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim= 2] l_points = points
@@ -619,7 +620,7 @@ cdef class GaussianDensity:
         """
         Resets the values of GaussianDensity in memory
         """
-        self.thisptr.resetDensity()
+        self.thisptr.reset()
 
 cdef class LocalDensity:
     """ Computes the local density around a particle.
@@ -689,14 +690,15 @@ cdef class LocalDensity:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         if points is None:
             points = ref_points
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
@@ -845,12 +847,13 @@ cdef class RDF:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("the 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim= 2] l_ref_points = ref_points
@@ -895,15 +898,14 @@ cdef class RDF:
                       dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
-        self.thisptr.resetRDF()
+        self.thisptr.reset()
         self.accumulate(box, ref_points, points, nlist)
         return self
 
     def resetRDF(self):
+        """Resets the values of RDF in memory.
         """
-        Resets the values of RDF in memory
-        """
-        self.thisptr.resetRDF()
+        self.thisptr.reset()
 
     def reduceRDF(self):
         """

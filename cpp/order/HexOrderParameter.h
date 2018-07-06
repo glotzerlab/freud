@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef HEX_ORDER_PARAMETER_H
+#define HEX_ORDER_PARAMETER_H
+
 #include <complex>
 #include <memory>
 #include <ostream>
@@ -10,9 +13,6 @@
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _HEX_ORDER_PARAMETER_H__
-#define _HEX_ORDER_PARAMETER_H__
 
 /*! \file HexOrderParameter.h
     \brief Compute the hexatic order parameter for each particle.
@@ -70,4 +70,4 @@ class HexOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _HEX_ORDER_PARAMETER_H__
+#endif // HEX_ORDER_PARAMETER_H

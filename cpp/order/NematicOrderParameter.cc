@@ -56,7 +56,7 @@ vec3<float> NematicOrderParameter::getNematicDirector()
     return m_nematic_director;
     }
 
-void NematicOrderParameter::resetNematicOrderParameter()
+void NematicOrderParameter::reset()
     {
     memset((void*)m_particle_tensor.get(), 0, sizeof(float)*m_n*9);
     for (unsigned int i = 0; i < 9; ++i)

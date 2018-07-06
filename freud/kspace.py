@@ -7,6 +7,7 @@ import copy
 from ._freud import FTdelta as _FTdelta
 from ._freud import FTsphere as _FTsphere
 from ._freud import FTpolyhedron as _FTpolyhedron
+from . import common
 
 
 def meshgrid2(*arrs):
@@ -78,6 +79,7 @@ class SFactor3DPoints:
         :type box: :py:class:`freud.box.Box`
         :type g: int
         """
+        box = common.convert_box(box)
         if box.is2D():
             raise ValueError("SFactor3DPoints does not support 2D boxes")
         self.grid = 2 * g + 1
@@ -520,9 +522,9 @@ class SingleCell3D:
         if q.shape[0] != N:
             raise ValueError(
                 'position and orientation must be the same length')
-        if len(r.shape) != 2 or r.shape[1] != 3:
+        if r.ndim != 2 or r.shape[1] != 3:
             raise ValueError('position must be a (N,3) array')
-        if len(q.shape) != 2 or q.shape[1] != 4:
+        if q.ndim != 2 or q.shape[1] != 4:
             raise ValueError('orientation must be a (N,4) array')
         self.ptype_position[i] = r
         self.ptype_orientation[i] = q
@@ -812,15 +814,15 @@ class FTbase:
         """
         self.position = np.asarray(r, dtype=np.float32)
         self.orientation = np.asarray(q, dtype=np.float32)
-        if len(self.position.shape) == 1:
+        if self.position.ndim == 1:
             self.position.resize((1, 3))
-        if len(self.position.shape) != 2:
+        if self.position.ndim != 2:
             print('Error: can not make an array of 3D vectors'
                   'from input position.')
             return None
-        if len(self.orientation.shape) == 1:
+        if self.orientation.ndim == 1:
             self.orientation.resize((1, 4))
-        if len(self.orientation.shape) != 2:
+        if self.orientation.ndim != 2:
             print('Error: can not make an array of 4D vectors'
                   'from input orientation.')
             return None

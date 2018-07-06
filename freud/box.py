@@ -3,7 +3,6 @@
 
 from collections import namedtuple
 import numpy as np
-
 from ._freud import Box as _Box
 
 
@@ -72,11 +71,74 @@ class Box(_Box):
         return self.to_dict() == other.to_dict()
 
     @classmethod
-    def from_box(cls, box):
-        """Initialize a box instance from another box instance."""
-        dimensions = getattr(box, 'dimensions', 3)
-        return cls(Lx=box.Lx, Ly=box.Ly, Lz=box.Lz,
-                   xy=box.xy, xz=box.xz, yz=box.yz, is2D=dimensions == 2)
+    def from_box(cls, box, dimensions=None):
+        """Initialize a box instance from a box-like object.
+
+        :param box: A box-like object
+        :param int dimensions: Dimensionality of the box
+
+        .. note:: Objects that can be converted to freud boxes include
+                  lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
+                  dictionaries with keys
+                  :code:`'Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz', 'dimensions'`,
+                  namedtuples with properties
+                  :code:`Lx, Ly, Lz, xy, xz, yz, dimensions`,
+                  3x3 matrices (see :py:meth:`~.from_matrix()`),
+                  or existing :py:class:`freud.box.Box` objects.
+
+                  If any of :code:`Lz, xy, xz, yz` are not provided, they will
+                  be set to 0.
+
+                  If all values are provided, a triclinic box will be
+                  constructed. If only :code:`Lx, Ly, Lz` are provided, an
+                  orthorhombic box will be constructed. If only :code:`Lx, Ly`
+                  are provided, a rectangular (2D) box will be constructed.
+
+                  If the optional :code:`dimensions` argument is given, this
+                  will be used as the box dimensionality. Otherwise, the box
+                  dimensionality will be detected from the :code:`dimensions`
+                  of the provided box. If no dimensions can be detected, the
+                  box will be 2D if :code:`Lz == 0`, and 3D otherwise.
+        """
+        if isinstance(box, np.ndarray) and box.shape == (3, 3):
+            # Handles 3x3 matrices
+            return cls.from_matrix(box)
+        try:
+            # Handles freud.box.Box and namedtuple
+            Lx = box.Lx
+            Ly = box.Ly
+            Lz = getattr(box, 'Lz', 0)
+            xy = getattr(box, 'xy', 0)
+            xz = getattr(box, 'xz', 0)
+            yz = getattr(box, 'yz', 0)
+            if dimensions is None:
+                dimensions = getattr(box, 'dimensions', None)
+        except AttributeError:
+            try:
+                # Handle dictionary-like
+                Lx = box['Lx']
+                Ly = box['Ly']
+                Lz = box.get('Lz', 0)
+                xy = box.get('xy', 0)
+                xz = box.get('xz', 0)
+                yz = box.get('yz', 0)
+                if dimensions is None:
+                    dimensions = box.get('dimensions', None)
+            except (KeyError, TypeError):
+                # Handle list-like
+                Lx = box[0]
+                Ly = box[1]
+                Lz = box[2] if len(box) > 2 else 0
+                xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
+        except Exception:
+            raise ValueError(
+                'Supplied box cannot be converted to type freud.box.Box')
+
+        # The dimensions argument should override the box settings
+        if dimensions is None:
+            dimensions = 2 if Lz == 0 else 3
+        is2D = (dimensions == 2)
+        return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
     def from_matrix(cls, boxMatrix, dimensions=None):

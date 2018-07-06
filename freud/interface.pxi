@@ -23,6 +23,7 @@ cdef class InterfaceMeasure:
     cdef rmax
 
     def __cinit__(self, box, float r_cut):
+        box = freud.common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -51,10 +52,10 @@ cdef class InterfaceMeasure:
         """
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise RuntimeError('Need to provide array with x, y, z positions')
 

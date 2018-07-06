@@ -2,6 +2,27 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+* Allow specification of rmin for LocalWl (previously was only possible for LocalQl).
+* Environment module.
+
+### Changed
+* Refactoring of LocalQl and LocalWl Steinhardt order parameters.
+* MatchEnv uses BiMap instead of boost::bimap.
+* NeighborList automatically uses ref\_points as the points if points are not provided.
+* Box::unwrap and Box::wrap return the vectors after updating.
+* Everything other than true order parameters moved from Order module to Environment module.
+* Use lambda function in parallel\_for in CorrelationFunction.
+
+### Fixed
+* Fix cython passing C++ the default argument force\_resize to NeighborList::resize.
+* Standardize freud.common.convert\_array error message.
+
+### Removed
+* Undocumented shapesplit module.
+
 ## v0.8.2 - 2018-06-07
 
 ### Added

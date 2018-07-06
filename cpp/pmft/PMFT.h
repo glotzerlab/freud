@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef PMFT_H
+#define PMFT_H
+
 #include <memory>
 #include <ostream>
 #include <tbb/tbb.h>
@@ -10,9 +13,6 @@
 #include "LinkCell.h"
 
 #include "Index1D.h"
-
-#ifndef _PMFT_H__
-#define _PMFT_H__
 
 /*! \internal
     \file PMFT.h
@@ -44,7 +44,7 @@ class PMFT
             }
 
         //! Reset the PCF array to all zeros
-        virtual void resetPCF() = 0;
+        virtual void reset() = 0;
 
         //! \internal
         //! helper function to reduce the thread specific arrays into one array
@@ -79,4 +79,4 @@ class PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFT_H__
+#endif // PMFT_H

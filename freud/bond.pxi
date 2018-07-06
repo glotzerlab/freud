@@ -4,7 +4,6 @@
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.map cimport map
 import numpy as np
-
 cimport freud._box as _box
 cimport freud._bond as bond
 cimport numpy as np
@@ -47,7 +46,7 @@ cdef class BondingAnalysis:
         """
         frame_0 = freud.common.convert_array(
                     frame_0, 2, dtype=np.uint32, contiguous=True,
-                    dim_message="frame_0 must be a 2 dimensional array")
+                    array_name="frame_0")
         if (frame_0.shape[0] != self.num_particles):
             raise ValueError(
                 "the 1st dimension must match num_particles: {}".format(
@@ -77,10 +76,10 @@ cdef class BondingAnalysis:
         """
         frame_0 = freud.common.convert_array(
                     frame_0, 2, dtype=np.uint32, contiguous=True,
-                    dim_message="frame_0 must be a 2 dimensional array")
+                    array_name="frame_0")
         frame_1 = freud.common.convert_array(
             frame_1, 2, dtype=np.uint32, contiguous=True,
-            dim_message="frame_1 must be a 2 dimensional array")
+            array_name="frame_1")
 
         cdef np.ndarray[uint, ndim = 2] l_frame_0 = frame_0
         cdef np.ndarray[uint, ndim = 2] l_frame_1 = frame_1
@@ -252,25 +251,26 @@ cdef class BondingR12:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 1 dimensional array")
+                array_name="ref_orientations")
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
                 orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 1 dimensional array")
+                array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
@@ -427,25 +427,26 @@ cdef class BondingXY2D:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 1 dimensional array")
+                array_name="ref_orientations")
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
                 orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 1 dimensional array")
+                array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
@@ -604,25 +605,26 @@ cdef class BondingXYT:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 1 dimensional array")
+                array_name="ref_orientations")
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
                 orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 1 dimensional array")
+                array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
@@ -786,28 +788,29 @@ cdef class BondingXYZ:
                             dtype= :class:`numpy.float32`
         :type nlist: :py:class:`freud.locality.NeighborList`
         """
+        box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+                array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
                 ref_orientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 2 dimensional array")
+                array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise ValueError(
                 "the 2nd dimension must have 4 values: q0, q1, q2, q3")
 
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+                array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
                 orientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 2 dimensional array")
+                array_name="orientations")
         if orientations.shape[1] != 4:
             raise ValueError(
                 "the 2nd dimension must have 4 values: q0, q1, q2, q3")

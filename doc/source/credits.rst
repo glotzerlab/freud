@@ -60,6 +60,8 @@ Vyas Ramasubramani - **Lead developer**
 * Fixed nematic order parameter
 * Add properties for accessing class members
 * Various minor bug fixes
+* Refactored PMFT code
+* Refactored Steinhardt order parameter code
 
 Bradley Dice - **Lead developer**
 
@@ -138,6 +140,10 @@ Tim Moore
 Michael Engel
 
 * Translational order parameter
+
+Alex Dutton
+
+* BiMap class for MatchEnv
 
 Source code
 -----------

@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef PMFTXYT_H
+#define PMFTXYT_H
+
 #include <memory>
 #include <ostream>
 #include <tbb/tbb.h>
@@ -9,9 +12,6 @@
 #include "VectorMath.h"
 #include "LinkCell.h"
 #include "PMFT.h"
-
-#ifndef _PMFTXYT_H__
-#define _PMFTXYT_H__
 
 /*! \file PMFTXYT.h
     \brief Routines for computing PMFT in the XYT coordinate system
@@ -26,7 +26,7 @@ class PMFTXYT : public PMFT
         PMFTXYT(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_t);
 
         //! Reset the PCF array to all zeros
-        virtual void resetPCF();
+        virtual void reset();
 
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
@@ -101,4 +101,4 @@ class PMFTXYT : public PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFTXYT_H__
+#endif // PMFTXYT_H

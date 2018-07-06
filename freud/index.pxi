@@ -2,7 +2,6 @@
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
-
 cimport freud.util._Index1D as Index1D
 cimport numpy as np
 

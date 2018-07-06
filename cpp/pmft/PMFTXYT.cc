@@ -121,7 +121,7 @@ void PMFTXYT::reducePCF()
             });
     }
 
-void PMFTXYT::resetPCF()
+void PMFTXYT::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {

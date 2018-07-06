@@ -1,26 +1,23 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-// stdlib include
+#ifndef BRUTE_FORCE_H
+#define BRUTE_FORCE_H
+
 #include <chrono>
 #include <iostream>
 #include <random>
 #include <vector>
 
-// boost include
-#include <boost/shared_ptr.hpp>
-#include <boost/bimap.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/index/rtree.hpp>
 
-// eigen include
 #include "Eigen/Eigen/Dense"
 #include "Eigen/Eigen/Sparse"
 
-#ifndef _BRUTE_FORCE_H__
-#define _BRUTE_FORCE_H__
+#include "BiMap.h"
 
 namespace freud { namespace registration {
 
@@ -264,7 +261,7 @@ class RegisterBruteForce  // : public Register
 
                         // feed back in the TRANSPOSE of rot_points such that
                         // the input matrix is (Nx3).
-                        boost::bimap<unsigned int, unsigned int> vec_map;
+                        BiMap<unsigned int, unsigned int> vec_map;
                         double rmsd = AlignedRMSDTree(rot_points.transpose(), vec_map);
                         if (rmsd < rmsd_min || rmsd_min < 0.0)
                             {
@@ -312,7 +309,7 @@ class RegisterBruteForce  // : public Register
             return m_rmsd;
             }
 
-        boost::bimap<unsigned int, unsigned int> getVecMap()
+        BiMap<unsigned int, unsigned int> getVecMap()
             {
             return m_vec_map;
             }
@@ -335,7 +332,7 @@ class RegisterBruteForce  // : public Register
         // set, the vector set used in the argument below.
         // To fully solve this, we need to use the Hungarian algorithm or some
         // other way of solving the so-called assignment problem.
-        double AlignedRMSDTree(const matrix& points, boost::bimap<unsigned int, unsigned int>& m)
+        double AlignedRMSDTree(const matrix& points, BiMap<unsigned int, unsigned int>& m)
             {
             // Also brute force.
             assert(points.rows() == m_data.rows());
@@ -345,7 +342,7 @@ class RegisterBruteForce  // : public Register
             // guarantees 1-1 mapping
             std::vector<bool> found(m_data.rows(), false);
             // a mapping between the vectors of m_data and the vectors of points
-            boost::bimap<unsigned int, unsigned int> vec_map;
+            BiMap<unsigned int, unsigned int> vec_map;
             // loop through all the points
             for(int r = 0; r < points.rows(); r++)
                 {
@@ -363,7 +360,7 @@ class RegisterBruteForce  // : public Register
                         dist = bg::distance(query, it->first);
                         found[it->second] = true;
                         // add this pairing to the mapping between vectors
-                        vec_map.insert(boost::bimap<unsigned int, unsigned int>::value_type(it->second, r));
+                        vec_map.emplace(it->second, r);
                         break;
                         }
                     }
@@ -459,7 +456,7 @@ class RegisterBruteForce  // : public Register
         double m_rmsd;
         double m_tol;
         size_t m_shuffles;
-        boost::bimap<unsigned int, unsigned int> m_vec_map;
+        BiMap<unsigned int, unsigned int> m_vec_map;
         // R-tree. It stores (point, index) pairs and is initialized via
         // the R*-tree algorithm.
         // The maximum number of elements in each node is set to 16.
@@ -470,4 +467,4 @@ class RegisterBruteForce  // : public Register
 
 }; }; // end namespace freud::registration
 
-#endif
+#endif // BRUTE_FORCE_H

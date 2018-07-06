@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef NEAREST_NEIGHBORS_H
+#define NEAREST_NEIGHBORS_H
+
 #include <algorithm>
 #include <memory>
 
@@ -10,9 +13,6 @@
 #include "Index1D.h"
 
 #include "tbb/atomic.h"
-
-#ifndef _NEAREST_NEIGHBORS_H__
-#define _NEAREST_NEIGHBORS_H__
 
 /*! \file NearestNeighbors.h
   \brief Find the requested number of nearest neighbors.
@@ -103,4 +103,4 @@ class NearestNeighbors
 
 }; }; // end namespace freud::locality
 
-#endif // _NEAREST_NEIGHBORS_H__
+#endif // NEAREST_NEIGHBORS_H

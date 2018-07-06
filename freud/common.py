@@ -5,40 +5,36 @@
 
 import logging
 import numpy as np
+from . import box as bx
 
 logger = logging.getLogger(__name__)
 
 
 def convert_array(array, dimensions, dtype=None,
-                  contiguous=True, dim_message=None):
-    """
-    Function which takes a given array, checks the dimensions,
+                  contiguous=True, array_name=None):
+    """Function which takes a given array, checks the dimensions,
     and converts to a supplied dtype and/or makes the array
     contiguous as required by the user.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     :param array: Array to check and convert
-    :param dimensions: Expected dimensions of the array
-    :param dtype: dtype to convert the array to if array dtype
-                is different. If `None` dtype will not be changed.
-    :param contiguous: whether to cast the array to a contiguous
-                array. Default behavior casts to a contiguous array
-    :param dim_message: passed message to log if the dimensions do
-                not match; allows for easier debugging
+    :param int dimensions: Expected dimensions of the array
+    :param dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
+                  is different. If `None`, :code:`dtype` will not be changed.
+    :param bool contiguous: Whether to cast the array to a contiguous
+                            array. Default behavior casts to a contiguous array
+    :param str array_name: Name of the array, used for errors
     :type array: :py:class:`numpy.ndarray`
-    :type dimensions: int
     :type dtype: :py:class:`numpy.dtype`
-    :type contiguous: bool
-    :type dim_message: str
     :return: array
     :rtype: :py:class:`numpy.ndarray`
     """
+    array = np.asarray(array)
+
     if array.ndim != dimensions:
-        if dim_message is not None:
-            logger.warning(dim_message)
-        raise TypeError("array.ndim = {}; expected ndim = {}".format(
-            array.ndim, dimensions))
+        raise TypeError("{}.ndim = {}; expected ndim = {}".format(
+            array_name or "array", array.ndim, dimensions))
     requirements = None
     if contiguous:
         if not array.flags.contiguous:
@@ -50,3 +46,23 @@ def convert_array(array, dimensions, dtype=None,
             array.dtype, dtype)
         logger.info(msg)
     return np.require(array, dtype=dtype, requirements=requirements)
+
+
+def convert_box(box):
+    """Function which takes a box-like object and attempts to convert it to
+    :py:class:`freud.box.Box`. Existing :py:class:`freud.box.Box` objects are
+    used directly.
+
+    .. moduleauthor:: Bradley Dice <bdice@umich.edu>
+
+    :param box: Box to check and convert if needed
+    :type box: box-like object (see :py:meth:`freud.box.Box.from_box`)
+    :return: freud box
+    :rtype: :py:class:`freud.box.Box`
+    """
+    if not isinstance(box, bx.Box):
+        try:
+            box = bx.Box.from_box(box)
+        except ValueError:
+            raise
+    return box

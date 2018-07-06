@@ -1,14 +1,14 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef INTERFACE_MEASURE_H
+#define INTERFACE_MEASURE_H
+
 #include <memory>
 
 #include "box.h"
 #include "VectorMath.h"
 #include "LinkCell.h"
-
-#ifndef _INTERFACEMEASURE_H__
-#define _INTERFACEMEASURE_H__
 
 /*! \file InterfaceMeasure.h
     \brief Compute the size of an interface between two point clouds.
@@ -52,4 +52,4 @@ class InterfaceMeasure
 
 }; }; // end namespace freud::interface
 
-#endif // _INTERFACEMEASURE_H__
+#endif // INTERFACE_MEASURE_H
