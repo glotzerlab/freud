@@ -1,8 +1,10 @@
 import numpy as np
 import numpy.testing as npt
 from freud import locality, box
-import unittest
+from collections import Counter
+import itertools
 import sys
+import unittest
 
 
 class TestLinkCell(unittest.TestCase):
@@ -182,17 +184,27 @@ class TestLinkCell(unittest.TestCase):
             all_vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
             fbox.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
-            (exhaustive_i, exhaustive_j) = np.where(all_rsqs < rcut**2)
+            (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
+                all_rsqs < rcut**2, all_rsqs > 0))
 
             exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
+            exhaustive_counts = Counter(exhaustive_i)
+            exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
-            lc.compute(fbox, points, points, exclude_ii=False)
+            lc.compute(fbox, points, points, exclude_ii=True)
             ijs = set(zip(lc.nlist.index_i, lc.nlist.index_j))
+            counts_list = lc.nlist.neighbor_counts.tolist()
 
             try:
                 self.assertEqual(exhaustive_ijs, ijs)
             except AssertionError:
-                print('Failed random seed: {} (i={})'.format(seed, i))
+                print('Failed neighbors, random seed: {} (i={})'.format(seed, i))
+                raise
+
+            try:
+                self.assertEqual(exhaustive_counts_list, counts_list)
+            except AssertionError:
+                print('Failed neighbor counts, random seed: {} (i={})'.format(seed, i))
                 raise
 
     def test_throws(self):
@@ -206,6 +218,22 @@ class TestLinkCell(unittest.TestCase):
         locality.LinkCell(fbox, L/2.0001)
         with self.assertRaises(RuntimeError):
             locality.LinkCell(fbox, L/1.9999)
+
+    def test_no_bonds(self):
+        N = 10
+        fbox = box.Box.cube(N)
+
+        # make a sc lattice
+        lattice_xs = np.linspace(-float(N)/2, float(N)/2, N, endpoint=False)
+        positions = list(itertools.product(lattice_xs, lattice_xs, lattice_xs))
+        positions = np.array(positions, dtype=np.float32)
+
+        # rcut is slightly smaller than the distance for any particle
+        lc = locality.LinkCell(fbox, 0.99)
+        nlist = lc.compute(fbox, positions, positions).nlist
+
+        self.assertEqual(nlist.neighbor_counts.tolist(),
+                         np.zeros((N**3,), dtype=np.uint32).tolist())
 
 
 if __name__ == '__main__':
