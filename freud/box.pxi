@@ -60,7 +60,7 @@ cdef class Box:
         """Set all side lengths of box to L.
 
         Args:
-          float: L: Side length of box
+          L(float): Side length of box
 
         Returns:
 
@@ -252,7 +252,7 @@ cdef class Box:
 
     def getCoordinates(self, f):
         """Alias for :py:meth:`~.makeCoordinates()`
-        
+
         .. deprecated:: 0.8
            Use :py:meth:`~.makeCoordinates()` instead.
 
@@ -307,7 +307,7 @@ cdef class Box:
 
     def getImage(self, vec):
         """Returns the image corresponding to a wrapped vector.
-        
+
         .. versionadded:: 0.8
 
         Args:

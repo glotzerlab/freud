@@ -27,14 +27,15 @@ class Box(_Box):
 
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
-    :param float Lx: Length of side x
-    :param float Ly: Length of side y
-    :param float Lz: Length of side z
-    :param float xy: Tilt of xy plane
-    :param float xz: Tilt of xz plane
-    :param float yz: Tilt of yz plane
-    :param bool is2D: Specify that this box is 2-dimensional,
-        default is 3-dimensional.
+    Args:
+        Lx(float): Length of side x
+        Ly(float): Length of side y
+        Lz(float): Length of side z
+        xy(float): Tilt of xy plane
+        xz(float): Tilt of xz plane
+        yz(float): Tilt of yz plane
+        is2D(bool): Specify that this box is 2-dimensional,
+            default is 3-dimensional.
     """
 
     def to_dict(self):
