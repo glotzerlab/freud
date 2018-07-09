@@ -60,7 +60,7 @@ cdef class Box:
         """Set all side lengths of box to L.
 
         Args:
-          L(float): Side length of box
+          L (float): Side length of box
 
         Returns:
 
@@ -196,7 +196,7 @@ cdef class Box:
         """Set the dimensionality to 2D (True) or 3D (False).
 
         Args:
-          val(bool): 2D=True, 3D=False
+          val (bool): 2D=True, 3D=False
 
         Returns:
 
@@ -257,11 +257,11 @@ cdef class Box:
            Use :py:meth:`~.makeCoordinates()` instead.
 
         Args:
-          f(class:`numpy.ndarray`,
-            shape= :math:`\\left(3\\right)`,
-            dtype= :class:`numpy.float32`): Fractional coordinates
-            :math:`\\left(x, y, z\\right)` between 0 and 1 within
-            parallelepipedal box
+          f (class:`numpy.ndarray`,
+             shape= :math:`\\left(3\\right)`,
+             dtype= :class:`numpy.float32`): Fractional coordinates
+             :math:`\\left(x, y, z\\right)` between 0 and 1 within
+             parallelepipedal box
 
         Returns:
 
@@ -272,10 +272,10 @@ cdef class Box:
         """Convert fractional coordinates into real coordinates.
 
         Args:
-          f(class:`numpy.ndarray`,
-          shape= :math:`\\left(3\\right)`,
-          dtype= :class:`numpy.float32`): Fractional coordinates :math:`\\left(x, y, z\\right)` between
-          0 and 1 within parallelepipedal box
+          f (class:`numpy.ndarray`,
+           shape= :math:`\\left(3\\right)`,
+           dtype= :class:`numpy.float32`): Fractional coordinates :math:`\\left(x, y, z\\right)` between
+           0 and 1 within parallelepipedal box
 
         Returns:
           list[float, float, float]: Vector of real coordinates :math:`\\left(x, y, z\\right)`
@@ -291,9 +291,9 @@ cdef class Box:
         """Convert real coordinates into fractional coordinates.
 
         Args:
-          vec(class:`numpy.ndarray`,
-              shape= :math:`\\left(3\\right)`,
-              dtype= :class:`numpy.float32`): Real coordinates within parallelepipedal box
+          vec (class:`numpy.ndarray`,
+               shape= :math:`\\left(3\\right)`,
+               dtype= :class:`numpy.float32`): Real coordinates within parallelepipedal box
 
         Returns:
           A fractional coordinate vector
@@ -311,9 +311,9 @@ cdef class Box:
         .. versionadded:: 0.8
 
         Args:
-          vec(class:`numpy.ndarray`,
-              shape= :math:`\\left(3\\right)`,
-              dtype= :class:`numpy.float32`): Coordinates of unwrapped vector
+          vec (class:`numpy.ndarray`,
+               shape= :math:`\\left(3\\right)`,
+               dtype= :class:`numpy.float32`): Coordinates of unwrapped vector
 
         Returns:
           class:`numpy.ndarray`,
@@ -331,8 +331,8 @@ cdef class Box:
         """Get the lattice vector with index :math:`i`.
 
         Args:
-          i(unsigned int): Index (:math:`0 \\leq i < d`) of the lattice vector, where
-                           :math:`d` is the box dimension (2 or 3)
+          i (unsigned int): Index (:math:`0 \\leq i < d`) of the lattice vector, where
+                            :math:`d` is the box dimension (2 or 3)
 
         Returns:
           lattice vector with index :math:`i`
@@ -347,7 +347,7 @@ cdef class Box:
     def wrap(self, vecs):
         """Wrap a given array of vectors from real space into the box, using
         the periodic boundaries.
-        
+
         .. note:: Since the origin of the box is in the center, wrapping is
                   equivalent to applying the minimum image convention to the
                   input vectors.
@@ -383,14 +383,7 @@ cdef class Box:
         return vecs
 
     def _wrap(self, vec):
-        """
-
-        Args:
-          vec: 
-
-        Returns:
-
-        """
+        """Wrap a single vector"""
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef vec3[float] result = self.thisptr.wrap(
                 < vec3[float]&>l_vec[0])
@@ -402,21 +395,20 @@ cdef class Box:
         unwrap in each dimension.
 
         Args:
-          : vectors wrapped into the box
           vecs (class:`numpy.ndarray`,
                 shape= :math:`\\left(3\\right)` or
                 :math:`\\left(N, 3\\right)`,
                 dtype= :class:`numpy.float32`): Single vector or array of :math:`N` vectors. The vectors are modified in place.
-          imgs(class:`numpy.ndarray`,
-               shape= :math:`\\left(3\\right)` or
-               :math:`\\left(N, 3\\right)`,
-               dtype= :class:`numpy.float32`): Single image index or array of :math:`N` image indices
+          imgs (class:`numpy.ndarray`,
+                shape= :math:`\\left(3\\right)` or
+                :math:`\\left(N, 3\\right)`,
+                dtype= :class:`numpy.float32`): Single image index or array of :math:`N` image indices
 
         Returns:
           class:`numpy.ndarray`,
-        shape= :math:`\\left(3\\right)` or
-        :math:`\\left(N, 3\\right)`,
-        dtype= :class:`numpy.float32`: vectors unwrapped by the image indices provided
+          shape= :math:`\\left(3\\right)` or
+          :math:`\\left(N, 3\\right)`,
+          dtype= :class:`numpy.float32`: vectors unwrapped by the image indices provided
 
         """
         if vecs.shape != imgs.shape:
@@ -441,15 +433,7 @@ cdef class Box:
         return vecs
 
     def _unwrap(self, vec, img):
-        """
-
-        Args:
-          vec: 
-          img: 
-
-        Returns:
-
-        """
+        """Unwrap a single vector"""
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef np.ndarray[int, ndim=1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
@@ -473,12 +457,9 @@ cdef class Box:
         """Set the box's periodicity in each dimension.
 
         Args:
-          bool: x: True if periodic in x, False if not
-          bool: y: True if periodic in y, False if not
-          bool: z: True if periodic in z, False if not
-          x: 
-          y: 
-          z: 
+          x (bool): True if periodic in x, False if not
+          y (bool): True if periodic in y, False if not
+          z (bool): True if periodic in z, False if not
 
         Returns:
 
@@ -500,8 +481,7 @@ cdef class Box:
         """Set the box periodicity in the x direction.
 
         Args:
-          bool: val: True if periodic, False if not
-          val: 
+          val (bool): True if periodic, False if not
 
         Returns:
 
@@ -523,8 +503,7 @@ cdef class Box:
         """Set the box periodicity in the y direction.
 
         Args:
-          bool: val: True if periodic, False if not
-          val: 
+          val (bool): True if periodic, False if not
 
         Returns:
 

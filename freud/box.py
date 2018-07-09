@@ -28,17 +28,25 @@ class Box(_Box):
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
     Args:
-        Lx(float): Length of side x
-        Ly(float): Length of side y
-        Lz(float): Length of side z
-        xy(float): Tilt of xy plane
-        xz(float): Tilt of xz plane
-        yz(float): Tilt of yz plane
-        is2D(bool): Specify that this box is 2-dimensional,
-            default is 3-dimensional.
+      Lx (float): Length of side x
+      Ly (float): Length of side y
+      Lz (float): Length of side z
+      xy (float): Tilt of xy plane
+      xz (float): Tilt of xz plane
+      yz (float): Tilt of yz plane
+      is2D(bool): Specify that this box is 2-dimensional,
+    default is 3-dimensional.
+
+    Returns:
+
     """
 
     def to_dict(self):
+        """Return box as dictionary
+
+        Returns:
+          dict: Box parameters
+        """
         return {
             'Lx': self.Lx,
             'Ly': self.Ly,
@@ -51,8 +59,9 @@ class Box(_Box):
     def to_tuple(self):
         """Returns the box as named tuple.
 
-        :return: box parameters
-        :rtype: namedtuple
+        Returns:
+          namedtuple: Box parameters
+
         """
         tuple_type = namedtuple(
             'BoxTuple', ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'])
@@ -62,8 +71,9 @@ class Box(_Box):
     def to_matrix(self):
         """Returns the box matrix (3x3).
 
-        :return: box matrix
-        :rtype: list of lists, shape 3x3
+        Returns:
+          list of lists, shape 3x3: box matrix
+
         """
         return [[self.Lx, self.xy * self.Ly, self.xz * self.Lz],
                 [0, self.Ly, self.yz * self.Lz],
@@ -81,8 +91,9 @@ class Box(_Box):
     def from_box(cls, box, dimensions=None):
         """Initialize a box instance from a box-like object.
 
-        :param box: A box-like object
-        :param int dimensions: Dimensionality of the box
+        Args:
+          box: A box-like object
+          int: dimensions: Dimensionality of the box
 
         .. note:: Objects that can be converted to freud boxes include
                   lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
@@ -106,6 +117,10 @@ class Box(_Box):
                   dimensionality will be detected from the :code:`dimensions`
                   of the provided box. If no dimensions can be detected, the
                   box will be 2D if :code:`Lz == 0`, and 3D otherwise.
+                    dimensions:  (Default value = None)
+
+        Returns:
+            (class:`freud.box:Box`): The resulting box object.
         """
         if isinstance(box, np.ndarray) and box.shape == (3, 3):
             # Handles 3x3 matrices
@@ -153,6 +168,13 @@ class Box(_Box):
 
         For more information and the source for this code,
         see: http://hoomd-blue.readthedocs.io/en/stable/box.html
+
+        Args:
+          boxMatrix (array-like): A 3x3 matrix or list of lists
+          dimensions:  Number of dimensions (Default value = None)
+
+        Returns:
+
         """
         boxMatrix = np.asarray(boxMatrix, dtype=np.float32)
         v0 = boxMatrix[:, 0]
@@ -177,7 +199,8 @@ class Box(_Box):
     def cube(cls, L):
         """Construct a cubic box with equal lengths.
 
-        :param float L: The edge length
+        Args:
+          L (float): The edge length
         """
         return cls(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0, is2D=False)
 
@@ -185,74 +208,63 @@ class Box(_Box):
     def square(cls, L):
         """Construct a 2-dimensional (square) box with equal lengths.
 
-        :param float L: The edge length
+        Args:
+          L (float): The edge length
+
+        Returns:
+
         """
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
     @property
     def L(self):
-        """Return the lengths of the box as a tuple (x, y, z)."""
+        """Get edge length"""
         return self.getL()
 
     @L.setter
     def L(self, value):
-        """Set all side lengths of box to L."""
+        """Set all side lengths of box to L. """
         self.setL(value)
 
     @property
     def Lx(self):
-        """Length of the x-dimension of the box.
-
-        :getter: Returns this box's x-dimension length
-        :setter: Sets this box's x-dimension length
-        :type: float
-        """
+        """Length of the x-dimension of the box."""
         return self.getLx()
 
     @Lx.setter
     def Lx(self, value):
+        """ """
         self.setL([value, self.Ly, self.Lz])
 
     @property
     def Ly(self):
-        """Length of the y-dimension of the box.
-
-        :getter: Returns this box's y-dimension length
-        :setter: Sets this box's y-dimension length
-        :type: float
-        """
+        """Length of the y-dimension of the box."""
         return self.getLy()
 
     @Ly.setter
     def Ly(self, value):
+        """ """
         self.setL([self.Lx, value, self.Lz])
 
     @property
     def Lz(self):
-        """Length of the z-dimension of the box.
-
-        :getter: Returns this box's z-dimension length
-        :setter: Sets this box's z-dimension length
-        :type: float
-        """
+        """Length of the z-dimension of the box."""
         return self.getLz()
 
     @Lz.setter
     def Lz(self, value):
+        """ """
         self.setL([self.Lx, self.Ly, value])
 
     @property
     def dimensions(self):
         """Number of dimensions of this box (only 2 or 3 are supported).
-
-        :getter: Returns this box's number of dimensions
-        :setter: Sets this box's number of dimensions
-        :type: int
         """
         return 2 if self.is2D() else 3
 
     @dimensions.setter
     def dimensions(self, value):
+        """ """
         assert value == 2 or value == 3
         self.set2D(value == 2)
 
@@ -263,10 +275,22 @@ class Box(_Box):
         :getter: Returns this box's periodicity in each dimension
                  (True if periodic, False if not)
         :setter: Set this box's periodicity in each dimension
-        :type: list[bool, bool, bool]
+
+        Args:
+
+        Returns:
+
         """
         return self.getPeriodic()
 
     @periodic.setter
     def periodic(self, periodic):
+        """
+
+        Args:
+          periodic:
+
+        Returns:
+
+        """
         self.setPeriodic(periodic[0], periodic[1], periodic[2])
