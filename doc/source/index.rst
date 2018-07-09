@@ -12,17 +12,19 @@ In order to maximize its interoperabiity with other systems, freud works with an
 Installing freud
 ================
 
-The recommended method of installing freud is using [conda](https://conda.io/docs/) through the [glotzer channel](https://anaconda.org/glotzer).
-First download and install [miniconda](https://conda.io/miniconda.html) following [conda's instructions](https://conda.io/docs/user-guide/install/index.html).
+The recommended method of installing freud is using `conda <https://conda.io/docs/>`_ through the `glotzer channel <https://anaconda.org/glotzer>`_.
+First download and install `miniconda <https://conda.io/miniconda.html>`_ following `conda's instructions <https://conda.io/docs/user-guide/install/index.html>`_.
 Then, add the `glotzer` channel and install freud:
 
 .. code-block:: bash
+
     $ conda config --add channels glotzer
     $ conda install freud
 
 Alternatively, freud can be installed directly from source.
 
 .. code-block:: bash
+
     $ mkdir build
     $ cd build
     $ cmake ../
