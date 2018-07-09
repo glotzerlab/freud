@@ -35,8 +35,6 @@ KSpace Module
 Structure Factor
 ================
 
-Methods for calculating the structure factor of different systems.
-
 .. autoclass:: freud.kspace.SFactor3DPoints(box, g)
     :members:
 
@@ -67,8 +65,6 @@ Methods for calculating the structure factor of different systems.
 Diffraction Patterns
 ====================
 
-Methods for calculating diffraction patterns of various systems.
-
 .. autoclass:: freud.kspace.DeltaSpot()
     :members:
 
@@ -77,8 +73,6 @@ Methods for calculating diffraction patterns of various systems.
 
 Utilities
 =========
-
-Classes and methods used by other kspace modules.
 
 .. autoclass:: freud.kspace.Constraint()
     :members:
@@ -91,5 +85,3 @@ Classes and methods used by other kspace modules.
 .. autofunction:: freud.kspace.reciprocalLattice3D()
 
 .. autofunction:: freud.kspace.meshgrid2(*arrs)
-
-
