@@ -25,9 +25,8 @@ Order Module
 
 .. rubric:: Details
 
-The order module contains functions which compute order parameters for the whole system or individual particles.
-Order parameters take bond order data and interpret it in some way to quantify the degree of order in a system using a scalar value.
-This is often done through computing spherical harmonics of the bond order diagram, which are the spherical analogue of Fourier Transforms.
+.. automodule:: freud.order
+    :synopsis: Compute order parameters
 
 .. autoclass:: freud.order.CubaticOrderParameter(t_initial, t_final, scale, n_replicates, seed)
     :members:
@@ -92,7 +91,7 @@ Local Descriptors
     :members:
 
 Angular Separation
------------------
+------------------
 
 .. autoclass:: freud.order.AngularSeparation(box, rmax, n)
     :members:

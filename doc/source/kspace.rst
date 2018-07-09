@@ -29,8 +29,8 @@ KSpace Module
 
 .. rubric:: Details
 
-Modules for calculating quantities in reciprocal space, including Fourier
-transforms of shapes and diffraction pattern generation.
+.. automodule:: freud.kspace
+    :synopsis: Compute various quantities in reciprocal space.
 
 Structure Factor
 ================

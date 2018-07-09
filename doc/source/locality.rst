@@ -14,7 +14,8 @@ Locality Module
 
 .. rubric:: Details
 
-The locality module contains data structures to efficiently locate points based on their proximity to other points.
+.. automodule:: freud.locality
+    :synopsis: Data structures for finding neighboring points.
 
 .. autoclass:: freud.locality.NeighborList
    :members:

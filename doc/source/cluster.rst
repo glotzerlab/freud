@@ -12,7 +12,8 @@ Cluster Module
 
 .. rubric:: Details
 
-The cluster module aids in finding and computing the properties of clusters of points in a system.
+.. automodule:: freud.cluster
+    :synopsis: Find clusters
 
 .. autoclass:: freud.cluster.Cluster(box, rcut)
     :members:

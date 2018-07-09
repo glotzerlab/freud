@@ -15,8 +15,8 @@ Density Module
 
 .. rubric:: Details
 
-The density module contains various classes relating to the density of the system.
-These functions allow evaluation of particle distributions with respect to other particles. 
+.. automodule:: freud.density
+    :synopsis: Analyze system density.
 
 Correlation Functions
 =====================

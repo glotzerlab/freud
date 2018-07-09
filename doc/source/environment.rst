@@ -1,8 +1,8 @@
 .. _environment:
 
-=================
+==================
 Environment Module
-=================
+==================
 
 .. rubric:: Overview
 
@@ -17,8 +17,8 @@ Environment Module
 
 .. rubric:: Details
 
-The environment module contains functions which characterize the local environments of particles in the system.
-These methods use the positions and orientations of particles in the local neighborhood of a given particle to characterize the particle environment.
+.. automodule:: freud.environment
+    :synopsis: Analyze local particle environments
 
 .. autoclass:: freud.environment.MatchEnv(box, rmax, k)
     :members:

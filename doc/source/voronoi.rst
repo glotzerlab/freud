@@ -11,7 +11,8 @@ Voronoi Module
 
 .. rubric:: Details
 
-The voronoi module contains tools to characterize Voronoi cells of a system.
+.. automodule:: freud.voronoi
+    :synopsis: Characterize Voronoi cells
 
 .. automodule:: freud.voronoi
     :members:

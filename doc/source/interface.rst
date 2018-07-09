@@ -11,7 +11,8 @@ Interface Module
 
 .. rubric:: Details
 
-The interface module contains functions to measure the interface between sets of points.
+.. automodule:: freud.interface
+    :synopsis: Measure interfaces
 
 .. autoclass:: freud.interface.InterfaceMeasure(box, r_cut)
    :members:
