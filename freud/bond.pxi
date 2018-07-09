@@ -17,10 +17,9 @@ cdef class BondingAnalysis:
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param num_particles: number of particles over which to calculate bonds
-    :param num_bonds: number of bonds to track
-    :type num_particles: unsigned int
-    :type num bonds: unsigned int
+    Args:
+        num_particles(unsigned int): Number of particles over which to calculate bonds
+        num_bonds(unsigned int): Number of bonds to track
     """
     cdef bond.BondingAnalysis * thisptr
     cdef unsigned int num_particles
