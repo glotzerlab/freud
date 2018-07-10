@@ -13,10 +13,9 @@ cdef class InterfaceMeasure:
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
-    :param box: simulation box
-    :param r_cut: Distance to search for particle neighbors
-    :type box: :py:class:`freud.box.Box`
-    :type r_cut: float
+    Args:
+        box (:py:class:`freud.box.Box`): simulation box
+        r_cut (float): Distance to search for particle neighbors
     """
     cdef interface.InterfaceMeasure * thisptr
     cdef box
@@ -38,17 +37,18 @@ cdef class InterfaceMeasure:
         """Compute and return the number of particles at the interface between
         the two given sets of points.
 
-        :param ref_points: one set of particle positions
-        :param points: other set of particle positions
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
-        :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+          ref_points (class:`numpy.ndarray`,
+                      shape=(:math:`N_{particles}`, 3),
+                      dtype= :class:`numpy.float32`): one set of particle positions
+          points (class:`numpy.ndarray`,
+                  shape=(:math:`N_{particles}`, 3),
+                  dtype= :class:`numpy.float32`): other set of particle positions
+          nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
+                find bonds (Default value = None)
+
+        Returns:
+
         """
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
