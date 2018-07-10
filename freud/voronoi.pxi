@@ -25,6 +25,15 @@ cdef class VoronoiBuffer:
         self.thisptr = new voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
+        """
+
+        Args:
+            points (class:`numpy.ndarray`,
+                    shape=(:math:`N_{particles}`, 3),
+                    dtype= :class:`numpy.float32`): points to calculate Voronoi
+                                                    diagram for
+            buffer (float): Buffer distance within which to look for images
+        """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 array_name='points')
@@ -38,6 +47,11 @@ cdef class VoronoiBuffer:
         return self
 
     def getBufferParticles(self):
+        """Get buffer particles
+
+        Returns:
+            np.array: The buffer particles
+        """
         cdef unsigned int buffer_size = dereference(
                 self.thisptr.getBufferParticles().get()).size()
         cdef vec3[float] * buffer_points = &dereference(
@@ -58,6 +72,11 @@ cdef class VoronoiBuffer:
         return result
 
     def getBufferIds(self):
+        """Get buffer ids
+
+        Returns:
+            np.array: The buffer particles
+        """
         cdef unsigned int buffer_size = dereference(
                 self.thisptr.getBufferParticles().get()).size()
         cdef unsigned int * buffer_ids = &dereference(
