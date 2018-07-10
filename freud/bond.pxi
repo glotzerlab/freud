@@ -244,7 +244,7 @@ cdef class BondingR12:
           box (class:`freud.box:Box`): simulation box
           ref_points (class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
-                      dtype= :class:`numpy.float32`): points to calculate the bonding
+                      dtype= :class:`numpy.float32`): reference points to calculate the bonding
           ref_orientations(class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
@@ -422,7 +422,7 @@ cdef class BondingXY2D:
           box (class:`freud.box:Box`): simulation box
           ref_points (class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
-                      dtype= :class:`numpy.float32`): points to calculate the bonding
+                      dtype= :class:`numpy.float32`): reference points to calculate the bonding
           ref_orientations(class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
@@ -604,7 +604,7 @@ cdef class BondingXYT:
           box (class:`freud.box:Box`): simulation box
           ref_points (class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
-                      dtype= :class:`numpy.float32`): points to calculate the bonding
+                      dtype= :class:`numpy.float32`): reference points to calculate the bonding
           ref_orientations(class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
@@ -787,7 +787,7 @@ cdef class BondingXYZ:
           box (class:`freud.box:Box`): simulation box
           ref_points (class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
-                      dtype= :class:`numpy.float32`): points to calculate the bonding
+                      dtype= :class:`numpy.float32`): reference points to calculate the bonding
           ref_orientations(class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
