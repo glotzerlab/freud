@@ -1,7 +1,7 @@
 # freud
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg)](https://doi.org/10.5281/zenodo.166564)
-[![Anaconda-Server Badge](https://anaconda.org/glotzer/freud/badges/version.svg)](https://anaconda.org/glotzer/freud)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/freud/badges/version.svg)](https://anaconda.org/conda-forge/freud)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org:/repo/harperic/freud-examples)
 [![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
 
@@ -26,14 +26,13 @@ and as an interactive version on [mybinder](http://mybinder.org:/repo/harperic/f
 
 ## Installing freud
 
-Official binaries of freud are available via [conda](https://conda.io/docs/) through the [glotzer channel](https://anaconda.org/glotzer).
+Official binaries of freud are available via [conda](https://conda.io/docs/) through [conda-forge](https://conda-forge.org/).
 To install freud, first download and install [miniconda](https://conda.io/miniconda.html) following
 [conda's instructions](https://conda.io/docs/user-guide/install/index.html).
-Then add the `glotzer` channel and install freud:
+Then install freud:
 
 ```bash
-$ conda config --add channels glotzer
-$ conda install freud
+$ conda install -c conda-forge freud
 ```
 
 ## Compiling freud
@@ -68,7 +67,7 @@ git submodule update --init
     * NumPy >= 1.7
     * Boost (headers only)
     * CMake >= 2.8.0 (to compile freud)
-    * C++ 11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
+    * C++11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
     * Intel Threading Building Blocks
 * Optional:
     * Cython >= 0.23 (to compile your own _freud.cpp)
@@ -103,11 +102,11 @@ The documentation is available online at [https://freud.readthedocs.io](https://
 
 To build the documentation yourself, please install sphinx:
 
-	conda install sphinx
+    conda install sphinx
 
 OR
 
-	pip install sphinx
+    pip install sphinx
 
 To view the full documentation run the following commands in the source directory:
 

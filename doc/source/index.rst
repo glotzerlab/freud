@@ -18,8 +18,7 @@ Then, add the `glotzer` channel and install freud:
 
 .. code-block:: bash
 
-    $ conda config --add channels glotzer
-    $ conda install freud
+    $ conda install -c conda-forge freud
 
 Alternatively, freud can be installed directly from source.
 
@@ -28,7 +27,7 @@ Alternatively, freud can be installed directly from source.
     $ mkdir build
     $ cd build
     $ cmake ../
-    $ make install -j4
+    $ make install
 
 .. toctree::
    :maxdepth: 2

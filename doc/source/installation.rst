@@ -12,12 +12,11 @@ You can either install freud via `conda <http://conda.pydata.org/docs/>`_ or com
 Install via conda
 -----------------
 
-The code below will enable the glotzer conda channel and install freud.
+The code below will install freud from conda-forge.
 
 .. code-block:: bash
 
-    conda config --add channels glotzer
-    conda install freud
+    conda install -c conda-forge freud
 
 Compile from source
 -------------------
@@ -42,7 +41,7 @@ The code that follows creates a build directory inside the freud source director
     cd build
     cmake ../
     # Use `cmake ../ -DENABLE_CYTHON=ON` to rebuild _freud.cpp
-    make install -j4
+    make install
 
 By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
 :code:`USER_SITE` is on the Python search path by default, so there is no need to modify :code:`PYTHONPATH`.
