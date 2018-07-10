@@ -230,13 +230,13 @@ cdef class BondingR12:
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the bonding
           ref_orientations(class:`numpy.ndarray`,
-                           shape=(:math:`N_{particles}`),
+                           shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
           points (class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           orientations (class:`numpy.ndarray`,
-                       shape=(:math:`N_{particles}`, 3),
+                       shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
         find bonds (Default value = None)
@@ -398,13 +398,13 @@ cdef class BondingXY2D:
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the bonding
           ref_orientations(class:`numpy.ndarray`,
-                           shape=(:math:`N_{particles}`),
+                           shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
           points (class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           orientations (class:`numpy.ndarray`,
-                       shape=(:math:`N_{particles}`, 3),
+                       shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
         find bonds (Default value = None)
@@ -570,13 +570,13 @@ cdef class BondingXYT:
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the bonding
           ref_orientations(class:`numpy.ndarray`,
-                           shape=(:math:`N_{particles}`),
+                           shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
           points (class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           orientations (class:`numpy.ndarray`,
-                       shape=(:math:`N_{particles}`, 3),
+                       shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
         find bonds (Default value = None)
@@ -743,13 +743,13 @@ cdef class BondingXYZ:
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the bonding
           ref_orientations(class:`numpy.ndarray`,
-                           shape=(:math:`N_{particles}`),
+                           shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
           points (class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           orientations (class:`numpy.ndarray`,
-                       shape=(:math:`N_{particles}`, 3),
+                       shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
 

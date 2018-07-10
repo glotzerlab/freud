@@ -409,12 +409,9 @@ cdef class LocalDescriptors:
                      neighborhood, 'particle_local' to use the given particle
                      orientations, or 'global' to not rotate environments
                      (Default value = 'neighborhood')
-
-
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
                     find bonds or 'precomputed' if using :py:meth:`~.computeNList`
                     (Default value = None)
-
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
