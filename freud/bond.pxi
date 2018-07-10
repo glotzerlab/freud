@@ -239,8 +239,6 @@ cdef class BondingR12:
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
-        find bonds (Default value = None)
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -407,8 +405,6 @@ cdef class BondingXY2D:
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
-        find bonds (Default value = None)
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -579,8 +575,6 @@ cdef class BondingXYT:
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
-        find bonds (Default value = None)
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -752,7 +746,6 @@ cdef class BondingXYZ:
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
