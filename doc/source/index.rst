@@ -12,13 +12,12 @@ In order to maximize its interoperabiity with other systems, freud works with an
 Installing freud
 ================
 
-The recommended method of installing freud is using [conda](https://conda.io/docs/) through the [glotzer channel](https://anaconda.org/glotzer).
+The recommended method of installing freud is using [conda](https://conda.io/docs/) through the [conda-forge channel](https://conda-forge.org/).
 First download and install [miniconda](https://conda.io/miniconda.html) following [conda's instructions](https://conda.io/docs/user-guide/install/index.html).
-Then, add the `glotzer` channel and install freud:
+Then, install freud from conda-forge:
 
 .. code-block:: bash
-    $ conda config --add channels glotzer
-    $ conda install freud
+    $ conda install -c conda-forge freud
 
 Alternatively, freud can be installed directly from source.
 
@@ -26,7 +25,7 @@ Alternatively, freud can be installed directly from source.
     $ mkdir build
     $ cd build
     $ cmake ../
-    $ make install -j4
+    $ make install
 
 .. toctree::
    :maxdepth: 2
