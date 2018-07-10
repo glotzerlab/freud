@@ -47,8 +47,6 @@ cdef class InterfaceMeasure:
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
                 find bonds (Default value = None)
 
-        Returns:
-
         """
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,

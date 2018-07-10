@@ -47,8 +47,6 @@ cdef class Box:
     def getL(self):
         """Return the lengths of the box as a tuple (x, y, z).
 
-        Args:
-
         Returns:
           (float, float, float): dimensions of the box as (x, y, z)
 
@@ -61,8 +59,6 @@ cdef class Box:
 
         Args:
           L (float): Side length of box
-
-        Returns:
 
         """
         try:
@@ -82,8 +78,6 @@ cdef class Box:
     def getLx(self):
         """Length of the x-dimension of the box.
 
-        Args:
-
         Returns:
           float: This box's x-dimension length
 
@@ -92,8 +86,6 @@ cdef class Box:
 
     def getLy(self):
         """Length of the y-dimension of the box.
-
-        Args:
 
         Returns:
           float: This box's y-dimension length
@@ -104,8 +96,6 @@ cdef class Box:
     def getLz(self):
         """Length of the z-dimension of the box.
 
-        Args:
-
         Returns:
           float: This box's z-dimension length
 
@@ -114,8 +104,6 @@ cdef class Box:
 
     def getTiltFactorXY(self):
         """Return the tilt factor xy.
-
-        Args:
 
         Returns:
           float: xy tilt factor
@@ -127,8 +115,6 @@ cdef class Box:
     def xy(self):
         """Tilt factor xy of the box.
 
-        Args:
-
         Returns:
           float: xy tilt factor
 
@@ -137,8 +123,6 @@ cdef class Box:
 
     def getTiltFactorXZ(self):
         """Return the tilt factor xz.
-
-        Args:
 
         Returns:
           float: xz tilt factor
@@ -150,8 +134,6 @@ cdef class Box:
     def xz(self):
         """Tilt factor xz of the box.
 
-        Args:
-
         Returns:
           float: xz tilt factor
 
@@ -160,8 +142,6 @@ cdef class Box:
 
     def getTiltFactorYZ(self):
         """Return the tilt factor yz.
-
-        Args:
 
         Returns:
           float: yz tilt factor
@@ -173,8 +153,6 @@ cdef class Box:
     def yz(self):
         """Tilt factor yz of the box.
 
-        Args:
-
         Returns:
           float: yz tilt factor
 
@@ -183,8 +161,6 @@ cdef class Box:
 
     def is2D(self):
         """Return if box is 2D (True) or 3D (False).
-
-        Args:
 
         Returns:
           bool: True if 2D, False if 3D
@@ -198,15 +174,11 @@ cdef class Box:
         Args:
           val (bool): 2D=True, 3D=False
 
-        Returns:
-
         """
         self.thisptr.set2D(bool(val))
 
     def getLinv(self):
         """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz).
-
-        Args:
 
         Returns:
           (float, float, float): dimensions of the box as (1/Lx, 1/Ly, 1/Lz)
@@ -219,8 +191,6 @@ cdef class Box:
     def Linv(self):
         """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz).
 
-        Args:
-
         Returns:
           (float, float, float): dimensions of the box as (1/Lx, 1/Ly, 1/Lz)
 
@@ -229,8 +199,6 @@ cdef class Box:
 
     def getVolume(self):
         """Return the box volume (area in 2D).
-
-        Args:
 
         Returns:
           float: box volume
@@ -241,8 +209,6 @@ cdef class Box:
     @property
     def volume(self):
         """Return the box volume (area in 2D).
-
-        Args:
 
         Returns:
           float: box volume
@@ -262,8 +228,6 @@ cdef class Box:
              dtype= :class:`numpy.float32`): Fractional coordinates
              :math:`\\left(x, y, z\\right)` between 0 and 1 within
              parallelepipedal box
-
-        Returns:
 
         """
         return self.makeCoordinates(f)
@@ -444,8 +408,6 @@ cdef class Box:
     def getPeriodic(self):
         """Get the box's periodicity in each dimension.
 
-        Args:
-
         Returns:
           list[bool, bool, bool]: Periodic attributes in x, y, z
 
@@ -461,15 +423,11 @@ cdef class Box:
           y (bool): True if periodic in y, False if not
           z (bool): True if periodic in z, False if not
 
-        Returns:
-
         """
         self.thisptr.setPeriodic(x, y, z)
 
     def getPeriodicX(self):
         """Get the box periodicity in the x direction.
-
-        Args:
 
         Returns:
           bool: True if periodic, False if not
@@ -483,15 +441,11 @@ cdef class Box:
         Args:
           val (bool): True if periodic, False if not
 
-        Returns:
-
         """
         return self.thisptr.setPeriodicX(val)
 
     def getPeriodicY(self):
         """Get the box periodicity in the y direction.
-
-        Args:
 
         Returns:
           bool: True if periodic, False if not
@@ -505,15 +459,11 @@ cdef class Box:
         Args:
           val (bool): True if periodic, False if not
 
-        Returns:
-
         """
         return self.thisptr.setPeriodicY(val)
 
     def getPeriodicZ(self):
         """Get the box periodicity in the z direction.
-
-        Args:
 
         Returns:
           bool: True if periodic, False if not
@@ -526,8 +476,6 @@ cdef class Box:
 
         Args:
           val (bool): True if periodic, False if not
-
-        Returns:
 
         """
         return self.thisptr.setPeriodicZ(val)

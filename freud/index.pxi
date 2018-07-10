@@ -73,8 +73,6 @@ cdef class Index2D:
     def getNumElements(self):
         """Get the number of elements in the array
 
-        Args:
-
         Returns:
           unsigned int: number of elements in the array
 
@@ -149,8 +147,6 @@ cdef class Index3D:
 
     def getNumElements(self):
         """Get the number of elements in the array
-
-        Args:
 
         Returns:
           unsigned int: number of elements in the array

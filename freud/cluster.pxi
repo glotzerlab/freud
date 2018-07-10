@@ -66,8 +66,6 @@ cdef class Cluster:
     def getBox(self):
         """Return the stored freud Box.
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box`: freud Box
 
@@ -82,8 +80,6 @@ cdef class Cluster:
           nlist: py:class:`freud.locality.NeighborList` object to use to
         find bonds (Default value = None)
           box: simulation box (Default value = None)
-
-        Returns:
 
         """
         points = freud.common.convert_array(
@@ -114,18 +110,14 @@ cdef class Cluster:
 
     def computeClusterMembership(self, keys):
         """Compute the clusters with key membership.
-        
         Loops over all particles and adds them to a list of sets.
         Each set contains all the keys that are part of that cluster.
-        
         Get the computed list with :py:meth:`~.getClusterKeys()`.
 
         Args:
           keys(class:`numpy.ndarray`,
             shape=(:math:`N_{particles}`),
             dtype= :class:`numpy.uint32`): Membership keys, one for each particle
-
-        Returns:
 
         """
         keys = freud.common.convert_array(
@@ -147,8 +139,6 @@ cdef class Cluster:
     def getNumClusters(self):
         """Returns the number of clusters.
 
-        Args:
-
         Returns:
           int: number of clusters
 
@@ -163,8 +153,6 @@ cdef class Cluster:
     def getNumParticles(self):
         """Returns the number of particles.
 
-        Args:
-
         Returns:
           int: number of particles
 
@@ -178,8 +166,6 @@ cdef class Cluster:
 
     def getClusterIdx(self):
         """Returns 1D array of Cluster idx for each particle
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -203,8 +189,6 @@ cdef class Cluster:
 
     def getClusterKeys(self):
         """Returns the keys contained in each cluster.
-
-        Args:
 
         Returns:
           list: list of lists of each key contained in clusters
@@ -258,8 +242,6 @@ cdef class ClusterProperties:
     def getBox(self):
         """Return the stored :py:class:`freud.box.Box` object.
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box`: freud Box
 
@@ -268,7 +250,6 @@ cdef class ClusterProperties:
 
     def computeProperties(self, points, cluster_idx, box=None):
         """Compute properties of the point clusters.
-        
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the :math:`G` tensor. These can be
         accessed after the call to :py:meth:`~.computeProperties()` with
@@ -278,8 +259,6 @@ cdef class ClusterProperties:
           points: Positions of the particles making up the clusters
           cluster_idx: List of cluster indexes for each particle
           box: simulation box (Default value = None)
-
-        Returns:
 
         """
         if box is None:
@@ -321,8 +300,6 @@ cdef class ClusterProperties:
         """Count the number of clusters found in the last call to
         :py:meth:`~.computeProperties()`
 
-        Args:
-
         Returns:
           int: number of clusters
 
@@ -336,8 +313,6 @@ cdef class ClusterProperties:
 
     def getClusterCOM(self):
         """Returns the center of mass of the last computed cluster.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -361,18 +336,12 @@ cdef class ClusterProperties:
         :py:meth:`~.computeProperties()`.
         computeProperties.
 
-        Args:
-
-        Returns:
-
         """
         return self.getClusterG()
 
     def getClusterG(self):
         """Returns the cluster :math:`G` tensors computed by the last call to
         :py:meth:`~.computeProperties()`.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -396,10 +365,6 @@ cdef class ClusterProperties:
         :py:meth:`~.computeProperties()`.
         computeProperties.
 
-        Args:
-
-        Returns:
-
         """
         return self.getClusterSizes()
 
@@ -407,8 +372,6 @@ cdef class ClusterProperties:
         """Returns the cluster sizes computed by the last call to
         :py:meth:`~.computeProperties()`.
         computeProperties.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,

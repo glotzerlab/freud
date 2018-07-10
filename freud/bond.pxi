@@ -42,8 +42,6 @@ cdef class BondingAnalysis:
                dtype= :class:`numpy.uint32`): first bonding frame (as output from
         :py:class:`~.BondingR12` modules)
 
-        Returns:
-
         """
         frame_0 = freud.common.convert_array(
                     frame_0, 2, dtype=np.uint32, contiguous=True,
@@ -73,8 +71,6 @@ cdef class BondingAnalysis:
                   dtype= :class:`numpy.uint32`): next/current bonding frame (as output from
                    :py:class:`.BondingR12` modules)
 
-        Returns:
-
         """
         frame_0 = freud.common.convert_array(
                     frame_0, 2, dtype=np.uint32, contiguous=True,
@@ -99,8 +95,6 @@ cdef class BondingAnalysis:
     def getBondLifetimes(self):
         """Return the bond lifetimes.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
         shape=(:math:`N_{particles}`, varying),
@@ -117,8 +111,6 @@ cdef class BondingAnalysis:
 
     def getOverallLifetimes(self):
         """Return the overall lifetimes.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -137,8 +129,6 @@ cdef class BondingAnalysis:
 
     def getTransitionMatrix(self):
         """Return the transition matrix.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`: transition matrix
@@ -162,8 +152,6 @@ cdef class BondingAnalysis:
     def getNumFrames(self):
         """Get number of frames calculated.
 
-        Args:
-
         Returns:
           unsigned int: number of frames
 
@@ -178,8 +166,6 @@ cdef class BondingAnalysis:
     def getNumParticles(self):
         """Get number of particles being tracked.
 
-        Args:
-
         Returns:
           unsigned int: number of particles
 
@@ -193,8 +179,6 @@ cdef class BondingAnalysis:
 
     def getNumBonds(self):
         """Get number of bonds tracked.
-
-        Args:
 
         Returns:
           unsigned int: number of bonds
@@ -257,8 +241,6 @@ cdef class BondingR12:
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
         find bonds (Default value = None)
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -312,8 +294,6 @@ cdef class BondingR12:
     def getBonds(self):
         """Return the particle bonds.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`: particle bonds
 
@@ -335,8 +315,6 @@ cdef class BondingR12:
     def getBox(self):
         """Get the box used in the calculation.
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box()`: freud Box
 
@@ -350,8 +328,6 @@ cdef class BondingR12:
 
     def getListMap(self):
         """Get the dict used to map list idx to bond idx.
-
-        Args:
 
         Returns:
           dict: list_map
@@ -367,8 +343,6 @@ cdef class BondingR12:
 
     def getRevListMap(self):
         """Get the dict used to map list idx to bond idx.
-
-        Args:
 
         Returns:
           dict: list_map
@@ -435,8 +409,6 @@ cdef class BondingXY2D:
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
         find bonds (Default value = None)
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -491,8 +463,6 @@ cdef class BondingXY2D:
     def getBonds(self):
         """Return the particle bonds.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`: particle bonds
 
@@ -514,8 +484,6 @@ cdef class BondingXY2D:
     def getBox(self):
         """Get the box used in the calculation.
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box()`: freud Box
 
@@ -529,8 +497,6 @@ cdef class BondingXY2D:
 
     def getListMap(self):
         """Get the dict used to map list idx to bond idx.
-
-        Args:
 
         Returns:
           dict: list_map
@@ -546,8 +512,6 @@ cdef class BondingXY2D:
 
     def getRevListMap(self):
         """Get the dict used to map list idx to bond idx.
-
-        Args:
 
         Returns:
           dict: list_map
@@ -617,8 +581,6 @@ cdef class BondingXYT:
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
         find bonds (Default value = None)
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -672,8 +634,6 @@ cdef class BondingXYT:
     def getBonds(self):
         """Return the particle bonds.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`: particle bonds
 
@@ -695,8 +655,6 @@ cdef class BondingXYT:
     def getBox(self):
         """Get the box used in the calculation.
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box()`: freud Box
 
@@ -710,8 +668,6 @@ cdef class BondingXYT:
 
     def getListMap(self):
         """Get the dict used to map list idx to bond idx.
-
-        Args:
 
         Returns:
           dict: list_map
@@ -727,8 +683,6 @@ cdef class BondingXYT:
 
     def getRevListMap(self):
         """Get the dict used to map list idx to bond idx.
-
-        Args:
 
         Returns:
           dict: list_map
@@ -799,8 +753,6 @@ cdef class BondingXYZ:
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -862,8 +814,6 @@ cdef class BondingXYZ:
     def getBonds(self):
         """Return the particle bonds.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`: particle bonds
 
@@ -885,8 +835,6 @@ cdef class BondingXYZ:
     def getBox(self):
         """Get the box used in the calculation.
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box()`: freud Box
 
@@ -900,8 +848,6 @@ cdef class BondingXYZ:
 
     def getListMap(self):
         """Get the dict used to map list idx to bond idx.
-
-        Args:
 
         Returns:
           dict: list_map
@@ -917,8 +863,6 @@ cdef class BondingXYZ:
 
     def getRevListMap(self):
         """Get the dict used to map list idx to bond idx.
-
-        Args:
 
         Returns:
           dict: list_map

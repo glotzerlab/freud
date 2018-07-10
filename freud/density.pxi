@@ -126,8 +126,6 @@ cdef class FloatCF:
     def RDF(self):
         """Returns the radial distribution function.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
@@ -139,8 +137,6 @@ cdef class FloatCF:
 
     def getRDF(self):
         """Returns the radial distribution function.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -165,8 +161,6 @@ cdef class FloatCF:
 
     def getBox(self):
         """Get the box used in the calculation.
-
-        Args:
 
         Returns:
           py:class:`freud.box.Box`: freud Box
@@ -209,10 +203,6 @@ cdef class FloatCF:
         :py:meth:`freud.density.FloatCF.getRDF()`,
         :py:meth:`freud.density.FloatCF.getCounts()`.
 
-        Args:
-
-        Returns:
-
         """
         self.thisptr.reduceCorrelationFunction()
 
@@ -223,8 +213,6 @@ cdef class FloatCF:
 
     def getCounts(self):
         """
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -247,8 +235,6 @@ cdef class FloatCF:
 
     def getR(self):
         """
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -325,8 +311,6 @@ cdef class ComplexCF:
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
                                                       find bonds (Default value = None)
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -383,8 +367,6 @@ cdef class ComplexCF:
     def getRDF(self):
         """The RDF.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
@@ -408,8 +390,6 @@ cdef class ComplexCF:
 
     def getBox(self):
         """
-
-        Args:
 
         Returns:
           py:class:`freud.box.Box()`: freud Box
@@ -439,8 +419,6 @@ cdef class ComplexCF:
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
                                                       find bonds (Default value = None)
 
-        Returns:
-
         """
         self.thisptr.reset()
         self.accumulate(box, ref_points, refValues, points, values, nlist)
@@ -452,10 +430,6 @@ cdef class ComplexCF:
         :py:meth:`freud.density.ComplexCF.getRDF()`,
         :py:meth:`freud.density.ComplexCF.getCounts()`.
 
-        Args:
-
-        Returns:
-
         """
         self.thisptr.reduceCorrelationFunction()
 
@@ -466,8 +440,6 @@ cdef class ComplexCF:
 
     def getCounts(self):
         """
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -490,8 +462,6 @@ cdef class ComplexCF:
 
     def getR(self):
         """The value of bin centers.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -557,8 +527,6 @@ cdef class GaussianDensity:
     def getBox(self):
         """
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box`: freud Box
 
@@ -601,8 +569,6 @@ cdef class GaussianDensity:
 
     def getGaussianDensity(self):
         """
-
-        Args:
 
         Returns:
             class:`numpy.ndarray`,
@@ -677,8 +643,6 @@ cdef class LocalDensity:
     def getBox(self):
         """
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box`: freud Box
 
@@ -701,8 +665,6 @@ cdef class LocalDensity:
                   density
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
                                                       find bonds (Default value = None)
-
-        Returns:
 
         """
         box = freud.common.convert_box(box)
@@ -750,8 +712,6 @@ cdef class LocalDensity:
     def getDensity(self):
         """Get the density array for each particle.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
           shape=(:math:`N_{particles}`),
@@ -773,8 +733,6 @@ cdef class LocalDensity:
 
     def getNumNeighbors(self):
         """Return the number of neighbors for each particle.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -844,8 +802,6 @@ cdef class RDF:
     def getBox(self):
         """
 
-        Args:
-
         Returns:
           py:class:`freud.box.Box`: freud Box
 
@@ -866,8 +822,6 @@ cdef class RDF:
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
                                                       find bonds (Default value = None)
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -917,8 +871,6 @@ cdef class RDF:
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
                                                       find bonds (Default value = None)
 
-        Returns:
-
         """
         self.thisptr.reset()
         self.accumulate(box, ref_points, points, nlist)
@@ -934,10 +886,6 @@ cdef class RDF:
         :py:meth:`freud.density.RDF.getRDF()`,
         :py:meth:`freud.density.RDF.getNr()`.
 
-        Args:
-
-        Returns:
-
         """
         self.thisptr.reduceRDF()
 
@@ -948,8 +896,6 @@ cdef class RDF:
 
     def getRDF(self):
         """Histogram of RDF values.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -973,12 +919,10 @@ cdef class RDF:
     def getR(self):
         """Values of the histogram bin centers.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
-        shape=(:math:`N_{bins}`, 3),
-        dtype= :class:`numpy.float32`: values of the histogram bin centers
+          shape=(:math:`N_{bins}`, 3),
+          dtype= :class:`numpy.float32`: values of the histogram bin centers
 
         """
         cdef float * r = self.thisptr.getR().get()
@@ -996,8 +940,6 @@ cdef class RDF:
 
     def getNr(self):
         """Get the histogram of cumulative RDF values.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,

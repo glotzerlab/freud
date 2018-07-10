@@ -101,8 +101,6 @@ cdef class BondOrder:
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
                                                       find bonds (Default value = None)
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -177,8 +175,6 @@ cdef class BondOrder:
     def getBondOrder(self):
         """Get the bond order.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
           shape= :math:`\\left(N_{\\phi}, N_{\\theta} \\right)`,
@@ -200,8 +196,6 @@ cdef class BondOrder:
 
     def getBox(self):
         """Get the box used in the calculation.
-
-        Args:
 
         Returns:
           py:class:`freud.box.Box`: freud Box
@@ -238,8 +232,6 @@ cdef class BondOrder:
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
                                                       find bonds (Default value = None)
 
-        Returns:
-
         """
         self.thisptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
@@ -251,17 +243,11 @@ cdef class BondOrder:
         histogram. This is called automatically by
         :py:meth:`freud.environment.BondOrder.getBondOrder()`.
 
-        Args:
-
-        Returns:
-
         """
         self.thisptr.reduceBondOrder()
 
     def getTheta(self):
         """
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -280,8 +266,6 @@ cdef class BondOrder:
     def getPhi(self):
         """
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
         shape= :math:`\\left(N_{\\phi} \\right)`,
@@ -299,8 +283,6 @@ cdef class BondOrder:
     def getNBinsTheta(self):
         """Get the number of bins in the Theta-dimension of histogram.
 
-        Args:
-
         Returns:
           unsigned int: math:`N_{\\theta}`
 
@@ -310,8 +292,6 @@ cdef class BondOrder:
 
     def getNBinsPhi(self):
         """Get the number of bins in the Phi-dimension of histogram.
-
-        Args:
 
         Returns:
           unsigned int: math:`N_{\\phi}`
@@ -374,8 +354,6 @@ cdef class LocalDescriptors:
                  dtype= :class:`numpy.float32`): destination points to calculate the
                  order parameter (Default value = None)
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
@@ -436,8 +414,6 @@ cdef class LocalDescriptors:
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
                     find bonds or 'precomputed' if using :py:meth:`~.computeNList`
                     (Default value = None)
-
-        Returns:
 
         """
         box = freud.common.convert_box(box)
@@ -518,8 +494,6 @@ cdef class LocalDescriptors:
     def getSph(self):
         """Get a reference to the last computed spherical harmonic array.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
           shape= :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`, \
@@ -543,8 +517,6 @@ cdef class LocalDescriptors:
     def getNP(self):
         """Get the number of particles.
 
-        Args:
-
         Returns:
           unsigned int: math:`N_{particles}`
 
@@ -559,8 +531,6 @@ cdef class LocalDescriptors:
 
     def getNSphs(self):
         """Get the number of neighbors.
-
-        Args:
 
         Returns:
           unsigned int: math:`N_{neighbors}`
@@ -577,8 +547,6 @@ cdef class LocalDescriptors:
     def getLMax(self):
         """Get the maximum spherical harmonic :math:`l` to calculate for.
 
-        Args:
-
         Returns:
           unsigned int: math:`l`
 
@@ -593,8 +561,6 @@ cdef class LocalDescriptors:
 
     def getRMax(self):
         """Get the cutoff radius.
-
-        Args:
 
         Returns:
           float: math:`r`
@@ -640,8 +606,6 @@ cdef class MatchEnv:
         Args:
           box(py:class:`freud.box.Box`): simulation box
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
@@ -676,8 +640,6 @@ cdef class MatchEnv:
                     find the environment of every particle (Default value = None)
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to find
                     neighbors of every particle, to compare environments (Default value = None)
-
-        Returns:
 
         """
         points = freud.common.convert_array(
@@ -742,8 +704,6 @@ cdef class MatchEnv:
                                minimizes the RMSD between the two sets (Default value = False).
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
                     find bonds (Default value = None)
-
-        Returns:
 
         """
         points = freud.common.convert_array(
@@ -963,8 +923,6 @@ cdef class MatchEnv:
         """Get a reference to the particles, indexed into clusters according to
         their matching local environments
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}\\right)`,
@@ -1006,18 +964,12 @@ cdef class MatchEnv:
         """Returns the entire m_Np by m_maxk by 3 matrix of all environments
         for all particles.
 
-        Args:
-
-        Returns:
-
         """
         return self.getTotEnvironment()
 
     def getTotEnvironment(self):
         """Returns the entire m_Np by m_maxk by 3 matrix of all environments
         for all particles.
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -1045,8 +997,6 @@ cdef class MatchEnv:
     def getNP(self):
         """Get the number of particles.
 
-        Args:
-
         Returns:
           unsigned int: math:`N_{particles}`
 
@@ -1061,8 +1011,6 @@ cdef class MatchEnv:
 
     def getNumClusters(self):
         """Get the number of clusters.
-
-        Args:
 
         Returns:
           unsigned int: math:`N_{clusters}`
@@ -1118,8 +1066,6 @@ cdef class Pairing2D:
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
               find bonds (Default value = None)
 
-        Returns:
-
         """
         box = freud.common.convert_box(box)
         points = freud.common.convert_array(
@@ -1164,8 +1110,6 @@ cdef class Pairing2D:
     def getMatch(self):
         """Get the match.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}\\right)`,
@@ -1188,8 +1132,6 @@ cdef class Pairing2D:
     def getPair(self):
         """Get the pair.
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}\\right)`,
@@ -1211,8 +1153,6 @@ cdef class Pairing2D:
 
     def getBox(self):
         """Get the box used in the calculation.
-
-        Args:
 
         Returns:
           py:class:`freud.box.Box`: freud Box
@@ -1278,8 +1218,6 @@ cdef class AngularSeparation:
                        dtype= :class:`numpy.float32`): the set of all equivalent quaternions that takes the particle as it is defined to some global reference orientation. Important: equiv_quats must include both q and -q, for all included quaternions
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to find bonds
                                                           (Default value = None)
-
-        Returns:
 
         """
         box = freud.common.convert_box(box)
@@ -1360,8 +1298,6 @@ cdef class AngularSeparation:
                        some global reference orientation. Important: equiv_quats
                        must include both q and -q, for all included quaternions
 
-        Returns:
-
         """
         global_ors = freud.common.convert_array(
                 global_ors, 2, dtype=np.float32, contiguous=True,
@@ -1400,8 +1336,6 @@ cdef class AngularSeparation:
     def getNeighborAngles(self):
         """
 
-        Args:
-
         Returns:
           class:`numpy.ndarray`,
           shape= :math:`\\left(N_{reference}, N_{neighbors} \\right)`,
@@ -1419,8 +1353,6 @@ cdef class AngularSeparation:
 
     def getGlobalAngles(self):
         """
-
-        Args:
 
         Returns:
           class:`numpy.ndarray`,
@@ -1441,8 +1373,6 @@ cdef class AngularSeparation:
     def getNP(self):
         """Get the number of particles used in computing the last set.
 
-        Args:
-
         Returns:
           unsigned int: math:`N_{particles}`
 
@@ -1454,8 +1384,6 @@ cdef class AngularSeparation:
         """Get the number of reference particles used in computing the neighbor
         angles.
 
-        Args:
-
         Returns:
           unsigned int: math:`N_{particles}`
 
@@ -1465,8 +1393,6 @@ cdef class AngularSeparation:
 
     def getNGlobal(self):
         """Get the number of global orientations to check against.
-
-        Args:
 
         Returns:
           unsigned int: math:`N_{global orientations}`
