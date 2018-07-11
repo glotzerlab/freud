@@ -36,6 +36,7 @@ cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
         void rotate(const quat[float]&)
         vector[FoundSymmetry] getSymmetries()
         string getLaueGroup()
+        string getCrystalSystem()
 
 
 cdef extern from "Geodesation.h" namespace "freud::symmetry":

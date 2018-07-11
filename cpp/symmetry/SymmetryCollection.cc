@@ -503,35 +503,22 @@ namespace freud { namespace symmetry {
         if (n2 == 6 && n3 == 0 && n4 == 0 && n6 == 1) return "6/mmm";
         if (n2 == 3 && n3 == 4 && n4 == 0 && n6 == 0) return "m-3";
         if (n2 == 6 && n3 == 4 && n4 == 3 && n6 == 0) return "m-3m";
-        return "";
+        return "Unable to identify the Laue Group";
     }
 
-    string getType(int typeNum) {
-        if (typeNum == -1) {
-            return "TOTAL";
-        } else if(typeNum == 0) {
-            return "AXIAL";
-        } else if(typeNum == 1) {
-            return "MIRROR";
-        } else if(typeNum == 2) {
-            return "2-fold";
-        } else if(typeNum == 3) {
-            return "3-fold";
-        } else if(typeNum == 4) {
-            return "4-fold";
-        } else if(typeNum == 5) {
-            return "5-fold";
-        } else if(typeNum == 6) {
-            return "6-fold";
-        } else if(typeNum == 8) {
-            return "8-fold";
-        } else if(typeNum == 10) {
-            return "10-fold";
-        } else if(typeNum == 12) {
-            return "12-fold";
-        } else {
-            return "Invalid type";
-        }
+    string SymmetryCollection::getCrystalSystem() {
+        if (getLaueGroup() == "-1") return "Triclinic";
+        if (getLaueGroup() == "2/m") return "Monoclinic";
+        if (getLaueGroup() == "mmm") return "Orthorhombic";
+        if (getLaueGroup() == "-3") return "Trigonal";
+        if (getLaueGroup() == "-3m") return "Trigonal";
+        if (getLaueGroup() == "4/m") return "Tetragonal";
+        if (getLaueGroup() == "4/mmm") return "Tetragonal";
+        if (getLaueGroup() == "6/m") return "Hexagonal";
+        if (getLaueGroup() == "6/mmm") return "Hexagonal";
+        if (getLaueGroup() == "m-3") return "Cubic";
+        if (getLaueGroup() == "m-3m") return "Cubic";
+        return "Unable to identify the Crystal System";
     }
 
 
@@ -595,7 +582,6 @@ namespace freud { namespace symmetry {
                 if (m == 0) {
                     m_Mlm.get()[l0_index] += l_parity * sphNorm * (*iter).real();
                 } else {
-
                     m_Mlm.get()[l0_index + m] += sqrt(2) * l_parity * sphNorm * (*iter).real();
                     m_Mlm.get()[l0_index - m] += sqrt(2) * l_parity * sphNorm * (*iter).imag();
                 }

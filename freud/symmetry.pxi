@@ -203,6 +203,15 @@ cdef class SymmetryCollection:
         cdef string cpp_string = self.thisptr.getLaueGroup()
         return cpp_string.decode('UTF-8')
 
+    def getCrystalSystem(self):
+        """Identify Crystal System.
+
+        :return: Crystal System
+        :rtype: string
+        """
+        cdef string cpp_string = self.thisptr.getCrystalSystem()
+        return cpp_string.decode('UTF-8')
+
 
     # def get_symmetric_orientation(self):
     #     """

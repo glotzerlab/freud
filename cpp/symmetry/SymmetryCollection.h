@@ -61,8 +61,6 @@ class SymmetryCollection {
         //! rotate Mlm array by a certain quat
         void rotate(const quat<float> &q);
 
-        //! Returns quaternion corresponding to the highest-symmetry axis
-        //quat<float> getHighestOrderQuat();
 
         //! Returns quaternions for all detected symmetry axes
         quat<float>* getOrderQuats();
@@ -95,7 +93,8 @@ class SymmetryCollection {
         //identify Laue group
         string getLaueGroup();
 
-        string getType(int type);
+        //determine the crystal system
+        string getCrystalSystem();
 
 
 
