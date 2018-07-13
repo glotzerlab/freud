@@ -28,7 +28,7 @@ cdef class VoronoiBuffer:
         """
 
         Args:
-            points (class:`numpy.ndarray`,
+            points (:class:`numpy.ndarray`,
                     shape=(:math:`N_{particles}`, 3),
                     dtype= :class:`numpy.float32`): points to calculate Voronoi
                                                     diagram for

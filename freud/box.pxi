@@ -223,7 +223,7 @@ cdef class Box:
            Use :py:meth:`~.makeCoordinates()` instead.
 
         Args:
-          f (class:`numpy.ndarray`,
+          f (:class:`numpy.ndarray`,
              shape= :math:`\\left(3\\right)`,
              dtype= :class:`numpy.float32`): Fractional coordinates
              :math:`\\left(x, y, z\\right)` between 0 and 1 within
@@ -236,7 +236,7 @@ cdef class Box:
         """Convert fractional coordinates into real coordinates.
 
         Args:
-          f (class:`numpy.ndarray`,
+          f (:class:`numpy.ndarray`,
            shape= :math:`\\left(3\\right)`,
            dtype= :class:`numpy.float32`): Fractional coordinates :math:`\\left(x, y, z\\right)` between
            0 and 1 within parallelepipedal box
@@ -255,7 +255,7 @@ cdef class Box:
         """Convert real coordinates into fractional coordinates.
 
         Args:
-          vec (class:`numpy.ndarray`,
+          vec (:class:`numpy.ndarray`,
                shape= :math:`\\left(3\\right)`,
                dtype= :class:`numpy.float32`): Real coordinates within parallelepipedal box
 
@@ -275,12 +275,12 @@ cdef class Box:
         .. versionadded:: 0.8
 
         Args:
-          vec (class:`numpy.ndarray`,
+          vec (:class:`numpy.ndarray`,
                shape= :math:`\\left(3\\right)`,
                dtype= :class:`numpy.float32`): Coordinates of unwrapped vector
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(3\\right)`,
           dtype= :class:`numpy.int32`: Image index vector
 
@@ -317,14 +317,14 @@ cdef class Box:
                   input vectors.
 
         Args:
-          vecs (class:`numpy.ndarray`,
+          vecs (:class:`numpy.ndarray`,
                 shape= :math:`\\left(3\\right)` or
                 :math:`\\left(N, 3\\right)`,
                 dtype= :class:`numpy.float32`): Single vector or array of
                     :math:`N` vectors. Vecs are both altered in place and returned
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(3\\right)` or
           :math:`\\left(N, 3\\right)`,
           dtype= :class:`numpy.float32`: vectors wrapped into the box
@@ -359,17 +359,17 @@ cdef class Box:
         unwrap in each dimension.
 
         Args:
-          vecs (class:`numpy.ndarray`,
+          vecs (:class:`numpy.ndarray`,
                 shape= :math:`\\left(3\\right)` or
                 :math:`\\left(N, 3\\right)`,
                 dtype= :class:`numpy.float32`): Single vector or array of :math:`N` vectors. The vectors are modified in place.
-          imgs (class:`numpy.ndarray`,
+          imgs (:class:`numpy.ndarray`,
                 shape= :math:`\\left(3\\right)` or
                 :math:`\\left(N, 3\\right)`,
                 dtype= :class:`numpy.float32`): Single image index or array of :math:`N` image indices
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(3\\right)` or
           :math:`\\left(N, 3\\right)`,
           dtype= :class:`numpy.float32`: vectors unwrapped by the image indices provided

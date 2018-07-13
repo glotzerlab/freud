@@ -37,10 +37,8 @@ cdef class BondingAnalysis:
         """Calculates the changes in bonding states from one frame to the next.
 
         Args:
-          frame_0(class:`numpy.ndarray`,
-               shape=(:math:`N_{particles}`, :math:`N_{bonds}`),
-               dtype= :class:`numpy.uint32`): first bonding frame (as output from
-        :py:class:`~.BondingR12` modules)
+          frame_0 (:class:`numpy.ndarray`, shape=(:math:`N_{particles}`, :math:`N_{bonds}`), dtype= :class:`numpy.uint32`):
+              first bonding frame (as output from :py:class:`~.BondingR12` modules)
 
         """
         frame_0 = freud.common.convert_array(
@@ -62,14 +60,10 @@ cdef class BondingAnalysis:
         """Calculates the changes in bonding states from one frame to the next.
 
         Args:
-          frame_0(class:`numpy.ndarray`,
-                  shape=(:math:`N_{particles}`, :math:`N_{bonds}`),
-                  dtype= :class:`numpy.uint32`): current/previous bonding frame (as output from
-                   :py:class:`.BondingR12` modules)
-          frame_1(class:`numpy.ndarray`,
-                  shape=(:math:`N_{particles}`, :math:`N_{bonds}`),
-                  dtype= :class:`numpy.uint32`): next/current bonding frame (as output from
-                   :py:class:`.BondingR12` modules)
+          frame_0((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
+                  current/previous bonding frame (as output from :py:class:`.BondingR12` modules)
+          frame_1((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
+                  next/current bonding frame (as output from :py:class:`.BondingR12` modules)
 
         """
         frame_0 = freud.common.convert_array(
@@ -96,7 +90,7 @@ cdef class BondingAnalysis:
         """Return the bond lifetimes.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{particles}`, varying),
         dtype= :class:`numpy.uint32`: lifetime of bonds
 
@@ -113,7 +107,7 @@ cdef class BondingAnalysis:
         """Return the overall lifetimes.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{particles}`, varying),
         dtype= :class:`numpy.uint32`: lifetime of bonds
 
@@ -131,7 +125,7 @@ cdef class BondingAnalysis:
         """Return the transition matrix.
 
         Returns:
-          class:`numpy.ndarray`: transition matrix
+          :class:`numpy.ndarray`: transition matrix
 
         """
         cdef unsigned int * trans_matrix = self.thisptr.getTransitionMatrix(
@@ -226,16 +220,16 @@ cdef class BondingR12:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the bonding
-          ref_orientations(class:`numpy.ndarray`,
+          ref_orientations(:class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
@@ -293,7 +287,7 @@ cdef class BondingR12:
         """Return the particle bonds.
 
         Returns:
-          class:`numpy.ndarray`: particle bonds
+          :class:`numpy.ndarray`: particle bonds
 
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
@@ -392,16 +386,16 @@ cdef class BondingXY2D:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the bonding
-          ref_orientations(class:`numpy.ndarray`,
+          ref_orientations(:class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
@@ -460,7 +454,7 @@ cdef class BondingXY2D:
         """Return the particle bonds.
 
         Returns:
-          class:`numpy.ndarray`: particle bonds
+          :class:`numpy.ndarray`: particle bonds
 
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
@@ -562,16 +556,16 @@ cdef class BondingXYT:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the bonding
-          ref_orientations(class:`numpy.ndarray`,
+          ref_orientations(:class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
@@ -629,7 +623,7 @@ cdef class BondingXYT:
         """Return the particle bonds.
 
         Returns:
-          class:`numpy.ndarray`: particle bonds
+          :class:`numpy.ndarray`: particle bonds
 
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
@@ -733,16 +727,16 @@ cdef class BondingXYZ:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the bonding
-          ref_orientations(class:`numpy.ndarray`,
+          ref_orientations(:class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): orientations as angles to use in computation
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
@@ -808,7 +802,7 @@ cdef class BondingXYZ:
         """Return the particle bonds.
 
         Returns:
-          class:`numpy.ndarray`: particle bonds
+          :class:`numpy.ndarray`: particle bonds
 
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()

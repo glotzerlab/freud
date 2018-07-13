@@ -64,12 +64,12 @@ cdef class FloatCF:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the
                       local density
           refValues: values to use in computation
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           values: values to use in computation
@@ -127,7 +127,7 @@ cdef class FloatCF:
         """Returns the radial distribution function.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
         dtype= :class:`numpy.float64`: expected (average) product of all values at a given radial
           distance
@@ -139,7 +139,7 @@ cdef class FloatCF:
         """Returns the radial distribution function.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
         dtype= :class:`numpy.float64`: expected (average) product of all values at a given radial
           distance
@@ -178,12 +178,12 @@ cdef class FloatCF:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the
                       local density
           refValues: values to use in computation
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           values: values to use in computation
@@ -215,7 +215,7 @@ cdef class FloatCF:
         """
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
         dtype= :class:`numpy.int32`: counts of each histogram bin
 
@@ -237,7 +237,7 @@ cdef class FloatCF:
         """
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
         dtype= :class:`numpy.float32`: values of bin centers
 
@@ -299,12 +299,12 @@ cdef class ComplexCF:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the
                       local density
           refValues: values to use in computation
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           values: values to use in computation
@@ -368,7 +368,7 @@ cdef class ComplexCF:
         """The RDF.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
         dtype= :class:`numpy.complex128`: expected (average) product of all values at a given radial
           distance
@@ -407,12 +407,12 @@ cdef class ComplexCF:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the
                       local density
           refValues: values to use in computation
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           values: values to use in computation
@@ -442,7 +442,7 @@ cdef class ComplexCF:
         """
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
         dtype= :class:`numpy.int32`: counts of each histogram bin
 
@@ -464,7 +464,7 @@ cdef class ComplexCF:
         """The value of bin centers.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{bins}`),
         dtype= :class:`numpy.float32`: values of bin centers
 
@@ -539,7 +539,7 @@ cdef class GaussianDensity:
 
         Args:
           box (py:class:`freud.box.Box`): simulation box
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the local density
 
@@ -571,7 +571,7 @@ cdef class GaussianDensity:
         """
 
         Returns:
-            class:`numpy.ndarray`,
+            :class:`numpy.ndarray`,
             shape=(:math:`w_x`, :math:`w_y`, :math:`w_z`),
             dtype= :class:`numpy.float32`: Image (grid) with values of Gaussian
 
@@ -655,11 +655,11 @@ cdef class LocalDensity:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the
                       local density
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the local
                   density
@@ -713,7 +713,7 @@ cdef class LocalDensity:
         """Get the density array for each particle.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape=(:math:`N_{particles}`),
           dtype= :class:`numpy.float32`: Density array for each particle
 
@@ -735,7 +735,7 @@ cdef class LocalDensity:
         """Return the number of neighbors for each particle.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape=(:math:`N_{particles}`),
           dtype= :class:`numpy.float32`: Number of neighbors for each particle
 
@@ -813,11 +813,11 @@ cdef class RDF:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the
                       local density
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
@@ -861,11 +861,11 @@ cdef class RDF:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to calculate the
                       local density
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
@@ -898,7 +898,7 @@ cdef class RDF:
         """Histogram of RDF values.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape=(:math:`N_{bins}`, 3),
           dtype= :class:`numpy.float32`: histogram of RDF values
 
@@ -920,7 +920,7 @@ cdef class RDF:
         """Values of the histogram bin centers.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape=(:math:`N_{bins}`, 3),
           dtype= :class:`numpy.float32`: values of the histogram bin centers
 
@@ -942,7 +942,7 @@ cdef class RDF:
         """Get the histogram of cumulative RDF values.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape=(:math:`N_{bins}`, 3),
           dtype= :class:`numpy.float32`: histogram of cumulative RDF values
 

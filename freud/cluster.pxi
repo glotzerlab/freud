@@ -115,7 +115,7 @@ cdef class Cluster:
         Get the computed list with :py:meth:`~.getClusterKeys()`.
 
         Args:
-          keys(class:`numpy.ndarray`,
+          keys(:class:`numpy.ndarray`,
             shape=(:math:`N_{particles}`),
             dtype= :class:`numpy.uint32`): Membership keys, one for each particle
 
@@ -168,7 +168,7 @@ cdef class Cluster:
         """Returns 1D array of Cluster idx for each particle
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{particles}`),
         dtype= :class:`numpy.uint32`: 1D array of cluster idx
 
@@ -315,7 +315,7 @@ cdef class ClusterProperties:
         """Returns the center of mass of the last computed cluster.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{clusters}`, 3),
         dtype= :class:`numpy.float32`: numpy array of cluster center of mass coordinates
           :math:`\\left(x,y,z\\right)`
@@ -344,7 +344,7 @@ cdef class ClusterProperties:
         :py:meth:`~.computeProperties()`.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{clusters}`, 3, 3),
         dtype= :class:`numpy.float32`: list of gyration tensors for each cluster
 
@@ -374,7 +374,7 @@ cdef class ClusterProperties:
         computeProperties.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape=(:math:`N_{clusters}`),
         dtype= :class:`numpy.uint32`: sizes of each cluster
 

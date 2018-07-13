@@ -51,7 +51,7 @@ cdef class FTdelta:
         """Set the :math:`K` values to evaluate
 
         Args:
-          K(class:`numpy.ndarray`,
+          K(:class:`numpy.ndarray`,
          shape=(:math:`N_{K}`, 3),
          dtype= :class:`numpy.float32`): math:`K` values to evaluate
 
@@ -71,10 +71,10 @@ cdef class FTdelta:
         """Set particle positions and orientations.
 
         Args:
-          position (class:`numpy.ndarray`,
+          position (:class:`numpy.ndarray`,
                     shape=(:math:`N_{particles}`, 3),
                     dtype= :class:`numpy.float32`): particle position vectors
-          orientation (class:`numpy.ndarray`,
+          orientation (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 4),
                       dtype= :class:`numpy.float32`): particle orientation quaternions
 
@@ -147,7 +147,7 @@ cdef class FTsphere:
         """Set the :math:`K` values to evaluate
 
         Args:
-          K(class:`numpy.ndarray`,
+          K(:class:`numpy.ndarray`,
             shape=(:math:`N_{K}`, 3),
             dtype= :class:`numpy.float32`): math:`K` values to evaluate
 
@@ -163,10 +163,10 @@ cdef class FTsphere:
         """Set particle positions and orientations.
 
         Args:
-          position (class:`numpy.ndarray`,
+          position (:class:`numpy.ndarray`,
                     shape=(:math:`N_{particles}`, 3),
                     dtype= :class:`numpy.float32`): particle position vectors
-          orientation (class:`numpy.ndarray`,
+          orientation (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 4),
                       dtype= :class:`numpy.float32`): particle orientation quaternions
 
@@ -248,7 +248,7 @@ cdef class FTpolyhedron:
         """Set the :math:`K` values to evaluate
 
         Args:
-          K(class:`numpy.ndarray`,
+          K(:class:`numpy.ndarray`,
             shape=(:math:`N_{K}`, 3),
             dtype= :class:`numpy.float32`): math:`K` values to evaluate
 
@@ -266,22 +266,22 @@ cdef class FTpolyhedron:
         """Set polyhedron geometry.
 
         Args:
-          verts (class:`numpy.ndarray`,
+          verts (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): vertex coordinates
-          facet_offs (class:`numpy.ndarray`,
+          facet_offs (:class:`numpy.ndarray`,
                       shape=(:math:`N_{facets}`),
                       dtype= :class:`numpy.float32`): facet start offsets
-          facets (class:`numpy.ndarray`,
+          facets (:class:`numpy.ndarray`,
                   shape=(:math:`N_{facets}`, 3),
                   dtype= :class:`numpy.float32`): facet vertex indices
-          norms (class:`numpy.ndarray`,
+          norms (:class:`numpy.ndarray`,
                  shape=(:math:`N_{facets}`, 3),
                  dtype= :class:`numpy.float32`): facet normals
-          d (class:`numpy.ndarray`,
+          d (:class:`numpy.ndarray`,
              shape=(:math:`N_{facets}`),
              dtype= :class:`numpy.float32`): facet distances
-          area (class:`numpy.ndarray`,
+          area (:class:`numpy.ndarray`,
                 shape=(:math:`N_{facets}`),
                 dtype= :class:`numpy.float32`): facet areas
           volume (float): polyhedron volume
@@ -349,10 +349,10 @@ cdef class FTpolyhedron:
         """Set particle positions and orientations.
 
         Args:
-          position (class:`numpy.ndarray`,
+          position (:class:`numpy.ndarray`,
                     shape=(:math:`N_{particles}`, 3),
                     dtype= :class:`numpy.float32`): particle position vectors
-          orientation (class:`numpy.ndarray`,
+          orientation (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): particle orientation quaternions
 

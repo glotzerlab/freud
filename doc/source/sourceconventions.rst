@@ -50,8 +50,7 @@ Indentation
 -----------
 
 -  Spaces, not tabs, must be used for indentation
--  *4 spaces* are required per level of indentation
--  *4 spaces* are *required*, not optional, for continuation lines
+-  *4 spaces* are required per level of indentation and continuation lines
 -  There should be no whitespace at the end of lines in the file.
 -  Documentation comments and items broken over multiple lines should be
    *aligned* with spaces
@@ -83,8 +82,8 @@ natural breaking point to continue on the next line.
          << "Characters in it:"
          << message << endl;
 
-Try to maintain some element of beautiful symmetry in the way the line is
-broken. For example, the *above* long message is preferred over the below:
+Try to maintain some element of symmetry in the way the line is broken.
+For example, the *above* long message is preferred over the below:
 
 .. code-block:: c++
 
@@ -155,9 +154,14 @@ Semicolons should not be used to mark the end of lines in Python.
 Documentation Comments
 ----------------------
 
--  Python documentation uses sphinx, not doxygen
--  See the `sphinx documentation <http://www.sphinx-doc.org/en/stable/index.html>`_
-   for more information
+-  Documentation is generated using `sphinx <http://www.sphinx-doc.org/en/stable/index.html>`_
+-  The documentation should be written according to the `Google Python Style Guide
+  <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.
+   A few specific notes:
+
+   - Details for NumPy arrays or lists, such as their specific shapes, should be
+     documented as part of the description, not within the type specification.
+     For example, `rmax (:py:class:np.ndarray): An array of shape (N, 4)
 -  Documentation should be included at the Python-level in the Cython
    wrapper.
 -  Every class, member variable, function, function parameter, macro,

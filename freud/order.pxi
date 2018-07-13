@@ -67,7 +67,7 @@ cdef class CubaticOrderParameter:
         """Calculates the per-particle and global order parameter.
 
         Args:
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): orientations as angles to use in computation
         """
@@ -121,7 +121,7 @@ cdef class CubaticOrderParameter:
         """Get orientations
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(4 \\right)`,
         dtype= :class:`numpy.float32`: orientation of global orientation
 
@@ -151,7 +151,7 @@ cdef class CubaticOrderParameter:
         """Get per-particle cubatic tensor
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)`,
         dtype= :class:`numpy.float32`: Rank 5 tensor corresponding to each individual particle
           orientation
@@ -174,7 +174,7 @@ cdef class CubaticOrderParameter:
         """Get global tensor
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(3, 3, 3, 3 \\right)`,
         dtype= :class:`numpy.float32`: Rank 4 tensor corresponding to global
             orientation
@@ -196,7 +196,7 @@ cdef class CubaticOrderParameter:
         """Get cubatic tensor
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(3, 3, 3, 3 \\right)`,
         dtype= :class:`numpy.float32`: Rank 4 tensor corresponding to cubatic
         tensor
@@ -218,7 +218,7 @@ cdef class CubaticOrderParameter:
         """Get R4 Tensor
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(3, 3, 3, 3 \\right)`,
         dtype= :class:`numpy.float32`: Rank 4 tensor corresponding to each individual particle
           orientation
@@ -266,7 +266,7 @@ cdef class NematicOrderParameter:
         """Calculates the per-particle and global order parameter.
 
         Args:
-          orientations(class:`numpy.ndarray`,
+          orientations(:class:`numpy.ndarray`,
                     shape= :math:`\\left(N_{particles}, 4 \\right)`,
                     dtype= :class:`numpy.float32`): orientations to calculate the order parameter
         """
@@ -296,7 +296,7 @@ cdef class NematicOrderParameter:
         """The director (eigenvector corresponding to the order parameter).
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(3 \\right)`,
         dtype= :class:`numpy.float32`: The average nematic director
 
@@ -310,7 +310,7 @@ cdef class NematicOrderParameter:
         """The full per-particle tensor of orientation information.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}, 3, 3 \\right)`,
         dtype= :class:`numpy.float32`: 3x3 matrix corresponding to each individual particle
           orientation
@@ -330,7 +330,7 @@ cdef class NematicOrderParameter:
         """The nematic Q tensor.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(3, 3 \\right)`,
         dtype= :class:`numpy.float32`: 3x3 matrix corresponding to the average particle orientation
 
@@ -388,7 +388,7 @@ cdef class HexOrderParameter:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the order parameter
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
@@ -426,7 +426,7 @@ cdef class HexOrderParameter:
         """Get the order parameter.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles} \\right)`,
         dtype= :class:`numpy.complex64`: order parameter
 
@@ -510,7 +510,7 @@ cdef class TransOrderParameter:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the order parameter
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
@@ -548,7 +548,7 @@ cdef class TransOrderParameter:
         """Get a reference to the last computed spherical harmonic array.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.complex64`: order parameter
 
@@ -709,7 +709,7 @@ cdef class LocalQl:
         Returns NaN instead of :math:`Q_l` for particles with no neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: order parameter
 
@@ -734,7 +734,7 @@ cdef class LocalQl:
         Returns NaN instead of :math:`Q_l` for particles with no neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: order parameter
 
@@ -759,7 +759,7 @@ cdef class LocalQl:
         Returns NaN instead of :math:`Q_l` for particles with no neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: order parameter
 
@@ -784,7 +784,7 @@ cdef class LocalQl:
         Returns NaN instead of :math:`Q_l` for particles with no neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: order parameter
 
@@ -802,7 +802,7 @@ cdef class LocalQl:
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -830,7 +830,7 @@ cdef class LocalQl:
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -860,7 +860,7 @@ cdef class LocalQl:
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -890,7 +890,7 @@ cdef class LocalQl:
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -984,7 +984,7 @@ cdef class LocalQlNear(LocalQl):
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1001,7 +1001,7 @@ cdef class LocalQlNear(LocalQl):
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1018,7 +1018,7 @@ cdef class LocalQlNear(LocalQl):
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1109,7 +1109,7 @@ cdef class LocalWl(LocalQl):
         Returns NaN instead of :math:`W_l` for particles with no neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
             shape= :math:`\\left(N_{particles}\\right)`,
             dtype= :class:`numpy.complex64`: order parameter
 
@@ -1134,7 +1134,7 @@ cdef class LocalWl(LocalQl):
         Returns NaN instead of :math:`W_l` for particles with no neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: order parameter
 
@@ -1159,7 +1159,7 @@ cdef class LocalWl(LocalQl):
         Returns NaN instead of :math:`W_l` for particles with no neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: order parameter
 
@@ -1184,7 +1184,7 @@ cdef class LocalWl(LocalQl):
         Returns NaN instead of :math:`W_l` for particles with no neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: order parameter
 
@@ -1252,7 +1252,7 @@ cdef class LocalWlNear(LocalWl):
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1269,7 +1269,7 @@ cdef class LocalWlNear(LocalWl):
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1286,7 +1286,7 @@ cdef class LocalWlNear(LocalWl):
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1345,7 +1345,7 @@ Args:
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1374,7 +1374,7 @@ Args:
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1404,7 +1404,7 @@ Args:
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the
                  order parameter
@@ -1495,7 +1495,7 @@ Args:
         """Return the sizes of all clusters.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{clusters}\\right)`,
         dtype= :class:`numpy.uint32`
 
@@ -1523,7 +1523,7 @@ Args:
         particle.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.complex64`: order parameter
         """
@@ -1547,7 +1547,7 @@ Args:
         indices for each particle.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.uint32`: clusters
 
@@ -1570,7 +1570,7 @@ Args:
         """Get a reference to the number of connections per particle.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.uint32`: clusters
 
@@ -1594,7 +1594,7 @@ Args:
         """Get a reference to the qldot_ij values.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{clusters}\\right)`,
         dtype= :class:`numpy.complex64`
 
@@ -1671,7 +1671,7 @@ cdef class SolLiqNear(SolLiq):
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the order parameter
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
@@ -1687,7 +1687,7 @@ cdef class SolLiqNear(SolLiq):
         parameter.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the order parameter
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
@@ -1701,7 +1701,7 @@ cdef class SolLiqNear(SolLiq):
     def computeSolLiqNoNorm(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
         parameter.
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): points to calculate the order parameter
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to

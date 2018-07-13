@@ -293,10 +293,10 @@ cdef class NeighborList:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to use for filtering
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): target points to use for filtering
           rmax (float): maximum bond distance in the resulting neighbor list
@@ -341,11 +341,11 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
 
     Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points for the
                       neighborlist
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to construct the
                   neighborlist
@@ -391,11 +391,11 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
 
     Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points for the
                       neighborlist
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to construct the
                   neighborlist
@@ -559,7 +559,7 @@ cdef class LinkCell:
         """Returns the index of the cell containing the given point.
 
         Args:
-          point(class:`numpy.ndarray`,
+          point(:class:`numpy.ndarray`,
                 shape= :math:`\\left(3\\right)`,
                 dtype= :class:`numpy.float32`): point coordinates :math:`\\left(x,y,z\\right)`
 
@@ -601,7 +601,7 @@ cdef class LinkCell:
           cell(unsigned int): Cell index
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{neighbors}\\right)`,
           dtype= :class:`numpy.uint32`: array of cell neighbors
 
@@ -618,10 +618,10 @@ cdef class LinkCell:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference point coordinates
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): point coordinates (Default value = None)
           exclude_ii (bool): True if pairs of points with identical indices
@@ -677,10 +677,10 @@ cdef class LinkCell:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference point coordinates
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): point coordinates (Default value = None)
           exclude_ii (bool): True if pairs of points with identical indices
@@ -860,7 +860,7 @@ cdef class NearestNeighbors:
         """Return the entire neighbor list.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`,
           dtype= :class:`numpy.uint32`: Neighbor List
 
@@ -892,7 +892,7 @@ cdef class NearestNeighbors:
         neighboring point distances
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: squared distances to the :math:`N` nearest neighbors
 
@@ -916,7 +916,7 @@ cdef class NearestNeighbors:
         with -1 for empty neighbors.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}\\right)`,
         dtype= :class:`numpy.float32`: wrapped vectors
 
@@ -952,7 +952,7 @@ cdef class NearestNeighbors:
         """Return the entire Rsq values list.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`,
         dtype= :class:`numpy.float32`: Rsq list
 
@@ -963,7 +963,7 @@ cdef class NearestNeighbors:
         """Return the entire Rsq values list.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{particles}, N_{neighbors}\\right)`,
         dtype= :class:`numpy.float32`: Rsq list
 
@@ -978,11 +978,11 @@ cdef class NearestNeighbors:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference point
                       coordinates
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): point coordinates (Default value = None)
           exclude_ii (bool): True if pairs of points with identical indices should

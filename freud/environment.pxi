@@ -83,18 +83,18 @@ cdef class BondOrder:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to
                       calculate bonds
-          ref_orientations (class:`numpy.ndarray`,
+          ref_orientations (:class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): reference orientations to
                            calculate bonds
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 3),
                        dtype= :class:`numpy.float32`): orientations to calculate the bonding
           mode (str): mode to calc bond order. "bod", "lbod", "obcd", and "oocd" (Default value = "bod")
@@ -176,7 +176,7 @@ cdef class BondOrder:
         """Get the bond order.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{\\phi}, N_{\\theta} \\right)`,
           dtype= :class:`numpy.float32`: bond order
 
@@ -214,18 +214,18 @@ cdef class BondOrder:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to
                       calculate bonds
-          ref_orientations (class:`numpy.ndarray`,
+          ref_orientations (:class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): reference orientations to
                            calculate bonds
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the bonding
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 3),
                        dtype= :class:`numpy.float32`): orientations to calculate the bonding
           mode (str): mode to calc bond order. "bod", "lbod", "obcd", and "oocd" (Default value = "bod")
@@ -250,7 +250,7 @@ cdef class BondOrder:
         """
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{\\theta} \\right)`,
         dtype= :class:`numpy.float32`: values of bin centers for Theta
 
@@ -267,7 +267,7 @@ cdef class BondOrder:
         """
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
         shape= :math:`\\left(N_{\\phi} \\right)`,
         dtype= :class:`numpy.float32`: values of bin centers for Phi
 
@@ -345,11 +345,11 @@ cdef class LocalDescriptors:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          points_ref (class:`numpy.ndarray`,
+          points_ref (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): source points to calculate the
                       order parameter
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): destination points to calculate the
                  order parameter (Default value = None)
@@ -392,15 +392,15 @@ cdef class LocalDescriptors:
           box (class:`freud.box:Box`): simulation box
           num_neighbors (unsigned int): Number of neighbors to compute with or to
                                         limit to, if the neighbor list is precomputed
-          points_ref (class:`numpy.ndarray`,
+          points_ref (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): source points to calculate the
                       order parameter
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): destination points to calculate the
                  order parameter (Default value = None)
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): Orientation of each reference
                                                        point (Default value = None)
@@ -492,7 +492,7 @@ cdef class LocalDescriptors:
         """Get a reference to the last computed spherical harmonic array.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`, \
           dtype= :class:`numpy.complex64`: order parameter
 
@@ -616,7 +616,7 @@ cdef class MatchEnv:
         """Determine clusters of particles with matching environments.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): destination points to calculate the
                  order parameter (Default value = None)
@@ -685,10 +685,10 @@ cdef class MatchEnv:
         refPoints.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): particle positions
-          refPoints (class:`numpy.ndarray`,
+          refPoints (:class:`numpy.ndarray`,
                     shape=(:math:`N_{particles}`, 3),
                     dtype= :class:`numpy.float32`): vectors that make up the motif
                                                     against which we are matching
@@ -739,10 +739,10 @@ cdef class MatchEnv:
         particles to minimize their RMSD wrt the motif provided by refPoints.
 
         Args:
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): particle positions
-          refPoints (class:`numpy.ndarray`,
+          refPoints (:class:`numpy.ndarray`,
                     shape=(:math:`N_{particles}`, 3),
                     dtype= :class:`numpy.float32`): vectors that make up the motif
                                                     against which we are matching
@@ -753,7 +753,7 @@ cdef class MatchEnv:
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
                     find bonds (Default value = None)
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}\\right)`,
           dtype= :class:`numpy.float32`: vector of minimal RMSD values, one value per particle.
 
@@ -795,10 +795,10 @@ cdef class MatchEnv:
         provided by refPoints2.
 
         Args:
-          refPoints1 (class:`numpy.ndarray`,
+          refPoints1 (:class:`numpy.ndarray`,
                      shape=(:math:`N_{particles}`, 3),
                      dtype= :class:`numpy.float32`): vectors that make up motif 1
-          refPoints2 (class:`numpy.ndarray`,
+          refPoints2 (:class:`numpy.ndarray`,
                      shape=(:math:`N_{particles}`, 3),
                      dtype= :class:`numpy.float32`): vectors that make up motif 2
           threshold (float): maximum magnitude of the vector difference
@@ -859,10 +859,10 @@ cdef class MatchEnv:
         and the set of vectors refPoints2.
 
         Args:
-          refPoints1 (class:`numpy.ndarray`,
+          refPoints1 (:class:`numpy.ndarray`,
                      shape=(:math:`N_{particles}`, 3),
                      dtype= :class:`numpy.float32`): vectors that make up motif 1
-          refPoints2 (class:`numpy.ndarray`,
+          refPoints2 (:class:`numpy.ndarray`,
                      shape=(:math:`N_{particles}`, 3),
                      dtype= :class:`numpy.float32`): vectors that make up motif 2
           registration (bool): If true, first use brute force registration
@@ -921,7 +921,7 @@ cdef class MatchEnv:
         their matching local environments
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}\\right)`,
           dtype= :class:`numpy.uint32`: clusters
 
@@ -942,7 +942,7 @@ cdef class MatchEnv:
           i (unsigned int): environment index
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{neighbors}, 3\\right)`,
           dtype= :class:`numpy.float32`: the array of vectors
 
@@ -969,7 +969,7 @@ cdef class MatchEnv:
         for all particles.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)`,
           dtype= :class:`numpy.float32`: the array of vectors
 
@@ -1050,13 +1050,13 @@ cdef class Pairing2D:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): reference points to calculate the local density
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                         shape=(:math:`N_{particles}`, 4),
                         dtype= :class:`numpy.float32`): orientations to use in computation
-          compOrientations (class:`numpy.ndarray`,
+          compOrientations (:class:`numpy.ndarray`,
                             shape=(:math:`N_{particles}`, 4),
                             dtype= :class:`numpy.float32`): possible orientations to check
                                                             for bonds
@@ -1108,7 +1108,7 @@ cdef class Pairing2D:
         """Get the match.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}\\right)`,
           dtype= :class:`numpy.uint32`: match
 
@@ -1130,7 +1130,7 @@ cdef class Pairing2D:
         """Get the pair.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}\\right)`,
           dtype= :class:`numpy.uint32`: pair
 
@@ -1191,26 +1191,26 @@ cdef class AngularSeparation:
 
         Args:
           box (class:`freud.box:Box`): simulation box
-          orientations (class:`numpy.ndarray`,
+          orientations (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 3),
                        dtype= :class:`numpy.float32`): orientations to calculate
                        the order parameter
-          ref_orientations (class:`numpy.ndarray`,
+          ref_orientations (:class:`numpy.ndarray`,
                            shape=(:math:`N_{particles}`, 4),
                            dtype= :class:`numpy.float32`): reference orientations to
                            calculate the order parameter
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): reference points to
                       calculate the order parameter
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): points to calculate the
                   the order parameter
           mode (str): mode to calc bond order. "bod", "lbod", "obcd", and "oocd" (Default value = "bod")
           nlist(class:`freud.locality.NeighborList`): NeighborList to use to find bonds (Default value = None)
                                                       find bonds (Default value = None)
-          equiv_quats (class:`numpy.ndarray`,
+          equiv_quats (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): the set of all equivalent quaternions that takes the particle as it is defined to some global reference orientation. Important: equiv_quats must include both q and -q, for all included quaternions
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to find bonds
@@ -1280,15 +1280,15 @@ cdef class AngularSeparation:
         ors, checking for underlying symmetry as encoded in equiv_quats.
 
         Args:
-          ors (class:`numpy.ndarray`,
+          ors (:class:`numpy.ndarray`,
                shape=(:math:`N_{particles}`, 3),
                dtype= :class:`numpy.float32`): orientations to calculate
                the order parameter
-          global_ors (class:`numpy.ndarray`,
+          global_ors (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 4),
                       dtype= :class:`numpy.float32`): reference orientations to
                       calculate the order parameter
-          equiv_quats (class:`numpy.ndarray`,
+          equiv_quats (:class:`numpy.ndarray`,
                        shape=(:math:`N_{particles}`, 4),
                        dtype= :class:`numpy.float32`): the set of all equivalent
                        quaternions that takes the particle as it is defined to
@@ -1334,7 +1334,7 @@ cdef class AngularSeparation:
         """
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{reference}, N_{neighbors} \\right)`,
           dtype= :class:`numpy.float32`: angles in radians
 
@@ -1352,7 +1352,7 @@ cdef class AngularSeparation:
         """
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape= :math:`\\left(N_{particles}, N_{global} \\right)`,
           dtype= :class:`numpy.float32`: angles in radians
 

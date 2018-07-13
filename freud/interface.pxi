@@ -38,10 +38,10 @@ cdef class InterfaceMeasure:
         the two given sets of points.
 
         Args:
-          ref_points (class:`numpy.ndarray`,
+          ref_points (:class:`numpy.ndarray`,
                       shape=(:math:`N_{particles}`, 3),
                       dtype= :class:`numpy.float32`): one set of particle positions
-          points (class:`numpy.ndarray`,
+          points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): other set of particle positions
           nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to

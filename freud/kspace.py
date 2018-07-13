@@ -116,7 +116,7 @@ class SFactor3DPoints:
         :py:meth:`~.SFactor3DPoints.getQ()`.
 
         Args:
-          points(class:`numpy.ndarray`,
+          points(:class:`numpy.ndarray`,
                 shape=(:math:`N_{particles}`, 3),
                 dtype= :class:`numpy.float32`): points used to compute the static structure factor
 
@@ -141,7 +141,7 @@ class SFactor3DPoints:
         """Get the computed static structure factor.
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape=(X,Y),
           dtype= :class:`numpy.float32`: The computed static structure factor as a copy
 
@@ -154,7 +154,7 @@ class SFactor3DPoints:
         information).
 
         Returns:
-          class:`numpy.ndarray`,
+          :class:`numpy.ndarray`,
           shape=(X,Y),
           dtype= :class:`numpy.complex64`: The computed static structure factor, as a copy, without
           taking the magnitude squared
@@ -238,7 +238,7 @@ class AnalyzeSFactor3D:
         """Get a dictionary of peaks indexed by :math:`q^2`.
 
         Args:
-          cut (class:`numpy.ndarray`): All :math:`S\\left(q\\right)` values greater than cut will
+          cut (:class:`numpy.ndarray`): All :math:`S\\left(q\\right)` values greater than cut will
         be counted as peaks
 
         Returns:
@@ -263,7 +263,7 @@ class AnalyzeSFactor3D:
         :math:`q^2`.
 
         Returns:
-          class:`numpy.ndarray`: S, qsquared
+          :class:`numpy.ndarray`: S, qsquared
 
         """
         hx = range(-self.g, self.g + 1)
@@ -301,7 +301,7 @@ class SingleCell3D:
                         (Currently unused.)
         dK (float): The k-space unit associated with the diffraction
                          image grid spacing
-        boxMatrix (class:`numpy.ndarray`,
+        boxMatrix (:class:`numpy.ndarray`,
                    shape=(:math:`N_{particles}`, 3),
                    dtype= :class:`numpy.float32`): The unit cell lattice vectors as columns in a 3x3
                           matrix
@@ -520,7 +520,7 @@ class SingleCell3D:
         """Set box matrix.
 
         Args:
-          boxMatrix(class:`numpy.ndarray`,
+          boxMatrix(:class:`numpy.ndarray`,
                     shape=(3, 3),
                     dtype= :class:`numpy.float32`): unit cell box matrix
 
@@ -743,7 +743,7 @@ class FTbase:
         """Return Fourier Transform.
 
         Returns:
-          class:`numpy.ndarray`: Fourier Transform
+          :class:`numpy.ndarray`: Fourier Transform
 
         """
         return self.S
@@ -798,7 +798,7 @@ class FTbase:
         """Set :math:`K` points to be evaluated.
 
         Args:
-          K (class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
+          K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
 
         """
         self.K = np.asarray(K, dtype=np.float32)
@@ -825,7 +825,7 @@ class FTbase:
         """Set density.
 
         Args:
-          density (class:`numpy.complex64`): density
+          density (:class:`numpy.complex64`): density
 
         """
         self.density = np.complex64(density)
@@ -834,7 +834,7 @@ class FTbase:
         """Get density.
 
         Returns:
-          class:`numpy.complex64`: density
+          :class:`numpy.complex64`: density
 
         Todo::
             Why does this take an argument??
@@ -878,7 +878,7 @@ class FTdelta(FTbase):
         """Set :math:`K` points to be evaluated.
 
         Args:
-          K (class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
+          K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
 
         """
         FTbase.set_K(self, K)
@@ -905,7 +905,7 @@ class FTdelta(FTbase):
         """Set density.
 
         Args:
-          density(class:`numpy.complex64`): density
+          density(:class:`numpy.complex64`): density
 
         """
         FTbase.set_density(self, density)
@@ -991,7 +991,7 @@ class FTpolyhedron(FTbase):
         """Set :math:`K` points to be evaluated.
 
         Args:
-          K (class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
+          K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
 
         """
         FTbase.set_K(self, K)
@@ -1012,7 +1012,7 @@ class FTpolyhedron(FTbase):
         """Set density.
 
         Args:
-          density(class:`numpy.complex64`): density
+          density(:class:`numpy.complex64`): density
 
         """
         FTbase.set_density(self, density)
@@ -1022,19 +1022,19 @@ class FTpolyhedron(FTbase):
         """Construct list of facet offsets.
 
         Args:
-          verts (class:`numpy.ndarray`,
+          verts (:class:`numpy.ndarray`,
                  shape=(:math:`N_{particles}`, 3),
                  dtype= :class:`numpy.float32`): vertex coordinates
-          facets (class:`numpy.ndarray`,
+          facets (:class:`numpy.ndarray`,
                   shape=(:math:`N_{facets}`, 3),
                   dtype= :class:`numpy.float32`): facet vertex indices
-          norms (class:`numpy.ndarray`,
+          norms (:class:`numpy.ndarray`,
                  shape=(:math:`N_{facets}`, 3),
                  dtype= :class:`numpy.float32`): facet normals
-          d (class:`numpy.ndarray`,
+          d (:class:`numpy.ndarray`,
              shape=(:math:`N_{facets}-1`),
              dtype= :class:`numpy.float32`): facet distances
-          area (class:`numpy.ndarray`,
+          area (:class:`numpy.ndarray`,
                 shape=(:math:`N_{facets}-1`),
                 dtype= :class:`numpy.float32`): facet areas
           volume (float): polyhedron volume
@@ -1290,7 +1290,7 @@ class Constraint:
         """Constraint test.
 
         Args:
-          v (class:`numpy.ndarray`,
+          v (:class:`numpy.ndarray`,
              shape=(3),
              dtype= :class:`numpy.float32`): vector to test against constraint
 
@@ -1323,7 +1323,7 @@ class AlignedBoxConstraint(Constraint):
         """Constraint test.
 
         Args:
-          v (class:`numpy.ndarray`,
+          v (:class:`numpy.ndarray`,
              shape=(3),
              dtype= :class:`numpy.float32`): vector to test against constraint
 
@@ -1471,7 +1471,7 @@ class DeltaSpot:
         """Generate intensity value(s) at sub-grid points.
 
         Args:
-          cval (class:`numpy.complex64`): complex valued amplitude used to generate spot intensity
+          cval (:class:`numpy.complex64`): complex valued amplitude used to generate spot intensity
 
         """
         return (np.conj(cval) * cval).real
@@ -1539,7 +1539,7 @@ class GaussianSpot(DeltaSpot):
         """Generate intensity value(s) at sub-grid points.
 
         Args:
-          cval (class:`numpy.complex64`): complex valued amplitude used to generate spot intensity
+          cval (:class:`numpy.complex64`): complex valued amplitude used to generate spot intensity
 
         """
         val = (np.conj(cval) * cval).real
