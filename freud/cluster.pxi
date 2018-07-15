@@ -46,7 +46,7 @@ cdef class Cluster:
         Failing to set z=0 will lead to undefined behavior.
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         num_clusters (int): The number of clusters
         num_particles (int): The number of particles
         cluster_idx ((:math:`N_{particles}`) :class:`numpy.ndarray`): The cluster index for each particle
@@ -213,7 +213,7 @@ cdef class ClusterProperties:
         box (:py:class:`freud.box.Box`): simulation box
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         num_clusters (int): The number of clusters
         cluster_COM ((:math:`N_{clusters}`, 3) :class:`numpy.ndarray`): The center of mass of the last computed cluster
 

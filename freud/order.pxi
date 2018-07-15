@@ -338,7 +338,7 @@ cdef class HexOrderParameter:
 
     Attributes:
         psi (:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`): Order parameter
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         num_particles (unsigned int): Number of particles
         k (unsigned int): Symmetry of the order parameter
     """
@@ -359,7 +359,7 @@ cdef class HexOrderParameter:
         histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the order parameter
             nlist (:class:`freud.locality.NeighborList`): Neighborlist to use to
                       find bonds
@@ -425,7 +425,7 @@ cdef class HexOrderParameter:
         """Get the number of particles.
 
         Returns:
-          unsigned int: math:`N_{particles}`
+          unsigned int: :math:`N_{particles}`
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -438,7 +438,7 @@ cdef class HexOrderParameter:
         """Get the symmetry of the order parameter.
 
         Returns:
-          unsigned int: math:`k`
+          unsigned int: :math:`k`
         """
         cdef unsigned int k = self.thisptr.getK()
         return k
@@ -455,7 +455,7 @@ cdef class TransOrderParameter:
 
     Attributes:
         d_r (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): Reference to the last computed spherical harmonic array.
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         num_particles (unsigned int): Number of particles
     """
     cdef order.TransOrderParameter * thisptr
@@ -474,7 +474,7 @@ cdef class TransOrderParameter:
         """Calculates the local descriptors.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the order parameter
             nlist (:class:`freud.locality.NeighborList`): Neighborlist to use to
                       find bonds
@@ -540,7 +540,7 @@ cdef class TransOrderParameter:
         """Get the number of particles.
 
         Returns:
-            unsigned int: math:`N_{particles}`
+            unsigned int: :math:`N_{particles}`
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -584,12 +584,12 @@ cdef class LocalQl:
                            region
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         num_particles (unsigned int): Number of particles
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`Q_l` for each particle (filled with NaN for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{Q}_l` for each particle (filled with NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`Q_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{Q}_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`Q_l` for each particle (filled with NaN for particles with no neighbors).
+        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{Q_l}` for each particle (filled with NaN for particles with no neighbors).
+        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`Q_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{Q_l}` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
 
     .. todo:: move box to compute, this is old API
     """
@@ -649,7 +649,7 @@ cdef class LocalQl:
         """Get the number of particles.
 
         Returns:
-            unsigned int: math:`N_{particles}`
+            unsigned int: :math:`N_{particles}`
         """
         cdef unsigned int np = self.qlptr.getNP()
         return np
@@ -879,12 +879,12 @@ cdef class LocalQlNear(LocalQl):
         kn (unsigned int): number of nearest neighbors. must be a positive integer
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         num_particles (unsigned int): Number of particles
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`Q_l` for each particle (filled with NaN for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{Q}_l` for each particle (filled with NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`Q_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{Q}_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`Q_l` for each particle (filled with NaN for particles with no neighbors).
+        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{Q_l}` for each particle (filled with NaN for particles with no neighbors).
+        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`Q_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{Q_l}` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
 
     .. todo:: move box to compute, this is old API
     """
@@ -989,16 +989,16 @@ cdef class LocalWl(LocalQl):
                            or some other arbitrary rdf region.
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         num_particles (unsigned int): Number of particles
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`Q_l` for each particle (filled with NaN for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{Q}_l` for each particle (filled with NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`Q_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{Q}_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
-        Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`W_l` for each particle (filled with NaN for particles with no neighbors).
-        ave_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{W}_l` for each particle (filled with NaN for particles with no neighbors).
-        norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`W_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{W}_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`Q_l` for each particle (filled with NaN for particles with no neighbors).
+        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{Q_l}` for each particle (filled with NaN for particles with no neighbors).
+        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`Q_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{Q_l}` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`W_l` for each particle (filled with NaN for particles with no neighbors).
+        ave_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{W}_l` for each particle (filled with NaN for particles with no neighbors).
+        norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`W_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{W}_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
 
     .. todo:: move box to compute, this is old API
     """
@@ -1143,16 +1143,16 @@ cdef class LocalWlNear(LocalWl):
 
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         num_particles (unsigned int): Number of particles
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`Q_l` for each particle (filled with NaN for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{Q}_l` for each particle (filled with NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`Q_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{Q}_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
-        Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`W_l` for each particle (filled with NaN for particles with no neighbors).
-        ave_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{W}_l` for each particle (filled with NaN for particles with no neighbors).
-        norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`W_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:): The last computed :math:`\bar{W}_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`Q_l` for each particle (filled with NaN for particles with no neighbors).
+        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{Q_l}` for each particle (filled with NaN for particles with no neighbors).
+        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`Q_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{Q_l}` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`W_l` for each particle (filled with NaN for particles with no neighbors).
+        ave_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{W}_l` for each particle (filled with NaN for particles with no neighbors).
+        norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`W_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
+        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The last computed :math:`\\bar{W}_l` for each particle normalized by the value over all particles (filled with NaN for particles with no neighbors).
 
     .. todo:: move box to compute, this is old API
     """
@@ -1244,7 +1244,7 @@ cdef class SolLiq:
                           even.
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         largest_cluster_size (unsigned int): The largest cluster size. Must call a compute method first.
         cluster_sizes (unsigned int): The sizes of all clusters
         largest_cluster_size (unsigned int): The largest cluster size. Must call a compute method first.
@@ -1545,7 +1545,7 @@ cdef class SolLiqNear(SolLiq):
         kn (unsigned int): Number of nearest neighbors. Must be a positive number
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         largest_cluster_size (unsigned int): The largest cluster size. Must call a compute method first.
         cluster_sizes (unsigned int): The sizes of all clusters
         largest_cluster_size (unsigned int): The largest cluster size. Must call a compute method first.

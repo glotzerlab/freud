@@ -48,7 +48,7 @@ cdef class FTdelta:
         """Set the :math:`K` values to evaluate
 
         Args:
-            K((:math:`N_{K}`, 3) :class:`numpy.ndarray`): math:`K` values to evaluate
+            K((:math:`N_{K}`, 3) :class:`numpy.ndarray`): :math:`K` values to evaluate
         """
         K = freud.common.convert_array(
                 K, 1, dtype=np.float32, contiguous=True,
@@ -133,7 +133,7 @@ cdef class FTsphere:
         """Set the :math:`K` values to evaluate
 
         Args:
-            K((:math:`N_{K}`, 3) :class:`numpy.ndarray`): math:`K` values to evaluate
+            K((:math:`N_{K}`, 3) :class:`numpy.ndarray`): :math:`K` values to evaluate
         """
         K = np.ascontiguousarray(K, dtype=np.float32)
         if K.ndim != 2 or K.shape[1] != 3:
@@ -224,7 +224,7 @@ cdef class FTpolyhedron:
         Args:
             K(:class:`numpy.ndarray`,
               shape=(:math:`N_{K}`, 3),
-              dtype= :class:`numpy.float32`): math:`K` values to evaluate
+              dtype= :class:`numpy.float32`): :math:`K` values to evaluate
         """
         K = freud.common.convert_array(
             K, 2, dtype=np.float32, contiguous=True,

@@ -171,20 +171,20 @@ cdef class BondingAnalysis:
         return self.thisptr.getNumBonds()
 
 cdef class BondingR12:
-    """Compute bonds in a 2D system using a (:math:`r`, :math:`\theta_1`, :math:`\theta_2`) coordinate system.
+    """Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`, :math:`\\theta_2`) coordinate system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
         r_max (float): distance to search for bonds
-        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each r, t2, t1
+        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each r, :math:`\\theta_2`, :math:`\\theta_1`
                          coordinate
         bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked,
                           :code:`bond_list[i] = bond_index`
 
     Attributes:
         bonds (:class:`numpy.ndarray`): Particle bonds
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         list_map (dict): The dict used to map bond index to list index.
         rev_list_map (dict): The dict used to map list idx to bond idx.
     """
@@ -213,7 +213,7 @@ cdef class BondingR12:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the bonding
             ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
@@ -291,7 +291,7 @@ cdef class BondingR12:
         """Get the box used in the calculation.
 
         Returns:
-            :py:class:`freud.box.Box()`: freud Box
+            :py:class:`freud.box.Box`: freud Box
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -325,14 +325,14 @@ cdef class BondingXY2D:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        x_max (float): maximum x distance at which to search for bonds
-        y_max (float): maximum y distance at which to search for bonds
-        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each x, y coordinate
+        x_max (float): maximum :math:`x` distance at which to search for bonds
+        y_max (float): maximum :math:`y` distance at which to search for bonds
+        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y` coordinate
         bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked, :code:`bond_list[i] = bond_index`
 
     Attributes:
         bonds (:class:`numpy.ndarray`): Particle bonds
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         list_map (dict): The dict used to map bond index to list index.
         rev_list_map (dict): The dict used to map list idx to bond idx.
     """
@@ -363,7 +363,7 @@ cdef class BondingXY2D:
         histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the bonding
             ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
@@ -442,7 +442,7 @@ cdef class BondingXY2D:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box()`: freud Box
+            :class:`freud.box.Box`: freud Box
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -472,7 +472,7 @@ cdef class BondingXY2D:
 
 cdef class BondingXYT:
     """Compute bonds in a 2D system using a
-    (:math:`x`, :math:`y`, :math:`\theta_1`) coordinate system.
+    (:math:`x`, :math:`y`, :math:`\\theta_1`) coordinate system.
 
     For each particle in the system determine which other particles are in
     which bonding sites.
@@ -480,16 +480,16 @@ cdef class BondingXYT:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        x_max (float): maximum x distance at which to search for bonds
-        y_max (float): maximum y distance at which to search for bonds
-        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each x, y
+        x_max (float): maximum :math:`x` distance at which to search for bonds
+        y_max (float): maximum :math:`y` distance at which to search for bonds
+        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y`
                          coordinate
         bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked,
                           :code:`bond_list[i] = bond_index`
 
     Attributes:
         bonds (:class:`numpy.ndarray`): Particle bonds
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         list_map (dict): The dict used to map bond index to list index.
         rev_list_map (dict): The dict used to map list idx to bond idx.
     """
@@ -520,7 +520,7 @@ cdef class BondingXYT:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the bonding
             ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
@@ -598,7 +598,7 @@ cdef class BondingXYT:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box()`: freud Box
+            :class:`freud.box.Box`: freud Box
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -635,17 +635,18 @@ cdef class BondingXYZ:
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    x_max (float): maximum x distance at which to search for bonds
-    y_max (float): maximum y distance at which to search for bonds
-    z_max (float): maximum z distance at which to search for bonds
-    bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each x, y, z
-                     coordinate
-    bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked,
-                      :code:`bond_list[i] = bond_index`
+    Args:
+        x_max (float): maximum :math:`x` distance at which to search for bonds
+        y_max (float): maximum :math:`y` distance at which to search for bonds
+        z_max (float): maximum :math:`z` distance at which to search for bonds
+        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y`, :math:`z`
+                         coordinate
+        bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked,
+                          :code:`bond_list[i] = bond_index`
 
     Attributes:
         bonds (:class:`numpy.ndarray`): Particle bonds
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         list_map (dict): The dict used to map bond index to list index.
         rev_list_map (dict): The dict used to map list idx to bond idx.
     """
@@ -677,7 +678,7 @@ cdef class BondingXYZ:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the bonding
             ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
@@ -763,7 +764,7 @@ cdef class BondingXYZ:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box()`: freud Box
+            :class:`freud.box.Box`: freud Box
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 

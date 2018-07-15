@@ -20,9 +20,9 @@ class NumThreads:
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
-    :param N: Number of threads to use in this context. Defaults to
-              :code:`None`, which will use all available threads.
-    :type N: int or None
+    Args:
+        N (int): Number of threads to use in this context. Defaults to
+                 None, which will use all available threads.
     """
 
     def __init__(self, N=None):

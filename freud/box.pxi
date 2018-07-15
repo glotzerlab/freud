@@ -181,7 +181,7 @@ cdef class Box:
            Use :py:meth:`~.makeCoordinates()` instead.
 
         Args:
-            f ((:math:`\\left(3\\right)`) :class:`numpy.ndarray`):
+            f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
                 Fractional coordinates :math:`\\left(x, y, z\\right)` between 0 and 1 within parallelepipedal box
         """
         return self.makeCoordinates(f)
@@ -190,7 +190,7 @@ cdef class Box:
         """Convert fractional coordinates into real coordinates.
 
         Args:
-            f ((:math:`\\left(3\\right)`) :class:`numpy.ndarray`):
+            f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
                 Fractional coordinates :math:`\\left(x, y, z\\right)` between 0 and 1 within parallelepipedal box
 
         Returns:
@@ -206,7 +206,7 @@ cdef class Box:
         """Convert real coordinates into fractional coordinates.
 
         Args:
-           vec ((:math:`\\left(3\\right)`) :class:`numpy.ndarray`): Real coordinates within parallelepipedal box
+           vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`): Real coordinates within parallelepipedal box
 
         Returns:
           A fractional coordinate vector
@@ -226,7 +226,7 @@ cdef class Box:
             vec ((:math:`\\left(3\\right)`) :class:`numpy.ndarray`): Coordinates of unwrapped vector
 
         Returns:
-            (shape= :math:`\\left(3\\right)`) :class:`numpy.ndarray`: Image index vector
+            :math:`\\left(3\\right)` :class:`numpy.ndarray`: Image index vector
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
                 vec, 1, dtype=np.float32, contiguous=True)
@@ -263,7 +263,7 @@ cdef class Box:
                 Single vector or array of :math:`N` vectors. Vecs are both altered in place and returned
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`:class:`numpy.ndarray`: vectors wrapped into the box
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: vectors wrapped into the box
         """
         if vecs.ndim > 2 or vecs.shape[-1] != 3:
             raise ValueError(
@@ -300,7 +300,7 @@ cdef class Box:
                 Single image index or array of :math:`N` image indices
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: vectors unwrapped by the image indices provided
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right :class:`numpy.ndarray`: vectors unwrapped by the image indices provided
         """
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")

@@ -140,7 +140,7 @@ cdef class Index3D:
             k (unsigned int): frame index
 
         Returns:
-            unsigned int: index in flat (*e.g.* math:`1`-dimensional) array
+            unsigned int: index in flat (*e.g.* :math:`1`-dimensional) array
         """
         return self.thisptr.getIndex(i, j, k)
 

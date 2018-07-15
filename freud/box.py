@@ -101,7 +101,7 @@ class Box(_Box):
 
         Args:
             box: A box-like object
-            dimensions (int): Dimensionality of the box
+            dimensions (int): Dimensionality of the box (Default value = None)
 
         .. note:: Objects that can be converted to freud boxes include
                   lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
@@ -125,7 +125,6 @@ class Box(_Box):
                   dimensionality will be detected from the :code:`dimensions`
                   of the provided box. If no dimensions can be detected, the
                   box will be 2D if :code:`Lz == 0`, and 3D otherwise.
-                    dimensions:  (Default value = None)
 
         Returns:
             :class:`freud.box:Box`: The resulting box object.

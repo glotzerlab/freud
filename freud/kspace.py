@@ -52,7 +52,7 @@ class SFactor3DPoints:
 
     Given a set of points :math:`\\vec{r}_i`, SFactor3DPoints computes the
     static structure factor :math:`S \\left( \\vec{q} \\right) = C_0 \\left|
-    {\\sum_{m=1}^{N} \\exp{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`.
+    {\\sum_{m=1}^{N} \\exp^{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`.
 
     In this expression, :math:`C_0` is a scaling constant chosen so that
     :math:`S\\left(0\\right) = 1`, and :math:`N` is the number of particles.
@@ -287,9 +287,7 @@ class SingleCell3D:
                         (Currently unused.)
         dK (float): The k-space unit associated with the diffraction
                          image grid spacing
-        boxMatrix (:class:`numpy.ndarray`,
-                   shape=(:math:`N_{particles}`, 3),
-                   dtype= :class:`numpy.float32`): The unit cell lattice vectors as columns in a 3x3
+        boxMatrix ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): The unit cell lattice vectors as columns in a 3x3
                           matrix
         scale (float): nm per unit length (default 1.0)
 
@@ -784,7 +782,7 @@ class FTbase:
         Returns:
             :class:`numpy.complex64`: density
 
-        Todo::
+        .. todo::
             Why does this take an argument??
         """
         return self.density
@@ -793,8 +791,8 @@ class FTbase:
         """Set :math:`r`, :math:`q` values.
 
         Args:
-            r (float): math:`r`
-            q (float): math:`q`
+            r (float): :math:`r`
+            q (float): :math:`q`
         """
         self.position = np.asarray(r, dtype=np.float32)
         self.orientation = np.asarray(q, dtype=np.float32)
@@ -856,8 +854,8 @@ class FTdelta(FTbase):
         """Set :math:`r`, :math:`q` values.
 
         Args:
-            r (float): math:`r`
-            q (float): math:`q`
+            r (float): :math:`r`
+            q (float): :math:`q`
         """
         FTbase.set_rq(self, r, q)
         self.FTobj.set_rq(self.position, self.orientation)
@@ -932,8 +930,8 @@ class FTpolyhedron(FTbase):
         """Set :math:`r`, :math:`q` values.
 
         Args:
-            r (float): math:`r`
-            q (float): math:`q`
+            r (float): :math:`r`
+            q (float): :math:`q`
         """
         FTbase.set_rq(self, r, q)
         self.FTobj.set_rq(self.position, self.orientation)

@@ -102,7 +102,7 @@ cdef class PMFTR12(_PMFT):
         n_t2 (unsigned int): number of bins in t2
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         bin_counts (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`): Bin counts.
         PCF (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`): The positional correlation function.
         PMFT (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`): The potential of mean force and torque.
@@ -132,7 +132,7 @@ cdef class PMFTR12(_PMFT):
         histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
                                                         calculate the local
                                                         density
@@ -197,7 +197,7 @@ cdef class PMFTR12(_PMFT):
         Will overwrite the current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
                                                         calculate the local
                                                         density
@@ -326,7 +326,7 @@ cdef class PMFTR12(_PMFT):
         """Get the number of bins in the r-dimension of histogram.
 
         Returns:
-            unsigned int: math:`N_r`
+            unsigned int: :math:`N_r`
         """
         cdef unsigned int r = self.pmftr12ptr.getNBinsR()
         return r
@@ -339,7 +339,7 @@ cdef class PMFTR12(_PMFT):
         """Get the number of bins in the T1-dimension of histogram.
 
         Returns:
-            unsigned int: math:`N_{\\theta_1}`
+            unsigned int: :math:`N_{\\theta_1}`
         """
         cdef unsigned int T1 = self.pmftr12ptr.getNBinsT1()
         return T1
@@ -352,7 +352,7 @@ cdef class PMFTR12(_PMFT):
         """Get the number of bins in the T2-dimension of histogram.
 
         Returns:
-            unsigned int: math:`N_{\\theta_2}`
+            unsigned int: :math:`N_{\\theta_2}`
         """
         cdef unsigned int T2 = self.pmftr12ptr.getNBinsT2()
         return T2
@@ -379,7 +379,7 @@ cdef class PMFTXYT(_PMFT):
         n_t (unsigned int): number of bins in t
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): Bin counts.
         PCF (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): The positional correlation function.
         PMFT (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): The potential of mean force and torque.
@@ -409,7 +409,7 @@ cdef class PMFTXYT(_PMFT):
         current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
                                                         calculate the local
                                                         density
@@ -471,7 +471,7 @@ cdef class PMFTXYT(_PMFT):
         Will overwrite the current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
                                                         calculate the local
                                                         density
@@ -593,7 +593,7 @@ cdef class PMFTXYT(_PMFT):
         """Get the number of bins in the x-dimension of histogram.
 
         Returns:
-          unsigned int: math:`N_x`
+          unsigned int: :math:`N_x`
         """
         cdef unsigned int x = self.pmftxytptr.getNBinsX()
         return x
@@ -606,7 +606,7 @@ cdef class PMFTXYT(_PMFT):
         """Get the number of bins in the y-dimension of histogram.
 
         Returns:
-          unsigned int: math:`N_y`
+          unsigned int: :math:`N_y`
         """
         cdef unsigned int y = self.pmftxytptr.getNBinsY()
         return y
@@ -619,7 +619,7 @@ cdef class PMFTXYT(_PMFT):
         """Get the number of bins in the t-dimension of histogram.
 
         Returns:
-          unsigned int: math:`N_{\\theta}`
+          unsigned int: :math:`N_{\\theta}`
         """
         cdef unsigned int t = self.pmftxytptr.getNBinsT()
         return t
@@ -646,7 +646,7 @@ cdef class PMFTXY2D(_PMFT):
         n_y (unsigned int): number of bins in y
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         bin_counts (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): Bin counts.
         PCF (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): The positional correlation function.
         PMFT (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): The potential of mean force and torque.
@@ -674,7 +674,7 @@ cdef class PMFTXY2D(_PMFT):
         histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
                                                         calculate the local
                                                         density
@@ -739,7 +739,7 @@ cdef class PMFTXY2D(_PMFT):
         Will overwrite the current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
                                                         calculate the local
                                                         density
@@ -831,7 +831,7 @@ cdef class PMFTXY2D(_PMFT):
         """Get the number of bins in the x-dimension of histogram.
 
         Returns:
-            unsigned int: math:`N_x`
+            unsigned int: :math:`N_x`
         """
         cdef unsigned int x = self.pmftxy2dptr.getNBinsX()
         return x
@@ -844,7 +844,7 @@ cdef class PMFTXY2D(_PMFT):
         """Get the number of bins in the y-dimension of histogram.
 
         Returns:
-            unsigned int: math:`N_y`
+            unsigned int: :math:`N_y`
         """
         cdef unsigned int y = self.pmftxy2dptr.getNBinsY()
         return y
@@ -886,7 +886,7 @@ cdef class PMFTXYZ(_PMFT):
         shiftvec (list): vector pointing from [0,0,0] to the center of the PMFT
 
     Attributes:
-        box (:py:class:`freud.box.Box()`): Box used in the calculation
+        box (:py:class:`freud.box.Box`): Box used in the calculation
         bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): Bin counts.
         PCF (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): The positional correlation function.
         PMFT (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`): The potential of mean force and torque.
@@ -927,7 +927,7 @@ cdef class PMFTXYZ(_PMFT):
         current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
                                                         calculate the local
                                                         density
@@ -1057,7 +1057,7 @@ cdef class PMFTXYZ(_PMFT):
         Will overwrite the current histogram.
 
         Args:
-            box (:class:`freud.box:Box`): simulation box
+            box (:class:`freud.box.Box`): simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
                                                         calculate the local
                                                         density
@@ -1192,7 +1192,7 @@ cdef class PMFTXYZ(_PMFT):
         """Get the number of bins in the x-dimension of histogram.
 
         Returns:
-           unsigned int: math:`N_x`
+           unsigned int: :math:`N_x`
         """
         cdef unsigned int x = self.pmftxyzptr.getNBinsX()
         return x
@@ -1205,7 +1205,7 @@ cdef class PMFTXYZ(_PMFT):
         """Get the number of bins in the y-dimension of histogram.
 
         Returns:
-            unsigned int: math:`N_y`
+            unsigned int: :math:`N_y`
         """
         cdef unsigned int y = self.pmftxyzptr.getNBinsY()
         return y
@@ -1218,7 +1218,7 @@ cdef class PMFTXYZ(_PMFT):
         """Get the number of bins in the z-dimension of histogram.
 
         Returns:
-            unsigned int: math:`N_z`
+            unsigned int: :math:`N_z`
         """
         cdef unsigned int z = self.pmftxyzptr.getNBinsZ()
         return z
