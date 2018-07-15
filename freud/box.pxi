@@ -7,6 +7,7 @@ from collections import namedtuple
 from freud.util._VectorMath cimport vec3
 from libcpp.string cimport string
 from libc.string cimport memcpy
+from cpython.object cimport Py_EQ, Py_NE
 cimport freud._box as box
 cimport numpy as np
 
@@ -476,8 +477,17 @@ cdef class Box:
                 "xz={xz}, yz={yz}, dimensions={dimensions})").format(
                     cls=type(self).__name__, **self.to_dict())
 
-    def __eq__(self, other):
+    def _eq(self, other):
         return self.to_dict() == other.to_dict()
+
+    def __richcmp__(self, other, int op):
+        """Implement all comparisons for Cython extension classes"""
+        if op == Py_EQ:
+            return self._eq(other)
+        if op == Py_NE:
+            return not self._eq(other)
+        else:
+            raise NotImplementedError("This comparison is not implemented")
 
     @classmethod
     def from_box(cls, box, dimensions=None):
