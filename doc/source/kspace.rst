@@ -20,7 +20,6 @@ KSpace Module
     freud.kspace.AlignedBoxConstraint
     freud.kspace.DeltaSpot
     freud.kspace.GaussianSpot
-    freud.kspace.InterpolatedDeltaSpot
     freud.kspace.meshgrid2
     freud.kspace.rotate
     freud.kspace.quatrot

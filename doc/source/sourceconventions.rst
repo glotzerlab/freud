@@ -158,9 +158,8 @@ Documentation Comments
 ----------------------
 
 -  Documentation is generated using `sphinx <http://www.sphinx-doc.org/en/stable/index.html>`_
--  The documentation should be written according to the `Google Python Style Guide
-  <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.
-   A few specific notes:
+-  The documentation should be written according to the `Google Python Style Guide <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.
+-  A few specific notes:
 
    - The shapes of NumPy arrays should be documented as part of the type in the
      following manner `points ((N, 4) (:py:class:np.ndarray)): The points...`.

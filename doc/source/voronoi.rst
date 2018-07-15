@@ -7,12 +7,10 @@ Voronoi Module
 .. autosummary::
     :nosignatures:
 
-    freud.voronoi.VoronoiBuffer
+    freud.voronoi.Voronoi
 
 .. rubric:: Details
 
 .. automodule:: freud.voronoi
     :synopsis: Characterize Voronoi cells
-
-.. automodule:: freud.voronoi
     :members:

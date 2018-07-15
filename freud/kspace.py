@@ -833,9 +833,9 @@ class FTdelta(FTbase):
             scale (float): scale
 
         .. note::
-        For a scale factor, :math:`\\lambda`, affecting the scattering
-        density :math:`\\rho\\left(r\\right)`, :math:`S_{\\lambda}\\left
-        (k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`
+            For a scale factor, :math:`\\lambda`, affecting the scattering
+            density :math:`\\rho\\left(r\\right)`, :math:`S_{\\lambda}\\left
+            (k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`
         """
         FTbase.set_scale(self, scale)
         # self.FTobj.set_scale(float(self.scale))

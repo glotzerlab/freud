@@ -14,8 +14,6 @@ Parallel Module
 
 .. automodule:: freud.parallel
     :synopsis: Manage TBB thread usage
-
-.. automodule:: freud.parallel
     :members:
 
     .. automethod:: freud.parallel.setNumThreads
