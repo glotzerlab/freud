@@ -310,3 +310,6 @@ nitpick_ignore = [("py:obj", "numpy.dtype"),
                   ("py:class", "numpy.complex64"),
                   ("py:class", "numpy.complex128"),
                   ("py:obj", "unsigned int")]
+
+# Make class attributes show on single line
+napoleon_use_ivar = True

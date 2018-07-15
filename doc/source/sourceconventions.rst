@@ -145,10 +145,13 @@ If you are unsure if your code is PEP 8 compliant, you can use autopep8
 and flake8 (or similar) to automatically update and check your code.
 
 
-Semicolons
-----------
+Source
+------
 
-Semicolons should not be used to mark the end of lines in Python.
+- All code should be contained in Cython files
+- Python .py files are reserved for module level docstrings and minor
+  miscellaneous tasks for, *e.g*, backwards compatibility.
+- Semicolons should not be used to mark the end of lines in Python.
 
 
 Documentation Comments
@@ -159,25 +162,24 @@ Documentation Comments
   <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.
    A few specific notes:
 
-   - Details for NumPy arrays or lists, such as their specific shapes, should be
-     documented as part of the description, not within the type specification.
-     For example, `rmax (:py:class:np.ndarray): An array of shape (N, 4)
--  Documentation should be included at the Python-level in the Cython
-   wrapper.
--  Every class, member variable, function, function parameter, macro,
-   etc. must be documented with *Python docstring* comments which will
-   be converted to documentation with sphinx.
--  If you copy an existing file as a template, do not leave the
-   existing documentation comments there. They apply to the original
-   file, not your new one!
--  The best advice that can be given is to write the documentation
-   comments *first* and the actual code *second*. This allows one to
-   formulate their thoughts and write out in English what the code is
-   going to be doing. After thinking through that, writing the actual
-   code is often *much easier*, plus the documentation left for future
-   developers to read is top-notch.
+   - The shapes of NumPy arrays should be documented as part of the type in the
+     following manner `points ((N, 4) (:py:class:np.ndarray)): The points...`.
+   - Constructors should be documented at the class level.
+   - Class attributes (*including properties*) should be documented as class
+     attributes within the class-level docstring.
+   - Optional arguments should be documented as such within the type after the
+     actual type, and the default value should be included within the
+     description *e.g.*, `r_max (float, optional): ... If None (the default),
+     number is inferred...`.
+   - Properties that are settable should be documented the same way as optional
+     arguments: `Lx (float, settable): Length in x`.
+    
+-  All docstrings should be contained within the Cython files except module
+   docstrings, which belong in the Python code
+-  If you copy an existing file as a template, **make sure to modify the comments
+   to reflect the new file**.
 -  Good documentation comments are best demonstrated with an in-code
-   example.
+   example. Liberal addition of examples is encouraged.
 
 CPP
 ===

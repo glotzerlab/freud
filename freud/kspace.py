@@ -21,11 +21,10 @@ def meshgrid2(*arrs):
     source: http://stackoverflow.com/questions/1827489/numpy-meshgrid-in-3d
 
     Args:
-      arrs (list): Arrays to meshgrid
+        arrs (list): Arrays to meshgrid
 
     Returns:
-      class:`tuple`: tuple of arrays
-
+        :class:`tuple`: tuple of arrays
     """
     arrs = tuple(reversed(arrs))
     lens = list(map(len, arrs))
@@ -116,10 +115,7 @@ class SFactor3DPoints:
         :py:meth:`~.SFactor3DPoints.getQ()`.
 
         Args:
-          points(:class:`numpy.ndarray`,
-                shape=(:math:`N_{particles}`, 3),
-                dtype= :class:`numpy.float32`): points used to compute the static structure factor
-
+            points((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points used to compute the static structure factor
         """
         # clear s_complex to zero
         self.s_complex[:, :, :] = 0
@@ -141,10 +137,7 @@ class SFactor3DPoints:
         """Get the computed static structure factor.
 
         Returns:
-          :class:`numpy.ndarray`,
-          shape=(X,Y),
-          dtype= :class:`numpy.float32`: The computed static structure factor as a copy
-
+           (X,Y) :class:`numpy.ndarray`: The computed static structure factor as a copy
         """
         return (self.s_complex * np.conj(self.s_complex)).astype(
             np.float32)
@@ -154,11 +147,8 @@ class SFactor3DPoints:
         information).
 
         Returns:
-          :class:`numpy.ndarray`,
-          shape=(X,Y),
-          dtype= :class:`numpy.complex64`: The computed static structure factor, as a copy, without
-          taking the magnitude squared
-
+            (X,Y) :class:`numpy.ndarray`: The computed static structure factor, as a copy, without
+                                          taking the magnitude squared
         """
         return copy.cpy(self.s_complex)
 
@@ -170,8 +160,7 @@ class SFactor3DPoints:
         qz\\left[c\\right]\\right)`.
 
         Returns:
-          class:`tuple`: (qx, qy, qz)
-
+            tuple: (qx, qy, qz)
         """
         return (self.qx, self.qy, self.qz)
 
@@ -202,7 +191,6 @@ class AnalyzeSFactor3D:
 
     Args:
         S (:class:`numpy.ndarray`): Static structure factor to analyze
-
     """
 
     def __init__(self, S):
@@ -219,7 +207,7 @@ class AnalyzeSFactor3D:
         be counted as peaks
 
         Returns:
-          class:`list`: peaks, :math:`q` as lists
+          :class:`list`: peaks, :math:`q` as lists
 
         """
         clist, blist, alist = (self.S > cut).nonzero()
@@ -242,9 +230,8 @@ class AnalyzeSFactor3D:
         be counted as peaks
 
         Returns:
-          class:`dict`: a dictionary with keys :math:`q^2` and a
-                        list of peaks for the corresponding values
-
+            `dict`: a dictionary with keys :math:`q^2` and a
+                    list of peaks for the corresponding values
         """
         q_list, peak_list = self.getPeakList(cut)
 
@@ -263,8 +250,7 @@ class AnalyzeSFactor3D:
         :math:`q^2`.
 
         Returns:
-          :class:`numpy.ndarray`: S, qsquared
-
+            :class:`numpy.ndarray`: S, qsquared
         """
         hx = range(-self.g, self.g + 1)
 
@@ -317,7 +303,6 @@ class SingleCell3D:
           computation such as when changing multiple parameters before
           seeking output or when wrapping the code with an interface
           with an event queue.
-
     """
 
     def __init__(self, k=1800, ndiv=16, dK=0.01, boxMatrix=None,
@@ -379,8 +364,7 @@ class SingleCell3D:
         before FT can be performed.
 
         Args:
-          name (str): particle name
-
+            name (str): particle name
         """
         if name in self.ptype_name:
             raise Warning('{name} already exists'.format(name=name))
@@ -396,13 +380,12 @@ class SingleCell3D:
         """Remove internal data structures associated with ptype :code:`name`.
 
         Args:
-          name(str): Particle type to remove
+            name(str): Particle type to remove
 
         .. note::
             This shouldn't usually be necessary, since particle types may be
             set inactive or have any of their properties updated through
             `set_` methods.): particle name
-
         """
         i = self.ptype_name.index(name)
         if i in self.active_types:
@@ -421,8 +404,7 @@ class SingleCell3D:
         """Set particle type active.
 
         Args:
-          name(str): particle name
-
+            name(str): particle name
         """
         i = self.ptype_name.index(name)
         if i not in self.active_types:
@@ -433,8 +415,7 @@ class SingleCell3D:
         """Set particle type inactive.
 
         Args:
-          name(str): particle name
-
+            name(str): particle name
         """
         i = self.ptype_name.index(name)
         if i in self.active_types:
@@ -445,8 +426,7 @@ class SingleCell3D:
         """Get ordered list of particle names.
 
         Returns:
-          class:`list`: list of particle names
-
+            list: list of particle names
         """
         return self.ptype_name
 
@@ -454,8 +434,7 @@ class SingleCell3D:
         """Get form factor names and indices.
 
         Returns:
-          class:`list`: list of factor names and indices
-
+            list: list of factor names and indices
         """
         return self.fffactory.getFTlist()
 
@@ -463,10 +442,9 @@ class SingleCell3D:
         """Set scattering form factor.
 
         Args:
-          name (str): particle type name
-          ff (str): scattering form factor named in
-                    :py:meth:`~.SingleCell3D.get_form_factors()`
-
+            name (str): particle type name
+            ff (str): scattering form factor named in
+                      :py:meth:`~.SingleCell3D.get_form_factors()`
         """
         i = self.ptype_name.index(name)
         j = self.fffactory.getFTlist().index(ff)
@@ -487,10 +465,9 @@ class SingleCell3D:
         """Set named parameter for named particle.
 
         Args:
-          particle (str): particle name
-          param (str): parameter name
-          value (float): parameter value
-
+            particle (str): particle name
+            param (str): parameter name
+            value (float): parameter value
         """
         i = self.ptype_name.index(particle)
         FTobj = self.ptype_ff[i]
@@ -508,8 +485,7 @@ class SingleCell3D:
         """Set scale factor. Store global value and set for each particle type.
 
         Args:
-          scale (float): nm per unit for input file coordinates
-
+            scale (float): nm per unit for input file coordinates
         """
         self.scale = np.float32(scale)
         for i in range(len(self.ptype_ff)):
@@ -520,10 +496,7 @@ class SingleCell3D:
         """Set box matrix.
 
         Args:
-          boxMatrix(:class:`numpy.ndarray`,
-                    shape=(3, 3),
-                    dtype= :class:`numpy.float32`): unit cell box matrix
-
+            boxMatrix ((3, 3) :class:`numpy.ndarray`): unit cell box matrix
         """
         self.boxMatrix = np.array(boxMatrix)
         self.bases_valid = False
@@ -535,10 +508,9 @@ class SingleCell3D:
         particles, position and orientation are updated in a single method.
 
         Args:
-          name: particle type name
-          position: (N,3) array of particle positions
-          orientation: (N,4) array of particle quaternions
-
+            name (str): particle type name
+            position: (N,3) array of particle positions
+            orientation: (N,4) array of particle quaternions
         """
         i = self.ptype_name.index(name)
         r = np.asarray(position, dtype=np.float32)
@@ -562,8 +534,7 @@ class SingleCell3D:
         """Set number of grid divisions in diffraction image.
 
         Args:
-          ndiv(int): define diffraction image as ndiv x ndiv grid
-
+            ndiv  (int): define diffraction image as ndiv x ndiv grid
         """
         self.ndiv = int(ndiv)
         self.K_constraint_valid = False
@@ -572,9 +543,8 @@ class SingleCell3D:
         """Set grid spacing in diffraction image.
 
         Args:
-          dK(float): difference in :math:`K` vector between two adjacent
-        diffraction image grid points
-
+            dK (float): difference in :math:`K` vector between two adjacent
+                diffraction image grid points
         """
         self.dK = np.float32(dK)
         self.K_constraint_valid = False
@@ -583,8 +553,7 @@ class SingleCell3D:
         """Set angular wave number of plane wave probe.
 
         Args:
-          k (float): :math:`\\left|k_0\\right|`
-
+            k (float): :math:`\\left|k_0\\right|`
         """
         self.k = np.float32(k)
 
@@ -597,7 +566,6 @@ class SingleCell3D:
 
         .. todo::
             call automatically if scale, boxMatrix updated
-
         """
         self.bases_valid = True
         # Calculate scaled lattice vectors
@@ -614,7 +582,6 @@ class SingleCell3D:
         The constraint used is a slab of epsilon thickness in a plane
         perpendicular to the :math:`k_0` propagation, intended to provide easy
         emulation of TEM or relatively high-energy scattering.
-
         """
         self.K_constraint_valid = True
         self.Kmax = np.float32(self.dK * self.ndiv)
@@ -631,7 +598,6 @@ class SingleCell3D:
         .. note::
             If the diffraction image dimensions change relative to the
             reciprocal lattice, the :math:`K` points need to be recalculated.
-
         """
         self.Kpoints_valid = True
         self.Kpoints = np.float32(constrainedLatticePoints(
@@ -650,7 +616,6 @@ class SingleCell3D:
         words, type-dependent parameters are optional (depending on the set of
         form factors being calculated), but if included must be defined for all
         particle types.
-
         """
         self.FT_valid = True
         shape = (len(self.Kpoints),)
@@ -666,8 +631,6 @@ class FTfactory:
     """Factory to return an FT object of the requested type."""
 
     def __init__(self):
-        """Constructor.
-        """
         self.name_list = ['Delta']
         self.constructor_list = [FTdelta]
         self.args_list = [None]
@@ -676,8 +639,7 @@ class FTfactory:
         """Get an ordered list of named FT types.
 
         Returns:
-          class:`list`: list of FT names
-
+            list: list of FT names
         """
         return self.name_list
 
@@ -686,10 +648,9 @@ class FTfactory:
         :py:meth:`~.FTfactory.getFTlist()`.
 
         Args:
-          i (int): index into list returned by :py:meth:`~.FTfactory.getFTlist()`
-          args: argument object used to initialize FT, overriding default
-                set at :py:meth:`~.FTfactory.addFT()`
-
+            i (int): index into list returned by :py:meth:`~.FTfactory.getFTlist()`
+            args: argument object used to initialize FT, overriding default
+                  set at :py:meth:`~.FTfactory.addFT()`
         """
         constructor = self.constructor_list[i]
         if args is None:
@@ -700,12 +661,11 @@ class FTfactory:
         """Add an FT class to the factory.
 
         Args:
-          name (str): identifying string to be returned by getFTlist()
-          constructor (str): class / function name to be used to create new FT
-                             objects
-          args (list): set default argument object to be used to construct FT
-                       objects
-
+            name (str): identifying string to be returned by getFTlist()
+            constructor (str): class / function name to be used to create new FT
+                               objects
+            args (list): set default argument object to be used to construct FT
+                         objects
         """
         if name in self.name_list:
             raise Warning('{name} already in factory'.format(name=name))
@@ -719,8 +679,6 @@ class FTbase:
     """Base class for FT calculation classes."""
 
     def __init__(self, *args, **kwargs):
-        """Constructor
-        """
         self.scale = np.float32(1.0)
         self.density = np.complex64(1.0)
         self.S = None
@@ -743,8 +701,7 @@ class FTbase:
         """Return Fourier Transform.
 
         Returns:
-          :class:`numpy.ndarray`: Fourier Transform
-
+            :class:`numpy.ndarray`: Fourier Transform
         """
         return self.S
 
@@ -753,8 +710,7 @@ class FTbase:
         :py:meth:`~.FTbase.set_parambyname()`.
 
         Returns:
-          class:`list`: parameter names
-
+            list: parameter names
         """
         return self.set_param_map.keys()
 
@@ -762,12 +718,9 @@ class FTbase:
         """Set named parameter for object.
 
         Args:
-          str: name: parameter name. Must exist in list returned by
-        :py:meth:`~.FTbase.get_params()`
-          float: value: parameter value to set
-          name:
-          value:
-
+            name (str): parameter name. Must exist in list returned by
+                      :py:meth:`~.FTbase.get_params()`
+            value (float): parameter value to set
         """
         if name not in self.set_param_map.keys():
             msg = 'Object {type} does not have parameter {param}'.format(
@@ -780,12 +733,11 @@ class FTbase:
         """Get named parameter for object.
 
         Args:
-          name (str): parameter name. Must exist in list returned by
-                      :py:meth:`~.FTbase.get_params()`
+            name (str): parameter name. Must exist in list returned by
+                        :py:meth:`~.FTbase.get_params()`
 
         Returns:
-          float: parameter value
-
+            float: parameter value
         """
         if name not in self.get_param_map.keys():
             msg = 'Object {type} does not have parameter {param}'.format(
@@ -798,8 +750,7 @@ class FTbase:
         """Set :math:`K` points to be evaluated.
 
         Args:
-          K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
-
+            K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
         """
         self.K = np.asarray(K, dtype=np.float32)
 
@@ -807,8 +758,7 @@ class FTbase:
         """Set scale.
 
         Args:
-          scale (float): scale
-
+            scale (float): scale
         """
         self.scale = np.float32(scale)
 
@@ -816,8 +766,7 @@ class FTbase:
         """Get scale.
 
         Returns:
-          float: scale
-
+            float: scale
         """
         return self.scale
 
@@ -825,8 +774,7 @@ class FTbase:
         """Set density.
 
         Args:
-          density (:class:`numpy.complex64`): density
-
+            density (:class:`numpy.complex64`): density
         """
         self.density = np.complex64(density)
 
@@ -834,7 +782,7 @@ class FTbase:
         """Get density.
 
         Returns:
-          :class:`numpy.complex64`: density
+            :class:`numpy.complex64`: density
 
         Todo::
             Why does this take an argument??
@@ -845,9 +793,8 @@ class FTbase:
         """Set :math:`r`, :math:`q` values.
 
         Args:
-          r (float): math:`r`
-          q (float): math:`q`
-
+            r (float): math:`r`
+            q (float): math:`q`
         """
         self.position = np.asarray(r, dtype=np.float32)
         self.orientation = np.asarray(q, dtype=np.float32)
@@ -869,8 +816,6 @@ class FTdelta(FTbase):
     """Fourier transform a list of delta functions."""
 
     def __init__(self, *args, **kwargs):
-        """Constructor
-        """
         FTbase.__init__(self)
         self.FTobj = _FTdelta()
 
@@ -878,8 +823,7 @@ class FTdelta(FTbase):
         """Set :math:`K` points to be evaluated.
 
         Args:
-          K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
-
+            K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
         """
         FTbase.set_K(self, K)
         self.FTobj.set_K(self.K * self.scale)
@@ -888,14 +832,12 @@ class FTdelta(FTbase):
         """Set scale.
 
         Args:
-          scale (float): scale
+            scale (float): scale
 
         .. note::
         For a scale factor, :math:`\\lambda`, affecting the scattering
         density :math:`\\rho\\left(r\\right)`, :math:`S_{\\lambda}\\left
         (k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`
-          scale:
-
         """
         FTbase.set_scale(self, scale)
         # self.FTobj.set_scale(float(self.scale))
@@ -905,8 +847,7 @@ class FTdelta(FTbase):
         """Set density.
 
         Args:
-          density(:class:`numpy.complex64`): density
-
+            density(:class:`numpy.complex64`): density
         """
         FTbase.set_density(self, density)
         self.FTobj.set_density(complex(self.density))
@@ -915,9 +856,8 @@ class FTdelta(FTbase):
         """Set :math:`r`, :math:`q` values.
 
         Args:
-          r (float): math:`r`
-          q (float): math:`q`
-
+            r (float): math:`r`
+            q (float): math:`q`
         """
         FTbase.set_rq(self, r, q)
         self.FTobj.set_rq(self.position, self.orientation)
@@ -927,7 +867,6 @@ class FTdelta(FTbase):
 
         Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
         \\mathbf{r}_{\\alpha}}`
-
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
@@ -939,12 +878,9 @@ class FTsphere(FTdelta):
 
     Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
     \\mathbf{r}_{\\alpha}}`
-
     """
 
     def __init__(self, *args, **kwargs):
-        """Constructor
-        """
         FTbase.__init__(self, *args, **kwargs)
         self.FTobj = _FTsphere()
         self.set_param_map['radius'] = self.set_radius
@@ -956,8 +892,7 @@ class FTsphere(FTdelta):
 
         Args:
           radius (float): sphere radius will be stored as given, but scaled
-        by scale parameter when used by methods
-
+                          by scale parameter when used by methods
         """
         self.radius = float(radius)
         self.FTobj.set_radius(self.radius)
@@ -970,7 +905,6 @@ class FTsphere(FTdelta):
 
         Returns:
           float: unscaled radius
-
         """
         self.radius = self.FTobj.get_radius()
         return self.radius
@@ -980,8 +914,6 @@ class FTpolyhedron(FTbase):
     """Fourier Transform for polyhedra."""
 
     def __init__(self, *args, **kwargs):
-        """Constructor
-        """
         FTbase.__init__(self, *args, **kwargs)
         self.FTobj = _FTpolyhedron()
         self.set_param_map['radius'] = self.set_radius
@@ -991,8 +923,7 @@ class FTpolyhedron(FTbase):
         """Set :math:`K` points to be evaluated.
 
         Args:
-          K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
-
+            K (:class:`numpy.ndarray`): list of :math:`K` vectors at which to evaluate FT
         """
         FTbase.set_K(self, K)
         self.FTobj.set_K(self.K * self.scale)
@@ -1001,9 +932,8 @@ class FTpolyhedron(FTbase):
         """Set :math:`r`, :math:`q` values.
 
         Args:
-          r (float): math:`r`
-          q (float): math:`q`
-
+            r (float): math:`r`
+            q (float): math:`q`
         """
         FTbase.set_rq(self, r, q)
         self.FTobj.set_rq(self.position, self.orientation)
@@ -1012,8 +942,7 @@ class FTpolyhedron(FTbase):
         """Set density.
 
         Args:
-          density(:class:`numpy.complex64`): density
-
+            density(:class:`numpy.complex64`): density
         """
         FTbase.set_density(self, density)
         self.FTobj.set_density(complex(self.density))
@@ -1022,23 +951,12 @@ class FTpolyhedron(FTbase):
         """Construct list of facet offsets.
 
         Args:
-          verts (:class:`numpy.ndarray`,
-                 shape=(:math:`N_{particles}`, 3),
-                 dtype= :class:`numpy.float32`): vertex coordinates
-          facets (:class:`numpy.ndarray`,
-                  shape=(:math:`N_{facets}`, 3),
-                  dtype= :class:`numpy.float32`): facet vertex indices
-          norms (:class:`numpy.ndarray`,
-                 shape=(:math:`N_{facets}`, 3),
-                 dtype= :class:`numpy.float32`): facet normals
-          d (:class:`numpy.ndarray`,
-             shape=(:math:`N_{facets}-1`),
-             dtype= :class:`numpy.float32`): facet distances
-          area (:class:`numpy.ndarray`,
-                shape=(:math:`N_{facets}-1`),
-                dtype= :class:`numpy.float32`): facet areas
-          volume (float): polyhedron volume
-
+            verts ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): vertex coordinates
+            facets ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`): facet vertex indices
+            norms ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`): facet normals
+            d ((:math:`N_{facets}-1`) :class:`numpy.ndarray`): facet distances
+            area ((:math:`N_{facets}-1`) :class:`numpy.ndarray`): facet areas
+            volume (float): polyhedron volume
         """
         facet_offs = np.zeros((len(facets) + 1), dtype=np.uint32)
         for i, f in enumerate(facets):
@@ -1051,9 +969,8 @@ class FTpolyhedron(FTbase):
         """Set radius of in-sphere.
 
         Args:
-          radius (float): radius inscribed sphere radius without scale
+            radius (float): radius inscribed sphere radius without scale
         applied
-
         """
         # Find original in-sphere radius, determine necessary scale factor, and
         # scale vertices and surface distances
@@ -1067,8 +984,7 @@ class FTpolyhedron(FTbase):
         :code:`get_parambyname('scale')` for interpretation.
 
         Returns:
-          float: unscaled radius
-
+            float: unscaled radius
         """
         # Find current in-sphere radius
         inradius = self.hull.getInsphereRadius()
@@ -1079,7 +995,6 @@ class FTpolyhedron(FTbase):
 
         Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
         \\mathbf{r}_{\\alpha}}`
-
         """
         self.FTobj.compute()
         self.S = self.FTobj.getFT() * self.scale**3
@@ -1090,9 +1005,7 @@ class FTconvexPolyhedron(FTpolyhedron):
     """Fourier Transform for convex polyhedra.
 
     Args:
-        hull (:class:`numpy.ndarray`,
-              shape=(:math:`N_{verts}`, 3),
-              dtype= :class:`numpy.float32`): convex hull object
+        hull ((:math:`N_{verts}`, 3) :class:`numpy.ndarray`): convex hull object
     """
 
     def __init__(self, hull, *args, **kwargs):
@@ -1116,8 +1029,7 @@ class FTconvexPolyhedron(FTpolyhedron):
         """Set radius of in-sphere.
 
         Args:
-          radius (float): radius inscribed sphere radius without scale applied
-
+            radius (float): radius inscribed sphere radius without scale applied
         """
         # Find original in-sphere radius, determine necessary scale factor,
         # and scale vertices and surface distances
@@ -1131,8 +1043,7 @@ class FTconvexPolyhedron(FTpolyhedron):
         get_parambyname('scale') for interpretation.
 
         Returns:
-          float: unscaled radius
-
+            float: unscaled radius
         """
         # Find current in-sphere radius
         inradius = self.hull.getInsphereRadius()
@@ -1171,10 +1082,9 @@ class FTconvexPolyhedron(FTpolyhedron):
         """Calculate Fourier transform of polygon.
 
         Args:
-          i (float): face index into self.hull simplex list
-          k (:class:`np.array`): angular wave vector at which to calculate
-        :math:`S\\left(i\\right)`
-
+            i (float): face index into self.hull simplex list
+            k (:class:`np.array`): angular wave vector at which to calculate
+                                   :math:`S\\left(i\\right)`
         """
         if np.dot(k, k) == 0.0:
             S = self.hull.getArea(i) * self.scale**2
@@ -1203,9 +1113,8 @@ class FTconvexPolyhedron(FTpolyhedron):
         """Calculate Fourier transform of polyhedron.
 
         Args:
-          k(int): angular wave vector at which to calculate
-        :math:`S\\left(i\\right)`
-
+            k (int): angular wave vector at which to calculate
+                    :math:`S\\left(i\\right)`
         """
         if np.dot(k, k) == 0.0:
             S = self.hull.getVolume() * self.scale**3
@@ -1228,10 +1137,9 @@ def rotate(v, u, theta):
     """Axis-angle rotation
 
     Args:
-      v (np.array): Vector to rotate
-      u (np.array): Rotation axis
-      theta (float): Rotation angle
-
+        v (np.array): Vector to rotate
+        u (np.array): Rotation axis
+        theta (float): Rotation angle
     """
     v = np.array(v)  # need an actual array and not a view
     u = np.array(u)
@@ -1258,9 +1166,8 @@ def quatrot(a, b):
     """Apply a rotation quaternion.
 
     Args:
-      b (np.array): Vector to be rotated
-      a (np.array): Rotation quaternion
-
+        b (np.array): Vector to be rotated
+        a (np.array): Rotation quaternion
     """
     s = a[0]
     v = a[1:4]
@@ -1275,7 +1182,6 @@ class Constraint:
     Base class for constraints on vectors to define the API. All constraints
     should have a 'radius' defining a bounding sphere and a 'satisfies' method
     to determine whether an input vector satisfies the constraint.
-
     """
 
     def __init__(self, R, *args, **kwargs):
@@ -1290,9 +1196,7 @@ class Constraint:
         """Constraint test.
 
         Args:
-          v (:class:`numpy.ndarray`,
-             shape=(3),
-             dtype= :class:`numpy.float32`): vector to test against constraint
+            v ((3) :class:`numpy.ndarray`): vector to test against constraint
 
         """
         return True
@@ -1310,8 +1214,9 @@ class AlignedBoxConstraint(Constraint):
     def __init__(self, R, *args, **kwargs):
         """Constructor.
 
-        R (float): required parameter describes the circumsphere of influence of
-                    the constraint for quick tests
+        Args:
+            R (float): required parameter describes the circumsphere of influence of
+                        the constraint for quick tests
         """
         self.radius = R
         self.R2 = R * R
@@ -1323,10 +1228,7 @@ class AlignedBoxConstraint(Constraint):
         """Constraint test.
 
         Args:
-          v (:class:`numpy.ndarray`,
-             shape=(3),
-             dtype= :class:`numpy.float32`): vector to test against constraint
-
+            v ((3) :class:`numpy.ndarray`): vector to test against constraint
         """
         satisfied = False
         if np.dot(v, v) <= self.R2:
@@ -1341,11 +1243,10 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
     """Generate a list of points satisfying a constraint.
 
     Args:
-      v1 (np.array): lattice vector 1 along which to test points
-      v2 (np.array): lattice vector 2 along which to test points
-      v3 (np.array): lattice vector 3 along which to test points
-      constraint (:py:class:`Constraint`): constraint object to test lattice points against
-
+        v1 (np.array): lattice vector 1 along which to test points
+        v2 (np.array): lattice vector 2 along which to test points
+        v3 (np.array): lattice vector 3 along which to test points
+        constraint (:py:class:`Constraint`): constraint object to test lattice points against
     """
     # Find shortest distance, G, possible with lattice vectors
     # See how many G, nmax, fit in bounding box radius R
@@ -1393,16 +1294,15 @@ def reciprocalLattice3D(a1, a2, a3):
     3D reciprocal lattice vectors with magnitude equal to angular wave number.
 
     Args:
-      a1 (np.array): real space lattice vector 1
-      a2 (np.array): real space lattice vector 2
-      a3 (np.array): real space lattice vector 3
+        a1 (np.array): real space lattice vector 1
+        a2 (np.array): real space lattice vector 2
+        a3 (np.array): real space lattice vector 3
 
     Returns:
-      class:`list`: Reciprocal space vectors
+        list: Reciprocal space vectors
 
     .. note::
         For unit test, :code:`dot(g[i], a[j]) = 2 * pi * diracDelta(i, j)`: list of reciprocal lattice vectors
-
     """
     a1 = np.asarray(a1)
     a2 = np.asarray(a2)
@@ -1424,18 +1324,11 @@ class DeltaSpot:
     subgrid. Spot is a single pixel at the closest grid point.
 
     Args:
-        shape (:class:`numpy.ndarray`,
-               shape=(2),
-               dtype= :class:`numpy.int32`): number of grid points in each dimension
-        extent (:class:`numpy.ndarray`,
-                shape=(2),
-                dtype= :class:`numpy.float32`): range of x,y values associated with grid points
+        shape ((2) :class:`numpy.ndarray`): number of grid points in each dimension
+        extent ((2) :class:`numpy.ndarray`): range of x,y values associated with grid points
     """
 
     def __init__(self, shape, extent, *args, **kwargs):
-        """Constructor.
-
-        """
         self.shape = shape
         self.extent = extent
         self.dx = np.float32(extent[1] - extent[0]) / (shape[0] - 1)
@@ -1446,11 +1339,8 @@ class DeltaSpot:
         """Set :math:`x`, :math:`y` values of spot center.
 
         Args:
-          float: x: x value of spot center
-          float: y: y value of spot center
-          x:
-          y:
-
+            x (float): x value of spot center
+            y (float): y value of spot center
         """
         self.x, self.y = np.float32(x), np.float32(y)
         # round to nearest grid point
@@ -1463,7 +1353,6 @@ class DeltaSpot:
 
         Based on the type of spot and its center, return the grid mask of
         points containing the spot
-
         """
         return self.gridPoints
 
@@ -1471,8 +1360,7 @@ class DeltaSpot:
         """Generate intensity value(s) at sub-grid points.
 
         Args:
-          cval (:class:`numpy.complex64`): complex valued amplitude used to generate spot intensity
-
+            cval (:class:`numpy.complex64`): complex valued amplitude used to generate spot intensity
         """
         return (np.conj(cval) * cval).real
 
@@ -1483,12 +1371,8 @@ class GaussianSpot(DeltaSpot):
     Grid points filled according to Gaussian at spot center.
 
     Args:
-        shape (:class:`numpy.ndarray`,
-               shape=(2),
-               dtype= :class:`numpy.int32`): number of grid points in each dimension
-        extent (:class:`numpy.ndarray`,
-                shape=(2),
-                dtype= :class:`numpy.float32`): range of x, y values associated with grid points
+        shape ((2) :class:`numpy.ndarray`): number of grid points in each dimension
+        extent ((2) :class:`numpy.ndarray`): range of x, y values associated with grid points
     """
 
     def __init__(self, shape, extent, *args, **kwargs):
@@ -1506,9 +1390,8 @@ class GaussianSpot(DeltaSpot):
         """Set :math:`x`, :math:`y` values of spot center.
 
         Args:
-          x (float): x value of spot center
-          y (float): y value of spot center
-
+            x (float): x value of spot center
+            y (float): y value of spot center
         """
         self.x, self.y = np.float32(x), np.float32(y)
         # set grid: two index matrices of i and j values
@@ -1539,8 +1422,7 @@ class GaussianSpot(DeltaSpot):
         """Generate intensity value(s) at sub-grid points.
 
         Args:
-          cval (:class:`numpy.complex64`): complex valued amplitude used to generate spot intensity
-
+            cval (:class:`numpy.complex64`): complex valued amplitude used to generate spot intensity
         """
         val = (np.conj(cval) * cval).real
         # calculate gaussian at grid points and multiply by val
@@ -1555,8 +1437,7 @@ class GaussianSpot(DeltaSpot):
         """Define Gaussian.
 
         Args:
-          sigma (float): width of the Gaussian spot
-
+            sigma (float): width of the Gaussian spot
         """
         self.sigma = np.float32(sigma)
         self.ss2 = np.float32(sigma * sigma * 2)

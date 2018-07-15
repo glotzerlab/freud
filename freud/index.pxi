@@ -38,6 +38,9 @@ cdef class Index2D:
         w (unsigned int): width of 2D array (number of columns)
         h (unsigned int): height of 2D array (number of rows)
 
+    Attributes:
+        num_elements (unsigned int): Number of elements in the array.
+
     Example::
 
         index = Index2D(10)
@@ -67,15 +70,13 @@ cdef class Index2D:
 
     @property
     def num_elements(self):
-        """Number of elements in the array."""
         return self.getNumElements()
 
     def getNumElements(self):
         """Get the number of elements in the array
 
         Returns:
-          unsigned int: number of elements in the array
-
+            unsigned int: number of elements in the array
         """
         return self.thisptr.getNumElements()
 
@@ -112,6 +113,9 @@ cdef class Index3D:
         h (unsigned int): height of 2D array (number of rows)
         d (unsigned int): depth of 2D array (number of frames)
 
+    Attributes:
+        num_elements (unsigned int): Number of elements in the array.
+
     Example::
 
         index = Index3D(10)
@@ -142,7 +146,6 @@ cdef class Index3D:
 
     @property
     def num_elements(self):
-        """Number of elements in the array."""
         return self.getNumElements()
 
     def getNumElements(self):
@@ -150,6 +153,5 @@ cdef class Index3D:
 
         Returns:
           unsigned int: number of elements in the array
-
         """
         return self.thisptr.getNumElements()

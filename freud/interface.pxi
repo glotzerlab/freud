@@ -44,9 +44,8 @@ cdef class InterfaceMeasure:
           points (:class:`numpy.ndarray`,
                   shape=(:math:`N_{particles}`, 3),
                   dtype= :class:`numpy.float32`): other set of particle positions
-          nlist (py:class:`freud.locality.NeighborList`): Neighborlist to use to
+          nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to
                 find bonds (Default value = None)
-
         """
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,

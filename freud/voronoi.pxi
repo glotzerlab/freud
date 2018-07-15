@@ -28,9 +28,7 @@ cdef class VoronoiBuffer:
         """
 
         Args:
-            points (:class:`numpy.ndarray`,
-                    shape=(:math:`N_{particles}`, 3),
-                    dtype= :class:`numpy.float32`): points to calculate Voronoi
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate Voronoi
                                                     diagram for
             buffer (float): Buffer distance within which to look for images
         """
@@ -50,7 +48,7 @@ cdef class VoronoiBuffer:
         """Get buffer particles
 
         Returns:
-            np.array: The buffer particles
+            :class:`np.ndarray`: The buffer particles
         """
         cdef unsigned int buffer_size = dereference(
                 self.thisptr.getBufferParticles().get()).size()
@@ -75,7 +73,7 @@ cdef class VoronoiBuffer:
         """Get buffer ids
 
         Returns:
-            np.array: The buffer particles
+            :class:`np.ndarray`: The buffer ids
         """
         cdef unsigned int buffer_size = dereference(
                 self.thisptr.getBufferParticles().get()).size()
