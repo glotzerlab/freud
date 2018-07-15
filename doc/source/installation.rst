@@ -23,12 +23,12 @@ Compile from source
 
 The following are **required** for installing freud:
 
-- `Python`_ (2.7, 3.5, 3.6)
+- `Python <https://www.python.org/>`_ (2.7, 3.5, 3.6)
 - `NumPy <http://www.numpy.org/>`_
 - `Boost <http://www.boost.org/>`_
-- `icu`_ (requirement of Boost)
+- `icu <http://userguide.icu-project.org/>`_ (requirement of Boost)
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ (TBB)
-- `CMake`_
+- `CMake <https://cmake.org/>`_
 
 The following are **optional** for installing freud:
 - `Cython <http://cython.org/>`_: The freud Bitbucket repository contains a Cython-generated :code:`_freud.cpp` file that can be used directly. However, Cython is necessary if you wish to recompile this file.
@@ -58,7 +58,7 @@ By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/
 Unit Tests
 ==========
 
-The unit tests for freud are included in the repository and are configured to be run using the Python `unittest`_ library:
+The unit tests for freud are included in the repository and are configured to be run using the Python :py:mod:`unittest` library:
 
 .. code-block:: bash
 
@@ -79,7 +79,7 @@ Building the documentation
 
 The following are **required** for installing freud:
 
-- `Sphinx`_
+- `Sphinx <http://www.sphinx-doc.org/>`_
 
 You can install sphinx using conda
 
