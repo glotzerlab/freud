@@ -31,7 +31,8 @@ The following are **required** for installing freud:
 - `CMake <https://cmake.org/>`_
 
 The following are **optional** for installing freud:
-- `Cython <http://cython.org/>`_: The freud Bitbucket repository contains a Cython-generated :code:`_freud.cpp` file that can be used directly. However, Cython is necessary if you wish to recompile this file.
+
+- `Cython <http://cython.org/>`_: The freud repository contains a Cython-generated :code:`_freud.cpp` file that can be used directly. However, Cython is necessary if you wish to recompile this file.
 
 The code that follows creates a build directory inside the freud source directory and builds freud:
 
@@ -43,7 +44,7 @@ The code that follows creates a build directory inside the freud source director
     # Use `cmake ../ -DENABLE_CYTHON=ON` to rebuild _freud.cpp
     make install
 
-By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
+By default, freud installs to the `USER_SITE <https://docs.python.org/3/install/index.html>`_ directory, which is in ``~/.local`` on Linux and in ``~/Library`` on macOS.
 :code:`USER_SITE` is on the Python search path by default, so there is no need to modify :code:`PYTHONPATH`.
 
 .. note::
