@@ -5,9 +5,9 @@ freud documentation
 *"Neurosis is the inability to tolerate ambiguity" - Sigmund Freud*
 
 Welcome to the documentation for freud, a Python package for analyzing particle simulation trajectories of periodic systems.
-The library contains a diverse array of analysis routines designed for molecular dynamics and Monte Carlo.
+The library contains a diverse array of analysis routines designed for molecular dynamics and Monte Carlo simulation trajectories.
 Since any scientific investigation is likely to benefit from a range of analyses, freud is designed to work as part of a larger analysis pipeline.
-In order to maximize its interoperabiity with other systems, freud works with and returns `NumPy <http://www.numpy.org/>`_ arrays.
+In order to maximize its interoperability with other systems, freud works with and returns `NumPy <http://www.numpy.org/>`_ arrays.
 
 Installing freud
 ================
