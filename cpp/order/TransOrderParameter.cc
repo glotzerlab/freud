@@ -15,7 +15,7 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-TransOrderParameter::TransOrderParameter(float rmax, float k, unsigned int n)
+TransOrderParameter::TransOrderParameter(float rmax, float k)
     : m_box(box::Box()), m_k(k), m_Np(0)
     {
     }
