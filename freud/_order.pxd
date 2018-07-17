@@ -65,7 +65,7 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
-        TransOrderParameter(float, float, unsigned int)
+        TransOrderParameter(float, float)
         const box.Box & getBox() const,
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
