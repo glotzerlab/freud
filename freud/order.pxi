@@ -465,7 +465,7 @@ cdef class TransOrderParameter:
     cdef rmax
 
     def __cinit__(self, rmax, k=6.0, n=0):
-        self.thisptr = new order.TransOrderParameter(rmax, k, n)
+        self.thisptr = new order.TransOrderParameter(rmax, k)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 

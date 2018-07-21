@@ -65,7 +65,6 @@ git submodule update --init
 * Required:
     * Python >= 2.7 (3.5+ recommended)
     * NumPy >= 1.7
-    * Boost (headers only)
     * CMake >= 2.8.0 (to compile freud)
     * C++11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
     * Intel Threading Building Blocks

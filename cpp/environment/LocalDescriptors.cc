@@ -173,7 +173,12 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
                 float theta(atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
                 if(theta < 0)
                     theta += 2*M_PI; // move theta into [0..2*pi]
-                const float phi(acos(bond_ij.z/magR)); // phi in [0..pi]
+                float phi(acos(bond_ij.z/magR)); // phi in [0..pi]
+
+                // catch cases where bond_ij.z/magR falls outside [-1, 1]
+                // due to numerical issues
+                if(std::isnan(phi))
+                    phi = bond_ij.z > 0? 0: M_PI;
 
                 sph_eval.compute(phi, theta);
 
