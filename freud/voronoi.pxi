@@ -14,6 +14,9 @@ cdef class VoronoiBuffer:
     """
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    Args:
+        box (py:class:`freud.box.Box`): Simulation box.
     """
     cdef voronoi.VoronoiBuffer * thisptr
 
@@ -25,12 +28,12 @@ cdef class VoronoiBuffer:
         self.thisptr = new voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
-        """
+        """Compute the voronoi diagram.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate Voronoi
-                                                    diagram for
-            buffer (float): Buffer distance within which to look for images
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi
+                                                    diagram for.
+            buffer (float): Buffer distance within which to look for images.
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
@@ -45,10 +48,10 @@ cdef class VoronoiBuffer:
         return self
 
     def getBufferParticles(self):
-        """Get buffer particles
+        """Get buffer particles.
 
         Returns:
-            :class:`np.ndarray`: The buffer particles
+            :class:`np.ndarray`: The buffer particles.
         """
         cdef unsigned int buffer_size = dereference(
                 self.thisptr.getBufferParticles().get()).size()
@@ -70,10 +73,10 @@ cdef class VoronoiBuffer:
         return result
 
     def getBufferIds(self):
-        """Get buffer ids
+        """Get buffer ids.
 
         Returns:
-            :class:`np.ndarray`: The buffer ids
+            :class:`np.ndarray`: The buffer ids.
         """
         cdef unsigned int buffer_size = dereference(
                 self.thisptr.getBufferParticles().get()).size()

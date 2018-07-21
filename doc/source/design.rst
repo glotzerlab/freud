@@ -12,9 +12,9 @@ The primary requirement for an analysis routine in freud is that it
 should be substantially computationally intensive so as to require
 coding up in C++: **all freud code should be composed of fast C++
 routines operating on systems of particles in periodic boxes.** To
-remain easy-to-use, all C++ modules should be wrapped in python
-code so they can be easily accessed from python scripts or through
-a python interpreter.
+remain easy-to-use, all C++ modules should be wrapped in Python
+code so they can be easily accessed from Python scripts or through
+a Python interpreter.
 
 In order to achieve this goal, freud takes the following viewpoints:
 
@@ -27,8 +27,8 @@ In order to achieve this goal, freud takes the following viewpoints:
   standard for code, stressing explicitly written code which is easy
   to read.
 * To ensure correctness, freud employs unit testing using the 
-  python unittest framework. In addition, freud utilizes 
-  `CircleCI <http://www.python.org/>`_ for continuous integration to
+  Python unittest framework. In addition, freud utilizes 
+  `CircleCI <https://circleci.com>`_ for continuous integration to
   ensure that all of its code works correctly and that any changes or
   new features do not break existing functionality.
 

@@ -7,24 +7,24 @@ KSpace Module
 .. autosummary::
     :nosignatures:
 
-    freud.kspace.FTbase
-    freud.kspace.FTdelta
-    freud.kspace.FTsphere
-    freud.kspace.FTpolyhedron
+    freud.kspace.meshgrid2
     freud.kspace.SFactor3DPoints
     freud.kspace.AnalyzeSFactor3D
     freud.kspace.SingleCell3D
     freud.kspace.FTfactory
+    freud.kspace.FTbase
+    freud.kspace.FTdelta
+    freud.kspace.FTsphere
+    freud.kspace.FTpolyhedron
     freud.kspace.FTconvexPolyhedron
-    freud.kspace.Constraint
-    freud.kspace.AlignedBoxConstraint
-    freud.kspace.DeltaSpot
-    freud.kspace.GaussianSpot
-    freud.kspace.meshgrid2
     freud.kspace.rotate
     freud.kspace.quatrot
+    freud.kspace.Constraint
+    freud.kspace.AlignedBoxConstraint
     freud.kspace.constrainedLatticePoints
     freud.kspace.reciprocalLattice3D
+    freud.kspace.DeltaSpot
+    freud.kspace.GaussianSpot
 
 .. rubric:: Details
 

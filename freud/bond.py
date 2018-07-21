@@ -13,12 +13,12 @@ The bond module is designed to take in arrays using the same coordinate systems 
     Only certain coordinate systems are available for certain particle positions and orientations:
 
     * 2D particle coordinates (position: [:math:`x`, :math:`y`, :math:`0`], orientation: :math:`\theta`):
-        * :math:`X`, :math:`Y`
-        * :math:`X`, :math:`Y`, :math:`\theta_2`
-        * :math:`r`, :math:`\theta_1`, :math:`\theta_2`
+        * :math:`X`, :math:`Y`.
+        * :math:`X`, :math:`Y`, :math:`\theta_2`.
+        * :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
 
     * 3D particle coordinates:
-        * :math:`X`, :math:`Y`, :math:`Z`
+        * :math:`X`, :math:`Y`, :math:`Z`.
 """
 
 from ._freud import BondingAnalysis

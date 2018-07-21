@@ -19,7 +19,7 @@ class Box(_Box):
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     .. versionchanged:: 0.7.0
-       Added box periodicity interface
+       Added box periodicity interface.
 
     The Box class is defined according to the conventions of the
     HOOMD-blue simulation software.
@@ -28,34 +28,34 @@ class Box(_Box):
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
     Args:
-        Lx (float): Length of side x
-        Ly (float): Length of side y
-        Lz (float): Length of side z
-        xy (float): Tilt of xy plane
-        xz (float): Tilt of xz plane
-        yz (float): Tilt of yz plane
+        Lx (float): Length of side x.
+        Ly (float): Length of side y.
+        Lz (float): Length of side z.
+        xy (float): Tilt of xy plane.
+        xz (float): Tilt of xz plane.
+        yz (float): Tilt of yz plane.
         is2D(bool): Specify that this box is 2-dimensional,
             default is 3-dimensional.
 
     Attributes:
-        xy (float): The xy tilt factor
-        xz (float): The xz tilt factor
-        yz (float): The yz tilt factor
-        L (tuple, settable): The box lengths
-        Lx (tuple, settable): The x-dimension length
-        Ly (tuple, settable): The y-dimension length
-        Lz (tuple, settable): The z-dimension length
-        Linv (tuple): The inverse box lengths
-        volume (float): The box volume (area in 2D)
-        dimensions (int, settable): The number of dimensions (2 or 3)
-        periodic (list, settable): Whether or not the box is periodic
+        xy (float): The xy tilt factor.
+        xz (float): The xz tilt factor.
+        yz (float): The yz tilt factor.
+        L (tuple, settable): The box lengths.
+        Lx (tuple, settable): The x-dimension length.
+        Ly (tuple, settable): The y-dimension length.
+        Lz (tuple, settable): The z-dimension length.
+        Linv (tuple): The inverse box lengths.
+        volume (float): The box volume (area in 2D).
+        dimensions (int, settable): The number of dimensions (2 or 3).
+        periodic (list, settable): Whether or not the box is periodic.
     """
 
     def to_dict(self):
-        """Return box as dictionary
+        """Return box as dictionary.
 
         Returns:
-          dict: Box parameters
+          dict: Box parameters.
         """
         return {
             'Lx': self.Lx,
@@ -70,7 +70,7 @@ class Box(_Box):
         """Returns the box as named tuple.
 
         Returns:
-            namedtuple: Box parameters
+            namedtuple: Box parameters.
         """
         tuple_type = namedtuple(
             'BoxTuple', ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'])
@@ -81,7 +81,7 @@ class Box(_Box):
         """Returns the box matrix (3x3).
 
         Returns:
-            list of lists, shape 3x3: box matrix
+            list of lists, shape 3x3: Box matrix.
         """
         return [[self.Lx, self.xy * self.Ly, self.xz * self.Lz],
                 [0, self.Ly, self.yz * self.Lz],
@@ -100,8 +100,8 @@ class Box(_Box):
         """Initialize a box instance from a box-like object.
 
         Args:
-            box: A box-like object
-            dimensions (int): Dimensionality of the box (Default value = None)
+            box: A box-like object.
+            dimensions (int): Dimensionality of the box (Default value = None).
 
         .. note:: Objects that can be converted to freud boxes include
                   lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
@@ -174,11 +174,11 @@ class Box(_Box):
         """Initialize a box instance from a box matrix.
 
         For more information and the source for this code,
-        see: http://hoomd-blue.readthedocs.io/en/stable/box.html
+        see: http://hoomd-blue.readthedocs.io/en/stable/box.html.
 
         Args:
-            boxMatrix (array-like): A 3x3 matrix or list of lists
-            dimensions (int):  Number of dimensions (Default value = None)
+            boxMatrix (array-like): A 3x3 matrix or list of lists.
+            dimensions (int):  Number of dimensions (Default value = None).
         """
         boxMatrix = np.asarray(boxMatrix, dtype=np.float32)
         v0 = boxMatrix[:, 0]
@@ -204,7 +204,7 @@ class Box(_Box):
         """Construct a cubic box with equal lengths.
 
         Args:
-            L (float): The edge length
+            L (float): The edge length.
         """
         return cls(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0, is2D=False)
 
@@ -213,7 +213,7 @@ class Box(_Box):
         """Construct a 2-dimensional (square) box with equal lengths.
 
         Args:
-            L (float): The edge length
+            L (float): The edge length.
         """
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 

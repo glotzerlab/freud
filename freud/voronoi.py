@@ -41,15 +41,13 @@ class Voronoi:
     to be correct if :code:`buff >= L/2` where :code:`L` is the longest side
     of the simulation box. For dense systems with particles filling the
     entire simulation volume, a smaller value for :code:`buff` is acceptable.
+
+    Args:
+        box (:py:class:`freud.box.Box`): Simulation box.
+        buff (float): Buffer width.
     """
 
     def __init__(self, box, buff=0.1):
-        """Initialize Voronoi.
-
-        :param box: simulation box
-        :param float buff: buffer width
-        :type box: :py:class:`freud.box.Box`
-        """
         box = common.convert_box(box)
         self.box = box
         self.buff = buff
@@ -57,8 +55,8 @@ class Voronoi:
     def setBox(self, box):
         """Reset the simulation box.
 
-        :param box: simulation box
-        :type box: :py:class:`freud.box.Box`
+        Args:
+            box(py:class:`freud.box.Box`): Simulation box.
         """
         box = common.convert_box(box)
         self.box = box
@@ -66,12 +64,19 @@ class Voronoi:
     def setBufferWidth(self, buff):
         """Reset the buffer width.
 
-        :param float buff: buffer width
+        Args:
+            buff (float): Buffer width.
         """
         self.buff = buff
 
     def _qhull_compute(self, positions, box=None, buff=None):
-        """Calls VoronoiBuffer and qhull"""
+        """Calls VoronoiBuffer and qhull
+
+        Args:
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
+            box (py:class:`freud.box.Box`): Simulation box (Default value = None).
+            buff (float): Buffer distance within which to look for images (Default value = None).
+        """
         # Compute the buffer particles in C++
         vbuff = VoronoiBuffer(box)
         vbuff.compute(positions, buff)
@@ -96,9 +101,10 @@ class Voronoi:
     def compute(self, positions, box=None, buff=None):
         """Compute Voronoi diagram.
 
-        :param box: simulation box
-        :param float buff: buffer width
-        :type box: :py:class:`freud.box.Box`
+        Args:
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
+            box (py:class:`freud.box.Box`): Simulation box (Default value = None).
+            buff (float): Buffer distance within which to look for images (Default value = None).
         """
 
         # If box or buff is not specified, revert to object quantities
@@ -128,8 +134,9 @@ class Voronoi:
     def getBuffer(self):
         """Returns the buffer width.
 
-        :returns: buffer width
-        :rtype: float
+        Returns:
+          float: Buffer width.
+
         """
         return self.buff
 
@@ -145,9 +152,10 @@ class Voronoi:
         method, if all the polytopes are closed. Otherwise try using a larger
         buffer width.
 
-        :returns: List of :py:class:`numpy.ndarray` containing Voronoi
-                  polytope vertices
-        :rtype: list
+        Returns:
+          list: List of :py:class:`numpy.ndarray` containing Voronoi
+              polytope vertices.
+
         """
         return self.poly_verts
 
@@ -176,6 +184,13 @@ class Voronoi:
 
         .. note:: Input positions must be a 3D array. For 2D, set the z value
                   to 0.
+
+        Args:
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
+            box (py:class:`freud.box.Box`): Simulation box (Default value = None).
+            buff (float): Buffer distance within which to look for images (Default value = None).
+            exclude_ii (bool, optional): True if pairs of points with identical indices
+                             should be excluded (Default value = True).
         """
         # If box or buff is not specified, revert to object quantities
         if box is None:
@@ -286,7 +301,8 @@ class Voronoi:
 
         Must call :py:meth:`~.computeNeighbors()` before this method.
 
-        :param int numShells: number of neighbor shells
+        Args:
+          numShells (int): Number of neighbor shells.
         """
         neighbor_list = copy.copy(self.firstShellNeighborList)
         # delete [] in neighbor_list
@@ -320,8 +336,8 @@ class Voronoi:
         In 3D systems, the bond weight is the "ridge area" of the Voronoi
         boundary polygon between the neighboring particles.
 
-        :return: Neighbor list
-        :rtype: :py:class:`~.locality.NeighborList`
+        Returns:
+          py:class:`~.locality.NeighborList`: Neighbor list.
         """
         # Build neighbor list based on voronoi neighbors
         neighbor_list = copy.copy(self.firstShellNeighborList)
@@ -356,7 +372,6 @@ class Voronoi:
         .. versionadded:: 0.8
 
         Must call :py:meth:`~.compute()` before this method.
-
         Retrieve the results with :py:meth:`~.getVolumes()`.
         """
         polytope_verts = self.getVoronoiPolytopes()
@@ -386,10 +401,7 @@ class Voronoi:
         method, if all the polytopes are closed. Otherwise try using a larger
         buffer width.
 
-        :returns: :py:class:`numpy.ndarray` containing Voronoi
-                  polytope volumes/areas.
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{cells} \\right)`,
-                dtype= :class:`numpy.float32`
+        Returns:
+            (:math:`\\left(N_{cells} \\right)`) class:`numpy.ndarray`: Containing Voronoi polytope volumes/areas.
         """
         return self.poly_volumes

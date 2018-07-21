@@ -12,11 +12,11 @@ The specific points are determined by the particular coordinate system used to r
     The coordinate system in which the calculation is performed is not the same as the coordinate system in which particle positions and orientations should be supplied. Only certain coordinate systems are available for certain particle positions and orientations:
 
     * 2D particle coordinates (position: [x, y, 0], orientation: :math:`\theta`):
-        * :math:`X`, :math:`Y`
-        * :math:`X`, :math:`Y`, :math:`\theta_2`
-        * :math:`R`, :math:`\theta_1`, :math:`\theta_2`
+        * :math:`X`, :math:`Y`.
+        * :math:`X`, :math:`Y`, :math:`\theta_2`.
+        * :math:`R`, :math:`\theta_1`, :math:`\theta_2`.
 
-    * 3D particle coordinates: :math:`X`, :math:`Y`, :math:`Z`
+    * 3D particle coordinates: :math:`X`, :math:`Y`, :math:`Z`.
 """
 
 from ._freud import PMFTR12

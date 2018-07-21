@@ -63,6 +63,18 @@ Deprecated Classes
 
 The below functions have all either been deprecated or moved to the :doc:`environment` module
 
+Bond Order
+----------
+
+.. autoclass:: freud.order.BondOrder(rmax, k, n, nBinsT, nBinsP)
+    :members:
+
+Local Descriptors
+-----------------
+
+.. autoclass:: freud.order.LocalDescriptors(box, nNeigh, lmax, rmax)
+    :members:
+
 Environment Matching
 --------------------
 
@@ -76,18 +88,6 @@ Pairing
     This module is deprecated and is replaced with :doc:`bond`.
 
 .. autoclass:: freud.order.Pairing2D(rmax, k, compDotTol)
-    :members:
-
-Bond Order
-----------
-
-.. autoclass:: freud.order.BondOrder(rmax, k, n, nBinsT, nBinsP)
-    :members:
-
-Local Descriptors
------------------
-
-.. autoclass:: freud.order.LocalDescriptors(box, nNeigh, lmax, rmax)
     :members:
 
 Angular Separation
