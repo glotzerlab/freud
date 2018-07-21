@@ -70,7 +70,7 @@ git submodule update --init
     * C++11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
     * Intel Threading Building Blocks
 * Optional:
-    * Cython >= 0.23 (to compile your own _freud.cpp)
+    * Cython >= 0.23 (to compile your own `_freud.cpp`)
 
 ## Job scripts
 
@@ -110,7 +110,7 @@ OR
 
 To view the full documentation run the following commands in the source directory:
 
-~~~bash
+```bash
 # Linux
 cd doc
 make html
@@ -120,11 +120,11 @@ xdg-open build/html/index.html
 cd doc
 make html
 open build/html/index.html
-~~~
+```
 
 If you have latex and/or pdflatex, you may also build a pdf of the documentation:
 
-~~~bash
+```bash
 # Linux
 cd doc
 make latexpdf
@@ -134,15 +134,14 @@ xdg-open build/latex/freud.pdf
 cd doc
 make latexpdf
 open build/latex/freud.pdf
-~~~
+```
 
 ## Unit Tests
 
-Run all unit tests with `nosetests .` in the `tests` directory.
-To add a test, simply add a file to the `tests` directory, and nosetests will automatically discover it.
-Refer to this [introduction to nose](http://pythontesting.net/framework/nose/nose-introduction/) for help writing tests.
+The unit tests for freud use the Python :py:mod:`unittest` framework:
 
-~~~
+```bash
+# Run tests from the tests directory
 cd tests
-nosetests .
-~~~
+python -m unittest discover .
+```

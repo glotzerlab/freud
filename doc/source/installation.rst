@@ -63,8 +63,9 @@ The unit tests for freud are included in the repository and are configured to be
 
 .. code-block:: bash
 
-    # Run tests from the source directory
-    python -m unittest discover /path/to/freud/tests
+    # Run tests from the tests directory
+    cd tests
+    python -m unittest discover .
 
 Note that because freud is designed to require installation to run (*i.e.* it cannot be run directly out of the build directory), importing freud from the root of the repository will fail because it will try and import the package folder.
 As a result, unit tests must be run from outside the root directory.
