@@ -25,8 +25,6 @@ The following are **required** for installing freud:
 
 - `Python <https://www.python.org/>`_ (2.7, 3.5, 3.6)
 - `NumPy <http://www.numpy.org/>`_
-- `Boost <http://www.boost.org/>`_
-- `icu <http://userguide.icu-project.org/>`_ (requirement of Boost)
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ (TBB)
 - `CMake <https://cmake.org/>`_
 
@@ -79,7 +77,7 @@ The documentation for freud is hosted online at `ReadTheDocs <https://freud.read
 Building the documentation
 --------------------------
 
-The following are **required** for installing freud:
+The following are **required** for building freud documentation:
 
 - `Sphinx <http://www.sphinx-doc.org/>`_
 
