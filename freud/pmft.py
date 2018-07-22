@@ -2,7 +2,7 @@
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
 R"""
-The PMFT Module allows for the calculation of the Potential of Mean Force and Torque (PMFT) [Cit2]_ [Cit3]_ in a number of different coordinate systems.
+The PMFT Module allows for the calculation of the Potential of Mean Force and Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a number of different coordinate systems.
 The PMFT is defined as the negative algorithm of positional correlation function (PCF).
 A given set of reference points is given around which the PCF is computed and averaged in a sea of data points.
 The resulting values are accumulated in a PCF array listing the value of the PCF at a discrete set of points.

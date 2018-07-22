@@ -84,8 +84,8 @@ cdef class _PMFT:
 
 
 cdef class PMFTR12(_PMFT):
-    """Computes the PMFT in a 2D system described by :math:`r`,
-    :math:`\\theta_1`, :math:`\\theta_2`.
+    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
+    system described by :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.
 
     .. note::
         2D: :py:class:`freud.pmft.PMFTR12` is only defined for 2D systems.
@@ -356,7 +356,9 @@ cdef class PMFTR12(_PMFT):
         return T2
 
 cdef class PMFTXYT(_PMFT):
-    """Computes the PMFT for systems described by coordinates :math:`x`, :math:`y`, :math:`\\theta` listed in the x, y, and t arrays.
+    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
+    systems described by coordinates :math:`x`, :math:`y`, :math:`\\theta`
+    listed in the x, y, and t arrays.
 
     The values of x, y, t to compute the PCF at are controlled by x_max, y_max and n_bins_x, n_bins_y, n_bins_t parameters to the constructor.
     The x_max and y_max parameters determine the minimum/maximum x, y values (:math:`\\min \\left(\\theta \\right) = 0`, (:math:`\\max \\left( \\theta \\right) = 2\\pi`) at which to compute the PCF and n_bins_x, n_bins_y, n_bins_t is the number of bins in x, y, t.
@@ -620,7 +622,8 @@ cdef class PMFTXYT(_PMFT):
 
 
 cdef class PMFTXY2D(_PMFT):
-    """Computes the PMFT in coordinates :math:`x`, :math:`y` listed in the x and y arrays.
+    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    coordinates :math:`x`, :math:`y` listed in the x and y arrays.
 
     The values of x and y to compute the PCF at are controlled by x_max, y_max, n_x, and n_y parameters to the constructor.
     The x_max and y_max parameters determine the minimum/maximum distance at which to compute the PCF and n_x and n_y are the number of bins in x and y.
@@ -854,7 +857,9 @@ cdef class PMFTXY2D(_PMFT):
 
 
 cdef class PMFTXYZ(_PMFT):
-    """Computes the PMFT in coordinates :math:`x`, :math:`y`, :math:`z`, listed in the x, y, and z arrays.
+    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    coordinates :math:`x`, :math:`y`, :math:`z`, listed in the x, y, and z
+    arrays.
 
     The values of x, y, z to compute the PCF at are controlled by x_max, y_max, z_max, n_x, n_y, and n_z parameters to the constructor.
     The x_max, y_max, and z_max parameters determine the minimum/maximum distance at which to compute the PCF and n_x, n_y, and n_z are the number of bins in x, y, z.
