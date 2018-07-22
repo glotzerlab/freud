@@ -1,7 +1,6 @@
 name: freud
 channels:
 - conda-forge
-- meznom # Needed for boost-headers
 - defaults
 dependencies:
 - blas=1.1=openblas
@@ -38,4 +37,3 @@ dependencies:
 - zlib=1.2.11=0
 - libgfortran=3.0.0=1
 - system=5.8=2
-- boost-headers=1.55.0=0

@@ -55,21 +55,21 @@ cdef class BondOrder:
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     Args:
-        r_max (float): distance over which to calculate
-        k (unsigned int): order parameter i. to be removed
-        n (unsigned int): number of neighbors to find
-        n_bins_t (unsigned int): number of theta bins
-        n_bins_p (unsigned int): number of phi bins
+        r_max (float): Distance over which to calculate.
+        k (unsigned int): Order parameter i. to be removed.
+        n (unsigned int): Number of neighbors to find.
+        n_bins_t (unsigned int): Number of theta bins.
+        n_bins_p (unsigned int): Number of phi bins.
 
     Attributes:
-        bond_order (:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`): Bond order
-        box (:py:class:`freud.box.Box`): Box used in the calculation
-        theta (:math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`): The values of bin centers for theta
-        phi (:math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`): The values of bin centers for phi
-        n_bins_theta (unsigned int): The number of bins in the theta dimension
-        n_bins_phi (unsigned int): The values of bin centers for phi
+        bond_order (:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`): Bond order.
+        box (:py:class:`freud.box.Box`): Box used in the calculation.
+        theta (:math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`): The values of bin centers for theta.
+        phi (:math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`): The values of bin centers for phi.
+        n_bins_theta (unsigned int): The number of bins in the theta dimension.
+        n_bins_phi (unsigned int): The values of bin centers for phi.
 
-    .. todo:: remove k, it is not used as such
+    .. todo:: remove k, it is not used as such.
     """
     cdef environment.BondOrder * thisptr
     cdef num_neigh
@@ -90,15 +90,15 @@ cdef class BondOrder:
         histogram.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
+            box (:class:`freud.box.Box`): Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
-                        calculate bonds
+                        calculate bonds.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): reference orientations to
-                             calculate bonds
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
-            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): orientations to calculate the bonding
-            mode (str, optional): mode to calc bond order. "bod", "lbod", "obcd", and "oocd" (Default value = "bod")
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None)
+                             calculate bonds.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Orientations to calculate the bonding.
+            mode (str, optional): Mode to calc bond order. Options are "bod", "lbod", "obcd", or "oocd" (Default value = "bod").
+            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -173,7 +173,7 @@ cdef class BondOrder:
         """Get the bond order.
 
         Returns:
-            :math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: bond order
+            :math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order.
         """
         cdef float * bod = self.thisptr.getBondOrder().get()
         cdef np.npy_intp nbins[2]
@@ -191,7 +191,7 @@ cdef class BondOrder:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box`: freud Box
+            :class:`freud.box.Box`: freud Box.
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -205,15 +205,15 @@ cdef class BondOrder:
         histogram.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
-                        calculate bonds
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): reference orientations to
-                             calculate bonds
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, shape=, dtype= :class:`numpy.float32`): points to calculate the bonding
-            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): orientations to calculate the bonding
-            mode (str, optional): mode to calc bond order. "bod", "lbod", "obcd", and "oocd" (Default value = "bod")
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None)
+            box (:class:`freud.box.Box`): Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to
+                        calculate bonds.
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Reference orientations to
+                             calculate bonds.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, shape=, dtype= :class:`numpy.float32`): Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Orientations to calculate the bonding.
+            mode (str, optional): Mode to calc bond order. Options are "bod", "lbod", "obcd", or "oocd" (Default value = "bod").
+            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
         """
         self.thisptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
@@ -232,10 +232,10 @@ cdef class BondOrder:
         return self.getTheta()
 
     def getTheta(self):
-        """Get theta
+        """Get theta.
 
         Returns:
-            :math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`: values of bin centers for Theta
+            :math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`: Values of bin centers for Theta.
         """
         cdef float * theta = self.thisptr.getTheta().get()
         cdef np.npy_intp nbins[1]
@@ -271,7 +271,7 @@ cdef class BondOrder:
         """Get the number of bins in the Theta-dimension of histogram.
 
         Returns:
-            unsigned int: :math:`N_{\\theta}`
+            unsigned int: :math:`N_{\\theta}`.
         """
         cdef unsigned int nt = self.thisptr.getNBinsTheta()
         return nt
@@ -303,18 +303,15 @@ cdef class LocalDescriptors:
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
-        num_neighbors (unsigned int): Maximum number of neighbors to compute descriptors
-                              for
-        lmax (unsigned int): Maximum spherical harmonic :math:`l` to consider
-        rmax (float): Initial guess of the maximum radius to looks for
-                           neighbors
-        negative_m (bool): True if we should also calculate :math:`Y_{lm}` for
-                                negative :math:`m`
+        num_neighbors (unsigned int): Maximum number of neighbors to compute descriptors for.
+        lmax (unsigned int): Maximum spherical harmonic :math:`l` to consider.
+        rmax (float): Initial guess of the maximum radius to looks for neighbors.
+        negative_m (bool): True if we should also calculate :math:`Y_{lm}` for negative :math:`m`.
 
     Attributes:
         sph ( :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)` :class:`numpy.ndarray`): A reference to the last computed spherical harmonic array.
-        num_particles (unsigned int): The number of particles
-        num_neighbors (unsigned int): The number of neighbors
+        num_particles (unsigned int): The number of particles.
+        num_neighbors (unsigned int): The number of neighbors.
         l_max (unsigned int): The maximum spherical harmonic :math:`l` to calculate for.
         r_max (float): The cutoff radius.
     """
@@ -341,10 +338,10 @@ cdef class LocalDescriptors:
 
         Args:
             box (:class:`freud.box.Box`): simulation box
-            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): source points to calculate the
-                        order parameter
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional): destination points to calculate the
-                   order parameter (Default value = None)
+            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Source points to calculate the
+                        order parameter.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional): Destination points to calculate the
+                   order parameter (Default value = None).
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
@@ -380,23 +377,23 @@ cdef class LocalDescriptors:
         points to a set of destination points.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
+            box (:class:`freud.box.Box`): Simulation box.
             num_neighbors (unsigned int): Number of neighbors to compute with or to
-                                          limit to, if the neighbor list is precomputed
-            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): source points to calculate the
-                        order parameter
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional): destination points to calculate the
-                   order parameter (Default value = None)
+                                          limit to, if the neighbor list is precomputed.
+            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Source points to calculate the
+                        order parameter.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional): Destination points to calculate the
+                   order parameter (Default value = None).
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional): Orientation of each reference
-                                                         point (Default value = None)
+                                                         point (Default value = None).
             mode (str, optional): Orientation mode to use for environments, either
                        'neighborhood' to use the orientation of the local
                        neighborhood, 'particle_local' to use the given particle
                        orientations, or 'global' to not rotate environments
-                       (Default value = 'neighborhood')
+                       (Default value = 'neighborhood').
             nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to
                       find bonds or 'precomputed' if using :py:meth:`~.computeNList`
-                      (Default value = None)
+                      (Default value = None).
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
@@ -476,7 +473,7 @@ cdef class LocalDescriptors:
         """Get a reference to the last computed spherical harmonic array.
 
         Returns:
-            :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)` :class:`numpy.ndarray`: order parameter
+            :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)` :class:`numpy.ndarray`: Order parameter.
         """
         cdef float complex * sph = self.thisptr.getSph().get()
         cdef np.npy_intp nbins[2]
@@ -495,7 +492,7 @@ cdef class LocalDescriptors:
         """Get the number of particles.
 
         Returns:
-            unsigned int: :math:`N_{particles}`
+            unsigned int: :math:`N_{particles}`.
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -508,7 +505,7 @@ cdef class LocalDescriptors:
         """Get the number of neighbors.
 
         Returns:
-            unsigned int: :math:`N_{neighbors}`
+            unsigned int: :math:`N_{neighbors}`.
         """
         cdef unsigned int n = self.thisptr.getNSphs()
         return n
@@ -521,7 +518,7 @@ cdef class LocalDescriptors:
         """Get the maximum spherical harmonic :math:`l` to calculate for.
 
         Returns:
-            unsigned int: :math:`l`
+            unsigned int: :math:`l`.
         """
         cdef unsigned int l_max = self.thisptr.getLMax()
         return l_max
@@ -534,7 +531,7 @@ cdef class LocalDescriptors:
         """Get the cutoff radius.
 
         Returns:
-            float: :math:`r`
+            float: :math:`r`.
         """
         cdef float r = self.thisptr.getRMax()
         return r
@@ -546,7 +543,7 @@ cdef class MatchEnv:
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     Args:
-        box (:class:`freud.box.Box`): Simulation box
+        box (:class:`freud.box.Box`): Simulation box.
         rmax (float): Cutoff radius for cell list and clustering algorithm.
                       Values near first minimum of the RDF are recommended.
         k (unsigned int): Number of nearest neighbors taken to define the local environment
@@ -554,8 +551,8 @@ cdef class MatchEnv:
 
     Attributes:
         tot_environment (:math:`\\left(N_{particles}, N_{neighbors}, 3\\right)` :class:`numpy.ndarray`): All environments for all particles.
-        num_particles (unsigned int): The number of particles
-        num_clusters (unsigned int): The number of clusters
+        num_particles (unsigned int): The number of particles.
+        num_clusters (unsigned int): The number of clusters.
     """
     cdef environment.MatchEnv * thisptr
     cdef rmax
@@ -580,7 +577,7 @@ cdef class MatchEnv:
         """Reset the simulation box.
 
         Args:
-            box(:class:`freud.box.Box`): simulation box
+            box(:class:`freud.box.Box`): Simulation box.
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
@@ -594,12 +591,12 @@ cdef class MatchEnv:
         """Determine clusters of particles with matching environments.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional): destination points to calculate the
-                   order parameter (Default value = None)
-            threshold (float): maximum magnitude of the vector difference between
-                               two vectors, below which they are "matching"
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional): Destination points to calculate the
+                   order parameter (Default value = None).
+            threshold (float): Maximum magnitude of the vector difference between
+                               two vectors, below which they are "matching".
             hard_r (bool): If True, add all particles that fall within the
-                           threshold of m_rmaxsq to the environment
+                           threshold of m_rmaxsq to the environment.
             registration (bool): If True, first use brute force registration to
                                  orient one set of environment vectors with
                                  respect to the other set such that it
@@ -610,9 +607,9 @@ cdef class MatchEnv:
                                   If False, only compare the environments of
                                   neighboring particles.
             env_nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to
-                      find the environment of every particle (Default value = None)
+                      find the environment of every particle (Default value = None).
             nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to find
-                      neighbors of every particle, to compare environments (Default value = None)
+                      neighbors of every particle, to compare environments (Default value = None).
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
@@ -660,18 +657,18 @@ cdef class MatchEnv:
         refPoints.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): particle positions
-            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): vectors that make up the motif
-                                                      against which we are matching
-            threshold (float): maximum magnitude of the vector difference
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Particle positions.
+            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Vectors that make up the motif
+                                                      against which we are matching.
+            threshold (float): Maximum magnitude of the vector difference
                                between two vectors, below which they are
-                               considered "matching"
+                               considered "matching".
             registration (bool, optional): If true, first use brute force registration
                                  to orient one set of environment vectors with
-                                 respect to the other set such that it
+                                 respect to the other set such that it.
                                  minimizes the RMSD between the two sets (Default value = False).
             nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to
-                      find bonds (Default value = None)
+                      find bonds (Default value = None).
         """
         points = freud.common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
@@ -706,20 +703,20 @@ cdef class MatchEnv:
 
     def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):
         """Rotate (if registration=True) and permute the environments of all
-        particles to minimize their RMSD wrt the motif provided by refPoints.
+        particles to minimize their RMSD with respect to the motif provided by refPoints.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): particle positions
-            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): vectors that make up the motif
-                                                      against which we are matching
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Particle positions.
+            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Vectors that make up the motif
+                                                      against which we are matching.
             registration (bool, optional): If true, first use brute force registration
                                  to orient one set of environment vectors with
                                  respect to the other set such that it
                                  minimizes the RMSD between the two sets (Default value = False).
             nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to
-                      find bonds (Default value = None)
+                      find bonds (Default value = None).
         Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: vector of minimal RMSD values, one value per particle.
+            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: Vector of minimal RMSD values, one value per particle.
 
         """
         points = freud.common.convert_array(
@@ -759,11 +756,11 @@ cdef class MatchEnv:
         provided by refPoints2.
 
         Args:
-            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): vectors that make up motif 1
-            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): vectors that make up motif 2
-            threshold (float): maximum magnitude of the vector difference
+            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Vectors that make up motif 1.
+            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Vectors that make up motif 2.
+            threshold (float): Maximum magnitude of the vector difference
                                between two vectors, below which they are
-                               considered "matching"
+                               considered "matching".
             registration (bool, optional): If true, first use brute force registration
                                  to orient one set of environment vectors with
                                  respect to the other set such that it
@@ -771,9 +768,9 @@ cdef class MatchEnv:
 
         Returns:
             tuple[(:math:`\\left(N_{particles}, 3\\right)` :class:`numpy.ndarray`),\
-                  map[int, int]]: a doublet that gives the rotated (or not) set of refPoints2,\
-                                  and the mapping between the vectors of refPoints1 and\
-                                  refPoints2 that will make them correspond to each other.\
+                  map[int, int]]: A doublet that gives the rotated (or not) set of ``refPoints2``,\
+                                  and the mapping between the vectors of ``refPoints1`` and\
+                                  ``refPoints2`` that will make them correspond to each other.\
                                   empty if they do not correspond to each other.
         """
         refPoints1 = freud.common.convert_array(
@@ -816,8 +813,8 @@ cdef class MatchEnv:
         and the set of vectors refPoints2.
 
         Args:
-            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): vectors that make up motif 1
-            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): vectors that make up motif 2
+            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Vectors that make up motif 1.
+            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Vectors that make up motif 2.
             registration (bool, optional): If true, first use brute force registration
                                  to orient one set of environment vectors with
                                  respect to the other set such that it
@@ -826,7 +823,7 @@ cdef class MatchEnv:
         Returns:
             tuple[float,\
                   (:math:`\\left(N_{particles}, 3\\right)` :class:`numpy.ndarray`),\
-                  map[int, int]]: a triplet that gives the associated min_rmsd, rotated (or not)\
+                  map[int, int]]: A triplet that gives the associated min_rmsd, rotated (or not)\
                                   set of refPoints2, and the mapping between the vectors of\
                                   refPoints1 and refPoints2 that somewhat minimizes the RMSD.
         """
@@ -871,7 +868,7 @@ cdef class MatchEnv:
         their matching local environments
 
         Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: clusters
+            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: Clusters.
         """
         cdef unsigned int * clusters = self.thisptr.getClusters().get()
         cdef np.npy_intp nbins[1]
@@ -886,10 +883,10 @@ cdef class MatchEnv:
         """Returns the set of vectors defining the environment indexed by i.
 
         Args:
-            i (unsigned int): environment index
+            i (unsigned int): Environment index.
 
         Returns:
-            :math:`\\left(N_{neighbors}, 3\\right)` :class:`numpy.ndarray`: the array of vectors
+            :math:`\\left(N_{neighbors}, 3\\right)` :class:`numpy.ndarray`: The array of vectors.
         """
         cdef vec3[float] * environment = self.thisptr.getEnvironment(i).get()
         cdef np.npy_intp nbins[2]
@@ -905,11 +902,10 @@ cdef class MatchEnv:
         return self.getTotEnvironment()
 
     def getTotEnvironment(self):
-        """Returns the entire m_Np by m_maxk by 3 matrix of all environments
-        for all particles.
+        """Returns the  matrix of all environments for all particles.
 
         Returns:
-            :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)` :class:`numpy.ndarray`: the array of vectors
+            :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)` :class:`numpy.ndarray`: The array of vectors.
         """
         cdef vec3[float] * tot_environment = self.thisptr.getTotEnvironment(
                 ).get()
@@ -931,7 +927,7 @@ cdef class MatchEnv:
         """Get the number of particles.
 
         Returns:
-            unsigned int: :math:`N_{particles}`
+            unsigned int: :math:`N_{particles}`.
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -944,7 +940,7 @@ cdef class MatchEnv:
         """Get the number of clusters.
 
         Returns:
-            unsigned int: :math:`N_{clusters}`
+            unsigned int: :math:`N_{clusters}`.
         """
         cdef unsigned int num_clust = self.thisptr.getNumClusters()
         return num_clust
@@ -959,15 +955,15 @@ cdef class Pairing2D:
        Use :py:mod:`freud.bond` instead.
 
     Args:
-        rmax (float): distance over which to calculate
-        k (unsigned int): number of neighbors to search
-        compDotTol (float): value of the dot product below which a pair is
-                            determined
+        rmax (float): Distance over which to calculate.
+        k (unsigned int): Number of neighbors to search.
+        compDotTol (float): Value of the dot product below which a pair is
+                            determined.
 
     Attributes:
-        match (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The match
-        pair (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The pair
-        box (:py:class:`freud.box.Box`): Box used in the calculation
+        match (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The match.
+        pair (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`): The pair.
+        box (:py:class:`freud.box.Box`): Box used in the calculation.
     """
     cdef environment.Pairing2D * thisptr
     cdef rmax
@@ -987,13 +983,13 @@ cdef class Pairing2D:
         histogram.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the local density
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations to use in computation
-            compOrientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): possible orientations to check
-                                                              for bonds
+            box (:class:`freud.box.Box`): Simulation box
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the local density.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations to use in computation.
+            compOrientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Possible orientations to check
+                                                              for bonds.
             nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to
-                find bonds (Default value = None)
+                find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         points = freud.common.convert_array(
@@ -1038,7 +1034,7 @@ cdef class Pairing2D:
         """Get the match.
 
         Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: match
+            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The match.
         """
         cdef unsigned int * match = self.thisptr.getMatch().get()
         cdef np.npy_intp nbins[1]
@@ -1056,7 +1052,7 @@ cdef class Pairing2D:
         """Get the pair.
 
         Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: pair
+            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The pair.
         """
         cdef unsigned int * pair = self.thisptr.getPair().get()
         cdef np.npy_intp nbins[1]
@@ -1074,7 +1070,7 @@ cdef class Pairing2D:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box`: freud Box
+            :class:`freud.box.Box`: freud Box.
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -1088,10 +1084,10 @@ cdef class AngularSeparation:
     Args:
         rmax (float): Cutoff radius for cell list and clustering algorithm.
                       Values near first minimum of the RDF are recommended.
-        n (int): The number of neighbors
+        n (int): The number of neighbors.
 
     Attributes:
-        nlist (:class:`freud.locality.NeighborList`): The neighbor list
+        nlist (:class:`freud.locality.NeighborList`): The neighbor list.
         n_p (unsigned int): The number of particles used in computing the last set.
         n_ref (unsigned int): The number of reference particles used in computing the neighbor angles.
         n_global (unsigned int): The number of global orientations to check against.
@@ -1120,19 +1116,19 @@ cdef class AngularSeparation:
         checking for underlying symmetry as encoded in equiv_quats.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
-            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): orientations to calculate
-                         the order parameter
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): reference orientations to
-                             calculate the order parameter
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to
-                        calculate the order parameter
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the
-                    the order parameter
-            mode (str, optional): mode to calc bond order. "bod", "lbod", "obcd", and "oocd" (Default value = "bod")
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None)
-            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional): the set of all equivalent quaternions that takes the particle as it is defined to some global reference orientation. Important: equiv_quats must include both q and -q, for all included quaternions
-            nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to find bonds (Default value = None)
+            box (:class:`freud.box.Box`): Simulation box.
+            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Orientations to calculate
+                         the order parameter.
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Reference orientations to
+                             calculate the order parameter.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to
+                        calculate the order parameter.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the
+                    the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
+            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional): The set of all equivalent quaternions that takes the particle as it is defined to some global reference
+                        orientation. Important: equiv_quats must include both q and -q, for all included quaternions.
+            nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -1197,14 +1193,14 @@ cdef class AngularSeparation:
         ors, checking for underlying symmetry as encoded in equiv_quats.
 
         Args:
-            ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): orientations to calculate
-                 the order parameter
-            global_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): reference orientations to
-                        calculate the order parameter
-            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): the set of all equivalent
+            ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Orientations to calculate
+                 the order parameter.
+            global_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Reference orientations to
+                        calculate the order parameter.
+            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): The set of all equivalent
                          quaternions that takes the particle as it is defined to
                          some global reference orientation. Important: equiv_quats
-                         must include both q and -q, for all included quaternions
+                         must include both q and -q, for all included quaternions.
         """
         global_ors = freud.common.convert_array(
                 global_ors, 2, dtype=np.float32, contiguous=True,
@@ -1241,10 +1237,10 @@ cdef class AngularSeparation:
         return self
 
     def getNeighborAngles(self):
-        """The neighbor angles in radians
+        """The neighbor angles in radians.
 
         Returns:
-            :math:`\\left(N_{reference}, N_{neighbors} \\right)` :class:`numpy.ndarray`: angles in radians
+            :math:`\\left(N_{reference}, N_{neighbors} \\right)` :class:`numpy.ndarray`: Angles in radians.
         """
 
         cdef float * neigh_ang = self.thisptr.getNeighborAngles().get()
@@ -1259,7 +1255,7 @@ cdef class AngularSeparation:
         """The global angles in radians
 
         Returns:
-            :math:`\\left(N_{particles}, N_{global} \\right)` :class:`numpy.ndarray`: angles in radians
+            :math:`\\left(N_{particles}, N_{global} \\right)` :class:`numpy.ndarray`: Angles in radians.
         """
 
         cdef float * global_ang = self.thisptr.getGlobalAngles().get()
@@ -1279,7 +1275,7 @@ cdef class AngularSeparation:
         """Get the number of particles used in computing the last set.
 
         Returns:
-            unsigned int: :math:`N_{particles}`
+            unsigned int: :math:`N_{particles}`.
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -1293,7 +1289,7 @@ cdef class AngularSeparation:
         angles.
 
         Returns:
-            unsigned int: :math:`N_{particles}`
+            unsigned int: :math:`N_{particles}`.
         """
         cdef unsigned int nref = self.thisptr.getNref()
         return nref
@@ -1306,7 +1302,7 @@ cdef class AngularSeparation:
         """Get the number of global orientations to check against.
 
         Returns:
-            unsigned int: :math:`N_{global orientations}`
+            unsigned int: :math:`N_{global orientations}`.
         """
         cdef unsigned int nglobal = self.thisptr.getNglobal()
         return nglobal

@@ -7,11 +7,11 @@ Density Module
 .. autosummary::
     :nosignatures:
 
+    freud.density.FloatCF
+    freud.density.ComplexCF
     freud.density.GaussianDensity
     freud.density.LocalDensity
     freud.density.RDF
-    freud.density.ComplexCF
-    freud.density.FloatCF
 
 .. rubric:: Details
 

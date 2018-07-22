@@ -18,16 +18,16 @@ cdef class BondingAnalysis:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        num_particles (unsigned int): Number of particles over which to calculate bonds
-        num_bonds (unsigned int): Number of bonds to track
+        num_particles (unsigned int): Number of particles over which to calculate bonds.
+        num_bonds (unsigned int): Number of bonds to track.
 
     Attributes:
-        bond_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`): Bond lifetimes
-        overall_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`): Overall bond lifetimes
-        transition_matrix (:class:`numpy.ndarray`): Transition matrix
-        num_frames (unsigned int): Number of frames calculated
-        num_particles (unsigned int): Number of tracked particles
-        num_bonds (unsigned int): Number of tracked bonds
+        bond_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`): Bond lifetimes.
+        overall_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`): Overall bond lifetimes.
+        transition_matrix (:class:`numpy.ndarray`): Transition matrix.
+        num_frames (unsigned int): Number of frames calculated.
+        num_particles (unsigned int): Number of tracked particles.
+        num_bonds (unsigned int): Number of tracked bonds.
     """
     cdef bond.BondingAnalysis * thisptr
     cdef unsigned int num_particles
@@ -46,7 +46,7 @@ cdef class BondingAnalysis:
 
         Args:
             frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
-                    first bonding frame (as output from :py:class:`~.BondingR12` modules)
+                    First bonding frame (as output from :py:class:`~.BondingR12` modules).
         """
         frame_0 = freud.common.convert_array(
                     frame_0, 2, dtype=np.uint32, contiguous=True,
@@ -68,9 +68,9 @@ cdef class BondingAnalysis:
 
         Args:
             frame_0((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
-                    current/previous bonding frame (as output from :py:class:`.BondingR12` modules)
+                    Current/previous bonding frame (as output from :py:class:`.BondingR12` modules).
             frame_1((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
-                    next/current bonding frame (as output from :py:class:`.BondingR12` modules)
+                    Next/current bonding frame (as output from :py:class:`.BondingR12` modules).
         """
         frame_0 = freud.common.convert_array(
                     frame_0, 2, dtype=np.uint32, contiguous=True,
@@ -95,7 +95,7 @@ cdef class BondingAnalysis:
         """Return the bond lifetimes.
 
         Returns:
-            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`: lifetime of bonds
+            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`: Lifetime of bonds.
         """
         bonds = self.thisptr.getBondLifetimes()
         return bonds
@@ -108,7 +108,7 @@ cdef class BondingAnalysis:
         """Return the overall lifetimes.
 
         Returns:
-            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`: lifetime of bonds
+            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`: Lifetime of bonds.
         """
         bonds = self.thisptr.getOverallLifetimes()
         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
@@ -122,7 +122,7 @@ cdef class BondingAnalysis:
         """Return the transition matrix.
 
         Returns:
-            :class:`numpy.ndarray`: transition matrix
+            :class:`numpy.ndarray`: Transition matrix.
         """
         cdef unsigned int * trans_matrix = self.thisptr.getTransitionMatrix(
                                             ).get()
@@ -142,7 +142,7 @@ cdef class BondingAnalysis:
         """Get number of frames calculated.
 
         Returns:
-            unsigned int: number of frames
+            unsigned int: Number of frames.
         """
         return self.thisptr.getNumFrames()
 
@@ -154,7 +154,7 @@ cdef class BondingAnalysis:
         """Get number of particles being tracked.
 
         Returns:
-            unsigned int: number of particles
+            unsigned int: Number of particles.
         """
         return self.thisptr.getNumParticles()
 
@@ -166,7 +166,7 @@ cdef class BondingAnalysis:
         """Get number of bonds tracked.
 
         Returns:
-            unsigned int: number of bonds
+            unsigned int: Number of bonds.
         """
         return self.thisptr.getNumBonds()
 
@@ -176,15 +176,15 @@ cdef class BondingR12:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        r_max (float): distance to search for bonds
+        r_max (float): Distance to search for bonds.
         bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each r, :math:`\\theta_2`, :math:`\\theta_1`
-                         coordinate
-        bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked,
-                          :code:`bond_list[i] = bond_index`
+                         coordinate.
+        bond_list (:class:`numpy.ndarray`): List containing the bond indices to be tracked,
+                          :code:`bond_list[i] = bond_index`.
 
     Attributes:
-        bonds (:class:`numpy.ndarray`): Particle bonds
-        box (:py:class:`freud.box.Box`): Box used in the calculation
+        bonds (:class:`numpy.ndarray`): Particle bonds.
+        box (:py:class:`freud.box.Box`): Box used in the calculation.
         list_map (dict): The dict used to map bond index to list index.
         rev_list_map (dict): The dict used to map list idx to bond idx.
     """
@@ -213,12 +213,12 @@ cdef class BondingR12:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the bonding
-            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None)
+            box (:class:`freud.box.Box`): Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the bonding.
+            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
+            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -272,7 +272,7 @@ cdef class BondingR12:
         """Return the particle bonds.
 
         Returns:
-            :class:`numpy.ndarray`: particle bonds
+            :class:`numpy.ndarray`: Particle bonds.
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
@@ -291,7 +291,7 @@ cdef class BondingR12:
         """Get the box used in the calculation.
 
         Returns:
-            :py:class:`freud.box.Box`: freud Box
+            :py:class:`freud.box.Box`: freud Box.
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -303,7 +303,7 @@ cdef class BondingR12:
         """Get the dict used to map bond idx to list idx.
 
         Returns:
-            dict: list_map
+            dict: The mapping from bond to particle index.
         """
         return self.thisptr.getListMap()
 
@@ -315,7 +315,7 @@ cdef class BondingR12:
         """Get the dict used to map list idx to bond idx.
 
         Returns:
-            dict: list_map
+            dict: The mapping from particle to bond index.
         """
         return self.thisptr.getRevListMap()
 
@@ -325,14 +325,14 @@ cdef class BondingXY2D:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        x_max (float): maximum :math:`x` distance at which to search for bonds
-        y_max (float): maximum :math:`y` distance at which to search for bonds
-        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y` coordinate
-        bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked, :code:`bond_list[i] = bond_index`
+        x_max (float): Maximum :math:`x` distance at which to search for bonds.
+        y_max (float): Maximum :math:`y` distance at which to search for bonds.
+        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y` coordinate.
+        bond_list (:class:`numpy.ndarray`): List containing the bond indices to be tracked, :code:`bond_list[i] = bond_index`.
 
     Attributes:
-        bonds (:class:`numpy.ndarray`): Particle bonds
-        box (:py:class:`freud.box.Box`): Box used in the calculation
+        bonds (:class:`numpy.ndarray`): Particle bonds.
+        box (:py:class:`freud.box.Box`): Box used in the calculation.
         list_map (dict): The dict used to map bond index to list index.
         rev_list_map (dict): The dict used to map list idx to bond idx.
     """
@@ -363,12 +363,12 @@ cdef class BondingXY2D:
         histogram.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the bonding
-            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None)
+            box (:class:`freud.box.Box`): Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the bonding.
+            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
+            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -423,7 +423,7 @@ cdef class BondingXY2D:
         """Return the particle bonds.
 
         Returns:
-            :class:`numpy.ndarray`: particle bonds
+            :class:`numpy.ndarray`: Particle bonds.
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
@@ -442,7 +442,7 @@ cdef class BondingXY2D:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box`: freud Box
+            :class:`freud.box.Box`: freud Box.
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -454,7 +454,7 @@ cdef class BondingXY2D:
         """Get the dict used to map list idx to bond idx.
 
         Returns:
-            dict: list_map
+            dict: The mapping from bond to particle index.
         """
         return self.thisptr.getListMap()
 
@@ -466,7 +466,7 @@ cdef class BondingXY2D:
         """Get the dict used to map list idx to bond idx.
 
         Returns:
-            dict: list_map
+            dict: The mapping from particle to bond index.
         """
         return self.thisptr.getRevListMap()
 
@@ -480,16 +480,16 @@ cdef class BondingXYT:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        x_max (float): maximum :math:`x` distance at which to search for bonds
-        y_max (float): maximum :math:`y` distance at which to search for bonds
+        x_max (float): Maximum :math:`x` distance at which to search for bonds.
+        y_max (float): Maximum :math:`y` distance at which to search for bonds.
         bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y`
-                         coordinate
-        bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked,
-                          :code:`bond_list[i] = bond_index`
+                         coordinate.
+        bond_list (:class:`numpy.ndarray`): List containing the bond indices to be tracked,
+                          :code:`bond_list[i] = bond_index`.
 
     Attributes:
-        bonds (:class:`numpy.ndarray`): Particle bonds
-        box (:py:class:`freud.box.Box`): Box used in the calculation
+        bonds (:class:`numpy.ndarray`): Particle bonds.
+        box (:py:class:`freud.box.Box`): Box used in the calculation.
         list_map (dict): The dict used to map bond index to list index.
         rev_list_map (dict): The dict used to map list idx to bond idx.
     """
@@ -520,12 +520,12 @@ cdef class BondingXYT:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the bonding
-            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None)
+            box (:class:`freud.box.Box`): Simulation box
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the bonding.
+            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
+            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -579,7 +579,7 @@ cdef class BondingXYT:
         """Return the particle bonds.
 
         Returns:
-            :class:`numpy.ndarray`: particle bonds
+            :class:`numpy.ndarray`: Particle bonds.
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
@@ -598,7 +598,7 @@ cdef class BondingXYT:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box`: freud Box
+            :class:`freud.box.Box`: freud Box.
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -610,7 +610,7 @@ cdef class BondingXYT:
         """Get the dict used to map list idx to bond idx.
 
         Returns:
-            dict: list_map
+            dict: The mapping from bond to particle index.
         """
         return self.thisptr.getListMap()
 
@@ -622,7 +622,7 @@ cdef class BondingXYT:
         """Get the dict used to map list idx to bond idx.
 
         Returns:
-            dict: list_map
+            dict: The mapping from particle to bond index.
         """
         return self.thisptr.getRevListMap()
 
@@ -636,17 +636,17 @@ cdef class BondingXYZ:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        x_max (float): maximum :math:`x` distance at which to search for bonds
-        y_max (float): maximum :math:`y` distance at which to search for bonds
-        z_max (float): maximum :math:`z` distance at which to search for bonds
+        x_max (float): Maximum :math:`x` distance at which to search for bonds.
+        y_max (float): Maximum :math:`y` distance at which to search for bonds.
+        z_max (float): Maximum :math:`z` distance at which to search for bonds.
         bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y`, :math:`z`
-                         coordinate
-        bond_list (:class:`numpy.ndarray`): list containing the bond indices to be tracked,
-                          :code:`bond_list[i] = bond_index`
+                         coordinate.
+        bond_list (:class:`numpy.ndarray`): List containing the bond indices to be tracked,
+                          :code:`bond_list[i] = bond_index`.
 
     Attributes:
-        bonds (:class:`numpy.ndarray`): Particle bonds
-        box (:py:class:`freud.box.Box`): Box used in the calculation
+        bonds (:class:`numpy.ndarray`): Particle bonds.
+        box (:py:class:`freud.box.Box`): Box used in the calculation.
         list_map (dict): The dict used to map bond index to list index.
         rev_list_map (dict): The dict used to map list idx to bond idx.
     """
@@ -678,12 +678,12 @@ cdef class BondingXYZ:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): simulation box
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): reference points to calculate the bonding
-            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): points to calculate the bonding
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): orientations as angles to use in computation
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None)
+            box (:class:`freud.box.Box`): Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the bonding.
+            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
+            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -745,7 +745,7 @@ cdef class BondingXYZ:
         """Return the particle bonds.
 
         Returns:
-            :class:`numpy.ndarray`: particle bonds
+            :class:`numpy.ndarray`: Particle bonds.
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
@@ -764,7 +764,7 @@ cdef class BondingXYZ:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box`: freud Box
+            :class:`freud.box.Box`: freud Box.
         """
         return BoxFromCPP(< box.Box > self.thisptr.getBox())
 
@@ -776,7 +776,7 @@ cdef class BondingXYZ:
         """Get the dict used to map list idx to bond idx.
 
         Returns:
-            dict: list_map
+            dict: The mapping from bond to particle index.
         """
         return self.thisptr.getListMap()
 
@@ -788,6 +788,6 @@ cdef class BondingXYZ:
         """Get the dict used to map list idx to bond idx.
 
         Returns:
-            dict: list_map
+            dict: The mapping from particle to bond index.
         """
         return self.thisptr.getRevListMap()

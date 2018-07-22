@@ -14,8 +14,8 @@ cdef class InterfaceMeasure:
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`): simulation box
-        r_cut (float): Distance to search for particle neighbors
+        box (:py:class:`freud.box.Box`): Simulation box.
+        r_cut (float): Distance to search for particle neighbors.
     """
     cdef interface.InterfaceMeasure * thisptr
     cdef box
@@ -38,10 +38,10 @@ cdef class InterfaceMeasure:
         the two given sets of points.
 
         Args:
-          ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): one set of particle positions
-          points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): other set of particle positions
+          ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): One set of particle positions.
+          points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Other set of particle positions.
           nlist (:class:`freud.locality.NeighborList`, optional): Neighborlist to use to
-                find bonds (Default value = None)
+                find bonds (Default value = None).
         """
         ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,

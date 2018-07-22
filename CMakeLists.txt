@@ -42,10 +42,6 @@ include_directories(${PYTHON_INCLUDE_DIR})
 find_package(Cython)
 include(UseCython)
 
-# Find the boost libraries and set them up
-include (FREUDBoostSetup)
-include_directories(SYSTEM ${Boost_INCLUDE_DIR})
-
 # setup numpy
 include (FREUDNumpySetup)
 include_directories(${NUMPY_INCLUDE_DIR})

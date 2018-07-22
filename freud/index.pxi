@@ -12,9 +12,8 @@ np.import_array()
 cdef class Index2D:
     """freud-style indexer for flat arrays.
 
-    freud utilizes "flat" arrays at the C++ level i.e. an :math:`n`-dimensional
-    array with :math:`n_i` elements in each index is represented as a
-    :math:`1`-dimensional array with :math:`\prod\limits_i n_i` elements.
+    Once constructed, the object provides direct access to the flat index
+    equivalent:
 
     - Constructor Calls:
 
@@ -26,17 +25,17 @@ cdef class Index2D:
 
             freud.index.Index2D(w, h)
 
-    .. note:: freud indexes column-first i.e. Index2D(i, j) will return the
+    .. note:: freud indexes column-first i.e. ``Index2D(i, j)`` will return the
               :math:`1`-dimensional index of the :math:`i^{th}` column and the
               :math:`j^{th}` row. This is the opposite of what occurs in a
-              numpy array, in which array[i, j] returns the element in the
-              :math:`i^{th}` row and the :math:`j^{th}` column
+              numpy array, in which ``array[i, j]`` returns the element in the
+              :math:`i^{th}` row and the :math:`j^{th}` column.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        w (unsigned int): width of 2D array (number of columns)
-        h (unsigned int): height of 2D array (number of rows)
+        w (unsigned int): Width of 2D array (number of columns).
+        h (unsigned int): Height of 2D array (number of rows).
 
     Attributes:
         num_elements (unsigned int): Number of elements in the array.
@@ -60,11 +59,11 @@ cdef class Index2D:
     def __call__(self, i, j):
         """
         Args:
-            i (unsigned int): column index
-            j (unsigned int): row index
+            i (unsigned int): Column index.
+            j (unsigned int): Row index.
 
         Returns:
-            unsigned int: index in flat (*e.g.* :math:`1`-dimensional) array
+            unsigned int: Index in flat (*e.g.* :math:`1`-dimensional) array.
         """
         return self.thisptr.getIndex(i, j)
 
@@ -73,19 +72,16 @@ cdef class Index2D:
         return self.getNumElements()
 
     def getNumElements(self):
-        """Get the number of elements in the array
+        """Get the number of elements in the array.
 
         Returns:
-            unsigned int: number of elements in the array
+            unsigned int: Number of elements in the array.
         """
         return self.thisptr.getNumElements()
 
 cdef class Index3D:
     """freud-style indexer for flat arrays.
 
-    freud utilizes "flat" arrays at the C++ level i.e. an :math:`n`-dimensional
-    array with :math:`n_i` elements in each index is represented as a
-    :math:`1`-dimensional array with :math:`\\prod\\limits_i n_i` elements.
     Once constructed, the object provides direct access to the flat index
     equivalent:
 
@@ -109,9 +105,9 @@ cdef class Index3D:
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        w (unsigned int): width of 2D array (number of columns)
-        h (unsigned int): height of 2D array (number of rows)
-        d (unsigned int): depth of 2D array (number of frames)
+        w (unsigned int): Width of 2D array (number of columns).
+        h (unsigned int): Height of 2D array (number of rows).
+        d (unsigned int): Depth of 2D array (number of frames).
 
     Attributes:
         num_elements (unsigned int): Number of elements in the array.
@@ -135,12 +131,12 @@ cdef class Index3D:
     def __call__(self, i, j, k):
         """
         Args:
-            i (unsigned int): column index
-            j (unsigned int): row index
-            k (unsigned int): frame index
+            i (unsigned int): Column index.
+            j (unsigned int): Row index.
+            k (unsigned int): Frame index.
 
         Returns:
-            unsigned int: index in flat (*e.g.* :math:`1`-dimensional) array
+            unsigned int: Index in flat (*e.g.* :math:`1`-dimensional) array.
         """
         return self.thisptr.getIndex(i, j, k)
 
@@ -149,9 +145,9 @@ cdef class Index3D:
         return self.getNumElements()
 
     def getNumElements(self):
-        """Get the number of elements in the array
+        """Get the number of elements in the array.
 
         Returns:
-          unsigned int: number of elements in the array
+          unsigned int: Number of elements in the array.
         """
         return self.thisptr.getNumElements()

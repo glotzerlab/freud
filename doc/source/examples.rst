@@ -8,4 +8,4 @@ Examples are provided as `Jupyter <https://jupyter.org/>`_ notebooks in a separa
 `NBViewer <https://nbviewer.jupyter.org/github/harperic/freud-examples/blob/master/index.ipynb>`_ and interactive
 notebooks on `MyBinder <https://mybinder.org:/repo/harperic/freud-examples>`_.
 
-Visualization of data is done via `Bokeh <https://bokeh.pydata.org/>`_ [Cit0]_.
+Visualization of data is done via `Bokeh <https://bokeh.pydata.org/>`_ [Bokeh]_.
