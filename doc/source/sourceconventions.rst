@@ -4,7 +4,7 @@ Source Code Conventions
 
 The guidelines below should be followed for any new code added to freud.
 This guide is separated into three sections, one for guidelines common
-to python and C++, one for python alone, and one for C++.
+to Python and C++, one for Python alone, and one for C++.
 
 Both
 ====
@@ -157,24 +157,26 @@ Source
 Documentation Comments
 ----------------------
 
--  Documentation is generated using `sphinx <http://www.sphinx-doc.org/en/stable/index.html>`_
+-  Documentation is generated using `sphinx <http://www.sphinx-doc.org/en/stable/index.html>`_.
 -  The documentation should be written according to the `Google Python Style Guide <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.
 -  A few specific notes:
 
    - The shapes of NumPy arrays should be documented as part of the type in the
-     following manner `points ((N, 4) (:py:class:np.ndarray)): The points...`.
+     following manner:
+     :code:`points ((N, 4) (:py:class:np.ndarray)): The points...`.
    - Constructors should be documented at the class level.
    - Class attributes (*including properties*) should be documented as class
      attributes within the class-level docstring.
    - Optional arguments should be documented as such within the type after the
      actual type, and the default value should be included within the
-     description *e.g.*, `r_max (float, optional): ... If None (the default),
+     description *e.g.*,
+     :code:`r_max (float, optional): ... If None (the default),
      number is inferred...`.
    - Properties that are settable should be documented the same way as optional
-     arguments: `Lx (float, settable): Length in x`.
-    
+     arguments: :code:`Lx (float, settable): Length in x`.
+
 -  All docstrings should be contained within the Cython files except module
-   docstrings, which belong in the Python code
+   docstrings, which belong in the Python code.
 -  If you copy an existing file as a template, **make sure to modify the comments
    to reflect the new file**.
 -  Good documentation comments are best demonstrated with an in-code
