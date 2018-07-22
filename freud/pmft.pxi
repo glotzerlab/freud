@@ -268,7 +268,7 @@ cdef class PMFTR12(_PMFT):
         """Get the array of T1-values for the PCF histogram.
 
         Returns:
-            :math:`\\left(N_{\\theta1}\\right)` :class:`numpy.ndarray`: Bin centers of T1-dimension of histogram.
+            :math:`\\left(N_{\\theta_1}\\right)` :class:`numpy.ndarray`: Bin centers of T1-dimension of histogram.
         """
         cdef float * T1 = self.pmftr12ptr.getT1().get()
         cdef np.npy_intp nbins[1]
@@ -286,7 +286,7 @@ cdef class PMFTR12(_PMFT):
         """Get the array of T2-values for the PCF histogram.
 
         Returns:
-            :math:`\\left(N_{\\theta2}\\right)` :class:`numpy.ndarray`: Bin centers of T2-dimension of histogram.
+            :math:`\\left(N_{\\theta_2}\\right)` :class:`numpy.ndarray`: Bin centers of T2-dimension of histogram.
         """
         cdef float * T2 = self.pmftr12ptr.getT2().get()
         cdef np.npy_intp nbins[1]

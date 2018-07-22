@@ -300,7 +300,7 @@ cdef class Box:
                 Single image index or array of :math:`N` image indices.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right) :class:`numpy.ndarray`: Vectors unwrapped by the image indices provided.
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: Vectors unwrapped by the image indices provided.
         """
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")

@@ -12,10 +12,8 @@ np.import_array()
 cdef class Index2D:
     """freud-style indexer for flat arrays.
 
-    freud utilizes flat arrays at the C++ level to represent multidimensional
-    arrays. :math:`N`-dimensional arrays with :math:`n_i` elements in each
-    dimension :math:`i` are instead represented as :math:`1`-dimensional arrays
-    with :math:`\prod_{i=1}^N n_i` elements.
+    Once constructed, the object provides direct access to the flat index
+    equivalent:
 
     - Constructor Calls:
 
@@ -84,9 +82,6 @@ cdef class Index2D:
 cdef class Index3D:
     """freud-style indexer for flat arrays.
 
-    freud utilizes "flat" arrays at the C++ level i.e. an :math:`n`-dimensional
-    array with :math:`n_i` elements in each index is represented as a
-    :math:`1`-dimensional array with :math:`\\prod\\limits_i n_i` elements.
     Once constructed, the object provides direct access to the flat index
     equivalent:
 

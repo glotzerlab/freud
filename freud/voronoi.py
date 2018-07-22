@@ -56,7 +56,7 @@ class Voronoi:
         """Reset the simulation box.
 
         Args:
-            box(py:class:`freud.box.Box`): Simulation box.
+            box (:class:`freud.box.Box`): Simulation box.
         """
         box = common.convert_box(box)
         self.box = box
@@ -74,7 +74,7 @@ class Voronoi:
 
         Args:
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (py:class:`freud.box.Box`): Simulation box (Default value = None).
+            box (:class:`freud.box.Box`): Simulation box (Default value = None).
             buff (float): Buffer distance within which to look for images (Default value = None).
         """
         # Compute the buffer particles in C++
@@ -103,7 +103,7 @@ class Voronoi:
 
         Args:
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (py:class:`freud.box.Box`): Simulation box (Default value = None).
+            box (:class:`freud.box.Box`): Simulation box (Default value = None).
             buff (float): Buffer distance within which to look for images (Default value = None).
         """
 
@@ -153,8 +153,8 @@ class Voronoi:
         buffer width.
 
         Returns:
-          list: List of :py:class:`numpy.ndarray` containing Voronoi
-              polytope vertices.
+          list: List of :class:`numpy.ndarray` containing Voronoi
+          polytope vertices.
 
         """
         return self.poly_verts
@@ -187,7 +187,7 @@ class Voronoi:
 
         Args:
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (py:class:`freud.box.Box`): Simulation box (Default value = None).
+            box (:class:`freud.box.Box`): Simulation box (Default value = None).
             buff (float): Buffer distance within which to look for images (Default value = None).
             exclude_ii (bool, optional): True if pairs of points with identical indices
                              should be excluded (Default value = True).
@@ -337,7 +337,7 @@ class Voronoi:
         boundary polygon between the neighboring particles.
 
         Returns:
-          py:class:`~.locality.NeighborList`: Neighbor list.
+            :class:`~.locality.NeighborList`: Neighbor list.
         """
         # Build neighbor list based on voronoi neighbors
         neighbor_list = copy.copy(self.firstShellNeighborList)
@@ -402,6 +402,6 @@ class Voronoi:
         buffer width.
 
         Returns:
-            (:math:`\\left(N_{cells} \\right)`) class:`numpy.ndarray`: Containing Voronoi polytope volumes/areas.
+            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`: Containing Voronoi polytope volumes/areas.
         """
         return self.poly_volumes

@@ -307,7 +307,7 @@ cdef class ClusterProperties:
 
         Returns:
             (:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: Cluster center
-                of mass coordinates :math:`\\left(x,y,z\\right)`.
+            of mass coordinates :math:`\\left(x,y,z\\right)`.
         """
         cdef vec3[float] * cluster_com_raw = self.thisptr.getClusterCOM().get()
         cdef np.npy_intp nClusters[2]
@@ -327,7 +327,8 @@ cdef class ClusterProperties:
         :py:meth:`~.computeProperties()`.
 
         Returns:
-            (:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: List of gyration tensors for each cluster.
+            (:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: List of
+            gyration tensors for each cluster.
         """
         cdef float * cluster_G_raw = self.thisptr.getClusterG().get()
         cdef np.npy_intp nClusters[3]

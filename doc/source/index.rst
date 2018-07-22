@@ -12,8 +12,8 @@ In order to maximize its interoperability with other systems, freud works with a
 Installing freud
 ================
 
-The recommended method of installing freud is using [conda](https://conda.io/docs/) through the [conda-forge channel](https://conda-forge.org/).
-First download and install [miniconda](https://conda.io/miniconda.html) following [conda's instructions](https://conda.io/docs/user-guide/install/index.html).
+The recommended method of installing freud is using `conda <https://conda.io/docs/>`_ through the `conda-forge channel <https://conda-forge.org/>`_.
+First download and install `miniconda <https://conda.io/miniconda.html>`_ following `conda's instructions <https://conda.io/docs/user-guide/install/index.html>`_.
 Then, install freud from conda-forge:
   
 .. code-block:: bash
@@ -46,7 +46,7 @@ Support and Contribution
 ========================
 
 Please visit our repository on `Bitbucket <https://bitbucket.org/glotzer/freud>`_ for the library source code.
-Any issues or bugs may be reported at our `issue tracker <https://bitbucket.org/glotzer/freud/issues?status=new&status=open>`_, while questions and discussion can be directed to our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
+Any issues or bugs may be reported at our `issue tracker <https://bitbucket.org/glotzer/freud/issues>`_, while questions and discussion can be directed to our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
 All contributions to freud are welcomed via pull requests!
 Please see the :doc:`development guide <development>` for more information on requirements for new code.
 
