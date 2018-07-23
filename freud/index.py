@@ -5,8 +5,8 @@ R"""
 The index module exposes the :math:`1`-dimensional indexer utilized in freud at
 the C++ level.  At the C++ level, freud utilizes flat arrays to represent
 multidimensional arrays. :math:`N`-dimensional arrays with :math:`n_i` elements
-in each dimension :math:`i` are represented as :math:`1`-dimensional arrays with
-:math:`\prod_{i=1}^N n_i` elements.
+in each dimension :math:`i` are represented as :math:`1`-dimensional arrays
+with :math:`\prod_{i=1}^N n_i` elements.
 """
 
 

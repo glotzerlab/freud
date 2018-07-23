@@ -3,16 +3,24 @@
 
 R"""
 The bond module allows for the computation of bonds as defined by a map.
-Depending on the coordinate system desired, either a two or three dimensional array is supplied, with each element containing the bond index mapped to the pair geometry of that element.
-The user provides a list of indices to track, so that not all bond indices contained in the bond map need to be tracked in computation.
+Depending on the coordinate system desired, either a two or three dimensional
+array is supplied, with each element containing the bond index mapped to the
+pair geometry of that element.
+The user provides a list of indices to track, so that not all bond indices
+contained in the bond map need to be tracked in computation.
 
-The bond module is designed to take in arrays using the same coordinate systems in the :doc:`pmft` in freud.
+The bond module is designed to take in arrays using the same coordinate systems
+in the :doc:`pmft` in freud.
 
 .. note::
-    The coordinate system in which the calculation is performed is not the same as the coordinate system in which particle positions and orientations should be supplied.
-    Only certain coordinate systems are available for certain particle positions and orientations:
+    The coordinate system in which the calculation is performed is not the same
+    as the coordinate system in which particle positions and orientations
+    should be supplied.
+    Only certain coordinate systems are available for certain particle
+    positions and orientations:
 
-    * 2D particle coordinates (position: [:math:`x`, :math:`y`, :math:`0`], orientation: :math:`\theta`):
+    * 2D particle coordinates (position: [:math:`x`, :math:`y`, :math:`0`],
+      orientation: :math:`\theta`):
         * :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
         * :math:`x`, :math:`y`.
         * :math:`x`, :math:`y`, :math:`\theta`.

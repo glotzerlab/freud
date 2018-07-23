@@ -22,8 +22,8 @@ def convert_array(array, dimensions, dtype=None,
         array (:class:`numpy.ndarray`): Array to check and convert.
         dimensions (int): Expected dimensions of the array.
         dtype: code:`dtype` to convert the array to if :code:`array.dtype`
-            is different. If `None`, :code:`dtype` will not be changed. (Default
-            value = None).
+            is different. If `None`, :code:`dtype` will not be changed.
+            (Default value = None).
         contiguous (bool): Whether to cast the array to a contiguous (Default
             value = True).
         array. Default behavior casts to a contiguous array.

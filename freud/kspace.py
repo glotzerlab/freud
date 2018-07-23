@@ -136,8 +136,8 @@ class SFactor3DPoints:
         """Get the computed static structure factor.
 
         Returns:
-           (X,Y) :class:`numpy.ndarray`: The computed static structure factor as
-               a copy.
+            (X,Y) :class:`numpy.ndarray`: The computed static structure factor
+                as a copy.
         """
         return (self.s_complex * np.conj(self.s_complex)).astype(
             np.float32)
@@ -147,8 +147,8 @@ class SFactor3DPoints:
         information).
 
         Returns:
-            (X,Y) :class:`numpy.ndarray`: The computed static structure factor, as a copy, without
-                                          taking the magnitude squared.
+            (X,Y) :class:`numpy.ndarray`: The computed static structure factor,
+                as a copy, without taking the magnitude squared.
         """
         return copy.cpy(self.s_complex)
 
@@ -203,8 +203,8 @@ class AnalyzeSFactor3D:
         """Get a list of peaks in the structure factor.
 
         Args:
-            cut (float): All :math:`S\\left(q\\right)` values greater than cut will
-                be counted as peaks.
+            cut (float): All :math:`S\\left(q\\right)` values greater than cut
+                will be counted as peaks.
 
         Returns:
           :class:`list`: peaks, :math:`q` as lists.
@@ -226,8 +226,8 @@ class AnalyzeSFactor3D:
         """Get a dictionary of peaks indexed by :math:`q^2`.
 
         Args:
-            cut (:class:`numpy.ndarray`): All :math:`S\\left(q\\right)` values greater than cut will
-                be counted as peaks.
+            cut (:class:`numpy.ndarray`): All :math:`S\\left(q\\right)` values
+                greater than cut will be counted as peaks.
 
         Returns:
             `dict`: A dictionary with keys :math:`q^2` and a
@@ -283,11 +283,12 @@ class SingleCell3D:
 
     Args:
         ndiv (int): The resolution of the diffraction image grid.
-        k (float): The angular wave number of the plane wave probe (Currently unused).
+        k (float): The angular wave number of the plane wave probe (Currently
+            unused).
         dK (float): The k-space unit associated with the diffraction
                          image grid spacing.
-        boxMatrix ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): The unit cell lattice vectors as columns in a 3x3
-                          matrix.
+        boxMatrix ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): The unit
+            cell lattice vectors as columns in a 3x3 matrix.
         scale (float): nm per unit length (default 1.0).
 
 
@@ -660,10 +661,10 @@ class FTfactory:
 
         Args:
             name (str): Identifying string to be returned by getFTlist().
-            constructor (str): Class / function name to be used to create new FT
-                               objects.
+            constructor (str): Class / function name to be used to create new
+                FT objects.
             args (list): Set default argument object to be used to construct FT
-                         objects.
+                objects.
         """
         if name in self.name_list:
             raise Warning('{name} already in factory'.format(name=name))
@@ -952,9 +953,12 @@ class FTpolyhedron(FTbase):
         """Construct list of facet offsets.
 
         Args:
-            verts ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Vertex coordinates.
-            facets ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`): Facet vertex indices.
-            norms ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`): Facet normals.
+            verts ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vertex coordinates.
+            facets ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`):
+                Facet vertex indices.
+            norms ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`):
+                Facet normals.
             d ((:math:`N_{facets}-1`) :class:`numpy.ndarray`): Facet distances.
             area ((:math:`N_{facets}-1`) :class:`numpy.ndarray`): Facet areas.
             volume (float): polyhedron volume.
@@ -1006,7 +1010,8 @@ class FTconvexPolyhedron(FTpolyhedron):
     """Fourier Transform for convex polyhedra.
 
     Args:
-        hull ((:math:`N_{verts}`, 3) :class:`numpy.ndarray`): Convex hull object.
+        hull ((:math:`N_{verts}`, 3) :class:`numpy.ndarray`):
+            Convex hull object.
     """
 
     def __init__(self, hull, *args, **kwargs):
@@ -1189,8 +1194,8 @@ class Constraint:
     def __init__(self, R, *args, **kwargs):
         """Constructor.
 
-        R (float): Required parameter describes the circumsphere of influence of
-                    the constraint for quick tests.
+        R (float): Required parameter describes the circumsphere of influence
+            of the constraint for quick tests.
         """
         self.radius = R
 
@@ -1216,8 +1221,8 @@ class AlignedBoxConstraint(Constraint):
         """Constructor.
 
         Args:
-            R (float): Required parameter describes the circumsphere of influence of
-                        the constraint for quick tests.
+            R (float): Required parameter describes the circumsphere of
+                influence of the constraint for quick tests.
         """
         self.radius = R
         self.R2 = R * R
@@ -1304,7 +1309,8 @@ def reciprocalLattice3D(a1, a2, a3):
         list: Reciprocal space vectors.
 
     .. note::
-        For unit test, :code:`dot(g[i], a[j]) = 2 * pi * diracDelta(i, j)`: list of reciprocal lattice vectors
+        For unit test, :code:`dot(g[i], a[j]) = 2 * pi * diracDelta(i, j)`:
+            list of reciprocal lattice vectors
     """
     a1 = np.asarray(a1)
     a2 = np.asarray(a2)
@@ -1326,8 +1332,10 @@ class DeltaSpot:
     subgrid. Spot is a single pixel at the closest grid point.
 
     Args:
-        shape ((2) :class:`numpy.ndarray`): Number of grid points in each dimension.
-        extent ((2) :class:`numpy.ndarray`): Range of x,y values associated with grid points.
+        shape ((2) :class:`numpy.ndarray`): Number of grid points in each
+            dimension.
+        extent ((2) :class:`numpy.ndarray`): Range of x,y values associated
+            with grid points.
     """
 
     def __init__(self, shape, extent, *args, **kwargs):
@@ -1374,8 +1382,10 @@ class GaussianSpot(DeltaSpot):
     Grid points filled according to Gaussian at spot center.
 
     Args:
-        shape ((2) :class:`numpy.ndarray`): Number of grid points in each dimension.
-        extent ((2) :class:`numpy.ndarray`): Range of x, y values associated with grid points.
+        shape ((2) :class:`numpy.ndarray`): Number of grid points in each
+            dimension.
+        extent ((2) :class:`numpy.ndarray`): Range of x, y values associated
+            with grid points.
     """
 
     def __init__(self, shape, extent, *args, **kwargs):
@@ -1425,7 +1435,8 @@ class GaussianSpot(DeltaSpot):
         """Generate intensity value(s) at sub-grid points.
 
         Args:
-            cval (:class:`numpy.complex64`): Complex valued amplitude used to generate spot intensity.
+            cval (:class:`numpy.complex64`): Complex valued amplitude used to
+                generate spot intensity.
         """
         val = (np.conj(cval) * cval).real
         # calculate gaussian at grid points and multiply by val

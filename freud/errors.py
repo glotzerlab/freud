@@ -4,6 +4,8 @@
 # \package freud.errors
 #
 # Errors and exceptions internal to freud
+
+
 class FreudDeprecationWarning(UserWarning):
     """Raised when a freud feature is pending deprecation."""
     pass

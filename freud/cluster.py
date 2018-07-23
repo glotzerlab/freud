@@ -7,7 +7,8 @@
 #
 
 R"""
-The cluster module aids in finding and computing the properties of clusters of points in a system.
+The cluster module aids in finding and computing the properties of clusters of
+points in a system.
 """
 
 from ._freud import Cluster

@@ -73,9 +73,12 @@ class Voronoi:
         """Calls VoronoiBuffer and qhull
 
         Args:
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`): Simulation box (Default value = None).
-            buff (float): Buffer distance within which to look for images (Default value = None).
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
+            box (:class:`freud.box.Box`): Simulation box (Default value =
+                None).
+            buff (float): Buffer distance within which to look for images
+                (Default value = None).
         """
         # Compute the buffer particles in C++
         vbuff = VoronoiBuffer(box)
@@ -102,9 +105,12 @@ class Voronoi:
         """Compute Voronoi diagram.
 
         Args:
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`): Simulation box (Default value = None).
-            buff (float): Buffer distance within which to look for images (Default value = None).
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
+            box (:class:`freud.box.Box`): Simulation box (Default value =
+                None).
+            buff (float): Buffer distance within which to look for images
+                (Default value = None).
         """
 
         # If box or buff is not specified, revert to object quantities
@@ -186,11 +192,14 @@ class Voronoi:
                   to 0.
 
         Args:
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`): Simulation box (Default value = None).
-            buff (float): Buffer distance within which to look for images (Default value = None).
-            exclude_ii (bool, optional): True if pairs of points with identical indices
-                             should be excluded (Default value = True).
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
+            box (:class:`freud.box.Box`): Simulation box (Default value =
+                None).
+            buff (float): Buffer distance within which to look for images
+                (Default value = None).
+            exclude_ii (bool, optional): True if pairs of points with identical
+                indices should be excluded (Default value = True).
         """
         # If box or buff is not specified, revert to object quantities
         if box is None:
@@ -402,6 +411,7 @@ class Voronoi:
         buffer width.
 
         Returns:
-            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`: Containing Voronoi polytope volumes/areas.
+            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:
+                Containing Voronoi polytope volumes/areas.
         """
         return self.poly_volumes

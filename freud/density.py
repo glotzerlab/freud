@@ -7,8 +7,9 @@
 #
 
 R"""
-The density module contains various classes relating to the density of the system.
-These functions allow evaluation of particle distributions with respect to other particles.
+The density module contains various classes relating to the density of the
+system. These functions allow evaluation of particle distributions with respect
+to other particles.
 """
 
 from ._freud import GaussianDensity

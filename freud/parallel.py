@@ -2,8 +2,10 @@
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
 R"""
-The :py:class:`freud.parallel` module controls the parallelization behavior of freud, determining how many threads the TBB-enabled parts of freud will use.
-By default, freud tries to use all available threads for parallelization unless directed otherwise, with one exception.
+The :py:class:`freud.parallel` module controls the parallelization behavior of
+freud, determining how many threads the TBB-enabled parts of freud will use.
+By default, freud tries to use all available threads for parallelization unless
+directed otherwise, with one exception.
 """
 
 import platform
