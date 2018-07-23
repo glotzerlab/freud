@@ -472,7 +472,7 @@ cdef class BondingXY2D:
 
 cdef class BondingXYT:
     """Compute bonds in a 2D system using a
-    (:math:`x`, :math:`y`, :math:`\\theta_1`) coordinate system.
+    (:math:`x`, :math:`y`, :math:`\\theta`) coordinate system.
 
     For each particle in the system determine which other particles are in
     which bonding sites.

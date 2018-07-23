@@ -26,8 +26,8 @@ In order to achieve this goal, freud takes the following viewpoints:
   Bitbucket for code hosting and issue tracking; and the PEP 8
   standard for code, stressing explicitly written code which is easy
   to read.
-* To ensure correctness, freud employs unit testing using the 
-  Python unittest framework. In addition, freud utilizes 
+* To ensure correctness, freud employs unit testing using the
+  Python unittest framework. In addition, freud utilizes
   `CircleCI <https://circleci.com>`_ for continuous integration to
   ensure that all of its code works correctly and that any changes or
   new features do not break existing functionality.
@@ -84,26 +84,26 @@ functions being very similar:
 .. code-block:: c++
 
     // somewhere deep in function_a
-            for (int i = 0; i < n; i++)
-                {
-                vec3[float] pos_i = position[i];
-                    for (int j = 0; j < n; j++)
-                        {
-                        pos_j = = position[j];
-                        // more calls here
-                        }
-                }
+    for (int i = 0; i < n; i++)
+        {
+        vec3[float] pos_i = position[i];
+        for (int j = 0; j < n; j++)
+            {
+            pos_j = = position[j];
+            // more calls here
+            }
+        }
 
     // somewhere deep in function_b
-            for (int i = 0; i < n; i++)
-                {
-                vec3[float] pos_i = position[i];
-                    for (int j = 0; j < n; j++)
-                        {
-                        pos_j = = position[j];
-                        // more calls here
-                        }
-                }
+    for (int i = 0; i < n; i++)
+        {
+        vec3[float] pos_i = position[i];
+        for (int j = 0; j < n; j++)
+            {
+            pos_j = = position[j];
+            // more calls here
+            }
+        }
 
 While it *might* be possible to figure out a way to create a base C++
 class all such classes inherit from, run through positions, call a
@@ -134,7 +134,7 @@ snippet below:
             for j, pos_j in enumerate(positions):
                 if i != j:
                     r_ij = pos_j - pos_i
-                    ...
+                    # ...
                     computed_array[i] += some_val
         return computed_array
 
@@ -159,7 +159,7 @@ In the C++ code, implement the heavy lifting function called above from Python:
                 if (i != j)
                     {
                     r_ij = pos_j - pos_i;
-                    ...
+                    // ...
                     computed_array[i] += some_val;
                     }
                 }
