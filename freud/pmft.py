@@ -19,11 +19,13 @@ coordinate system used to represent the system.
 
     * 2D particle coordinates (position: [:math:`x`, :math:`y`, :math:`0`],
       orientation: :math:`\theta`):
+
         * :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
         * :math:`x`, :math:`y`.
         * :math:`x`, :math:`y`, :math:`\theta`.
 
     * 3D particle coordinates:
+
         * :math:`x`, :math:`y`, :math:`z`.
 """
 

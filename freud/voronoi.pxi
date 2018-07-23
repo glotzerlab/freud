@@ -2,7 +2,6 @@
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
-from cython.view cimport array as cvarray
 from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
@@ -31,13 +30,12 @@ cdef class VoronoiBuffer:
         """Compute the voronoi diagram.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi
-                                                    diagram for.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
             buffer (float): Buffer distance within which to look for images.
         """
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name='points')
+            points, 2, dtype=np.float32, contiguous=True, array_name='points')
 
         if points.shape[1] != 3:
             raise RuntimeError(
@@ -53,22 +51,22 @@ cdef class VoronoiBuffer:
         Returns:
             :class:`np.ndarray`: The buffer particles.
         """
-        cdef unsigned int buffer_size = dereference(
-                self.thisptr.getBufferParticles().get()).size()
-        cdef vec3[float] * buffer_points = &dereference(
-                self.thisptr.getBufferParticles().get())[0]
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef vec3[float] * buffer_points = \
+            &dereference(self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
 
-        cdef vector[vec3[float]]*bufferPar = self.thisptr.getBufferParticles().get()
+        cdef vector[vec3[float]]*bufferPar = \
+            self.thisptr.getBufferParticles().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = buffer_size
         nbins[1] = 3
 
-        cdef np.ndarray[float, ndim = 2] result = \
-                np.PyArray_SimpleNewFromData(
-                    2, nbins, np.NPY_FLOAT32,
-                    <void*> dereference(bufferPar).data())
+        cdef np.ndarray[float, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
+                                         <void*> dereference(bufferPar).data())
 
         return result
 
@@ -78,10 +76,10 @@ cdef class VoronoiBuffer:
         Returns:
             :class:`np.ndarray`: The buffer ids.
         """
-        cdef unsigned int buffer_size = dereference(
-                self.thisptr.getBufferParticles().get()).size()
-        cdef unsigned int * buffer_ids = &dereference(
-                self.thisptr.getBufferIds().get())[0]
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef unsigned int * buffer_ids = \
+            &dereference(self.thisptr.getBufferIds().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.uint32)
 
@@ -89,9 +87,8 @@ cdef class VoronoiBuffer:
         cdef np.npy_intp nbins[1]
         nbins[0] = buffer_size
 
-        cdef np.ndarray[unsigned int, ndim = 1] result = \
-                np.PyArray_SimpleNewFromData(
-                    1, nbins, np.NPY_UINT32,
-                    <void*> dereference(bufferIds).data())
+        cdef np.ndarray[unsigned int, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
+                                         <void*> dereference(bufferIds).data())
 
         return result
