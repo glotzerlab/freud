@@ -72,9 +72,6 @@ class CubaticOrderParameter
 
         quat<float> getCubaticOrientation();
 
-
-        // std::shared_ptr<float> getParticleCubaticOrderParameter();
-
     private:
 
         float m_t_initial;

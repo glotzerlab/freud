@@ -44,7 +44,7 @@ If the code you are adding is in a *new* module, not an existing module, you mus
 
 ::
 
-   cimport freud._moduleName as moduleName`
+   cimport freud._moduleName as moduleName
 
 - Create :code:`freud/moduleName.py` file
 

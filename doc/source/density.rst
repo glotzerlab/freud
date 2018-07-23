@@ -2,7 +2,21 @@
 Density Module
 ==============
 
-The density module contains functions which deal with the density of the system.
+.. rubric:: Overview
+
+.. autosummary::
+    :nosignatures:
+
+    freud.density.FloatCF
+    freud.density.ComplexCF
+    freud.density.GaussianDensity
+    freud.density.LocalDensity
+    freud.density.RDF
+
+.. rubric:: Details
+
+.. automodule:: freud.density
+    :synopsis: Analyze system density.
 
 Correlation Functions
 =====================

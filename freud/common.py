@@ -18,17 +18,20 @@ def convert_array(array, dimensions, dtype=None,
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param array: Array to check and convert
-    :param int dimensions: Expected dimensions of the array
-    :param dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
-                  is different. If `None`, :code:`dtype` will not be changed.
-    :param bool contiguous: Whether to cast the array to a contiguous
-                            array. Default behavior casts to a contiguous array
-    :param str array_name: Name of the array, used for errors
-    :type array: :py:class:`numpy.ndarray`
-    :type dtype: :py:class:`numpy.dtype`
-    :return: array
-    :rtype: :py:class:`numpy.ndarray`
+    Args:
+        array (:class:`numpy.ndarray`): Array to check and convert.
+        dimensions (int): Expected dimensions of the array.
+        dtype: code:`dtype` to convert the array to if :code:`array.dtype`
+            is different. If `None`, :code:`dtype` will not be changed. (Default
+            value = None).
+        contiguous (bool): Whether to cast the array to a contiguous (Default
+            value = True).
+        array. Default behavior casts to a contiguous array.
+        array_name (str): Name of the array, used for errors (Default value =
+            None).
+
+    Returns:
+        py:class:`numpy.ndarray`: Array.
     """
     array = np.asarray(array)
 
@@ -55,10 +58,12 @@ def convert_box(box):
 
     .. moduleauthor:: Bradley Dice <bdice@umich.edu>
 
-    :param box: Box to check and convert if needed
-    :type box: box-like object (see :py:meth:`freud.box.Box.from_box`)
-    :return: freud box
-    :rtype: :py:class:`freud.box.Box`
+    Args:
+      box (box-like object (see :py:meth:`freud.box.Box.from_box`)): Box to
+          check and convert if needed.
+
+    Returns:
+      py:class:`freud.box.Box`: freud box.
     """
     if not isinstance(box, bx.Box):
         try:

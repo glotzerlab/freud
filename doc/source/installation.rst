@@ -1,30 +1,93 @@
+.. _installation:
+
 ============
 Installation
 ============
 
-Requirements
-============
+Installing freud
+================
 
-- `NumPy <http://www.numpy.org/>`_ is **required** to build freud
-- `Cython <http://cython.org/>`_ >= 0.23 is **required** to compile your own :code:`_freud.cpp` file. Cython **is not required** to install freud
-- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ is **required** to run freud
+You can either install freud via `conda <http://conda.pydata.org/docs/>`_ or compile it from source.
+
+Install via conda
+-----------------
+
+The code below will install freud from conda-forge.
+
+.. code-block:: bash
+
+    conda install -c conda-forge freud
+
+Compile from source
+-------------------
+
+The following are **required** for installing freud:
+
+- `Python <https://www.python.org/>`_ (2.7, 3.5, 3.6)
+- `NumPy <http://www.numpy.org/>`_
+- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ (TBB)
+- `CMake <https://cmake.org/>`_
+
+The following are **optional** for installing freud:
+
+- `Cython <http://cython.org/>`_: The freud repository contains a Cython-generated :code:`_freud.cpp` file that can be used directly. However, Cython is necessary if you wish to recompile this file.
+
+The code that follows creates a build directory inside the freud source directory and builds freud:
+
+.. code-block:: bash
+
+    mkdir build
+    cd build
+    cmake ../
+    # Use `cmake ../ -DENABLE_CYTHON=ON` to rebuild _freud.cpp
+    make install
+
+By default, freud installs to the `USER_SITE <https://docs.python.org/3/install/index.html>`_ directory, which is in ``~/.local`` on Linux and in ``~/Library`` on macOS.
+:code:`USER_SITE` is on the Python search path by default, so there is no need to modify :code:`PYTHONPATH`.
+
+.. note::
+
+    freud makes use of submodules. CMake has been configured to automatically initialize and update submodules. However, if
+    this does not work, or you would like to do this yourself, please execute:
+
+    .. code-block:: bash
+
+        git submodule update --init
+
+Unit Tests
+==========
+
+The unit tests for freud are included in the repository and are configured to be run using the Python :py:mod:`unittest` library:
+
+.. code-block:: bash
+
+    # Run tests from the tests directory
+    cd tests
+    python -m unittest discover .
+
+Note that because freud is designed to require installation to run (*i.e.* it cannot be run directly out of the build directory), importing freud from the root of the repository will fail because it will try and import the package folder.
+As a result, unit tests must be run from outside the root directory.
+
 
 Documentation
 =============
 
-You may use the online documentation from `ReadTheDocs <https://freud.readthedocs.io/>`_, \
-or you may build the documentation yourself:
+The documentation for freud is hosted online at `ReadTheDocs <https://freud.readthedocs.io/>`_, but you may also build the documentation yourself:
 
 Building the documentation
 --------------------------
 
-The documentation is build with sphinx. To install sphinx, run
+The following are **required** for building freud documentation:
+
+- `Sphinx <http://www.sphinx-doc.org/>`_
+
+You can install sphinx using conda
 
 .. code-block:: bash
 
     conda install sphinx
 
-or
+or from PyPi
 
 .. code-block:: bash
 
@@ -45,87 +108,3 @@ To build a PDF of the documentation (requires LaTeX and/or PDFLaTeX):
     cd doc
     make latexpdf
     # Then open build/latex/freud.pdf
-
-
-Installation
-============
-
-Install freud via `conda <http://conda.pydata.org/docs/>`_, \
-`glotzpkgs <http://glotzerlab.engin.umich.edu/glotzpkgs/>`_, or compile from source.
-
-Install via conda
------------------
-
-The code below will enable the glotzer conda channel and install freud.
-
-.. code-block:: bash
-
-    conda config --add channels glotzer
-    conda install freud
-
-Install via glotzpkgs
----------------------
-
-Please refer to the official `glotzpkgs <http://glotzerlab.engin.umich.edu/glotzpkgs/>`_ documentation.
-
-First, make sure you have a working glotzpkgs environment.
-
-.. code-block:: bash
-
-    # install from provided binary
-    gpacman -S freud
-    # installing your own version
-    cd /path/to/glotzpkgs/freud
-    gmakepkg
-    # tab completion is your friend here
-    gpacman -U freud-<version>-flux.pkg.tar.gz
-    # now you can load the binary
-    module load freud
-
-Compile from source
--------------------
-
-It is easiest to install freud with a working conda install of the required packages:
-
-- python (2.7, 3.4, 3.5, 3.6)
-- numpy
-- cython (not required, but a correct :code:`_freud.cpp` file must be present to compile)
-- tbb
-- cmake
-
-The code that follows creates a build directory inside the freud source directory and builds freud:
-
-.. code-block:: bash
-
-    mkdir build
-    cd build
-    cmake ../
-    # Use `cmake ../ -DENABLE_CYTHON=ON` to rebuild _freud.cpp
-    make install -j4
-
-By default, freud installs to the `USER_SITE <https://docs.python.org/3.6/library/site.html#site.USER_SITE>`_ directory.
-:code:`USER_SITE` is on the Python search path by default, so there is no need to modify :code:`PYTHONPATH`.
-
-To run out of the build directory, run :code:`make -j4` instead of :code:`make install -j4` and then add the build directory to
-your :code:`PYTHONPATH`.
-
-.. note::
-
-    freud makes use of submodules. CMake has been configured to automatically init and update submodules. However, if
-    this does not work, or you would like to do this yourself, please execute:
-
-    .. code-block:: bash
-
-        git submodule update --init
-
-Unit Tests
-==========
-
-Run all unit tests with :code:`nosetests` in the source directory. To add a test, simply add a file to the `tests` directory, and nosetests will automatically discover it. Read this `introduction to nosetests <http://pythontesting.net/framework/nose/nose-introduction/>`_ for more information.
-
-.. code-block:: bash
-
-    # Install nose
-    conda install nose
-    # Run tests from the source directory
-    nosetests

@@ -15,6 +15,8 @@ cdef class FTdelta:
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
 
+    Attributes:
+        FT (:class:`np.ndarray`): The Fourier transform.
     """
     cdef kspace.FTdelta * thisptr
     # stored size of the fourier transform
@@ -28,17 +30,12 @@ cdef class FTdelta:
         del self.thisptr
 
     def compute(self):
-        """Perform transform and store result internally"""
+        """Perform transform and store result internally."""
         self.thisptr.compute()
         return self
 
-    @property
-    def FT(self):
-        """Return the FT values"""
-        return self.getFT()
-
     def getFT(self):
-        """Return the FT values"""
+        """ """
         cdef(float complex) * ft_points = self.thisptr.getFT().get()
         if not self.NK:
             return np.array([[]], dtype=np.complex64)
@@ -48,12 +45,10 @@ cdef class FTdelta:
         return result
 
     def set_K(self, K):
-        """Set the :math:`K` values to evaluate
+        """Set the :math:`K` values to evaluate.
 
-        :param K: :math:`K` values to evaluate
-        :type K: :class:`numpy.ndarray`,
-                 shape=(:math:`N_{K}`, 3),
-                 dtype= :class:`numpy.float32`
+        Args:
+            K((:math:`N_{K}`, 3) :class:`numpy.ndarray`): :math:`K` values to evaluate.
         """
         K = freud.common.convert_array(
                 K, 1, dtype=np.float32, contiguous=True,
@@ -69,14 +64,9 @@ cdef class FTdelta:
     def set_rq(self, position, orientation):
         """Set particle positions and orientations.
 
-        :param position: particle position vectors
-        :param orientation: particle orientation quaternions
-        :type position: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
-        :type orientation: :class:`numpy.ndarray`,
-                           shape=(:math:`N_{particles}`, 4),
-                           dtype= :class:`numpy.float32`
+        Args:
+            position ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Particle position vectors.
+            orientation ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Particle orientation quaternions.
         """
         position = freud.common.convert_array(
                 position, 2, dtype=np.float32, contiguous=True,
@@ -100,13 +90,17 @@ cdef class FTdelta:
     def set_density(self, float complex density):
         """Set scattering density.
 
-        :param density: complex value of scattering density
+        Args:
+            density (float complex): Complex value of scattering density.
         """
         self.thisptr.set_density(density)
 
 cdef class FTsphere:
     """
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
+
+    Attributes:
+        FT (:class:`np.ndarray`): The Fourier transform.
     """
     cdef kspace.FTsphere * thisptr
     # stored size of the fourier transform
@@ -120,17 +114,12 @@ cdef class FTsphere:
         del self.thisptr
 
     def compute(self):
-        """Perform transform and store result internally"""
+        """Perform transform and store result internally."""
         self.thisptr.compute()
         return self
 
-    @property
-    def FT(self):
-        """Return the FT values"""
-        return self.getFT()
-
     def getFT(self):
-        """Return the FT values"""
+        """ """
         cdef(float complex) * ft_points = self.thisptr.getFT().get()
         if not self.NK:
             return np.array([[]], dtype=np.complex64)
@@ -141,12 +130,10 @@ cdef class FTsphere:
         return result
 
     def set_K(self, K):
-        """Set the :math:`K` values to evaluate
+        """Set the :math:`K` values to evaluate.
 
-        :param K: :math:`K` values to evaluate
-        :type K: :class:`numpy.ndarray`,
-                    shape=(:math:`N_{K}`, 3),
-                    dtype= :class:`numpy.float32`
+        Args:
+            K((:math:`N_{K}`, 3) :class:`numpy.ndarray`): :math:`K` values to evaluate.
         """
         K = np.ascontiguousarray(K, dtype=np.float32)
         if K.ndim != 2 or K.shape[1] != 3:
@@ -158,14 +145,9 @@ cdef class FTsphere:
     def set_rq(self, position, orientation):
         """Set particle positions and orientations.
 
-        :param position: particle position vectors
-        :param orientation: particle orientation quaternions
-        :type position: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
-        :type orientation: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 4),
-                            dtype= :class:`numpy.float32`
+        Args:
+          position ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Particle position vectors.
+          orientation ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Particle orientation quaternions.
         """
         position = freud.common.convert_array(
                 position, 2, dtype=np.float32, contiguous=True,
@@ -189,18 +171,25 @@ cdef class FTsphere:
     def set_density(self, float complex density):
         """Set scattering density.
 
-        :param density: complex value of scattering density
-        :type density: float complex
+        Args:
+          density (float complex): Complex value of scattering density.
         """
         self.thisptr.set_density(density)
 
     def set_radius(self, float radius):
-        """Set particle volume according to radius"""
+        """Set particle volume according to radius.
+
+        Args:
+          radius (float): Particle radius.
+        """
         self.thisptr.set_radius(radius)
 
 cdef class FTpolyhedron:
     """
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
+
+    Attributes:
+        FT (:class:`np.ndarray`): The Fourier transform.
     """
     cdef kspace.FTpolyhedron * thisptr
     # stored size of the fourier transform
@@ -214,17 +203,12 @@ cdef class FTpolyhedron:
         del self.thisptr
 
     def compute(self):
-        """Perform transform and store result internally"""
+        """Perform transform and store result internally."""
         self.thisptr.compute()
         return self
 
-    @property
-    def FT(self):
-        """Return the FT values"""
-        return self.getFT()
-
     def getFT(self):
-        """Return the FT values"""
+        """ """
         cdef(float complex) * ft_points = self.thisptr.getFT().get()
         if not self.NK:
             return np.array([[]], dtype=np.complex64)
@@ -235,12 +219,12 @@ cdef class FTpolyhedron:
         return result
 
     def set_K(self, K):
-        """Set the :math:`K` values to evaluate
+        """Set the :math:`K` values to evaluate.
 
-        :param K: :math:`K` values to evaluate
-        :type K: :class:`numpy.ndarray`,
-                    shape=(:math:`N_{K}`, 3),
-                    dtype= :class:`numpy.float32`
+        Args:
+            K(:class:`numpy.ndarray`,
+              shape=(:math:`N_{K}`, 3),
+              dtype= :class:`numpy.float32`): :math:`K` values to evaluate.
         """
         K = freud.common.convert_array(
             K, 2, dtype=np.float32, contiguous=True,
@@ -254,32 +238,14 @@ cdef class FTpolyhedron:
     def set_params(self, verts, facet_offs, facets, norms, d, area, volume):
         """Set polyhedron geometry.
 
-        :param verts: vertex coordinates
-        :param facet_offs: facet start offsets
-        :param facets: facet vertex indices
-        :param norms: facet normals
-        :param d: facet distances
-        :param area: facet areas
-        :param volume: polyhedron volume
-        :type verts: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{vertices}`, 3),
-                        dtype= :class:`numpy.float32`
-        :type facet_offs: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{facets}`),
-                            dtype= :class:`numpy.float32`
-        :type facets: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{facets}`),
-                        dtype= :class:`numpy.float32`
-        :type norms: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{facets}`, 3),
-                        dtype= :class:`numpy.float32`
-        :type d: :class:`numpy.ndarray`,
-                    shape=(:math:`N_{facets}`),
-                    dtype= :class:`numpy.float32`
-        :type area: :class:`numpy.ndarray`,
-                    shape=(:math:`N_{facets}`),
-                    dtype= :class:`numpy.float32`
-        :type volume: float
+        Args:
+            verts ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Vertex coordinates.
+            facet_offs ((:math:`N_{facets}`) :class:`numpy.ndarray`): Facet start offsets.
+            facets ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`): Facet vertex indices.
+            norms ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`): Facet normals.
+            d ((:math:`N_{facets}`) :class:`numpy.ndarray`): Facet distances.
+            area ((:math:`N_{facets}`) :class:`numpy.ndarray`): Facet areas.
+            volume (float): Polyhedron volume.
         """
         verts = freud.common.convert_array(
                 verts, 2, dtype=np.float32, contiguous=True,
@@ -342,14 +308,9 @@ cdef class FTpolyhedron:
     def set_rq(self, position, orientation):
         """Set particle positions and orientations.
 
-        :param position: particle position vectors
-        :param orientation: particle orientation quaternions
-        :type position: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
-        :type orientation: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 4),
-                            dtype= :class:`numpy.float32`
+        Args:
+          position ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Particle position vectors.
+          orientation ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Particle orientation quaternions.
         """
         position = freud.common.convert_array(
                 position, 2, dtype=np.float32, contiguous=True,
@@ -377,7 +338,7 @@ cdef class FTpolyhedron:
     def set_density(self, float complex density):
         """Set scattering density.
 
-        :param density: complex value of scattering density
-        :type density: float complex
+        Args:
+          density (float complex): Complex value of scattering density.
         """
         self.thisptr.set_density(density)

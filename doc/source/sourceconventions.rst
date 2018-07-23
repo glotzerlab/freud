@@ -4,7 +4,7 @@ Source Code Conventions
 
 The guidelines below should be followed for any new code added to freud.
 This guide is separated into three sections, one for guidelines common
-to python and C++, one for python alone, and one for C++.
+to Python and C++, one for Python alone, and one for C++.
 
 Both
 ====
@@ -50,8 +50,7 @@ Indentation
 -----------
 
 -  Spaces, not tabs, must be used for indentation
--  *4 spaces* are required per level of indentation
--  *4 spaces* are *required*, not optional, for continuation lines
+-  *4 spaces* are required per level of indentation and continuation lines
 -  There should be no whitespace at the end of lines in the file.
 -  Documentation comments and items broken over multiple lines should be
    *aligned* with spaces
@@ -83,8 +82,8 @@ natural breaking point to continue on the next line.
          << "Characters in it:"
          << message << endl;
 
-Try to maintain some element of beautiful symmetry in the way the line is
-broken. For example, the *above* long message is preferred over the below:
+Try to maintain some element of symmetry in the way the line is broken.
+For example, the *above* long message is preferred over the below:
 
 .. code-block:: c++
 
@@ -146,34 +145,42 @@ If you are unsure if your code is PEP 8 compliant, you can use autopep8
 and flake8 (or similar) to automatically update and check your code.
 
 
-Semicolons
-----------
+Source
+------
 
-Semicolons should not be used to mark the end of lines in Python.
+- All code should be contained in Cython files
+- Python .py files are reserved for module level docstrings and minor
+  miscellaneous tasks for, *e.g*, backwards compatibility.
+- Semicolons should not be used to mark the end of lines in Python.
 
 
 Documentation Comments
 ----------------------
 
--  Python documentation uses sphinx, not doxygen
--  See the `sphinx documentation <http://www.sphinx-doc.org/en/stable/index.html>`_
-   for more information
--  Documentation should be included at the Python-level in the Cython
-   wrapper.
--  Every class, member variable, function, function parameter, macro,
-   etc. must be documented with *Python docstring* comments which will
-   be converted to documentation with sphinx.
--  If you copy an existing file as a template, do not leave the
-   existing documentation comments there. They apply to the original
-   file, not your new one!
--  The best advice that can be given is to write the documentation
-   comments *first* and the actual code *second*. This allows one to
-   formulate their thoughts and write out in English what the code is
-   going to be doing. After thinking through that, writing the actual
-   code is often *much easier*, plus the documentation left for future
-   developers to read is top-notch.
+-  Documentation is generated using `sphinx <http://www.sphinx-doc.org/en/stable/index.html>`_.
+-  The documentation should be written according to the `Google Python Style Guide <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.
+-  A few specific notes:
+
+   - The shapes of NumPy arrays should be documented as part of the type in the
+     following manner:
+     :code:`points ((N, 4) (:py:class:np.ndarray)): The points...`.
+   - Constructors should be documented at the class level.
+   - Class attributes (*including properties*) should be documented as class
+     attributes within the class-level docstring.
+   - Optional arguments should be documented as such within the type after the
+     actual type, and the default value should be included within the
+     description *e.g.*,
+     :code:`r_max (float, optional): ... If None (the default),
+     number is inferred...`.
+   - Properties that are settable should be documented the same way as optional
+     arguments: :code:`Lx (float, settable): Length in x`.
+
+-  All docstrings should be contained within the Cython files except module
+   docstrings, which belong in the Python code.
+-  If you copy an existing file as a template, **make sure to modify the comments
+   to reflect the new file**.
 -  Good documentation comments are best demonstrated with an in-code
-   example.
+   example. Liberal addition of examples is encouraged.
 
 CPP
 ===

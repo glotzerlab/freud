@@ -6,6 +6,11 @@
 # Methods to evaluate particle environments
 #
 
+R"""
+The environment module contains functions which characterize the local environments of particles in the system.
+These methods use the positions and orientations of particles in the local neighborhood of a given particle to characterize the particle environment.
+"""
+
 from ._freud import BondOrder
 from ._freud import LocalDescriptors
 from ._freud import Pairing2D

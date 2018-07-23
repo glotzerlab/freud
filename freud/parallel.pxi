@@ -18,9 +18,9 @@ def setNumThreads(nthreads=None):
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
-    :param nthreads: number of threads to use. If None (default), use all
-                     threads available
-    :type nthreads: int or None
+    Args:
+        nthreads(int, optional): Number of threads to use. If None (default), use all
+    threads available.
     """
     if nthreads is None or nthreads < 0:
         nthreads = 0

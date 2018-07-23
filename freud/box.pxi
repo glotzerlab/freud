@@ -47,8 +47,8 @@ cdef class Box:
     def getL(self):
         """Return the lengths of the box as a tuple (x, y, z).
 
-        :return: dimensions of the box as (x, y, z)
-        :rtype: (float, float, float)
+        Returns:
+            (float, float, float): Dimensions of the box as (x, y, z).
         """
         cdef vec3[float] result = self.thisptr.getL()
         return (result.x, result.y, result.z)
@@ -56,7 +56,8 @@ cdef class Box:
     def setL(self, L):
         """Set all side lengths of box to L.
 
-        :param float L: Side length of box
+        Args:
+            L (float): Side length of box.
         """
         try:
             len(L)
@@ -75,127 +76,102 @@ cdef class Box:
     def getLx(self):
         """Length of the x-dimension of the box.
 
-        :return: This box's x-dimension length
-        :rtype: float
+        Returns:
+            float: This box's x-dimension length.
         """
         return self.thisptr.getLx()
 
     def getLy(self):
         """Length of the y-dimension of the box.
 
-        :return: This box's y-dimension length
-        :rtype: float
+        Returns:
+            float: This box's y-dimension length.
         """
         return self.thisptr.getLy()
 
     def getLz(self):
         """Length of the z-dimension of the box.
 
-        :return: This box's z-dimension length
-        :rtype: float
+        Returns:
+            float: This box's z-dimension length.
         """
         return self.thisptr.getLz()
 
     def getTiltFactorXY(self):
         """Return the tilt factor xy.
 
-        :return: xy tilt factor
-        :rtype: float
+        Returns:
+            float: This box's xy tilt factor.
         """
         return self.thisptr.getTiltFactorXY()
 
     @property
     def xy(self):
-        """Tilt factor xy of the box.
-
-        :return: xy tilt factor
-        :rtype: float
-        """
         return self.getTiltFactorXY()
 
     def getTiltFactorXZ(self):
         """Return the tilt factor xz.
 
-        :return: xz tilt factor
-        :rtype: float
+        Returns:
+            float: This box's xz tilt factor.
         """
         return self.thisptr.getTiltFactorXZ()
 
     @property
     def xz(self):
-        """Tilt factor xz of the box.
-
-        :return: xz tilt factor
-        :rtype: float
-        """
         return self.getTiltFactorXZ()
 
     def getTiltFactorYZ(self):
         """Return the tilt factor yz.
 
-        :return: yz tilt factor
-        :rtype: float
+        Returns:
+            float: This box's yz tilt factor.
         """
         return self.thisptr.getTiltFactorYZ()
 
     @property
     def yz(self):
-        """Tilt factor yz of the box.
-
-        :return: yz tilt factor
-        :rtype: float
-        """
         return self.getTiltFactorYZ()
 
     def is2D(self):
         """Return if box is 2D (True) or 3D (False).
 
-        :return: True if 2D, False if 3D
-        :rtype: bool
+        Returns:
+            bool: True if 2D, False if 3D.
         """
         return self.thisptr.is2D()
 
     def set2D(self, val):
         """Set the dimensionality to 2D (True) or 3D (False).
 
-        :param val: 2D=True, 3D=False
-        :type val: bool
+        Args:
+            val (bool): 2D=True, 3D=False.
         """
         self.thisptr.set2D(bool(val))
 
     def getLinv(self):
         """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz).
 
-        :return: dimensions of the box as (1/Lx, 1/Ly, 1/Lz)
-        :rtype: (float, float, float)
+        Returns:
+            (float, float, float): dimensions of the box as (1/Lx, 1/Ly, 1/Lz).
         """
         cdef vec3[float] result = self.thisptr.getLinv()
         return (result.x, result.y, result.z)
 
     @property
     def Linv(self):
-        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz).
-
-        :return: dimensions of the box as (1/Lx, 1/Ly, 1/Lz)
-        :rtype: (float, float, float)
-        """
         return self.getLinv()
 
     def getVolume(self):
         """Return the box volume (area in 2D).
 
-        :return: box volume
-        :rtype: float
+        Returns:
+            float: Box volume.
         """
         return self.thisptr.getVolume()
 
     @property
     def volume(self):
-        """Return the box volume (area in 2D).
-
-        :return: box volume
-        :rtype: float
-        """
         return self.getVolume()
 
     def getCoordinates(self, f):
@@ -203,19 +179,22 @@ cdef class Box:
 
         .. deprecated:: 0.8
            Use :py:meth:`~.makeCoordinates()` instead.
+
+        Args:
+            f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
+                Fractional coordinates :math:`\\left(x, y, z\\right)` between 0 and 1 within parallelepipedal box.
         """
         return self.makeCoordinates(f)
 
     def makeCoordinates(self, f):
         """Convert fractional coordinates into real coordinates.
 
-        :param f: Fractional coordinates :math:`\\left(x, y, z\\right)` between
-                  0 and 1 within parallelepipedal box
-        :type f: :class:`numpy.ndarray`,
-                 shape= :math:`\\left(3\\right)`,
-                 dtype= :class:`numpy.float32`
-        :return: Vector of real coordinates :math:`\\left(x, y, z\\right)`
-        :rtype: list[float, float, float]
+        Args:
+            f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
+                Fractional coordinates :math:`\\left(x, y, z\\right)` between 0 and 1 within parallelepipedal box.
+
+        Returns:
+            list[float, float, float]: Vector of real coordinates :math:`\\left(x, y, z\\right)`.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
                 f, 1, dtype=np.float32, contiguous=True)
@@ -226,11 +205,11 @@ cdef class Box:
     def makeFraction(self, vec):
         """Convert real coordinates into fractional coordinates.
 
-        :param vec: Real coordinates within parallelepipedal box
-        :type vec: :class:`numpy.ndarray`,
-                   shape= :math:`\\left(3\\right)`,
-                   dtype= :class:`numpy.float32`
-        :return: A fractional coordinate vector
+        Args:
+           vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`): Real coordinates within parallelepipedal box.
+
+        Returns:
+            list[float, float, float]: A fractional coordinate vector.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
@@ -243,14 +222,11 @@ cdef class Box:
 
         .. versionadded:: 0.8
 
-        :param vec: Coordinates of unwrapped vector
-        :type vec: :class:`numpy.ndarray`,
-                   shape= :math:`\\left(3\\right)`,
-                   dtype= :class:`numpy.float32`
-        :return: Image index vector
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(3\\right)`,
-                dtype= :class:`numpy.int32`
+        Args:
+            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`): Coordinates of unwrapped vector.
+
+        Returns:
+            :math:`\\left(3\\right)` :class:`numpy.ndarray`: Image index vector.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
                 vec, 1, dtype=np.float32, contiguous=True)
@@ -261,10 +237,12 @@ cdef class Box:
     def getLatticeVector(self, i):
         """Get the lattice vector with index :math:`i`.
 
-        :param i: Index (:math:`0 \\leq i < d`) of the lattice vector, where
-                  :math:`d` is the box dimension (2 or 3)
-        :type i: unsigned int
-        :return: lattice vector with index :math:`i`
+        Args:
+            i (unsigned int): Index (:math:`0 \\leq i < d`) of the lattice vector, where
+                              :math:`d` is the box dimension (2 or 3).
+
+        Returns:
+            list[float, float, float]: Lattice vector with index :math:`i`.
         """
         cdef unsigned int index = i
         cdef vec3[float] result = self.thisptr.getLatticeVector(i)
@@ -280,17 +258,12 @@ cdef class Box:
                   equivalent to applying the minimum image convention to the
                   input vectors.
 
-        :param vecs: Single vector or array of :math:`N` vectors
-        :note: vecs are both altered in place and returned
-        :return: vectors wrapped into the box
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(3\\right)` or
-                :math:`\\left(N, 3\\right)`,
-                dtype= :class:`numpy.float32`
-        :type vecs: :class:`numpy.ndarray`,
-                    shape= :math:`\\left(3\\right)` or
-                    :math:`\\left(N, 3\\right)`,
-                    dtype= :class:`numpy.float32`
+        Args:
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
+                Single vector or array of :math:`N` vectors. The vectors are altered in place and returned.
+
+        Returns:
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: Vectors wrapped into the box.
         """
         if vecs.ndim > 2 or vecs.shape[-1] != 3:
             raise ValueError(
@@ -309,6 +282,7 @@ cdef class Box:
         return vecs
 
     def _wrap(self, vec):
+        """Wrap a single vector"""
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef vec3[float] result = self.thisptr.wrap(
                 < vec3[float]&>l_vec[0])
@@ -319,22 +293,14 @@ cdef class Box:
         using an array of image indices that determine how many times to
         unwrap in each dimension.
 
-        :param vecs: Single vector or array of :math:`N` vectors
-        :param imgs: Single image index or array of :math:`N` image indices
-        :note: vecs are both altered in place and returned
-        :return: vectors unwrapped by the image indices provided
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(3\\right)` or
-                :math:`\\left(N, 3\\right)`,
-                dtype= :class:`numpy.float32`
-        :type vecs: :class:`numpy.ndarray`,
-                    shape= :math:`\\left(3\\right)` or
-                    :math:`\\left(N, 3\\right)`,
-                    dtype= :class:`numpy.float32`
-        :type imgs: :class:`numpy.ndarray`,
-                    shape= :math:`\\left(3\\right)` or
-                    :math:`\\left(N, 3\\right)`,
-                    dtype= :class:`numpy.int32`
+        Args:
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
+                Single vector or array of :math:`N` vectors. The vectors are modified in place.
+            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
+                Single image index or array of :math:`N` image indices.
+
+        Returns:
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: Vectors unwrapped by the image indices provided.
         """
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")
@@ -358,6 +324,7 @@ cdef class Box:
         return vecs
 
     def _unwrap(self, vec, img):
+        """Unwrap a single vector."""
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef np.ndarray[int, ndim=1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
@@ -368,8 +335,8 @@ cdef class Box:
     def getPeriodic(self):
         """Get the box's periodicity in each dimension.
 
-        :return: Periodic attributes in x, y, z
-        :rtype: list[bool, bool, bool]
+        Returns:
+            list[bool, bool, bool]: Periodic attributes in x, y, z.
         """
         periodic = self.thisptr.getPeriodic()
         return [periodic.x, periodic.y, periodic.z]
@@ -377,54 +344,58 @@ cdef class Box:
     def setPeriodic(self, x, y, z):
         """Set the box's periodicity in each dimension.
 
-        :param bool x: True if periodic in x, False if not
-        :param bool y: True if periodic in y, False if not
-        :param bool z: True if periodic in z, False if not
+        Args:
+            x (bool): True if periodic in x, False if not.
+            y (bool): True if periodic in y, False if not.
+            z (bool): True if periodic in z, False if not.
         """
         self.thisptr.setPeriodic(x, y, z)
 
     def getPeriodicX(self):
         """Get the box periodicity in the x direction.
 
-        :return: True if periodic, False if not
-        :rtype: bool
+        Returns:
+            bool: True if periodic, False if not.
         """
         return self.thisptr.getPeriodicX()
 
     def setPeriodicX(self, val):
         """Set the box periodicity in the x direction.
 
-        :param bool val: True if periodic, False if not
+        Args:
+            val (bool): True if periodic, False if not.
         """
         return self.thisptr.setPeriodicX(val)
 
     def getPeriodicY(self):
-        """Get the box periodicity in the y direction.
+        """Get the box periodicity in the y direction..
 
-        :return: True if periodic, False if not
-        :rtype: bool
+        Returns:
+            bool: True if periodic, False if not.
         """
         return self.thisptr.getPeriodicY()
 
     def setPeriodicY(self, val):
         """Set the box periodicity in the y direction.
 
-        :param bool val: True if periodic, False if not
+        Args:
+            val (bool): True if periodic, False if not.
         """
         return self.thisptr.setPeriodicY(val)
 
     def getPeriodicZ(self):
         """Get the box periodicity in the z direction.
 
-        :return: True if periodic, False if not
-        :rtype: bool
+        Returns:
+            bool: True if periodic, False if not.
         """
         return self.thisptr.getPeriodicZ()
 
     def setPeriodicZ(self, val):
         """Set the box periodicity in the z direction.
 
-        :param bool val: True if periodic, False if not
+        Args:
+            val (bool): True if periodic, False if not.
         """
         return self.thisptr.setPeriodicZ(val)
 
