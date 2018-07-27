@@ -8,8 +8,10 @@
 *.kdev4
 .project
 .pydevproject
+freud.egg-info
 __pycache__
 build
+dist
 cpp/CMakeLists.txt.orig
 cpp/module.cc.orig
 py/freud/__init__.py.orig

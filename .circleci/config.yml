@@ -20,28 +20,12 @@ references:
       command: |
         pip${PYVER} install --user -r requirements.txt
 
-  configure: &configure
+  build: &build
     run:
-      name: Configure
+      name: Build
       command: |
-        if [ -d build ]; then
-            rm -rf build
-        fi
-        if [ -f freud/_freud.cpp ]; then
-            rm freud/_freud.cpp
-        fi
-        mkdir build
-        cd build
         echo "PYVER=${PYVER}"
-        cmake ../ -DPYTHON_EXECUTABLE=/usr/bin/python${PYVER} -DENABLE_CYTHON=ON
-
-  compile: &compile
-    run:
-      name: Compile
-      working_directory: build
-      command: |
-        make -j4
-        make install
+        python setup.py install --user
 
   test: &test
     run:
@@ -59,8 +43,7 @@ references:
     steps:
       - *load_code
       - *get_requirements
-      - *configure
-      - *compile
+      - *build
       - *test
       - *store
 

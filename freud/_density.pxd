@@ -6,6 +6,9 @@ from libcpp.memory cimport shared_ptr
 cimport freud._box as box
 cimport freud._locality
 
+cdef extern from "CorrelationFunction.cc" namespace "freud::density":
+    pass
+
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
         CorrelationFunction(float, float)
@@ -22,6 +25,9 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
         shared_ptr[unsigned int] getCounts()
         shared_ptr[float] getR()
         unsigned int getNBins() const
+
+cdef extern from "GaussianDensity.cc" namespace "freud::density":
+    pass
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:
@@ -43,6 +49,9 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
         unsigned int getWidthY()
         unsigned int getWidthZ()
 
+cdef extern from "LocalDensity.cc" namespace "freud::density":
+    pass
+
 cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
         LocalDensity(float, float, float)
@@ -57,6 +66,9 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
         unsigned int getNRef()
         shared_ptr[float] getDensity()
         shared_ptr[float] getNumNeighbors()
+
+cdef extern from "RDF.cc" namespace "freud::density":
+    pass
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
