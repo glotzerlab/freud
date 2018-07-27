@@ -19,11 +19,13 @@ logger = logging.getLogger(__name__)
 try:
     from scipy.spatial import Voronoi as qvoronoi
     from scipy.spatial import ConvexHull
+    _SCIPY_AVAILABLE = True
 except ImportError:
     qvoronoi = None
     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
            'so freud.voronoi is not available.')
     logger.warning(msg)
+    _SCIPY_AVAILABLE = False
 
 
 cdef class VoronoiBuffer:
@@ -37,6 +39,8 @@ cdef class VoronoiBuffer:
     cdef voronoi.VoronoiBuffer * thisptr
 
     def __cinit__(self, box):
+        if not _SCIPY_AVAILABLE:
+            raise RuntimeError("You cannot use this class without scipy")
         box = freud.common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
@@ -137,6 +141,8 @@ class Voronoi:
     """
 
     def __init__(self, box, buff=0.1):
+        if not _SCIPY_AVAILABLE:
+            raise RuntimeError("You cannot use this class without SciPy")
         box = common.convert_box(box)
         self.box = box
         self.buff = buff

@@ -2,11 +2,13 @@ import numpy as np
 import numpy.testing as npt
 from freud import box, density
 import unittest
-from scipy.fftpack import fft, fftshift
+import util
 
 
 class TestDensity(unittest.TestCase):
+    @util.skipIfMissing('scipy.fftpack')
     def test_random_point_with_cell_list(self):
+        from scipy.fftpack import fft, fftshift
         width = 100
         rcut = 10.0
         sigma = 0.1

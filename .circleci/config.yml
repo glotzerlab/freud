@@ -25,14 +25,13 @@ references:
       name: Build
       command: |
         echo "PYVER=${PYVER}"
-        python setup.py install --user
+        python${PYVER} setup.py build_ext --inplace
 
   test: &test
     run:
       name: Run unit tests
       command: |
-          cd ~
-          python${PYVER} -m unittest discover ~/ci/freud/tests/ -v
+          python${PYVER} -m unittest discover tests/ -v
 
   store: &store
     store_artifacts:

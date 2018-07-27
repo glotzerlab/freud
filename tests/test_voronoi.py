@@ -5,6 +5,7 @@ import unittest
 import util
 
 
+@util.skipIfMissing('scipy.spatial')
 class TestVoronoi(unittest.TestCase):
     def test_basic(self):
         # Test that voronoi tessellations of random systems have the same
