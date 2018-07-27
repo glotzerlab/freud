@@ -3,7 +3,7 @@ version: 2
 references:
   container_ubuntu: &test_container_config_ubuntu
     docker:
-      - image: vramasub/freud_py35_ubuntu:20180629
+      - image: vramasub/freud_py35_ubuntu:20180723
     working_directory: ~/ci/freud
 
   container_arch: &test_container_config_arch
