@@ -24,7 +24,7 @@ Alternatively, freud can be installed directly from source.
 
 .. code-block:: bash
 
-    $ git clone https://vramasub@bitbucket.org/glotzer/freud.git
+    $ git clone https://bitbucket.org/glotzer/freud.git
     $ cd freud
     $ python setup.py install --user
 

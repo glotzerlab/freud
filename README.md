@@ -40,7 +40,7 @@ $ conda install -c conda-forge freud
 Building freud from source follows the typical setuptools pattern for Python packages:
 
 ```bash
-git clone https://vramasub@bitbucket.org/glotzer/freud.git
+git clone https://bitbucket.org/glotzer/freud.git
 cd freud
 python setup.py install --user
 ```

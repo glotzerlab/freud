@@ -35,7 +35,7 @@ The code that follows creates a build directory inside the freud source director
 
 .. code-block:: bash
 
-    git clone https://vramasub@bitbucket.org/glotzer/freud.git
+    git clone https://bitbucket.org/glotzer/freud.git
     cd freud
     python setup.py install --user
 
@@ -63,14 +63,15 @@ The unit tests for freud are included in the repository and are configured to be
     python -m unittest discover .
 
 Note that because freud is designed to require installation to run (*i.e.* it cannot be run directly out of the build directory), importing freud from the root of the repository will fail because it will try and import the package folder.
-As a result, unit tests must be run from outside the root directory.
-If you want to run tests within the root directory, freud must be build in place:
+As a result, unit tests must be run from outside the root directory if you wish to test the installed version of freud.
+If you want to run tests within the root directory, you can instead build freud in place:
 
 .. code-block:: bash
 
     # Run tests from the tests directory
     python setup.py build_ext --inplace
 
+This build will place the necessary files alongside the freud source files so that freud can be imported from the root of the repository.
 
 Documentation
 =============
