@@ -18,6 +18,8 @@ references:
     run:
       name: Install dependencies
       command: |
+        git submodule init
+        git submodule update
         pip${PYVER} install --user -r requirements.txt
 
   build: &build
