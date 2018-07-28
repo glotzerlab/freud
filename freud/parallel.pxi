@@ -19,8 +19,9 @@ def setNumThreads(nthreads=None):
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        nthreads(int, optional): Number of threads to use. If None (default), use all
-    threads available.
+        nthreads(int, optional):
+            Number of threads to use. If None (default), use all threads
+            available.
     """
     if nthreads is None or nthreads < 0:
         nthreads = 0
