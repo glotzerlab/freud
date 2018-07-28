@@ -37,24 +37,30 @@ $ conda install -c conda-forge freud
 
 ## Compiling freud
 
-Use CMake to configure and make freud from source.
+Building freud from source follows the typical setuptools pattern for Python packages:
 
 ```bash
-mkdir build
-cd build
-cmake ../
-make install
+git clone https://vramasub@bitbucket.org/glotzer/freud.git
+cd freud
+python setup.py install --user
 ```
 
 By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
 `USER_SITE` is on the Python search path by default, so there is no need to modify `PYTHONPATH`.
 
+If you want to test freud without installing it for your system, you can instead build it in place.
+
+```bash
+python setup.py build_ext --inplace
+```
+
 For more detailed instructions, see [the documentation](https://freud.readthedocs.io).
 
 #### Note
 
-The freud library makes use of submodules. CMake has been configured to automatically init and update submodules.
-If this does not work or you would like to do this yourself, please execute:
+The freud library makes use of submodules.
+For sufficiently new versions of Git, submodules should be automatically cloned.
+If for some reason this does not work or you would like to update submodules yourself, please execute the following command after cloning:
 
 ```bash
 git submodule update --init
@@ -65,7 +71,6 @@ git submodule update --init
 * Required:
     * Python >= 2.7 (3.5+ recommended)
     * NumPy >= 1.7
-    * CMake >= 2.8.0 (to compile freud)
     * C++11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
     * Intel Threading Building Blocks
 * Optional:

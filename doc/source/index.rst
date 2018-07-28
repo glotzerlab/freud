@@ -24,10 +24,9 @@ Alternatively, freud can be installed directly from source.
 
 .. code-block:: bash
 
-    $ mkdir build
-    $ cd build
-    $ cmake ../
-    $ make install
+    $ git clone https://vramasub@bitbucket.org/glotzer/freud.git
+    $ cd freud
+    $ python setup.py install --user
 
 .. toctree::
    :maxdepth: 2

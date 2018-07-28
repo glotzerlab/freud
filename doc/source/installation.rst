@@ -26,7 +26,6 @@ The following are **required** for installing freud:
 - `Python <https://www.python.org/>`_ (2.7, 3.5, 3.6)
 - `NumPy <http://www.numpy.org/>`_
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ (TBB)
-- `CMake <https://cmake.org/>`_
 
 The following are **optional** for installing freud:
 
@@ -36,18 +35,16 @@ The code that follows creates a build directory inside the freud source director
 
 .. code-block:: bash
 
-    mkdir build
-    cd build
-    cmake ../
-    # Use `cmake ../ -DENABLE_CYTHON=ON` to rebuild _freud.cpp
-    make install
+    git clone https://vramasub@bitbucket.org/glotzer/freud.git
+    cd freud
+    python setup.py install --user
 
 By default, freud installs to the `USER_SITE <https://docs.python.org/3/install/index.html>`_ directory, which is in ``~/.local`` on Linux and in ``~/Library`` on macOS.
 :code:`USER_SITE` is on the Python search path by default, so there is no need to modify :code:`PYTHONPATH`.
 
 .. note::
 
-    freud makes use of submodules. CMake has been configured to automatically initialize and update submodules. However, if
+    freud makes use of submodules. For sufficiently new versions of Git, submodules should be automatically cloned. However, if
     this does not work, or you would like to do this yourself, please execute:
 
     .. code-block:: bash
@@ -67,6 +64,12 @@ The unit tests for freud are included in the repository and are configured to be
 
 Note that because freud is designed to require installation to run (*i.e.* it cannot be run directly out of the build directory), importing freud from the root of the repository will fail because it will try and import the package folder.
 As a result, unit tests must be run from outside the root directory.
+If you want to run tests within the root directory, freud must be build in place:
+
+.. code-block:: bash
+
+    # Run tests from the tests directory
+    python setup.py build_ext --inplace
 
 
 Documentation
