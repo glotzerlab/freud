@@ -31,6 +31,13 @@ extensions = [
         extra_link_args=["-std=c++11"],
         libraries=['tbb'],
         include_dirs = includes),
+    Extension("freud.box",
+        sources=["freud/box.pyx"],
+	language="c++",
+        extra_compile_args=["-std=c++11"],
+        extra_link_args=["-std=c++11"],
+        libraries=['tbb'],
+        include_dirs = includes),
 ]
 
 # Gets the version

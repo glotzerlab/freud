@@ -1,6 +1,11 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
+R"""
+The box module provides the Box class, which defines the geometry of the simulation box.
+The module natively supports periodicity by providing the fundamental features for wrapping vectors outside the box back into it.
+"""
+
 import warnings
 import numpy as np
 from collections import namedtuple
@@ -10,6 +15,7 @@ from libc.string cimport memcpy
 from cpython.object cimport Py_EQ, Py_NE
 cimport freud._box as box
 cimport numpy as np
+from . import common
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -54,8 +60,6 @@ cdef class Box:
         dimensions (int, settable): The number of dimensions (2 or 3)
         periodic (list, settable): Whether or not the box is periodic
     """
-    cdef box.Box * thisptr
-
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,
                   is2D=None):
         if Lx is None:
@@ -233,7 +237,7 @@ cdef class Box:
         Returns:
             list[float, float, float]: Vector of real coordinates :math:`\\left(x, y, z\\right)`.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+        cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
                 f, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeCoordinates(
                 < const vec3[float]&>l_vec[0])
@@ -248,7 +252,7 @@ cdef class Box:
         Returns:
             list[float, float, float]: A fractional coordinate vector.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+        cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeFraction(
                 < const vec3[float]&>l_vec[0])
@@ -265,7 +269,7 @@ cdef class Box:
         Returns:
             :math:`\\left(3\\right)` :class:`numpy.ndarray`: Image index vector.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+        cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
                 vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[int] result = self.thisptr.getImage(
                 < const vec3[float]&>l_vec[0])
@@ -307,7 +311,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to box.wrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(
+        vecs = common.convert_array(
             vecs, vecs.ndim, dtype=np.float32, contiguous=True)
 
         if vecs.ndim == 1:
@@ -347,9 +351,9 @@ cdef class Box:
                 "Invalid dimensions for vecs given to box.unwrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(
+        vecs = common.convert_array(
             vecs, vecs.ndim, dtype=np.float32, contiguous=True)
-        imgs = freud.common.convert_array(
+        imgs = common.convert_array(
             imgs, vecs.ndim, dtype=np.int32, contiguous=True)
 
         if vecs.ndim == 1:

@@ -4,7 +4,10 @@
 # distutils: language = c++
 # cython: embedsignature=True
 
-include "box.pxi"
+from box cimport BoxFromCPP, Box
+
+cimport freud._box as box
+
 include "bond.pxi"
 include "interface.pxi"
 include "locality.pxi"
