@@ -28,7 +28,7 @@ cdef extern from "BondingAnalysis.h" namespace "freud::bond":
 cdef extern from "BondingR12.h" namespace "freud::bond":
     cdef cppclass BondingR12:
         BondingR12(float, unsigned int, unsigned int, unsigned int,
-                   unsigned int, unsigned int * , unsigned int * )
+                   unsigned int, unsigned int *, unsigned int *)
         const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
@@ -47,7 +47,7 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
 cdef extern from "BondingXY2D.h" namespace "freud::bond":
     cdef cppclass BondingXY2D:
         BondingXY2D(float, float, unsigned int, unsigned int, unsigned int,
-                    unsigned int * , unsigned int * )
+                    unsigned int *, unsigned int *)
         const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
@@ -66,7 +66,7 @@ cdef extern from "BondingXY2D.h" namespace "freud::bond":
 cdef extern from "BondingXYT.h" namespace "freud::bond":
     cdef cppclass BondingXYT:
         BondingXYT(float, float, unsigned int, unsigned int, unsigned int,
-                   unsigned int, unsigned int * , unsigned int * )
+                   unsigned int, unsigned int *, unsigned int *)
         const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
@@ -85,8 +85,8 @@ cdef extern from "BondingXYT.h" namespace "freud::bond":
 cdef extern from "BondingXYZ.h" namespace "freud::bond":
     cdef cppclass BondingXYZ:
         BondingXYZ(float, float, float, unsigned int, unsigned int,
-                   unsigned int, unsigned int, unsigned int * ,
-                   unsigned int * )
+                   unsigned int, unsigned int, unsigned int *,
+                   unsigned int *)
         const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,

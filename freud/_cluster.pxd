@@ -13,10 +13,10 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
         Cluster(float)
         void computeClusters(
-                const box.Box &,
-                const freud._locality.NeighborList*,
-                const vec3[float]*,
-                unsigned int) nogil except +
+            const box.Box &,
+            const freud._locality.NeighborList*,
+            const vec3[float]*,
+            unsigned int) nogil except +
         void computeClusterMembership(const unsigned int*) nogil except +
         unsigned int getNumClusters()
         unsigned int getNumParticles()
@@ -27,10 +27,10 @@ cdef extern from "ClusterProperties.h" namespace "freud::cluster":
     cdef cppclass ClusterProperties:
         ClusterProperties()
         void computeProperties(
-                const box.Box &,
-                const vec3[float]*,
-                const unsigned int*,
-                unsigned int) nogil except +
+            const box.Box &,
+            const vec3[float]*,
+            const unsigned int*,
+            unsigned int) nogil except +
         unsigned int getNumClusters()
         shared_ptr[vec3[float]] getClusterCOM()
         shared_ptr[float] getClusterG()

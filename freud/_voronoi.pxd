@@ -13,8 +13,8 @@ cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
         VoronoiBuffer(const box.Box &)
         const box.Box & getBox() const
         void compute(
-                const vec3[float]*,
-                const unsigned int,
-                const float) nogil except +
+            const vec3[float]*,
+            const unsigned int,
+            const float) nogil except +
         shared_ptr[vector[vec3[float]]] getBufferParticles()
         shared_ptr[vector[uint]] getBufferIds()

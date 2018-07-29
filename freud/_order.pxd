@@ -13,13 +13,12 @@ cimport freud._locality
 
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter(
-                float,
-                float,
-                float,
-                float*,
-                unsigned int,
-                unsigned int)
+        CubaticOrderParameter(float,
+                              float,
+                              float,
+                              float*,
+                              unsigned int,
+                              unsigned int)
         void reset()
         void compute(quat[float]*,
                      unsigned int,
@@ -54,7 +53,7 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
         HexOrderParameter(float, unsigned int, unsigned int)
         const box.Box & getBox() const
-        void compute(box.Box & ,
+        void compute(box.Box &,
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int) nogil except +
@@ -66,9 +65,9 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
 
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
-        TransOrderParameter(float, float)
+        TransOrderParameter(float, float, unsigned int)
         const box.Box & getBox() const,
-        void compute(box.Box & ,
+        void compute(box.Box &,
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int) nogil except +
@@ -83,10 +82,10 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         void setBox(const box.Box)
         shared_ptr[float] getQl()
 
-        void compute(const freud._locality.NeighborList * ,
+        void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        void computeAve(const freud._locality.NeighborList * ,
+        void computeAve(const freud._locality.NeighborList *,
                         const vec3[float]*,
                         unsigned int) nogil except +
         void computeNorm(const vec3[float]*,
@@ -113,13 +112,13 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         const box.Box & getBox() const
         void setBox(const box.Box)
         void setClusteringRadius(float)
-        void compute(const freud._locality.NeighborList * ,
+        void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,
                      unsigned int) nogil except +
-        void computeSolLiqVariant(const freud._locality.NeighborList * ,
+        void computeSolLiqVariant(const freud._locality.NeighborList *,
                                   const vec3[float]*,
                                   unsigned int) nogil except +
-        void computeSolLiqNoNorm(const freud._locality.NeighborList * ,
+        void computeSolLiqNoNorm(const freud._locality.NeighborList *,
                                  const vec3[float]*,
                                  unsigned int) nogil except +
         unsigned int getLargestClusterSize()
