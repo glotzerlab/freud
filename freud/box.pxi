@@ -219,7 +219,8 @@ cdef class Box:
 
         Args:
             f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\\left(x, y, z\\right)` between 0 and 1 within parallelepipedal box.
+                Fractional coordinates :math:`\\left(x, y, z\\right)` between
+                0 and 1 within parallelepipedal box.
         """
         return self.makeCoordinates(f)
 
@@ -228,22 +229,25 @@ cdef class Box:
 
         Args:
             f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\\left(x, y, z\\right)` between 0 and 1 within parallelepipedal box.
+                Fractional coordinates :math:`\\left(x, y, z\\right)` between
+                0 and 1 within parallelepipedal box.
 
         Returns:
-            list[float, float, float]: Vector of real coordinates :math:`\\left(x, y, z\\right)`.
+            list[float, float, float]: Vector of real coordinates
+            :math:`\\left(x, y, z\\right)`.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
-                f, 1, dtype=np.float32, contiguous=True)
+            f, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeCoordinates(
-                < const vec3[float]&>l_vec[0])
+            <const vec3[float]> &l_vec[0])
         return [result.x, result.y, result.z]
 
     def makeFraction(self, vec):
         """Convert real coordinates into fractional coordinates.
 
         Args:
-           vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`): Real coordinates within parallelepipedal box.
+            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
+                Real coordinates within parallelepipedal box.
 
         Returns:
             list[float, float, float]: A fractional coordinate vector.
@@ -251,7 +255,7 @@ cdef class Box:
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeFraction(
-                < const vec3[float]&>l_vec[0])
+            <const vec3[float]> &l_vec[0])
         return [result.x, result.y, result.z]
 
     def getImage(self, vec):
@@ -260,23 +264,26 @@ cdef class Box:
         .. versionadded:: 0.8
 
         Args:
-            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`): Coordinates of unwrapped vector.
+            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
+                Coordinates of unwrapped vector.
 
         Returns:
-            :math:`\\left(3\\right)` :class:`numpy.ndarray`: Image index vector.
+            :math:`\\left(3\\right)` :class:`numpy.ndarray`:
+                Image index vector.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
-                vec, 1, dtype=np.float32, contiguous=True)
+            vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[int] result = self.thisptr.getImage(
-                < const vec3[float]&>l_vec[0])
+            <const vec3[float]> &l_vec[0])
         return [result.x, result.y, result.z]
 
     def getLatticeVector(self, i):
         """Get the lattice vector with index :math:`i`.
 
         Args:
-            i (unsigned int): Index (:math:`0 \\leq i < d`) of the lattice vector, where
-                              :math:`d` is the box dimension (2 or 3).
+            i (unsigned int):
+                Index (:math:`0 \\leq i < d`) of the lattice vector, where
+                :math:`d` is the box dimension (2 or 3).
 
         Returns:
             list[float, float, float]: Lattice vector with index :math:`i`.
@@ -296,11 +303,15 @@ cdef class Box:
                   input vectors.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
-                Single vector or array of :math:`N` vectors. The vectors are altered in place and returned.
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            :class:`numpy.ndarray`):
+                Single vector or array of :math:`N` vectors. The vectors are
+                altered in place and returned.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: Vectors wrapped into the box.
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            :class:`numpy.ndarray`:
+                Vectors wrapped into the box.
         """
         if vecs.ndim > 2 or vecs.shape[-1] != 3:
             raise ValueError(
@@ -319,10 +330,9 @@ cdef class Box:
         return vecs
 
     def _wrap(self, vec):
-        """Wrap a single vector"""
+        """Wrap a single vector."""
         cdef np.ndarray[float, ndim=1] l_vec = vec
-        cdef vec3[float] result = self.thisptr.wrap(
-                < vec3[float]&>l_vec[0])
+        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]> &l_vec[0])
         return (result.x, result.y, result.z)
 
     def unwrap(self, vecs, imgs):
@@ -331,13 +341,18 @@ cdef class Box:
         unwrap in each dimension.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
-                Single vector or array of :math:`N` vectors. The vectors are modified in place.
-            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            :class:`numpy.ndarray`):
+                Single vector or array of :math:`N` vectors. The vectors are
+                modified in place.
+            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            :class:`numpy.ndarray`):
                 Single image index or array of :math:`N` image indices.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: Vectors unwrapped by the image indices provided.
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            :class:`numpy.ndarray`:
+                Vectors unwrapped by the image indices provided.
         """
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")
@@ -365,8 +380,7 @@ cdef class Box:
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef np.ndarray[int, ndim=1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
-                < vec3[float]&>l_vec[0],
-                < vec3[int]&>l_img[0])
+            <vec3[float]> &l_vec[0], <vec3[int]> &l_img[0])
         return [result.x, result.y, result.z]
 
     def getPeriodic(self):
@@ -618,7 +632,8 @@ cdef class Box:
         # named access to positional arguments, so we keep this to
         # recover the behavior
         if L is None:
-            raise TypeError("square() missing 1 required positional argument: L")
+            raise TypeError("square() missing 1 required "
+                            "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
     @property
