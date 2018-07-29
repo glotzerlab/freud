@@ -1,14 +1,25 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is part of the freud project, released under the BSD 3-Clause License.
 
+R"""
+The locality module contains data structures to efficiently locate points based on their proximity to other points.
+"""
+
 import sys
 import numpy as np
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
-cimport freud._locality as locality
-cimport freud._box as _box
 cimport numpy as np
+
+# numpy must be initialized. When using numpy from C or Cython you must
+# _always_ do that, or you will have segfaults
+np.import_array()
+
+from box cimport BoxFromCPP, Box
+from . cimport _box as _box
+from . cimport _locality
+from . import common
 
 cdef class NeighborList:
     """Class representing a certain number of "bonds" between
@@ -58,9 +69,6 @@ cdef class NeighborList:
        rijs = positions[nlist.index_j] - positions[nlist.index_i]
        box.wrap(rijs)
     """
-    cdef locality.NeighborList * thisptr
-    cdef char _managed
-    cdef base
 
     @classmethod
     def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):
@@ -131,7 +139,7 @@ cdef class NeighborList:
 
         return result
 
-    cdef refer_to(self, locality.NeighborList * other):
+    cdef refer_to(self, _locality.NeighborList * other):
         """Makes this cython wrapper object point to a different C++ object,
         deleting the one we are already holding if necessary. We do not
         own the memory of the other C++ object."""
@@ -142,13 +150,13 @@ cdef class NeighborList:
 
     def __cinit__(self):
         self._managed = True
-        self.thisptr = new locality.NeighborList()
+        self.thisptr = new _locality.NeighborList()
 
     def __dealloc__(self):
         if self._managed:
             del self.thisptr
 
-    cdef locality.NeighborList * get_ptr(self):
+    cdef _locality.NeighborList * get_ptr(self):
         """Returns a pointer to the raw C++ object we are wrapping."""
         return self.thisptr
 
@@ -178,9 +186,10 @@ cdef class NeighborList:
         cdef np.npy_intp size[2]
         size[0] = self.thisptr.getNumBonds()
         size[1] = 2
+        self.thisptr.getNeighbors()
         cdef np.ndarray[np.uint64_t, ndim= 2
                         ] result = np.PyArray_SimpleNewFromData(
-                        2, size, np.NPY_UINT64,
+                        2, &size[0], np.NPY_UINT64,
                         < void*> self.thisptr.getNeighbors())
         result.flags.writeable = False
         return result[:, 0]
@@ -192,7 +201,7 @@ cdef class NeighborList:
         size[1] = 2
         cdef np.ndarray[np.uint64_t, ndim= 2
                         ] result = np.PyArray_SimpleNewFromData(
-                            2, size, np.NPY_UINT64,
+                            2, &size[0], np.NPY_UINT64,
                             < void*> self.thisptr.getNeighbors())
         result.flags.writeable = False
         return result[:, 1]
@@ -285,14 +294,14 @@ cdef class NeighborList:
             rmin (float, optional): Minimum bond distance in the resulting neighbor list
                           (Default value = 0).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 array_name="points")
         if points.shape[1] != 3:
@@ -342,7 +351,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     """
     if nlist is not None:
         return nlist, nlist
-    box = freud.common.convert_box(box)
+    box = common.convert_box(box)
 
     cdef LinkCell lc = LinkCell(box, rmax).computeCellList(
             box, ref_points, points, exclude_ii)
@@ -387,7 +396,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     """
     if nlist is not None:
         return nlist, nlist
-    box = freud.common.convert_box(box)
+    box = common.convert_box(box)
 
     cdef NearestNeighbors nn = NearestNeighbors(
             rmax_guess, n_neigh).compute(
@@ -419,8 +428,6 @@ cdef class IteratorLinkCell:
        for j in linkcell.itercell(0):
            print(positions[j])
     """
-    cdef locality.IteratorLinkCell * thisptr
-
     def __cinit__(self):
         # Must be running python 3.x
         current_version = sys.version_info
@@ -428,12 +435,12 @@ cdef class IteratorLinkCell:
             raise RuntimeError(
                 "Must use python 3.x or greater to use IteratorLinkCell")
         else:
-            self.thisptr = new locality.IteratorLinkCell()
+            self.thisptr = new _locality.IteratorLinkCell()
 
     def __dealloc__(self):
         del self.thisptr
 
-    cdef void copy(self, const locality.IteratorLinkCell & rhs):
+    cdef void copy(self, const _locality.IteratorLinkCell & rhs):
         self.thisptr.copy(rhs)
 
     def next(self):
@@ -493,16 +500,13 @@ cdef class LinkCell:
        dens = density.LocalDensity(1.5, 1, 1)
        dens.compute(box, positions, nlist=lc.nlist)
     """
-    cdef locality.LinkCell * thisptr
-    cdef NeighborList _nlist
-
     def __cinit__(self, box, cell_width):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(),
                 box.getTiltFactorXY(), box.getTiltFactorXZ(),
                 box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new locality.LinkCell(cBox, float(cell_width))
+        self.thisptr = new _locality.LinkCell(cBox, float(cell_width))
         self._nlist = NeighborList()
 
     def __dealloc__(self):
@@ -541,7 +545,7 @@ cdef class LinkCell:
         Returns:
             unsigned int: Cell index.
         """
-        point = freud.common.convert_array(
+        point = common.convert_array(
                 point, 1, dtype=np.float32, contiguous=True,
                 array_name="point")
 
@@ -563,7 +567,7 @@ cdef class LinkCell:
             raise RuntimeError(
                 "Must use python 3.x or greater to use itercell")
         result = IteratorLinkCell()
-        cdef locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
+        cdef _locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
         result.copy(cResult)
         return iter(result)
 
@@ -595,12 +599,12 @@ cdef class LinkCell:
                             points is None or the same object as ref_points
                             (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
 
-        ref_points = freud.common.convert_array(
+        ref_points = common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 array_name="ref_points")
         if ref_points.shape[1] != 3:
@@ -609,7 +613,7 @@ cdef class LinkCell:
         if points is None:
             points = ref_points
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 array_name="points")
         if points.shape[1] != 3:
@@ -632,7 +636,7 @@ cdef class LinkCell:
                     Np,
                     c_exclude_ii)
 
-        cdef locality.NeighborList * nlist = self.thisptr.getNeighborList()
+        cdef _locality.NeighborList * nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
         return self
@@ -698,17 +702,11 @@ cdef class NearestNeighbors:
        hexatic = order.HexOrderParameter(2)
        hexatic.compute(box, positions, nlist=nn.nlist)
     """
-    cdef locality.NearestNeighbors * thisptr
-    cdef NeighborList _nlist
-    cdef _cached_points
-    cdef _cached_ref_points
-    cdef _cached_box
-
     def __cinit__(self, float rmax, unsigned int n_neigh, float scale=1.1,
                   strict_cut=False):
         if scale < 1:
             raise RuntimeError("scale must be greater than 1")
-        self.thisptr = new locality.NearestNeighbors(
+        self.thisptr = new _locality.NearestNeighbors(
                 float(rmax), int(n_neigh), float(scale), bool(strict_cut))
         self._nlist = NeighborList()
 
@@ -923,12 +921,12 @@ cdef class NearestNeighbors:
                              be excluded; if None, is set to True if points is
                              None or the same object as ref_points (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
 
-        ref_points = freud.common.convert_array(
+        ref_points = common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 array_name="ref_points")
         if ref_points.shape[1] != 3:
@@ -937,7 +935,7 @@ cdef class NearestNeighbors:
         if points is None:
             points = ref_points
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
                 points, 2, dtype=np.float32, contiguous=True,
                 array_name="points")
         if points.shape[1] != 3:
@@ -964,7 +962,7 @@ cdef class NearestNeighbors:
                     Np,
                     c_exclude_ii)
 
-        cdef locality.NeighborList * nlist = self.thisptr.getNeighborList()
+        cdef _locality.NeighborList * nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
         return self

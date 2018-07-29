@@ -5,12 +5,14 @@
 # cython: embedsignature=True
 
 from box cimport BoxFromCPP, Box
+from locality cimport NeighborList, IteratorLinkCell, LinkCell, NearestNeighbors
+from locality import make_default_nlist, make_default_nlist_nn
 
-cimport freud._box as box
+from . cimport _box as box
+from . cimport _locality as locality
 
 include "bond.pxi"
 include "interface.pxi"
-include "locality.pxi"
 include "density.pxi"
 include "pmft.pxi"
 include "order.pxi"
