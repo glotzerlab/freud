@@ -239,7 +239,7 @@ cdef class Box:
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             f, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeCoordinates(
-            <const vec3[float]> &l_vec[0])
+            <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
     def makeFraction(self, vec):
@@ -255,7 +255,7 @@ cdef class Box:
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeFraction(
-            <const vec3[float]> &l_vec[0])
+            <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
     def getImage(self, vec):
@@ -274,7 +274,7 @@ cdef class Box:
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[int] result = self.thisptr.getImage(
-            <const vec3[float]> &l_vec[0])
+            <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
     def getLatticeVector(self, i):
@@ -332,7 +332,7 @@ cdef class Box:
     def _wrap(self, vec):
         """Wrap a single vector."""
         cdef np.ndarray[float, ndim=1] l_vec = vec
-        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]> &l_vec[0])
+        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
         return (result.x, result.y, result.z)
 
     def unwrap(self, vecs, imgs):
@@ -380,7 +380,7 @@ cdef class Box:
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef np.ndarray[int, ndim=1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
-            <vec3[float]> &l_vec[0], <vec3[int]> &l_img[0])
+            <vec3[float]&> l_vec[0], <vec3[int]&> l_img[0])
         return [result.x, result.y, result.z]
 
     def getPeriodic(self):
