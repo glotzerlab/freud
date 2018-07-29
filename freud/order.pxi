@@ -298,9 +298,9 @@ cdef class NematicOrderParameter:
         """
         cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp>self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp>3
-        nbins[2] = <np.npy_intp>3
+        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp> 3
+        nbins[2] = <np.npy_intp> 3
         cdef np.ndarray[np.float32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
                                          <void*> particle_tensor)

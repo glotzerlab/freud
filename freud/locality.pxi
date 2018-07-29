@@ -588,7 +588,7 @@ cdef class LinkCell:
 
         cdef float[:] cPoint = point
 
-        return self.thisptr.getCell(dereference(<vec3[float]*>&cPoint[0]))
+        return self.thisptr.getCell(dereference(<vec3[float]*> &cPoint[0]))
 
     def itercell(self, unsigned int cell):
         """Return an iterator over all particles in the given cell.

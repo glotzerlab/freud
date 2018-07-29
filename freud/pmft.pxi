@@ -244,9 +244,9 @@ cdef class PMFTR12(_PMFT):
         """
         cdef unsigned int * bin_counts = self.pmftr12ptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp > self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp > self.pmftr12ptr.getNBinsT1()
+        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
+        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
+        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
         cdef np.ndarray[np.uint32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
                                          <void*> bin_counts)
@@ -262,9 +262,9 @@ cdef class PMFTR12(_PMFT):
         """
         cdef float * pcf = self.pmftr12ptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp > self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp > self.pmftr12ptr.getNBinsT1()
+        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
+        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
+        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
         cdef np.ndarray[np.float32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
         return result
@@ -282,7 +282,7 @@ cdef class PMFTR12(_PMFT):
         """
         cdef float * r = self.pmftr12ptr.getR().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsR()
+        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> r)
         return result
@@ -300,7 +300,7 @@ cdef class PMFTR12(_PMFT):
         """
         cdef float * T1 = self.pmftr12ptr.getT1().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsT1()
+        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> T1)
         return result
@@ -318,7 +318,7 @@ cdef class PMFTR12(_PMFT):
         """
         cdef float * T2 = self.pmftr12ptr.getT2().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsT2()
+        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> T2)
         return result
@@ -337,9 +337,9 @@ cdef class PMFTR12(_PMFT):
         """
         cdef float * inv_jac = self.pmftr12ptr.getInverseJacobian().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp > self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp > self.pmftr12ptr.getNBinsT1()
+        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
+        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
+        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
         cdef np.ndarray[np.float32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
                                          <void*> inv_jac)
@@ -551,9 +551,9 @@ cdef class PMFTXYT(_PMFT):
         """
         cdef unsigned int * bin_counts = self.pmftxytptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.pmftxytptr.getNBinsT()
-        nbins[1] = <np.npy_intp > self.pmftxytptr.getNBinsY()
-        nbins[2] = <np.npy_intp > self.pmftxytptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
+        nbins[1] = <np.npy_intp> self.pmftxytptr.getNBinsY()
+        nbins[2] = <np.npy_intp> self.pmftxytptr.getNBinsX()
         cdef np.ndarray[np.uint32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
                                          <void*> bin_counts)
@@ -569,9 +569,9 @@ cdef class PMFTXYT(_PMFT):
         """
         cdef float * pcf = self.pmftxytptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.pmftxytptr.getNBinsT()
-        nbins[1] = <np.npy_intp > self.pmftxytptr.getNBinsY()
-        nbins[2] = <np.npy_intp > self.pmftxytptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
+        nbins[1] = <np.npy_intp> self.pmftxytptr.getNBinsY()
+        nbins[2] = <np.npy_intp> self.pmftxytptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
         return result
@@ -589,7 +589,7 @@ cdef class PMFTXYT(_PMFT):
         """
         cdef float * x = self.pmftxytptr.getX().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftxytptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
         return result
@@ -607,7 +607,7 @@ cdef class PMFTXYT(_PMFT):
         """
         cdef float * y = self.pmftxytptr.getY().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftxytptr.getNBinsY()
+        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
         return result
@@ -837,8 +837,8 @@ cdef class PMFTXY2D(_PMFT):
         """
         cdef float * pcf = self.pmftxy2dptr.getPCF().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.pmftxy2dptr.getNBinsY()
-        nbins[1] = <np.npy_intp > self.pmftxy2dptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
+        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=2] result = \
             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*> pcf)
         return result
@@ -852,8 +852,8 @@ cdef class PMFTXY2D(_PMFT):
         """
         cdef unsigned int * bin_counts = self.pmftxy2dptr.getBinCounts().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.pmftxy2dptr.getNBinsY()
-        nbins[1] = <np.npy_intp > self.pmftxy2dptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
+        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
         cdef np.ndarray[np.uint32_t, ndim=2] result = \
             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,
                                          <void*> bin_counts)
@@ -872,7 +872,7 @@ cdef class PMFTXY2D(_PMFT):
         """
         cdef float * x = self.pmftxy2dptr.getX().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftxy2dptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
         return result
@@ -890,7 +890,7 @@ cdef class PMFTXY2D(_PMFT):
         """
         cdef float * y = self.pmftxy2dptr.getY().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftxy2dptr.getNBinsY()
+        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
         return result
@@ -1049,7 +1049,7 @@ cdef class PMFTXYZ(_PMFT):
             array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise ValueError(
-                "the 2nd dimension must have 4 values: q0, q1, q2, q3")
+                "The 2nd dimension must have 4 values: q0, q1, q2, q3")
 
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
@@ -1062,7 +1062,7 @@ cdef class PMFTXYZ(_PMFT):
             array_name="orientations")
         if orientations.shape[1] != 4:
             raise ValueError(
-                "the 2nd dimension must have 4 values: q0, q1, q2, q3")
+                "The 2nd dimension must have 4 values: q0, q1, q2, q3")
 
         # handle multiple ways to input
         if face_orientations is None:
@@ -1188,9 +1188,9 @@ cdef class PMFTXYZ(_PMFT):
         """
         cdef unsigned int * bin_counts = self.pmftxyzptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsZ()
-        nbins[1] = <np.npy_intp > self.pmftxyzptr.getNBinsY()
-        nbins[2] = <np.npy_intp > self.pmftxyzptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
+        nbins[1] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
+        nbins[2] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
         cdef np.ndarray[np.uint32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
                                          <void*> bin_counts)
@@ -1205,9 +1205,9 @@ cdef class PMFTXYZ(_PMFT):
         """
         cdef float * pcf = self.pmftxyzptr.getPCF().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsZ()
-        nbins[1] = <np.npy_intp > self.pmftxyzptr.getNBinsY()
-        nbins[2] = <np.npy_intp > self.pmftxyzptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
+        nbins[1] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
+        nbins[2] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
         return result
@@ -1234,7 +1234,7 @@ cdef class PMFTXYZ(_PMFT):
         """
         cdef float * x = self.pmftxyzptr.getX().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsX()
+        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
         return result + self.shiftvec[0]
@@ -1252,7 +1252,7 @@ cdef class PMFTXYZ(_PMFT):
         """
         cdef float * y = self.pmftxyzptr.getY().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsY()
+        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
         return result + self.shiftvec[1]
@@ -1270,7 +1270,7 @@ cdef class PMFTXYZ(_PMFT):
         """
         cdef float * z = self.pmftxyzptr.getZ().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.pmftxyzptr.getNBinsZ()
+        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> z)
         return result + self.shiftvec[2]

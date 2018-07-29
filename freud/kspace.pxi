@@ -59,7 +59,7 @@ cdef class FTdelta:
         self.NK = K.shape[0]
         # cdef unsigned int NK = <unsigned int> K.shape[0]
         cdef np.ndarray[float, ndim=2] cK = K
-        self.thisptr.set_K(<vec3[float]*>cK.data, self.NK)
+        self.thisptr.set_K(<vec3[float]*> cK.data, self.NK)
 
     def set_rq(self, position, orientation):
         """Set particle positions and orientations.

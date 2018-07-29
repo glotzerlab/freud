@@ -58,7 +58,7 @@ cdef class VoronoiBuffer:
                 'Need a list of 3D points for VoronoiBuffer.compute()')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        self.thisptr.compute(< vec3[float]*> cPoints.data, Np, buffer)
+        self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)
         return self
 
     def getBufferParticles(self):
