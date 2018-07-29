@@ -32,27 +32,44 @@ cdef class Box:
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
     Args:
-        Lx (float): Length of side x
-        Ly (float): Length of side y
-        Lz (float): Length of side z
-        xy (float): Tilt of xy plane
-        xz (float): Tilt of xz plane
-        yz (float): Tilt of yz plane
-        is2D(bool): Specify that this box is 2-dimensional,
-            default is 3-dimensional.
+        Lx (float):
+            Length of side x.
+        Ly (float):
+            Length of side y.
+        Lz (float):
+            Length of side z.
+        xy (float):
+            Tilt of xy plane.
+        xz (float):
+            Tilt of xz plane.
+        yz (float):
+            Tilt of yz plane.
+        is2D(bool):
+            Specify that this box is 2-dimensional, default is 3-dimensional.
 
     Attributes:
-        xy (float): The xy tilt factor
-        xz (float): The xz tilt factor
-        yz (float): The yz tilt factor
-        L (tuple, settable): The box lengths
-        Lx (tuple, settable): The x-dimension length
-        Ly (tuple, settable): The y-dimension length
-        Lz (tuple, settable): The z-dimension length
-        Linv (tuple): The inverse box lengths
-        volume (float): The box volume (area in 2D)
-        dimensions (int, settable): The number of dimensions (2 or 3)
-        periodic (list, settable): Whether or not the box is periodic
+        xy (float):
+            The xy tilt factor.
+        xz (float):
+            The xz tilt factor.
+        yz (float):
+            The yz tilt factor.
+        L (tuple, settable):
+            The box lengths
+        Lx (tuple, settable):
+            The x-dimension length.
+        Ly (tuple, settable):
+            The y-dimension length.
+        Lz (tuple, settable):
+            The z-dimension length.
+        Linv (tuple):
+            The inverse box lengths.
+        volume (float):
+            The box volume (area in 2D).
+        dimensions (int, settable):
+            The number of dimensions (2 or 3).
+        periodic (list, settable):
+            Whether or not the box is periodic.
     """
     cdef box.Box * thisptr
 
@@ -233,8 +250,8 @@ cdef class Box:
                 0 and 1 within parallelepipedal box.
 
         Returns:
-            list[float, float, float]: Vector of real coordinates
-            :math:`\\left(x, y, z\\right)`.
+            list[float, float, float]:
+                Vector of real coordinates :math:`\\left(x, y, z\\right)`.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             f, 1, dtype=np.float32, contiguous=True)
@@ -250,7 +267,8 @@ cdef class Box:
                 Real coordinates within parallelepipedal box.
 
         Returns:
-            list[float, float, float]: A fractional coordinate vector.
+            list[float, float, float]:
+                A fractional coordinate vector.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
@@ -303,13 +321,13 @@ cdef class Box:
                   input vectors.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
             :class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 altered in place and returned.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
             :class:`numpy.ndarray`:
                 Vectors wrapped into the box.
         """
@@ -341,16 +359,16 @@ cdef class Box:
         unwrap in each dimension.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
             :class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 modified in place.
-            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
             :class:`numpy.ndarray`):
                 Single image index or array of :math:`N` image indices.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)`
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
             :class:`numpy.ndarray`:
                 Vectors unwrapped by the image indices provided.
         """
@@ -396,9 +414,12 @@ cdef class Box:
         """Set the box's periodicity in each dimension.
 
         Args:
-            x (bool): True if periodic in x, False if not.
-            y (bool): True if periodic in y, False if not.
-            z (bool): True if periodic in z, False if not.
+            x (bool):
+                True if periodic in x, False if not.
+            y (bool):
+                True if periodic in y, False if not.
+            z (bool):
+                True if periodic in z, False if not.
         """
         self.thisptr.setPeriodic(x, y, z)
 
@@ -508,8 +529,10 @@ cdef class Box:
         """Initialize a box instance from a box-like object.
 
         Args:
-            box: A box-like object
-            dimensions (int): Dimensionality of the box (Default value = None)
+            box:
+                A box-like object
+            dimensions (int):
+                Dimensionality of the box (Default value = None)
 
         .. note:: Objects that can be converted to freud boxes include
                   lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
@@ -585,8 +608,10 @@ cdef class Box:
         see: http://hoomd-blue.readthedocs.io/en/stable/box.html
 
         Args:
-            boxMatrix (array-like): A 3x3 matrix or list of lists
-            dimensions (int):  Number of dimensions (Default value = None)
+            boxMatrix (array-like):
+                A 3x3 matrix or list of lists
+            dimensions (int):
+                Number of dimensions (Default value = None)
         """
         boxMatrix = np.asarray(boxMatrix, dtype=np.float32)
         v0 = boxMatrix[:, 0]

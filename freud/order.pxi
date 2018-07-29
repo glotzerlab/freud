@@ -151,7 +151,7 @@ cdef class CubaticOrderParameter:
         """Get per-particle cubatic tensor.
 
         Returns:
-            :math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)`
+            :math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` \
             :class:`numpy.ndarray`:
                 Rank 5 tensor corresponding to each individual particle
                 orientation.
@@ -209,7 +209,8 @@ cdef class CubaticOrderParameter:
 
         Returns:
             :math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`:
-            Rank 4 tensor corresponding to each individual particle orientation
+                Rank 4 tensor corresponding to each individual particle
+                orientation.
         """
         cdef float * gen_r4_tensor = self.thisptr.getGenR4Tensor().get()
         cdef np.npy_intp nbins[4]
@@ -251,7 +252,7 @@ cdef class NematicOrderParameter:
         """Calculates the per-particle and global order parameter.
 
         Args:
-            orientations (:math:`\\left(N_{particles}, 4 \\right)`
+            orientations (:math:`\\left(N_{particles}, 4 \\right)` \
             :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """
@@ -311,7 +312,7 @@ cdef class NematicOrderParameter:
 
         Returns:
             :math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`:
-                3x3 matrix corresponding to the average particle orientation
+                3x3 matrix corresponding to the average particle orientation.
         """
         cdef float *nematic_tensor = self.thisptr.getNematicTensor().get()
         cdef np.npy_intp nbins[2]
@@ -630,7 +631,7 @@ cdef class LocalQl:
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)`
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
@@ -938,7 +939,7 @@ cdef class LocalQlNear(LocalQl):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)`
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
@@ -1065,7 +1066,7 @@ cdef class LocalWl(LocalQl):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)`
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
@@ -1080,7 +1081,7 @@ cdef class LocalWl(LocalQl):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)`
+        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The last computed :math:`\\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
@@ -1253,7 +1254,7 @@ cdef class LocalWlNear(LocalWl):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)`
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
@@ -1268,7 +1269,7 @@ cdef class LocalWlNear(LocalWl):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)`
+        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The last computed :math:`\\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
@@ -1379,10 +1380,10 @@ cdef class SolLiq:
         clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)`
+        num_connections (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)`
+        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
@@ -1696,10 +1697,10 @@ cdef class SolLiqNear(SolLiq):
         clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)`
+        num_connections (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)`
+        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):

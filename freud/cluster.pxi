@@ -38,8 +38,10 @@ cdef class Cluster:
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`): The simulation box.
-        rcut (float): Particle distance cutoff.
+        box (:py:class:`freud.box.Box`):
+            The simulation box.
+        rcut (float):
+            Particle distance cutoff.
 
     .. note::
         2D: :py:class:`freud.cluster.Cluster` properly handles 2D boxes.
@@ -327,8 +329,9 @@ cdef class ClusterProperties:
         """Returns the center of mass of the last computed cluster.
 
         Returns:
-            (:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: Cluster center
-            of mass coordinates :math:`\\left(x,y,z\\right)`.
+            (:math:`N_{clusters}`, 3) :class:`numpy.ndarray`:
+                Cluster center of mass coordinates
+                :math:`\\left(x, y, z\\right)`.
         """
         cdef vec3[float] * cluster_com_raw = self.thisptr.getClusterCOM().get()
         cdef np.npy_intp nClusters[2]

@@ -48,7 +48,8 @@ cdef class VoronoiBuffer:
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate Voronoi diagram for.
-            buffer (float): Buffer distance within which to look for images.
+            buffer (float):
+                Buffer distance within which to look for images.
         """
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name='points')
@@ -129,8 +130,10 @@ class Voronoi:
     entire simulation volume, a smaller value for :code:`buff` is acceptable.
 
     Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
-        buff (float): Buffer width.
+        box (:py:class:`freud.box.Box`):
+            Simulation box.
+        buff (float):
+            Buffer width.
     """
 
     def __init__(self, box, buff=0.1):
@@ -229,8 +232,7 @@ class Voronoi:
         """Returns the buffer width.
 
         Returns:
-          float: Buffer width.
-
+            float: Buffer width.
         """
         return self.buff
 
@@ -247,9 +249,9 @@ class Voronoi:
         buffer width.
 
         Returns:
-          list: List of :class:`numpy.ndarray` containing Voronoi
-          polytope vertices.
-
+            list:
+                List of :class:`numpy.ndarray` containing Voronoi polytope
+                vertices.
         """
         return self.poly_verts
 
@@ -401,7 +403,7 @@ class Voronoi:
         Must call :py:meth:`~.computeNeighbors()` before this method.
 
         Args:
-          numShells (int): Number of neighbor shells.
+            numShells (int): Number of neighbor shells.
         """
         neighbor_list = copy.copy(self.firstShellNeighborList)
         # delete [] in neighbor_list

@@ -100,10 +100,14 @@ cdef class PMFTR12(_PMFT):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
-        r_max (float): Maximum distance at which to compute the PMFT.
-        n_r (unsigned int): Number of bins in r.
-        n_t1 (unsigned int): Number of bins in t1.
-        n_t2 (unsigned int): Number of bins in t2.
+        r_max (float):
+            Maximum distance at which to compute the PMFT.
+        n_r (unsigned int):
+            Number of bins in r.
+        n_t1 (unsigned int):
+            Number of bins in t1.
+        n_t2 (unsigned int):
+            Number of bins in t2.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
@@ -122,7 +126,7 @@ cdef class PMFTR12(_PMFT):
             The array of T1-values for the PCF histogram.
         T2 (:math:`\\left(N_{\\theta2}\\right)` :class:`numpy.ndarray`):
             The array of T2-values for the PCF histogram.
-        inverse_jacobian (:math:`\\left(N_{r}, N_{\\theta2},
+        inverse_jacobian (:math:`\\left(N_{r}, N_{\\theta2}, \
         N_{\\theta1}\\right)`):
             The inverse Jacobian used in the PMFT.
         n_bins_r (unsigned int):
@@ -154,14 +158,14 @@ cdef class PMFTR12(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            ref_orientations ((:math:`N_{particles}`, 4)
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Angles of reference points to use in the calculation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Angles of particles to use in the calculation.
-            nlist(:class:`freud.locality.NeighborList`, optional):
+            nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
@@ -219,7 +223,7 @@ cdef class PMFTR12(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            ref_orientations ((:math:`N_{particles}`, 4)
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -238,7 +242,7 @@ cdef class PMFTR12(_PMFT):
         """Get the raw bin counts.
 
         Returns:
-            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`
+            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)` \
             :class:`numpy.ndarray`:
                 Bin Counts.
         """
@@ -256,7 +260,7 @@ cdef class PMFTR12(_PMFT):
         """Get the positional correlation function.
 
         Returns:
-            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`
+            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)` \
             :class:`numpy.ndarray`:
                 PCF.
         """
@@ -331,7 +335,7 @@ cdef class PMFTR12(_PMFT):
         """Get the inverse Jacobian used in the PMFT.
 
         Returns:
-            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`
+            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)` \
             :class:`numpy.ndarray`:
                 Inverse Jacobian.
         """
@@ -405,25 +409,31 @@ cdef class PMFTXYT(_PMFT):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
-        x_max (float): Maximum x distance at which to compute the PMFT.
-        y_max (float): Maximum y distance at which to compute the PMFT.
-        n_x (unsigned int): Number of bins in x.
-        n_y (unsigned int): Number of bins in y.
-        n_t (unsigned int): Number of bins in t.
+        x_max (float):
+            Maximum x distance at which to compute the PMFT.
+        y_max (float):
+            Maximum y distance at which to compute the PMFT.
+        n_x (unsigned int):
+            Number of bins in x.
+        n_y (unsigned int):
+            Number of bins in y.
+        n_t (unsigned int):
+            Number of bins in t.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`
+        bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`
+        PCF (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`
+        PMFT (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_cut (float): The cutoff used in the cell list.
+        r_cut (float):
+            The cutoff used in the cell list.
         X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
             The array of x-values for the PCF histogram.
         Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
@@ -461,7 +471,7 @@ cdef class PMFTXYT(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            ref_orientations ((:math:`N_{particles}`, 4)
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -526,7 +536,7 @@ cdef class PMFTXYT(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            ref_orientations ((:math:`N_{particles}`, 4)
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -545,7 +555,7 @@ cdef class PMFTXYT(_PMFT):
         """Get the raw bin counts.
 
         Returns:
-            :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`
+            :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
             :class:`numpy.ndarray`:
                 Bin Counts.
         """
@@ -563,7 +573,7 @@ cdef class PMFTXYT(_PMFT):
         """Get the positional correlation function.
 
         Returns:
-            :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)`
+            :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
             :class:`numpy.ndarray`:
                 PCF.
         """
@@ -701,15 +711,19 @@ cdef class PMFTXY2D(_PMFT):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
-        x_max (float): Maximum x distance at which to compute the PMFT.
-        y_max (float): Maximum y distance at which to compute the PMFT.
-        n_x (unsigned int): Number of bins in x.
-        n_y (unsigned int): Number of bins in y.
+        x_max (float):
+            Maximum x distance at which to compute the PMFT.
+        y_max (float):
+            Maximum y distance at which to compute the PMFT.
+        n_x (unsigned int):
+            Number of bins in x.
+        n_y (unsigned int):
+            Number of bins in y.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{y}, N_{x}\\right)`
+        bin_counts (:math:`\\left(N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
             Bin counts.
         PCF (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
@@ -750,7 +764,7 @@ cdef class PMFTXY2D(_PMFT):
             box (:class:`freud.box.Box`): Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            ref_orientations ((:math:`N_{particles}`, 4)
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Angles of reference points to use in the calculation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -811,10 +825,11 @@ cdef class PMFTXY2D(_PMFT):
         Will overwrite the current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): Simulation box.
+            box (:class:`freud.box.Box`):
+                Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            ref_orientations ((:math:`N_{particles}`, 4)
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Angles of reference points to use in the calculation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -953,34 +968,43 @@ cdef class PMFTXYZ(_PMFT):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
-        x_max (float): Maximum x distance at which to compute the PMFT.
-        y_max (float): Maximum y distance at which to compute the PMFT.
-        z_max (float): Maximum z distance at which to compute the PMFT.
-        n_x (unsigned int): Number of bins in x.
-        n_y (unsigned int): Number of bins in y.
-        n_z (unsigned int): Number of bins in z.
+        x_max (float):
+            Maximum x distance at which to compute the PMFT.
+        y_max (float):
+            Maximum y distance at which to compute the PMFT.
+        z_max (float):
+            Maximum z distance at which to compute the PMFT.
+        n_x (unsigned int):
+            Number of bins in x.
+        n_y (unsigned int):
+            Number of bins in y.
+        n_z (unsigned int):
+            Number of bins in z.
         shiftvec (list):
             Vector pointing from [0,0,0] to the center of the PMFT.
 
     Attributes:
-        box (:py:class:`freud.box.Box`): Box used in the calculation.
-        bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)`
+        box (:py:class:`freud.box.Box`):
+            Box used in the calculation.
+        bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)`
+        PCF (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)`
+        PMFT (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_cut (float): The cutoff used in the cell list.
+        r_cut (float):
+            The cutoff used in the cell list.
         X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
             The array of x-values for the PCF histogram.
         Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
             The array of y-values for the PCF histogram.
         Z (:math:`\\left(N_{z}\\right)` :class:`numpy.ndarray`):
             The array of z-values for the PCF histogram.
-        jacobian (float): The Jacobian used in the PMFT.
+        jacobian (float):
+            The Jacobian used in the PMFT.
         n_bins_x (unsigned int):
             The number of bins in the x-dimension of histogram.
         n_bins_y (unsigned int):
@@ -1016,17 +1040,18 @@ cdef class PMFTXYZ(_PMFT):
         current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): Simulation box.
+            box (:class:`freud.box.Box`):
+                Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            ref_orientations ((:math:`N_{particles}`, 4)
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Angles of reference points to use in the calculation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Angles of particles to use in the calculation.
-            face_orientations ((:math:`N_{particles}`, 4)
+            face_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
@@ -1148,15 +1173,15 @@ cdef class PMFTXYZ(_PMFT):
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                reference points to calculate the local density.
-            ref_orientations ((:math:`N_{particles}`, 4)
+                Reference points to calculate the local density.
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                angles of reference points to use in the calculation.
+                Angles of reference points to use in the calculation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                points to calculate the local density.
+                Points to calculate the local density.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                angles of particles to use in the calculation.
-            face_orientations ((:math:`N_{particles}`, 4)
+                Angles of particles to use in the calculation.
+            face_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
@@ -1164,7 +1189,7 @@ cdef class PMFTXYZ(_PMFT):
                 3D array of shape (1, :math:`N_f`, :math:`4`) is supplied, the
                 supplied quaternions will be broadcast for all particles.
                 (Default value = None).
-            nlist(:class:`freud.locality.NeighborList`, optional):
+            nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
         self.pmftxyzptr.reset()

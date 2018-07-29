@@ -175,7 +175,7 @@ cdef class FTsphere:
         """Set scattering density.
 
         Args:
-          density (float complex): Complex value of scattering density.
+            density (float complex): Complex value of scattering density.
         """
         self.thisptr.set_density(density)
 
@@ -183,7 +183,7 @@ cdef class FTsphere:
         """Set particle volume according to radius.
 
         Args:
-          radius (float): Particle radius.
+            radius (float): Particle radius.
         """
         self.thisptr.set_radius(radius)
 
@@ -225,9 +225,8 @@ cdef class FTpolyhedron:
         """Set the :math:`K` values to evaluate.
 
         Args:
-            K(:class:`numpy.ndarray`,
-              shape=(:math:`N_{K}`, 3),
-              dtype= :class:`numpy.float32`): :math:`K` values to evaluate.
+            K ((:math:`N_{K}`, 3) :class:`numpy.ndarray`):
+                :math:`K` values to evaluate.
         """
         K = freud.common.convert_array(
             K, 2, dtype=np.float32, contiguous=True, array_name="K")
@@ -345,6 +344,6 @@ cdef class FTpolyhedron:
         """Set scattering density.
 
         Args:
-          density (float complex): Complex value of scattering density.
+            density (float complex): Complex value of scattering density.
         """
         self.thisptr.set_density(density)

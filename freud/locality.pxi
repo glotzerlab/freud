@@ -360,7 +360,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
             ref_points (Default value = None).
 
     Returns:
-        tuple (:class:`freud.locality.NeighborList`,
+        tuple (:class:`freud.locality.NeighborList`, \
         :class:`freud.locality:LinkCell`):
             The neighborlist and the owning LinkCell object.
     """
@@ -410,7 +410,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
             Estimate of rmax, speeds up search if chosen properly.
 
     Returns:
-        tuple (:class:`freud.locality.NeighborList`,
+        tuple (:class:`freud.locality.NeighborList`, \
         :class:`freud.locality:NearestNeighbors`):
             The neighborlist and the owning NearestNeighbors object.
     """
@@ -612,7 +612,7 @@ cdef class LinkCell:
         """Returns the neighboring cell indices of the given cell.
 
         Args:
-            cell(unsigned int): Cell index.
+            cell (unsigned int): Cell index.
 
         Returns:
             :math:`\\left(N_{neighbors}\\right)` :class:`numpy.ndarray`:
@@ -633,7 +633,7 @@ cdef class LinkCell:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
                 Point coordinates (Default value = None).
             exclude_ii (bool, optional):
@@ -691,7 +691,7 @@ cdef class LinkCell:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
                 Point coordinates (Default value = None).
             exclude_ii (bool, optional):
@@ -720,15 +720,17 @@ cdef class NearestNeighbors:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        rmax (float): Initial guess of a distance to search within to find N
-                      neighbors.
-        n_neigh (unsigned int): Number of neighbors to find for each point.
-        scale (float): Multiplier by which to automatically increase
-                       :code:`rmax` value if the requested number of neighbors
-                       is not found. Only utilized if :code:`strict_cut` is
-                       False. Scale must be greater than 1.
-        strict_cut (bool): Whether to use a strict :code:`rmax` or allow for
-                           automatic expansion, default is False.
+        rmax (float):
+            Initial guess of a distance to search within to find N neighbors.
+        n_neigh (unsigned int):
+            Number of neighbors to find for each point.
+        scale (float):
+            Multiplier by which to automatically increase :code:`rmax` value if
+            the requested number of neighbors is not found. Only utilized if
+            :code:`strict_cut` is False. Scale must be greater than 1.
+        strict_cut (bool):
+            Whether to use a strict :code:`rmax` or allow for automatic
+            expansion, default is False.
 
     Attributes:
         UINTMAX (unsigned int):
@@ -741,10 +743,10 @@ cdef class NearestNeighbors:
             The number of particles this object found neighbors of.
         r_max (float):
             Current nearest neighbors search radius guess.
-        wrapped_vectors (:math:`\\left(N_{particles}\\right)`
+        wrapped_vectors (:math:`\\left(N_{particles}\\right)` \
         :class:`numpy.ndarray`):
             The wrapped vectors padded with -1 for empty neighbors.
-        r_sq_list (:math:`\\left(N_{particles}, N_{neighbors}\\right)`
+        r_sq_list (:math:`\\left(N_{particles}, N_{neighbors}\\right)` \
         :class:`numpy.ndarray`):
             The Rsq values list.
         nlist (:class:`freud.locality.NeighborList`):
@@ -881,7 +883,7 @@ cdef class NearestNeighbors:
         """Return the entire neighbor list.
 
         Returns:
-            :math:`\\left(N_{particles}, N_{neighbors}\\right)`
+            :math:`\\left(N_{particles}, N_{neighbors}\\right)` \
             :class:`numpy.ndarray`:
                 Neighbor List.
         """
@@ -969,7 +971,7 @@ cdef class NearestNeighbors:
         """Return the entire Rsq values list.
 
         Returns:
-            :math:`\\left(N_{particles}, N_{neighbors}\\right)`
+            :math:`\\left(N_{particles}, N_{neighbors}\\right)` \
             :class:`numpy.ndarray`:
                 Rsq list.
         """
@@ -986,7 +988,7 @@ cdef class NearestNeighbors:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
                 Point coordinates (Default value = None).
             exclude_ii (bool, optional):

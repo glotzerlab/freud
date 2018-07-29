@@ -43,8 +43,10 @@ cdef class FloatCF:
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
-        rmax (float): Distance over which to calculate.
-        dr (float): Bin size.
+        rmax (float):
+            Distance over which to calculate.
+        dr (float):
+            Bin size.
 
     Attributes:
         RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
@@ -488,17 +490,23 @@ cdef class GaussianDensity:
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        width (unsigned int): Number of pixels to make the image.
-        width_x (unsigned int): Number of pixels to make the image in x.
-        width_y (unsigned int): Number of pixels to make the image in y.
-        width_z (unsigned int): Number of pixels to make the image in z.
-        r_cut (float): Distance over which to blur.
-        sigma (float): Sigma parameter for Gaussian.
+        width (unsigned int):
+            Number of pixels to make the image.
+        width_x (unsigned int):
+            Number of pixels to make the image in x.
+        width_y (unsigned int):
+            Number of pixels to make the image in y.
+        width_z (unsigned int):
+            Number of pixels to make the image in z.
+        r_cut (float):
+            Distance over which to blur.
+        sigma (float):
+            Sigma parameter for Gaussian.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
-        gaussian_density ((:math:`w_x`, :math:`w_y`, :math:`w_z`)
+        gaussian_density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) \
         :class:`numpy.ndarray`):
             The image grid with the Gaussian density.
         counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
