@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * All Python/Cython code is now validated with flake8 during continuous integration.
 
 ### Changed
-* The default conda distribution channel is now conda-forge. The glotzer channel will not be maintained.
 * Refactoring of LocalQl and LocalWl Steinhardt order parameters.
 * MatchEnv uses BiMap instead of boost::bimap.
 * All boost shared\_arrays have been replaced with std::shared\_ptr.
