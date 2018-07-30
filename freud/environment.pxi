@@ -62,9 +62,9 @@ cdef class BondOrder:
         n (unsigned int):
             Number of neighbors to find.
         n_bins_t (unsigned int):
-            Number of theta bins.
+            Number of :math:`\\theta` bins.
         n_bins_p (unsigned int):
-            Number of phi bins.
+            Number of :math:`\\phi` bins.
 
     Attributes:
         bond_order (:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` \
@@ -73,13 +73,13 @@ cdef class BondOrder:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
         theta (:math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`):
-            The values of bin centers for theta.
+            The values of bin centers for :math:`\\theta`.
         phi (:math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`):
-            The values of bin centers for phi.
+            The values of bin centers for :math:`\\phi`.
         n_bins_theta (unsigned int):
-            The number of bins in the theta dimension.
+            The number of bins in the :math:`\\theta` dimension.
         n_bins_phi (unsigned int):
-            The values of bin centers for phi.
+            The number of bins in the :math:`\\phi` dimension.
 
     .. todo:: remove k, it is not used as such.
     """
@@ -115,8 +115,9 @@ cdef class BondOrder:
             orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Orientations to calculate the bonding.
             mode (str, optional):
-                Mode to calculate bond order. Options are "bod", "lbod",
-                "obcd", or "oocd" (Default value = "bod").
+                Mode to calculate bond order. Options are :code:`'bod'`,
+                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
+                (Default value = :code:`'bod'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
@@ -238,8 +239,9 @@ cdef class BondOrder:
             orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Orientations to calculate the bonding.
             mode (str, optional):
-                Mode to calculate bond order. Options are "bod", "lbod",
-                "obcd", or "oocd" (Default value = "bod").
+                Mode to calculate bond order. Options are :code:`'bod'`,
+                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
+                (Default value = :code:`'bod'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
@@ -434,14 +436,14 @@ cdef class LocalDescriptors:
             optional):
                 Orientation of each reference point (Default value = None).
             mode (str, optional):
-                Orientation mode to use for environments, either 'neighborhood'
-                to use the orientation of the local neighborhood,
-                'particle_local' to use the given particle orientations, or
-                'global' to not rotate environments
-                (Default value = 'neighborhood').
+                Orientation mode to use for environments, either
+                :code:`'neighborhood'` to use the orientation of the local
+                neighborhood, :code:`'particle_local'` to use the given
+                particle orientations, or :code:`'global'` to not rotate
+                environments (Default value = :code:`'neighborhood'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds or 'precomputed' if using
-                :py:meth:`~.computeNList` (Default value = None).
+                Neighborlist to use to find bonds or :code:`'precomputed'` if
+                using :py:meth:`~.computeNList` (Default value = None).
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
@@ -1231,8 +1233,8 @@ cdef class AngularSeparation:
             optional):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation.
-                Important: equiv_quats must include both q and -q, for all
-                included quaternions.
+                Important: :code:`equiv_quats` must include both :math:`q` and
+                :math:`-q`, for all included quaternions.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
@@ -1304,8 +1306,8 @@ cdef class AngularSeparation:
             equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation.
-                Important: equiv_quats must include both q and -q, for all
-                included quaternions.
+                Important: :code:`equiv_quats` must include both :math:`q` and
+                :math:`-q`, for all included quaternions.
         """
         global_ors = freud.common.convert_array(
             global_ors, 2, dtype=np.float32, contiguous=True,

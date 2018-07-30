@@ -25,10 +25,11 @@ cdef class FloatCF:
     array of the expected (average) product of all values at a given
     radial distance.
 
-    The values of r to compute the correlation function at are
-    controlled by the rmax and dr parameters to the constructor. rmax
-    determines the maximum r at which to compute the correlation
-    function and dr is the step size for each bin.
+    The values of :math:`r` where the correlation function is computed are
+    controlled by the :code:`rmax` and :code:`dr` parameters to the
+    constructor. :code:`rmax` determines the maximum distance at which to
+    compute the correlation function and :code:`dr` is the step size for each
+    bin.
 
     .. note::
         2D: :py:class:`freud.density.FloatCF` properly handles 2D boxes.
@@ -37,8 +38,8 @@ cdef class FloatCF:
 
     Self-correlation: It is often the case that we wish to compute the
     correlation function of a set of points with itself. If given the same
-    arrays for both points and ref_points, we omit accumulating the
-    self-correlation value in the first bin.
+    arrays for both :code:`points` and :code:`ref_points`, we omit
+    accumulating the self-correlation value in the first bin.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
@@ -186,11 +187,10 @@ cdef class FloatCF:
             refValues ((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Values to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding values: values to use in
-                computation.
+                Points to calculate the local density.
             values ((:math:`N_{particles}`):
                 Values to use in computation.
-            nlist(:class:`freud.locality.NeighborList`, optional):
+            nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
         self.thisptr.reset()
@@ -252,10 +252,11 @@ cdef class ComplexCF:
     array of the expected (average) product of all values at a given
     radial distance.
 
-    The values of :math:`r` to compute the correlation function at are
-    controlled by the rmax and dr parameters to the constructor. rmax
-    determines the maximum r at which to compute the correlation
-    function and dr is the step size for each bin.
+    The values of :math:`r` where the correlation function is computed are
+    controlled by the :code:`rmax` and :code:`dr` parameters to the
+    constructor. :code:`rmax` determines the maximum distance at which to
+    compute the correlation function and :code:`dr` is the step size for each
+    bin.
 
     .. note::
         2D: :py:class:`freud.density.ComplexCF` properly handles 2D boxes.
@@ -264,8 +265,8 @@ cdef class ComplexCF:
 
     Self-correlation: It is often the case that we wish to compute the
     correlation function of a set of points with itself. If given the same
-    arrays for both points and ref_points, we omit accumulating the
-    self-correlation value in the first bin.
+    arrays for both :code:`points` and :code:`ref_points`, we omit
+    accumulating the self-correlation value in the first bin.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
@@ -534,7 +535,7 @@ cdef class GaussianDensity:
         """Get the box used in the calculation.
 
         Returns:
-            :class:`freud.box.Box`: freud Box
+            :class:`freud.box.Box`: freud Box.
         """
         return BoxFromCPP(self.thisptr.getBox())
 
@@ -608,10 +609,11 @@ cdef class LocalDensity:
     giving the user the ability to count the number of particles in that
     region.
 
-    The values to compute the local density are set in the constructor. r_cut
-    sets the maximum distance at which to calculate the local density. volume
-    is the volume of a single particle. diameter is the diameter of the
-    circumsphere of an individual particle.
+    The values to compute the local density are set in the constructor.
+    :code:`r_cut` sets the maximum distance at which to calculate the local
+    density. :code:`volume` is the volume of a single particle.
+    :code:`diameter` is the diameter of the circumsphere of an individual
+    particle.
 
     .. note::
         2D: :py:class:`freud.density.LocalDensity` properly handles 2D boxes.
@@ -751,14 +753,15 @@ cdef class RDF:
     The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
     calculates them against themselves. Computing the RDF results in an RDF
-    array listing the value of the RDF at each given :math:`r`, listed in the r
-    array.
+    array listing the value of the RDF at each given :math:`r`, listed in the
+    :code:`r` array.
 
-    The values of :math:`r` to compute the RDF are set by the values of rmin,
-    rmax, dr in the constructor. rmax sets the maximum distance at which to
-    calculate the :math:`g \\left( r \\right)`, rmin sets the minimum distance
-    at which to calculate the :math:`g \\left( r \\right)`, and dr determines
-    the step size for each bin.
+    The values of :math:`r` to compute the RDF are set by the values of
+    :code:`rmin`, :code:`rmax`, :code:`dr` in the constructor. :code:`rmax`
+    sets the maximum distance at which to calculate the
+    :math:`g \\left( r \\right)`, :code:`rmin` sets the minimum distance at
+    which to calculate the :math:`g \\left( r \\right)`, and :code:`dr`
+    determines the step size for each bin.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 

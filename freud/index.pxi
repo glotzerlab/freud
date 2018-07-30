@@ -99,8 +99,8 @@ cdef class Index3D:
               :math:`1`-dimensional index of the :math:`i^{th}` column,
               :math:`j^{th}` row, and the :math:`k^{th}` frame. This is the
               opposite of what occurs in a numpy array, in which
-              array[i, j, k] returns the element in the :math:`i^{th}` frame,
-              :math:`j^{th}` row, and the :math:`k^{th}` column.
+              :code:`array[i, j, k]` returns the element in the :math:`i^{th}`
+              frame, :math:`j^{th}` row, and the :math:`k^{th}` column.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 

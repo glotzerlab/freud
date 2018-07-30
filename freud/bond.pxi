@@ -578,7 +578,7 @@ cdef class BondingXYT:
                 Simulation box
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the bonding.
-            ref_orientations((:math:`N_{particles}`, 4) \
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -751,7 +751,7 @@ cdef class BondingXYZ:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the bonding.
-            ref_orientations((:math:`N_{particles}`, 4) \
+            ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):

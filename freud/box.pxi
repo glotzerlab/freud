@@ -472,7 +472,7 @@ cdef class Box:
         return self.thisptr.setPeriodicZ(val)
 
     def to_dict(self):
-        """Return box as dictionary
+        """Return box as dictionary.
 
         Returns:
           dict: Box parameters
