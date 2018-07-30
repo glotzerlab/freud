@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
 cimport freud.util._Index1D as Index1D
@@ -25,11 +25,13 @@ cdef class Index2D:
 
             freud.index.Index2D(w, h)
 
-    .. note:: freud indexes column-first i.e. ``Index2D(i, j)`` will return the
-              :math:`1`-dimensional index of the :math:`i^{th}` column and the
-              :math:`j^{th}` row. This is the opposite of what occurs in a
-              numpy array, in which ``array[i, j]`` returns the element in the
-              :math:`i^{th}` row and the :math:`j^{th}` column.
+    .. note::
+
+        freud indexes column-first i.e. ``Index2D(i, j)`` will return the
+        :math:`1`-dimensional index of the :math:`i^{th}` column and the
+        :math:`j^{th}` row. This is the opposite of what occurs in a
+        numpy array, in which ``array[i, j]`` returns the element in the
+        :math:`i^{th}` row and the :math:`j^{th}` column.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -99,8 +101,8 @@ cdef class Index3D:
               :math:`1`-dimensional index of the :math:`i^{th}` column,
               :math:`j^{th}` row, and the :math:`k^{th}` frame. This is the
               opposite of what occurs in a numpy array, in which
-              array[i, j, k] returns the element in the :math:`i^{th}` frame,
-              :math:`j^{th}` row, and the :math:`k^{th}` column.
+              :code:`array[i, j, k]` returns the element in the :math:`i^{th}`
+              frame, :math:`j^{th}` row, and the :math:`k^{th}` column.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 

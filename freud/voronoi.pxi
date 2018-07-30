@@ -1,18 +1,17 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
-from cython.view cimport array as cvarray
 from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
+import logging
+import copy
+from . import common
 cimport freud._voronoi as voronoi
 cimport freud._box as _box
 cimport numpy as np
 
-import logging
-import copy
-from . import common
 
 logger = logging.getLogger(__name__)
 
@@ -39,28 +38,28 @@ cdef class VoronoiBuffer:
     def __cinit__(self, box):
         box = freud.common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
         """Compute the voronoi diagram.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi
-                                                    diagram for.
-            buffer (float): Buffer distance within which to look for images.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
+            buffer (float):
+                Buffer distance within which to look for images.
         """
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name='points')
+            points, 2, dtype=np.float32, contiguous=True, array_name='points')
 
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for VoronoiBuffer.compute()')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        self.thisptr.compute(< vec3[float]*> cPoints.data, Np, buffer)
+        self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)
         return self
 
     def getBufferParticles(self):
@@ -69,22 +68,22 @@ cdef class VoronoiBuffer:
         Returns:
             :class:`np.ndarray`: The buffer particles.
         """
-        cdef unsigned int buffer_size = dereference(
-                self.thisptr.getBufferParticles().get()).size()
-        cdef vec3[float] * buffer_points = &dereference(
-                self.thisptr.getBufferParticles().get())[0]
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef vec3[float] * buffer_points = \
+            &dereference(self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
 
-        cdef vector[vec3[float]]*bufferPar = self.thisptr.getBufferParticles().get()
+        cdef vector[vec3[float]]*bufferPar = \
+            self.thisptr.getBufferParticles().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = buffer_size
         nbins[1] = 3
 
-        cdef np.ndarray[float, ndim = 2] result = \
-                np.PyArray_SimpleNewFromData(
-                    2, nbins, np.NPY_FLOAT32,
-                    <void*> dereference(bufferPar).data())
+        cdef np.ndarray[float, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
+                                         <void*> dereference(bufferPar).data())
 
         return result
 
@@ -94,10 +93,10 @@ cdef class VoronoiBuffer:
         Returns:
             :class:`np.ndarray`: The buffer ids.
         """
-        cdef unsigned int buffer_size = dereference(
-                self.thisptr.getBufferParticles().get()).size()
-        cdef unsigned int * buffer_ids = &dereference(
-                self.thisptr.getBufferIds().get())[0]
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef unsigned int * buffer_ids = \
+            &dereference(self.thisptr.getBufferIds().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.uint32)
 
@@ -105,10 +104,9 @@ cdef class VoronoiBuffer:
         cdef np.npy_intp nbins[1]
         nbins[0] = buffer_size
 
-        cdef np.ndarray[unsigned int, ndim = 1] result = \
-                np.PyArray_SimpleNewFromData(
-                    1, nbins, np.NPY_UINT32,
-                    <void*> dereference(bufferIds).data())
+        cdef np.ndarray[unsigned int, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
+                                         <void*> dereference(bufferIds).data())
 
         return result
 
@@ -132,8 +130,10 @@ class Voronoi:
     entire simulation volume, a smaller value for :code:`buff` is acceptable.
 
     Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
-        buff (float): Buffer width.
+        box (:py:class:`freud.box.Box`):
+            Simulation box.
+        buff (float):
+            Buffer width.
     """
 
     def __init__(self, box, buff=0.1):
@@ -162,9 +162,13 @@ class Voronoi:
         """Calls VoronoiBuffer and qhull
 
         Args:
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`): Simulation box (Default value = None).
-            buff (float): Buffer distance within which to look for images (Default value = None).
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
+            box (:class:`freud.box.Box`):
+                Simulation box (Default value = None).
+            buff (float):
+                Buffer distance within which to look for images
+                (Default value = None).
         """
         # Compute the buffer particles in C++
         vbuff = VoronoiBuffer(box)
@@ -191,9 +195,13 @@ class Voronoi:
         """Compute Voronoi diagram.
 
         Args:
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`): Simulation box (Default value = None).
-            buff (float): Buffer distance within which to look for images (Default value = None).
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
+            box (:class:`freud.box.Box`):
+                Simulation box (Default value = None).
+            buff (float):
+                Buffer distance within which to look for images
+                (Default value = None).
         """
 
         # If box or buff is not specified, revert to object quantities
@@ -224,8 +232,7 @@ class Voronoi:
         """Returns the buffer width.
 
         Returns:
-          float: Buffer width.
-
+            float: Buffer width.
         """
         return self.buff
 
@@ -237,14 +244,14 @@ class Voronoi:
         vertices are excluded from the list.
 
         The length of the list returned by this method should be the same
-        as the array of positions used in the :py:meth:`~.compute()`
-        method, if all the polytopes are closed. Otherwise try using a larger
-        buffer width.
+        as the array of positions used in the
+        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
+        are closed. Otherwise try using a larger buffer width.
 
         Returns:
-          list: List of :class:`numpy.ndarray` containing Voronoi
-          polytope vertices.
-
+            list:
+                List of :class:`numpy.ndarray` containing Voronoi polytope
+                vertices.
         """
         return self.poly_verts
 
@@ -275,11 +282,16 @@ class Voronoi:
                   to 0.
 
         Args:
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`): Simulation box (Default value = None).
-            buff (float): Buffer distance within which to look for images (Default value = None).
-            exclude_ii (bool, optional): True if pairs of points with identical indices
-                             should be excluded (Default value = True).
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
+            box (:class:`freud.box.Box`):
+                Simulation box (Default value = None).
+            buff (float):
+                Buffer distance within which to look for images
+                (Default value = None).
+            exclude_ii (bool, optional):
+                True if pairs of points with identical indices should be
+                excluded (Default value = True).
         """
         # If box or buff is not specified, revert to object quantities
         if box is None:
@@ -391,7 +403,7 @@ class Voronoi:
         Must call :py:meth:`~.computeNeighbors()` before this method.
 
         Args:
-          numShells (int): Number of neighbor shells.
+            numShells (int): Number of neighbor shells.
         """
         neighbor_list = copy.copy(self.firstShellNeighborList)
         # delete [] in neighbor_list
@@ -460,8 +472,9 @@ class Voronoi:
 
         .. versionadded:: 0.8
 
-        Must call :py:meth:`~.compute()` before this method.
-        Retrieve the results with :py:meth:`~.getVolumes()`.
+        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this
+        method. Retrieve the results with
+        :py:meth:`freud.voronoi.Voronoi.getVolumes()`.
         """
         polytope_verts = self.getVoronoiPolytopes()
         self.poly_volumes = np.zeros(shape=len(polytope_verts))
@@ -479,18 +492,20 @@ class Voronoi:
 
         .. versionadded:: 0.8
 
-        Must call :py:meth:`~.computeVolumes()` before this method.
+        Must call :py:meth:`freud.voronoi.Voronoi.computeVolumes()` before this
+        method.
 
         If the buffer width is too small, then some polytopes may not be
         closed (they may have a boundary at infinity), and these polytopes'
         volumes/areas are excluded from the list.
 
         The length of the list returned by this method should be the same
-        as the array of positions used in the :py:meth:`~.compute()`
-        method, if all the polytopes are closed. Otherwise try using a larger
-        buffer width.
+        as the array of positions used in the
+        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
+        are closed. Otherwise try using a larger buffer width.
 
         Returns:
-            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`: Containing Voronoi polytope volumes/areas.
+            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:
+                Voronoi polytope volumes/areas.
         """
         return self.poly_volumes

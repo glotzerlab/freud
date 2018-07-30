@@ -19,6 +19,13 @@ references:
       name: Install dependencies
       command: |
         pip${PYVER} install --user -r requirements.txt
+        pip${PYVER} install --user flake8
+
+  check_source: &check_source
+    run:
+      name: flake8
+      command: |
+        python${PYVER} -m flake8 --show-source .
 
   configure: &configure
     run:
@@ -59,6 +66,7 @@ references:
     steps:
       - *load_code
       - *get_requirements
+      - *check_source
       - *configure
       - *compile
       - *test

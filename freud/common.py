@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 # Methods used throughout freud for convenience
 
@@ -22,8 +22,8 @@ def convert_array(array, dimensions, dtype=None,
         array (:class:`numpy.ndarray`): Array to check and convert.
         dimensions (int): Expected dimensions of the array.
         dtype: code:`dtype` to convert the array to if :code:`array.dtype`
-            is different. If `None`, :code:`dtype` will not be changed. (Default
-            value = None).
+            is different. If `None`, :code:`dtype` will not be changed.
+            (Default value = None).
         contiguous (bool): Whether to cast the array to a contiguous (Default
             value = True).
         array. Default behavior casts to a contiguous array.

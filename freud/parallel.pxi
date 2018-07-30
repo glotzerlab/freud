@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 cimport freud._parallel as parallel
 
@@ -19,8 +19,9 @@ def setNumThreads(nthreads=None):
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        nthreads(int, optional): Number of threads to use. If None (default), use all
-    threads available.
+        nthreads(int, optional):
+            Number of threads to use. If None (default), use all threads
+            available.
     """
     if nthreads is None or nthreads < 0:
         nthreads = 0
