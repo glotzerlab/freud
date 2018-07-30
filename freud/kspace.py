@@ -390,7 +390,7 @@ class SingleCell3D:
         .. note::
             This shouldn't usually be necessary, since particle types may be
             set inactive or have any of their properties updated through
-            `set_` methods.): particle name.
+            `set_` methods.
         """
         i = self.ptype_name.index(name)
         if i in self.active_types:

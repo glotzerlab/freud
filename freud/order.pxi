@@ -205,7 +205,7 @@ cdef class CubaticOrderParameter:
         return result
 
     def get_gen_r4_tensor(self):
-        """Get R4 Tensor
+        """Get R4 Tensor.
 
         Returns:
             :math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`:
@@ -578,8 +578,8 @@ cdef class TransOrderParameter:
 
 cdef class LocalQl:
     """
-    Compute the local Steinhardt rotationally invariant :math:`Q_l`
-    [Lechner2008]_ order parameter for a set of points.
+    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`Q_l` [Lechner2008]_ order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`Q_l` order parameter
     described by Steinhardt. For a particle i, we calculate the average
@@ -592,8 +592,6 @@ cdef class LocalQl:
     This is then combined in a rotationally invariant fashion to remove local
     orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
     \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`.
-
-    For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784).
 
     Added first/second shell combined average :math:`Q_l` order parameter for
     a set of points:
@@ -886,8 +884,8 @@ cdef class LocalQl:
 
 cdef class LocalQlNear(LocalQl):
     """
-    Compute the local Steinhardt rotationally invariant :math:`Q_l` order
-    parameter [Lechner2008]_ for a set of points.
+    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`Q_l` order parameter [Lechner2008]_ for a set of points.
 
     Implements the local rotationally invariant :math:`Q_l` order parameter
     described by Steinhardt. For a particle i, we calculate the average
@@ -900,8 +898,6 @@ cdef class LocalQlNear(LocalQl):
     This is then combined in a rotationally invariant fashion to remove local
     orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
     \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`
-
-    For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
 
     Added first/second shell combined average :math:`Q_l` order parameter for
     a set of points:
@@ -1019,14 +1015,12 @@ cdef class LocalQlNear(LocalQl):
 
 cdef class LocalWl(LocalQl):
     """
-    Compute the local Steinhardt rotationally invariant :math:`W_l` order
-    parameter [Lechner2008]_ for a set of points.
+    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`W_l` order parameter [Lechner2008]_ for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter
     described by Steinhardt that can aid in distinguishing  between FCC, HCP,
     and BCC.
-
-    For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
 
     Added first/second shell combined average :math:`W_l` order parameter for
     a set of points:
@@ -1208,14 +1202,12 @@ cdef class LocalWl(LocalQl):
 
 cdef class LocalWlNear(LocalWl):
     """
-    Compute the local Steinhardt rotationally invariant :math:`W_l` order
-    parameter [Lechner2008]_ for a set of points.
+    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`W_l` order parameter [Lechner2008]_ for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter
     described by Steinhardt that can aid in distinguishing between FCC, HCP,
     and BCC.
-
-    For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
 
     Added first/second shell combined average :math:`W_l` order parameter for a
     set of points:
