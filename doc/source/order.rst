@@ -85,7 +85,7 @@ Pairing
 -------
 
 .. note::
-    This module is deprecated and is replaced with :doc:`bond`.
+    Pairing2D is deprecated and is replaced with :doc:`bond`.
 
 .. autoclass:: freud.order.Pairing2D(rmax, k, compDotTol)
     :members:
@@ -95,4 +95,3 @@ Angular Separation
 
 .. autoclass:: freud.order.AngularSeparation(box, rmax, n)
     :members:
-

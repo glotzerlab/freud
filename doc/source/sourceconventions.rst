@@ -141,9 +141,16 @@ following guidelines. Anything listed here takes precedence over PEP 8,
 but try to deviate as little as possible from PEP 8. When in doubt,
 follow these guidelines over PEP 8.
 
-If you are unsure if your code is PEP 8 compliant, you can use autopep8
-and flake8 (or similar) to automatically update and check your code.
+During continuous integration (CI), all Python and Cython code in freud is
+tested with `flake8 <http://flake8.pycqa.org/>`_ to ensure PEP 8 compliance.
+It is strongly recommended to
+`set up a pre-commit hook <http://flake8.pycqa.org/en/latest/user/using-hooks.html>`_
+to ensure code is compliant before pushing to the repository:
 
+.. code-block:: bash
+
+    flake8 --install-hook git
+    git config --bool flake8.strict true
 
 Source
 ------

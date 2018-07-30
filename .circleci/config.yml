@@ -20,6 +20,13 @@ references:
       command: |
         git submodule update --init
         pip${PYVER} install --user -r requirements.txt
+        pip${PYVER} install --user flake8
+
+  check_source: &check_source
+    run:
+      name: flake8
+      command: |
+        python${PYVER} -m flake8 --show-source .
 
   build: &build
     run:
@@ -43,6 +50,7 @@ references:
     steps:
       - *load_code
       - *get_requirements
+      - *check_source
       - *build
       - *test
       - *store

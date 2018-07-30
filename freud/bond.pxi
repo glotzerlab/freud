@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.map cimport map
@@ -18,16 +18,26 @@ cdef class BondingAnalysis:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        num_particles (unsigned int): Number of particles over which to calculate bonds.
-        num_bonds (unsigned int): Number of bonds to track.
+        num_particles (unsigned int):
+            Number of particles over which to calculate bonds.
+        num_bonds (unsigned int):
+            Number of bonds to track.
 
     Attributes:
-        bond_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`): Bond lifetimes.
-        overall_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`): Overall bond lifetimes.
-        transition_matrix (:class:`numpy.ndarray`): Transition matrix.
-        num_frames (unsigned int): Number of frames calculated.
-        num_particles (unsigned int): Number of tracked particles.
-        num_bonds (unsigned int): Number of tracked bonds.
+        bond_lifetimes ((:math:`N_{particles}`, varying) \
+        :class:`numpy.ndarray`):
+            Bond lifetimes.
+        overall_lifetimes ((:math:`N_{particles}`, varying) \
+        :class:`numpy.ndarray`):
+            Overall bond lifetimes.
+        transition_matrix (:class:`numpy.ndarray`):
+            Transition matrix.
+        num_frames (unsigned int):
+            Number of frames calculated.
+        num_particles (unsigned int):
+            Number of tracked particles.
+        num_bonds (unsigned int):
+            Number of tracked bonds.
     """
     cdef bond.BondingAnalysis * thisptr
     cdef unsigned int num_particles
@@ -45,46 +55,49 @@ cdef class BondingAnalysis:
         """Calculates the changes in bonding states from one frame to the next.
 
         Args:
-            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
-                    First bonding frame (as output from :py:class:`~.BondingR12` modules).
+            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
+            :class:`numpy.ndarray`):
+                First bonding frame (as output from :py:class:`~.BondingR12`
+                modules).
         """
         frame_0 = freud.common.convert_array(
-                    frame_0, 2, dtype=np.uint32, contiguous=True,
-                    array_name="frame_0")
+            frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
         if (frame_0.shape[0] != self.num_particles):
             raise ValueError(
-                "the 1st dimension must match num_particles: {}".format(
+                "The 1st dimension must match num_particles: {}".format(
                     self.num_particles))
         if (frame_0.shape[1] != self.num_bonds):
             raise ValueError(
-                "the 2nd dimension must match num_bonds: {}".format(
+                "The 2nd dimension must match num_bonds: {}".format(
                     self.num_bonds))
-        cdef np.ndarray[uint, ndim = 2] l_frame_0 = frame_0
+        cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
         with nogil:
-            self.thisptr.initialize(< unsigned int*> l_frame_0.data)
+            self.thisptr.initialize(<unsigned int*> l_frame_0.data)
 
     def compute(self, frame_0, frame_1):
         """Calculates the changes in bonding states from one frame to the next.
 
         Args:
-            frame_0((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
-                    Current/previous bonding frame (as output from :py:class:`.BondingR12` modules).
-            frame_1((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
-                    Next/current bonding frame (as output from :py:class:`.BondingR12` modules).
+            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
+            :class:`numpy.ndarray`):
+                Current/previous bonding frame (as output from
+                :py:class:`.BondingR12` modules).
+            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
+            :class:`numpy.ndarray`):
+                Next/current bonding frame (as output from
+                :py:class:`.BondingR12` modules).
         """
         frame_0 = freud.common.convert_array(
-                    frame_0, 2, dtype=np.uint32, contiguous=True,
-                    array_name="frame_0")
+            frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
         frame_1 = freud.common.convert_array(
-            frame_1, 2, dtype=np.uint32, contiguous=True,
-            array_name="frame_1")
+            frame_1, 2, dtype=np.uint32, contiguous=True, array_name="frame_1")
 
-        cdef np.ndarray[uint, ndim = 2] l_frame_0 = frame_0
-        cdef np.ndarray[uint, ndim = 2] l_frame_1 = frame_1
+        cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
+        cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1
         with nogil:
             self.thisptr.compute(
-                < unsigned int*> l_frame_0.data,
-                < unsigned int*> l_frame_1.data)
+                <unsigned int*> l_frame_0.data,
+                <unsigned int*> l_frame_1.data)
         return self
 
     @property
@@ -95,7 +108,8 @@ cdef class BondingAnalysis:
         """Return the bond lifetimes.
 
         Returns:
-            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`: Lifetime of bonds.
+            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:
+                Lifetime of bonds.
         """
         bonds = self.thisptr.getBondLifetimes()
         return bonds
@@ -108,7 +122,8 @@ cdef class BondingAnalysis:
         """Return the overall lifetimes.
 
         Returns:
-            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`: Lifetime of bonds.
+            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:
+                Lifetime of bonds.
         """
         bonds = self.thisptr.getOverallLifetimes()
         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
@@ -124,14 +139,14 @@ cdef class BondingAnalysis:
         Returns:
             :class:`numpy.ndarray`: Transition matrix.
         """
-        cdef unsigned int * trans_matrix = self.thisptr.getTransitionMatrix(
-                                            ).get()
+        cdef unsigned int * trans_matrix = \
+            self.thisptr.getTransitionMatrix().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.num_bonds
-        nbins[1] = <np.npy_intp > self.num_bonds
-        cdef np.ndarray[np.uint32_t, ndim = 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                        2, nbins, np.NPY_UINT32, < void*>trans_matrix)
+        nbins[0] = <np.npy_intp> self.num_bonds
+        nbins[1] = <np.npy_intp> self.num_bonds
+        cdef np.ndarray[np.uint32_t, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(
+                2, nbins, np.NPY_UINT32, <void*> trans_matrix)
         return result
 
     @property
@@ -171,22 +186,30 @@ cdef class BondingAnalysis:
         return self.thisptr.getNumBonds()
 
 cdef class BondingR12:
-    """Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`, :math:`\\theta_2`) coordinate system.
+    """Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`,
+    :math:`\\theta_2`) coordinate system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        r_max (float): Distance to search for bonds.
-        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each r, :math:`\\theta_2`, :math:`\\theta_1`
-                         coordinate.
-        bond_list (:class:`numpy.ndarray`): List containing the bond indices to be tracked,
-                          :code:`bond_list[i] = bond_index`.
+        r_max (float):
+            Distance to search for bonds.
+        bond_map (:class:`numpy.ndarray`):
+            3D array containing the bond index for each r, :math:`\\theta_2`,
+            :math:`\\theta_1` coordinate.
+        bond_list (:class:`numpy.ndarray`):
+            List containing the bond indices to be tracked,
+            :code:`bond_list[i] = bond_index`.
 
     Attributes:
-        bonds (:class:`numpy.ndarray`): Particle bonds.
-        box (:py:class:`freud.box.Box`): Box used in the calculation.
-        list_map (dict): The dict used to map bond index to list index.
-        rev_list_map (dict): The dict used to map list idx to bond idx.
+        bonds (:class:`numpy.ndarray`):
+            Particle bonds.
+        box (:py:class:`freud.box.Box`):
+            Box used in the calculation.
+        list_map (dict):
+            The dict used to map bond index to list index.
+        rev_list_map (dict):
+            The dict used to map list idx to bond idx.
     """
     cdef bond.BondingR12 * thisptr
     cdef rmax
@@ -197,12 +220,12 @@ cdef class BondingR12:
         n_t2 = bond_map.shape[1]
         n_t1 = bond_map.shape[2]
         n_bonds = bond_list.shape[0]
-        cdef np.ndarray[uint, ndim = 3] l_bond_map = bond_map
-        cdef np.ndarray[uint, ndim = 1] l_bond_list = bond_list
+        cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
+        cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingR12(
-                r_max, n_r, n_t2, n_t1, n_bonds,
-                < unsigned int*>l_bond_map.data,
-                < unsigned int*>l_bond_list.data)
+            r_max, n_r, n_t2, n_t1, n_bonds,
+            <unsigned int*> l_bond_map.data,
+            <unsigned int*> l_bond_list.data)
         self.rmax = r_max
 
     def __dealloc__(self):
@@ -213,55 +236,61 @@ cdef class BondingR12:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the bonding.
-            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the bonding.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points to calculate the bonding.
+            ref_orientations ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`:
+                Orientations as angles to use in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Orientations as angles to use in computation.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
-                ref_points, 2, dtype=np.float32, contiguous=True,
-                array_name="ref_points")
+            ref_points, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-                ref_orientations, 1, dtype=np.float32, contiguous=True,
-                array_name="ref_orientations")
+            ref_orientations, 1, dtype=np.float32, contiguous=True,
+            array_name="ref_orientations")
 
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name="points")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-                orientations, 1, dtype=np.float32, contiguous=True,
-                array_name="orientations")
+            orientations, 1, dtype=np.float32, contiguous=True,
+            array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim = 2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim = 1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim = 2] l_points = points
-        cdef np.ndarray[float, ndim = 1] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int > points.shape[0]
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(
-                    l_box, nlist_ptr,
-                    < vec3[float]*> l_ref_points.data,
-                    < float*> l_ref_orientations.data, n_ref,
-                    < vec3[float]*> l_points.data,
-                    < float*> l_orientations.data, n_p)
+                l_box, nlist_ptr,
+                <vec3[float]*> l_ref_points.data,
+                <float*> l_ref_orientations.data, n_ref,
+                <vec3[float]*> l_points.data,
+                <float*> l_orientations.data, n_p)
         return self
 
     @property
@@ -276,11 +305,11 @@ cdef class BondingR12:
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp > self.thisptr.getNumBonds()
-        cdef np.ndarray[np.uint32_t, ndim = 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                        2, nbins, np.NPY_UINT32, < void*>bonds)
+        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(
+                2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
     @property
@@ -293,7 +322,7 @@ cdef class BondingR12:
         Returns:
             :py:class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< box.Box > self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -320,21 +349,32 @@ cdef class BondingR12:
         return self.thisptr.getRevListMap()
 
 cdef class BondingXY2D:
-    """Compute bonds in a 2D system using a (:math:`x`, :math:`y`) coordinate system.
+    """Compute bonds in a 2D system using a (:math:`x`, :math:`y`) coordinate
+    system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        x_max (float): Maximum :math:`x` distance at which to search for bonds.
-        y_max (float): Maximum :math:`y` distance at which to search for bonds.
-        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y` coordinate.
-        bond_list (:class:`numpy.ndarray`): List containing the bond indices to be tracked, :code:`bond_list[i] = bond_index`.
+        x_max (float):
+            Maximum :math:`x` distance at which to search for bonds.
+        y_max (float):
+            Maximum :math:`y` distance at which to search for bonds.
+        bond_map (:class:`numpy.ndarray`):
+            3D array containing the bond index for each :math:`x`, :math:`y`
+            coordinate.
+        bond_list (:class:`numpy.ndarray`):
+            List containing the bond indices to be tracked,
+            :code:`bond_list[i] = bond_index`.
 
     Attributes:
-        bonds (:class:`numpy.ndarray`): Particle bonds.
-        box (:py:class:`freud.box.Box`): Box used in the calculation.
-        list_map (dict): The dict used to map bond index to list index.
-        rev_list_map (dict): The dict used to map list idx to bond idx.
+        bonds (:class:`numpy.ndarray`):
+            Particle bonds.
+        box (:py:class:`freud.box.Box`):
+            Box used in the calculation.
+        list_map (dict):
+            The dict used to map bond index to list index.
+        rev_list_map (dict):
+            The dict used to map list idx to bond idx.
     """
     cdef bond.BondingXY2D * thisptr
     cdef rmax
@@ -346,12 +386,12 @@ cdef class BondingXY2D:
         n_bonds = bond_list.shape[0]
         bond_map = np.require(bond_map, requirements=["C"])
         bond_list = np.require(bond_list, requirements=["C"])
-        cdef np.ndarray[uint, ndim = 2] l_bond_map = bond_map
-        cdef np.ndarray[uint, ndim = 1] l_bond_list = bond_list
+        cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map
+        cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXY2D(
-                x_max, y_max, n_x, n_y, n_bonds,
-                < unsigned int*>l_bond_map.data,
-                < unsigned int*>l_bond_list.data)
+            x_max, y_max, n_x, n_y, n_bonds,
+            <unsigned int*> l_bond_map.data,
+            <unsigned int*> l_bond_list.data)
         self.rmax = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
@@ -363,56 +403,62 @@ cdef class BondingXY2D:
         histogram.
 
         Args:
-            box (:class:`freud.box.Box`): Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the bonding.
-            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the bonding.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points to calculate the bonding.
+            ref_orientations ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`):
+                Orientations as angles to use in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Orientations as angles to use in computation.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
-                ref_points, 2, dtype=np.float32, contiguous=True,
-                array_name="ref_points")
+            ref_points, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-                ref_orientations, 1, dtype=np.float32, contiguous=True,
-                array_name="ref_orientations")
+            ref_orientations, 1, dtype=np.float32, contiguous=True,
+            array_name="ref_orientations")
 
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name="points")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-                orientations, 1, dtype=np.float32, contiguous=True,
-                array_name="orientations")
+            orientations, 1, dtype=np.float32, contiguous=True,
+            array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim = 2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim = 1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim = 2] l_points = points
-        cdef np.ndarray[float, ndim = 1] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int > points.shape[0]
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(
-                    l_box, nlist_ptr,
-                    < vec3[float]*> l_ref_points.data,
-                    < float*> l_ref_orientations.data,
-                    n_ref,
-                    < vec3[float]*> l_points.data,
-                    < float*> l_orientations.data, n_p)
+                l_box, nlist_ptr,
+                <vec3[float]*> l_ref_points.data,
+                <float*> l_ref_orientations.data,
+                n_ref,
+                <vec3[float]*> l_points.data,
+                <float*> l_orientations.data, n_p)
         return self
 
     @property
@@ -427,11 +473,11 @@ cdef class BondingXY2D:
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp > self.thisptr.getNumBonds()
-        cdef np.ndarray[np.uint32_t, ndim = 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                            2, nbins, np.NPY_UINT32, < void*>bonds)
+        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(
+                2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
     @property
@@ -444,7 +490,7 @@ cdef class BondingXY2D:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< box.Box > self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -480,18 +526,26 @@ cdef class BondingXYT:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        x_max (float): Maximum :math:`x` distance at which to search for bonds.
-        y_max (float): Maximum :math:`y` distance at which to search for bonds.
-        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y`
-                         coordinate.
-        bond_list (:class:`numpy.ndarray`): List containing the bond indices to be tracked,
-                          :code:`bond_list[i] = bond_index`.
+        x_max (float):
+            Maximum :math:`x` distance at which to search for bonds.
+        y_max (float):
+            Maximum :math:`y` distance at which to search for bonds.
+        bond_map (:class:`numpy.ndarray`):
+            3D array containing the bond index for each :math:`x`, :math:`y`
+            coordinate.
+        bond_list (:class:`numpy.ndarray`):
+            List containing the bond indices to be tracked,
+            :code:`bond_list[i] = bond_index`.
 
     Attributes:
-        bonds (:class:`numpy.ndarray`): Particle bonds.
-        box (:py:class:`freud.box.Box`): Box used in the calculation.
-        list_map (dict): The dict used to map bond index to list index.
-        rev_list_map (dict): The dict used to map list idx to bond idx.
+        bonds (:class:`numpy.ndarray`):
+            Particle bonds.
+        box (:py:class:`freud.box.Box`):
+            Box used in the calculation.
+        list_map (dict):
+            The dict used to map bond index to list index.
+        rev_list_map (dict):
+            The dict used to map list idx to bond idx.
     """
     cdef bond.BondingXYT * thisptr
     cdef rmax
@@ -504,12 +558,12 @@ cdef class BondingXYT:
         n_bonds = bond_list.shape[0]
         bond_map = np.require(bond_map, requirements=["C"])
         bond_list = np.require(bond_list, requirements=["C"])
-        cdef np.ndarray[uint, ndim = 3] l_bond_map = bond_map
-        cdef np.ndarray[uint, ndim = 1] l_bond_list = bond_list
+        cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
+        cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXYT(
-                x_max, y_max, n_x, n_y, n_t, n_bonds,
-                < unsigned int*>l_bond_map.data,
-                < unsigned int*>l_bond_list.data)
+            x_max, y_max, n_x, n_y, n_t, n_bonds,
+            <unsigned int*> l_bond_map.data,
+            <unsigned int*> l_bond_list.data)
         self.rmax = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
@@ -520,55 +574,61 @@ cdef class BondingXYT:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): Simulation box
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the bonding.
-            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the bonding.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
+            box (:class:`freud.box.Box`):
+                Simulation box
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points to calculate the bonding.
+            ref_orientations ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`):
+                Orientations as angles to use in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Orientations as angles to use in computation.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
-                ref_points, 2, dtype=np.float32, contiguous=True,
-                array_name="ref_points")
+            ref_points, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-                ref_orientations, 1, dtype=np.float32, contiguous=True,
-                array_name="ref_orientations")
+            ref_orientations, 1, dtype=np.float32, contiguous=True,
+            array_name="ref_orientations")
 
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name="points")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-                orientations, 1, dtype=np.float32, contiguous=True,
-                array_name="orientations")
+            orientations, 1, dtype=np.float32, contiguous=True,
+            array_name="orientations")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim = 2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim = 1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim = 2] l_points = points
-        cdef np.ndarray[float, ndim = 1] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int > points.shape[0]
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(
-                    l_box, nlist_ptr,
-                    < vec3[float]*> l_ref_points.data,
-                    < float*> l_ref_orientations.data, n_ref,
-                    < vec3[float]*> l_points.data,
-                    < float*> l_orientations.data, n_p)
+                l_box, nlist_ptr,
+                <vec3[float]*> l_ref_points.data,
+                <float*> l_ref_orientations.data, n_ref,
+                <vec3[float]*> l_points.data,
+                <float*> l_orientations.data, n_p)
         return self
 
     @property
@@ -583,11 +643,11 @@ cdef class BondingXYT:
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp > self.thisptr.getNumBonds()
-        cdef np.ndarray[np.uint32_t, ndim = 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                        2, nbins, np.NPY_UINT32, < void*>bonds)
+        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(
+                2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
     @property
@@ -600,7 +660,7 @@ cdef class BondingXYT:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< box.Box > self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -636,25 +696,34 @@ cdef class BondingXYZ:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        x_max (float): Maximum :math:`x` distance at which to search for bonds.
-        y_max (float): Maximum :math:`y` distance at which to search for bonds.
-        z_max (float): Maximum :math:`z` distance at which to search for bonds.
-        bond_map (:class:`numpy.ndarray`): 3D array containing the bond index for each :math:`x`, :math:`y`, :math:`z`
-                         coordinate.
-        bond_list (:class:`numpy.ndarray`): List containing the bond indices to be tracked,
-                          :code:`bond_list[i] = bond_index`.
+        x_max (float):
+            Maximum :math:`x` distance at which to search for bonds.
+        y_max (float):
+            Maximum :math:`y` distance at which to search for bonds.
+        z_max (float):
+            Maximum :math:`z` distance at which to search for bonds.
+        bond_map (:class:`numpy.ndarray`):
+            3D array containing the bond index for each :math:`x`, :math:`y`,
+            :math:`z` coordinate.
+        bond_list (:class:`numpy.ndarray`):
+            List containing the bond indices to be tracked,
+            :code:`bond_list[i] = bond_index`.
 
     Attributes:
-        bonds (:class:`numpy.ndarray`): Particle bonds.
-        box (:py:class:`freud.box.Box`): Box used in the calculation.
-        list_map (dict): The dict used to map bond index to list index.
-        rev_list_map (dict): The dict used to map list idx to bond idx.
+        bonds (:class:`numpy.ndarray`):
+            Particle bonds.
+        box (:py:class:`freud.box.Box`):
+            Box used in the calculation.
+        list_map (dict):
+            The dict used to map bond index to list index.
+        rev_list_map (dict):
+            The dict used to map list idx to bond idx.
     """
     cdef bond.BondingXYZ * thisptr
     cdef rmax
 
     def __cinit__(self, float x_max, float y_max, float z_max, bond_map,
-            bond_list):
+                  bond_list):
         # extract nr, nt from the bond_map
         n_z = bond_map.shape[0]
         n_y = bond_map.shape[1]
@@ -662,12 +731,12 @@ cdef class BondingXYZ:
         n_bonds = bond_list.shape[0]
         bond_map = np.require(bond_map, requirements=["C"])
         bond_list = np.require(bond_list, requirements=["C"])
-        cdef np.ndarray[uint, ndim = 3] l_bond_map = bond_map
-        cdef np.ndarray[uint, ndim = 1] l_bond_list = bond_list
+        cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
+        cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
         self.thisptr = new bond.BondingXYZ(
-                x_max, y_max, z_max, n_x, n_y, n_z, n_bonds,
-                < unsigned int*>l_bond_map.data,
-                < unsigned int*>l_bond_list.data)
+            x_max, y_max, z_max, n_x, n_y, n_z, n_bonds,
+            <unsigned int*> l_bond_map.data,
+            <unsigned int*> l_bond_list.data)
         self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
 
     def __dealloc__(self):
@@ -678,63 +747,69 @@ cdef class BondingXYZ:
         """Calculates the correlation function and adds to the current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Reference points to calculate the bonding.
-            ref_orientations((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`): Points to calculate the bonding.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`): Orientations as angles to use in computation.
-            nlist (:class:`freud.locality.NeighborList`, optional): NeighborList to use to find bonds (Default value = None).
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points to calculate the bonding.
+            ref_orientations ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`):
+                Orientations as angles to use in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Orientations as angles to use in computation.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
-                ref_points, 2, dtype=np.float32, contiguous=True,
-                array_name="ref_points")
+            ref_points, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-                ref_orientations, 2, dtype=np.float32, contiguous=True,
-                array_name="ref_orientations")
+            ref_orientations, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise ValueError(
-                "the 2nd dimension must have 4 values: q0, q1, q2, q3")
+                "The 2nd dimension must have 4 values: q0, q1, q2, q3")
 
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name="points")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-                orientations, 2, dtype=np.float32, contiguous=True,
-                array_name="orientations")
+            orientations, 2, dtype=np.float32, contiguous=True,
+            array_name="orientations")
         if orientations.shape[1] != 4:
             raise ValueError(
-                "the 2nd dimension must have 4 values: q0, q1, q2, q3")
+                "The 2nd dimension must have 4 values: q0, q1, q2, q3")
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim = 2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim = 2] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim = 2] l_points = points
-        cdef np.ndarray[float, ndim = 2] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int > points.shape[0]
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(
-                    l_box, nlist_ptr,
-                    < vec3[float]*> l_ref_points.data,
-                    < quat[float]*> l_ref_orientations.data,
-                    n_ref,
-                    < vec3[float]*> l_points.data,
-                    < quat[float]*> l_orientations.data,
-                    n_p)
+                l_box, nlist_ptr,
+                <vec3[float]*> l_ref_points.data,
+                <quat[float]*> l_ref_orientations.data,
+                n_ref,
+                <vec3[float]*> l_points.data,
+                <quat[float]*> l_orientations.data,
+                n_p)
         return self
 
     @property
@@ -749,11 +824,11 @@ cdef class BondingXYZ:
         """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp > self.thisptr.getNumBonds()
-        cdef np.ndarray[np.uint32_t, ndim = 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                        2, nbins, np.NPY_UINT32, < void*>bonds)
+        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
+        nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()
+        cdef np.ndarray[np.uint32_t, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(
+                2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
     @property
@@ -766,7 +841,7 @@ cdef class BondingXYZ:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< box.Box > self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     @property
     def list_map(self):

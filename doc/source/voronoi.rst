@@ -14,3 +14,7 @@ Voronoi Module
 .. automodule:: freud.voronoi
     :synopsis: Characterize Voronoi cells
     :members:
+
+.. autoclass:: freud.voronoi.Voronoi(box, buff)
+    :members:
+

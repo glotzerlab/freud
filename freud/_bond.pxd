@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
@@ -34,7 +34,7 @@ cdef extern from "BondingR12.cc" namespace "freud::bond":
 cdef extern from "BondingR12.h" namespace "freud::bond":
     cdef cppclass BondingR12:
         BondingR12(float, unsigned int, unsigned int, unsigned int,
-                   unsigned int, unsigned int * , unsigned int * )
+                   unsigned int, unsigned int *, unsigned int *)
         const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
@@ -56,7 +56,7 @@ cdef extern from "BondingXY2D.cc" namespace "freud::bond":
 cdef extern from "BondingXY2D.h" namespace "freud::bond":
     cdef cppclass BondingXY2D:
         BondingXY2D(float, float, unsigned int, unsigned int, unsigned int,
-                    unsigned int * , unsigned int * )
+                    unsigned int *, unsigned int *)
         const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
@@ -78,7 +78,7 @@ cdef extern from "BondingXYT.cc" namespace "freud::bond":
 cdef extern from "BondingXYT.h" namespace "freud::bond":
     cdef cppclass BondingXYT:
         BondingXYT(float, float, unsigned int, unsigned int, unsigned int,
-                   unsigned int, unsigned int * , unsigned int * )
+                   unsigned int, unsigned int *, unsigned int *)
         const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,
@@ -100,8 +100,8 @@ cdef extern from "BondingXYZ.cc" namespace "freud::bond":
 cdef extern from "BondingXYZ.h" namespace "freud::bond":
     cdef cppclass BondingXYZ:
         BondingXYZ(float, float, float, unsigned int, unsigned int,
-                   unsigned int, unsigned int, unsigned int * ,
-                   unsigned int * )
+                   unsigned int, unsigned int, unsigned int *,
+                   unsigned int *)
         const box.Box & getBox() const
         void compute(box.Box &,
                      const freud._locality.NeighborList*,

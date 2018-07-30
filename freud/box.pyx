@@ -1,9 +1,10 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The box module provides the Box class, which defines the geometry of the simulation box.
-The module natively supports periodicity by providing the fundamental features for wrapping vectors outside the box back into it.
+The box module provides the Box class, which defines the geometry of the
+simulation box. The module natively supports periodicity by providing the
+fundamental features for wrapping vectors outside the box back into it.
 """
 
 import warnings
@@ -38,27 +39,44 @@ cdef class Box:
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
     Args:
-        Lx (float): Length of side x
-        Ly (float): Length of side y
-        Lz (float): Length of side z
-        xy (float): Tilt of xy plane
-        xz (float): Tilt of xz plane
-        yz (float): Tilt of yz plane
-        is2D(bool): Specify that this box is 2-dimensional,
-            default is 3-dimensional.
+        Lx (float):
+            Length of side x.
+        Ly (float):
+            Length of side y.
+        Lz (float):
+            Length of side z.
+        xy (float):
+            Tilt of xy plane.
+        xz (float):
+            Tilt of xz plane.
+        yz (float):
+            Tilt of yz plane.
+        is2D(bool):
+            Specify that this box is 2-dimensional, default is 3-dimensional.
 
     Attributes:
-        xy (float): The xy tilt factor
-        xz (float): The xz tilt factor
-        yz (float): The yz tilt factor
-        L (tuple, settable): The box lengths
-        Lx (tuple, settable): The x-dimension length
-        Ly (tuple, settable): The y-dimension length
-        Lz (tuple, settable): The z-dimension length
-        Linv (tuple): The inverse box lengths
-        volume (float): The box volume (area in 2D)
-        dimensions (int, settable): The number of dimensions (2 or 3)
-        periodic (list, settable): Whether or not the box is periodic
+        xy (float):
+            The xy tilt factor.
+        xz (float):
+            The xz tilt factor.
+        yz (float):
+            The yz tilt factor.
+        L (tuple, settable):
+            The box lengths
+        Lx (tuple, settable):
+            The x-dimension length.
+        Ly (tuple, settable):
+            The y-dimension length.
+        Lz (tuple, settable):
+            The z-dimension length.
+        Linv (tuple):
+            The inverse box lengths.
+        volume (float):
+            The box volume (area in 2D).
+        dimensions (int, settable):
+            The number of dimensions (2 or 3).
+        periodic (list, settable):
+            Whether or not the box is periodic.
     """
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,
                   is2D=None):
@@ -223,7 +241,8 @@ cdef class Box:
 
         Args:
             f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\\left(x, y, z\\right)` between 0 and 1 within parallelepipedal box.
+                Fractional coordinates :math:`\\left(x, y, z\\right)` between
+                0 and 1 within parallelepipedal box.
         """
         return self.makeCoordinates(f)
 
@@ -232,30 +251,34 @@ cdef class Box:
 
         Args:
             f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\\left(x, y, z\\right)` between 0 and 1 within parallelepipedal box.
+                Fractional coordinates :math:`\\left(x, y, z\\right)` between
+                0 and 1 within parallelepipedal box.
 
         Returns:
-            list[float, float, float]: Vector of real coordinates :math:`\\left(x, y, z\\right)`.
+            list[float, float, float]:
+                Vector of real coordinates :math:`\\left(x, y, z\\right)`.
         """
         cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
-                f, 1, dtype=np.float32, contiguous=True)
+            f, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeCoordinates(
-                < const vec3[float]&>l_vec[0])
+            <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
     def makeFraction(self, vec):
         """Convert real coordinates into fractional coordinates.
 
         Args:
-           vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`): Real coordinates within parallelepipedal box.
+            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
+                Real coordinates within parallelepipedal box.
 
         Returns:
-            list[float, float, float]: A fractional coordinate vector.
+            list[float, float, float]:
+                A fractional coordinate vector.
         """
         cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeFraction(
-                < const vec3[float]&>l_vec[0])
+            <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
     def getImage(self, vec):
@@ -264,23 +287,26 @@ cdef class Box:
         .. versionadded:: 0.8
 
         Args:
-            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`): Coordinates of unwrapped vector.
+            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
+                Coordinates of unwrapped vector.
 
         Returns:
-            :math:`\\left(3\\right)` :class:`numpy.ndarray`: Image index vector.
+            :math:`\\left(3\\right)` :class:`numpy.ndarray`:
+                Image index vector.
         """
         cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
-                vec, 1, dtype=np.float32, contiguous=True)
+            vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[int] result = self.thisptr.getImage(
-                < const vec3[float]&>l_vec[0])
+            <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
     def getLatticeVector(self, i):
         """Get the lattice vector with index :math:`i`.
 
         Args:
-            i (unsigned int): Index (:math:`0 \\leq i < d`) of the lattice vector, where
-                              :math:`d` is the box dimension (2 or 3).
+            i (unsigned int):
+                Index (:math:`0 \\leq i < d`) of the lattice vector, where \
+                :math:`d` is the box dimension (2 or 3).
 
         Returns:
             list[float, float, float]: Lattice vector with index :math:`i`.
@@ -300,11 +326,15 @@ cdef class Box:
                   input vectors.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
-                Single vector or array of :math:`N` vectors. The vectors are altered in place and returned.
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
+            :class:`numpy.ndarray`):
+                Single vector or array of :math:`N` vectors. The vectors are
+                altered in place and returned.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: Vectors wrapped into the box.
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
+            :class:`numpy.ndarray`:
+                Vectors wrapped into the box.
         """
         if vecs.ndim > 2 or vecs.shape[-1] != 3:
             raise ValueError(
@@ -323,10 +353,9 @@ cdef class Box:
         return vecs
 
     def _wrap(self, vec):
-        """Wrap a single vector"""
+        """Wrap a single vector."""
         cdef np.ndarray[float, ndim=1] l_vec = vec
-        cdef vec3[float] result = self.thisptr.wrap(
-                < vec3[float]&>l_vec[0])
+        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
         return (result.x, result.y, result.z)
 
     def unwrap(self, vecs, imgs):
@@ -335,13 +364,18 @@ cdef class Box:
         unwrap in each dimension.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
-                Single vector or array of :math:`N` vectors. The vectors are modified in place.
-            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
+            :class:`numpy.ndarray`):
+                Single vector or array of :math:`N` vectors. The vectors are
+                modified in place.
+            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
+            :class:`numpy.ndarray`):
                 Single image index or array of :math:`N` image indices.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`: Vectors unwrapped by the image indices provided.
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
+            :class:`numpy.ndarray`:
+                Vectors unwrapped by the image indices provided.
         """
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")
@@ -369,8 +403,7 @@ cdef class Box:
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef np.ndarray[int, ndim=1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
-                < vec3[float]&>l_vec[0],
-                < vec3[int]&>l_img[0])
+            <vec3[float]&> l_vec[0], <vec3[int]&> l_img[0])
         return [result.x, result.y, result.z]
 
     def getPeriodic(self):
@@ -386,9 +419,12 @@ cdef class Box:
         """Set the box's periodicity in each dimension.
 
         Args:
-            x (bool): True if periodic in x, False if not.
-            y (bool): True if periodic in y, False if not.
-            z (bool): True if periodic in z, False if not.
+            x (bool):
+                True if periodic in x, False if not.
+            y (bool):
+                True if periodic in y, False if not.
+            z (bool):
+                True if periodic in z, False if not.
         """
         self.thisptr.setPeriodic(x, y, z)
 
@@ -441,7 +477,7 @@ cdef class Box:
         return self.thisptr.setPeriodicZ(val)
 
     def to_dict(self):
-        """Return box as dictionary
+        """Return box as dictionary.
 
         Returns:
           dict: Box parameters
@@ -498,8 +534,10 @@ cdef class Box:
         """Initialize a box instance from a box-like object.
 
         Args:
-            box: A box-like object
-            dimensions (int): Dimensionality of the box (Default value = None)
+            box:
+                A box-like object
+            dimensions (int):
+                Dimensionality of the box (Default value = None)
 
         .. note:: Objects that can be converted to freud boxes include
                   lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
@@ -575,8 +613,10 @@ cdef class Box:
         see: http://hoomd-blue.readthedocs.io/en/stable/box.html
 
         Args:
-            boxMatrix (array-like): A 3x3 matrix or list of lists
-            dimensions (int):  Number of dimensions (Default value = None)
+            boxMatrix (array-like):
+                A 3x3 matrix or list of lists
+            dimensions (int):
+                Number of dimensions (Default value = None)
         """
         boxMatrix = np.asarray(boxMatrix, dtype=np.float32)
         v0 = boxMatrix[:, 0]
@@ -622,7 +662,8 @@ cdef class Box:
         # named access to positional arguments, so we keep this to
         # recover the behavior
         if L is None:
-            raise TypeError("square() missing 1 required positional argument: L")
+            raise TypeError("square() missing 1 required "
+                            "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
     @property

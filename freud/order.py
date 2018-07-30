@@ -1,10 +1,12 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The order module contains functions which compute order parameters for the whole system or individual particles.
-Order parameters take bond order data and interpret it in some way to quantify the degree of order in a system using a scalar value.
-This is often done through computing spherical harmonics of the bond order diagram, which are the spherical analogue of Fourier Transforms.
+The order module contains functions which compute order parameters for the
+whole system or individual particles. Order parameters take bond order data and
+interpret it in some way to quantify the degree of order in a system using a
+scalar value. This is often done through computing spherical harmonics of the
+bond order diagram, which are the spherical analogue of Fourier Transforms.
 """
 
 import warnings

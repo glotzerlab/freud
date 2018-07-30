@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
@@ -19,15 +19,16 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
         BondOrder(float, float, unsigned int, unsigned int, unsigned int)
         const box.Box & getBox() const
         void reset()
-        void accumulate(box.Box & ,
-                        const freud._locality.NeighborList*,
-                        vec3[float]*,
-                        quat[float]*,
-                        unsigned int,
-                        vec3[float]*,
-                        quat[float]*,
-                        unsigned int,
-                        unsigned int) nogil
+        void accumulate(
+            box.Box &,
+            const freud._locality.NeighborList*,
+            vec3[float]*,
+            quat[float]*,
+            unsigned int,
+            vec3[float]*,
+            quat[float]*,
+            unsigned int,
+            unsigned int) nogil
         void reduceBondOrder()
         shared_ptr[float] getBondOrder()
         shared_ptr[float] getTheta()
@@ -57,10 +58,10 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         void computeNList(const box.Box &, const vec3[float]*, unsigned int,
                           const vec3[float]*, unsigned int) nogil except +
         void compute(
-                const box.Box &, const freud._locality.NeighborList*,
-                unsigned int, const vec3[float]*,
-                unsigned int, const vec3[float]*, unsigned int,
-                const quat[float]*, LocalDescriptorOrientation) nogil except +
+            const box.Box &, const freud._locality.NeighborList*,
+            unsigned int, const vec3[float]*,
+            unsigned int, const vec3[float]*, unsigned int,
+            const quat[float]*, LocalDescriptorOrientation) nogil except +
         shared_ptr[float complex] getSph()
 
 cdef extern from "MatchEnv.cc" namespace "freud::environment":
@@ -118,7 +119,7 @@ cdef extern from "Pairing2D.h" namespace "freud::environment":
         Pairing2D(const float, const unsigned int, float)
         const box.Box & getBox() const
         void reset()
-        void compute(box.Box & ,
+        void compute(box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
                      float*,
