@@ -5,7 +5,8 @@
 # cython: embedsignature=True
 
 from box cimport BoxFromCPP, Box
-from locality cimport NeighborList, IteratorLinkCell, LinkCell, NearestNeighbors
+from locality cimport (NeighborList, IteratorLinkCell, LinkCell, # noqa
+                       NearestNeighbors)
 from locality import make_default_nlist, make_default_nlist_nn
 
 from . cimport _box as box

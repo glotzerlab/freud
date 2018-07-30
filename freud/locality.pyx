@@ -8,19 +8,19 @@ on their proximity to other points.
 
 import sys
 import numpy as np
+from . import common
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
+from box cimport BoxFromCPP, Box
+from . cimport _box as _box
+from . cimport _locality
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-from box cimport BoxFromCPP, Box
-from . cimport _box as _box
-from . cimport _locality
-from . import common
 
 cdef class NeighborList:
     """Class representing a certain number of "bonds" between

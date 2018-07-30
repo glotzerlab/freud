@@ -10,13 +10,13 @@ fundamental features for wrapping vectors outside the box back into it.
 import warnings
 import numpy as np
 from collections import namedtuple
+from . import common
 from freud.util._VectorMath cimport vec3
 from libcpp.string cimport string
 from libc.string cimport memcpy
 from cpython.object cimport Py_EQ, Py_NE
 cimport freud._box as box
 cimport numpy as np
-from . import common
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
