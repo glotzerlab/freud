@@ -8,6 +8,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <unistd.h>
 
 #include "Eigen/Eigen/Dense"
 #include "Eigen/Eigen/Sparse"
