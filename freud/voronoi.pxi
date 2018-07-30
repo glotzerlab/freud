@@ -244,9 +244,9 @@ class Voronoi:
         vertices are excluded from the list.
 
         The length of the list returned by this method should be the same
-        as the array of positions used in the :py:meth:`~.compute()`
-        method, if all the polytopes are closed. Otherwise try using a larger
-        buffer width.
+        as the array of positions used in the
+        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
+        are closed. Otherwise try using a larger buffer width.
 
         Returns:
             list:
@@ -472,8 +472,8 @@ class Voronoi:
 
         .. versionadded:: 0.8
 
-        Must call :py:meth:`~.compute()` before this method.
-        Retrieve the results with :py:meth:`~.getVolumes()`.
+        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this method.
+        Retrieve the results with :py:meth:`freud.voronoi.Voronoi.getVolumes()`.
         """
         polytope_verts = self.getVoronoiPolytopes()
         self.poly_volumes = np.zeros(shape=len(polytope_verts))
@@ -491,16 +491,17 @@ class Voronoi:
 
         .. versionadded:: 0.8
 
-        Must call :py:meth:`~.computeVolumes()` before this method.
+        Must call :py:meth:`freud.voronoi.Voronoi.computeVolumes()` before this
+        method.
 
         If the buffer width is too small, then some polytopes may not be
         closed (they may have a boundary at infinity), and these polytopes'
         volumes/areas are excluded from the list.
 
         The length of the list returned by this method should be the same
-        as the array of positions used in the :py:meth:`~.compute()`
-        method, if all the polytopes are closed. Otherwise try using a larger
-        buffer width.
+        as the array of positions used in the
+        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
+        are closed. Otherwise try using a larger buffer width.
 
         Returns:
             (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:

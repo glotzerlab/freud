@@ -299,8 +299,8 @@ cdef class Box:
         """Get the lattice vector with index :math:`i`.
 
         Args:
-            :math:`i` (unsigned int):
-                Index (:math:`0 \\leq i < d`) of the lattice vector, where
+            i (unsigned int):
+                Index (:math:`0 \\leq i < d`) of the lattice vector, where \
                 :math:`d` is the box dimension (2 or 3).
 
         Returns:
