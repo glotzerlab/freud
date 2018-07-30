@@ -52,7 +52,7 @@ class SFactor3DPoints:
 
     Given a set of points :math:`\\vec{r}_i`, SFactor3DPoints computes the
     static structure factor :math:`S \\left( \\vec{q} \\right) = C_0 \\left|
-    {\\sum_{m=1}^{N} \\exp^{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`.
+    {\\sum_{m=1}^{N} e^{\\mathit{i}\\vec{q}\\cdot\\vec{r_i}}} \\right|^2`.
 
     In this expression, :math:`C_0` is a scaling constant chosen so that
     :math:`S\\left(0\\right) = 1`, and :math:`N` is the number of particles.
@@ -137,7 +137,7 @@ class SFactor3DPoints:
         """Get the computed static structure factor.
 
         Returns:
-            (X,Y) :class:`numpy.ndarray`:
+            (X, Y) :class:`numpy.ndarray`:
                 The computed static structure factor as a copy.
         """
         return (self.s_complex * np.conj(self.s_complex)).astype(
@@ -148,7 +148,7 @@ class SFactor3DPoints:
         information).
 
         Returns:
-            (X,Y) :class:`numpy.ndarray`:
+            (X, Y) :class:`numpy.ndarray`:
                 The computed static structure factor, as a copy, without taking
                 the magnitude squared.
         """
@@ -210,7 +210,7 @@ class AnalyzeSFactor3D:
                 counted as peaks.
 
         Returns:
-            :class:`list`: peaks, :math:`q` as lists.
+            list: peaks, :math:`q` as lists.
 
         """
         clist, blist, alist = (self.S > cut).nonzero()
@@ -517,9 +517,9 @@ class SingleCell3D:
         Args:
             name (str):
                 Particle type name.
-            position ((N,3) `numpy.ndarray`):
+            position ((N,3) :class:`numpy.ndarray`):
                 Array of particle positions.
-            orientation ((N,4) `numpy.ndarray`):
+            orientation ((N,4) :class:`numpy.ndarray`):
                 Array of particle quaternions.
         """
         i = self.ptype_name.index(name)
@@ -884,7 +884,7 @@ class FTdelta(FTbase):
     def compute(self, *args, **kwargs):
         """Compute FT.
 
-        Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
+        Calculate :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot
         \\mathbf{r}_{\\alpha}}`.
         """
         self.FTobj.compute()
@@ -895,7 +895,7 @@ class FTdelta(FTbase):
 class FTsphere(FTdelta):
     """Fourier transform for sphere.
 
-    Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
+    Calculate :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot
     \\mathbf{r}_{\\alpha}}`.
     """
 
@@ -1020,7 +1020,7 @@ class FTpolyhedron(FTbase):
     def compute(self, *args, **kwargs):
         """Compute FT.
 
-        Calculate :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot
+        Calculate :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot
         \\mathbf{r}_{\\alpha}}`.
         """
         self.FTobj.compute()
@@ -1083,7 +1083,7 @@ class FTconvexPolyhedron(FTpolyhedron):
 
         Calculate :math:`P = F * S`:
 
-        * :math:`S = \\sum_{\\alpha} \\exp^{-i \\mathbf{K} \\cdot \
+        * :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot \
           \\mathbf{r}_{\\alpha}}`.
         * F is the analytical form factor for a polyhedron,
           computed with :py:meth:`~.FTconvexPolyhedron.Spoly3D()`.

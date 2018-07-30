@@ -25,11 +25,13 @@ cdef class Index2D:
 
             freud.index.Index2D(w, h)
 
-    .. note:: freud indexes column-first i.e. ``Index2D(i, j)`` will return the
-              :math:`1`-dimensional index of the :math:`i^{th}` column and the
-              :math:`j^{th}` row. This is the opposite of what occurs in a
-              numpy array, in which ``array[i, j]`` returns the element in the
-              :math:`i^{th}` row and the :math:`j^{th}` column.
+    .. note::
+
+        freud indexes column-first i.e. ``Index2D(i, j)`` will return the
+        :math:`1`-dimensional index of the :math:`i^{th}` column and the
+        :math:`j^{th}` row. This is the opposite of what occurs in a
+        numpy array, in which ``array[i, j]`` returns the element in the
+        :math:`i^{th}` row and the :math:`j^{th}` column.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
