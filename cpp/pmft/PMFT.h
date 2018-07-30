@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef PMFT_H
+#define PMFT_H
 
 #include <memory>
 #include <ostream>
@@ -10,9 +13,6 @@
 #include "LinkCell.h"
 
 #include "Index1D.h"
-
-#ifndef _PMFT_H__
-#define _PMFT_H__
 
 /*! \internal
     \file PMFT.h
@@ -79,4 +79,4 @@ class PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFT_H__
+#endif // PMFT_H

@@ -51,8 +51,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     \brief matrix code stolen from HOOMD for eigenvector-related calculations
 */
 
-#ifndef __HOOMD_MATRIX_H__
-#define __HOOMD_MATRIX_H__
+#ifndef HOOMD_MATRIX_H
+#define HOOMD_MATRIX_H
 
 #include "HOOMDMath.h"
 
@@ -93,4 +93,4 @@ void quaternionFromExyz(float4 &ex_space, float4 &ey_space, float4 &ez_space, fl
 
 };}; // end namespace hoomd::matrix
 
-#endif
+#endif // HOOMD_MATRIX_H

@@ -1,5 +1,5 @@
-#ifndef _BIMAP_H__
-#define _BIMAP_H__
+#ifndef BIMAP_H
+#define BIMAP_H
 
 #include <set>
 #include <vector>
@@ -237,7 +237,7 @@ class BiMap
                         ), this->b().container.end());
                     assert(!has(Key_in));
                     }
-            }left;
+            } left;
 
         friend class left;
 
@@ -321,11 +321,11 @@ class BiMap
                         ), this->b().container.end());
                     assert(!has(Key_in));
                     }
-            }right;
+            } right;
 
         friend class right;
 
-        void clear ()
+        void clear()
             {
             container.clear();
             set_A.clear();
@@ -383,4 +383,4 @@ class BiMap
             }
     };
 
-#endif
+#endif // BIMAP_H

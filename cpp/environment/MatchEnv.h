@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef _MATCH_ENV_H__
-#define _MATCH_ENV_H__
+#ifndef MATCH_ENV_H
+#define MATCH_ENV_H
 
 #include <algorithm>
 #include <complex>
@@ -24,7 +24,7 @@
     \brief Particle environment matching
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 //! Clusters particles according to whether their local environments match or not, according to various shape matching metrics
 
 //! My environment data structure
@@ -223,6 +223,6 @@ class MatchEnv
         std::shared_ptr<vec3<float> > m_tot_env;                                //!< m_NP by m_maxk by 3 matrix of all environments for all particles
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
-#endif // _MATCH_ENV_H__
+#endif // MATCH_ENV_H

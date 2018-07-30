@@ -1,11 +1,11 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cstdio>
 
 #include "MatchEnv.h"
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 // Constructor for EnvDisjointSet
 // Taken partially from Cluster.cc
@@ -997,4 +997,4 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
     m_num_clusters = cur_set;
     }
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment

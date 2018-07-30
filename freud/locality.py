@@ -1,10 +1,10 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
-# \package freud.locality
-#
-# Methods and data structures computing properties that at local in space.
-#
+R"""
+The locality module contains data structures to efficiently locate points based
+on their proximity to other points.
+"""
 
 from ._freud import LinkCell
 from ._freud import IteratorLinkCell

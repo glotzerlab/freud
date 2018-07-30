@@ -1,8 +1,8 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
-from freud.util._Boost cimport shared_array
+from libcpp.memory cimport shared_ptr
 cimport freud._box as box
 cimport freud._locality
 
@@ -18,9 +18,9 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         const T*,
                         unsigned int) nogil except +
         void reduceCorrelationFunction()
-        shared_array[T] getRDF()
-        shared_array[unsigned int] getCounts()
-        shared_array[float] getR()
+        shared_ptr[T] getRDF()
+        shared_ptr[unsigned int] getCounts()
+        shared_ptr[float] getR()
         unsigned int getNBins() const
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
@@ -35,10 +35,10 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
         void reset()
         void reduceDensity()
         void compute(
-                const box.Box &,
-                const vec3[float]*,
-                unsigned int) nogil except +
-        shared_array[float] getDensity()
+            const box.Box &,
+            const vec3[float]*,
+            unsigned int) nogil except +
+        shared_ptr[float] getDensity()
         unsigned int getWidthX()
         unsigned int getWidthY()
         unsigned int getWidthZ()
@@ -48,29 +48,29 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
         LocalDensity(float, float, float)
         const box.Box & getBox() const
         void compute(
-                const box.Box & ,
-                const freud._locality.NeighborList * ,
-                const vec3[float]*,
-                unsigned int,
-                const vec3[float]*,
-                unsigned int) nogil except +
+            const box.Box &,
+            const freud._locality.NeighborList *,
+            const vec3[float]*,
+            unsigned int,
+            const vec3[float]*,
+            unsigned int) nogil except +
         unsigned int getNRef()
-        shared_array[float] getDensity()
-        shared_array[float] getNumNeighbors()
+        shared_ptr[float] getDensity()
+        shared_ptr[float] getNumNeighbors()
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
         RDF(float, float, float)
         const box.Box & getBox() const
         void reset()
-        void accumulate(box.Box & ,
+        void accumulate(box.Box &,
                         const freud._locality.NeighborList*,
                         const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
                         unsigned int) nogil except +
         void reduceRDF()
-        shared_array[float] getRDF()
-        shared_array[float] getR()
-        shared_array[float] getNr()
+        shared_ptr[float] getRDF()
+        shared_ptr[float] getR()
+        shared_ptr[float] getNr()
         unsigned int getNBins()

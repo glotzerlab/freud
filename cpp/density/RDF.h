@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef RDF_H
+#define RDF_H
 
 #include <memory>
 #include <ostream>
@@ -9,9 +12,6 @@
 #include "VectorMath.h"
 #include "NeighborList.h"
 #include "Index1D.h"
-
-#ifndef _RDF_H__
-#define _RDF_H__
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
@@ -82,4 +82,4 @@ class RDF
 
 }; }; // end namespace freud::density
 
-#endif // _RDF_H__
+#endif // RDF_H

@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef ANGULAR_SEPARATION_H
+#define ANGULAR_SEPARATION_H
 
 #include <complex>
 #include <memory>
@@ -11,14 +14,11 @@
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
-#ifndef _ANGULAR_SEPARATION_H__
-#define _ANGULAR_SEPARATION_H__
-
 /*! \file AngularSeparation.h
     \brief Compute the angular separation for each particle.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 float computeSeparationAngle(const quat<float> ref_q, const quat<float> q);
 
@@ -94,6 +94,6 @@ class AngularSeparation
         std::shared_ptr<float> m_global_ang_array; //!< global angle array computed
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
-#endif // _ANGULAR_SEPARATION_H__
+#endif // ANGULAR_SEPARATION_H

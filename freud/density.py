@@ -1,12 +1,16 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 # \package freud.density
 #
 # Methods to compute densities from point distributions.
 #
 
-__all__ = ['RDF']
+R"""
+The density module contains various classes relating to the density of the
+system. These functions allow evaluation of particle distributions with respect
+to other particles.
+"""
 
 from ._freud import GaussianDensity
 from ._freud import LocalDensity

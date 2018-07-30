@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
 #include <stdexcept>
@@ -13,7 +13,7 @@
 using namespace std;
 using namespace tbb;
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 Pairing2D::Pairing2D(const float rmax,
                      const unsigned int k,
@@ -182,4 +182,4 @@ void Pairing2D::compute(box::Box& box,
     m_No = No;
     }
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment

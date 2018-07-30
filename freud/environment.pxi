@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
 import time
@@ -7,7 +7,6 @@ import warnings
 from .errors import FreudDeprecationWarning
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -55,17 +54,34 @@ cdef class BondOrder:
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
-    :param float r_max: distance over which to calculate
-    :param k: order parameter i. to be removed
-    :param n: number of neighbors to find
-    :param n_bins_t: number of theta bins
-    :param n_bins_p: number of phi bins
-    :type k: unsigned int
-    :type n: unsigned int
-    :type n_bins_t: unsigned int
-    :type n_bins_p: unsigned int
+    Args:
+        r_max (float):
+            Distance over which to calculate.
+        k (unsigned int):
+            Order parameter i. To be removed.
+        n (unsigned int):
+            Number of neighbors to find.
+        n_bins_t (unsigned int):
+            Number of :math:`\\theta` bins.
+        n_bins_p (unsigned int):
+            Number of :math:`\\phi` bins.
 
-    .. todo:: remove k, it is not used as such
+    Attributes:
+        bond_order (:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` \
+        :class:`numpy.ndarray`):
+            Bond order.
+        box (:py:class:`freud.box.Box`):
+            Box used in the calculation.
+        theta (:math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`):
+            The values of bin centers for :math:`\\theta`.
+        phi (:math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`):
+            The values of bin centers for :math:`\\phi`.
+        n_bins_theta (unsigned int):
+            The number of bins in the :math:`\\theta` dimension.
+        n_bins_phi (unsigned int):
+            The number of bins in the :math:`\\phi` dimension.
+
+    .. todo:: remove k, it is not used as such.
     """
     cdef environment.BondOrder * thisptr
     cdef num_neigh
@@ -73,7 +89,8 @@ cdef class BondOrder:
 
     def __cinit__(self, float rmax, float k, unsigned int n,
                   unsigned int n_bins_t, unsigned int n_bins_p):
-        self.thisptr = new environment.BondOrder(rmax, k, n, n_bins_t, n_bins_p)
+        self.thisptr = new environment.BondOrder(
+            rmax, k, n, n_bins_t, n_bins_p)
         self.rmax = rmax
         self.num_neigh = n
 
@@ -85,52 +102,46 @@ cdef class BondOrder:
         """Calculates the correlation function and adds to the current
         histogram.
 
-        :param box: simulation box
-        :param ref_points: reference points to calculate the local density
-        :param ref_orientations: orientations to use in computation
-        :param points: points to calculate the local density
-        :param orientations: orientations to use in computation
-        :param mode: mode to calc bond order. "bod", "lbod", "obcd", and "oocd"
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds
-        :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`,
-                          shape=(:math:`N_{particles}`, 3),
-                          dtype= :class:`numpy.float32`
-        :type ref_orientations: :class:`numpy.ndarray`,
-                                shape=(:math:`N_{particles}`, 4),
-                                dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`,
-                      shape=(:math:`N_{particles}`, 3),
-                      dtype= :class:`numpy.float32`
-        :type orientations: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 4),
-                            dtype= :class:`numpy.float32`
-        :type mode: str
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points to calculate bonds.
+            ref_orientations ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`):
+                Reference orientations to calculate bonds.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Orientations to calculate the bonding.
+            mode (str, optional):
+                Mode to calculate bond order. Options are :code:`'bod'`,
+                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
+                (Default value = :code:`'bod'`).
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
-                ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+            ref_points, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-                ref_orientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_orientations must be a 2 dimensional array")
+            ref_orientations, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise TypeError('ref_orientations should be an Nx4 array')
 
         orientations = freud.common.convert_array(
-                orientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 2 dimensional array")
+            orientations, 2, dtype=np.float32, contiguous=True,
+            array_name="orientations")
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
@@ -153,66 +164,61 @@ cdef class BondOrder:
         cdef NeighborList nlist_ = defaulted_nlist[0]
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
-        cdef np.ndarray[float, ndim = 2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim = 2] l_points = points
-        cdef np.ndarray[float, ndim = 2] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim = 2] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int > ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int > points.shape[0]
+        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
+        cdef unsigned int n_p = <unsigned int> points.shape[0]
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(
-                    l_box, nlist_ptr,
-                    < vec3[float]*>l_ref_points.data,
-                    < quat[float]*>l_ref_orientations.data,
-                    n_ref,
-                    < vec3[float]*>l_points.data,
-                    < quat[float]*>l_orientations.data,
-                    n_p,
-                    index)
+                l_box, nlist_ptr,
+                <vec3[float]*> l_ref_points.data,
+                <quat[float]*> l_ref_orientations.data,
+                n_ref,
+                <vec3[float]*> l_points.data,
+                <quat[float]*> l_orientations.data,
+                n_p,
+                index)
         return self
 
     @property
     def bond_order(self):
-        """Bond order.
-        """
         return self.getBondOrder()
 
     def getBondOrder(self):
         """Get the bond order.
 
-        :return: bond order
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{\\phi}, N_{\\theta} \\right)`,
-                dtype= :class:`numpy.float32`
+        Returns:
+            :math:`\\left(N_{\\phi}, N_{\\theta} \\right)` \
+            :class:`numpy.ndarray`:
+                Bond order.
         """
         cdef float * bod = self.thisptr.getBondOrder().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsPhi()
-        nbins[1] = <np.npy_intp > self.thisptr.getNBinsTheta()
-        cdef np.ndarray[float, ndim= 2] result = np.PyArray_SimpleNewFromData(
-                2, nbins, np.NPY_FLOAT32, < void*>bod)
+        nbins[0] = <np.npy_intp> self.thisptr.getNBinsPhi()
+        nbins[1] = <np.npy_intp> self.thisptr.getNBinsTheta()
+        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(
+            2, nbins, np.NPY_FLOAT32, <void*> bod)
         return result
 
     @property
     def box(self):
-        """Box used in the calculation.
-        """
         return self.getBox()
 
     def getBox(self):
         """Get the box used in the calculation.
 
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        Returns:
+            :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< box.Box > self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
     def resetBondOrder(self):
-        """Resets the values of the bond order in memory.
-        """
+        """Resets the values of the bond order in memory."""
         self.thisptr.reset()
 
     def compute(self, box, ref_points, ref_orientations, points, orientations,
@@ -220,29 +226,24 @@ cdef class BondOrder:
         """Calculates the bond order histogram. Will overwrite the current
         histogram.
 
-        :param box: simulation box
-        :param ref_points: reference points to calculate the local density
-        :param ref_orientations: orientations to use in computation
-        :param points: points to calculate the local density
-        :param orientations: orientations to use in computation
-        :param mode: mode to calc bond order. "bod", "lbod", "obcd", and "oocd"
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds
-        :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`,
-                          shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                          dtype= :class:`numpy.float32`
-        :type ref_orientations: :class:`numpy.ndarray`,
-                                shape= :math:`\\left(N_{particles}, 4\\right)`,
-                                dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                      dtype= :class:`numpy.float32`
-        :type orientations: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{particles}, 4 \\right)`,
-                            dtype= :class:`numpy.float32`
-        :type mode: str
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points to calculate bonds.
+            ref_orientations ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`):
+                Reference orientations to calculate bonds.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the bonding.
+            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Orientations to calculate the bonding.
+            mode (str, optional):
+                Mode to calculate bond order. Options are :code:`'bod'`,
+                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
+                (Default value = :code:`'bod'`).
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value = None).
         """
         self.thisptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
@@ -256,50 +257,65 @@ cdef class BondOrder:
         """
         self.thisptr.reduceBondOrder()
 
+    @property
+    def theta(self):
+        return self.getTheta()
+
     def getTheta(self):
-        """
-        :return: values of bin centers for Theta
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{\\theta} \\right)`,
-                dtype= :class:`numpy.float32`
+        """Get :math:`\\theta`.
+
+        Returns:
+            :math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`:
+                Values of bin centers for :math:`\\theta`.
         """
         cdef float * theta = self.thisptr.getTheta().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsTheta()
-        cdef np.ndarray[np.float32_t, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_FLOAT32, < void*>theta)
+        nbins[0] = <np.npy_intp> self.thisptr.getNBinsTheta()
+        cdef np.ndarray[np.float32_t, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32,
+                                         <void*> theta)
         return result
 
+    @property
+    def phi(self):
+        return self.getPhi()
+
     def getPhi(self):
-        """
-        :return: values of bin centers for Phi
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{\\phi} \\right)`,
-                dtype= :class:`numpy.float32`
+        """Get :math:`\\phi`.
+
+        Returns:
+            :math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`:
+                Values of bin centers for :math:`\\phi`.
         """
         cdef float * phi = self.thisptr.getPhi().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNBinsPhi()
-        cdef np.ndarray[np.float32_t, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_FLOAT32, < void*>phi)
+        nbins[0] = <np.npy_intp> self.thisptr.getNBinsPhi()
+        cdef np.ndarray[np.float32_t, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> phi)
         return result
 
-    def getNBinsTheta(self):
-        """Get the number of bins in the Theta-dimension of histogram.
+    @property
+    def n_bins_theta(self):
+        return self.getNBinsTheta()
 
-        :return: :math:`N_{\\theta}`
-        :rtype: unsigned int
+    def getNBinsTheta(self):
+        """Get the number of bins in the :math:`\\theta`-dimension of histogram.
+
+        Returns:
+            unsigned int: :math:`N_{\\theta}`.
         """
         cdef unsigned int nt = self.thisptr.getNBinsTheta()
         return nt
 
-    def getNBinsPhi(self):
-        """Get the number of bins in the Phi-dimension of histogram.
+    @property
+    def n_bins_phi(self):
+        return self.getNBinsPhi()
 
-        :return: :math:`N_{\\phi}`
-        :rtype: unsigned int
+    def getNBinsPhi(self):
+        """Get the number of bins in the :math:`\\phi`-dimension of histogram.
+
+        Returns:
+            unsigned int: :math:`N_{\\phi}`
         """
         cdef unsigned int np = self.thisptr.getNBinsPhi()
         return np
@@ -317,15 +333,29 @@ cdef class LocalDescriptors:
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
-    :param num_neighbors: Maximum number of neighbors to compute descriptors
-                          for
-    :param lmax: Maximum spherical harmonic :math:`l` to consider
-    :param float rmax: Initial guess of the maximum radius to looks for
-                       neighbors
-    :param bool negative_m: True if we should also calculate :math:`Y_{lm}` for
-                            negative :math:`m`
-    :type num_neighbors: unsigned int
-    :type lmax: unsigned int
+    Args:
+        num_neighbors (unsigned int):
+            Maximum number of neighbors to compute descriptors for.
+        lmax (unsigned int):
+            Maximum spherical harmonic :math:`l` to consider.
+        rmax (float):
+            Initial guess of the maximum radius to looks for neighbors.
+        negative_m (bool):
+            True if we should also calculate :math:`Y_{lm}` for negative
+            :math:`m`.
+
+    Attributes:
+        sph (:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)` \
+        :class:`numpy.ndarray`):
+            A reference to the last computed spherical harmonic array.
+        num_particles (unsigned int):
+            The number of particles.
+        num_neighbors (unsigned int):
+            The number of neighbors.
+        l_max (unsigned int):
+            The maximum spherical harmonic :math:`l` to calculate for.
+        r_max (float):
+            The cutoff radius.
     """
     cdef environment.LocalDescriptors * thisptr
     cdef num_neigh
@@ -337,7 +367,7 @@ cdef class LocalDescriptors:
 
     def __cinit__(self, num_neighbors, lmax, rmax, negative_m=True):
         self.thisptr = new environment.LocalDescriptors(
-                num_neighbors, lmax, rmax, negative_m)
+            num_neighbors, lmax, rmax, negative_m)
         self.num_neigh = num_neighbors
         self.rmax = rmax
 
@@ -348,22 +378,23 @@ cdef class LocalDescriptors:
         """Compute the neighbor list for bonds from a set of source points to
         a set of destination points.
 
-        :param points_ref: source points to calculate the order parameter
-        :param points: destination points to calculate the order parameter
-        :type points_ref: :class:`numpy.ndarray`,
-                          shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                          dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                      dtype= :class:`numpy.float32`
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Source points to calculate the order parameter.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
+            optional):
+                Destination points to calculate the order parameter
+                (Default value = None).
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         points_ref = freud.common.convert_array(
-                points_ref, 2, dtype=np.float32, contiguous=True,
-                dim_message="points_ref must be a 2 dimensional array")
+            points_ref, 2, dtype=np.float32, contiguous=True,
+            array_name="points_ref")
         if points_ref.shape[1] != 3:
             raise TypeError('points_ref should be an Nx3 array')
 
@@ -371,18 +402,17 @@ cdef class LocalDescriptors:
             points = points_ref
 
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim = 2] l_points_ref = points_ref
-        cdef unsigned int nRef = <unsigned int > points_ref.shape[0]
-        cdef np.ndarray[float, ndim = 2] l_points = points
-        cdef unsigned int nP = <unsigned int > points.shape[0]
+        cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
+        cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.computeNList(l_box, < vec3[float]*>l_points_ref.data,
-                                      nRef, < vec3[float]*>l_points.data, nP)
+            self.thisptr.computeNList(l_box, <vec3[float]*> l_points_ref.data,
+                                      nRef, <vec3[float]*> l_points.data, nP)
         return self
 
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
@@ -390,41 +420,42 @@ cdef class LocalDescriptors:
         """Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
-        :param num_neighbors: Number of neighbors to compute with or to limit to,
-                     if the neighbor list is precomputed
-        :param points_ref: source points to calculate the order parameter
-        :param points: destination points to calculate the order parameter
-        :param orientations: Orientation of each reference point
-        :param mode: Orientation mode to use for environments, either
-                     'neighborhood' to use the orientation of the local
-                     neighborhood, 'particle_local' to use the given
-                     particle orientations, or 'global' to not rotate
-                     environments
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds or 'precomputed' if using :py:meth:`~.computeNList`
-        :type points_ref: :class:`numpy.ndarray`,
-                          shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                          dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                      dtype= :class:`numpy.float32`
-        :type orientations: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{particles}, 4 \\right)`,
-                            dtype= :class:`numpy.float32` or None
-        :type mode: str
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            num_neighbors (unsigned int):
+                Number of neighbors to compute with or to limit to, if the
+                neighbor list is precomputed.
+            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Source points to calculate the order parameter.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
+            optional):
+                Destination points to calculate the order parameter
+                (Default value = None).
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, \
+            optional):
+                Orientation of each reference point (Default value = None).
+            mode (str, optional):
+                Orientation mode to use for environments, either
+                :code:`'neighborhood'` to use the orientation of the local
+                neighborhood, :code:`'particle_local'` to use the given
+                particle orientations, or :code:`'global'` to not rotate
+                environments (Default value = :code:`'neighborhood'`).
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds or :code:`'precomputed'` if
+                using :py:meth:`~.computeNList` (Default value = None).
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         if mode not in self.known_modes:
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
         points_ref = freud.common.convert_array(
-                points_ref, 2, dtype=np.float32, contiguous=True,
-                dim_message="points_ref must be a 2 dimensional array")
+            points_ref, 2, dtype=np.float32, contiguous=True,
+            array_name="points_ref")
         if points_ref.shape[1] != 3:
             raise TypeError('points_ref should be an Nx3 array')
 
@@ -432,12 +463,11 @@ cdef class LocalDescriptors:
             points = points_ref
 
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim = 2] l_orientations = orientations
+        cdef np.ndarray[float, ndim=2] l_orientations = orientations
         if mode == 'particle_local':
             if orientations is None:
                 raise RuntimeError(
@@ -445,8 +475,8 @@ cdef class LocalDescriptors:
                         'with particles\' orientations'))
 
             orientations = freud.common.convert_array(
-                    orientations, 2, dtype=np.float32, contiguous=True,
-                    dim_message="orientations must be a 2 dimensional array")
+                orientations, 2, dtype=np.float32, contiguous=True,
+                array_name="orientations")
             if orientations.shape[1] != 4:
                 raise TypeError('orientations should be an Nx4 array')
 
@@ -456,10 +486,10 @@ cdef class LocalDescriptors:
 
             l_orientations = orientations
 
-        cdef np.ndarray[float, ndim = 2] l_points_ref = points_ref
-        cdef unsigned int nRef = <unsigned int > points_ref.shape[0]
-        cdef np.ndarray[float, ndim = 2] l_points = points
-        cdef unsigned int nP = <unsigned int > points.shape[0]
+        cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
+        cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef environment.LocalDescriptorOrientation l_mode
 
         l_mode = self.known_modes[mode]
@@ -472,100 +502,88 @@ cdef class LocalDescriptors:
             nlist_ptr = NULL
         else:
             defaulted_nlist = make_default_nlist_nn(
-                box, points_ref, points, self.num_neigh, nlist, True, self.rmax)
+                box, points_ref, points, self.num_neigh, nlist,
+                True, self.rmax)
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
         with nogil:
             self.thisptr.compute(
-                    l_box, nlist_ptr, num_neighbors,
-                    < vec3[float]*>l_points_ref.data,
-                    nRef, < vec3[float]*>l_points.data, nP,
-                    < quat[float]*>l_orientations.data, l_mode)
+                l_box, nlist_ptr, num_neighbors,
+                <vec3[float]*> l_points_ref.data,
+                nRef, <vec3[float]*> l_points.data, nP,
+                <quat[float]*> l_orientations.data, l_mode)
         return self
 
     @property
     def sph(self):
-        """A reference to the last computed spherical harmonic array.
-        """
         return self.getSph()
 
     def getSph(self):
         """Get a reference to the last computed spherical harmonic array.
 
-        :return: order parameter
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`, \
-                dtype= :class:`numpy.complex64`
+        Returns:
+            :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)` \
+            :class:`numpy.ndarray`:
+                Order parameter.
         """
         cdef float complex * sph = self.thisptr.getSph().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.thisptr.getNSphs()
-        nbins[1] = <np.npy_intp > self.thisptr.getSphWidth()
-        cdef np.ndarray[np.complex64_t, ndim= 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                                2, nbins, np.NPY_COMPLEX64, < void*>sph)
+        nbins[0] = <np.npy_intp> self.thisptr.getNSphs()
+        nbins[1] = <np.npy_intp> self.thisptr.getSphWidth()
+        cdef np.ndarray[np.complex64_t, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_COMPLEX64,
+                                         <void*> sph)
         return result
 
     @property
     def num_particles(self):
-        """Get the number of particles.
-        """
         return self.getNP()
 
     def getNP(self):
         """Get the number of particles.
 
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
+        Returns:
+            unsigned int: :math:`N_{particles}`.
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
     @property
     def num_neighbors(self):
-        """Get the number of neighbors.
-        """
         return self.getNSphs()
 
     def getNSphs(self):
         """Get the number of neighbors.
 
-        :return: :math:`N_{neighbors}`
-        :rtype: unsigned int
-
+        Returns:
+            unsigned int: :math:`N_{neighbors}`.
         """
         cdef unsigned int n = self.thisptr.getNSphs()
         return n
 
     @property
     def l_max(self):
-        """Get the maximum spherical harmonic :math:`l` to calculate for.
-        """
         return self.getLMax()
 
     def getLMax(self):
         """Get the maximum spherical harmonic :math:`l` to calculate for.
 
-        :return: :math:`l`
-        :rtype: unsigned int
-
+        Returns:
+            unsigned int: :math:`l`.
         """
         cdef unsigned int l_max = self.thisptr.getLMax()
         return l_max
 
     @property
     def r_max(self):
-        """Get the cutoff radius.
-        """
         return self.getRMax()
 
     def getRMax(self):
         """Get the cutoff radius.
 
-        :return: :math:`r`
-        :rtype: float
-
+        Returns:
+            float: :math:`r`.
         """
         cdef float r = self.thisptr.getRMax()
         return r
@@ -576,13 +594,24 @@ cdef class MatchEnv:
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
-    :param box: Simulation box
-    :param float rmax: Cutoff radius for cell list and clustering algorithm.
-                       Values near first minimum of the RDF are recommended.
-    :param k: Number of nearest neighbors taken to define the local environment
-              of any given particle.
-    :type box: :class:`freud.box.Box`
-    :type k: unsigned int
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        rmax (float):
+            Cutoff radius for cell list and clustering algorithm. Values near
+            the first minimum of the RDF are recommended.
+        k (unsigned int):
+            Number of nearest neighbors taken to define the local environment
+            of any given particle.
+
+    Attributes:
+        tot_environment (:math:`\\left(N_{particles}, N_{neighbors}, \
+        3\\right)` :class:`numpy.ndarray`):
+            All environments for all particles.
+        num_particles (unsigned int):
+            The number of particles.
+        num_clusters (unsigned int):
+            The number of clusters.
     """
     cdef environment.MatchEnv * thisptr
     cdef rmax
@@ -592,8 +621,8 @@ cdef class MatchEnv:
     def __cinit__(self, box, rmax, k):
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new environment.MatchEnv(l_box, rmax, k)
 
         self.rmax = rmax
@@ -606,13 +635,13 @@ cdef class MatchEnv:
     def setBox(self, box):
         """Reset the simulation box.
 
-        :param box: simulation box
-        :type box: :py:class:`freud.box.Box`
+        Args:
+            box(:class:`freud.box.Box`): Simulation box.
         """
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr.setBox(l_box)
         self.m_box = box
 
@@ -620,41 +649,41 @@ cdef class MatchEnv:
                 global_search=False, env_nlist=None, nlist=None):
         """Determine clusters of particles with matching environments.
 
-        :param points: particle positions
-        :param float threshold: maximum magnitude of the vector difference
-                                between two vectors, below which they are
-                                "matching"
-        :param bool hard_r: If True, add all particles that fall within the
-                            threshold of m_rmaxsq to the environment
-        :param bool registration: If True, first use brute force registration to
-                                  orient one set of environment vectors with
-                                  respect to the other set such that it
-                                  minimizes the RMSD between the two sets.
-        :param bool global_search: If True, do an exhaustive search wherein the
-                                   environments of every single pair of
-                                   particles in the simulation are compared.
-                                   If False, only compare the environments of
-                                   neighboring particles.
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find neighbors of every particle, to compare environments
-        :param env_nlist: :py:class:`freud.locality.NeighborList` object to use
-                          to find the environment of every particle
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3\\right)`,
-                      dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
-        :type env_nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Destination points to calculate the order parameter.
+            threshold (float):
+                Maximum magnitude of the vector difference between two vectors,
+                below which they are "matching."
+            hard_r (bool):
+                If True, add all particles that fall within the threshold of
+                m_rmaxsq to the environment.
+            registration (bool):
+                If True, first use brute force registration to orient one set
+                of environment vectors with respect to the other set such that
+                it minimizes the RMSD between the two sets.
+            global_search (bool):
+                If True, do an exhaustive search wherein the environments of
+                every single pair of particles in the simulation are compared.
+                If False, only compare the environments of neighboring
+                particles.
+            env_nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find the environment of every particle
+                (Default value = None).
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find neighbors of every particle, to
+                compare environments (Default value = None).
         """
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True,
+            array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
-        cdef np.ndarray[float, ndim = 1] l_points = np.ascontiguousarray(
-                points.flatten())
-        cdef unsigned int nP = <unsigned int > points.shape[0]
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
+            points.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
 
         cdef locality.NeighborList * nlist_ptr
         cdef NeighborList nlist_
@@ -666,7 +695,8 @@ cdef class MatchEnv:
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
-            defaulted_env_nlist = make_default_nlist(self.m_box, points, points, self.rmax, env_nlist, True)
+            defaulted_env_nlist = make_default_nlist(
+                self.m_box, points, points, self.rmax, env_nlist, True)
             env_nlist_ = defaulted_env_nlist[0]
             env_nlist_ptr = env_nlist_.get_ptr()
         else:
@@ -676,59 +706,57 @@ cdef class MatchEnv:
             nlist_ = defaulted_nlist[0]
             nlist_ptr = nlist_.get_ptr()
 
-            defaulted_env_nlist = make_default_nlist_nn(self.m_box, points, points, self.num_neigh, env_nlist, None, self.rmax)
+            defaulted_env_nlist = make_default_nlist_nn(
+                self.m_box, points, points, self.num_neigh, env_nlist,
+                None, self.rmax)
             env_nlist_ = defaulted_env_nlist[0]
             env_nlist_ptr = env_nlist_.get_ptr()
 
         # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.cluster(
-                env_nlist_ptr, nlist_ptr, < vec3[float]*> & l_points[0], nP,
-                threshold, hard_r, registration, global_search)
+            env_nlist_ptr, nlist_ptr, <vec3[float]*> &l_points[0], nP,
+            threshold, hard_r, registration, global_search)
 
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
         """Determine clusters of particles that match the motif provided by
         refPoints.
 
-        :param points: particle positions
-        :param refPoints: vectors that make up the motif against which we are
-                          matching
-        :param float threshold: maximum magnitude of the vector difference
-                                between two vectors, below which they are
-                                considered "matching"
-        :param bool registration: If true, first use brute force registration
-                                  to orient one set of environment vectors with
-                                  respect to the other set such that it
-                                  minimizes the RMSD between the two sets.
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3\\right)`,
-                      dtype= :class:`numpy.float32`
-        :type refPoints: :class:`numpy.ndarray`,
-                         shape= :math:`\\left(N_{neighbors}, 3\\right)`,
-                         dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Particle positions.
+            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up the motif against which we are matching.
+            threshold (float):
+                Maximum magnitude of the vector difference between two vectors,
+                below which they are considered "matching."
+            registration (bool, optional):
+                If True, first use brute force registration to orient one set
+                of environment vectors with respect to the other set such that
+                it minimizes the RMSD between the two sets
+                (Default value = False).
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
         """
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True,
+            array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         refPoints = freud.common.convert_array(
-                refPoints, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints must be a 2 dimensional array")
+            refPoints, 2, dtype=np.float32, contiguous=True,
+            array_name="refPoints")
         if refPoints.shape[1] != 3:
             raise TypeError('refPoints should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
-        cdef np.ndarray[float, ndim = 1] l_points = np.ascontiguousarray(
-                points.flatten())
-        cdef np.ndarray[float, ndim = 1] l_refPoints = np.ascontiguousarray(
-                refPoints.flatten())
-        cdef unsigned int nP = <unsigned int > points.shape[0]
-        cdef unsigned int nRef = <unsigned int > refPoints.shape[0]
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
+            points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(
+            refPoints.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
@@ -737,54 +765,51 @@ cdef class MatchEnv:
 
         # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.matchMotif(
-                nlist_ptr, < vec3[float]*> & l_points[0], nP,
-                < vec3[float]*> & l_refPoints[0], nRef, threshold,
-                registration)
+            nlist_ptr, <vec3[float]*> &l_points[0], nP,
+            <vec3[float]*> &l_refPoints[0], nRef, threshold,
+            registration)
 
     def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):
         """Rotate (if registration=True) and permute the environments of all
-        particles to minimize their RMSD wrt the motif provided by refPoints.
+        particles to minimize their RMSD with respect to the motif provided by
+        refPoints.
 
-        :param points: particle positions
-        :param refPoints: vectors that make up the motif against which we are
-                          matching
-        :param bool registration: If true, first use brute force registration to
-                                  orient one set of environment vectors with
-                                  respect to the other set such that it
-                                  minimizes the RMSD between the two sets.
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3\\right)`,
-                      dtype= :class:`numpy.float32`
-        :type refPoints: :class:`numpy.ndarray`,
-                         shape= :math:`\\left(N_{neighbors}, 3\\right)`,
-                         dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
-        :return: vector of minimal RMSD values, one value per particle.
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.float32`
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Particle positions.
+            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up the motif against which we are matching.
+            registration (bool, optional):
+                If True, first use brute force registration to orient one set
+                of environment vectors with respect to the other set such that
+                it minimizes the RMSD between the two sets
+                (Default value = False).
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        Returns:
+            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
+                Vector of minimal RMSD values, one value per particle.
+
         """
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True,
+            array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         refPoints = freud.common.convert_array(
-                refPoints, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints must be a 2 dimensional array")
+            refPoints, 2, dtype=np.float32, contiguous=True,
+            array_name="refPoints")
         if refPoints.shape[1] != 3:
             raise TypeError('refPoints should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
-        cdef np.ndarray[float, ndim = 1] l_points = np.ascontiguousarray(
-                points.flatten())
-        cdef np.ndarray[float, ndim = 1] l_refPoints = np.ascontiguousarray(
-                refPoints.flatten())
-        cdef unsigned int nP = <unsigned int > points.shape[0]
-        cdef unsigned int nRef = <unsigned int > refPoints.shape[0]
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
+            points.flatten())
+        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(
+            refPoints.flatten())
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
@@ -793,8 +818,8 @@ cdef class MatchEnv:
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
-                nlist_ptr, < vec3[float]*> & l_points[0], nP,
-                < vec3[float]*> & l_refPoints[0], nRef, registration)
+            nlist_ptr, <vec3[float]*> &l_points[0], nP,
+            <vec3[float]*> &l_refPoints[0], nRef, registration)
 
         return min_rmsd_vec
 
@@ -802,215 +827,203 @@ cdef class MatchEnv:
         """Test if the motif provided by refPoints1 is similar to the motif
         provided by refPoints2.
 
-        :param refPoints1: vectors that make up motif 1
-        :param refPoints2: vectors that make up motif 2
-        :param float threshold: maximum magnitude of the vector difference
-                                between two vectors, below which they are
-                                considered "matching"
-        :param bool registration: If true, first use brute force registration to
-                                  orient one set of environment vectors with
-                                  respect to the other set such that it
-                                  minimizes the RMSD between the two sets.
-        :type refPoints1: :class:`numpy.ndarray`,
-                          shape= :math:`\\left(N_{particles}, 3\\right)`,
-                          dtype= :class:`numpy.float32`
-        :type refPoints2: :class:`numpy.ndarray`,
-                          shape= :math:`\\left(N_{particles}, 3\\right)`,
-                          dtype= :class:`numpy.float32`
-        :return: a doublet that gives the rotated (or not) set of refPoints2,
-                    and the mapping between the vectors of refPoints1 and
-                    refPoints2 that will make them correspond to each other.
-                    empty if they do not correspond to each other.
-        :rtype: tuple[( :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}, 3\\right)`,
-                dtype= :class:`numpy.float32`), map[int, int]]
+        Args:
+            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up motif 1.
+            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up motif 2.
+            threshold (float):
+                Maximum magnitude of the vector difference between two vectors,
+                below which they are considered "matching."
+            registration (bool, optional):
+                If True, first use brute force registration to orient one set
+                of environment vectors with respect to the other set such that
+                it minimizes the RMSD between the two sets
+                (Default value = False).
+
+        Returns:
+            tuple ((:math:`\\left(N_{particles}, 3\\right)` \
+            :class:`numpy.ndarray`), map[int, int]):
+                A doublet that gives the rotated (or not) set of
+                :code:`refPoints2`, and the mapping between the vectors of
+                :code:`refPoints1` and :code:`refPoints2` that will make them
+                correspond to each other. Empty if they do not correspond to
+                each other.
         """
         refPoints1 = freud.common.convert_array(
-                refPoints1, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints1 must be a 2 dimensional array")
+            refPoints1, 2, dtype=np.float32, contiguous=True,
+            array_name="refPoints1")
         if refPoints1.shape[1] != 3:
             raise TypeError('refPoints1 should be an Nx3 array')
 
         refPoints2 = freud.common.convert_array(
-                refPoints2, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints2 must be a 2 dimensional array")
+            refPoints2, 2, dtype=np.float32, contiguous=True,
+            array_name="refPoints2")
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
-        cdef np.ndarray[float, ndim = 1] l_refPoints1 = np.copy(
-                np.ascontiguousarray(refPoints1.flatten()))
-        cdef np.ndarray[float, ndim = 1] l_refPoints2 = np.copy(
-                np.ascontiguousarray(refPoints2.flatten()))
-        cdef unsigned int nRef1 = <unsigned int > refPoints1.shape[0]
-        cdef unsigned int nRef2 = <unsigned int > refPoints2.shape[0]
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(
+            np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(
+            np.ascontiguousarray(refPoints2.flatten()))
+        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
         cdef float threshold_sq = threshold*threshold
 
         if nRef1 != nRef2:
             raise ValueError(
-                ("the number of vectors in refPoints1 must MATCH the number of"
+                ("The number of vectors in refPoints1 must MATCH the number of"
                     "vectors in refPoints2"))
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(
-                < vec3[float]*>&l_refPoints1[0],
-                < vec3[float]*>&l_refPoints2[0],
-                nRef1, threshold_sq, registration)
-        cdef np.ndarray[float, ndim = 2] rot_refPoints2 = np.reshape(
-                l_refPoints2, (nRef2, 3))
+            <vec3[float]*> &l_refPoints1[0],
+            <vec3[float]*> &l_refPoints2[0],
+            nRef1, threshold_sq, registration)
+        cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(
+            l_refPoints2, (nRef2, 3))
         return [rot_refPoints2, vec_map]
 
     def minimizeRMSD(self, refPoints1, refPoints2, registration=False):
         """Get the somewhat-optimal RMSD between the set of vectors refPoints1
         and the set of vectors refPoints2.
 
-        :param refPoints1: vectors that make up motif 1
-        :param refPoints2: vectors that make up motif 2
-        :param registration: if true, first use brute force registration to
-                                orient one set of environment vectors with
-                                respect to the other set such that it minimizes
-                                the RMSD between the two sets
-        :type refPoints1: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{particles}, 3\\right)`,
-                            dtype= :class:`numpy.float32`
-        :type refPoints2: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{particles}, 3\\right)`,
-                            dtype= :class:`numpy.float32`
-        :type registration: bool
-        :return: a triplet that gives the associated min_rmsd, rotated (or not)
-                    set of refPoints2, and the mapping between the vectors of
-                    refPoints1 and refPoints2 that somewhat minimizes the RMSD.
-        :rtype: tuple[float, ( :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}, 3\\right)`,
-                dtype= :class:`numpy.float32`), map[int, int]]
+        Args:
+            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up motif 1.
+            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up motif 2.
+            registration (bool, optional):
+                If true, first use brute force registration to orient one set
+                of environment vectors with respect to the other set such that
+                it minimizes the RMSD between the two sets
+                (Default value = False).
+
+        Returns:
+            tuple (float, (:math:`\\left(N_{particles}, 3\\right)` \
+            :class:`numpy.ndarray`), map[int, int]):
+                A triplet that gives the associated min_rmsd, rotated (or not)
+                set of refPoints2, and the mapping between the vectors of
+                refPoints1 and refPoints2 that somewhat minimizes the RMSD.
         """
         refPoints1 = freud.common.convert_array(
-                refPoints1, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints1 must be a 2 dimensional array")
+            refPoints1, 2, dtype=np.float32, contiguous=True,
+            array_name="refPoints1")
         if refPoints1.shape[1] != 3:
             raise TypeError('refPoints1 should be an Nx3 array')
 
         refPoints2 = freud.common.convert_array(
-                refPoints2, 2, dtype=np.float32, contiguous=True,
-                dim_message="refPoints2 must be a 2 dimensional array")
+            refPoints2, 2, dtype=np.float32, contiguous=True,
+            array_name="refPoints2")
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
         # keeping the below syntax seems to be crucial for passing unit tests
-        cdef np.ndarray[float, ndim = 1] l_refPoints1 = np.copy(
-                np.ascontiguousarray(refPoints1.flatten()))
-        cdef np.ndarray[float, ndim = 1] l_refPoints2 = np.copy(
-                np.ascontiguousarray(refPoints2.flatten()))
-        cdef unsigned int nRef1 = <unsigned int > refPoints1.shape[0]
-        cdef unsigned int nRef2 = <unsigned int > refPoints2.shape[0]
+        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(
+            np.ascontiguousarray(refPoints1.flatten()))
+        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(
+            np.ascontiguousarray(refPoints2.flatten()))
+        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
+        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
 
         if nRef1 != nRef2:
             raise ValueError(
-                ("the number of vectors in refPoints1 must MATCH the number of"
+                ("The number of vectors in refPoints1 must MATCH the number of"
                     "vectors in refPoints2"))
 
         cdef float min_rmsd = -1
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef map[unsigned int, unsigned int] results_map = \
             self.thisptr.minimizeRMSD(
-                    < vec3[float]*>&l_refPoints1[0],
-                    < vec3[float]*>&l_refPoints2[0],
-                    nRef1, min_rmsd, registration)
-        cdef np.ndarray[float, ndim = 2] rot_refPoints2 = np.reshape(
-                l_refPoints2, (nRef2, 3))
+                <vec3[float]*> &l_refPoints1[0],
+                <vec3[float]*> &l_refPoints2[0],
+                nRef1, min_rmsd, registration)
+        cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(
+            l_refPoints2, (nRef2, 3))
         return [min_rmsd, rot_refPoints2, results_map]
 
     def getClusters(self):
         """Get a reference to the particles, indexed into clusters according to
-        their matching local environments
+        their matching local environments.
 
-        :return: clusters
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.uint32`
+        Returns:
+            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
+                Clusters.
         """
         cdef unsigned int * clusters = self.thisptr.getClusters().get()
         cdef np.npy_intp nbins[1]
         # this is the correct number
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_UINT32, < void*>clusters)
+        nbins[0] = <np.npy_intp> self.thisptr.getNP()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
+                                         <void*> clusters)
         return result
 
     def getEnvironment(self, i):
         """Returns the set of vectors defining the environment indexed by i.
 
-        :param i: environment index
-        :type i: unsigned int
-        :return: the array of vectors
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{neighbors}, 3\\right)`,
-                dtype= :class:`numpy.float32`
+        Args:
+            i (unsigned int): Environment index.
+
+        Returns:
+            :math:`\\left(N_{neighbors}, 3\\right)` :class:`numpy.ndarray`:
+            The array of vectors.
         """
         cdef vec3[float] * environment = self.thisptr.getEnvironment(i).get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.thisptr.getMaxNumNeighbors()
+        nbins[0] = <np.npy_intp> self.thisptr.getMaxNumNeighbors()
         nbins[1] = 3
-        cdef np.ndarray[float, ndim= 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                                2, nbins, np.NPY_FLOAT32, < void*>environment)
+        cdef np.ndarray[float, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
+                                         <void*> environment)
         return result
 
     @property
     def tot_environment(self):
-        """Returns the entire m_Np by m_maxk by 3 matrix of all environments
-        for all particles.
-        """
         return self.getTotEnvironment()
 
     def getTotEnvironment(self):
-        """Returns the entire m_Np by m_maxk by 3 matrix of all environments
-        for all particles.
+        """Returns the matrix of all environments for all particles.
 
-        :return: the array of vectors
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)`,
-                dtype= :class:`numpy.float32`
+        Returns:
+            :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)` \
+            :class:`numpy.ndarray`:
+                The array of vectors.
         """
-        cdef vec3[float] * tot_environment = self.thisptr.getTotEnvironment(
-                ).get()
+        cdef vec3[float] * tot_environment = \
+            self.thisptr.getTotEnvironment().get()
         cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
-        nbins[1] = <np.npy_intp > self.thisptr.getMaxNumNeighbors()
+        nbins[0] = <np.npy_intp> self.thisptr.getNP()
+        nbins[1] = <np.npy_intp> self.thisptr.getMaxNumNeighbors()
         nbins[2] = 3
-        cdef np.ndarray[float, ndim= 3
-                        ] result = np.PyArray_SimpleNewFromData(
-                                3, nbins, np.NPY_FLOAT32,
-                                < void*>tot_environment)
+        cdef np.ndarray[float, ndim=3] result = \
+            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
+                                         <void*> tot_environment)
         return result
 
     @property
     def num_particles(self):
-        """Get the number of particles.
-        """
         return self.getNP()
 
     def getNP(self):
         """Get the number of particles.
 
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
+        Returns:
+            unsigned int: :math:`N_{particles}`.
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
     @property
     def num_clusters(self):
-        """Get the number of clusters.
-        """
         return self.getNumClusters()
 
     def getNumClusters(self):
         """Get the number of clusters.
 
-        :return: :math:`N_{clusters}`
-        :rtype: unsigned int
+        Returns:
+            unsigned int: :math:`N_{clusters}`.
         """
         cdef unsigned int num_clust = self.thisptr.getNumClusters()
         return num_clust
@@ -1024,18 +1037,29 @@ cdef class Pairing2D:
     .. deprecated:: 0.8.2
        Use :py:mod:`freud.bond` instead.
 
-    :param float rmax: distance over which to calculate
-    :param k: number of neighbors to search
-    :param float compDotTol: value of the dot product below which a pair is
-                             determined
-    :type k: unsigned int
+    Args:
+        rmax (float):
+            Distance over which to calculate.
+        k (unsigned int):
+            Number of neighbors to search.
+        compDotTol (float):
+            Value of the dot product below which a pair is determined.
+
+    Attributes:
+        match (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+            The match.
+        pair (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+            The pair.
+        box (:py:class:`freud.box.Box`):
+            Box used in the calculation.
     """
     cdef environment.Pairing2D * thisptr
     cdef rmax
     cdef num_neigh
 
     def __cinit__(self, rmax, k, compDotTol):
-        warnings.warn("This class is deprecated, use freud.bond instead!", FreudDeprecationWarning)
+        warnings.warn("This class is deprecated, use freud.bond instead!",
+                      FreudDeprecationWarning)
         self.thisptr = new environment.Pairing2D(rmax, k, compDotTol)
         self.rmax = rmax
         self.num_neigh = k
@@ -1047,47 +1071,41 @@ cdef class Pairing2D:
         """Calculates the correlation function and adds to the current
         histogram.
 
-        :param box: simulation box
-        :param points: reference points to calculate the local density
-        :param orientations: orientations to use in computation
-        :param compOrientations: possible orientations to check for bonds
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds
-        :type box: :py:class:`freud.box.Box`
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3\\right)`,
-                      dtype= :class:`numpy.float32`
-        :type orientations: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{particles}\\right)`,
-                            dtype= :class:`numpy.float32`
-        :type compOrientations: :class:`numpy.ndarray`,
-                                shape= :math:`\\left(N_{particles}\\right)`,
-                                dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points to calculate the local density.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Orientations to use in computation.
+            compOrientations ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`):
+                Possible orientations to check for bonds.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-                orientations, 1, dtype=np.float32, contiguous=True,
-                dim_message="orientations must be a 1 dimensional array")
+            orientations, 1, dtype=np.float32, contiguous=True,
+            array_name="orientations")
 
         compOrientations = freud.common.convert_array(
-                compOrientations, 2, dtype=np.float32, contiguous=True,
-                dim_message="compOrientations must be a 2 dimensional array")
+            compOrientations, 2, dtype=np.float32, contiguous=True,
+            array_name="compOrientations")
 
-        cdef np.ndarray[float, ndim = 2] l_points = points
-        cdef np.ndarray[float, ndim = 2] l_compOrientations = compOrientations
-        cdef np.ndarray[float, ndim = 1] l_orientations = orientations
-        cdef unsigned int nP = <unsigned int > points.shape[0]
-        cdef unsigned int nO = <unsigned int > compOrientations.shape[1]
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef np.ndarray[float, ndim=2] l_compOrientations = compOrientations
+        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef unsigned int nO = <unsigned int> compOrientations.shape[1]
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
         defaulted_nlist = make_default_nlist_nn(
             box, points, points, self.num_neigh, nlist, True, self.rmax)
@@ -1095,75 +1113,84 @@ cdef class Pairing2D:
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.thisptr.compute(
-                l_box, nlist_ptr, < vec3[float]*>l_points.data,
-                < float*>l_orientations.data, < float*>l_compOrientations.data,
-                nP, nO)
+            l_box, nlist_ptr, <vec3[float]*> l_points.data,
+            <float*> l_orientations.data, <float*> l_compOrientations.data,
+            nP, nO)
         return self
 
     @property
     def match(self):
-        """Match.
-        """
         return self.getMatch()
 
     def getMatch(self):
         """Get the match.
 
-        :return: match
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.uint32`
+        Returns:
+            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
+                The match.
         """
         cdef unsigned int * match = self.thisptr.getMatch().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNumParticles()
-        cdef np.ndarray[np.uint32_t, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_UINT32, < void*>match)
+        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
+                                         <void*> match)
         return result
 
     @property
     def pair(self):
-        """Pair.
-        """
         return self.getPair()
 
     def getPair(self):
         """Get the pair.
 
-        :return: pair
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}\\right)`,
-                dtype= :class:`numpy.uint32`
+        Returns:
+            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
+                The pair.
         """
         cdef unsigned int * pair = self.thisptr.getPair().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > self.thisptr.getNumParticles()
-        cdef np.ndarray[np.uint32_t, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_UINT32, < void*>pair)
+        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*> pair)
         return result
 
     @property
     def box(self):
-        """Get the box used in the calculation.
-        """
         return self.getBox()
 
     def getBox(self):
         """Get the box used in the calculation.
 
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
+        Returns:
+            :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< box.Box > self.thisptr.getBox())
+        return BoxFromCPP(<box.Box> self.thisptr.getBox())
 
 cdef class AngularSeparation:
     """Calculates the minimum angles of separation between particles and
     references.
 
-    .. moduleauthor:: Erin Teich & Andrew Karas
+    .. moduleauthor:: Erin Teich
+    .. moduleauthor:: Andrew Karas
 
+    Args:
+        rmax (float):
+            Cutoff radius for cell list and clustering algorithm. Values near
+            the first minimum of the RDF are recommended.
+        n (int):
+            The number of neighbors.
+
+    Attributes:
+        nlist (:class:`freud.locality.NeighborList`):
+            The neighbor list.
+        n_p (unsigned int):
+            The number of particles used in computing the last set.
+        n_ref (unsigned int):
+            The number of reference particles used in computing the neighbor
+            angles.
+        n_global (unsigned int):
+            The number of global orientations to check against.
     """
     cdef environment.AngularSeparation * thisptr
     cdef num_neigh
@@ -1188,71 +1215,61 @@ cdef class AngularSeparation:
         """Calculates the minimum angles of separation between ref_ors and ors,
         checking for underlying symmetry as encoded in equiv_quats.
 
-        :param box: simulation box
-        :param ref_ors: orientations to calculate the order parameter
-        :param ref_points: points to calculate the order parameter
-        :param ors: orientations (neighbors of ref_ors) to calculate the order
-                    parameter
-        :param points: points (neighbors of ref_points) to calculate the order
-                       parameter
-        :param equiv_quats: the set of all equivalent quaternions that takes
-                            the particle as it is defined to some global
-                            reference orientation. Important: equiv_quats must
-                            include both q and -q, for all included quaternions
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                      find bonds
-        :type box: :py:class:`freud.box.Box`
-        :type ref_ors: :class:`numpy.ndarray`,
-                       shape= :math:`\\left(N_{particles}, 4 \\right)`,
-                       dtype= :class:`numpy.float32`
-        :type ref_points: :class:`numpy.ndarray`,
-                          shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                          dtype= :class:`numpy.float32`
-        :type ors: :class:`numpy.ndarray`,
-                   shape= :math:`\\left(N_{particles}, 4 \\right)`,
-                   dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                      dtype= :class:`numpy.float32`
-        :type equiv_quats: :class:`numpy.ndarray`,
-                           shape= :math:`\\left(N_{equiv}, 4 \\right)`,
-                           dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Orientations to calculate the order parameter.
+            ref_orientations ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`):
+                Reference orientations to calculate the order parameter.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points to calculate the order parameter.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value = None).
+            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, \
+            optional):
+                The set of all equivalent quaternions that takes the particle
+                as it is defined to some global reference orientation.
+                Important: :code:`equiv_quats` must include both :math:`q` and
+                :math:`-q`, for all included quaternions.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
         """
         box = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
-                ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+            ref_points, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         ref_ors = freud.common.convert_array(
-                ref_ors, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_ors must be a 2 dimensional array")
+            ref_ors, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_ors")
         if ref_ors.shape[1] != 4:
             raise TypeError('ref_ors should be an Nx4 array')
 
         ors = freud.common.convert_array(
-                ors, 2, dtype=np.float32, contiguous=True,
-                dim_message="ors must be a 2 dimensional array")
+            ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
         equiv_quats = freud.common.convert_array(
-                equiv_quats, 2, dtype=np.float32, contiguous=True,
-                dim_message="equiv_quats must be a 2 dimensional array")
+            equiv_quats, 2, dtype=np.float32, contiguous=True,
+            array_name="equiv_quats")
         if equiv_quats.shape[1] != 4:
             raise TypeError('equiv_quats should be an N_equiv x 4 array')
 
         cdef _box.Box l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
         defaulted_nlist = make_default_nlist_nn(
             box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
@@ -1260,136 +1277,143 @@ cdef class AngularSeparation:
         cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
         self.nlist_ = nlist_
 
-        cdef np.ndarray[float, ndim = 2] l_ref_ors = ref_ors
-        cdef np.ndarray[float, ndim = 2] l_ors = ors
-        cdef np.ndarray[float, ndim = 2] l_equiv_quats = equiv_quats
+        cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
+        cdef np.ndarray[float, ndim=2] l_ors = ors
+        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
 
-        cdef unsigned int nRef = <unsigned int > ref_ors.shape[0]
-        cdef unsigned int nP = <unsigned int > ors.shape[0]
-        cdef unsigned int nEquiv = <unsigned int > equiv_quats.shape[0]
+        cdef unsigned int nRef = <unsigned int> ref_ors.shape[0]
+        cdef unsigned int nP = <unsigned int> ors.shape[0]
+        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
 
         with nogil:
             self.thisptr.computeNeighbor(
-                    nlist_ptr,
-                    < quat[float]*>l_ref_ors.data,
-                    < quat[float]*>l_ors.data,
-                    < quat[float]*>l_equiv_quats.data,
-                    nRef, nP, nEquiv)
+                nlist_ptr,
+                <quat[float]*> l_ref_ors.data,
+                <quat[float]*> l_ors.data,
+                <quat[float]*> l_equiv_quats.data,
+                nRef, nP, nEquiv)
         return self
 
     def computeGlobal(self, global_ors, ors, equiv_quats):
         """Calculates the minimum angles of separation between global_ors and
         ors, checking for underlying symmetry as encoded in equiv_quats.
 
-        :param global_ors: global reference orientations to calculate the order
-                            parameter
-        :param ors: orientations to calculate the order parameter
-        :param equiv_quats: the set of all equivalent quaternions that takes
-                            the particle as it is defined to some global
-                            reference orientation. Important: equiv_quats must
-                            include both q and -q, for all included quaternions
-        :type ref_ors: :class:`numpy.ndarray`,
-                        shape= :math:`\\left(N_{particles}, 4 \\right)`,
-                        dtype= :class:`numpy.float32`
-        :type ors: :class:`numpy.ndarray`,
-                    shape= :math:`\\left(N_{particles}, 4 \\right)`,
-                    dtype= :class:`numpy.float32`
-        :type equiv_quats: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{equiv}, 4 \\right)`,
-                            dtype= :class:`numpy.float32`
+        Args:
+            ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Orientations to calculate the order parameter.
+            global_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Reference orientations to calculate the order parameter.
+            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                The set of all equivalent quaternions that takes the particle
+                as it is defined to some global reference orientation.
+                Important: :code:`equiv_quats` must include both :math:`q` and
+                :math:`-q`, for all included quaternions.
         """
         global_ors = freud.common.convert_array(
-                global_ors, 2, dtype=np.float32, contiguous=True,
-                dim_message="global_ors must be a 2 dimensional array")
+            global_ors, 2, dtype=np.float32, contiguous=True,
+            array_name="global_ors")
         if global_ors.shape[1] != 4:
             raise TypeError('global_ors should be an Nx4 array')
 
         ors = freud.common.convert_array(
-                ors, 2, dtype=np.float32, contiguous=True,
-                dim_message="ors must be a 2 dimensional array")
+            ors, 2, dtype=np.float32, contiguous=True,
+            array_name="ors")
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
         equiv_quats = freud.common.convert_array(
-                equiv_quats, 2, dtype=np.float32, contiguous=True,
-                dim_message="equiv_quats must be a 2 dimensional array")
+            equiv_quats, 2, dtype=np.float32, contiguous=True,
+            array_name="equiv_quats")
         if equiv_quats.shape[1] != 4:
             raise TypeError('equiv_quats should be an N_equiv x 4 array')
 
-        cdef np.ndarray[float, ndim = 2] l_global_ors = global_ors
-        cdef np.ndarray[float, ndim = 2] l_ors = ors
-        cdef np.ndarray[float, ndim = 2] l_equiv_quats = equiv_quats
+        cdef np.ndarray[float, ndim=2] l_global_ors = global_ors
+        cdef np.ndarray[float, ndim=2] l_ors = ors
+        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
 
-        cdef unsigned int nGlobal = <unsigned int > global_ors.shape[0]
-        cdef unsigned int nP = <unsigned int > ors.shape[0]
-        cdef unsigned int nEquiv = <unsigned int > equiv_quats.shape[0]
+        cdef unsigned int nGlobal = <unsigned int> global_ors.shape[0]
+        cdef unsigned int nP = <unsigned int> ors.shape[0]
+        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
 
         with nogil:
             self.thisptr.computeGlobal(
-                    < quat[float]*>l_global_ors.data,
-                    < quat[float]*>l_ors.data,
-                    < quat[float]*>l_equiv_quats.data,
-                    nGlobal, nP, nEquiv)
+                <quat[float]*> l_global_ors.data,
+                <quat[float]*> l_ors.data,
+                <quat[float]*> l_equiv_quats.data,
+                nGlobal, nP, nEquiv)
         return self
 
     def getNeighborAngles(self):
-        """
-        :return: angles in radians
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{reference}, N_{neighbors} \\right)`,
-                dtype= :class:`numpy.float32`
+        """The neighbor angles in radians.
+
+        Returns:
+            :math:`\\left(N_{reference}, N_{neighbors} \\right)` \
+            :class:`numpy.ndarray`:
+                Angles in radians.
         """
 
         cdef float * neigh_ang = self.thisptr.getNeighborAngles().get()
         cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp > len(self.nlist)
-        cdef np.ndarray[float, ndim= 1
-                        ] result = np.PyArray_SimpleNewFromData(
-                                1, nbins, np.NPY_FLOAT32, < void*>neigh_ang)
+        nbins[0] = <np.npy_intp> len(self.nlist)
+        cdef np.ndarray[float, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32,
+                                         <void*> neigh_ang)
         return result
 
     def getGlobalAngles(self):
-        """
-        :return: angles in radians
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{particles}, N_{global} \\right)`,
-                dtype= :class:`numpy.float32`
+        """The global angles in radians
+
+        Returns:
+            :math:`\\left(N_{particles}, N_{global} \\right)` \
+            :class:`numpy.ndarray`:
+                Angles in radians.
         """
 
         cdef float * global_ang = self.thisptr.getGlobalAngles().get()
         cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp > self.thisptr.getNP()
-        nbins[1] = <np.npy_intp > self.thisptr.getNglobal()
-        cdef np.ndarray[float, ndim= 2
-                        ] result = np.PyArray_SimpleNewFromData(
-                                2, nbins, np.NPY_FLOAT32, < void*>global_ang)
+        nbins[0] = <np.npy_intp> self.thisptr.getNP()
+        nbins[1] = <np.npy_intp> self.thisptr.getNglobal()
+        cdef np.ndarray[float, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
+                                         <void*> global_ang)
         return result
+
+    @property
+    def n_p(self):
+        return self.getNP()
 
     def getNP(self):
         """Get the number of particles used in computing the last set.
 
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
-
+        Returns:
+            unsigned int: :math:`N_{particles}`.
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    @property
+    def n_ref(self):
+        return self.getNReference()
 
     def getNReference(self):
         """Get the number of reference particles used in computing the neighbor
         angles.
 
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
+        Returns:
+            unsigned int: :math:`N_{particles}`.
         """
         cdef unsigned int nref = self.thisptr.getNref()
         return nref
 
+    @property
+    def n_global(self):
+        return self.getNGlobal()
+
     def getNGlobal(self):
         """Get the number of global orientations to check against.
 
-        :return: :math:`N_{global orientations}`
-        :rtype: unsigned int
+        Returns:
+            unsigned int: :math:`N_{global orientations}`.
         """
         cdef unsigned int nglobal = self.thisptr.getNglobal()
         return nglobal

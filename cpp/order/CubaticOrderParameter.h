@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef CUBATIC_ORDER_PARAMETER_H
+#define CUBATIC_ORDER_PARAMETER_H
 
 #include <memory>
 #include <ostream>
@@ -11,9 +14,6 @@
 #include "saruprng.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _CUBATIC_ORDER_PARAMETER_H__
-#define _CUBATIC_ORDER_PARAMETER_H__
 
 /*! \file CubaticOrderParameter.h
     \brief Compute the cubatic order parameter for each particle.
@@ -72,9 +72,6 @@ class CubaticOrderParameter
 
         quat<float> getCubaticOrientation();
 
-
-        // std::shared_ptr<float> getParticleCubaticOrderParameter();
-
     private:
 
         float m_t_initial;
@@ -101,4 +98,4 @@ class CubaticOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _CUBATIC_ORDER_PARAMETER_H__
+#endif // CUBATIC_ORDER_PARAMETER_H

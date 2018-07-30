@@ -2,100 +2,96 @@
 Order Module
 ============
 
-The order module contains functions which compute order parameters for the whole
-system or individual particles.
+.. rubric:: Overview
 
-Bond Order
-==========
+.. autosummary::
+    :nosignatures:
 
-.. autoclass:: freud.order.BondOrder(rmax, k, n, nBinsT, nBinsP)
-    :members:
+    freud.order.CubaticOrderParameter
+    freud.order.NematicOrderParameter
+    freud.order.HexOrderParameter
+    freud.order.TransOrderParameter
+    freud.order.LocalQl
+    freud.order.LocalQlNear
+    freud.order.LocalWl
+    freud.order.LocalWlNear
+    freud.order.SolLiq
+    freud.order.SolLiqNear
+    freud.order.BondOrder
+    freud.order.LocalDescriptors
+    freud.order.MatchEnv
+    freud.order.Pairing2D
+    freud.order.AngularSeparation
 
-Order Parameters
-================
+.. rubric:: Details
 
-Order parameters take bond order data and interpret it in some way to quantify
-the degree of order in a system. This is often done through computing spherical
-harmonics of the bond order diagram, which are the spherical analogue of Fourier
-Transforms.
-
-Cubatic Order Parameter
-=======================
+.. automodule:: freud.order
+    :synopsis: Compute order parameters
 
 .. autoclass:: freud.order.CubaticOrderParameter(t_initial, t_final, scale, n_replicates, seed)
     :members:
 
-Nematic Order Parameter
-=======================
-
 .. autoclass:: freud.order.NematicOrderParameter(u)
     :members:
-
-Hexatic Order Parameter
-=======================
 
 .. autoclass:: freud.order.HexOrderParameter(rmax, k, n)
     :members:
 
-Local Descriptors
-=================
-
-.. autoclass:: freud.order.LocalDescriptors(box, nNeigh, lmax, rmax)
-    :members:
-
-Translational Order Parameter
-=============================
-
 .. autoclass:: freud.order.TransOrderParameter(rmax, k, n)
     :members:
-
-Local :math:`Q_l`
-=================
 
 .. autoclass:: freud.order.LocalQl(box, rmax, l, rmin)
     :members:
 
-Nearest Neighbors Local :math:`Q_l`
-===================================
-
 .. autoclass:: freud.order.LocalQlNear(box, rmax, l, kn)
     :members:
-
-Local :math:`W_l`
-=================
 
 .. autoclass:: freud.order.LocalWl(box, rmax, l)
     :members:
 
-Nearest Neighbors Local :math:`W_l`
-===================================
-
 .. autoclass:: freud.order.LocalWlNear(box, rmax, l, kn)
     :members:
-
-Solid-Liquid Order Parameter
-============================
 
 .. autoclass:: freud.order.SolLiq(box, rmax, Qthreshold, Sthreshold, l)
     :members:
 
-Nearest Neighbors Solid-Liquid Order Parameter
-==============================================
-
 .. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l)
     :members:
 
+Deprecated Classes
+==================
+
+The below functions have all either been deprecated or moved to the :doc:`environment` module
+
+Bond Order
+----------
+
+.. autoclass:: freud.order.BondOrder(rmax, k, n, nBinsT, nBinsP)
+    :members:
+
+Local Descriptors
+-----------------
+
+.. autoclass:: freud.order.LocalDescriptors(box, nNeigh, lmax, rmax)
+    :members:
+
 Environment Matching
-====================
+--------------------
 
 .. autoclass:: freud.order.MatchEnv(box, rmax, k)
     :members:
 
 Pairing
-=======
+-------
 
 .. note::
-    This module is deprecated and is replaced with :doc:`bond`.
+    Pairing2D is deprecated and is replaced with :doc:`bond`.
 
 .. autoclass:: freud.order.Pairing2D(rmax, k, compDotTol)
+    :members:
+
+Angular Separation
+------------------
+
+.. autoclass:: freud.order.AngularSeparation(box, rmax, n)
     :members:

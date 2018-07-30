@@ -1,10 +1,10 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef WIGNER3J_H
+#define WIGNER3J_H
 
 #include <vector>
-
-#ifndef _WIGNER3J_H
-#define _WIGNER3J_H
 
 /*! \file wigner3j.h
  *  \brief Stores wigner3j coefficients for l ranging from 2 to 20
@@ -44,4 +44,4 @@ with open('wigner3j.json', 'w') as jsonfile:
 sio.savemat('wigner3j.mat',wigner)'''
 */
 
-#endif
+#endif // WIGNER3J_H

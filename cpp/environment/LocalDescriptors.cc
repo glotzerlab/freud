@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
 #include <complex>
@@ -19,7 +19,7 @@ using hoomd::matrix::diagonalize;
   \brief Computes local descriptors.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 LocalDescriptors::LocalDescriptors(
         unsigned int neighmax, unsigned int lmax, float rmax, bool negative_m):
@@ -173,7 +173,12 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
                 float theta(atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
                 if(theta < 0)
                     theta += 2*M_PI; // move theta into [0..2*pi]
-                const float phi(acos(bond_ij.z/magR)); // phi in [0..pi]
+                float phi(acos(bond_ij.z/magR)); // phi in [0..pi]
+
+                // catch cases where bond_ij.z/magR falls outside [-1, 1]
+                // due to numerical issues
+                if(std::isnan(phi))
+                    phi = bond_ij.z > 0? 0: M_PI;
 
                 sph_eval.compute(phi, theta);
 
@@ -187,4 +192,4 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
     m_nSphs = nlist->getNumBonds();
     }
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment

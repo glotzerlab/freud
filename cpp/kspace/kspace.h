@@ -1,14 +1,14 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef KSPACE_H
+#define KSPACE_H
 
 #include <complex>
 #include <memory>
 #include <vector>
 
 #include "VectorMath.h"
-
-#ifndef _KSPACE_H__
-#define _KSPACE_H__
 
 //! \package freud::kspace Provides tools for calculating density in reciprocal space
 /*! For analyzing periodicity or simulating diffraction patterns
@@ -153,4 +153,4 @@ class FTpolyhedron: public FTdelta
 
 }; }; // end namespace freud::kspace
 
-#endif // _KSPACE_H__
+#endif // KSPACE_H

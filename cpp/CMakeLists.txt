@@ -52,15 +52,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/environment
                     ${CMAKE_CURRENT_SOURCE_DIR}/interface
                     ${CMAKE_CURRENT_SOURCE_DIR}/pmft
-                    ${CMAKE_CURRENT_SOURCE_DIR}/shapesplit
                     ${CMAKE_CURRENT_SOURCE_DIR}/parallel
                     ${CMAKE_CURRENT_SOURCE_DIR}/registration
                     ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
 set(FREUD_SOURCES
-            box/box.h
-            box/box.cc
             bond/BondingAnalysis.h
             bond/BondingAnalysis.cc
             bond/BondingR12.h
@@ -71,37 +68,40 @@ set(FREUD_SOURCES
             bond/BondingXYT.cc
             bond/BondingXYZ.h
             bond/BondingXYZ.cc
-            locality/LinkCell.cc
-            locality/LinkCell.h
-            locality/NearestNeighbors.h
-            locality/NearestNeighbors.cc
-            locality/NeighborList.cc
-            density/CorrelationFunction.h
-            density/CorrelationFunction.cc
-            density/RDF.cc
-            density/RDF.h
-            density/GaussianDensity.cc
-            density/GaussianDensity.h
-            density/LocalDensity.h
-            density/LocalDensity.cc
-            voronoi/VoronoiBuffer.h
-            voronoi/VoronoiBuffer.cc
-            kspace/kspace.h
-            kspace/kspace.cc
+            box/box.h
+            box/box.cc
             cluster/Cluster.h
             cluster/Cluster.cc
             cluster/ClusterProperties.h
             cluster/ClusterProperties.cc
+            density/CorrelationFunction.h
+            density/CorrelationFunction.cc
+            density/RDF.h
+            density/RDF.cc
+            density/GaussianDensity.h
+            density/GaussianDensity.cc
+            density/LocalDensity.h
+            density/LocalDensity.cc
             environment/AngularSeparation.h
             environment/AngularSeparation.cc
             environment/BondOrder.h
             environment/BondOrder.cc
             environment/LocalDescriptors.h
             environment/LocalDescriptors.cc
-            environment/Pairing2D.cc
             environment/Pairing2D.h
+            environment/Pairing2D.cc
             environment/MatchEnv.h
             environment/MatchEnv.cc
+            interface/InterfaceMeasure.h
+            interface/InterfaceMeasure.cc
+            kspace/kspace.h
+            kspace/kspace.cc
+            locality/LinkCell.h
+            locality/LinkCell.cc
+            locality/NearestNeighbors.h
+            locality/NearestNeighbors.cc
+            locality/NeighborList.h
+            locality/NeighborList.cc
             order/HexOrderParameter.h
             order/HexOrderParameter.cc
             order/TransOrderParameter.h
@@ -121,24 +121,21 @@ set(FREUD_SOURCES
             util/Index1D.h
             util/HOOMDMath.h
             util/HOOMDMatrix.cc
-            interface/InterfaceMeasure.cc
-            interface/InterfaceMeasure.h
-            pmft/PMFT.cc
-            pmft/PMFT.h
-            pmft/PMFTXYZ.cc
-            pmft/PMFTXYZ.h
-            pmft/PMFTXY2D.cc
-            pmft/PMFTXY2D.h
-            pmft/PMFTR12.cc
-            pmft/PMFTR12.h
-            pmft/PMFTXYT.cc
-            pmft/PMFTXYT.h
-            shapesplit/shapesplit.cc
-            shapesplit/shapesplit.h
-            interface/InterfaceMeasure.h
             parallel/tbb_config.h
             parallel/tbb_config.cc
+            pmft/PMFT.h
+            pmft/PMFT.cc
+            pmft/PMFTXYZ.h
+            pmft/PMFTXYZ.cc
+            pmft/PMFTXY2D.h
+            pmft/PMFTXY2D.cc
+            pmft/PMFTR12.h
+            pmft/PMFTR12.cc
+            pmft/PMFTXYT.h
+            pmft/PMFTXYT.cc
             registration/brute_force.h
+            voronoi/VoronoiBuffer.h
+            voronoi/VoronoiBuffer.cc
             )
 
 foreach(src IN LISTS FREUD_SOURCES)

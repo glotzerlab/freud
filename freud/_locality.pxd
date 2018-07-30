@@ -1,12 +1,12 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from freud.util._Index1D cimport Index3D
-from freud.util._Boost cimport shared_array
-cimport freud._box as box
+from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
+cimport freud._box as box
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
@@ -21,14 +21,15 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         void setNumBonds(size_t, size_t, size_t)
         size_t filter(const bool*)
         size_t filter_r(
-                const box.Box & ,
-                const vec3[float]*,
-                const vec3[float]*,
-                float, float)
+            const box.Box &,
+            const vec3[float]*,
+            const vec3[float]*,
+            float, float)
 
         size_t find_first_index(size_t)
 
-        # Include separate definitions for resize with and without optional parameter
+        # Include separate definitions for resize with and without optional
+        # parameter
         void resize(size_t)
         void resize(size_t, bool)
         void copy(const NeighborList &)
@@ -38,42 +39,42 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:
         IteratorLinkCell()
         IteratorLinkCell(
-                const shared_array[unsigned int] &,
-                unsigned int,
-                unsigned int,
-                unsigned int)
+            const shared_ptr[unsigned int] &,
+            unsigned int,
+            unsigned int,
+            unsigned int)
         void copy(const IteratorLinkCell &)
         bool atEnd()
         unsigned int next()
         unsigned int begin()
 
     cdef cppclass LinkCell:
-        LinkCell(const box.Box & , float) except +
+        LinkCell(const box.Box &, float) except +
         LinkCell()
 
         setCellWidth(float)
-        updateBox(const box.Box & )
+        updateBox(const box.Box &)
         const vec3[unsigned int] computeDimensions(
-                const box.Box & ,
-                float) const
+            const box.Box &,
+            float) const
         const box.Box & getBox() const
         const Index3D & getCellIndexer() const
         unsigned int getNumCells() const
         float getCellWidth() const
-        unsigned int getCell(const vec3[float] & ) const
+        unsigned int getCell(const vec3[float] &) const
         IteratorLinkCell itercell(unsigned int) const
         vector[unsigned int] getCellNeighbors(unsigned int) const
         void computeCellList(
-                const box.Box & ,
-                const vec3[float]*,
-                unsigned int) nogil except +
+            const box.Box &,
+            const vec3[float]*,
+            unsigned int) nogil except +
         void compute(
-                const box.Box & ,
-                const vec3[float]*,
-                unsigned int,
-                const vec3[float]*,
-                unsigned int,
-                bool) nogil except +
+            const box.Box &,
+            const vec3[float]*,
+            unsigned int,
+            const vec3[float]*,
+            unsigned int,
+            bool) nogil except +
         NeighborList * getNeighborList()
 
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
@@ -89,10 +90,10 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         unsigned int getNref() const
         void setCutMode(const bool)
         void compute(
-                const box.Box & ,
-                const vec3[float]*,
-                unsigned int,
-                const vec3[float]*,
-                unsigned int,
-                bool) nogil except +
+            const box.Box &,
+            const vec3[float]*,
+            unsigned int,
+            const vec3[float]*,
+            unsigned int,
+            bool) nogil except +
         NeighborList * getNeighborList()

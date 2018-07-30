@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef CLUSTER_H
+#define CLUSTER_H
 
 #include <memory>
 #include <set>
@@ -9,9 +12,6 @@
 #include "box.h"
 #include "VectorMath.h"
 #include "LinkCell.h"
-
-#ifndef _CLUSTER_H__
-#define _CLUSTER_H__
 
 /*! \file Cluster.h
     \brief Routines for clustering points.
@@ -108,4 +108,4 @@ class Cluster
 
 }; }; // end namespace freud::cluster
 
-#endif // _CLUSTER_H__
+#endif // CLUSTER_H

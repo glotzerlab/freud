@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef BONDING_R12_H
+#define BONDING_R12_H
 
 #include <algorithm>
 #include <map>
@@ -11,9 +14,6 @@
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _BONDING_R12_H__
-#define _BONDING_R12_H__
 
 namespace freud { namespace bond {
 
@@ -88,4 +88,4 @@ class BondingR12
 
 }; }; // end namespace freud::bond
 
-#endif // _BONDING_R12_H__
+#endif // BONDING_R12_H

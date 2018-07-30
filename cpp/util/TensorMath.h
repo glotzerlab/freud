@@ -1,10 +1,10 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef TENSOR_MATH_H
+#define TENSOR_MATH_H
 
 #include "HOOMDMath.h"
-
-#ifndef __TENSOR_MATH_H__
-#define __TENSOR_MATH_H__
 
 template < class Real >
 struct tensor4
@@ -188,4 +188,4 @@ tensor4<Real> operator/=(tensor4<Real>& a, const Real& b)
     return a;
     }
 
-#endif //__TENSOR_MATH_H__
+#endif // TENSOR_MATH_H

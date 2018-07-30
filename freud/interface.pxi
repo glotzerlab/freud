@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
 from freud.util._VectorMath cimport vec3
@@ -13,10 +13,9 @@ cdef class InterfaceMeasure:
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
-    :param box: simulation box
-    :param r_cut: Distance to search for particle neighbors
-    :type box: :py:class:`freud.box.Box`
-    :type r_cut: float
+    Args:
+        box (:py:class:`freud.box.Box`): Simulation box.
+        r_cut (float): Distance to search for particle neighbors.
     """
     cdef interface.InterfaceMeasure * thisptr
     cdef box
@@ -25,8 +24,8 @@ cdef class InterfaceMeasure:
     def __cinit__(self, box, float r_cut):
         box = freud.common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
+            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         self.thisptr = new interface.InterfaceMeasure(cBox, r_cut)
         self.box = box
         self.rmax = r_cut
@@ -38,24 +37,19 @@ cdef class InterfaceMeasure:
         """Compute and return the number of particles at the interface between
         the two given sets of points.
 
-        :param ref_points: one set of particle positions
-        :param points: other set of particle positions
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to
-                        find bonds
-        :type ref_points: :class:`numpy.ndarray`,
-                            shape=(:math:`N_{particles}`, 3),
-                            dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`,
-                        shape=(:math:`N_{particles}`, 3),
-                        dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
+        Args:
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                One set of particle positions.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Other set of particle positions.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
         """
         ref_points = freud.common.convert_array(
-                ref_points, 2, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
+            ref_points, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_points")
         points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                dim_message="points must be a 2 dimensional array")
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise RuntimeError('Need to provide array with x, y, z positions')
 
@@ -69,8 +63,8 @@ cdef class InterfaceMeasure:
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         return self.thisptr.compute(
-                nlist_ptr,
-                < vec3[float]*> cRef_points.data,
-                n_ref,
-                < vec3[float]*> cPoints.data,
-                Np)
+            nlist_ptr,
+            <vec3[float]*> cRef_points.data,
+            n_ref,
+            <vec3[float]*> cPoints.data,
+            Np)
