@@ -472,8 +472,9 @@ class Voronoi:
 
         .. versionadded:: 0.8
 
-        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this method.
-        Retrieve the results with :py:meth:`freud.voronoi.Voronoi.getVolumes()`.
+        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this
+        method. Retrieve the results with
+        :py:meth:`freud.voronoi.Voronoi.getVolumes()`.
         """
         polytope_verts = self.getVoronoiPolytopes()
         self.poly_volumes = np.zeros(shape=len(polytope_verts))
