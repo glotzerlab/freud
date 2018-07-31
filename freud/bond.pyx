@@ -30,18 +30,18 @@ as the :doc:`pmft` in freud.
         * :math:`x`, :math:`y`, :math:`z`.
 """
 
+from freud import common
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.map cimport map
 import numpy as np
-cimport freud._box as _box
 from box cimport BoxFromCPP
-cimport freud._bond as bond
-cimport numpy as np
 from locality cimport NeighborList
 from locality import make_default_nlist, make_default_nlist_nn
+cimport freud._box as _box
+cimport freud._bond as bond
+cimport numpy as np
 cimport freud._locality as locality
 
-from freud import common
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
