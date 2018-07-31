@@ -167,7 +167,7 @@ cdef class FloatCF:
         Returns:
             :py:class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """Resets the values of the correlation function histogram in
@@ -394,7 +394,7 @@ cdef class ComplexCF:
         Returns:
           :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """Resets the values of the correlation function histogram in

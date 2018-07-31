@@ -322,7 +322,7 @@ cdef class BondingR12:
         Returns:
             :py:class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -490,7 +490,7 @@ cdef class BondingXY2D:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -660,7 +660,7 @@ cdef class BondingXYT:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -841,7 +841,7 @@ cdef class BondingXYZ:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     @property
     def list_map(self):

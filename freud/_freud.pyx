@@ -9,9 +9,6 @@ from locality cimport (NeighborList, IteratorLinkCell, LinkCell, # noqa
                        NearestNeighbors)
 from locality import make_default_nlist, make_default_nlist_nn
 
-from . cimport _box as box
-from . cimport _locality as locality
-
 include "bond.pxi"
 include "interface.pxi"
 include "density.pxi"

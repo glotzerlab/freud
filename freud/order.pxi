@@ -438,7 +438,7 @@ cdef class HexOrderParameter:
         Returns:
           :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     @property
     def num_particles(self):
@@ -561,7 +561,7 @@ cdef class TransOrderParameter:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     @property
     def num_particles(self):
@@ -672,7 +672,7 @@ cdef class LocalQl:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.qlptr.getBox())
+        return BoxFromCPP(< _box.Box > self.qlptr.getBox())
 
     def setBox(self, box):
         """Reset the simulation box.
@@ -1495,7 +1495,7 @@ cdef class SolLiq:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     def setClusteringRadius(self, rcutCluster):
         """Reset the clustering radius.

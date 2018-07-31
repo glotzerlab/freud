@@ -215,7 +215,7 @@ cdef class BondOrder:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
     def resetBondOrder(self):
         """Resets the values of the bond order in memory."""
@@ -1165,7 +1165,7 @@ cdef class Pairing2D:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(<box.Box> self.thisptr.getBox())
+        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
 
 cdef class AngularSeparation:
     """Calculates the minimum angles of separation between particles and
