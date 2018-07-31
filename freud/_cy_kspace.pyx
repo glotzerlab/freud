@@ -58,7 +58,7 @@ cdef class FTdelta:
                 :math:`K` values to evaluate.
         """
         K = freud.common.convert_array(
-            K, 1, dtype=np.float32, contiguous=True, array_name="K")
+            K, 2, dtype=np.float32, contiguous=True, array_name="K")
         if K.shape[1] != 3:
             raise TypeError('K should be an Nx3 array')
 

@@ -373,7 +373,6 @@ class SingleCell3D:
         """
         if name in self.ptype_name:
             raise Warning('{name} already exists'.format(name=name))
-            return
         self.ptype_name.append(name)
         self.ptype_position.append(np.empty((0, 3), dtype=np.float32))
         self.ptype_orientation.append(np.empty((0, 4), dtype=np.float32))
