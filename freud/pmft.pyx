@@ -42,6 +42,11 @@ cimport freud._pmft as pmft
 cimport numpy as np
 cimport freud._locality as locality
 
+
+# numpy must be initialized. When using numpy from C or Cython you must
+# _always_ do that, or you will have segfaults
+np.import_array()
+
 cdef class _PMFT:
     """Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
     given set of points.
