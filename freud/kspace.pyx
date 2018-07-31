@@ -333,7 +333,7 @@ class SingleCell3D:
         self.ndiv = np.float32(ndiv)
         self.dK = np.float32(dK)
         if np.float32(boxMatrix).shape != (3, 3):
-            raise Warning('Need a valid box matrix!')
+            raise ValueError('Need a valid box matrix!')
         else:
             self.boxMatrix = boxMatrix
         if 'scale' in kwargs:
@@ -372,7 +372,7 @@ class SingleCell3D:
             name (str): particle name
         """
         if name in self.ptype_name:
-            raise Warning('{name} already exists'.format(name=name))
+            raise ValueError('{name} already exists'.format(name=name))
         self.ptype_name.append(name)
         self.ptype_position.append(np.empty((0, 3), dtype=np.float32))
         self.ptype_orientation.append(np.empty((0, 4), dtype=np.float32))
@@ -681,7 +681,7 @@ class FTfactory:
                 Set default argument object to be used to construct FT objects.
         """
         if name in self.name_list:
-            raise Warning('{name} already in factory'.format(name=name))
+            raise ValueError('{name} already in factory'.format(name=name))
         else:
             self.name_list.append(name)
             self.constructor_list.append(constructor)
