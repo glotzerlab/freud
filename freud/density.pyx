@@ -1,11 +1,20 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+R"""
+The density module contains various classes relating to the density of the
+system. These functions allow evaluation of particle distributions with respect
+to other particles.
+"""
+
 from freud.util._VectorMath cimport vec3
+from freud import common
+from locality import make_default_nlist, make_default_nlist_nn
+import numpy as np
 from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
 from libc.string cimport memcpy
-import numpy as np
+from locality cimport NeighborList
 cimport freud._box as _box
 cimport freud._locality as locality
 cimport freud._density as density
@@ -91,15 +100,15 @@ cdef class FloatCF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        refValues = freud.common.convert_array(
+        refValues = common.convert_array(
             refValues, 1, dtype=np.float64, contiguous=True)
-        values = freud.common.convert_array(
+        values = common.convert_array(
             values, 1, dtype=np.float64, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
@@ -317,15 +326,15 @@ cdef class ComplexCF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        refValues = freud.common.convert_array(
+        refValues = common.convert_array(
             refValues, 1, dtype=np.complex128, contiguous=True)
-        values = freud.common.convert_array(
+        values = common.convert_array(
             values, 1, dtype=np.complex128, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
@@ -549,8 +558,8 @@ cdef class GaussianDensity:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
         """
-        box = freud.common.convert_box(box)
-        points = freud.common.convert_array(
+        box = common.convert_box(box)
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
@@ -673,13 +682,13 @@ cdef class LocalDensity:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
@@ -832,11 +841,11 @@ cdef class RDF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
