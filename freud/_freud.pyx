@@ -11,7 +11,6 @@ from locality import make_default_nlist, make_default_nlist_nn
 
 include "order.pxi"
 include "environment.pxi"
-include "index.pxi"
 include "parallel.pxi"
 include "kspace.pxi"
 include "cluster.pxi"
