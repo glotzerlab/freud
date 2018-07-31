@@ -28,7 +28,7 @@ libraries = ["tbb"]
 compile_args = link_args = ["-std=c++11"]
 
 extensions = [
-    Extension("freud.*", sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc"],
+    Extension("freud.*", sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc", "cpp/cluster/Cluster.cc"],
 	language="c++",
         extra_compile_args=compile_args,
         extra_link_args=link_args,
