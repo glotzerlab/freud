@@ -15,6 +15,7 @@ from libcpp.memory cimport shared_ptr
 cimport freud._box as _box
 cimport freud._environment as environment
 cimport numpy as np
+cimport freud._locality as locality
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults

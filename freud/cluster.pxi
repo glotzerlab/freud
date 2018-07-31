@@ -8,6 +8,7 @@ from libcpp.vector cimport vector
 cimport freud._cluster as cluster
 cimport freud._box as _box
 cimport numpy as np
+cimport freud._locality as locality
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults

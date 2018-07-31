@@ -8,6 +8,7 @@ from libc.string cimport memcpy
 cimport freud._box as _box
 cimport freud._pmft as pmft
 cimport numpy as np
+cimport freud._locality as locality
 
 cdef class _PMFT:
     """Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a

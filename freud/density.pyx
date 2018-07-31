@@ -11,6 +11,7 @@ from freud.util._VectorMath cimport vec3
 from freud import common
 from locality import make_default_nlist, make_default_nlist_nn
 import numpy as np
+from box cimport BoxFromCPP
 from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
 from libc.string cimport memcpy

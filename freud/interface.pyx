@@ -6,10 +6,12 @@ The interface module contains functions to measure the interface between sets
 of points.
 """
 
+from freud import common
 import numpy as np
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 from locality cimport NeighborList
+from locality import make_default_nlist, make_default_nlist_nn
 cimport freud._interface as interface
 cimport freud._box as _box
 cimport numpy as np
@@ -29,7 +31,7 @@ cdef class InterfaceMeasure:
     cdef rmax
 
     def __cinit__(self, box, float r_cut):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box cBox = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -52,10 +54,10 @@ cdef class InterfaceMeasure:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        ref_points = freud.common.convert_array(
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise RuntimeError('Need to provide array with x, y, z positions')
