@@ -28,7 +28,16 @@ libraries = ["tbb"]
 compile_args = link_args = ["-std=c++11"]
 
 extensions = [
-    Extension("freud.*", sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc", "cpp/cluster/Cluster.cc"],
+    # Compile cluster first so that Cluster.cc has been compiled and is available for the order module.
+    Extension("freud.cluster",
+        sources=["freud/cluster.pyx", "cpp/util/HOOMDMatrix.cc"],
+	language="c++",
+        extra_compile_args=compile_args,
+        extra_link_args=link_args,
+        libraries=libraries,
+        include_dirs = includes),
+    Extension("freud.*",
+        sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc"],
 	language="c++",
         extra_compile_args=compile_args,
         extra_link_args=link_args,
