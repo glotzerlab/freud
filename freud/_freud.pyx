@@ -9,6 +9,4 @@ from locality cimport (NeighborList, IteratorLinkCell, LinkCell, # noqa
                        NearestNeighbors)
 from locality import make_default_nlist, make_default_nlist_nn
 
-include "order.pxi"
-include "environment.pxi"
 include "cluster.pxi"

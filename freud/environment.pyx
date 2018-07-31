@@ -1,6 +1,14 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+R"""
+The environment module contains functions which characterize the local
+environments of particles in the system. These methods use the positions and
+orientations of particles in the local neighborhood of a given particle to
+characterize the particle environment.
+"""
+
+import freud.common
 import numpy as np
 import time
 import warnings
@@ -12,6 +20,9 @@ from libcpp.vector cimport vector
 from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.memory cimport shared_ptr
+from box cimport BoxFromCPP
+from locality cimport NeighborList
+from locality import make_default_nlist, make_default_nlist_nn
 cimport freud._box as _box
 cimport freud._environment as environment
 cimport numpy as np
@@ -84,10 +95,6 @@ cdef class BondOrder:
 
     .. todo:: remove k, it is not used as such.
     """
-    cdef environment.BondOrder * thisptr
-    cdef num_neigh
-    cdef rmax
-
     def __cinit__(self, float rmax, float k, unsigned int n,
                   unsigned int n_bins_t, unsigned int n_bins_p):
         self.thisptr = new environment.BondOrder(
@@ -358,10 +365,6 @@ cdef class LocalDescriptors:
         r_max (float):
             The cutoff radius.
     """
-    cdef environment.LocalDescriptors * thisptr
-    cdef num_neigh
-    cdef rmax
-
     known_modes = {'neighborhood': environment.LocalNeighborhood,
                    'global': environment.Global,
                    'particle_local': environment.ParticleLocal}
@@ -614,11 +617,6 @@ cdef class MatchEnv:
         num_clusters (unsigned int):
             The number of clusters.
     """
-    cdef environment.MatchEnv * thisptr
-    cdef rmax
-    cdef num_neigh
-    cdef m_box
-
     def __cinit__(self, box, rmax, k):
         box = freud.common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
@@ -1054,10 +1052,6 @@ cdef class Pairing2D:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
     """
-    cdef environment.Pairing2D * thisptr
-    cdef rmax
-    cdef num_neigh
-
     def __cinit__(self, rmax, k, compDotTol):
         warnings.warn("This class is deprecated, use freud.bond instead!",
                       FreudDeprecationWarning)
@@ -1193,11 +1187,6 @@ cdef class AngularSeparation:
         n_global (unsigned int):
             The number of global orientations to check against.
     """
-    cdef environment.AngularSeparation * thisptr
-    cdef num_neigh
-    cdef rmax
-    cdef nlist_
-
     def __cinit__(self, rmax, n):
         self.thisptr = new environment.AngularSeparation()
         self.rmax = rmax
