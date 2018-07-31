@@ -23,34 +23,38 @@ includes = [
     "cpp/registration",
 ]
 
+libraries = ["tbb"]
+
+compile_args = link_args = ["-std=c++11"]
+
 extensions = [
     Extension("freud._freud",
         sources=["freud/_freud.pyx", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc"],
 	language="c++",
-        extra_compile_args=["-std=c++11"],
-        extra_link_args=["-std=c++11"],
-        libraries=['tbb'],
+        extra_compile_args=compile_args,
+        extra_link_args=link_args,
+        libraries=libraries,
         include_dirs = includes),
     Extension("freud.bond",
         sources=["freud/bond.pyx"],
 	language="c++",
-        extra_compile_args=["-std=c++11"],
-        extra_link_args=["-std=c++11"],
-        libraries=['tbb'],
+        extra_compile_args=compile_args,
+        extra_link_args=link_args,
+        libraries=libraries,
         include_dirs = includes),
     Extension("freud.box",
         sources=["freud/box.pyx"],
 	language="c++",
-        extra_compile_args=["-std=c++11"],
-        extra_link_args=["-std=c++11"],
-        libraries=['tbb'],
+        extra_compile_args=compile_args,
+        extra_link_args=link_args,
+        libraries=libraries,
         include_dirs = includes),
     Extension("freud.locality",
         sources=["freud/locality.pyx"],
 	language="c++",
-        extra_compile_args=["-std=c++11"],
-        extra_link_args=["-std=c++11"],
-        libraries=['tbb'],
+        extra_compile_args=compile_args,
+        extra_link_args=link_args,
+        libraries=libraries,
         include_dirs = includes),
 ]
 
