@@ -70,6 +70,13 @@ extensions = [
         extra_link_args=link_args,
         libraries=libraries,
         include_dirs = includes),
+    Extension("freud.pmft",
+        sources=["freud/pmft.pyx"],
+	language="c++",
+        extra_compile_args=compile_args,
+        extra_link_args=link_args,
+        libraries=libraries,
+        include_dirs = includes),
 ]
 
 # Gets the version

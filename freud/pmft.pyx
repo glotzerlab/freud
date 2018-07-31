@@ -29,10 +29,14 @@ coordinate system used to represent the system.
         * :math:`x`, :math:`y`, :math:`z`.
 """
 
+from freud import common
 import numpy as np
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
+from box cimport BoxFromCPP
 from libc.string cimport memcpy
+from locality cimport NeighborList
+from locality import make_default_nlist, make_default_nlist_nn
 cimport freud._box as _box
 cimport freud._pmft as pmft
 cimport numpy as np
@@ -197,23 +201,23 @@ cdef class PMFTR12(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = freud.common.convert_array(
+        ref_orientations = common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = freud.common.convert_array(
+        orientations = common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
@@ -510,23 +514,23 @@ cdef class PMFTXYT(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = freud.common.convert_array(
+        ref_orientations = common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = freud.common.convert_array(
+        orientations = common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
@@ -803,23 +807,23 @@ cdef class PMFTXY2D(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = freud.common.convert_array(
+        ref_orientations = common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = freud.common.convert_array(
+        orientations = common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
@@ -1091,27 +1095,27 @@ cdef class PMFTXYZ(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = freud.common.convert_array(
+        ref_orientations = common.convert_array(
             ref_orientations, 2, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise ValueError(
                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         points = points - self.shiftvec.reshape(1, 3)
 
-        orientations = freud.common.convert_array(
+        orientations = common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
         if orientations.shape[1] != 4:
@@ -1127,7 +1131,7 @@ cdef class PMFTXYZ(_PMFT):
         else:
             if face_orientations.ndim < 2 or face_orientations.ndim > 3:
                 raise ValueError("points must be a 2 or 3 dimensional array")
-            face_orientations = freud.common.convert_array(
+            face_orientations = common.convert_array(
                 face_orientations, face_orientations.ndim,
                 dtype=np.float32, contiguous=True,
                 array_name=("face_orientations must be a {} "
