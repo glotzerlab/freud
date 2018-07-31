@@ -9,10 +9,10 @@ of points.
 import numpy as np
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
+from locality cimport NeighborList
 cimport freud._interface as interface
 cimport freud._box as _box
 cimport numpy as np
-from locality cimport NeighborList
 cimport freud._locality as locality
 
 cdef class InterfaceMeasure:
