@@ -9,9 +9,9 @@ transforms of shapes and diffraction pattern generation.
 import numpy as np
 import math
 import copy
-from ._freud import FTdelta as _FTdelta
-from ._freud import FTsphere as _FTsphere
-from ._freud import FTpolyhedron as _FTpolyhedron
+from freud._cy_kspace import FTdelta as _FTdelta
+from freud._cy_kspace import FTsphere as _FTsphere
+from freud._cy_kspace import FTpolyhedron as _FTpolyhedron
 from . import common
 
 
