@@ -43,7 +43,7 @@ extensions = [
         libraries=libraries,
         include_dirs = includes),
     Extension("freud.cluster",
-        sources=["freud/cluster", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc"],
+        sources=["freud/cluster.pyx", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc"],
 	language="c++",
         extra_compile_args=compile_args,
         extra_link_args=link_args,

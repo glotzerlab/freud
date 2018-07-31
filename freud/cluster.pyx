@@ -10,6 +10,8 @@ import numpy as np
 import freud.common
 from freud.util._VectorMath cimport vec3
 from libcpp.vector cimport vector
+from locality cimport NeighborList
+from locality import make_default_nlist
 cimport freud._cluster as cluster
 cimport freud._box as _box
 cimport numpy as np
