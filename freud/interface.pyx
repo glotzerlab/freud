@@ -1,12 +1,19 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+R"""
+The interface module contains functions to measure the interface between sets
+of points.
+"""
+
 import numpy as np
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 cimport freud._interface as interface
 cimport freud._box as _box
 cimport numpy as np
+from locality cimport NeighborList
+cimport freud._locality as locality
 
 cdef class InterfaceMeasure:
     """Measures the interface between two sets of points.
