@@ -1135,7 +1135,7 @@ class FTconvexPolyhedron(FTpolyhedron):
                 x = np.dot(k, edge) / np.pi
                 cpedgek = np.cross(edge, k)
                 S += np.dot(n, cpedgek) * np.exp(
-                     -1.j * np.dot(k, centrum)) * np.sinc(x)
+                    -1.j * np.dot(k, centrum)) * np.sinc(x)
             S *= (-1.j / np.dot(k, k))
         return S
 
@@ -1273,9 +1273,9 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
     """Generate a list of points satisfying a constraint.
 
     Args:
-        v1 (:class:`numpy.ndarray`): Lattice vector 1 along which to test points.
-        v2 (:class:`numpy.ndarray`): Lattice vector 2 along which to test points.
-        v3 (:class:`numpy.ndarray`): Lattice vector 3 along which to test points.
+        v1 (:class:`numpy.ndarray`): Lattice vector 1 along which to test.
+        v2 (:class:`numpy.ndarray`): Lattice vector 2 along which to test.
+        v3 (:class:`numpy.ndarray`): Lattice vector 3 along which to test.
         constraint (:py:class:`Constraint`): Constraint object to test lattice
             points against.
     """
