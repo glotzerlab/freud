@@ -38,9 +38,7 @@ from .box cimport BoxFromCPP
 from libc.string cimport memcpy
 from .locality cimport NeighborList
 
-from . cimport _box
-from . cimport _pmft as pmft
-from . cimport _locality as locality
+from . cimport _box, _pmft, _locality
 
 cimport numpy as np
 
@@ -60,7 +58,7 @@ cdef class _PMFT:
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
-    cdef pmft.PMFT * pmftptr
+    cdef _pmft.PMFT * pmftptr
     cdef float rmax
 
     def __cinit__(self):
@@ -176,11 +174,11 @@ cdef class PMFTR12(_PMFT):
         n_bins_T2 (unsigned int):
             The number of bins in the T2-dimension of histogram.
     """
-    cdef pmft.PMFTR12 * pmftr12ptr
+    cdef _pmft.PMFTR12 * pmftr12ptr
 
     def __cinit__(self, r_max, n_r, n_t1, n_t2):
         if type(self) is PMFTR12:
-            self.pmftr12ptr = self.pmftptr = new pmft.PMFTR12(
+            self.pmftr12ptr = self.pmftptr = new _pmft.PMFTR12(
                 r_max, n_r, n_t1, n_t2)
             self.rmax = r_max
 
@@ -231,7 +229,7 @@ cdef class PMFTR12(_PMFT):
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -489,11 +487,11 @@ cdef class PMFTXYT(_PMFT):
         n_bins_T (unsigned int):
             The number of bins in the T-dimension of histogram.
     """
-    cdef pmft.PMFTXYT * pmftxytptr
+    cdef _pmft.PMFTXYT * pmftxytptr
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
         if type(self) is PMFTXYT:
-            self.pmftxytptr = self.pmftptr = new pmft.PMFTXYT(
+            self.pmftxytptr = self.pmftptr = new _pmft.PMFTXYT(
                 x_max, y_max, n_x, n_y, n_t)
             self.rmax = np.sqrt(x_max**2 + y_max**2)
 
@@ -544,7 +542,7 @@ cdef class PMFTXYT(_PMFT):
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -783,11 +781,11 @@ cdef class PMFTXY2D(_PMFT):
         n_bins_y (unsigned int):
             The number of bins in the y-dimension of histogram.
     """
-    cdef pmft.PMFTXY2D * pmftxy2dptr
+    cdef _pmft.PMFTXY2D * pmftxy2dptr
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
         if type(self) is PMFTXY2D:
-            self.pmftxy2dptr = self.pmftptr = new pmft.PMFTXY2D(
+            self.pmftxy2dptr = self.pmftptr = new _pmft.PMFTXY2D(
                 x_max, y_max, n_x, n_y)
             self.rmax = np.sqrt(x_max**2 + y_max**2)
 
@@ -837,7 +835,7 @@ cdef class PMFTXY2D(_PMFT):
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -1052,7 +1050,7 @@ cdef class PMFTXYZ(_PMFT):
         n_bins_z (unsigned int):
             The number of bins in the z-dimension of histogram.
     """
-    cdef pmft.PMFTXYZ * pmftxyzptr
+    cdef _pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
 
     def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z,
@@ -1061,7 +1059,7 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             c_shiftvec = vec3[float](
                 shiftvec[0], shiftvec[1], shiftvec[2])
-            self.pmftxyzptr = self.pmftptr = new pmft.PMFTXYZ(
+            self.pmftxyzptr = self.pmftptr = new _pmft.PMFTXYZ(
                 x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
             self.shiftvec = np.array(shiftvec, dtype=np.float32)
             self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
@@ -1177,7 +1175,7 @@ cdef class PMFTXYZ(_PMFT):
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points

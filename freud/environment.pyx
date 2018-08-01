@@ -24,8 +24,8 @@ from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.memory cimport shared_ptr
 from . cimport _box
-from . cimport _environment as environment
-from . cimport _locality as locality
+from . cimport _environment
+from . cimport _locality
 
 cimport numpy as np
 
@@ -98,7 +98,7 @@ cdef class BondOrder:
     """
     def __cinit__(self, float rmax, float k, unsigned int n,
                   unsigned int n_bins_t, unsigned int n_bins_p):
-        self.thisptr = new environment.BondOrder(
+        self.thisptr = new _environment.BondOrder(
             rmax, k, n, n_bins_t, n_bins_p)
         self.rmax = rmax
         self.num_neigh = n
@@ -171,7 +171,7 @@ cdef class BondOrder:
         defaulted_nlist = make_default_nlist_nn(
             box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -366,12 +366,12 @@ cdef class LocalDescriptors:
         r_max (float):
             The cutoff radius.
     """
-    known_modes = {'neighborhood': environment.LocalNeighborhood,
-                   'global': environment.Global,
-                   'particle_local': environment.ParticleLocal}
+    known_modes = {'neighborhood': _environment.LocalNeighborhood,
+                   'global': _environment.Global,
+                   'particle_local': _environment.ParticleLocal}
 
     def __cinit__(self, num_neighbors, lmax, rmax, negative_m=True):
-        self.thisptr = new environment.LocalDescriptors(
+        self.thisptr = new _environment.LocalDescriptors(
             num_neighbors, lmax, rmax, negative_m)
         self.num_neigh = num_neighbors
         self.rmax = rmax
@@ -495,14 +495,14 @@ cdef class LocalDescriptors:
         cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef environment.LocalDescriptorOrientation l_mode
+        cdef _environment.LocalDescriptorOrientation l_mode
 
         l_mode = self.known_modes[mode]
 
         self.num_neigh = num_neighbors
 
         cdef NeighborList nlist_
-        cdef locality.NeighborList *nlist_ptr
+        cdef _locality.NeighborList *nlist_ptr
         if nlist == 'precomputed':
             nlist_ptr = NULL
         else:
@@ -623,7 +623,7 @@ cdef class MatchEnv:
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new environment.MatchEnv(l_box, rmax, k)
+        self.thisptr = new _environment.MatchEnv(l_box, rmax, k)
 
         self.rmax = rmax
         self.num_neigh = k
@@ -685,9 +685,9 @@ cdef class MatchEnv:
             points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        cdef locality.NeighborList * nlist_ptr
+        cdef _locality.NeighborList * nlist_ptr
         cdef NeighborList nlist_
-        cdef locality.NeighborList *env_nlist_ptr
+        cdef _locality.NeighborList *env_nlist_ptr
         cdef NeighborList env_nlist_
         if hard_r:
             defaulted_nlist = make_default_nlist(
@@ -761,7 +761,7 @@ cdef class MatchEnv:
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.matchMotif(
@@ -814,7 +814,7 @@ cdef class MatchEnv:
         defaulted_nlist = make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
@@ -1056,7 +1056,7 @@ cdef class Pairing2D:
     def __cinit__(self, rmax, k, compDotTol):
         warnings.warn("This class is deprecated, use freud.bond instead!",
                       FreudDeprecationWarning)
-        self.thisptr = new environment.Pairing2D(rmax, k, compDotTol)
+        self.thisptr = new _environment.Pairing2D(rmax, k, compDotTol)
         self.rmax = rmax
         self.num_neigh = k
 
@@ -1106,7 +1106,7 @@ cdef class Pairing2D:
         defaulted_nlist = make_default_nlist_nn(
             box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.thisptr.compute(
             l_box, nlist_ptr, <vec3[float]*> l_points.data,
@@ -1189,7 +1189,7 @@ cdef class AngularSeparation:
             The number of global orientations to check against.
     """
     def __cinit__(self, rmax, n):
-        self.thisptr = new environment.AngularSeparation()
+        self.thisptr = new _environment.AngularSeparation()
         self.rmax = rmax
         self.num_neigh = int(n)
         self.nlist_ = None
@@ -1265,7 +1265,7 @@ cdef class AngularSeparation:
         defaulted_nlist = make_default_nlist_nn(
             box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
         self.nlist_ = nlist_
 
         cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors

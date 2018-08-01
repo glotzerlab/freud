@@ -14,8 +14,7 @@ from libcpp cimport bool as cbool
 from .util._VectorMath cimport vec3
 from cython.operator cimport dereference
 from .box cimport BoxFromCPP, Box
-from . cimport _box
-from . cimport _locality
+from . cimport _box, _locality
 
 cimport numpy as np
 

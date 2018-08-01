@@ -24,6 +24,7 @@ from libcpp.map cimport map
 from libcpp.pair cimport pair
 from .box cimport BoxFromCPP
 from .locality cimport NeighborList
+from . cimport _box, _order, _locality
 
 # The below are maintained for backwards compatibility
 # but have been moved to the environment module
@@ -33,10 +34,7 @@ from .environment cimport MatchEnv as _EME
 from .environment cimport Pairing2D as _EP
 from .environment cimport AngularSeparation as _EAS
 
-cimport freud._box as _box
-cimport freud._order as order
 cimport numpy as np
-cimport freud._locality as locality
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -60,7 +58,7 @@ cdef class CubaticOrderParameter:
         seed (unsigned int):
             Random seed to use in calculations. If None, system time is used.
     """
-    cdef order.CubaticOrderParameter * thisptr
+    cdef _order.CubaticOrderParameter * thisptr
 
     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
         # run checks
@@ -88,7 +86,7 @@ cdef class CubaticOrderParameter:
             "il,jk->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
         r4 *= (2.0/5.0)
-        self.thisptr = new order.CubaticOrderParameter(
+        self.thisptr = new _order.CubaticOrderParameter(
             t_initial, t_final, scale, <float*> r4.data, n_replicates, seed)
 
     def compute(self, orientations):
@@ -260,7 +258,7 @@ cdef class NematicOrderParameter:
             The nematic director of a single particle in the reference state
             (without any rotation applied).
     """
-    cdef order.NematicOrderParameter *thisptr
+    cdef _order.NematicOrderParameter *thisptr
 
     def __cinit__(self, u):
         # run checks
@@ -269,7 +267,7 @@ cdef class NematicOrderParameter:
 
         cdef np.ndarray[np.float32_t, ndim=1] l_u = \
             np.array(u, dtype=np.float32)
-        self.thisptr = new order.NematicOrderParameter(
+        self.thisptr = new _order.NematicOrderParameter(
             (<vec3[float]*> l_u.data)[0])
 
     def compute(self, orientations):
@@ -387,12 +385,12 @@ cdef class HexOrderParameter:
         k (unsigned int):
             Symmetry of the order parameter.
     """
-    cdef order.HexOrderParameter * thisptr
+    cdef _order.HexOrderParameter * thisptr
     cdef num_neigh
     cdef rmax
 
     def __cinit__(self, rmax, k=int(6), n=int(0)):
-        self.thisptr = new order.HexOrderParameter(rmax, k, n)
+        self.thisptr = new _order.HexOrderParameter(rmax, k, n)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 
@@ -423,7 +421,7 @@ cdef class HexOrderParameter:
         defaulted_nlist = make_default_nlist_nn(
             box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
@@ -511,12 +509,12 @@ cdef class TransOrderParameter:
         num_particles (unsigned int):
             Number of particles.
     """
-    cdef order.TransOrderParameter * thisptr
+    cdef _order.TransOrderParameter * thisptr
     cdef num_neigh
     cdef rmax
 
     def __cinit__(self, rmax, k=6.0, n=0):
-        self.thisptr = new order.TransOrderParameter(rmax, k)
+        self.thisptr = new _order.TransOrderParameter(rmax, k)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 
@@ -549,7 +547,7 @@ cdef class TransOrderParameter:
         defaulted_nlist = make_default_nlist_nn(
             box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         with nogil:
             self.thisptr.compute(
@@ -662,7 +660,7 @@ cdef class LocalQl:
 
     .. todo:: move box to compute, this is old API
     """ # noqa
-    cdef order.LocalQl * qlptr
+    cdef _order.LocalQl * qlptr
     cdef m_box
     cdef rmax
 
@@ -675,7 +673,7 @@ cdef class LocalQl:
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
             self.m_box = box
             self.rmax = rmax
-            self.qlptr = new order.LocalQl(l_box, rmax, l, rmin)
+            self.qlptr = new _order.LocalQl(l_box, rmax, l, rmin)
 
     def __dealloc__(self):
         if type(self) is LocalQl:
@@ -819,7 +817,7 @@ cdef class LocalQl:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.qlptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
         return self
@@ -845,7 +843,7 @@ cdef class LocalQl:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.qlptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
         self.qlptr.computeAve(nlist_ptr, <vec3[float]*> l_points.data, nP)
@@ -872,7 +870,7 @@ cdef class LocalQl:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.qlptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
         self.qlptr.computeNorm(<vec3[float]*> l_points.data, nP)
@@ -899,7 +897,7 @@ cdef class LocalQl:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.qlptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
         self.qlptr.computeAve(nlist_ptr, <vec3[float]*> l_points.data, nP)
@@ -982,7 +980,7 @@ cdef class LocalQlNear(LocalQl):
                 box.getLx(), box.getLy(), box.getLz(),
                 box.getTiltFactorXY(), box.getTiltFactorXZ(),
                 box.getTiltFactorYZ(), box.is2D())
-            self.qlptr = new order.LocalQl(l_box, rmax, l, 0)
+            self.qlptr = new _order.LocalQl(l_box, rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn
@@ -1108,7 +1106,7 @@ cdef class LocalWl(LocalQl):
 
     .. todo:: move box to compute, this is old API
     """
-    cdef order.LocalWl * thisptr
+    cdef _order.LocalWl * thisptr
 
     # List of Ql attributes to remove
     delattrs = ['Ql', 'getQl',
@@ -1122,7 +1120,8 @@ cdef class LocalWl(LocalQl):
             l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
                 box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.qlptr = new order.LocalWl(l_box, rmax, l, rmin)
+            self.thisptr = self.qlptr = new _order.LocalWl(
+                l_box, rmax, l, rmin)
             self.m_box = box
             self.rmax = rmax
 
@@ -1304,7 +1303,7 @@ cdef class LocalWlNear(LocalWl):
                 box.getLx(), box.getLy(), box.getLz(),
                 box.getTiltFactorXY(), box.getTiltFactorXZ(),
                 box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.qlptr = new order.LocalWl(l_box, rmax, l, 0)
+            self.thisptr = self.qlptr = new _order.LocalWl(l_box, rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn
@@ -1408,7 +1407,7 @@ cdef class SolLiq:
 
     .. todo:: move box to compute, this is old API
     """
-    cdef order.SolLiq * thisptr
+    cdef _order.SolLiq * thisptr
     cdef m_box
     cdef rmax
 
@@ -1417,7 +1416,8 @@ cdef class SolLiq:
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
+        self.thisptr = new _order.SolLiq(
+            l_box, rmax, Qthreshold, Sthreshold, l)
         self.m_box = box
         self.rmax = rmax
 
@@ -1446,7 +1446,7 @@ cdef class SolLiq:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.thisptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
         return self
@@ -1472,7 +1472,7 @@ cdef class SolLiq:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.thisptr.computeSolLiqVariant(
             nlist_ptr, <vec3[float]*> l_points.data, nP)
@@ -1499,7 +1499,7 @@ cdef class SolLiq:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         self.thisptr.computeSolLiqNoNorm(
             nlist_ptr, <vec3[float]*> l_points.data, nP)
@@ -1732,7 +1732,8 @@ cdef class SolLiqNear(SolLiq):
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new order.SolLiq(l_box, rmax, Qthreshold, Sthreshold, l)
+        self.thisptr = new _order.SolLiq(
+            l_box, rmax, Qthreshold, Sthreshold, l)
         self.m_box = box
         self.rmax = rmax
         self.num_neigh = kn

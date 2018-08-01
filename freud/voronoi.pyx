@@ -15,8 +15,7 @@ from .util._VectorMath cimport vec3
 from cython.operator cimport dereference
 from locality cimport NeighborList
 
-from . cimport _voronoi as voronoi
-from . cimport _box
+from . cimport _voronoi, _box
 cimport numpy as np
 
 
@@ -46,7 +45,7 @@ cdef class VoronoiBuffer:
     Args:
         box (py:class:`freud.box.Box`): Simulation box.
     """
-    cdef voronoi.VoronoiBuffer * thisptr
+    cdef _voronoi.VoronoiBuffer * thisptr
 
     def __cinit__(self, box):
         if not _SCIPY_AVAILABLE:
@@ -55,7 +54,7 @@ cdef class VoronoiBuffer:
         cdef _box.Box cBox = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new voronoi.VoronoiBuffer(cBox)
+        self.thisptr = new _voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
         """Compute the voronoi diagram.

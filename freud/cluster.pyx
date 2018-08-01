@@ -14,9 +14,7 @@ from .util._VectorMath cimport vec3
 from libcpp.vector cimport vector
 from locality cimport NeighborList
 
-from . cimport _cluster as cluster
-from . cimport _box
-from . cimport _locality as locality
+from . cimport _cluster, _box, _locality
 
 cimport numpy as np
 
@@ -71,13 +69,13 @@ cdef class Cluster:
         cluster_keys (list(list)):
             A list of lists of the keys contained in each cluster.
     """
-    cdef cluster.Cluster * thisptr
+    cdef _cluster.Cluster * thisptr
     cdef m_box
     cdef rmax
 
     def __cinit__(self, box, float rcut):
         box = common.convert_box(box)
-        self.thisptr = new cluster.Cluster(rcut)
+        self.thisptr = new _cluster.Cluster(rcut)
         self.m_box = box
         self.rmax = rcut
 
@@ -116,7 +114,7 @@ cdef class Cluster:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         if box is None:
             box = self.m_box
@@ -251,12 +249,12 @@ cdef class ClusterProperties:
             The cluster sizes computed by the last call to
             :py:meth:`~.computeProperties()`.
     """
-    cdef cluster.ClusterProperties * thisptr
+    cdef _cluster.ClusterProperties * thisptr
     cdef m_box
 
     def __cinit__(self, box):
         box = common.convert_box(box)
-        self.thisptr = new cluster.ClusterProperties()
+        self.thisptr = new _cluster.ClusterProperties()
         self.m_box = box
 
     def __dealloc__(self):

@@ -16,7 +16,7 @@ from .util._VectorMath cimport vec3
 from libcpp.string cimport string
 from libc.string cimport memcpy
 from cpython.object cimport Py_EQ, Py_NE
-from . cimport _box as box
+from . cimport _box
 
 cimport numpy as np
 
@@ -100,7 +100,7 @@ cdef class Box:
             warnings.warn(
                 "Specifying z-dimensions in a 2-dimensional box "
                 "has no effect!")
-        self.thisptr = new box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
+        self.thisptr = new _box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     def __dealloc__(self):
         del self.thisptr
@@ -725,7 +725,7 @@ cdef class Box:
                 self.getTiltFactorYZ(),
                 self.is2D())
 
-cdef BoxFromCPP(const box.Box & cppbox):
+cdef BoxFromCPP(const _box.Box & cppbox):
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
                cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
                cppbox.getTiltFactorYZ(), cppbox.is2D())

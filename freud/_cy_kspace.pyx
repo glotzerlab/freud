@@ -5,7 +5,7 @@ from . import common
 import numpy as np
 
 from .util._VectorMath cimport vec3, quat
-from . cimport _kspace as kspace
+from . cimport _kspace
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from cython.operator cimport dereference
@@ -26,12 +26,12 @@ cdef class FTdelta:
     Attributes:
         FT (:class:`np.ndarray`): The Fourier transform.
     """
-    cdef kspace.FTdelta * thisptr
+    cdef _kspace.FTdelta * thisptr
     # stored size of the fourier transform
     cdef unsigned int NK
 
     def __cinit__(self):
-        self.thisptr = new kspace.FTdelta()
+        self.thisptr = new _kspace.FTdelta()
         self.NK = 0
 
     def __dealloc__(self):
@@ -111,12 +111,12 @@ cdef class FTsphere:
     Attributes:
         FT (:class:`np.ndarray`): The Fourier transform.
     """
-    cdef kspace.FTsphere * thisptr
+    cdef _kspace.FTsphere * thisptr
     # stored size of the fourier transform
     cdef unsigned int NK
 
     def __cinit__(self):
-        self.thisptr = new kspace.FTsphere()
+        self.thisptr = new _kspace.FTsphere()
         self.NK = 0
 
     def __dealloc__(self):
@@ -202,12 +202,12 @@ cdef class FTpolyhedron:
     Attributes:
         FT (:class:`np.ndarray`): The Fourier transform.
     """
-    cdef kspace.FTpolyhedron * thisptr
+    cdef _kspace.FTpolyhedron * thisptr
     # stored size of the fourier transform
     cdef unsigned int NK
 
     def __cinit__(self):
-        self.thisptr = new kspace.FTpolyhedron()
+        self.thisptr = new _kspace.FTpolyhedron()
         self.NK = 0
 
     def __dealloc__(self):

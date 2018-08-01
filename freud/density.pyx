@@ -18,9 +18,7 @@ from cython.operator cimport dereference
 from libc.string cimport memcpy
 from .locality cimport NeighborList
 
-from . cimport _box
-from . cimport _locality as locality
-from . cimport _density as density
+from . cimport _box, _locality, _density
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -72,13 +70,13 @@ cdef class FloatCF:
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The values of bin centers.
     """
-    cdef density.CorrelationFunction[double] * thisptr
+    cdef _density.CorrelationFunction[double] * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new density.CorrelationFunction[double](rmax, dr)
+        self.thisptr = new _density.CorrelationFunction[double](rmax, dr)
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -131,7 +129,7 @@ cdef class FloatCF:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
@@ -297,13 +295,13 @@ cdef class ComplexCF:
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The values of bin centers.
     """
-    cdef density.CorrelationFunction[np.complex128_t] * thisptr
+    cdef _density.CorrelationFunction[np.complex128_t] * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new density.CorrelationFunction[np.complex128_t](
+        self.thisptr = new _density.CorrelationFunction[np.complex128_t](
             rmax, dr)
         self.rmax = rmax
 
@@ -357,7 +355,7 @@ cdef class ComplexCF:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
@@ -527,14 +525,14 @@ cdef class GaussianDensity:
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The values of bin centers.
     """
-    cdef density.GaussianDensity * thisptr
+    cdef _density.GaussianDensity * thisptr
 
     def __cinit__(self, *args):
         if len(args) == 3:
-            self.thisptr = new density.GaussianDensity(
+            self.thisptr = new _density.GaussianDensity(
                 args[0], args[1], args[2])
         elif len(args) == 5:
-            self.thisptr = new density.GaussianDensity(
+            self.thisptr = new _density.GaussianDensity(
                 args[0], args[1], args[2], args[3], args[4])
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
@@ -650,12 +648,12 @@ cdef class LocalDensity:
         num_neighbors ((:math:`N_{particles}`) :class:`numpy.ndarray`):
             Number of neighbors for each particle..
     """
-    cdef density.LocalDensity * thisptr
+    cdef _density.LocalDensity * thisptr
     cdef r_cut
     cdef diameter
 
     def __cinit__(self, float r_cut, float volume, float diameter):
-        self.thisptr = new density.LocalDensity(r_cut, volume, diameter)
+        self.thisptr = new _density.LocalDensity(r_cut, volume, diameter)
         self.r_cut = r_cut
         self.diameter = diameter
 
@@ -710,7 +708,7 @@ cdef class LocalDensity:
             box, ref_points, points, self.r_cut + 0.5*self.diameter, nlist,
             exclude_ii=False)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         with nogil:
             self.thisptr.compute(
@@ -803,7 +801,7 @@ cdef class RDF:
     .. versionchanged:: 0.7.0
        Added optional `rmin` argument.
     """
-    cdef density.RDF * thisptr
+    cdef _density.RDF * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr, float rmin=0):
@@ -813,7 +811,7 @@ cdef class RDF:
             raise ValueError("rmax must be > rmin")
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new density.RDF(rmax, dr, rmin)
+        self.thisptr = new _density.RDF(rmax, dr, rmin)
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -864,7 +862,7 @@ cdef class RDF:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         with nogil:
             self.thisptr.accumulate(

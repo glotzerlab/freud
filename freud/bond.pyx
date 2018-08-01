@@ -39,9 +39,7 @@ from libcpp.map cimport map
 from .box cimport BoxFromCPP
 from .locality cimport NeighborList
 
-from . cimport _box
-from . cimport _bond as bond
-from . cimport _locality as locality
+from . cimport _box, _bond, _locality
 cimport numpy as np
 
 
@@ -76,14 +74,14 @@ cdef class BondingAnalysis:
         num_bonds (unsigned int):
             Number of tracked bonds.
     """
-    cdef bond.BondingAnalysis * thisptr
+    cdef _bond.BondingAnalysis * thisptr
     cdef unsigned int num_particles
     cdef unsigned int num_bonds
 
     def __cinit__(self, int num_particles, int num_bonds):
         self.num_particles = num_particles
         self.num_bonds = num_bonds
-        self.thisptr = new bond.BondingAnalysis(num_particles, num_bonds)
+        self.thisptr = new _bond.BondingAnalysis(num_particles, num_bonds)
 
     def __dealloc__(self):
         del self.thisptr
@@ -248,7 +246,7 @@ cdef class BondingR12:
         rev_list_map (dict):
             The dict used to map list idx to bond idx.
     """
-    cdef bond.BondingR12 * thisptr
+    cdef _bond.BondingR12 * thisptr
     cdef rmax
 
     def __cinit__(self, float r_max, bond_map, bond_list):
@@ -259,7 +257,7 @@ cdef class BondingR12:
         n_bonds = bond_list.shape[0]
         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
-        self.thisptr = new bond.BondingR12(
+        self.thisptr = new _bond.BondingR12(
             r_max, n_r, n_t2, n_t1, n_bonds,
             <unsigned int*> l_bond_map.data,
             <unsigned int*> l_bond_list.data)
@@ -310,7 +308,7 @@ cdef class BondingR12:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -413,7 +411,7 @@ cdef class BondingXY2D:
         rev_list_map (dict):
             The dict used to map list idx to bond idx.
     """
-    cdef bond.BondingXY2D * thisptr
+    cdef _bond.BondingXY2D * thisptr
     cdef rmax
 
     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
@@ -425,7 +423,7 @@ cdef class BondingXY2D:
         bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
-        self.thisptr = new bond.BondingXY2D(
+        self.thisptr = new _bond.BondingXY2D(
             x_max, y_max, n_x, n_y, n_bonds,
             <unsigned int*> l_bond_map.data,
             <unsigned int*> l_bond_list.data)
@@ -477,7 +475,7 @@ cdef class BondingXY2D:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -584,7 +582,7 @@ cdef class BondingXYT:
         rev_list_map (dict):
             The dict used to map list idx to bond idx.
     """
-    cdef bond.BondingXYT * thisptr
+    cdef _bond.BondingXYT * thisptr
     cdef rmax
 
     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
@@ -597,7 +595,7 @@ cdef class BondingXYT:
         bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
-        self.thisptr = new bond.BondingXYT(
+        self.thisptr = new _bond.BondingXYT(
             x_max, y_max, n_x, n_y, n_t, n_bonds,
             <unsigned int*> l_bond_map.data,
             <unsigned int*> l_bond_list.data)
@@ -648,7 +646,7 @@ cdef class BondingXYT:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -756,7 +754,7 @@ cdef class BondingXYZ:
         rev_list_map (dict):
             The dict used to map list idx to bond idx.
     """
-    cdef bond.BondingXYZ * thisptr
+    cdef _bond.BondingXYZ * thisptr
     cdef rmax
 
     def __cinit__(self, float x_max, float y_max, float z_max, bond_map,
@@ -770,7 +768,7 @@ cdef class BondingXYZ:
         bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
-        self.thisptr = new bond.BondingXYZ(
+        self.thisptr = new _bond.BondingXYZ(
             x_max, y_max, z_max, n_x, n_y, n_z, n_bonds,
             <unsigned int*> l_bond_map.data,
             <unsigned int*> l_bond_list.data)
@@ -827,7 +825,7 @@ cdef class BondingXYZ:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations

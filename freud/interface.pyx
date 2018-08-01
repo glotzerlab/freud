@@ -14,9 +14,7 @@ from cython.operator cimport dereference
 from .locality cimport NeighborList
 from .locality import make_default_nlist, make_default_nlist_nn
 
-from . cimport _interface as interface
-from . cimport _box
-from . cimport _locality as locality
+from . cimport _interface, _box, _locality
 
 cimport numpy as np
 
@@ -29,7 +27,7 @@ cdef class InterfaceMeasure:
         box (:py:class:`freud.box.Box`): Simulation box.
         r_cut (float): Distance to search for particle neighbors.
     """
-    cdef interface.InterfaceMeasure * thisptr
+    cdef _interface.InterfaceMeasure * thisptr
     cdef box
     cdef rmax
 
@@ -38,7 +36,7 @@ cdef class InterfaceMeasure:
         cdef _box.Box cBox = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new interface.InterfaceMeasure(cBox, r_cut)
+        self.thisptr = new _interface.InterfaceMeasure(cBox, r_cut)
         self.box = box
         self.rmax = r_cut
 
@@ -68,7 +66,7 @@ cdef class InterfaceMeasure:
         defaulted_nlist = make_default_nlist(
             self.box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef np.ndarray cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]

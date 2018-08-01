@@ -10,7 +10,7 @@ with :math:`\prod_{i=1}^N n_i` elements.
 """
 
 import numpy as np
-from .util cimport _Index1D as Index1D
+from .util cimport _Index1D
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -55,13 +55,13 @@ cdef class Index2D:
         index = Index2D(10)
         i = index(3, 5)
     """
-    cdef Index1D.Index2D * thisptr
+    cdef _Index1D.Index2D * thisptr
 
     def __cinit__(self, w, h=None):
         if h is not None:
-            self.thisptr = new Index1D.Index2D(w, h)
+            self.thisptr = new _Index1D.Index2D(w, h)
         else:
-            self.thisptr = new Index1D.Index2D(w)
+            self.thisptr = new _Index1D.Index2D(w)
 
     def __dealloc__(self):
         del self.thisptr
@@ -127,13 +127,13 @@ cdef class Index3D:
         index = Index3D(10)
         i = index(3, 5, 4)
     """
-    cdef Index1D.Index3D * thisptr
+    cdef _Index1D.Index3D * thisptr
 
     def __cinit__(self, w, h=None, d=None):
         if h is not None:
-            self.thisptr = new Index1D.Index3D(w, h, d)
+            self.thisptr = new _Index1D.Index3D(w, h, d)
         else:
-            self.thisptr = new Index1D.Index3D(w)
+            self.thisptr = new _Index1D.Index3D(w)
 
     def __dealloc__(self):
         del self.thisptr
