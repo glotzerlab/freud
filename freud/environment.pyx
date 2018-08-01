@@ -8,25 +8,26 @@ orientations of particles in the local neighborhood of a given particle to
 characterize the particle environment.
 """
 
-import freud.common
+from . import common
 import numpy as np
 import time
 import warnings
 from .errors import FreudDeprecationWarning
-from freud.util._VectorMath cimport vec3
-from freud.util._VectorMath cimport quat
+from .locality import make_default_nlist, make_default_nlist_nn
+
+from .util._VectorMath cimport vec3, quat
+from .box cimport BoxFromCPP
+from .locality cimport NeighborList
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.memory cimport shared_ptr
-from box cimport BoxFromCPP
-from locality cimport NeighborList
-from locality import make_default_nlist, make_default_nlist_nn
-cimport freud._box as _box
-cimport freud._environment as environment
+from . cimport _box
+from . cimport _environment as environment
+from . cimport _locality as locality
+
 cimport numpy as np
-cimport freud._locality as locality
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -129,25 +130,25 @@ cdef class BondOrder:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        ref_orientations = freud.common.convert_array(
+        ref_orientations = common.convert_array(
             ref_orientations, 2, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise TypeError('ref_orientations should be an Nx4 array')
 
-        orientations = freud.common.convert_array(
+        orientations = common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
         if orientations.shape[1] != 4:
@@ -392,11 +393,11 @@ cdef class LocalDescriptors:
                 Destination points to calculate the order parameter
                 (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        points_ref = freud.common.convert_array(
+        points_ref = common.convert_array(
             points_ref, 2, dtype=np.float32, contiguous=True,
             array_name="points_ref")
         if points_ref.shape[1] != 3:
@@ -405,7 +406,7 @@ cdef class LocalDescriptors:
         if points is None:
             points = points_ref
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -449,7 +450,7 @@ cdef class LocalDescriptors:
                 Neighborlist to use to find bonds or :code:`'precomputed'` if
                 using :py:meth:`~.computeNList` (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -457,7 +458,7 @@ cdef class LocalDescriptors:
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
-        points_ref = freud.common.convert_array(
+        points_ref = common.convert_array(
             points_ref, 2, dtype=np.float32, contiguous=True,
             array_name="points_ref")
         if points_ref.shape[1] != 3:
@@ -466,7 +467,7 @@ cdef class LocalDescriptors:
         if points is None:
             points = points_ref
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -478,7 +479,7 @@ cdef class LocalDescriptors:
                     ('Orientations must be given to orient LocalDescriptors '
                         'with particles\' orientations'))
 
-            orientations = freud.common.convert_array(
+            orientations = common.convert_array(
                 orientations, 2, dtype=np.float32, contiguous=True,
                 array_name="orientations")
             if orientations.shape[1] != 4:
@@ -618,7 +619,7 @@ cdef class MatchEnv:
             The number of clusters.
     """
     def __cinit__(self, box, rmax, k):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -637,7 +638,7 @@ cdef class MatchEnv:
         Args:
             box(:class:`freud.box.Box`): Simulation box.
         """
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -673,7 +674,7 @@ cdef class MatchEnv:
                 Neighborlist to use to find neighbors of every particle, to
                 compare environments (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True,
             array_name="points")
         if points.shape[1] != 3:
@@ -737,13 +738,13 @@ cdef class MatchEnv:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True,
             array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        refPoints = freud.common.convert_array(
+        refPoints = common.convert_array(
             refPoints, 2, dtype=np.float32, contiguous=True,
             array_name="refPoints")
         if refPoints.shape[1] != 3:
@@ -790,13 +791,13 @@ cdef class MatchEnv:
                 Vector of minimal RMSD values, one value per particle.
 
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True,
             array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        refPoints = freud.common.convert_array(
+        refPoints = common.convert_array(
             refPoints, 2, dtype=np.float32, contiguous=True,
             array_name="refPoints")
         if refPoints.shape[1] != 3:
@@ -849,13 +850,13 @@ cdef class MatchEnv:
                 correspond to each other. Empty if they do not correspond to
                 each other.
         """
-        refPoints1 = freud.common.convert_array(
+        refPoints1 = common.convert_array(
             refPoints1, 2, dtype=np.float32, contiguous=True,
             array_name="refPoints1")
         if refPoints1.shape[1] != 3:
             raise TypeError('refPoints1 should be an Nx3 array')
 
-        refPoints2 = freud.common.convert_array(
+        refPoints2 = common.convert_array(
             refPoints2, 2, dtype=np.float32, contiguous=True,
             array_name="refPoints2")
         if refPoints2.shape[1] != 3:
@@ -906,13 +907,13 @@ cdef class MatchEnv:
                 set of refPoints2, and the mapping between the vectors of
                 refPoints1 and refPoints2 that somewhat minimizes the RMSD.
         """
-        refPoints1 = freud.common.convert_array(
+        refPoints1 = common.convert_array(
             refPoints1, 2, dtype=np.float32, contiguous=True,
             array_name="refPoints1")
         if refPoints1.shape[1] != 3:
             raise TypeError('refPoints1 should be an Nx3 array')
 
-        refPoints2 = freud.common.convert_array(
+        refPoints2 = common.convert_array(
             refPoints2, 2, dtype=np.float32, contiguous=True,
             array_name="refPoints2")
         if refPoints2.shape[1] != 3:
@@ -1079,17 +1080,17 @@ cdef class Pairing2D:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        points = freud.common.convert_array(
+        box = common.convert_box(box)
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = freud.common.convert_array(
+        orientations = common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
-        compOrientations = freud.common.convert_array(
+        compOrientations = common.convert_array(
             compOrientations, 2, dtype=np.float32, contiguous=True,
             array_name="compOrientations")
 
@@ -1228,30 +1229,30 @@ cdef class AngularSeparation:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
+        box = common.convert_box(box)
+        ref_points = common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        ref_ors = freud.common.convert_array(
+        ref_ors = common.convert_array(
             ref_ors, 2, dtype=np.float32, contiguous=True,
             array_name="ref_ors")
         if ref_ors.shape[1] != 4:
             raise TypeError('ref_ors should be an Nx4 array')
 
-        ors = freud.common.convert_array(
+        ors = common.convert_array(
             ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
-        equiv_quats = freud.common.convert_array(
+        equiv_quats = common.convert_array(
             equiv_quats, 2, dtype=np.float32, contiguous=True,
             array_name="equiv_quats")
         if equiv_quats.shape[1] != 4:
@@ -1299,19 +1300,19 @@ cdef class AngularSeparation:
                 Important: :code:`equiv_quats` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
         """
-        global_ors = freud.common.convert_array(
+        global_ors = common.convert_array(
             global_ors, 2, dtype=np.float32, contiguous=True,
             array_name="global_ors")
         if global_ors.shape[1] != 4:
             raise TypeError('global_ors should be an Nx4 array')
 
-        ors = freud.common.convert_array(
+        ors = common.convert_array(
             ors, 2, dtype=np.float32, contiguous=True,
             array_name="ors")
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
-        equiv_quats = freud.common.convert_array(
+        equiv_quats = common.convert_array(
             equiv_quats, 2, dtype=np.float32, contiguous=True,
             array_name="equiv_quats")
         if equiv_quats.shape[1] != 4:

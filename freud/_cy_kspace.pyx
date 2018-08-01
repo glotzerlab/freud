@@ -1,14 +1,16 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-import freud.common
+from . import common
 import numpy as np
-from freud.util._VectorMath cimport vec3, quat
+
+from .util._VectorMath cimport vec3, quat
+from . cimport _kspace as kspace
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from cython.operator cimport dereference
+
 cimport numpy as np
-cimport freud._kspace as kspace
 
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -57,7 +59,7 @@ cdef class FTdelta:
             K((:math:`N_{K}`, 3) :class:`numpy.ndarray`):
                 :math:`K` values to evaluate.
         """
-        K = freud.common.convert_array(
+        K = common.convert_array(
             K, 2, dtype=np.float32, contiguous=True, array_name="K")
         if K.shape[1] != 3:
             raise TypeError('K should be an Nx3 array')
@@ -76,10 +78,10 @@ cdef class FTdelta:
             orientation ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Particle orientation quaternions.
         """
-        position = freud.common.convert_array(
+        position = common.convert_array(
             position, 2, dtype=np.float32, contiguous=True,
             array_name="position")
-        orientation = freud.common.convert_array(
+        orientation = common.convert_array(
             orientation, 2, dtype=np.float32, contiguous=True,
             array_name="orientation")
         if position.shape[1] != 3:
@@ -159,10 +161,10 @@ cdef class FTsphere:
             orientation ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Particle orientation quaternions.
         """
-        position = freud.common.convert_array(
+        position = common.convert_array(
             position, 2, dtype=np.float32, contiguous=True,
             array_name="position")
-        orientation = freud.common.convert_array(
+        orientation = common.convert_array(
             orientation, 2, dtype=np.float32, contiguous=True,
             array_name="orientation")
         if position.shape[1] != 3:
@@ -234,7 +236,7 @@ cdef class FTpolyhedron:
             K ((:math:`N_{K}`, 3) :class:`numpy.ndarray`):
                 :math:`K` values to evaluate.
         """
-        K = freud.common.convert_array(
+        K = common.convert_array(
             K, 2, dtype=np.float32, contiguous=True, array_name="K")
         if K.shape[1] != 3:
             raise TypeError('K should be an Nx3 array')
@@ -261,27 +263,27 @@ cdef class FTpolyhedron:
             volume (float):
                 Polyhedron volume.
         """
-        verts = freud.common.convert_array(
+        verts = common.convert_array(
             verts, 2, dtype=np.float32, contiguous=True, array_name="verts")
         if verts.shape[1] != 3:
             raise TypeError('verts should be an Nx3 array')
 
-        facet_offs = freud.common.convert_array(
+        facet_offs = common.convert_array(
             facet_offs, 1, dtype=np.uint32, contiguous=True,
             array_name="facet_offs")
 
-        facets = freud.common.convert_array(
+        facets = common.convert_array(
             facets, 1, dtype=np.uint32, contiguous=True, array_name="facets")
 
-        norms = freud.common.convert_array(
+        norms = common.convert_array(
             norms, 2, dtype=np.float32, contiguous=True, array_name="norms")
         if norms.shape[1] != 3:
             raise TypeError('norms should be an Nx3 array')
 
-        d = freud.common.convert_array(
+        d = common.convert_array(
             d, 1, dtype=np.float32, contiguous=True, array_name="d")
 
-        area = freud.common.convert_array(
+        area = common.convert_array(
             area, 1, dtype=np.float32, contiguous=True, array_name="area")
 
         if norms.shape[0] != facet_offs.shape[0] - 1:
@@ -323,13 +325,13 @@ cdef class FTpolyhedron:
             orientation ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Particle orientation quaternions.
         """
-        position = freud.common.convert_array(
+        position = common.convert_array(
             position, 2, dtype=np.float32, contiguous=True,
             array_name="position")
         if position.shape[1] != 3:
             raise TypeError('position should be an Nx3 array')
 
-        orientation = freud.common.convert_array(
+        orientation = common.convert_array(
             orientation, 2, dtype=np.float32, contiguous=True,
             array_name="orientation")
         if orientation.shape[1] != 4:

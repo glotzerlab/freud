@@ -9,29 +9,29 @@ scalar value. This is often done through computing spherical harmonics of the
 bond order diagram, which are the spherical analogue of Fourier Transforms.
 """
 
-import freud.common
+from . import common
 import warnings
 from .errors import FreudDeprecationWarning
 import numpy as np
 import time
-from freud.util._VectorMath cimport vec3
-from freud.util._VectorMath cimport quat
+from .locality import make_default_nlist, make_default_nlist_nn
+
+from .util._VectorMath cimport vec3, quat
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 from libcpp.pair cimport pair
-from box cimport BoxFromCPP
-from locality cimport NeighborList
-from locality import make_default_nlist, make_default_nlist_nn
+from .box cimport BoxFromCPP
+from .locality cimport NeighborList
 
 # The below are maintained for backwards compatibility
 # but have been moved to the environment module
-from freud.environment import BondOrder as _EBO
-from freud.environment import LocalDescriptors as _ELD
-from freud.environment import MatchEnv as _EME
-from freud.environment import Pairing2D as _EP
-from freud.environment import AngularSeparation as _EAS
+from .environment cimport BondOrder as _EBO
+from .environment cimport LocalDescriptors as _ELD
+from .environment cimport MatchEnv as _EME
+from .environment cimport Pairing2D as _EP
+from .environment cimport AngularSeparation as _EAS
 
 cimport freud._box as _box
 cimport freud._order as order
@@ -98,7 +98,7 @@ cdef class CubaticOrderParameter:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
         """
-        orientations = freud.common.convert_array(
+        orientations = common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
         if orientations.shape[1] != 4:
@@ -280,7 +280,7 @@ cdef class NematicOrderParameter:
             :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """
-        orientations = freud.common.convert_array(
+        orientations = common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
         if orientations.shape[1] != 4:
@@ -411,8 +411,8 @@ cdef class HexOrderParameter:
             nlist (:class:`freud.locality.NeighborList`):
                 Neighborlist to use to find bonds.
         """
-        box = freud.common.convert_box(box)
-        points = freud.common.convert_array(
+        box = common.convert_box(box)
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -534,8 +534,8 @@ cdef class TransOrderParameter:
             nlist (:class:`freud.locality.NeighborList`):
                 Neighborlist to use to find bonds.
         """
-        box = freud.common.convert_box(box)
-        points = freud.common.convert_array(
+        box = common.convert_box(box)
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -661,13 +661,13 @@ cdef class LocalQl:
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """ # noqa
     cdef order.LocalQl * qlptr
     cdef m_box
     cdef rmax
 
     def __cinit__(self, box, rmax, l, rmin=0):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box
         if type(self) is LocalQl:
             l_box = _box.Box(
@@ -704,7 +704,7 @@ cdef class LocalQl:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -809,7 +809,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -834,7 +834,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -861,7 +861,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -888,7 +888,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -967,7 +967,7 @@ cdef class LocalQlNear(LocalQl):
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """ # noqa
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
@@ -977,7 +977,7 @@ cdef class LocalQlNear(LocalQl):
         # management in this inheritance structure.
         cdef _box.Box l_box
         if type(self) == LocalQlNear:
-            box = freud.common.convert_box(box)
+            box = common.convert_box(box)
             l_box = _box.Box(
                 box.getLx(), box.getLy(), box.getLz(),
                 box.getTiltFactorXY(), box.getTiltFactorXZ(),
@@ -1297,7 +1297,7 @@ cdef class LocalWlNear(LocalWl):
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box
         if type(self) is LocalWlNear:
             l_box = _box.Box(
@@ -1413,7 +1413,7 @@ cdef class SolLiq:
     cdef rmax
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1435,7 +1435,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -1461,7 +1461,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -1488,7 +1488,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -1535,7 +1535,7 @@ cdef class SolLiq:
         Args:
             box(:class:`freud.box.Box`): Simulation box.
         """
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -1728,7 +1728,7 @@ cdef class SolLiqNear(SolLiq):
     cdef num_neigh
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())

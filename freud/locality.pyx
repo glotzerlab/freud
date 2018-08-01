@@ -9,12 +9,14 @@ on their proximity to other points.
 import sys
 import numpy as np
 from . import common
+
 from libcpp cimport bool as cbool
-from freud.util._VectorMath cimport vec3
+from .util._VectorMath cimport vec3
 from cython.operator cimport dereference
-from box cimport BoxFromCPP, Box
-from . cimport _box as _box
+from .box cimport BoxFromCPP, Box
+from . cimport _box
 from . cimport _locality
+
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -66,11 +68,11 @@ cdef class NeighborList:
             The per-bond weights from the last set of points this object was
             evaluated with.
         segments ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
-            A *segment array*, which is an array of length :math:`N_{ref}`
+            A segment array, which is an array of length :math:`N_{ref}`
             indicating the first bond index for each reference particle from
             the last set of points this object was evaluated with.
         neighbor_counts ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
-            A *neighbor count array*, which is an array of length
+            A neighbor count array, which is an array of length
             :math:`N_{ref}` indicating the number of neighbors for each
             reference particle from the last set of points this object was
             evaluated with.
@@ -84,7 +86,7 @@ cdef class NeighborList:
        # Get all vectors from central particles to their neighbors
        rijs = positions[nlist.index_j] - positions[nlist.index_i]
        box.wrap(rijs)
-    """
+    """ # noqa
 
     @classmethod
     def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):

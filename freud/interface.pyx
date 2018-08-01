@@ -6,16 +6,19 @@ The interface module contains functions to measure the interface between sets
 of points.
 """
 
-from freud import common
+from . import common
 import numpy as np
-from freud.util._VectorMath cimport vec3
+
+from .util._VectorMath cimport vec3
 from cython.operator cimport dereference
-from locality cimport NeighborList
-from locality import make_default_nlist, make_default_nlist_nn
-cimport freud._interface as interface
-cimport freud._box as _box
+from .locality cimport NeighborList
+from .locality import make_default_nlist, make_default_nlist_nn
+
+from . cimport _interface as interface
+from . cimport _box
+from . cimport _locality as locality
+
 cimport numpy as np
-cimport freud._locality as locality
 
 cdef class InterfaceMeasure:
     """Measures the interface between two sets of points.

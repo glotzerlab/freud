@@ -6,15 +6,17 @@ The voronoi module contains tools to characterize Voronoi cells of a system.
 """
 
 import numpy as np
-from libcpp.vector cimport vector
-from freud.util._VectorMath cimport vec3
-from cython.operator cimport dereference
 import logging
 import copy
 from . import common
+
+from libcpp.vector cimport vector
+from .util._VectorMath cimport vec3
+from cython.operator cimport dereference
 from locality cimport NeighborList
-cimport freud._voronoi as voronoi
-cimport freud._box as _box
+
+from . cimport _voronoi as voronoi
+from . cimport _box
 cimport numpy as np
 
 

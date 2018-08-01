@@ -10,7 +10,7 @@ directed otherwise, with one exception.
 
 import platform
 import re
-cimport freud._parallel as parallel
+from . cimport _parallel as parallel
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.

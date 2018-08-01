@@ -7,15 +7,18 @@ points in a system.
 """
 
 import numpy as np
-import freud.common
-from freud.util._VectorMath cimport vec3
+from . import common
+from .locality import make_default_nlist
+
+from .util._VectorMath cimport vec3
 from libcpp.vector cimport vector
 from locality cimport NeighborList
-from locality import make_default_nlist
-cimport freud._cluster as cluster
-cimport freud._box as _box
+
+from . cimport _cluster as cluster
+from . cimport _box
+from . cimport _locality as locality
+
 cimport numpy as np
-cimport freud._locality as locality
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -73,7 +76,7 @@ cdef class Cluster:
     cdef rmax
 
     def __cinit__(self, box, float rcut):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         self.thisptr = new cluster.Cluster(rcut)
         self.m_box = box
         self.rmax = rcut
@@ -104,7 +107,7 @@ cdef class Cluster:
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:
             raise RuntimeError(
@@ -118,7 +121,7 @@ cdef class Cluster:
         if box is None:
             box = self.m_box
         else:
-            box = freud.common.convert_box(box)
+            box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
@@ -140,7 +143,7 @@ cdef class Cluster:
             keys((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Membership keys, one for each particle.
         """
-        keys = freud.common.convert_array(
+        keys = common.convert_array(
             keys, 1, dtype=np.uint32, contiguous=True)
         N = self.getNumParticles()
         if keys.shape[0] != N:
@@ -252,7 +255,7 @@ cdef class ClusterProperties:
     cdef m_box
 
     def __cinit__(self, box):
-        box = freud.common.convert_box(box)
+        box = common.convert_box(box)
         self.thisptr = new cluster.ClusterProperties()
         self.m_box = box
 
@@ -289,17 +292,17 @@ cdef class ClusterProperties:
         if box is None:
             box = self.m_box
         else:
-            box = freud.common.convert_box(box)
+            box = common.convert_box(box)
         cdef _box.Box l_box = _box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
-        points = freud.common.convert_array(
+        points = common.convert_array(
             points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusterProperties()')
-        cluster_idx = freud.common.convert_array(
+        cluster_idx = common.convert_array(
             cluster_idx, 1, dtype=np.uint32, contiguous=True)
         if cluster_idx.shape[0] != points.shape[0]:
             raise RuntimeError(

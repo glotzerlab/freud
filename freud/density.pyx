@@ -7,18 +7,20 @@ system. These functions allow evaluation of particle distributions with respect
 to other particles.
 """
 
-from freud.util._VectorMath cimport vec3
-from freud import common
-from locality import make_default_nlist, make_default_nlist_nn
+from . import common
+from .locality import make_default_nlist, make_default_nlist_nn
 import numpy as np
-from box cimport BoxFromCPP
+
+from .util._VectorMath cimport vec3
+from .box cimport BoxFromCPP
 from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
 from libc.string cimport memcpy
-from locality cimport NeighborList
-cimport freud._box as _box
-cimport freud._locality as locality
-cimport freud._density as density
+from .locality cimport NeighborList
+
+from . cimport _box
+from . cimport _locality as locality
+from . cimport _density as density
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must

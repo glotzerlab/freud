@@ -9,9 +9,10 @@ transforms of shapes and diffraction pattern generation.
 import numpy as np
 import math
 import copy
-from freud._cy_kspace import FTdelta as _FTdelta
-from freud._cy_kspace import FTsphere as _FTsphere
-from freud._cy_kspace import FTpolyhedron as _FTpolyhedron
+
+from ._cy_kspace import FTdelta as _FTdelta
+from ._cy_kspace import FTsphere as _FTsphere
+from ._cy_kspace import FTpolyhedron as _FTpolyhedron
 from . import common
 
 
@@ -123,9 +124,9 @@ class SFactor3DPoints:
         # add the contribution of each point
         for p in points:
             self.s_complex += np.exp(1j * (
-                self.qx_grid * p[0] +
-                self.qy_grid * p[1] +
-                self.qz_grid * p[2]))
+                self.qx_grid * p[0]
+                + self.qy_grid * p[1]
+                + self.qz_grid * p[2]))
 
         # normalize
         mid = self.grid // 2
