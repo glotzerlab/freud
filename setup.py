@@ -4,7 +4,13 @@ from Cython.Build import cythonize
 import numpy as np
 import os
 
-includes = [
+# Searching for TBB library along CMake-like set of paths.
+library_dirs = []
+lib_vars = ["TBB_LINK", "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH", "PATH", "LIB"]
+env_libs = [os.getenv(lv) for lv in lib_vars]
+library_dirs.extend([ld for sublist in [v.split(':') for v in env_libs if v] for ld in sublist])
+
+include_dirs = [
     np.get_include(),
     "extern",
     "cpp/box",
@@ -23,6 +29,10 @@ includes = [
     "cpp/registration",
 ]
 
+inc_vars = ["TBB_INC", "PATH", "INCLUDE"]
+env_incs = [os.getenv(iv) for iv in inc_vars]
+include_dirs.extend([ld for sublist in [v.split(':') for v in env_incs if v] for ld in sublist])
+
 libraries = ["tbb"]
 
 compile_args = link_args = ["-std=c++11"]
@@ -35,14 +45,16 @@ extensions = [
         extra_compile_args=compile_args,
         extra_link_args=link_args,
         libraries=libraries,
-        include_dirs = includes),
+        library_dirs=library_dirs,
+        include_dirs=include_dirs),
     Extension("freud.*",
         sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc"],
 	language="c++",
         extra_compile_args=compile_args,
         extra_link_args=link_args,
         libraries=libraries,
-        include_dirs = includes),
+        library_dirs=library_dirs,
+        include_dirs=include_dirs),
 ]
 
 # Gets the version
