@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
@@ -7,7 +7,6 @@ import sys
 import contextlib
 import tempfile
 import os
-import sys
 import platform
 
 import logging
@@ -20,8 +19,8 @@ def find_tbb(argv):
 
     For finding TBB, the order of precedence is the
     following:
-        1. The -DTBB_INCLUDE/-DTBB_LINK passed to setup.py (must specify both).
-        2. The -DTBB_ROOT passed to setup.py.
+        1. The -TBB_INCLUDE/-TBB_LINK passed to setup.py (must specify both).
+        2. The -TBB_ROOT passed to setup.py.
         3. The TBB_INCLUDE/TBB_LINK environment variables (must specify both).
         4. The TBB_ROOT environment variable.
 
@@ -35,10 +34,10 @@ def find_tbb(argv):
     """
     valid_tbb_opts = set(['-TBB_ROOT', '-TBB_INCLUDE', '-TBB_LINK'])
     provided_opts = valid_tbb_opts.intersection(sys.argv)
-    err_str = "You must provide either '-TBB_ROOT' or BOTH '-TBB_INCLUDE' "
-              "and '-TBB_LINK' as command line arguments. These may also be "
-              "specified as environment variables "
-              " (e.g. TBB_ROOT=/usr/local python setup.py install)."
+    err_str = ("You must provide either '-TBB_ROOT' or BOTH '-TBB_INCLUDE' "
+               "and '-TBB_LINK' as command line arguments. These may also be "
+               "specified as environment variables "
+               " (e.g. TBB_ROOT=/usr/local python setup.py install).")
 
     tbb_include = tbb_link = None
     if len(provided_opts) == 3:
@@ -49,7 +48,7 @@ def find_tbb(argv):
     elif len(provided_opts) == 2:
         if '-TBB_ROOT' in provided_opts:
             logger.warning("Using -TBB_ROOT and ignoring {}".format(
-                            provided_opts.difference(set(["-TBB_ROOT"])))
+                           provided_opts.difference(set(["-TBB_ROOT"]))))
             root = sys.argv[sys.argv.index('-TBB_ROOT') + 1]
             tbb_include = os.path.join(root, 'include')
             tbb_link = os.path.join(root, 'lib')
@@ -86,7 +85,6 @@ def find_tbb(argv):
             tbb_link = link
 
     return tbb_include, tbb_link
-
 
 
 # Ensure that builds on Mac use correct stdlib.
@@ -126,24 +124,24 @@ extensions = [
     # Compile cluster first so that Cluster.cc has been compiled and is
     # available for the order module.
     Extension("freud.order",
-        sources=["freud/order.pyx",
-                 "cpp/util/HOOMDMatrix.cc",
-                 "cpp/order/wigner3j.cc",
-                 "cpp/cluster/Cluster.cc"],
-        language="c++",
-        extra_compile_args=compile_args,
-        extra_link_args=link_args,
-        libraries=libraries,
-        library_dirs=library_dirs,
-        include_dirs=include_dirs),
+              sources=["freud/order.pyx",
+                       "cpp/util/HOOMDMatrix.cc",
+                       "cpp/order/wigner3j.cc",
+                       "cpp/cluster/Cluster.cc"],
+              language="c++",
+              extra_compile_args=compile_args,
+              extra_link_args=link_args,
+              libraries=libraries,
+              library_dirs=library_dirs,
+              include_dirs=include_dirs),
     Extension("freud.*",
-        sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc"],
-        language="c++",
-        extra_compile_args=compile_args,
-        extra_link_args=link_args,
-        libraries=libraries,
-        library_dirs=library_dirs,
-        include_dirs=include_dirs),
+              sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc"],
+              language="c++",
+              extra_compile_args=compile_args,
+              extra_link_args=link_args,
+              libraries=libraries,
+              library_dirs=library_dirs,
+              include_dirs=include_dirs),
 ]
 
 # Gets the version
@@ -192,17 +190,16 @@ def stderr_manager(f):
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
-        setup(name = 'freud',
+        setup(name='freud',
               version=version,
               description=desc,
               long_description=readme,
               long_description_content_type='text/markdown',
               url='http://bitbucket.org/glotzer/freud',
-              packages = ['freud'],
+              packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-              ext_modules = cythonize(extensions),
-        )
-except SystemExit as e:
+              ext_modules=cythonize(extensions))
+except SystemExit:
     err_str = "tbb/tbb.h"
     if err_str in tfile.read().decode():
         raise RuntimeError("Unable to find tbb. If you have TBB on your "
@@ -211,7 +208,7 @@ except SystemExit as e:
                            "arguments to setup.py.")
     else:
         raise
-except:
+except: # noqa
     sys.stderr.write(tfile.read().decode())
     raise
 else:
