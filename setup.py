@@ -3,7 +3,9 @@ from distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
 import os
+import sys
 import platform
+
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
         os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
@@ -26,6 +28,10 @@ include_dirs = [
     "cpp/parallel",
     "cpp/registration",
 ]
+
+# Set TBB include path for ReadTheDocs builds
+if os.environ.get('READTHEDOCS') == "True":
+    include_dirs.append(os.path.join(sys.prefix, 'include'))
 
 libraries = ["tbb"]
 
