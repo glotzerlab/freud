@@ -176,7 +176,9 @@ def stderr_manager(f):
         """Redirect stderr to the given file descriptor."""
         sys.stderr.close()
         os.dup2(to_fd, original_stderr_fd)
-        sys.stderr = io.TextIOWrapper(os.fdopen(original_stderr_fd, 'wb'))
+        fd = os.fdopen(original_stderr_fd, 'wb')
+        f = io.open(fd.fileno())
+        sys.stderr = io.TextIOWrapper(f)
 
     try:
         _redirect_stderr(f.fileno(), stderr_fd)
