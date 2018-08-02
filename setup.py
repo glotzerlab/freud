@@ -2,8 +2,13 @@ from setuptools import setup, find_packages
 from distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
+import io
+import sys
+import contextlib
+import tempfile
 import os
 import platform
+
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
         os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
@@ -62,13 +67,58 @@ try:
 except ImportError:
     readme = desc
 
-setup(name = 'freud',
-      version=version,
-      description=desc,
-      long_description=readme,
-      long_description_content_type='text/markdown',
-      url='http://bitbucket.org/glotzer/freud',
-      packages = ['freud'],
-      python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-      ext_modules = cythonize(extensions),
-)
+
+@contextlib.contextmanager
+def stderr_manager(f):
+    """Context manager for capturing C-level standard error in a file.
+
+    Adapted from
+    http://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python
+
+    Args:
+        f (file-like object): File to which to write output.
+    """
+
+    stderr_fd = sys.stderr.fileno()
+    saved_stderr_fd = os.dup(stderr_fd)
+
+    def _redirect_stderr(to_fd, original_stderr_fd):
+        """Redirect stderr to the given file descriptor."""
+        sys.stderr.close()
+        os.dup2(to_fd, original_stderr_fd)
+        sys.stderr = io.TextIOWrapper(os.fdopen(original_stderr_fd, 'wb'))
+
+    try:
+        _redirect_stderr(f.fileno(), stderr_fd)
+        yield
+    finally:
+        _redirect_stderr(saved_stderr_fd, stderr_fd)
+        tfile.flush()
+        tfile.seek(0, io.SEEK_SET)
+
+
+tfile = tempfile.TemporaryFile(mode='w+b')
+try:
+    with stderr_manager(tfile):
+        setup(name = 'freud',
+              version=version,
+              description=desc,
+              long_description=readme,
+              long_description_content_type='text/markdown',
+              url='http://bitbucket.org/glotzer/freud',
+              packages = ['freud'],
+              python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
+              ext_modules = cythonize(extensions),
+        )
+except SystemExit as e:
+    err_str = "tbb/tbb.h"
+    if err_str in str(e):
+        raise RuntimeError("Unable to find tbb. If you have TBB on your "
+                           "system, try specifying the location using the "
+                           "-TBB_ROOT or the -TBB_INCLUDE/-TBB_LINK "
+                           "arguments to setup.py.")
+except:
+    sys.stderr.write(tfile.read())
+    raise
+else:
+    sys.stderr.write(tfile.read())
