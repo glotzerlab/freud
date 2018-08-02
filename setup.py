@@ -14,6 +14,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def find_tbb(argv):
     """Function to find paths to TBB.
 
@@ -35,9 +36,9 @@ def find_tbb(argv):
     valid_tbb_opts = set(['-TBB_ROOT', '-TBB_INCLUDE', '-TBB_LINK'])
     provided_opts = valid_tbb_opts.intersection(sys.argv)
     err_str = "You must provide either '-TBB_ROOT' or BOTH '-TBB_INCLUDE' "
-               "and '-TBB_LINK' as command line arguments. These may also be "
-               "specified as environment variables "
-               " (e.g. TBB_ROOT=/usr/local python setup.py install)."
+              "and '-TBB_LINK' as command line arguments. These may also be "
+              "specified as environment variables "
+              " (e.g. TBB_ROOT=/usr/local python setup.py install)."
 
     tbb_include = tbb_link = None
     if len(provided_opts) == 3:
@@ -122,10 +123,14 @@ library_dirs = [tbb_link] if tbb_link else []
 compile_args = link_args = ["-std=c++11"]
 
 extensions = [
-    # Compile cluster first so that Cluster.cc has been compiled and is available for the order module.
+    # Compile cluster first so that Cluster.cc has been compiled and is
+    # available for the order module.
     Extension("freud.order",
-        sources=["freud/order.pyx", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc", "cpp/cluster/Cluster.cc"],
-	language="c++",
+        sources=["freud/order.pyx",
+                 "cpp/util/HOOMDMatrix.cc",
+                 "cpp/order/wigner3j.cc",
+                 "cpp/cluster/Cluster.cc"],
+        language="c++",
         extra_compile_args=compile_args,
         extra_link_args=link_args,
         libraries=libraries,
@@ -133,7 +138,7 @@ extensions = [
         include_dirs=include_dirs),
     Extension("freud.*",
         sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc"],
-	language="c++",
+        language="c++",
         extra_compile_args=compile_args,
         extra_link_args=link_args,
         libraries=libraries,
