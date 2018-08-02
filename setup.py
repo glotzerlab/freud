@@ -3,6 +3,10 @@ from distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
 import os
+import platform
+# Ensure that builds on Mac use correct stdlib.
+if platform.system() == 'Darwin':
+        os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
 
 include_dirs = [
     np.get_include(),
