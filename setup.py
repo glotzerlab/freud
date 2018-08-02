@@ -7,7 +7,52 @@ import sys
 import contextlib
 import tempfile
 import os
+import sys
 import platform
+import logging
+
+logger = logging.getLogger(__name__)
+
+def find_tbb(argv):
+    """Function to find paths to TBB.
+
+    For finding TBB, the order of precedence is the
+    following:
+        1. The -DTBB_INCLUDE/-DTBB_LINK passed to setup.py (must specify both).
+        2. The -DTBB_ROOT passed to setup.py.
+        3. The TBB_INCLUDE/TBB_LINK environment variables (must specify both).
+        4. The TBB_ROOT environment variable.
+
+    Args:
+        argv (str): The value of sys.argv (arguments to the file).
+    """
+    valid_tbb_opts = set(['TBB_ROOT', 'TBB_INCLUDE', 'TBB_LINK'])
+    provided_opts = valid_tbb_opts.intersection(sys.argv)
+    if len(provided_opts) == 3:
+        logger.warning("TBB_ROOT is ignored if both TBB_INCLUDE and TBB_LINK"
+                       "are specified.")
+        tbb_include = sys.argv[sys.argv.index('TBB_INCLUDE') + 1]
+        tbb_link = sys.argv[sys.argv.index('TBB_LINK') + 1]
+    elif len(provided_opts) == 2:
+        if 'TBB_ROOT' in provided_opts:
+            raise RuntimeError("You must provide either 'TBB_ROOT' or BOTH "
+                               "'TBB_INCLUDE' and 'TBB_LINK' as command line "
+                               "arguments. These may also be specified as "
+                               "environment variables.")
+        tbb_include = sys.argv[sys.argv.index('TBB_INCLUDE') + 1]
+        tbb_link = sys.argv[sys.argv.index('TBB_LINK') + 1]
+    elif provided_opts:
+        raise RuntimeError("You must provide either 'TBB_ROOT' or BOTH "
+                           "'TBB_INCLUDE' and 'TBB_LINK' as command line "
+                           "arguments. These may also be specified as "
+                           "environment variables.")
+
+    else:
+        tbb_include = os.getenv("TBB_INCLUDE")
+        tbb_link = os.getenv("TBB_LINK")
+        tbb_root = os.getenv("TBB_ROOT")
+
+
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
