@@ -27,7 +27,7 @@ class TestCommon(unittest.TestCase):
             z = common.convert_array(
                 y, 1, dtype=np.float32, contiguous=True,
                 dim_message="ref_points must be a 2 dimensional array")
-        except TypeError as e:
+        except TypeError:
             npt.assert_equal(True, True)
 
     def test_convert_matrix_box(self):
