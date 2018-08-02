@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
@@ -8,7 +8,7 @@ import platform
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
-        os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
+    os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.9"
 
 include_dirs = [
     np.get_include(),
@@ -38,21 +38,23 @@ libraries = ["tbb"]
 compile_args = link_args = ["-std=c++11"]
 
 extensions = [
-    # Compile cluster first so that Cluster.cc has been compiled and is available for the order module.
+    # Compile cluster first so that Cluster.cc has been compiled and is
+    # available for the order module.
     Extension("freud.order",
-        sources=["freud/order.pyx", "cpp/util/HOOMDMatrix.cc", "cpp/order/wigner3j.cc", "cpp/cluster/Cluster.cc"],
-	language="c++",
-        extra_compile_args=compile_args,
-        extra_link_args=link_args,
-        libraries=libraries,
-        include_dirs=include_dirs),
+              sources=["freud/order.pyx", "cpp/util/HOOMDMatrix.cc",
+                       "cpp/order/wigner3j.cc", "cpp/cluster/Cluster.cc"],
+              language="c++",
+              extra_compile_args=compile_args,
+              extra_link_args=link_args,
+              libraries=libraries,
+              include_dirs=include_dirs),
     Extension("freud.*",
-        sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc"],
-	language="c++",
-        extra_compile_args=compile_args,
-        extra_link_args=link_args,
-        libraries=libraries,
-        include_dirs=include_dirs),
+              sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc"],
+              language="c++",
+              extra_compile_args=compile_args,
+              extra_link_args=link_args,
+              libraries=libraries,
+              include_dirs=include_dirs),
 ]
 
 # Gets the version
@@ -68,13 +70,13 @@ try:
 except ImportError:
     readme = desc
 
-setup(name = 'freud',
+setup(name='freud',
       version=version,
       description=desc,
       long_description=readme,
       long_description_content_type='text/markdown',
       url='http://bitbucket.org/glotzer/freud',
-      packages = ['freud'],
+      packages=['freud'],
       python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-      ext_modules = cythonize(extensions),
-)
+      ext_modules=cythonize(extensions),
+      )

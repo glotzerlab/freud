@@ -198,13 +198,15 @@ class TestLinkCell(unittest.TestCase):
             try:
                 self.assertEqual(exhaustive_ijs, ijs)
             except AssertionError:
-                print('Failed neighbors, random seed: {} (i={})'.format(seed, i))
+                print('Failed neighbors, random seed: {} (i={})'.format(
+                    seed, i))
                 raise
 
             try:
                 self.assertEqual(exhaustive_counts_list, counts_list)
             except AssertionError:
-                print('Failed neighbor counts, random seed: {} (i={})'.format(seed, i))
+                print('Failed neighbor counts, random seed: {} (i={})'.format(
+                    seed, i))
                 raise
 
     def test_throws(self):
