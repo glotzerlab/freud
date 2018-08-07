@@ -19,8 +19,8 @@ def find_tbb(argv):
 
     For finding TBB, the order of precedence is the
     following:
-        1. The -TBB_INCLUDE/-TBB_LINK passed to setup.py (must specify both).
-        2. The -TBB_ROOT passed to setup.py.
+        1. The --TBB-INCLUDE/--TBB-LINK passed to setup.py (must specify both).
+        2. The --TBB-ROOT passed to setup.py.
         3. The TBB_INCLUDE/TBB_LINK environment variables (must specify both).
         4. The TBB_ROOT environment variable.
 
@@ -32,37 +32,37 @@ def find_tbb(argv):
             The tbb include and lib directories passed as args. Returns None
             if nothing was provided.
     """
-    valid_tbb_opts = set(['-TBB_ROOT', '-TBB_INCLUDE', '-TBB_LINK'])
+    valid_tbb_opts = set(['--TBB-ROOT', '--TBB-INCLUDE', '--TBB-LINK'])
     provided_opts = valid_tbb_opts.intersection(sys.argv)
-    err_str = ("You must provide either '-TBB_ROOT' or BOTH '-TBB_INCLUDE' "
-               "and '-TBB_LINK' as command line arguments. These may also be "
+    err_str = ("You must provide either '--TBB-ROOT' or BOTH '--TBB-INCLUDE' "
+               "and '--TBB-LINK' as command line arguments. These may also be "
                "specified as environment variables "
                " (e.g. TBB_ROOT=/usr/local python setup.py install).")
 
     tbb_include = tbb_link = None
     if len(provided_opts) == 3:
-        logger.warning("-TBB_ROOT is ignored if both -TBB_INCLUDE and "
-                       "-TBB_LINK are specified.")
-        tbb_include = sys.argv[sys.argv.index('-TBB_INCLUDE') + 1]
-        tbb_link = sys.argv[sys.argv.index('-TBB_LINK') + 1]
+        logger.warning("--TBB-ROOT is ignored if both --TBB-INCLUDE and "
+                       "--TBB-LINK are specified.")
+        tbb_include = sys.argv[sys.argv.index('--TBB-INCLUDE') + 1]
+        tbb_link = sys.argv[sys.argv.index('--TBB-LINK') + 1]
     elif len(provided_opts) == 2:
-        if '-TBB_ROOT' in provided_opts:
-            logger.warning("Using -TBB_ROOT and ignoring {}".format(
-                           provided_opts.difference(set(["-TBB_ROOT"]))))
-            root = sys.argv[sys.argv.index('-TBB_ROOT') + 1]
+        if '--TBB-ROOT' in provided_opts:
+            logger.warning("Using --TBB-ROOT and ignoring {}".format(
+                           provided_opts.difference(set(["--TBB-ROOT"]))))
+            root = sys.argv[sys.argv.index('--TBB-ROOT') + 1]
             tbb_include = os.path.join(root, 'include')
             tbb_link = os.path.join(root, 'lib')
         else:
-            tbb_include = sys.argv[sys.argv.index('-TBB_INCLUDE') + 1]
-            tbb_link = sys.argv[sys.argv.index('-TBB_LINK') + 1]
-    elif '-TBB_ROOT' in provided_opts:
-        root = sys.argv[sys.argv.index('-TBB_ROOT') + 1]
+            tbb_include = sys.argv[sys.argv.index('--TBB-INCLUDE') + 1]
+            tbb_link = sys.argv[sys.argv.index('--TBB-LINK') + 1]
+    elif '--TBB-ROOT' in provided_opts:
+        root = sys.argv[sys.argv.index('--TBB-ROOT') + 1]
         tbb_include = os.path.join(root, 'include')
         tbb_link = os.path.join(root, 'lib')
-    elif '-TBB_LINK' in provided_opts:
-        tbb_link = sys.argv[sys.argv.index('-TBB_LINK') + 1]
-    elif '-TBB_INCLUDE' in provided_opts:
-        tbb_include = sys.argv[sys.argv.index('-TBB_INCLUDE') + 1]
+    elif '--TBB-LINK' in provided_opts:
+        tbb_link = sys.argv[sys.argv.index('--TBB-LINK') + 1]
+    elif '--TBB-INCLUDE' in provided_opts:
+        tbb_include = sys.argv[sys.argv.index('--TBB-INCLUDE') + 1]
     elif provided_opts:
             raise RuntimeError(err_str)
     else:
@@ -84,8 +84,20 @@ def find_tbb(argv):
             tbb_include = include
             tbb_link = link
 
+    # Delete the options and their values.
+    for arg in provided_opts:
+        i = sys.argv.index(arg)
+        sys.argv.remove(arg)
+        del sys.argv[i]
+
     return tbb_include, tbb_link
 
+warnings_str = "--print-warnings"
+if warnings_str in sys.argv:
+    sys.argv.remove(warnings_str)
+    print_warnings = True
+else:
+    print_warnings = False
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
@@ -176,9 +188,10 @@ def stderr_manager(f):
         """Redirect stderr to the given file descriptor."""
         sys.stderr.close()
         os.dup2(to_fd, original_stderr_fd)
-        fd = os.fdopen(original_stderr_fd, 'wb')
-        f = io.open(fd.fileno())
-        sys.stderr = io.TextIOWrapper(f)
+        if sys.version_info > (3, 0):
+            sys.stderr = io.TextIOWrapper(os.fdopen(original_stderr_fd, 'wb'))
+        else:
+            sys.stderr = os.fdopen(original_stderr_fd, 'wb')
 
     try:
         _redirect_stderr(f.fileno(), stderr_fd)
@@ -203,15 +216,26 @@ try:
               ext_modules=cythonize(extensions))
 except SystemExit:
     err_str = "tbb/tbb.h"
-    if err_str in tfile.read().decode():
+    err_out = tfile.read().decode()
+    if err_str in err_out:
+        sys.stderr.write(err_out)
         raise RuntimeError("Unable to find tbb. If you have TBB on your "
                            "system, try specifying the location using the "
-                           "-TBB_ROOT or the -TBB_INCLUDE/-TBB_LINK "
+                           "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
                            "arguments to setup.py.")
     else:
+        sys.stderr.write(err_out)
         raise
 except: # noqa
     sys.stderr.write(tfile.read().decode())
     raise
 else:
-    sys.stderr.write(tfile.read().decode())
+    if print_warnings:
+        sys.stdout.write("Printing warnings: ")
+        sys.stderr.write(tfile.read().decode())
+    else:
+        out = tfile.read()
+        if out:
+            sys.stdout.write("Some warnings were emitted during compilations."
+                             "Call setup.py with the {} argument "
+                             "to see these warnings.\n".format(warnings_str))
