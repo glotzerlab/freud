@@ -10,7 +10,7 @@ directed otherwise, with one exception.
 
 import platform
 import re
-from . cimport _parallel
+cimport freud._parallel
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
@@ -38,7 +38,7 @@ def setNumThreads(nthreads=None):
     _numThreads = nthreads
 
     cdef unsigned int cNthreads = nthreads
-    _parallel.setNumThreads(cNthreads)
+    freud._parallel.setNumThreads(cNthreads)
 
 
 if (re.match("flux.", platform.node()) is not None) or (

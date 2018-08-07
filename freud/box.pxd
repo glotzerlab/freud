@@ -1,9 +1,9 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from . cimport _box
+cimport freud._box
 
 cdef class Box:
-    cdef _box.Box * thisptr
+    cdef freud._box.Box * thisptr
 
-cdef BoxFromCPP(const _box.Box & cppbox)
+cdef BoxFromCPP(const freud._box.Box & cppbox)

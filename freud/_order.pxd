@@ -8,7 +8,7 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
-cimport freud._box as box
+cimport freud._box
 cimport freud._locality
 
 cdef extern from "CubaticOrderParameter.cc" namespace "freud::order":
@@ -61,8 +61,8 @@ cdef extern from "HexOrderParameter.cc" namespace "freud::order":
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
         HexOrderParameter(float, unsigned int, unsigned int)
-        const box.Box & getBox() const
-        void compute(box.Box &,
+        const freud._box.Box & getBox() const
+        void compute(freud._box.Box &,
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int) nogil except +
@@ -78,8 +78,8 @@ cdef extern from "TransOrderParameter.cc" namespace "freud::order":
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
         TransOrderParameter(float, float)
-        const box.Box & getBox() const,
-        void compute(box.Box &,
+        const freud._box.Box & getBox() const,
+        void compute(freud._box.Box &,
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
                      unsigned int) nogil except +
@@ -91,10 +91,10 @@ cdef extern from "LocalQl.cc" namespace "freud::order":
 
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
-        LocalQl(const box.Box &, float, unsigned int, float)
-        const box.Box & getBox() const
+        LocalQl(const freud._box.Box &, float, unsigned int, float)
+        const freud._box.Box & getBox() const
         unsigned int getNP()
-        void setBox(const box.Box)
+        void setBox(const freud._box.Box)
         shared_ptr[float] getQl()
 
         void compute(const freud._locality.NeighborList *,
@@ -116,7 +116,7 @@ cdef extern from "LocalWl.cc" namespace "freud::order":
 
 cdef extern from "LocalWl.h" namespace "freud::order":
     cdef cppclass LocalWl(LocalQl):
-        LocalWl(const box.Box &, float, unsigned int, float)
+        LocalWl(const freud._box.Box &, float, unsigned int, float)
         shared_ptr[float complex] getWl()
         shared_ptr[float complex] getAveWl()
         shared_ptr[float complex] getWlNorm()
@@ -129,9 +129,9 @@ cdef extern from "SolLiq.cc" namespace "freud::order":
 
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
-        SolLiq(const box.Box &, float, float, unsigned int, unsigned int)
-        const box.Box & getBox() const
-        void setBox(const box.Box)
+        SolLiq(const freud._box.Box &, float, float, unsigned int, unsigned int)
+        const freud._box.Box & getBox() const
+        void setBox(const freud._box.Box)
         void setClusteringRadius(float)
         void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,

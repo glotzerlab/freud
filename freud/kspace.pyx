@@ -10,10 +10,10 @@ import numpy as np
 import math
 import copy
 
-from ._cy_kspace import FTdelta as _FTdelta
-from ._cy_kspace import FTsphere as _FTsphere
-from ._cy_kspace import FTpolyhedron as _FTpolyhedron
-from . import common
+from freud._cy_kspace import FTdelta as _FTdelta
+from freud._cy_kspace import FTsphere as _FTsphere
+from freud._cy_kspace import FTpolyhedron as _FTpolyhedron
+import freud.common
 
 
 def meshgrid2(*arrs):
@@ -87,7 +87,7 @@ class SFactor3DPoints:
 
     def __init__(self, box, g):
         """Initalize SFactor3DPoints."""
-        box = common.convert_box(box)
+        box = freud.common.convert_box(box)
         if box.is2D():
             raise ValueError("SFactor3DPoints does not support 2D boxes")
         self.grid = 2 * g + 1

@@ -7,18 +7,18 @@ system. These functions allow evaluation of particle distributions with respect
 to other particles.
 """
 
-from . import common
-from .locality import make_default_nlist, make_default_nlist_nn
+import freud.common
+from freud.locality import make_default_nlist, make_default_nlist_nn
 import numpy as np
 
-from .util._VectorMath cimport vec3
-from .box cimport BoxFromCPP
+from freud.util._VectorMath cimport vec3
+from freud.box cimport BoxFromCPP
 from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
 from libc.string cimport memcpy
-from .locality cimport NeighborList
+from freud.locality cimport NeighborList
 
-from . cimport _box, _locality, _density
+cimport freud._box, freud._locality, freud._density
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -70,13 +70,13 @@ cdef class FloatCF:
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The values of bin centers.
     """
-    cdef _density.CorrelationFunction[double] * thisptr
+    cdef freud._density.CorrelationFunction[double] * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new _density.CorrelationFunction[double](rmax, dr)
+        self.thisptr = new freud._density.CorrelationFunction[double](rmax, dr)
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -101,15 +101,15 @@ cdef class FloatCF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = common.convert_box(box)
-        ref_points = common.convert_array(
+        box = freud.common.convert_box(box)
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        refValues = common.convert_array(
+        refValues = freud.common.convert_array(
             refValues, 1, dtype=np.float64, contiguous=True)
-        values = common.convert_array(
+        values = freud.common.convert_array(
             values, 1, dtype=np.float64, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
@@ -129,11 +129,11 @@ cdef class FloatCF:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(
+        cdef freud._box.Box l_box = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
@@ -177,7 +177,7 @@ cdef class FloatCF:
         Returns:
             :py:class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """Resets the values of the correlation function histogram in
@@ -295,13 +295,13 @@ cdef class ComplexCF:
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The values of bin centers.
     """
-    cdef _density.CorrelationFunction[np.complex128_t] * thisptr
+    cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new _density.CorrelationFunction[np.complex128_t](
+        self.thisptr = new freud._density.CorrelationFunction[np.complex128_t](
             rmax, dr)
         self.rmax = rmax
 
@@ -327,15 +327,15 @@ cdef class ComplexCF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = common.convert_box(box)
-        ref_points = common.convert_array(
+        box = freud.common.convert_box(box)
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        refValues = common.convert_array(
+        refValues = freud.common.convert_array(
             refValues, 1, dtype=np.complex128, contiguous=True)
-        values = common.convert_array(
+        values = freud.common.convert_array(
             values, 1, dtype=np.complex128, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
@@ -355,11 +355,11 @@ cdef class ComplexCF:
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist, None)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(
+        cdef freud._box.Box l_box = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
@@ -404,7 +404,7 @@ cdef class ComplexCF:
         Returns:
           :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """Resets the values of the correlation function histogram in
@@ -525,14 +525,14 @@ cdef class GaussianDensity:
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The values of bin centers.
     """
-    cdef _density.GaussianDensity * thisptr
+    cdef freud._density.GaussianDensity * thisptr
 
     def __cinit__(self, *args):
         if len(args) == 3:
-            self.thisptr = new _density.GaussianDensity(
+            self.thisptr = new freud._density.GaussianDensity(
                 args[0], args[1], args[2])
         elif len(args) == 5:
-            self.thisptr = new _density.GaussianDensity(
+            self.thisptr = new freud._density.GaussianDensity(
                 args[0], args[1], args[2], args[3], args[4])
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
@@ -559,14 +559,14 @@ cdef class GaussianDensity:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
         """
-        box = common.convert_box(box)
-        points = common.convert_array(
+        box = freud.common.convert_box(box)
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int n_p = points.shape[0]
-        cdef _box.Box l_box = _box.Box(
+        cdef freud._box.Box l_box = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
@@ -587,14 +587,14 @@ cdef class GaussianDensity:
         cdef float * density = self.thisptr.getDensity().get()
         cdef np.npy_intp nbins[1]
         arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
-        cdef _box.Box l_box = self.thisptr.getBox()
-        if not l_box.is2D():
+        cdef freud._box.Box l_box = self.thisptr.getBox()
+        if not freud._box.is2D():
             arraySize *= self.thisptr.getWidthZ()
         nbins[0] = <np.npy_intp> arraySize
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(
                 1, nbins, np.NPY_FLOAT32, <void*> density)
-        if l_box.is2D():
+        if freud._box.is2D():
             arrayShape = (self.thisptr.getWidthY(),
                           self.thisptr.getWidthX())
         else:
@@ -648,12 +648,12 @@ cdef class LocalDensity:
         num_neighbors ((:math:`N_{particles}`) :class:`numpy.ndarray`):
             Number of neighbors for each particle..
     """
-    cdef _density.LocalDensity * thisptr
+    cdef freud._density.LocalDensity * thisptr
     cdef r_cut
     cdef diameter
 
     def __cinit__(self, float r_cut, float volume, float diameter):
-        self.thisptr = new _density.LocalDensity(r_cut, volume, diameter)
+        self.thisptr = new freud._density.LocalDensity(r_cut, volume, diameter)
         self.r_cut = r_cut
         self.diameter = diameter
 
@@ -683,13 +683,13 @@ cdef class LocalDensity:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = common.convert_box(box)
+        box = freud.common.convert_box(box)
         if points is None:
             points = ref_points
-        ref_points = common.convert_array(
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
@@ -698,7 +698,7 @@ cdef class LocalDensity:
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
 
-        cdef _box.Box l_box = _box.Box(
+        cdef freud._box.Box l_box = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
@@ -708,7 +708,7 @@ cdef class LocalDensity:
             box, ref_points, points, self.r_cut + 0.5*self.diameter, nlist,
             exclude_ii=False)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         with nogil:
             self.thisptr.compute(
@@ -801,7 +801,7 @@ cdef class RDF:
     .. versionchanged:: 0.7.0
        Added optional `rmin` argument.
     """
-    cdef _density.RDF * thisptr
+    cdef freud._density.RDF * thisptr
     cdef rmax
 
     def __cinit__(self, float rmax, float dr, float rmin=0):
@@ -811,7 +811,7 @@ cdef class RDF:
             raise ValueError("rmax must be > rmin")
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new _density.RDF(rmax, dr, rmin)
+        self.thisptr = new freud._density.RDF(rmax, dr, rmin)
         self.rmax = rmax
 
     def __dealloc__(self):
@@ -842,11 +842,11 @@ cdef class RDF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = common.convert_box(box)
-        ref_points = common.convert_array(
+        box = freud.common.convert_box(box)
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
@@ -855,14 +855,14 @@ cdef class RDF:
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
 
-        cdef _box.Box l_box = _box.Box(
+        cdef freud._box.Box l_box = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
         defaulted_nlist = make_default_nlist(
             box, ref_points, points, self.rmax, nlist)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         with nogil:
             self.thisptr.accumulate(

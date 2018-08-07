@@ -4,7 +4,7 @@
 from libcpp.memory cimport shared_ptr
 from freud.util._VectorMath cimport vec3
 from libcpp.vector cimport vector
-cimport freud._box as box
+cimport freud._box
 
 ctypedef unsigned int uint
 
@@ -13,8 +13,8 @@ cdef extern from "VoronoiBuffer.cc" namespace "freud::voronoi":
 
 cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
     cdef cppclass VoronoiBuffer:
-        VoronoiBuffer(const box.Box &)
-        const box.Box & getBox() const
+        VoronoiBuffer(const freud._box.Box &)
+        const freud._box.Box & getBox() const
         void compute(
             const vec3[float]*,
             const unsigned int,

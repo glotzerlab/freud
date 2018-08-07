@@ -8,14 +8,14 @@ The voronoi module contains tools to characterize Voronoi cells of a system.
 import numpy as np
 import logging
 import copy
-from . import common
+import freud.common
 
 from libcpp.vector cimport vector
-from .util._VectorMath cimport vec3
+from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 from locality cimport NeighborList
 
-from . cimport _voronoi, _box
+cimport freud._voronoi, freud._box
 cimport numpy as np
 
 
@@ -45,16 +45,16 @@ cdef class VoronoiBuffer:
     Args:
         box (py:class:`freud.box.Box`): Simulation box.
     """
-    cdef _voronoi.VoronoiBuffer * thisptr
+    cdef freud._voronoi.VoronoiBuffer * thisptr
 
     def __cinit__(self, box):
         if not _SCIPY_AVAILABLE:
             raise RuntimeError("You cannot use this class without scipy")
-        box = common.convert_box(box)
-        cdef _box.Box cBox = _box.Box(
+        box = freud.common.convert_box(box)
+        cdef freud._box.Box cBox = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new _voronoi.VoronoiBuffer(cBox)
+        self.thisptr = new freud._voronoi.VoronoiBuffer(cBox)
 
     def compute(self, points, float buffer):
         """Compute the voronoi diagram.
@@ -65,7 +65,7 @@ cdef class VoronoiBuffer:
             buffer (float):
                 Buffer distance within which to look for images.
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name='points')
 
         if points.shape[1] != 3:
@@ -153,7 +153,7 @@ class Voronoi:
     def __init__(self, box, buff=0.1):
         if not _SCIPY_AVAILABLE:
             raise RuntimeError("You cannot use this class without SciPy")
-        box = common.convert_box(box)
+        box = freud.common.convert_box(box)
         self.box = box
         self.buff = buff
 
@@ -163,7 +163,7 @@ class Voronoi:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
-        box = common.convert_box(box)
+        box = freud.common.convert_box(box)
         self.box = box
 
     def setBufferWidth(self, buff):
@@ -224,7 +224,7 @@ class Voronoi:
         if box is None:
             box = self.box
         else:
-            box = common.convert_box(box)
+            box = freud.common.convert_box(box)
         if buff is None:
             buff = self.buff
 
@@ -313,7 +313,7 @@ class Voronoi:
         if box is None:
             box = self.box
         else:
-            box = common.convert_box(box)
+            box = freud.common.convert_box(box)
         if buff is None:
             buff = self.buff
 

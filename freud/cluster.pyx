@@ -7,14 +7,14 @@ points in a system.
 """
 
 import numpy as np
-from . import common
-from .locality import make_default_nlist
+import freud.common
+from freud.locality import make_default_nlist
 
-from .util._VectorMath cimport vec3
+from freud.util._VectorMath cimport vec3
 from libcpp.vector cimport vector
 from locality cimport NeighborList
 
-from . cimport _cluster, _box, _locality
+cimport freud._cluster, freud._box, freud._locality
 
 cimport numpy as np
 
@@ -69,13 +69,13 @@ cdef class Cluster:
         cluster_keys (list(list)):
             A list of lists of the keys contained in each cluster.
     """
-    cdef _cluster.Cluster * thisptr
+    cdef freud._cluster.Cluster * thisptr
     cdef m_box
     cdef rmax
 
     def __cinit__(self, box, float rcut):
-        box = common.convert_box(box)
-        self.thisptr = new _cluster.Cluster(rcut)
+        box = freud.common.convert_box(box)
+        self.thisptr = new freud._cluster.Cluster(rcut)
         self.m_box = box
         self.rmax = rcut
 
@@ -105,7 +105,7 @@ cdef class Cluster:
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:
             raise RuntimeError(
@@ -114,13 +114,13 @@ cdef class Cluster:
         defaulted_nlist = make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
 
         if box is None:
             box = self.m_box
         else:
-            box = common.convert_box(box)
-        cdef _box.Box l_box = _box.Box(
+            box = freud.common.convert_box(box)
+        cdef freud._box.Box l_box = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
@@ -141,7 +141,7 @@ cdef class Cluster:
             keys((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Membership keys, one for each particle.
         """
-        keys = common.convert_array(
+        keys = freud.common.convert_array(
             keys, 1, dtype=np.uint32, contiguous=True)
         N = self.getNumParticles()
         if keys.shape[0] != N:
@@ -249,12 +249,12 @@ cdef class ClusterProperties:
             The cluster sizes computed by the last call to
             :py:meth:`~.computeProperties()`.
     """
-    cdef _cluster.ClusterProperties * thisptr
+    cdef freud._cluster.ClusterProperties * thisptr
     cdef m_box
 
     def __cinit__(self, box):
-        box = common.convert_box(box)
-        self.thisptr = new _cluster.ClusterProperties()
+        box = freud.common.convert_box(box)
+        self.thisptr = new freud._cluster.ClusterProperties()
         self.m_box = box
 
     def __dealloc__(self):
@@ -290,17 +290,17 @@ cdef class ClusterProperties:
         if box is None:
             box = self.m_box
         else:
-            box = common.convert_box(box)
-        cdef _box.Box l_box = _box.Box(
+            box = freud.common.convert_box(box)
+        cdef freud._box.Box l_box = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True)
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusterProperties()')
-        cluster_idx = common.convert_array(
+        cluster_idx = freud.common.convert_array(
             cluster_idx, 1, dtype=np.uint32, contiguous=True)
         if cluster_idx.shape[0] != points.shape[0]:
             raise RuntimeError(

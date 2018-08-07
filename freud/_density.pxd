@@ -3,7 +3,7 @@
 
 from freud.util._VectorMath cimport vec3
 from libcpp.memory cimport shared_ptr
-cimport freud._box as box
+cimport freud._box
 cimport freud._locality
 
 cdef extern from "CorrelationFunction.cc" namespace "freud::density":
@@ -12,9 +12,9 @@ cdef extern from "CorrelationFunction.cc" namespace "freud::density":
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
         CorrelationFunction(float, float)
-        const box.Box & getBox() const
+        const freud._box.Box & getBox() const
         void reset()
-        void accumulate(const box.Box &, const freud._locality.NeighborList*,
+        void accumulate(const freud._box.Box &, const freud._locality.NeighborList*,
                         const vec3[float]*, const T*,
                         unsigned int,
                         const vec3[float]*,
@@ -37,11 +37,11 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
                         unsigned int,
                         float,
                         float)
-        const box.Box & getBox() const
+        const freud._box.Box & getBox() const
         void reset()
         void reduceDensity()
         void compute(
-            const box.Box &,
+            const freud._box.Box &,
             const vec3[float]*,
             unsigned int) nogil except +
         shared_ptr[float] getDensity()
@@ -55,9 +55,9 @@ cdef extern from "LocalDensity.cc" namespace "freud::density":
 cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
         LocalDensity(float, float, float)
-        const box.Box & getBox() const
+        const freud._box.Box & getBox() const
         void compute(
-            const box.Box &,
+            const freud._box.Box &,
             const freud._locality.NeighborList *,
             const vec3[float]*,
             unsigned int,
@@ -73,9 +73,9 @@ cdef extern from "RDF.cc" namespace "freud::density":
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
         RDF(float, float, float)
-        const box.Box & getBox() const
+        const freud._box.Box & getBox() const
         void reset()
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         const vec3[float]*,
                         unsigned int,

@@ -4,12 +4,12 @@
 import numpy as np
 import time
 import warnings
-from .errors import FreudDeprecationWarning
+from freud.errors import FreudDeprecationWarning
 
-from .util._VectorMath cimport vec3
-from .util._VectorMath cimport quat
-from . cimport _box
-from . cimport _environment
+from freud.util._VectorMath cimport vec3
+from freud.util._VectorMath cimport quat
+cimport freud._box
+cimport freud._environment
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -19,28 +19,28 @@ from libcpp.memory cimport shared_ptr
 cimport numpy as np
 
 cdef class BondOrder:
-    cdef _environment.BondOrder * thisptr
+    cdef freud._environment.BondOrder * thisptr
     cdef num_neigh
     cdef rmax
 
 cdef class LocalDescriptors:
-    cdef _environment.LocalDescriptors * thisptr
+    cdef freud._environment.LocalDescriptors * thisptr
     cdef num_neigh
     cdef rmax
 
 cdef class MatchEnv:
-    cdef _environment.MatchEnv * thisptr
+    cdef freud._environment.MatchEnv * thisptr
     cdef rmax
     cdef num_neigh
     cdef m_box
 
 cdef class Pairing2D:
-    cdef _environment.Pairing2D * thisptr
+    cdef freud._environment.Pairing2D * thisptr
     cdef rmax
     cdef num_neigh
 
 cdef class AngularSeparation:
-    cdef _environment.AngularSeparation * thisptr
+    cdef freud._environment.AngularSeparation * thisptr
     cdef num_neigh
     cdef rmax
     cdef nlist_

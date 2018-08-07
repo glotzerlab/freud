@@ -8,13 +8,13 @@ on their proximity to other points.
 
 import sys
 import numpy as np
-from . import common
+import freud.common
 
 from libcpp cimport bool as cbool
-from .util._VectorMath cimport vec3
+from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
-from .box cimport BoxFromCPP, Box
-from . cimport _box, _locality
+from freud.box cimport BoxFromCPP, Box
+cimport freud._box, freud._locality
 
 cimport numpy as np
 
@@ -160,7 +160,7 @@ cdef class NeighborList:
 
         return result
 
-    cdef refer_to(self, _locality.NeighborList * other):
+    cdef refer_to(self, freud._locality.NeighborList * other):
         """Makes this cython wrapper object point to a different C++ object,
         deleting the one we are already holding if necessary. We do not
         own the memory of the other C++ object."""
@@ -171,13 +171,13 @@ cdef class NeighborList:
 
     def __cinit__(self):
         self._managed = True
-        self.thisptr = new _locality.NeighborList()
+        self.thisptr = new freud._locality.NeighborList()
 
     def __dealloc__(self):
         if self._managed:
             del self.thisptr
 
-    cdef _locality.NeighborList * get_ptr(self):
+    cdef freud._locality.NeighborList * get_ptr(self):
         """Returns a pointer to the raw C++ object we are wrapping."""
         return self.thisptr
 
@@ -319,19 +319,19 @@ cdef class NeighborList:
                 Minimum bond distance in the resulting neighbor list
                 (Default value = 0).
         """
-        box = common.convert_box(box)
-        ref_points = common.convert_array(
+        box = freud.common.convert_box(box)
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef _box.Box cBox = _box.Box(
+        cdef freud._box.Box cBox = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
@@ -377,7 +377,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     """
     if nlist is not None:
         return nlist, nlist
-    box = common.convert_box(box)
+    box = freud.common.convert_box(box)
 
     cdef LinkCell lc = LinkCell(box, rmax).computeCellList(
         box, ref_points, points, exclude_ii)
@@ -427,7 +427,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     """
     if nlist is not None:
         return nlist, nlist
-    box = common.convert_box(box)
+    box = freud.common.convert_box(box)
 
     cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
         box, ref_points, points)
@@ -465,12 +465,12 @@ cdef class IteratorLinkCell:
             raise RuntimeError(
                 "Must use python 3.x or greater to use IteratorLinkCell")
         else:
-            self.thisptr = new _locality.IteratorLinkCell()
+            self.thisptr = new freud._locality.IteratorLinkCell()
 
     def __dealloc__(self):
         del self.thisptr
 
-    cdef void copy(self, const _locality.IteratorLinkCell & rhs):
+    cdef void copy(self, const freud._locality.IteratorLinkCell & rhs):
         self.thisptr.copy(rhs)
 
     def next(self):
@@ -544,12 +544,12 @@ cdef class LinkCell:
        dens.compute(box, positions, nlist=lc.nlist)
     """
     def __cinit__(self, box, cell_width):
-        box = common.convert_box(box)
-        cdef _box.Box cBox = _box.Box(
+        box = freud.common.convert_box(box)
+        cdef freud._box.Box cBox = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(),
             box.getTiltFactorXY(), box.getTiltFactorXZ(),
             box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new _locality.LinkCell(cBox, float(cell_width))
+        self.thisptr = new freud._locality.LinkCell(cBox, float(cell_width))
         self._nlist = NeighborList()
 
     def __dealloc__(self):
@@ -589,7 +589,7 @@ cdef class LinkCell:
         Returns:
             unsigned int: Cell index.
         """
-        point = common.convert_array(
+        point = freud.common.convert_array(
             point, 1, dtype=np.float32, contiguous=True, array_name="point")
 
         cdef float[:] cPoint = point
@@ -610,7 +610,7 @@ cdef class LinkCell:
             raise RuntimeError(
                 "Must use python 3.x or greater to use itercell")
         result = IteratorLinkCell()
-        cdef _locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
+        cdef freud._locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
         result.copy(cResult)
         return iter(result)
 
@@ -647,12 +647,12 @@ cdef class LinkCell:
                 excluded; if None, is set to True if points is None or the same
                 object as ref_points (Default value = None).
         """
-        box = common.convert_box(box)
+        box = freud.common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
 
-        ref_points = common.convert_array(
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
@@ -661,12 +661,12 @@ cdef class LinkCell:
         if points is None:
             points = ref_points
 
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef _box.Box cBox = _box.Box(
+        cdef freud._box.Box cBox = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
@@ -683,7 +683,7 @@ cdef class LinkCell:
                 Np,
                 c_exclude_ii)
 
-        cdef _locality.NeighborList * nlist = self.thisptr.getNeighborList()
+        cdef freud._locality.NeighborList * nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
         return self
@@ -770,7 +770,7 @@ cdef class NearestNeighbors:
                   strict_cut=False):
         if scale < 1:
             raise RuntimeError("scale must be greater than 1")
-        self.thisptr = new _locality.NearestNeighbors(
+        self.thisptr = new freud._locality.NearestNeighbors(
             float(rmax), int(n_neigh), float(scale), bool(strict_cut))
         self._nlist = NeighborList()
 
@@ -920,7 +920,7 @@ cdef class NearestNeighbors:
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
         rijs = (self._cached_points[self.nlist.index_j[start_idx:end_idx]] -
                 self._cached_ref_points[self.nlist.index_i[start_idx:end_idx]])
-        self._cached_box.wrap(rijs)
+        self._cachedfreud._box.wrap(rijs)
         result = -np.ones((self.thisptr.getNumNeighbors(),), dtype=np.float32)
         result[:len(rijs)] = np.sum(rijs**2, axis=-1)
         return result
@@ -959,7 +959,7 @@ cdef class NearestNeighbors:
             blank_mask[last_i, current_j] = False
             current_j += 1
 
-        self._cached_box.wrap(result.reshape((-1, 3)))
+        self._cachedfreud._box.wrap(result.reshape((-1, 3)))
         result[blank_mask] = -1
         return result, blank_mask
 
@@ -996,12 +996,12 @@ cdef class NearestNeighbors:
                 excluded; if None, is set to True if points is None or the same
                 object as ref_points (Default value = None).
         """
-        box = common.convert_box(box)
+        box = freud.common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
 
-        ref_points = common.convert_array(
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
@@ -1010,7 +1010,7 @@ cdef class NearestNeighbors:
         if points is None:
             points = ref_points
 
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -1019,7 +1019,7 @@ cdef class NearestNeighbors:
         self._cached_points = points
         self._cached_box = box
 
-        cdef _box.Box cBox = _box.Box(
+        cdef freud._box.Box cBox = freud._box.Box(
             box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
             box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
@@ -1036,7 +1036,7 @@ cdef class NearestNeighbors:
                 Np,
                 c_exclude_ii)
 
-        cdef _locality.NeighborList * nlist = self.thisptr.getNeighborList()
+        cdef freud._locality.NeighborList * nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
         return self

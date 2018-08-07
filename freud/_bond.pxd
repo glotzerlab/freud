@@ -8,7 +8,7 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
-cimport freud._box as box
+cimport freud._box
 cimport freud._locality
 
 cdef extern from "BondingAnalysis.cc" namespace "freud::bond":
@@ -35,8 +35,8 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
     cdef cppclass BondingR12:
         BondingR12(float, unsigned int, unsigned int, unsigned int,
                    unsigned int, unsigned int *, unsigned int *)
-        const box.Box & getBox() const
-        void compute(box.Box &,
+        const freud._box.Box & getBox() const
+        void compute(freud._box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
                      float*,
@@ -57,8 +57,8 @@ cdef extern from "BondingXY2D.h" namespace "freud::bond":
     cdef cppclass BondingXY2D:
         BondingXY2D(float, float, unsigned int, unsigned int, unsigned int,
                     unsigned int *, unsigned int *)
-        const box.Box & getBox() const
-        void compute(box.Box &,
+        const freud._box.Box & getBox() const
+        void compute(freud._box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
                      float*,
@@ -79,8 +79,8 @@ cdef extern from "BondingXYT.h" namespace "freud::bond":
     cdef cppclass BondingXYT:
         BondingXYT(float, float, unsigned int, unsigned int, unsigned int,
                    unsigned int, unsigned int *, unsigned int *)
-        const box.Box & getBox() const
-        void compute(box.Box &,
+        const freud._box.Box & getBox() const
+        void compute(freud._box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
                      float*,
@@ -102,8 +102,8 @@ cdef extern from "BondingXYZ.h" namespace "freud::bond":
         BondingXYZ(float, float, float, unsigned int, unsigned int,
                    unsigned int, unsigned int, unsigned int *,
                    unsigned int *)
-        const box.Box & getBox() const
-        void compute(box.Box &,
+        const freud._box.Box & getBox() const
+        void compute(freud._box.Box &,
                      const freud._locality.NeighborList*,
                      vec3[float]*,
                      quat[float]*,

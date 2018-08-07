@@ -3,7 +3,7 @@
 
 from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
-cimport freud._box as box
+cimport freud._box
 cimport freud._locality
 
 cdef extern from "InterfaceMeasure.cc" namespace "freud::interface":
@@ -11,7 +11,7 @@ cdef extern from "InterfaceMeasure.cc" namespace "freud::interface":
 
 cdef extern from "InterfaceMeasure.h" namespace "freud::interface":
     cdef cppclass InterfaceMeasure:
-        InterfaceMeasure(const box.Box &, float)
+        InterfaceMeasure(const freud._box.Box &, float)
         unsigned int compute(
             const freud._locality.NeighborList*,
             const vec3[float]*,
