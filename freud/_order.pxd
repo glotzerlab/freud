@@ -129,7 +129,8 @@ cdef extern from "SolLiq.cc" namespace "freud::order":
 
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
-        SolLiq(const freud._box.Box &, float, float, unsigned int, unsigned int)
+        SolLiq(const freud._box.Box &, float,
+               float, unsigned int, unsigned int)
         const freud._box.Box & getBox() const
         void setBox(const freud._box.Box)
         void setClusteringRadius(float)

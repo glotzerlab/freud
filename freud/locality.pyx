@@ -610,7 +610,8 @@ cdef class LinkCell:
             raise RuntimeError(
                 "Must use python 3.x or greater to use itercell")
         result = IteratorLinkCell()
-        cdef freud._locality.IteratorLinkCell cResult = self.thisptr.itercell(cell)
+        cdef freud._locality.IteratorLinkCell cResult = self.thisptr.itercell(
+            cell)
         result.copy(cResult)
         return iter(result)
 
@@ -683,7 +684,8 @@ cdef class LinkCell:
                 Np,
                 c_exclude_ii)
 
-        cdef freud._locality.NeighborList * nlist = self.thisptr.getNeighborList()
+        cdef freud._locality.NeighborList * nlist
+        nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
         return self
@@ -1036,7 +1038,8 @@ cdef class NearestNeighbors:
                 Np,
                 c_exclude_ii)
 
-        cdef freud._locality.NeighborList * nlist = self.thisptr.getNeighborList()
+        cdef freud._locality.NeighborList * nlist
+        nlist = self.thisptr.getNeighborList()
         self._nlist.refer_to(nlist)
         self._nlist.base = self
         return self

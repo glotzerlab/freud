@@ -81,7 +81,8 @@ cdef class BondingAnalysis:
     def __cinit__(self, int num_particles, int num_bonds):
         self.num_particles = num_particles
         self.num_bonds = num_bonds
-        self.thisptr = new freud._bond.BondingAnalysis(num_particles, num_bonds)
+        self.thisptr = new freud._bond.BondingAnalysis(num_particles,
+                                                       num_bonds)
 
     def __dealloc__(self):
         del self.thisptr

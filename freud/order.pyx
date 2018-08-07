@@ -1304,7 +1304,8 @@ cdef class LocalWlNear(LocalWl):
                 box.getLx(), box.getLy(), box.getLz(),
                 box.getTiltFactorXY(), box.getTiltFactorXZ(),
                 box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.qlptr = new freud._order.LocalWl(l_box, rmax, l, 0)
+            self.thisptr = self.qlptr = new freud._order.LocalWl(l_box, rmax,
+                                                                 l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn
