@@ -588,13 +588,13 @@ cdef class GaussianDensity:
         cdef np.npy_intp nbins[1]
         arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
         cdef freud._box.Box l_box = self.thisptr.getBox()
-        if not freud._box.is2D():
+        if not l_box.is2D():
             arraySize *= self.thisptr.getWidthZ()
         nbins[0] = <np.npy_intp> arraySize
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(
                 1, nbins, np.NPY_FLOAT32, <void*> density)
-        if freud._box.is2D():
+        if l_box.is2D():
             arrayShape = (self.thisptr.getWidthY(),
                           self.thisptr.getWidthX())
         else:

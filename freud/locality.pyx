@@ -922,7 +922,7 @@ cdef class NearestNeighbors:
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
         rijs = (self._cached_points[self.nlist.index_j[start_idx:end_idx]] -
                 self._cached_ref_points[self.nlist.index_i[start_idx:end_idx]])
-        self._cachedfreud._box.wrap(rijs)
+        self._cached_box.wrap(rijs)
         result = -np.ones((self.thisptr.getNumNeighbors(),), dtype=np.float32)
         result[:len(rijs)] = np.sum(rijs**2, axis=-1)
         return result
@@ -961,7 +961,7 @@ cdef class NearestNeighbors:
             blank_mask[last_i, current_j] = False
             current_j += 1
 
-        self._cachedfreud._box.wrap(result.reshape((-1, 3)))
+        self._cached_box.wrap(result.reshape((-1, 3)))
         result[blank_mask] = -1
         return result, blank_mask
 
