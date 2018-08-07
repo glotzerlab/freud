@@ -5,12 +5,12 @@ import freud.common
 import numpy as np
 
 from freud.util._VectorMath cimport vec3, quat
-cimport freud._kspace
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from cython.operator cimport dereference
 
 cimport numpy as np
+cimport freud._kspace
 
 
 # numpy must be initialized. When using numpy from C or Cython you must

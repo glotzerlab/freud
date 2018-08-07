@@ -16,8 +16,8 @@ from freud.util._VectorMath cimport vec3
 from libcpp.string cimport string
 from libc.string cimport memcpy
 from cpython.object cimport Py_EQ, Py_NE
-cimport freud._box
 
+cimport freud._box
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must

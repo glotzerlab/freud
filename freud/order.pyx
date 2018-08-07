@@ -24,7 +24,6 @@ from libcpp.map cimport map
 from libcpp.pair cimport pair
 from freud.box cimport BoxFromCPP
 from freud.locality cimport NeighborList
-cimport freud._box, freud._order, freud._locality
 
 # The below are maintained for backwards compatibility
 # but have been moved to the environment module
@@ -33,6 +32,8 @@ from freud.environment cimport LocalDescriptors as _ELD
 from freud.environment cimport MatchEnv as _EME
 from freud.environment cimport Pairing2D as _EP
 from freud.environment cimport AngularSeparation as _EAS
+
+cimport freud._box, freud._order, freud._locality
 
 cimport numpy as np
 

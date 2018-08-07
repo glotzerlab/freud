@@ -8,14 +8,14 @@ from freud.errors import FreudDeprecationWarning
 
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-cimport freud._box
-cimport freud._environment
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.memory cimport shared_ptr
 
+cimport freud._box
+cimport freud._environment
 cimport numpy as np
 
 cdef class BondOrder:
