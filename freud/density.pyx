@@ -8,17 +8,17 @@ to other particles.
 """
 
 import freud.common
-from freud.locality import make_default_nlist, make_default_nlist_nn
+import freud.locality
 import numpy as np
 
 from freud.util._VectorMath cimport vec3
-from freud.box cimport BoxFromCPP
 from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
 from libc.string cimport memcpy
 from freud.locality cimport NeighborList
 
-cimport freud._box, freud._locality, freud._density
+cimport freud._density
+cimport freud.box, freud.locality
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -101,7 +101,7 @@ cdef class FloatCF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -126,19 +126,15 @@ cdef class FloatCF:
         else:
             l_values = values
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 <double*> l_refValues.data, n_ref,
                 <vec3[float]*> l_points.data,
@@ -177,7 +173,7 @@ cdef class FloatCF:
         Returns:
             :py:class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """Resets the values of the correlation function histogram in
@@ -327,7 +323,7 @@ cdef class ComplexCF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -352,19 +348,15 @@ cdef class ComplexCF:
         else:
             l_values = values
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.accumulate(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 <np.complex128_t*> l_refValues.data,
                 n_ref,
@@ -404,7 +396,7 @@ cdef class ComplexCF:
         Returns:
           :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def resetCorrelationFunction(self):
         """Resets the values of the correlation function histogram in
@@ -547,7 +539,7 @@ cdef class GaussianDensity:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, box, points):
         """Calculates the Gaussian blur for the specified points. Does not
@@ -559,18 +551,16 @@ cdef class GaussianDensity:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int n_p = points.shape[0]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(l_box, <vec3[float]*> l_points.data, n_p)
+            self.thisptr.compute(dereference(b.thisptr),
+                                 <vec3[float]*> l_points.data, n_p)
         return self
 
     @property
@@ -587,14 +577,14 @@ cdef class GaussianDensity:
         cdef float * density = self.thisptr.getDensity().get()
         cdef np.npy_intp nbins[1]
         arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
-        cdef freud._box.Box l_box = self.thisptr.getBox()
-        if not l_box.is2D():
+        cdef freud.box.Box box = self.box
+        if not box.is2D():
             arraySize *= self.thisptr.getWidthZ()
         nbins[0] = <np.npy_intp> arraySize
         cdef np.ndarray[np.float32_t, ndim=1] result = \
             np.PyArray_SimpleNewFromData(
                 1, nbins, np.NPY_FLOAT32, <void*> density)
-        if l_box.is2D():
+        if box.is2D():
             arrayShape = (self.thisptr.getWidthY(),
                           self.thisptr.getWidthX())
         else:
@@ -667,7 +657,7 @@ cdef class LocalDensity:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, box, ref_points, points=None, nlist=None):
         """Calculates the local density for the specified points. Does not
@@ -683,7 +673,7 @@ cdef class LocalDensity:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
         ref_points = freud.common.convert_array(
@@ -698,21 +688,16 @@ cdef class LocalDensity:
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
 
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-
         # local density of each particle includes itself (cutoff
         # distance is r_cut + diam/2 because of smoothing)
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.r_cut + 0.5*self.diameter, nlist,
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.r_cut + 0.5*self.diameter, nlist,
             exclude_ii=False)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
             self.thisptr.compute(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 n_ref,
                 <vec3[float]*> l_points.data,
@@ -827,7 +812,7 @@ cdef class RDF:
         Returns:
           :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def accumulate(self, box, ref_points, points, nlist=None):
         """Calculates the RDF and adds to the current RDF histogram.
@@ -842,7 +827,7 @@ cdef class RDF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -855,18 +840,13 @@ cdef class RDF:
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
 
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
             self.thisptr.accumulate(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 n_ref,
                 <vec3[float]*> l_points.data,

@@ -13,9 +13,10 @@ import freud.common
 from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
-from locality cimport NeighborList
 
-cimport freud._voronoi, freud._box
+cimport freud._voronoi
+cimport freud.box
+cimport freud.locality
 cimport numpy as np
 
 
@@ -50,11 +51,8 @@ cdef class VoronoiBuffer:
     def __cinit__(self, box):
         if not _SCIPY_AVAILABLE:
             raise RuntimeError("You cannot use this class without scipy")
-        box = freud.common.convert_box(box)
-        cdef freud._box.Box cBox = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new freud._voronoi.VoronoiBuffer(cBox)
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
 
     def compute(self, points, float buffer):
         """Compute the voronoi diagram.
@@ -149,12 +147,11 @@ class Voronoi:
         buff (float):
             Buffer width.
     """
-
     def __init__(self, box, buff=0.1):
         if not _SCIPY_AVAILABLE:
             raise RuntimeError("You cannot use this class without SciPy")
-        box = freud.common.convert_box(box)
-        self.box = box
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.box = b
         self.buff = buff
 
     def setBox(self, box):
@@ -163,8 +160,8 @@ class Voronoi:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
-        box = freud.common.convert_box(box)
-        self.box = box
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.box = b
 
     def setBufferWidth(self, buff):
         """Reset the buffer width.
@@ -221,19 +218,20 @@ class Voronoi:
         """
 
         # If box or buff is not specified, revert to object quantities
+        cdef freud.box.Box b
         if box is None:
-            box = self.box
+            b = self.box
         else:
-            box = freud.common.convert_box(box)
+            b = freud.common.convert_box(box)
         if buff is None:
             buff = self.buff
 
-        self._qhull_compute(positions, box, buff)
+        self._qhull_compute(positions, b, buff)
 
         vertices = self.voronoi.vertices
 
         # Add a z-component of 0 if the box is 2D
-        if box.is2D():
+        if b.is2D():
             vertices = np.insert(vertices, 2, 0, 1)
 
         # Construct a list of polytope vertices
@@ -310,14 +308,15 @@ class Voronoi:
                 excluded (Default value = True).
         """
         # If box or buff is not specified, revert to object quantities
+        cdef freud.box.Box b
         if box is None:
-            box = self.box
+            b = self.box
         else:
-            box = freud.common.convert_box(box)
+            b = freud.common.convert_box(box)
         if buff is None:
             buff = self.buff
 
-        self._qhull_compute(positions, box, buff)
+        self._qhull_compute(positions, b, buff)
 
         ridge_points = self.voronoi.ridge_points
         ridge_vertices = self.voronoi.ridge_vertices
@@ -359,7 +358,7 @@ class Voronoi:
                 continue
 
             if -1 not in ridge_vertices[k]:
-                if box.is2D():
+                if b.is2D():
                     # The weight for a 2D system is the
                     # length of the ridge line
                     weight = np.linalg.norm(
@@ -478,7 +477,7 @@ class Voronoi:
             indexAry[j:j + N, 2] = np.array(weight[i])
             j += N
 
-        result = NeighborList.from_arrays(
+        result = freud.locality.NeighborList.from_arrays(
             len(neighbor_list), len(neighbor_list),
             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
         return result

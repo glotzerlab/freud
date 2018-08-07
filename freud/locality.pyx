@@ -13,8 +13,8 @@ import freud.common
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
-from freud.box cimport BoxFromCPP, Box
-cimport freud._box, freud._locality
+cimport freud._locality
+cimport freud.box
 
 cimport numpy as np
 
@@ -177,7 +177,7 @@ cdef class NeighborList:
         if self._managed:
             del self.thisptr
 
-    cdef freud._locality.NeighborList * get_ptr(self):
+    cdef freud._locality.NeighborList * get_ptr(self) nogil:
         """Returns a pointer to the raw C++ object we are wrapping."""
         return self.thisptr
 
@@ -319,7 +319,7 @@ cdef class NeighborList:
                 Minimum bond distance in the resulting neighbor list
                 (Default value = 0).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -331,9 +331,6 @@ cdef class NeighborList:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef freud._box.Box cBox = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
         cdef np.ndarray cPoints = points
         cdef size_t nRef = ref_points.shape[0]
@@ -341,7 +338,7 @@ cdef class NeighborList:
 
         self.thisptr.validate(nRef, nP)
         self.thisptr.filter_r(
-            cBox,
+            dereference(b.thisptr),
             <vec3[float]*> cRef_points.data,
             <vec3[float]*> cPoints.data,
             rmax,
@@ -377,7 +374,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     """
     if nlist is not None:
         return nlist, nlist
-    box = freud.common.convert_box(box)
+    cdef freud.box.Box b = freud.common.convert_box(box)
 
     cdef LinkCell lc = LinkCell(box, rmax).computeCellList(
         box, ref_points, points, exclude_ii)
@@ -427,7 +424,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     """
     if nlist is not None:
         return nlist, nlist
-    box = freud.common.convert_box(box)
+    cdef freud.box.Box b = freud.common.convert_box(box)
 
     cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
         box, ref_points, points)
@@ -544,12 +541,9 @@ cdef class LinkCell:
        dens.compute(box, positions, nlist=lc.nlist)
     """
     def __cinit__(self, box, cell_width):
-        box = freud.common.convert_box(box)
-        cdef freud._box.Box cBox = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(),
-            box.getTiltFactorXY(), box.getTiltFactorXZ(),
-            box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new freud._locality.LinkCell(cBox, float(cell_width))
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.thisptr = new freud._locality.LinkCell(
+            dereference(b.thisptr), float(cell_width))
         self._nlist = NeighborList()
 
     def __dealloc__(self):
@@ -565,7 +559,7 @@ cdef class LinkCell:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
     def num_cells(self):
@@ -648,7 +642,7 @@ cdef class LinkCell:
                 excluded; if None, is set to True if points is None or the same
                 object as ref_points (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
@@ -667,9 +661,6 @@ cdef class LinkCell:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef freud._box.Box cBox = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
@@ -677,7 +668,7 @@ cdef class LinkCell:
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
             self.thisptr.compute(
-                cBox,
+                dereference(b.thisptr),
                 <vec3[float]*> cRef_points.data,
                 n_ref,
                 <vec3[float]*> cPoints.data,
@@ -800,7 +791,7 @@ cdef class NearestNeighbors:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
     def num_neighbors(self):
@@ -998,7 +989,7 @@ cdef class NearestNeighbors:
                 excluded; if None, is set to True if points is None or the same
                 object as ref_points (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
@@ -1021,9 +1012,6 @@ cdef class NearestNeighbors:
         self._cached_points = points
         self._cached_box = box
 
-        cdef freud._box.Box cBox = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
@@ -1031,7 +1019,7 @@ cdef class NearestNeighbors:
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
             self.thisptr.compute(
-                cBox,
+                dereference(b.thisptr),
                 <vec3[float]*> cRef_points.data,
                 n_ref,
                 <vec3[float]*> cPoints.data,

@@ -10,22 +10,20 @@ characterize the particle environment.
 
 import freud.common
 import numpy as np
-import time
 import warnings
 from freud.errors import FreudDeprecationWarning
-from freud.locality import make_default_nlist, make_default_nlist_nn
+import freud.locality
 
 from freud.util._VectorMath cimport vec3, quat
-from freud.box cimport BoxFromCPP
-from freud.locality cimport NeighborList
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.memory cimport shared_ptr
-cimport freud._box
+from cython.operator cimport dereference
+cimport freud.box
 cimport freud._environment
-cimport freud._locality
+cimport freud.locality
 
 cimport numpy as np
 
@@ -130,7 +128,7 @@ cdef class BondOrder:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -168,10 +166,9 @@ cdef class BondOrder:
                 ('Unknown BOD mode: {}. Options are:'
                     'bod, lbod, obcd, oocd.').format(mode))
 
-        defaulted_nlist = make_default_nlist_nn(
-            box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
+            b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -179,12 +176,10 @@ cdef class BondOrder:
         cdef np.ndarray[float, ndim=2] l_orientations = orientations
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+
         with nogil:
             self.thisptr.accumulate(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 <quat[float]*> l_ref_orientations.data,
                 n_ref,
@@ -224,7 +219,7 @@ cdef class BondOrder:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def resetBondOrder(self):
         """Resets the values of the bond order in memory."""
@@ -393,10 +388,8 @@ cdef class LocalDescriptors:
                 Destination points to calculate the order parameter
                 (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef freud.box.Box b = freud.common.convert_box(box)
+
         points_ref = freud.common.convert_array(
             points_ref, 2, dtype=np.float32, contiguous=True,
             array_name="points_ref")
@@ -416,8 +409,9 @@ cdef class LocalDescriptors:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
-            self.thisptr.computeNList(l_box, <vec3[float]*> l_points_ref.data,
-                                      nRef, <vec3[float]*> l_points.data, nP)
+            self.thisptr.computeNList(
+                dereference(b.thisptr), <vec3[float]*> l_points_ref.data,
+                nRef, <vec3[float]*> l_points.data, nP)
         return self
 
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
@@ -450,10 +444,8 @@ cdef class LocalDescriptors:
                 Neighborlist to use to find bonds or :code:`'precomputed'` if
                 using :py:meth:`~.computeNList` (Default value = None).
         """
-        box = freud.common.convert_box(box)
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+        cdef freud.box.Box b = freud.common.convert_box(box)
+
         if mode not in self.known_modes:
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
@@ -501,20 +493,18 @@ cdef class LocalDescriptors:
 
         self.num_neigh = num_neighbors
 
-        cdef NeighborList nlist_
-        cdef freud._locality.NeighborList *nlist_ptr
-        if nlist == 'precomputed':
-            nlist_ptr = NULL
-        else:
-            defaulted_nlist = make_default_nlist_nn(
-                box, points_ref, points, self.num_neigh, nlist,
+        cdef freud.locality.NeighborList nlist_ = None
+        if not nlist == 'precomputed':
+            defaulted_nlist = freud.locality.make_default_nlist_nn(
+                b, points_ref, points, self.num_neigh, nlist,
                 True, self.rmax)
             nlist_ = defaulted_nlist[0]
-            nlist_ptr = nlist_.get_ptr()
 
         with nogil:
             self.thisptr.compute(
-                l_box, nlist_ptr, num_neighbors,
+                dereference(b.thisptr),
+                nlist_.get_ptr() if nlist_ is not None else NULL,
+                num_neighbors,
                 <vec3[float]*> l_points_ref.data,
                 nRef, <vec3[float]*> l_points.data, nP,
                 <quat[float]*> l_orientations.data, l_mode)
@@ -619,11 +609,10 @@ cdef class MatchEnv:
             The number of clusters.
     """
     def __cinit__(self, box, rmax, k):
-        box = freud.common.convert_box(box)
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new freud._environment.MatchEnv(l_box, rmax, k)
+        cdef freud.box.Box b = freud.common.convert_box(box)
+
+        self.thisptr = new freud._environment.MatchEnv(
+            dereference(b.thisptr), rmax, k)
 
         self.rmax = rmax
         self.num_neigh = k
@@ -638,11 +627,9 @@ cdef class MatchEnv:
         Args:
             box(:class:`freud.box.Box`): Simulation box.
         """
-        box = freud.common.convert_box(box)
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.setBox(l_box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
+
+        self.thisptr.setBox(dereference(b.thisptr))
         self.m_box = box
 
     def cluster(self, points, threshold, hard_r=False, registration=False,
@@ -685,37 +672,32 @@ cdef class MatchEnv:
             points.flatten())
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        cdef freud._locality.NeighborList * nlist_ptr
-        cdef NeighborList nlist_
-        cdef freud._locality.NeighborList *env_nlist_ptr
-        cdef NeighborList env_nlist_
+        cdef freud.locality.NeighborList nlist_
+        cdef freud.locality.NeighborList env_nlist_
         if hard_r:
-            defaulted_nlist = make_default_nlist(
+            defaulted_nlist = freud.locality.make_default_nlist(
                 self.m_box, points, points, self.rmax, nlist, True)
             nlist_ = defaulted_nlist[0]
-            nlist_ptr = nlist_.get_ptr()
 
-            defaulted_env_nlist = make_default_nlist(
+            defaulted_env_nlist = freud.locality.make_default_nlist(
                 self.m_box, points, points, self.rmax, env_nlist, True)
             env_nlist_ = defaulted_env_nlist[0]
-            env_nlist_ptr = env_nlist_.get_ptr()
         else:
-            defaulted_nlist = make_default_nlist_nn(
+            defaulted_nlist = freud.locality.make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, nlist,
                 None, self.rmax)
             nlist_ = defaulted_nlist[0]
-            nlist_ptr = nlist_.get_ptr()
 
-            defaulted_env_nlist = make_default_nlist_nn(
+            defaulted_env_nlist = freud.locality.make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, env_nlist,
                 None, self.rmax)
             env_nlist_ = defaulted_env_nlist[0]
-            env_nlist_ptr = env_nlist_.get_ptr()
 
         # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.cluster(
-            env_nlist_ptr, nlist_ptr, <vec3[float]*> &l_points[0], nP,
-            threshold, hard_r, registration, global_search)
+            env_nlist_.get_ptr(), nlist_.get_ptr(),
+            <vec3[float]*> &l_points[0], nP, threshold, hard_r, registration,
+            global_search)
 
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
@@ -758,14 +740,13 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.matchMotif(
-            nlist_ptr, <vec3[float]*> &l_points[0], nP,
+            nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
             <vec3[float]*> &l_refPoints[0], nRef, threshold,
             registration)
 
@@ -811,14 +792,13 @@ cdef class MatchEnv:
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
 
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         # keeping the below syntax seems to be crucial for passing unit tests
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
-            nlist_ptr, <vec3[float]*> &l_points[0], nP,
+            nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
             <vec3[float]*> &l_refPoints[0], nRef, registration)
 
         return min_rmsd_vec
@@ -1080,7 +1060,7 @@ cdef class Pairing2D:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
@@ -1099,19 +1079,15 @@ cdef class Pairing2D:
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nO = <unsigned int> compOrientations.shape[1]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
 
-        defaulted_nlist = make_default_nlist_nn(
-            box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
+            b, points, points, self.num_neigh, nlist, True, self.rmax)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.compute(
-            l_box, nlist_ptr, <vec3[float]*> l_points.data,
-            <float*> l_orientations.data, <float*> l_compOrientations.data,
-            nP, nO)
+            dereference(b.thisptr), nlist_.get_ptr(),
+            <vec3[float]*> l_points.data, <float*> l_orientations.data,
+            <float*> l_compOrientations.data, nP, nO)
         return self
 
     @property
@@ -1161,7 +1137,7 @@ cdef class Pairing2D:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
 cdef class AngularSeparation:
     """Calculates the minimum angles of separation between particles and
@@ -1229,7 +1205,7 @@ cdef class AngularSeparation:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -1258,14 +1234,9 @@ cdef class AngularSeparation:
         if equiv_quats.shape[1] != 4:
             raise TypeError('equiv_quats should be an N_equiv x 4 array')
 
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-
-        defaulted_nlist = make_default_nlist_nn(
-            box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
+            b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         self.nlist_ = nlist_
 
         cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
@@ -1278,7 +1249,7 @@ cdef class AngularSeparation:
 
         with nogil:
             self.thisptr.computeNeighbor(
-                nlist_ptr,
+                nlist_.get_ptr(),
                 <quat[float]*> l_ref_ors.data,
                 <quat[float]*> l_ors.data,
                 <quat[float]*> l_equiv_quats.data,

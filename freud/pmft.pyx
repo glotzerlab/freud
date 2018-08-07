@@ -31,14 +31,15 @@ coordinate system used to represent the system.
 
 import numpy as np
 import freud.common
-from freud.locality import make_default_nlist, make_default_nlist_nn
+import freud.locality
 
 from freud.util._VectorMath cimport vec3, quat
-from freud.box cimport BoxFromCPP
 from libc.string cimport memcpy
-from freud.locality cimport NeighborList
+from cython.operator cimport dereference
 
-cimport freud._box, freud._pmft, freud._locality
+cimport freud._pmft
+cimport freud.locality
+cimport freud.box
 
 cimport numpy as np
 
@@ -78,7 +79,7 @@ cdef class _PMFT:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(self.pmftptr.getBox())
+        return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
     def resetPCF(self):
         """Resets the values of the PCF histograms in memory."""
@@ -206,7 +207,7 @@ cdef class PMFTR12(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -226,10 +227,9 @@ cdef class PMFTR12(_PMFT):
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -237,12 +237,9 @@ cdef class PMFTR12(_PMFT):
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.pmftr12ptr.accumulate(l_box,
-                                       nlist_ptr,
+            self.pmftr12ptr.accumulate(dereference(b.thisptr),
+                                       nlist_.get_ptr(),
                                        <vec3[float]*> l_ref_points.data,
                                        <float*> l_ref_orientations.data,
                                        nRef,
@@ -519,7 +516,7 @@ cdef class PMFTXYT(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -539,10 +536,9 @@ cdef class PMFTXYT(_PMFT):
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -550,12 +546,9 @@ cdef class PMFTXYT(_PMFT):
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.pmftxytptr.accumulate(l_box,
-                                       nlist_ptr,
+            self.pmftxytptr.accumulate(dereference(b.thisptr),
+                                       nlist_.get_ptr(),
                                        <vec3[float]*> l_ref_points.data,
                                        <float*> l_ref_orientations.data,
                                        nRef,
@@ -812,7 +805,7 @@ cdef class PMFTXY2D(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -832,10 +825,9 @@ cdef class PMFTXY2D(_PMFT):
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -843,12 +835,9 @@ cdef class PMFTXY2D(_PMFT):
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.pmftxy2dptr.accumulate(l_box,
-                                        nlist_ptr,
+            self.pmftxy2dptr.accumulate(dereference(b.thisptr),
+                                        nlist_.get_ptr(),
                                         <vec3[float]*> l_ref_points.data,
                                         <float*> l_ref_orientations.data,
                                         n_ref,
@@ -1100,7 +1089,7 @@ cdef class PMFTXYZ(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -1172,10 +1161,9 @@ cdef class PMFTXYZ(_PMFT):
                     face_orientations = np.repeat(
                         face_orientations, ref_points.shape[0], axis=0)
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_points = points
@@ -1185,13 +1173,10 @@ cdef class PMFTXYZ(_PMFT):
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nFaces = <unsigned int> face_orientations.shape[1]
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.pmftxyzptr.accumulate(
-                l_box,
-                nlist_ptr,
+                dereference(b.thisptr),
+                nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 <quat[float]*> l_ref_orientations.data,
                 nRef,

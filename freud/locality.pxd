@@ -9,7 +9,7 @@ cdef class NeighborList:
     cdef base
 
     cdef refer_to(self, freud._locality.NeighborList * other)
-    cdef freud._locality.NeighborList * get_ptr(self)
+    cdef freud._locality.NeighborList * get_ptr(self) nogil
     cdef void copy_c(self, NeighborList other)
 
 cdef class IteratorLinkCell:

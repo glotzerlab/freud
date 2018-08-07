@@ -8,13 +8,14 @@ points in a system.
 
 import numpy as np
 import freud.common
-from freud.locality import make_default_nlist
+import freud.locality
 
+from cython.operator cimport dereference
 from freud.util._VectorMath cimport vec3
 from libcpp.vector cimport vector
-from locality cimport NeighborList
 
-cimport freud._cluster, freud._box, freud._locality
+cimport freud._cluster
+cimport freud.box, freud.locality
 
 cimport numpy as np
 
@@ -70,13 +71,13 @@ cdef class Cluster:
             A list of lists of the keys contained in each cluster.
     """
     cdef freud._cluster.Cluster * thisptr
-    cdef m_box
+    cdef freud.box.Box m_box
     cdef rmax
 
     def __cinit__(self, box, float rcut):
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr = new freud._cluster.Cluster(rcut)
-        self.m_box = box
+        self.m_box = b
         self.rmax = rcut
 
     def __dealloc__(self):
@@ -111,24 +112,22 @@ cdef class Cluster:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusters()')
 
-        defaulted_nlist = make_default_nlist(
+        defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef freud._locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
+        cdef freud.box.Box b
         if box is None:
-            box = self.m_box
+            b = self.m_box
         else:
-            box = freud.common.convert_box(box)
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            b = freud.common.convert_box(box)
 
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
-                l_box, nlist_ptr, <vec3[float]*> cPoints.data, Np)
+                dereference(b.thisptr), nlist_.get_ptr(),
+                <vec3[float]*> cPoints.data, Np)
         return self
 
     def computeClusterMembership(self, keys):
@@ -250,12 +249,12 @@ cdef class ClusterProperties:
             :py:meth:`~.computeProperties()`.
     """
     cdef freud._cluster.ClusterProperties * thisptr
-    cdef m_box
+    cdef freud.box.Box m_box
 
     def __cinit__(self, box):
-        box = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr = new freud._cluster.ClusterProperties()
-        self.m_box = box
+        self.m_box = b
 
     def __dealloc__(self):
         del self.thisptr
@@ -287,13 +286,11 @@ cdef class ClusterProperties:
             box (:py:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
+        cdef freud.box.Box b
         if box is None:
-            box = self.m_box
+            b = self.m_box
         else:
-            box = freud.common.convert_box(box)
-        cdef freud._box.Box l_box = freud._box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
+            b = freud.common.convert_box(box)
 
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True)
@@ -311,7 +308,7 @@ cdef class ClusterProperties:
         cdef unsigned int Np = points.shape[0]
         with nogil:
             self.thisptr.computeProperties(
-                l_box,
+                dereference(b.thisptr),
                 <vec3[float]*> cPoints.data,
                 <unsigned int*> cCluster_idx.data,
                 Np)
