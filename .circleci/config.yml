@@ -21,6 +21,7 @@ references:
         git submodule update --init
         pip${PYVER} install --user -r requirements.txt
         pip${PYVER} install --user flake8
+        pip${PYVER} install --user coverage
 
   check_source: &check_source
     run:
@@ -33,13 +34,22 @@ references:
       name: Build
       command: |
         echo "PYVER=${PYVER}"
-        python${PYVER} setup.py build_ext --inplace
+        python${PYVER} setup.py build_ext --inplace --coverage
 
   test: &test
     run:
       name: Run unit tests
       command: |
-          python${PYVER} -m unittest discover tests/ -v
+          python${PYVER} -m unittest discover tests -v
+
+  test_cov: &test_cov
+    run:
+      name: Run unit tests with coverage
+      command: |
+          export PATH=~/.local/bin:${PATH}
+          coverage run -m unittest discover tests -v
+          export CODECOV_TOKEN=4ce7f171-1f0a-4cc9-a6c3-594a7af1987c
+          bash <(curl -s https://codecov.io/bash)
 
   store: &store
     store_artifacts:
@@ -53,6 +63,15 @@ references:
       - *check_source
       - *build
       - *test
+      - *store
+
+  build_and_test_with_cov: &build_and_test_with_cov
+    steps:
+      - *load_code
+      - *get_requirements
+      - *check_source
+      - *build
+      - *test_cov
       - *store
 
 jobs:
@@ -72,7 +91,7 @@ jobs:
     <<: *test_container_config_arch
     environment:
       PYVER: "3.6"
-    <<: *build_and_test
+    <<: *build_and_test_with_cov
 
 workflows:
   version: 2

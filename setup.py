@@ -99,6 +99,15 @@ if warnings_str in sys.argv:
 else:
     print_warnings = False
 
+coverage_str = "--coverage"
+if coverage_str in sys.argv:
+    sys.argv.remove(coverage_str)
+    directives = {'linetrace': True}
+    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
+else:
+    directives = {}
+    macros = []
+
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
         os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
@@ -132,6 +141,7 @@ library_dirs = [tbb_link] if tbb_link else []
 
 compile_args = link_args = ["-std=c++11"]
 
+
 extensions = [
     # Compile cluster first so that Cluster.cc has been compiled and is
     # available for the order module.
@@ -145,7 +155,8 @@ extensions = [
               extra_link_args=link_args,
               libraries=libraries,
               library_dirs=library_dirs,
-              include_dirs=include_dirs),
+              include_dirs=include_dirs,
+              define_macros=macros),
     Extension("freud.*",
               sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc"],
               language="c++",
@@ -153,7 +164,8 @@ extensions = [
               extra_link_args=link_args,
               libraries=libraries,
               library_dirs=library_dirs,
-              include_dirs=include_dirs),
+              include_dirs=include_dirs,
+              define_macros=macros),
 ]
 
 # Gets the version
@@ -213,7 +225,7 @@ try:
               url='http://bitbucket.org/glotzer/freud',
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-              ext_modules=cythonize(extensions))
+              ext_modules=cythonize(extensions, compiler_directives=directives))
 except SystemExit:
     err_str = "tbb/tbb.h"
     err_out = tfile.read().decode()
