@@ -40,7 +40,7 @@ references:
     run:
       name: Run unit tests
       command: |
-          python -m unittest discover tests -v
+          python${PYVER} -m unittest discover tests -v
 
   test_cov: &test_cov
     run:
