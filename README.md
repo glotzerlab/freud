@@ -4,6 +4,7 @@
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/freud/badges/version.svg)](https://anaconda.org/conda-forge/freud)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org:/repo/harperic/freud-examples)
 [![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
+[![Codecov](https://codecov.io/bb/glotzer/freud/branch/master/graph/badge.svg)](https://codecov.io/bb/glotzer/freud)
 
 The freud library provides users the ability to analyze molecular dynamics and Monte Carlo simulation trajectories
 for advanced metrics such as the radial distribution function and various order parameters. Its modules work with
