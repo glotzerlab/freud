@@ -34,7 +34,7 @@ references:
       name: Build
       command: |
         echo "PYVER=${PYVER}"
-        python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE_CYTHON
+        python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
 
   test: &test
     run:
