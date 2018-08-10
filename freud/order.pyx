@@ -9,30 +9,32 @@ scalar value. This is often done through computing spherical harmonics of the
 bond order diagram, which are the spherical analogue of Fourier Transforms.
 """
 
-from . import common
+import freud.common
 import warnings
-from .errors import FreudDeprecationWarning
+from freud.errors import FreudDeprecationWarning
 import numpy as np
 import time
-from .locality import make_default_nlist, make_default_nlist_nn
+import freud.locality
 
-from .util._VectorMath cimport vec3, quat
+from freud.util._VectorMath cimport vec3, quat
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 from libcpp.pair cimport pair
-from .box cimport BoxFromCPP
-from .locality cimport NeighborList
-from . cimport _box, _order, _locality
+from cython.operator cimport dereference
 
 # The below are maintained for backwards compatibility
 # but have been moved to the environment module
-from .environment cimport BondOrder as _EBO
-from .environment cimport LocalDescriptors as _ELD
-from .environment cimport MatchEnv as _EME
-from .environment cimport Pairing2D as _EP
-from .environment cimport AngularSeparation as _EAS
+from freud.environment cimport BondOrder as _EBO
+from freud.environment cimport LocalDescriptors as _ELD
+from freud.environment cimport MatchEnv as _EME
+from freud.environment cimport Pairing2D as _EP
+from freud.environment cimport AngularSeparation as _EAS
+
+cimport freud._order
+cimport freud.locality
+cimport freud.box
 
 cimport numpy as np
 
@@ -58,7 +60,7 @@ cdef class CubaticOrderParameter:
         seed (unsigned int):
             Random seed to use in calculations. If None, system time is used.
     """
-    cdef _order.CubaticOrderParameter * thisptr
+    cdef freud._order.CubaticOrderParameter * thisptr
 
     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
         # run checks
@@ -86,7 +88,7 @@ cdef class CubaticOrderParameter:
             "il,jk->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
         r4 *= (2.0/5.0)
-        self.thisptr = new _order.CubaticOrderParameter(
+        self.thisptr = new freud._order.CubaticOrderParameter(
             t_initial, t_final, scale, <float*> r4.data, n_replicates, seed)
 
     def compute(self, orientations):
@@ -96,7 +98,7 @@ cdef class CubaticOrderParameter:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
         """
-        orientations = common.convert_array(
+        orientations = freud.common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
         if orientations.shape[1] != 4:
@@ -258,7 +260,7 @@ cdef class NematicOrderParameter:
             The nematic director of a single particle in the reference state
             (without any rotation applied).
     """
-    cdef _order.NematicOrderParameter *thisptr
+    cdef freud._order.NematicOrderParameter *thisptr
 
     def __cinit__(self, u):
         # run checks
@@ -267,7 +269,7 @@ cdef class NematicOrderParameter:
 
         cdef np.ndarray[np.float32_t, ndim=1] l_u = \
             np.array(u, dtype=np.float32)
-        self.thisptr = new _order.NematicOrderParameter(
+        self.thisptr = new freud._order.NematicOrderParameter(
             (<vec3[float]*> l_u.data)[0])
 
     def compute(self, orientations):
@@ -278,7 +280,7 @@ cdef class NematicOrderParameter:
             :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """
-        orientations = common.convert_array(
+        orientations = freud.common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
         if orientations.shape[1] != 4:
@@ -385,12 +387,12 @@ cdef class HexOrderParameter:
         k (unsigned int):
             Symmetry of the order parameter.
     """
-    cdef _order.HexOrderParameter * thisptr
+    cdef freud._order.HexOrderParameter * thisptr
     cdef num_neigh
     cdef rmax
 
     def __cinit__(self, rmax, k=int(6), n=int(0)):
-        self.thisptr = new _order.HexOrderParameter(rmax, k, n)
+        self.thisptr = new freud._order.HexOrderParameter(rmax, k, n)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 
@@ -409,8 +411,8 @@ cdef class HexOrderParameter:
             nlist (:class:`freud.locality.NeighborList`):
                 Neighborlist to use to find bonds.
         """
-        box = common.convert_box(box)
-        points = common.convert_array(
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -418,17 +420,13 @@ cdef class HexOrderParameter:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist_nn(
-            box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
+            b, points, points, self.num_neigh, nlist, True, self.rmax)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
-            self.thisptr.compute(
-                l_box, nlist_ptr, <vec3[float]*> l_points.data, nP)
+            self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
+                                 <vec3[float]*> l_points.data, nP)
         return self
 
     @property
@@ -460,7 +458,7 @@ cdef class HexOrderParameter:
         Returns:
           :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     @property
     def num_particles(self):
@@ -509,12 +507,12 @@ cdef class TransOrderParameter:
         num_particles (unsigned int):
             Number of particles.
     """
-    cdef _order.TransOrderParameter * thisptr
+    cdef freud._order.TransOrderParameter * thisptr
     cdef num_neigh
     cdef rmax
 
     def __cinit__(self, rmax, k=6.0, n=0):
-        self.thisptr = new _order.TransOrderParameter(rmax, k)
+        self.thisptr = new freud._order.TransOrderParameter(rmax, k)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 
@@ -532,26 +530,22 @@ cdef class TransOrderParameter:
             nlist (:class:`freud.locality.NeighborList`):
                 Neighborlist to use to find bonds.
         """
-        box = common.convert_box(box)
-        points = common.convert_array(
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist_nn(
-            box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
+            b, points, points, self.num_neigh, nlist, True, self.rmax)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
-            self.thisptr.compute(
-                l_box, nlist_ptr, <vec3[float]*> l_points.data, nP)
+            self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
+                                 <vec3[float]*> l_points.data, nP)
         return self
 
     @property
@@ -583,7 +577,7 @@ cdef class TransOrderParameter:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     @property
     def num_particles(self):
@@ -660,20 +654,17 @@ cdef class LocalQl:
 
     .. todo:: move box to compute, this is old API
     """ # noqa
-    cdef _order.LocalQl * qlptr
-    cdef m_box
+    cdef freud._order.LocalQl * qlptr
+    cdef freud.box.Box m_box
     cdef rmax
 
     def __cinit__(self, box, rmax, l, rmin=0):
-        box = common.convert_box(box)
-        cdef _box.Box l_box
+        cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalQl:
-            l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
-            self.qlptr = new _order.LocalQl(l_box, rmax, l, rmin)
+            self.qlptr = new freud._order.LocalQl(
+                dereference(b.thisptr), rmax, l, rmin)
 
     def __dealloc__(self):
         if type(self) is LocalQl:
@@ -694,7 +685,7 @@ cdef class LocalQl:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.qlptr.getBox())
+        return freud.box.BoxFromCPP(< freud._box.Box > self.qlptr.getBox())
 
     def setBox(self, box):
         """Reset the simulation box.
@@ -702,11 +693,8 @@ cdef class LocalQl:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
-        box = common.convert_box(box)
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.qlptr.setBox(l_box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.qlptr.setBox(dereference(b.thisptr))
 
     @property
     def num_particles(self):
@@ -807,19 +795,18 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(
+        defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
+        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
         return self
 
     def computeAve(self, points, nlist=None):
@@ -832,7 +819,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -840,13 +827,14 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(
+        defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
-        self.qlptr.computeAve(nlist_ptr, <vec3[float]*> l_points.data, nP)
+        self.qlptr.compute(nlist_.get_ptr(),
+                           <vec3[float]*> l_points.data, nP)
+        self.qlptr.computeAve(nlist_.get_ptr(),
+                              <vec3[float]*> l_points.data, nP)
         return self
 
     def computeNorm(self, points, nlist=None):
@@ -859,7 +847,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -867,12 +855,11 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(
+        defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
+        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
         self.qlptr.computeNorm(<vec3[float]*> l_points.data, nP)
         return self
 
@@ -886,7 +873,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -894,13 +881,14 @@ cdef class LocalQl:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(
+        defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
-        self.qlptr.computeAve(nlist_ptr, <vec3[float]*> l_points.data, nP)
+        self.qlptr.compute(nlist_.get_ptr(),
+                           <vec3[float]*> l_points.data, nP)
+        self.qlptr.computeAve(nlist_.get_ptr(),
+                              <vec3[float]*> l_points.data, nP)
         self.qlptr.computeAveNorm(<vec3[float]*> l_points.data, nP)
         return self
 
@@ -973,14 +961,10 @@ cdef class LocalQlNear(LocalQl):
         # type conditional in the parent will prevent it.
         # Unfortunately, this is necessary for proper memory
         # management in this inheritance structure.
-        cdef _box.Box l_box
+        cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) == LocalQlNear:
-            box = common.convert_box(box)
-            l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(),
-                box.getTiltFactorXY(), box.getTiltFactorXZ(),
-                box.getTiltFactorYZ(), box.is2D())
-            self.qlptr = new _order.LocalQl(l_box, rmax, l, 0)
+            self.qlptr = new freud._order.LocalQl(
+                dereference(b.thisptr), rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn
@@ -1000,9 +984,9 @@ cdef class LocalQlNear(LocalQl):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
@@ -1015,9 +999,9 @@ cdef class LocalQlNear(LocalQl):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
@@ -1030,9 +1014,9 @@ cdef class LocalQlNear(LocalQl):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAveNorm(points, nlist_)
 
 cdef class LocalWl(LocalQl):
@@ -1106,7 +1090,7 @@ cdef class LocalWl(LocalQl):
 
     .. todo:: move box to compute, this is old API
     """
-    cdef _order.LocalWl * thisptr
+    cdef freud._order.LocalWl * thisptr
 
     # List of Ql attributes to remove
     delattrs = ['Ql', 'getQl',
@@ -1115,13 +1099,10 @@ cdef class LocalWl(LocalQl):
                 'ave_norm_Ql', 'getQlAveNorm']
 
     def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
-        cdef _box.Box l_box
+        cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalWl:
-            l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-                box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.qlptr = new _order.LocalWl(
-                l_box, rmax, l, rmin)
+            self.thisptr = self.qlptr = new freud._order.LocalWl(
+                dereference(b.thisptr), rmax, l, rmin)
             self.m_box = box
             self.rmax = rmax
 
@@ -1296,14 +1277,10 @@ cdef class LocalWlNear(LocalWl):
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
-        box = common.convert_box(box)
-        cdef _box.Box l_box
+        cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalWlNear:
-            l_box = _box.Box(
-                box.getLx(), box.getLy(), box.getLz(),
-                box.getTiltFactorXY(), box.getTiltFactorXZ(),
-                box.getTiltFactorYZ(), box.is2D())
-            self.thisptr = self.qlptr = new _order.LocalWl(l_box, rmax, l, 0)
+            self.thisptr = self.qlptr = new freud._order.LocalWl(
+                dereference(b.thisptr), rmax, l, 0)
             self.m_box = box
             self.rmax = rmax
             self.num_neigh = kn
@@ -1322,9 +1299,9 @@ cdef class LocalWlNear(LocalWl):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
@@ -1337,9 +1314,9 @@ cdef class LocalWlNear(LocalWl):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
@@ -1352,9 +1329,9 @@ cdef class LocalWlNear(LocalWl):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
 cdef class SolLiq:
@@ -1407,17 +1384,14 @@ cdef class SolLiq:
 
     .. todo:: move box to compute, this is old API
     """
-    cdef _order.SolLiq * thisptr
-    cdef m_box
+    cdef freud._order.SolLiq * thisptr
+    cdef freud.box.Box m_box
     cdef rmax
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
-        box = common.convert_box(box)
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new _order.SolLiq(
-            l_box, rmax, Qthreshold, Sthreshold, l)
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.thisptr = new freud._order.SolLiq(
+            dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
         self.m_box = box
         self.rmax = rmax
 
@@ -1435,7 +1409,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -1443,12 +1417,12 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(
+        defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.thisptr.compute(nlist_ptr, <vec3[float]*> l_points.data, nP)
+        self.thisptr.compute(nlist_.get_ptr(),
+                             <vec3[float]*> l_points.data, nP)
         return self
 
     def computeSolLiqVariant(self, points, nlist=None):
@@ -1461,7 +1435,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -1469,13 +1443,12 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(
+        defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.computeSolLiqVariant(
-            nlist_ptr, <vec3[float]*> l_points.data, nP)
+            nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
         return self
 
     def computeSolLiqNoNorm(self, points, nlist=None):
@@ -1488,7 +1461,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
@@ -1496,13 +1469,12 @@ cdef class SolLiq:
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int nP = <unsigned int> points.shape[0]
 
-        defaulted_nlist = make_default_nlist(
+        defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.computeSolLiqNoNorm(
-            nlist_ptr, <vec3[float]*> l_points.data, nP)
+            nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
         return self
 
     @property
@@ -1519,7 +1491,7 @@ cdef class SolLiq:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     def setClusteringRadius(self, rcutCluster):
         """Reset the clustering radius.
@@ -1535,11 +1507,8 @@ cdef class SolLiq:
         Args:
             box(:class:`freud.box.Box`): Simulation box.
         """
-        box = common.convert_box(box)
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr.setBox(l_box)
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.thisptr.setBox(dereference(b.thisptr))
 
     @property
     def largest_cluster_size(self):
@@ -1728,12 +1697,9 @@ cdef class SolLiqNear(SolLiq):
     cdef num_neigh
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
-        box = common.convert_box(box)
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
-        self.thisptr = new _order.SolLiq(
-            l_box, rmax, Qthreshold, Sthreshold, l)
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.thisptr = new freud._order.SolLiq(
+            dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
         self.m_box = box
         self.rmax = rmax
         self.num_neigh = kn
@@ -1752,9 +1718,9 @@ cdef class SolLiqNear(SolLiq):
             nlist (:class:`freud.locality.NeighborList`):
                 Neighborlist to use to find bonds.
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.compute(self, points, nlist_)
 
     def computeSolLiqVariant(self, points, nlist=None):
@@ -1767,9 +1733,9 @@ cdef class SolLiqNear(SolLiq):
             nlist (:class:`freud.locality.NeighborList`):
                 Neighborlist to use to find bonds.
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
     def computeSolLiqNoNorm(self, points, nlist=None):
@@ -1782,9 +1748,9 @@ cdef class SolLiqNear(SolLiq):
             nlist (:class:`freud.locality.NeighborList`):
                 Neighborlist to use to find bonds.
         """
-        defaulted_nlist = make_default_nlist_nn(
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
 

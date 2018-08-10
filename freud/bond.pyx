@@ -31,16 +31,17 @@ as the :doc:`pmft` in freud.
 """
 
 import numpy as np
-from . import common
-from .locality import make_default_nlist, make_default_nlist_nn
+import freud.common
+import freud.locality
 
-from .util._VectorMath cimport vec3, quat
+from cython.operator cimport dereference
+from freud.util._VectorMath cimport vec3, quat
 from libcpp.map cimport map
-from .box cimport BoxFromCPP
-from .locality cimport NeighborList
 
-from . cimport _box, _bond, _locality
+cimport freud.locality
+cimport freud._bond
 cimport numpy as np
+cimport freud.box
 
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -74,14 +75,15 @@ cdef class BondingAnalysis:
         num_bonds (unsigned int):
             Number of tracked bonds.
     """
-    cdef _bond.BondingAnalysis * thisptr
+    cdef freud._bond.BondingAnalysis * thisptr
     cdef unsigned int num_particles
     cdef unsigned int num_bonds
 
     def __cinit__(self, int num_particles, int num_bonds):
         self.num_particles = num_particles
         self.num_bonds = num_bonds
-        self.thisptr = new _bond.BondingAnalysis(num_particles, num_bonds)
+        self.thisptr = new freud._bond.BondingAnalysis(num_particles,
+                                                       num_bonds)
 
     def __dealloc__(self):
         del self.thisptr
@@ -95,7 +97,7 @@ cdef class BondingAnalysis:
                 First bonding frame (as output from :py:class:`~.BondingR12`
                 modules).
         """
-        frame_0 = common.convert_array(
+        frame_0 = freud.common.convert_array(
             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
         if (frame_0.shape[0] != self.num_particles):
             raise ValueError(
@@ -122,9 +124,9 @@ cdef class BondingAnalysis:
                 Next/current bonding frame (as output from
                 :py:class:`.BondingR12` modules).
         """
-        frame_0 = common.convert_array(
+        frame_0 = freud.common.convert_array(
             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
-        frame_1 = common.convert_array(
+        frame_1 = freud.common.convert_array(
             frame_1, 2, dtype=np.uint32, contiguous=True, array_name="frame_1")
 
         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
@@ -246,7 +248,7 @@ cdef class BondingR12:
         rev_list_map (dict):
             The dict used to map list idx to bond idx.
     """
-    cdef _bond.BondingR12 * thisptr
+    cdef freud._bond.BondingR12 * thisptr
     cdef rmax
 
     def __cinit__(self, float r_max, bond_map, bond_list):
@@ -257,7 +259,7 @@ cdef class BondingR12:
         n_bonds = bond_list.shape[0]
         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
-        self.thisptr = new _bond.BondingR12(
+        self.thisptr = new freud._bond.BondingR12(
             r_max, n_r, n_t2, n_t1, n_bonds,
             <unsigned int*> l_bond_map.data,
             <unsigned int*> l_bond_list.data)
@@ -285,30 +287,29 @@ cdef class BondingR12:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = common.convert_box(box)
-        ref_points = common.convert_array(
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = common.convert_array(
+        ref_orientations = freud.common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = common.convert_array(
+        orientations = freud.common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -316,12 +317,9 @@ cdef class BondingR12:
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data,
@@ -357,7 +355,7 @@ cdef class BondingR12:
         Returns:
             :py:class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -411,7 +409,7 @@ cdef class BondingXY2D:
         rev_list_map (dict):
             The dict used to map list idx to bond idx.
     """
-    cdef _bond.BondingXY2D * thisptr
+    cdef freud._bond.BondingXY2D * thisptr
     cdef rmax
 
     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
@@ -423,7 +421,7 @@ cdef class BondingXY2D:
         bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
-        self.thisptr = new _bond.BondingXY2D(
+        self.thisptr = new freud._bond.BondingXY2D(
             x_max, y_max, n_x, n_y, n_bonds,
             <unsigned int*> l_bond_map.data,
             <unsigned int*> l_bond_list.data)
@@ -452,30 +450,29 @@ cdef class BondingXY2D:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = common.convert_box(box)
-        ref_points = common.convert_array(
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = common.convert_array(
+        ref_orientations = freud.common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = common.convert_array(
+        orientations = freud.common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -483,12 +480,9 @@ cdef class BondingXY2D:
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 <float*> l_ref_orientations.data,
                 n_ref,
@@ -525,7 +519,7 @@ cdef class BondingXY2D:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -582,7 +576,7 @@ cdef class BondingXYT:
         rev_list_map (dict):
             The dict used to map list idx to bond idx.
     """
-    cdef _bond.BondingXYT * thisptr
+    cdef freud._bond.BondingXYT * thisptr
     cdef rmax
 
     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
@@ -595,7 +589,7 @@ cdef class BondingXYT:
         bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
-        self.thisptr = new _bond.BondingXYT(
+        self.thisptr = new freud._bond.BondingXYT(
             x_max, y_max, n_x, n_y, n_t, n_bonds,
             <unsigned int*> l_bond_map.data,
             <unsigned int*> l_bond_list.data)
@@ -623,30 +617,29 @@ cdef class BondingXYT:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = common.convert_box(box)
-        ref_points = common.convert_array(
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = common.convert_array(
+        ref_orientations = freud.common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = common.convert_array(
+        orientations = freud.common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
@@ -654,12 +647,9 @@ cdef class BondingXYT:
         cdef np.ndarray[float, ndim=1] l_orientations = orientations
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 <float*> l_ref_orientations.data, n_ref,
                 <vec3[float]*> l_points.data,
@@ -695,7 +685,7 @@ cdef class BondingXYT:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
     def list_map(self):
@@ -754,7 +744,7 @@ cdef class BondingXYZ:
         rev_list_map (dict):
             The dict used to map list idx to bond idx.
     """
-    cdef _bond.BondingXYZ * thisptr
+    cdef freud._bond.BondingXYZ * thisptr
     cdef rmax
 
     def __cinit__(self, float x_max, float y_max, float z_max, bond_map,
@@ -768,7 +758,7 @@ cdef class BondingXYZ:
         bond_list = np.require(bond_list, requirements=["C"])
         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
-        self.thisptr = new _bond.BondingXYZ(
+        self.thisptr = new freud._bond.BondingXYZ(
             x_max, y_max, z_max, n_x, n_y, n_z, n_bonds,
             <unsigned int*> l_bond_map.data,
             <unsigned int*> l_bond_list.data)
@@ -796,36 +786,35 @@ cdef class BondingXYZ:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = None).
         """
-        box = common.convert_box(box)
-        ref_points = common.convert_array(
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = common.convert_array(
+        ref_orientations = freud.common.convert_array(
             ref_orientations, 2, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise ValueError(
                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
 
-        points = common.convert_array(
+        points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = common.convert_array(
+        orientations = freud.common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
         if orientations.shape[1] != 4:
             raise ValueError(
                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
 
-        defaulted_nlist = make_default_nlist(
-            box, ref_points, points, self.rmax, nlist, None)
-        cdef NeighborList nlist_ = defaulted_nlist[0]
-        cdef _locality.NeighborList * nlist_ptr = nlist_.get_ptr()
+        defaulted_nlist = freud.locality.make_default_nlist(
+            b, ref_points, points, self.rmax, nlist, None)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
@@ -833,12 +822,9 @@ cdef class BondingXYZ:
         cdef np.ndarray[float, ndim=2] l_orientations = orientations
         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
         cdef unsigned int n_p = <unsigned int> points.shape[0]
-        cdef _box.Box l_box = _box.Box(
-            box.getLx(), box.getLy(), box.getLz(), box.getTiltFactorXY(),
-            box.getTiltFactorXZ(), box.getTiltFactorYZ(), box.is2D())
         with nogil:
             self.thisptr.compute(
-                l_box, nlist_ptr,
+                dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
                 <quat[float]*> l_ref_orientations.data,
                 n_ref,
@@ -876,7 +862,7 @@ cdef class BondingXYZ:
         Returns:
             :class:`freud.box.Box`: freud Box.
         """
-        return BoxFromCPP(< _box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
     def list_map(self):

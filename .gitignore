@@ -19,3 +19,5 @@ py/freud/trajectory.py.orig
 doc/build/*
 doc/_build/*
 *.so
+.coverage
+coverage_html_report

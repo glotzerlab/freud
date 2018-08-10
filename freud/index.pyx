@@ -10,7 +10,7 @@ with :math:`\prod_{i=1}^N n_i` elements.
 """
 
 import numpy as np
-from .util cimport _Index1D
+from freud.util cimport _Index1D
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must

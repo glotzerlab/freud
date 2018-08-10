@@ -2,6 +2,23 @@
 freud documentation
 ===================
 
+|DOI|
+|Anaconda-Server|
+|Binder|
+|ReadTheDocs|
+|Codecov|
+
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg
+    :target: https://doi.org/10.5281/zenodo.166564
+.. |Anaconda-Server| image:: https://anaconda.org/conda-forge/freud/badges/version.svg
+    :target: https://anaconda.org/conda-forge/freud
+.. |Binder| image:: https://mybinder.org/badge.svg
+    :target: https://mybinder.org:/repo/harperic/freud-examples
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/freud/badge/?version=latest
+    :target: https://freud.readthedocs.io/en/latest/?badge=latest
+.. |Codecov| image:: https://codecov.io/bb/glotzer/freud/branch/master/graph/badge.svg
+    :target: https://codecov.io/bb/glotzer/freud
+
 *"Neurosis is the inability to tolerate ambiguity" - Sigmund Freud*
 
 Welcome to the documentation for freud, a Python package for analyzing particle simulation trajectories of periodic systems.

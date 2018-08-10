@@ -10,14 +10,14 @@ fundamental features for wrapping vectors outside the box back into it.
 import warnings
 import numpy as np
 from collections import namedtuple
-from . import common
+import freud.common
 
-from .util._VectorMath cimport vec3
+from freud.util._VectorMath cimport vec3
 from libcpp.string cimport string
 from libc.string cimport memcpy
 from cpython.object cimport Py_EQ, Py_NE
-from . cimport _box
 
+cimport freud._box
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -100,7 +100,7 @@ cdef class Box:
             warnings.warn(
                 "Specifying z-dimensions in a 2-dimensional box "
                 "has no effect!")
-        self.thisptr = new _box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
+        self.thisptr = new freud._box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     def __dealloc__(self):
         del self.thisptr
@@ -260,7 +260,7 @@ cdef class Box:
             list[float, float, float]:
                 Vector of real coordinates :math:`\\left(x, y, z\\right)`.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
+        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             f, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeCoordinates(
             <const vec3[float]&> l_vec[0])
@@ -277,7 +277,7 @@ cdef class Box:
             list[float, float, float]:
                 A fractional coordinate vector.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
+        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeFraction(
             <const vec3[float]&> l_vec[0])
@@ -296,7 +296,7 @@ cdef class Box:
             :math:`\\left(3\\right)` :class:`numpy.ndarray`:
                 Image index vector.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = common.convert_array(
+        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[int] result = self.thisptr.getImage(
             <const vec3[float]&> l_vec[0])
@@ -343,7 +343,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to box.wrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = common.convert_array(
+        vecs = freud.common.convert_array(
             vecs, vecs.ndim, dtype=np.float32, contiguous=True)
 
         if vecs.ndim == 1:
@@ -387,9 +387,9 @@ cdef class Box:
                 "Invalid dimensions for vecs given to box.unwrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = common.convert_array(
+        vecs = freud.common.convert_array(
             vecs, vecs.ndim, dtype=np.float32, contiguous=True)
-        imgs = common.convert_array(
+        imgs = freud.common.convert_array(
             imgs, vecs.ndim, dtype=np.int32, contiguous=True)
 
         if vecs.ndim == 1:
@@ -725,7 +725,7 @@ cdef class Box:
                 self.getTiltFactorYZ(),
                 self.is2D())
 
-cdef BoxFromCPP(const _box.Box & cppbox):
+cdef BoxFromCPP(const freud._box.Box & cppbox):
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
                cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
                cppbox.getTiltFactorYZ(), cppbox.is2D())

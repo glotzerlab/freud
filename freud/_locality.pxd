@@ -6,7 +6,7 @@ from freud.util._VectorMath cimport vec3
 from freud.util._Index1D cimport Index3D
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
-cimport freud._box as box
+cimport freud._box
 
 cdef extern from "NeighborList.cc" namespace "freud::locality":
     pass
@@ -24,7 +24,7 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         void setNumBonds(size_t, size_t, size_t)
         size_t filter(const bool*)
         size_t filter_r(
-            const box.Box &,
+            const freud._box.Box &,
             const vec3[float]*,
             const vec3[float]*,
             float, float)
@@ -55,15 +55,15 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int begin()
 
     cdef cppclass LinkCell:
-        LinkCell(const box.Box &, float) except +
+        LinkCell(const freud._box.Box &, float) except +
         LinkCell()
 
         setCellWidth(float)
-        updateBox(const box.Box &)
+        updateBox(const freud._box.Box &)
         const vec3[unsigned int] computeDimensions(
-            const box.Box &,
+            const freud._box.Box &,
             float) const
-        const box.Box & getBox() const
+        const freud._box.Box & getBox() const
         const Index3D & getCellIndexer() const
         unsigned int getNumCells() const
         float getCellWidth() const
@@ -71,11 +71,11 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         IteratorLinkCell itercell(unsigned int) const
         vector[unsigned int] getCellNeighbors(unsigned int) const
         void computeCellList(
-            const box.Box &,
+            const freud._box.Box &,
             const vec3[float]*,
             unsigned int) nogil except +
         void compute(
-            const box.Box &,
+            const freud._box.Box &,
             const vec3[float]*,
             unsigned int,
             const vec3[float]*,
@@ -92,14 +92,14 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         NearestNeighbors(float, unsigned int, float, bool)
 
         void setRMax(float)
-        const box.Box & getBox() const
+        const freud._box.Box & getBox() const
         unsigned int getNumNeighbors() const
         float getRMax() const
         unsigned int getUINTMAX() const
         unsigned int getNref() const
         void setCutMode(const bool)
         void compute(
-            const box.Box &,
+            const freud._box.Box &,
             const vec3[float]*,
             unsigned int,
             const vec3[float]*,
