@@ -1,6 +1,5 @@
 from setuptools import setup
 from distutils.extension import Extension
-from Cython.Build import cythonize
 import numpy as np
 import io
 import sys
@@ -8,11 +7,15 @@ import contextlib
 import tempfile
 import os
 import platform
+import glob
 
 import logging
 
 logger = logging.getLogger(__name__)
 
+######################################
+# Define helper functions for setup.py
+######################################
 
 def find_tbb(argv):
     """Function to find paths to TBB.
@@ -92,99 +95,12 @@ def find_tbb(argv):
 
     return tbb_include, tbb_link
 
-warnings_str = "--print-warnings"
-if warnings_str in sys.argv:
-    sys.argv.remove(warnings_str)
-    print_warnings = True
-else:
-    print_warnings = False
-
-coverage_str = "--coverage"
-if coverage_str in sys.argv:
-    sys.argv.remove(coverage_str)
-    directives = {'linetrace': True}
-    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
-else:
-    directives = {}
-    macros = []
-
-# Ensure that builds on Mac use correct stdlib.
-if platform.system() == 'Darwin':
-        os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
-
-tbb_include, tbb_link = find_tbb(sys.argv)
-
-include_dirs = [
-    np.get_include(),
-    "extern",
-    "cpp/box",
-    "cpp/bond",
-    "cpp/util",
-    "cpp/locality",
-    "cpp/cluster",
-    "cpp/density",
-    "cpp/voronoi",
-    "cpp/kspace",
-    "cpp/order",
-    "cpp/environment",
-    "cpp/interface",
-    "cpp/pmft",
-    "cpp/parallel",
-    "cpp/registration",
-]
-
-if tbb_include:
-    include_dirs.append(tbb_include)
-
-libraries = ["tbb"]
-library_dirs = [tbb_link] if tbb_link else []
-
-compile_args = link_args = ["-std=c++11"]
-
-
-extensions = [
-    # Compile cluster first so that Cluster.cc has been compiled and is
-    # available for the order module.
-    Extension("freud.order",
-              sources=["freud/order.pyx",
-                       "cpp/util/HOOMDMatrix.cc",
-                       "cpp/order/wigner3j.cc",
-                       "cpp/cluster/Cluster.cc"],
-              language="c++",
-              extra_compile_args=compile_args,
-              extra_link_args=link_args,
-              libraries=libraries,
-              library_dirs=library_dirs,
-              include_dirs=include_dirs,
-              define_macros=macros),
-    Extension("freud.*",
-              sources=["freud/*.pyx", "cpp/util/HOOMDMatrix.cc"],
-              language="c++",
-              extra_compile_args=compile_args,
-              extra_link_args=link_args,
-              libraries=libraries,
-              library_dirs=library_dirs,
-              include_dirs=include_dirs,
-              define_macros=macros),
-]
-
-# Gets the version
-version = '0.8.2'
-
-# Read README for PyPI, fallback if it fails.
-desc = 'Perform various analyses of particle simulations.'
-try:
-    readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               'README.md')
-    with open(readme_file) as f:
-        readme = f.read()
-except ImportError:
-    readme = desc
-
-
 @contextlib.contextmanager
 def stderr_manager(f):
     """Context manager for capturing C-level standard error in a file.
+
+    Capturing C++ level output cannot be done by simply repointing sys.stdout,
+    we need to repoint the underlying file descriptors.
 
     Adapted from
     http://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python
@@ -214,6 +130,121 @@ def stderr_manager(f):
         tfile.seek(0, io.SEEK_SET)
 
 
+############
+# Parse args
+############
+
+warnings_str = "--PRINT-WARNINGS"
+coverage_str = "--COVERAGE"
+cython_str = "--ENABLE-CYTHON"
+
+if warnings_str in sys.argv:
+    sys.argv.remove(warnings_str)
+    print_warnings = True
+else:
+    print_warnings = False
+
+if coverage_str in sys.argv:
+    sys.argv.remove(coverage_str)
+    directives = {'linetrace': True}
+    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
+else:
+    directives = {}
+    macros = []
+
+if cython_str in sys.argv:
+    sys.argv.remove(cython_str)
+    use_cython = True
+    ext = '.pyx'
+else:
+    use_cython = False
+    ext = '.cpp'
+
+#########################
+# Set extension arguments
+#########################
+
+tbb_include, tbb_link = find_tbb(sys.argv)
+
+include_dirs = [
+    np.get_include(),
+    "extern",
+]
+include_dirs.extend(glob.glob(os.path.join('cpp', '*')))
+
+if tbb_include:
+    include_dirs.append(tbb_include)
+
+libraries = ["tbb"]
+library_dirs = [tbb_link] if tbb_link else []
+
+compile_args = link_args = ["-std=c++11"]
+
+ext_args = dict(
+    language="c++",
+    extra_compile_args=compile_args,
+    extra_link_args=link_args,
+    libraries=libraries,
+    library_dirs=library_dirs,
+    include_dirs=include_dirs,
+    define_macros=macros
+    )
+
+###################
+# Set up extensions
+###################
+
+# Need to find files manually; cythonize accepts glob syntax, but basic
+# extension modules with C++ do not
+files = glob.glob(os.path.join('freud', '*') + ext)
+files.remove(os.path.join('freud', 'order' + ext)) # Is compiled separately
+modules = [f.replace(ext, '') for f in files]
+modules = [m.replace(os.path.sep, '.') for m in modules]
+
+extensions = [
+    # Compile order separately since it requires that Cluster.cc and a few other
+    # things be compiled in addition to the main source.
+    Extension("freud.order",
+              sources=[os.path.join("freud", "order" + ext),
+                       os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+                       os.path.join("cpp", "order", "wigner3j.cc"),
+                       os.path.join("cpp", "cluster", "Cluster.cc")],
+              **ext_args
+              ),
+]
+
+for f, m in zip(files, modules):
+    extensions.append(
+        Extension(m,
+                  sources=[f, os.path.join("cpp", "util", "HOOMDMatrix.cc")],
+                  **ext_args)
+    )
+
+if use_cython:
+    from Cython.Build import cythonize
+    extensions = cythonize(extensions, compiler_directives=directives)
+
+####################################
+# Perform set up with error handling
+####################################
+
+# Ensure that builds on Mac use correct stdlib.
+if platform.system() == 'Darwin':
+        os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
+
+version = '0.9.0'
+
+# Read README for PyPI, fallback if it fails.
+desc = 'Perform various analyses of particle simulations.'
+try:
+    readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               'README.md')
+    with open(readme_file) as f:
+        readme = f.read()
+except ImportError:
+    readme = desc
+
+
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
@@ -225,8 +256,10 @@ try:
               url='http://bitbucket.org/glotzer/freud',
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-              ext_modules=cythonize(extensions, compiler_directives=directives))
+              ext_modules=extensions)
 except SystemExit:
+    # For now, the only error we're explicitly checking for is whether or not
+    # TBB is missing
     err_str = "tbb/tbb.h"
     err_out = tfile.read().decode()
     if err_str in err_out:
