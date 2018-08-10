@@ -62,8 +62,8 @@ class TestBox(unittest.TestCase):
 
     def test_WrapMultipleParticles(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([[0,  -1, -1],
-                               [0, 0.5,  0]])
+        testpoints = np.array([[0, -1, -1],
+                               [0, 0.5, 0]])
 
         npt.assert_almost_equal(box.wrap(testpoints)[0, 0], -2, decimal=2,
                                 err_msg="WrapFail")
@@ -78,8 +78,8 @@ class TestBox(unittest.TestCase):
 
     def test_unwrap(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([[0,  -1, -1],
-                               [0, 0.5,  0]])
+        testpoints = np.array([[0, -1, -1],
+                               [0, 0.5, 0]])
         imgs = np.array([[1, 0, 0],
                          [1, 1, 0]])
 
@@ -89,11 +89,11 @@ class TestBox(unittest.TestCase):
     def test_images(self):
         box = bx.Box(2, 2, 2, 0, 0, 0)
         testpoints = np.array([[50, 40, 30],
-                               [-10, 0,  0]])
+                               [-10, 0, 0]])
         testimages = np.array([box.getImage(vec) for vec in testpoints])
         npt.assert_equal(testimages,
                          np.array([[25, 20, 15],
-                                   [-5,  0,  0]]),
+                                   [-5, 0, 0]]),
                          err_msg="ImageFail")
 
     def test_coordinates(self):

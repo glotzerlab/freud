@@ -38,8 +38,8 @@ class TestRDF(unittest.TestCase):
             num_points = 10000
             box_size = rmax*3.1
             np.random.seed(0)
-            points = np.random.random_sample(
-                    (num_points, 3)).astype(np.float32) * box_size - box_size/2
+            points = np.random.random_sample((num_points, 3)).astype(
+                np.float32) * box_size - box_size/2
             rdf = density.RDF(rmax, dr, rmin=rmin)
             fbox = box.Box.cube(box_size)
             rdf.accumulate(fbox, points, points)

@@ -2,10 +2,10 @@ from setuptools import setup
 from distutils.extension import Extension
 import numpy as np
 import io
-import sys
 import contextlib
 import tempfile
 import os
+import sys
 import platform
 import glob
 
@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 ######################################
 # Define helper functions for setup.py
 ######################################
+
 
 def find_tbb(argv):
     """Function to find paths to TBB.
@@ -94,6 +95,7 @@ def find_tbb(argv):
         del sys.argv[i]
 
     return tbb_include, tbb_link
+
 
 @contextlib.contextmanager
 def stderr_manager(f):
@@ -175,6 +177,10 @@ include_dirs.extend(glob.glob(os.path.join('cpp', '*')))
 if tbb_include:
     include_dirs.append(tbb_include)
 
+# Set TBB include path for ReadTheDocs builds
+if os.environ.get('READTHEDOCS') == "True":
+    include_dirs.append(os.path.join(sys.prefix, 'include'))
+
 libraries = ["tbb"]
 library_dirs = [tbb_link] if tbb_link else []
 
@@ -188,22 +194,23 @@ ext_args = dict(
     library_dirs=library_dirs,
     include_dirs=include_dirs,
     define_macros=macros
-    )
+)
 
 ###################
 # Set up extensions
 ###################
 
+
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
 files = glob.glob(os.path.join('freud', '*') + ext)
-files.remove(os.path.join('freud', 'order' + ext)) # Is compiled separately
+files.remove(os.path.join('freud', 'order' + ext))  # Is compiled separately
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
 extensions = [
-    # Compile order separately since it requires that Cluster.cc and a few other
-    # things be compiled in addition to the main source.
+    # Compile order separately since it requires that Cluster.cc and a few
+    # other things be compiled in addition to the main source.
     Extension("freud.order",
               sources=[os.path.join("freud", "order" + ext),
                        os.path.join("cpp", "util", "HOOMDMatrix.cc"),
@@ -234,7 +241,7 @@ if platform.system() == 'Darwin':
 
 version = '0.9.0'
 
-# Read README for PyPI, fallback if it fails.
+# Read README for PyPI, fallback to short description if it fails.
 desc = 'Perform various analyses of particle simulations.'
 try:
     readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -243,7 +250,6 @@ try:
         readme = f.read()
 except ImportError:
     readme = desc
-
 
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
