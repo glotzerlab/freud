@@ -2,7 +2,6 @@ from setuptools import setup
 from distutils.extension import Extension
 import numpy as np
 import io
-import sys
 import contextlib
 import tempfile
 import os
@@ -168,7 +167,6 @@ else:
 #########################
 
 tbb_include, tbb_link = find_tbb(sys.argv)
->>>>>>> pure_cython
 
 include_dirs = [
     np.get_include(),
