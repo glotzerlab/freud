@@ -263,11 +263,10 @@ except SystemExit:
     err_str = "tbb/tbb.h"
     err_out = tfile.read().decode()
     if err_str in err_out:
-        sys.stderr.write(err_out)
-        raise RuntimeError("Unable to find tbb. If you have TBB on your "
-                           "system, try specifying the location using the "
-                           "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
-                           "arguments to setup.py.")
+        sys.stderr.write("Unable to find tbb. If you have TBB on your "
+                         "system, try specifying the location using the "
+                         "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
+                         "arguments to setup.py.\n")
     else:
         sys.stderr.write(err_out)
         raise
