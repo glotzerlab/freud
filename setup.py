@@ -177,9 +177,8 @@ include_dirs.extend(glob.glob(os.path.join('cpp', '*')))
 if tbb_include:
     include_dirs.append(tbb_include)
 
-# Set TBB include path for ReadTheDocs builds
-if os.environ.get('READTHEDOCS') == "True":
-    include_dirs.append(os.path.join(sys.prefix, 'include'))
+# Add sys.prefix to include path for finding conda tbb
+include_dirs.append(os.path.join(sys.prefix, 'include'))
 
 libraries = ["tbb"]
 library_dirs = [tbb_link] if tbb_link else []
@@ -237,7 +236,7 @@ if use_cython:
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
-        os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
+    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
 
 version = '0.9.0'
 
