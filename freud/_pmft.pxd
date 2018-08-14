@@ -4,25 +4,31 @@
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from libcpp.memory cimport shared_ptr
-cimport freud._box as box
+cimport freud._box
 cimport freud._locality
+
+cdef extern from "PMFT.cc" namespace "freud::pmft":
+    pass
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
     cdef cppclass PMFT:
         PMFT()
 
-        const box.Box & getBox() const
+        const freud._box.Box & getBox() const
         void reset()
         void reducePCF()
         shared_ptr[unsigned int] getBinCounts()
         shared_ptr[float] getPCF()
         float getRCut()
 
+cdef extern from "PMFTR12.cc" namespace "freud::pmft":
+    pass
+
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12(PMFT):
         PMFTR12(float, unsigned int, unsigned int, unsigned int)
 
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -38,11 +44,14 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
         unsigned int getNBinsT1()
         unsigned int getNBinsT2()
 
+cdef extern from "PMFTXYT.cc" namespace "freud::pmft":
+    pass
+
 cdef extern from "PMFTXYT.h" namespace "freud::pmft":
     cdef cppclass PMFTXYT(PMFT):
         PMFTXYT(float, float, unsigned int, unsigned int, unsigned int)
 
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -58,11 +67,14 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
         unsigned int getNBinsY()
         unsigned int getNBinsT()
 
+cdef extern from "PMFTXY2D.cc" namespace "freud::pmft":
+    pass
+
 cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D(PMFT):
         PMFTXY2D(float, unsigned int, unsigned int, unsigned int)
 
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -76,12 +88,15 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
         unsigned int getNBinsX()
         unsigned int getNBinsY()
 
+cdef extern from "PMFTXYZ.cc" namespace "freud::pmft":
+    pass
+
 cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFTXYZ(PMFT):
         PMFTXYZ(float, float, float, unsigned int, unsigned int,
                 unsigned int, vec3[float])
 
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         quat[float]*,

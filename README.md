@@ -4,6 +4,7 @@
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/freud/badges/version.svg)](https://anaconda.org/conda-forge/freud)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org:/repo/harperic/freud-examples)
 [![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
+[![Codecov](https://codecov.io/bb/glotzer/freud/branch/master/graph/badge.svg)](https://codecov.io/bb/glotzer/freud)
 
 The freud library provides users the ability to analyze molecular dynamics and Monte Carlo simulation trajectories
 for advanced metrics such as the radial distribution function and various order parameters. Its modules work with
@@ -37,24 +38,29 @@ $ conda install -c conda-forge freud
 
 ## Compiling freud
 
-Use CMake to configure and make freud from source.
+Building freud from source follows the typical setuptools pattern for Python packages:
 
 ```bash
-mkdir build
-cd build
-cmake ../
-make install
+git clone --recurse-submodules https://bitbucket.org/glotzer/freud.git
+cd freud
+python setup.py install
 ```
 
 By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
 `USER_SITE` is on the Python search path by default, so there is no need to modify `PYTHONPATH`.
 
+If you want to test freud without installing it for your system, you can instead build it in place.
+
+```bash
+python setup.py build_ext --inplace
+```
+
 For more detailed instructions, see [the documentation](https://freud.readthedocs.io).
 
 #### Note
 
-The freud library makes use of submodules. CMake has been configured to automatically init and update submodules.
-If this does not work or you would like to do this yourself, please execute:
+The freud library makes use of submodules.
+If you would like to update submodules yourself, please execute the following command after cloning:
 
 ```bash
 git submodule update --init
@@ -65,7 +71,6 @@ git submodule update --init
 * Required:
     * Python >= 2.7 (3.5+ recommended)
     * NumPy >= 1.7
-    * CMake >= 2.8.0 (to compile freud)
     * C++11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
     * Intel Threading Building Blocks
 * Optional:

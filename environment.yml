@@ -8,7 +8,6 @@ dependencies:
   - ca-certificates=2018.4.16=0
   - certifi=2018.4.16=py36_0
   - clangdev=6.0.0=default_0
-  - cmake=3.11.4=0
   - curl=7.60.0=0
   - cython=0.28.4=py36hfc679d8_0
   - expat=2.2.5=hfc679d8_1

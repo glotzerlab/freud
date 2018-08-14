@@ -1,10 +1,11 @@
 import numpy as np
 import numpy.testing as npt
-from freud import box, voronoi, common
+from freud import box, voronoi
 import unittest
 import util
 
 
+@util.skipIfMissing('scipy.spatial')
 class TestVoronoi(unittest.TestCase):
     def test_basic(self):
         # Test that voronoi tessellations of random systems have the same
@@ -37,8 +38,8 @@ class TestVoronoi(unittest.TestCase):
         vor.compute(positions)
         npt.assert_equal(
             vor.getVoronoiPolytopes(),
-            [np.array([[1.5,  1.5, 0], [0.5,  1.5, 0],
-                       [0.5,  0.5, 0], [1.5,  0.5, 0]])])
+            [np.array([[1.5, 1.5, 0], [0.5, 1.5, 0],
+                       [0.5, 0.5, 0], [1.5, 0.5, 0]])])
         # Verify the cell areas
         vor.computeVolumes()
         npt.assert_equal(vor.getVolumes(), [1])

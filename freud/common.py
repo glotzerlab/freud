@@ -5,7 +5,7 @@
 
 import logging
 import numpy as np
-from . import box as bx
+import freud.box
 
 logger = logging.getLogger(__name__)
 
@@ -65,9 +65,9 @@ def convert_box(box):
     Returns:
       py:class:`freud.box.Box`: freud box.
     """
-    if not isinstance(box, bx.Box):
+    if not isinstance(box, freud.box.Box):
         try:
-            box = bx.Box.from_box(box)
+            box = freud.box.Box.from_box(box)
         except ValueError:
             raise
     return box
