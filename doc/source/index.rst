@@ -43,7 +43,7 @@ Alternatively, freud can be installed directly from source.
 
     $ git clone https://bitbucket.org/glotzer/freud.git
     $ cd freud
-    $ python setup.py install --user
+    $ python setup.py install
 
 .. toctree::
    :maxdepth: 2

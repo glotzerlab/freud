@@ -35,17 +35,16 @@ The code that follows creates a build directory inside the freud source director
 
 .. code-block:: bash
 
-    git clone https://bitbucket.org/glotzer/freud.git
+    git clone --recurse-submodules https://bitbucket.org/glotzer/freud.git
     cd freud
-    python setup.py install --user
+    python setup.py install
 
 By default, freud installs to the `USER_SITE <https://docs.python.org/3/install/index.html>`_ directory, which is in ``~/.local`` on Linux and in ``~/Library`` on macOS.
 :code:`USER_SITE` is on the Python search path by default, so there is no need to modify :code:`PYTHONPATH`.
 
 .. note::
 
-    freud makes use of submodules. For sufficiently new versions of Git, submodules should be automatically cloned. However, if
-    this does not work, or you would like to do this yourself, please execute:
+    freud makes use of submodules. If you ever wish to manually update these, you can execute:
 
     .. code-block:: bash
 

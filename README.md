@@ -41,9 +41,9 @@ $ conda install -c conda-forge freud
 Building freud from source follows the typical setuptools pattern for Python packages:
 
 ```bash
-git clone https://bitbucket.org/glotzer/freud.git
+git clone --recurse-submodules https://bitbucket.org/glotzer/freud.git
 cd freud
-python setup.py install --user
+python setup.py install
 ```
 
 By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
@@ -60,8 +60,7 @@ For more detailed instructions, see [the documentation](https://freud.readthedoc
 #### Note
 
 The freud library makes use of submodules.
-For sufficiently new versions of Git, submodules should be automatically cloned.
-If for some reason this does not work or you would like to update submodules yourself, please execute the following command after cloning:
+If you would like to update submodules yourself, please execute the following command after cloning:
 
 ```bash
 git submodule update --init
