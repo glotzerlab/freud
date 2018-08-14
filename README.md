@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg)](https://doi.org/10.5281/zenodo.166564)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/freud/badges/version.svg)](https://anaconda.org/conda-forge/freud)
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org:/repo/harperic/freud-examples)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
 [![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
 [![Codecov](https://codecov.io/bb/glotzer/freud/branch/master/graph/badge.svg)](https://codecov.io/bb/glotzer/freud)
 
@@ -22,8 +22,8 @@ If you have a question, please consider posting to the
 ## Examples
 
 Example Jupyter notebooks can be found in a [separate repository](https://bitbucket.org/glotzer/freud-examples).
-These examples are available as a static notebook on [nbviewer](http://nbviewer.jupyter.org/github/harperic/freud-examples/blob/master/index.ipynb)
-and as an interactive version on [mybinder](http://mybinder.org:/repo/harperic/freud-examples).
+These notebooks may be launched [interactively on Binder](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
+or downloaded and run on your own system.
 
 ## Installing freud
 
