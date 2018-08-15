@@ -6,7 +6,6 @@
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
-            "cpp/box/box.cc",
             "cpp/box/box.h",
             "cpp/util/VectorMath.h"
         ],
@@ -32,7 +31,8 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace"
+            "cpp/kspace",
+            "/usr/include"
         ],
         "language": "c++",
         "libraries": [
@@ -631,7 +631,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "stdexcept"
 #include "typeinfo"
 #include <string>
-#include "box.cc"
 #include "box.h"
 #include <stdio.h>
 #include "numpy/arrayobject.h"

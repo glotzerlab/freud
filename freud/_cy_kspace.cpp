@@ -6,7 +6,6 @@
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
-            "cpp/kspace/kspace.cc",
             "cpp/kspace/kspace.h",
             "cpp/util/VectorMath.h"
         ],
@@ -32,7 +31,8 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace"
+            "cpp/kspace",
+            "/usr/include"
         ],
         "language": "c++",
         "libraries": [
@@ -635,7 +635,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <stdio.h>
 #include "numpy/arrayobject.h"
 #include "numpy/ufuncobject.h"
-#include "kspace.cc"
 #include "kspace.h"
 #include "pythread.h"
 #include <stdlib.h>

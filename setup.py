@@ -207,24 +207,20 @@ files.remove(os.path.join('freud', 'order' + ext))  # Is compiled separately
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
-extensions = [
-    # Compile order separately since it requires that Cluster.cc and a few
-    # other things be compiled in addition to the main source.
-    Extension("freud.order",
-              sources=[os.path.join("freud", "order" + ext),
-                       os.path.join("cpp", "util", "HOOMDMatrix.cc"),
-                       os.path.join("cpp", "order", "wigner3j.cc"),
-                       os.path.join("cpp", "cluster", "Cluster.cc")],
-              **ext_args
-              ),
-]
+# Compile order separately since it requires that Cluster.cc and a few
+# other things be compiled in addition to the main source.
+s = [os.path.join("freud", "order" + ext),
+     os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+     os.path.join("cpp", "cluster", "Cluster.cc")]
+# Ensure changes in CC files are captured
+s.extend(glob.glob(os.path.join("cpp", "order", "*.cc")))
+extensions = [Extension("freud.order", sources=s, **ext_args)]
 
 for f, m in zip(files, modules):
-    extensions.append(
-        Extension(m,
-                  sources=[f, os.path.join("cpp", "util", "HOOMDMatrix.cc")],
-                  **ext_args)
-    )
+    s = [f, os.path.join("cpp", "util", "HOOMDMatrix.cc")]
+    # Ensure changes in CC files are captured
+    s.extend(glob.glob(os.path.join("cpp", m.replace('freud.', ''), "*.cc")))
+    extensions.append(Extension(m, sources=s, **ext_args))
 
 if use_cython:
     from Cython.Build import cythonize
