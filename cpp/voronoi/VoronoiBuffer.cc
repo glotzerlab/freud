@@ -36,6 +36,9 @@ void VoronoiBuffer::compute(const vec3<float> *points,
     float ly_2_buff = 0.5*ly + buff;
     float lz_2_buff = 0.5*lz + buff;
     float ix = ceil(buff / lx);
+    float iy = ceil(buff / ly);
+    float iz = ceil(buff / lz);
+
 
     vec3<float> img;
     buffer_parts.clear();
@@ -72,7 +75,7 @@ void VoronoiBuffer::compute(const vec3<float> *points,
             // Loop over potential images
        */   for (int i=-ix; i<=ix; i++)
                 {
-                for (int j=-1; j<=1; j++)
+                for (int j=-iy; j<=iy; j++)
                     {
                     if (m_box.is2D())
                         {
@@ -92,7 +95,7 @@ void VoronoiBuffer::compute(const vec3<float> *points,
                         }
                     else
                         {
-                        for (int k=-1; k<=1; k++)
+                        for (int k=-iz; k<=iz; k++)
                             {
                             if(!(i==0 && j==0 && k==0))
                                 {
