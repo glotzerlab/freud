@@ -74,6 +74,10 @@ cdef class VoronoiBuffer:
         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)
         return self
 
+    @property
+    def buffer_particles(self):
+        return self.getBufferParticles()
+
     def getBufferParticles(self):
         """Get buffer particles.
 
@@ -96,8 +100,11 @@ cdef class VoronoiBuffer:
         cdef np.ndarray[float, ndim=2] result = \
             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
                                          <void*> dereference(bufferPar).data())
-
         return result
+
+    @property
+    def buffer_ids(self):
+        return self.getBufferIds()
 
     def getBufferIds(self):
         """Get buffer ids.
@@ -242,6 +249,10 @@ class Voronoi:
             self.poly_verts.append(vertices[self.voronoi.regions[region]])
         return self
 
+    @property
+    def buffer(self):
+        return self.getBuffer()
+
     def getBuffer(self):
         """Returns the buffer width.
 
@@ -249,6 +260,10 @@ class Voronoi:
             float: Buffer width.
         """
         return self.buff
+
+    @property
+    def polytopes(self):
+        return self.getVoronoiPolytopes()
 
     def getVoronoiPolytopes(self):
         """Returns a list of polytope vertices corresponding to Voronoi cells.
@@ -441,6 +456,10 @@ class Voronoi:
 
         return neighbor_list
 
+    @property
+    def nlist(self):
+        return self.getNeighborList()
+
     def getNeighborList(self):
         """Returns a neighbor list object.
 
@@ -500,6 +519,10 @@ class Voronoi:
             self.poly_volumes[i] = hull.volume
 
         return self
+
+    @property
+    def volumes(self):
+        return self.getVolumes()
 
     def getVolumes(self):
         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
