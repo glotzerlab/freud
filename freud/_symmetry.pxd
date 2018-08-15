@@ -1,18 +1,17 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the Freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
-from libcpp cimport bool
+from libcpp.memory cimport shared_ptr
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
-from freud.util._Boost cimport shared_array
-from libcpp.memory cimport shared_ptr
-from libcpp.complex cimport complex
 from libcpp.vector cimport vector
-from libcpp.map cimport map
 from libcpp.unordered_set cimport unordered_set
 from libcpp.string cimport string
-cimport freud._box as box
+cimport freud._box
 cimport freud._locality
+
+cdef extern from "SymmetryCollection.cc" namespace "freud::symmetry":
+    pass
 
 cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
     struct FoundSymmetry:
@@ -23,7 +22,7 @@ cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
 
     cdef cppclass SymmetryCollection:
         SymmetryCollection(unsigned int)
-        void compute(box.Box & ,
+        void compute(box.Box &,
                      vec3[float]*,
                      const freud._locality.NeighborList*,
                      unsigned int) nogil except +
@@ -38,6 +37,8 @@ cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
         string getLaueGroup()
         string getCrystalSystem()
 
+cdef extern from "Geodesation.cc" namespace "freud::symmetry":
+    pass
 
 cdef extern from "Geodesation.h" namespace "freud::symmetry":
     cdef cppclass Geodesation:

@@ -76,7 +76,6 @@ cdef class SymmetryCollection:
             n_p)
         return self
 
-
     def measure(self, int n):
         """Compute symmetry axes.
 
@@ -89,7 +88,6 @@ cdef class SymmetryCollection:
                 NeighborList to use to find bonds (Default value = None).
         """
         return self.thisptr.measure(n)
-
 
     def getMlm(self):
         """Get a reference to ``Mlm``.
@@ -106,7 +104,6 @@ cdef class SymmetryCollection:
                 1, Mlm_shape, np.NPY_FLOAT32, <void*> Mlm)
         return result
 
-
     def getMlm_rotated(self):
         """Get a reference to ``Mlm_rotated``.
 
@@ -122,6 +119,9 @@ cdef class SymmetryCollection:
                 1, Mlm_shape, np.NPY_FLOAT32, <void*> Mlm_rotated)
         return result
 
+    @property
+    def l_max(self):
+        return self.getMaxL()
 
     def getMaxL(self):
         """Returns :math:`l_{max}`.
@@ -130,7 +130,6 @@ cdef class SymmetryCollection:
             int: Maximum :math:`l` value.
         """
         return self.thisptr.getMaxL()
-
 
     def rotate(self, q):
         """Rotate Mlm by q.
@@ -148,7 +147,6 @@ cdef class SymmetryCollection:
 
         self.thisptr.rotate(<const quat[float] &> l_q[0])
         return self
-
 
     @property
     def symmetries(self):
@@ -185,7 +183,6 @@ cdef class SymmetryCollection:
                 'quaternion': quat,
                 'measured_order': symm.measured_order})
         return symmetries
-
 
     def getLaueGroup(self):
         """Identify Laue Group.
@@ -234,7 +231,6 @@ cdef class Geodesation:
     @property
     def n_vertices(self):
         return self.getNVertices()
-
 
     def getVertexList(self):
         """Return the vertex positions.
