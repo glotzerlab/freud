@@ -30,8 +30,10 @@ class TestSymmetryCollection(unittest.TestCase):
         sc_rotate.rotate(q)
 
         # Rotate by a unit quaternion, test rotate and measure functions
+        """
         for t in range(-1, 7):
             print(t, sc.measure(t), sc_rotate.measure(t))
+        """
 
         # Test getMlm and getMlm_rotated functions
         assert np.allclose(sc_rotate.getMlm(), sc_rotate.getMlm_rotated())
