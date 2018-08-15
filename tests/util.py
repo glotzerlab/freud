@@ -38,3 +38,15 @@ def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
         positions += np.random.normal(scale=noise, size=positions.shape)
 
     return freud.box.Box(*box), positions
+
+
+def skipIfMissing(library):
+    try:
+        import importlib
+        import unittest
+        importlib.import_module(library)
+        return lambda func: func
+    except ImportError:
+        return unittest.skip(
+            "You must have {library} installed to run this test".format(
+                library=library))

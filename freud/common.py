@@ -1,11 +1,11 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 # Methods used throughout freud for convenience
 
 import logging
 import numpy as np
-from . import box as bx
+import freud.box
 
 logger = logging.getLogger(__name__)
 
@@ -18,17 +18,20 @@ def convert_array(array, dimensions, dtype=None,
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
-    :param array: Array to check and convert
-    :param int dimensions: Expected dimensions of the array
-    :param dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
-                  is different. If `None`, :code:`dtype` will not be changed.
-    :param bool contiguous: Whether to cast the array to a contiguous
-                            array. Default behavior casts to a contiguous array
-    :param str array_name: Name of the array, used for errors
-    :type array: :py:class:`numpy.ndarray`
-    :type dtype: :py:class:`numpy.dtype`
-    :return: array
-    :rtype: :py:class:`numpy.ndarray`
+    Args:
+        array (:class:`numpy.ndarray`): Array to check and convert.
+        dimensions (int): Expected dimensions of the array.
+        dtype: code:`dtype` to convert the array to if :code:`array.dtype`
+            is different. If `None`, :code:`dtype` will not be changed.
+            (Default value = None).
+        contiguous (bool): Whether to cast the array to a contiguous (Default
+            value = True).
+        array. Default behavior casts to a contiguous array.
+        array_name (str): Name of the array, used for errors (Default value =
+            None).
+
+    Returns:
+        py:class:`numpy.ndarray`: Array.
     """
     array = np.asarray(array)
 
@@ -55,14 +58,16 @@ def convert_box(box):
 
     .. moduleauthor:: Bradley Dice <bdice@umich.edu>
 
-    :param box: Box to check and convert if needed
-    :type box: box-like object (see :py:meth:`freud.box.Box.from_box`)
-    :return: freud box
-    :rtype: :py:class:`freud.box.Box`
+    Args:
+      box (box-like object (see :py:meth:`freud.box.Box.from_box`)): Box to
+          check and convert if needed.
+
+    Returns:
+      py:class:`freud.box.Box`: freud box.
     """
-    if not isinstance(box, bx.Box):
+    if not isinstance(box, freud.box.Box):
         try:
-            box = bx.Box.from_box(box)
+            box = freud.box.Box.from_box(box)
         except ValueError:
             raise
     return box

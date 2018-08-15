@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef TRANS_ORDER_PARAMETER_H
 #define TRANS_ORDER_PARAMETER_H
@@ -27,7 +27,7 @@ class TransOrderParameter
     {
     public:
         //! Constructor
-        TransOrderParameter(float rmax, float k=6, unsigned int n=0);
+        TransOrderParameter(float rmax, float k=6);
 
         //! Destructor
         ~TransOrderParameter();
@@ -57,7 +57,7 @@ class TransOrderParameter
 
     private:
         box::Box m_box;            //!< Simulation box where the particles belong
-        float m_k;                 //!< Multiplier in the exponent
+        float m_k;                 //!< Normalization value (dr is divided by m_k)
         unsigned int m_Np;         //!< Last number of points computed
 
         std::shared_ptr< std::complex<float> > m_dr_array;         //!< dr array computed

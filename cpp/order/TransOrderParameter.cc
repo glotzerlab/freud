@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
 #include <stdexcept>
@@ -15,7 +15,7 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-TransOrderParameter::TransOrderParameter(float rmax, float k, unsigned int n)
+TransOrderParameter::TransOrderParameter(float rmax, float k)
     : m_box(box::Box()), m_k(k), m_Np(0)
     {
     }

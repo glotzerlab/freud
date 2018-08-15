@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef BRUTE_FORCE_H
 #define BRUTE_FORCE_H
@@ -8,11 +8,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
-
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/index/rtree.hpp>
+#include <unistd.h>
 
 #include "Eigen/Eigen/Dense"
 #include "Eigen/Eigen/Sparse"
@@ -152,25 +148,16 @@ inline void AlignVectorSets(matrix& P,matrix& Q, matrix* pRotation = NULL)
         *pRotation = rotation;
     }
 
-namespace bg = boost::geometry;
-namespace bgi = boost::geometry::index;
-
-class RegisterBruteForce  // : public Register
+class RegisterBruteForce
     {
-    using point = bg::model::point<double, 3, bg::cs::cartesian>;
-    using value = std::pair<point, unsigned int>;
-
     public:
-        RegisterBruteForce(std::vector<vec3<float> > vecs) : m_rmsd(0.0), m_tol(1e-6), m_shuffles(1)
+        RegisterBruteForce(std::vector<vec3<float> > vecs)
+            : m_rmsd(0.0), m_tol(1e-6), m_shuffles(1)
             {
             // make the Eigen matrix from vecs
-            m_data = makeEigenMatrix(vecs);
-
-            // populate the R-tree with (point, index) pairs, from the vectors of vecs
-            for(unsigned int r = 0; r < m_data.rows(); r++)
-                m_rtree.insert(std::make_pair(make_point<matrix>(m_data.row(r)), r));
-            // m_data = Translate(-CenterOfMass(m_data), m_data);
+            m_ref_points = makeEigenMatrix(vecs);
             }
+
         ~RegisterBruteForce(){}
 
         void Fit(std::vector<vec3<float> >& pts)
@@ -181,54 +168,65 @@ class RegisterBruteForce  // : public Register
             points = makeEigenMatrix(pts);
             int num_pts;
 
-            // m_translation = -CenterOfMass(points);
-            // points = Translate(m_translation, points);
-
             unsigned int N = points.rows();
-            if (N != m_data.rows())
+            if (N != m_ref_points.rows())
                 {
-                fprintf(stderr, "Number of vecs to which we are matching is %ld\n", m_data.rows());
+                fprintf(stderr, "Number of vecs to which we are matching is %ld\n", m_ref_points.rows());
                 fprintf(stderr, "Number of vecs we are trying to match is %d\n", N);
                 throw std::invalid_argument("Brute force matching requires the same number of points!");
                 }
+
             RandomNumber<std::mt19937_64> rng;
             double rmsd_min = -1.0;
             for (size_t shuffles = 0; shuffles < m_shuffles; shuffles++)
                 {
                 int p0 = 0, p1 = 0, p2 = 0;
-                while ( p0 == p1 || p0 == p2 || p1 == p2)
+                while (p0 == p1 || p0 == p2 || p1 == p2)
                     {
-                    p0 = rng.random_int(0,N-1);
-                    if (N == int(1)) { p1 = int(-2); }
-                    else { p1 = rng.random_int(0,N-1); }
-                    if (N == int(2) || N == int(1)) { p2 = int(-1); }
-                    else { p2 = rng.random_int(0,N-1); }
+                    p0 = rng.random_int(0, N-1);
+                    if (N == int(1))
+                        {
+                        p1 = int(-2);
+                        }
+                    else
+                        {
+                        p1 = rng.random_int(0, N-1);
+                        }
+
+                    if (N == int(2) || N == int(1))
+                        {
+                        p2 = int(-1);
+                        }
+                    else
+                        {
+                        p2 = rng.random_int(0, N-1);
+                        }
                     }
 
                 size_t comb[3] = {0, 1, 2};
                 if (N == int(2))
                     {
                     num_pts = 2;
-                    p.resize(num_pts, m_data.cols());
-                    p.row(0) = m_data.row(p0);
-                    p.row(1) = m_data.row(p1);
-                    q.resize(num_pts, m_data.cols());
+                    p.resize(num_pts, m_ref_points.cols());
+                    p.row(0) = m_ref_points.row(p0);
+                    p.row(1) = m_ref_points.row(p1);
+                    q.resize(num_pts, m_ref_points.cols());
                     }
                 else if (N == int(1))
                     {
                     num_pts = 1;
-                    p.resize(num_pts, m_data.cols());
-                    p.row(0) = m_data.row(p0);
-                    q.resize(num_pts, m_data.cols());
+                    p.resize(num_pts, m_ref_points.cols());
+                    p.row(0) = m_ref_points.row(p0);
+                    q.resize(num_pts, m_ref_points.cols());
                     }
                 else
                     {
                     num_pts = 3;
-                    p.resize(num_pts, m_data.cols());
-                    p.row(0) = m_data.row(p0);
-                    p.row(1) = m_data.row(p1);
-                    p.row(2) = m_data.row(p2);
-                    q.resize(num_pts, m_data.cols());
+                    p.resize(num_pts, m_ref_points.cols());
+                    p.row(0) = m_ref_points.row(p0);
+                    p.row(1) = m_ref_points.row(p1);
+                    p.row(2) = m_ref_points.row(p2);
+                    q.resize(num_pts, m_ref_points.cols());
                     }
                 do
                     {
@@ -279,7 +277,7 @@ class RegisterBruteForce  // : public Register
                                 }
                             }
                         }
-                    while (std::next_permutation(comb,comb+num_pts));
+                    while (std::next_permutation(comb, comb+num_pts));
                     }
                 while (NextCombination(comb, N, num_pts));
                 } // end for loop over shuffles
@@ -335,41 +333,42 @@ class RegisterBruteForce  // : public Register
         double AlignedRMSDTree(const matrix& points, BiMap<unsigned int, unsigned int>& m)
             {
             // Also brute force.
-            assert(points.rows() == m_data.rows());
+            assert(points.rows() == m_ref_points.rows());
             double rmsd = 0.0;
 
-            // keeps track of whether points in m_rtree have been matched to any point in points
-            // guarantees 1-1 mapping
-            std::vector<bool> found(m_data.rows(), false);
-            // a mapping between the vectors of m_data and the vectors of points
+            // a mapping between the vectors of m_ref_points and the vectors of points
             BiMap<unsigned int, unsigned int> vec_map;
+
+            // keeps track of whether m_ref_points have been matched to any point in points
+            // guarantees 1-1 mapping
+            std::set<unsigned int> unused_indices;
+            for (int i = 0; i < m_ref_points.rows(); i++)
+                {
+                unused_indices.insert(i);
+                }
+
             // loop through all the points
             for(int r = 0; r < points.rows(); r++)
                 {
-                double dist = -1.0;
-                // find the rotated point
-                Eigen::VectorXd pfit = points.row(r).transpose();
-                // this is the "query" point we will feed in to the R-tree
-                point query = make_point<Eigen::VectorXd>(pfit);
-                // loop over a set of queries. Each query grabs the next-nearest point in m_rtree to the query point.
-                for ( bgi::rtree< value, bgi::rstar<16> >::const_query_iterator it = m_rtree.qbegin(bgi::nearest(query, m_data.rows())); it != m_rtree.qend(); ++it )
+                // get the rotated point
+                vec3<float> pfit = make_point(points.row(r));
+                // compute squared distances to all unused reference points
+                std::vector<std::pair<unsigned int, double> > ref_distances;
+                for (auto ref_index : unused_indices)
                     {
-                    // if this point in m_rtree has not been matched already to some point in points
-                    if(!found[it->second])
-                        {
-                        dist = bg::distance(query, it->first);
-                        found[it->second] = true;
-                        // add this pairing to the mapping between vectors
-                        vec_map.emplace(it->second, r);
-                        break;
-                        }
+                    vec3<float> ref_point = make_point(m_ref_points.row(ref_index));
+                    vec3<float> delta = ref_point - pfit;
+                    double rsq = dot(delta, delta);
+                    ref_distances.push_back(std::pair<unsigned int, double>(ref_index, rsq));
                     }
-
-                if (dist < 0.0)
-                    {
-                    throw std::runtime_error("Nearest neighbor not found!");
-                    }
-                rmsd += dist*dist;
+                // sort the ref_distances from nearest to farthest
+                sort(ref_distances.begin(), ref_distances.end(), compare_ref_distances);
+                // take the first (nearest) ref_point found and mark it as used
+                unused_indices.erase(ref_distances[0].first);
+                // add this pairing to the mapping between vectors
+                vec_map.emplace(ref_distances[0].first, r);
+                // add this squared distance to the rmsd
+                rmsd += ref_distances[0].second;
                 }
 
             m = vec_map;
@@ -377,28 +376,33 @@ class RegisterBruteForce  // : public Register
             }
 
     private:
-        template<class MatrixType>
-        point make_point(const Eigen::VectorXd& row)
+        vec3<float> make_point(const Eigen::VectorXd& row)
             {
             if(row.rows() == 2)
-                return point(row[0], row[1], 0.0);
+                return vec3<float>(row[0], row[1], 0.0);
             else if(row.rows() == 3)
-                return point(row[0], row[1], row[2]);
+                return vec3<float>(row[0], row[1], row[2]);
             else
                 throw(std::runtime_error("points must 2 or 3 dimensions"));
             }
 
+        static bool compare_ref_distances(const std::pair<unsigned int, float> &a,
+                const std::pair<unsigned int, float> &b)
+            {
+            return (a.second < b.second);
+            }
+
         inline bool NextCombination(size_t* comb, int N, int k)
             {
-            //    returns next combination.
-            if(k == 0 || N == 0 || !comb)
+            // returns next combination.
+            if (k == 0 || N == 0 || !comb)
                 return false;
 
             bool bRetVal = false;
 
-            for(int i = k-1; i >= 0; i--)
+            for (int i = k-1; i >= 0; i--)
                 {
-                if(comb[i] + 1 < size_t(N+i-k+1))
+                if (comb[i] + 1 < size_t(N+i-k+1))
                     {
                     comb[i]++;
                     for (int j = i+1; j < k; j++)
@@ -423,7 +427,7 @@ class RegisterBruteForce  // : public Register
                     }
                 int random_int(int a, int b)
                     {
-                    std::uniform_int_distribution<int> distribution(a,b);
+                    std::uniform_int_distribution<int> distribution(a, b);
                     return distribution(m_generator);
                     }
             private:
@@ -433,7 +437,7 @@ class RegisterBruteForce  // : public Register
                     try
                         {
                         std::random_device rd;
-                        for(size_t i = 0; i < n; i++)
+                        for (size_t i = 0; i < n; i++)
                             seeds.push_back(rd());
                         }
                     catch (...)
@@ -450,19 +454,13 @@ class RegisterBruteForce  // : public Register
             };
 
     private:
-        matrix m_data;
+        matrix m_ref_points;
         matrix m_rotation;
         matrix m_translation;
         double m_rmsd;
         double m_tol;
         size_t m_shuffles;
         BiMap<unsigned int, unsigned int> m_vec_map;
-        // R-tree. It stores (point, index) pairs and is initialized via
-        // the R*-tree algorithm.
-        // The maximum number of elements in each node is set to 16.
-        // R*-trees are more costly to set up than R-trees but apparently
-        // can be queried more efficiently.
-        bgi::rtree< value, bgi::rstar<16> > m_rtree;
 };
 
 }; }; // end namespace freud::registration

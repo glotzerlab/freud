@@ -2,19 +2,37 @@
 KSpace Module
 =============
 
-Modules for calculating quantities in reciprocal space, including Fourier
-transforms of shapes and diffraction pattern generation.
+.. rubric:: Overview
 
-Meshgrid
-========
+.. autosummary::
+    :nosignatures:
 
-.. autofunction:: freud.kspace.meshgrid2(*arrs)
+    freud.kspace.meshgrid2
+    freud.kspace.SFactor3DPoints
+    freud.kspace.AnalyzeSFactor3D
+    freud.kspace.SingleCell3D
+    freud.kspace.FTfactory
+    freud.kspace.FTbase
+    freud.kspace.FTdelta
+    freud.kspace.FTsphere
+    freud.kspace.FTpolyhedron
+    freud.kspace.FTconvexPolyhedron
+    freud.kspace.rotate
+    freud.kspace.quatrot
+    freud.kspace.Constraint
+    freud.kspace.AlignedBoxConstraint
+    freud.kspace.constrainedLatticePoints
+    freud.kspace.reciprocalLattice3D
+    freud.kspace.DeltaSpot
+    freud.kspace.GaussianSpot
 
+.. rubric:: Details
+
+.. automodule:: freud.kspace
+    :synopsis: Compute various quantities in reciprocal space.
 
 Structure Factor
 ================
-
-Methods for calculating the structure factor of different systems.
 
 .. autoclass:: freud.kspace.SFactor3DPoints(box, g)
     :members:
@@ -46,8 +64,6 @@ Methods for calculating the structure factor of different systems.
 Diffraction Patterns
 ====================
 
-Methods for calculating diffraction patterns of various systems.
-
 .. autoclass:: freud.kspace.DeltaSpot()
     :members:
 
@@ -56,8 +72,6 @@ Methods for calculating diffraction patterns of various systems.
 
 Utilities
 =========
-
-Classes and methods used by other kspace modules.
 
 .. autoclass:: freud.kspace.Constraint()
     :members:
@@ -68,3 +82,5 @@ Classes and methods used by other kspace modules.
 .. autofunction:: freud.kspace.constrainedLatticePoints()
 
 .. autofunction:: freud.kspace.reciprocalLattice3D()
+
+.. autofunction:: freud.kspace.meshgrid2(*arrs)
