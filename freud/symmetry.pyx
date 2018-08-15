@@ -18,6 +18,7 @@ from cython.operator cimport dereference
 
 cimport freud._symmetry
 cimport freud.box
+cimport freud.locality
 cimport numpy as np
 
 logger = logging.getLogger(__name__)
@@ -35,11 +36,11 @@ cdef class SymmetryCollection:
     .. moduleauthor:: Yezhi Jin <jinyezhi@umich.edu>
 
     """
-    cdef symmetry.SymmetryCollection *thisptr
+    cdef freud._symmetry.SymmetryCollection *thisptr
     cdef num_neigh
 
     def __cinit__(self, maxL=int(30)):
-        self.thisptr = new symmetry.SymmetryCollection(maxL)
+        self.thisptr = new freud._symmetry.SymmetryCollection(maxL)
         self.num_neigh = maxL
 
     def __dealloc__(self):
@@ -65,7 +66,7 @@ cdef class SymmetryCollection:
             raise TypeError('points should be an Nx3 array')
 
         cdef np.ndarray[float, ndim=2] l_points = points
-        cdef NeighborList nlist_ = nlist
+        cdef freud.locality.NeighborList nlist_ = nlist
 
         cdef unsigned int n_p = <unsigned int> points.shape[0]
 
@@ -80,12 +81,11 @@ cdef class SymmetryCollection:
         """Compute symmetry axes.
 
         Args:
-            box (py:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the symmetry axes.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+            n (int):
+                Order of symmetry to measure along rotated frame's z-axis.
+        Returns:
+            float:
+                Measured :math:`n`-fold symmetry for the rotated frame.
         """
         return self.thisptr.measure(n)
 
@@ -93,7 +93,7 @@ cdef class SymmetryCollection:
         """Get a reference to ``Mlm``.
 
         Returns:
-            (:math:`(l_{max} + 1)^2 - 1`) :class:`numpy.ndarray`:
+            (:math:`\\left(l_{max} + 1\\right)^2 - 1`) :class:`numpy.ndarray`:
                 Spherical harmonic values computed over all bonds.
         """
         cdef float * Mlm = self.thisptr.getMlm().get()
@@ -165,7 +165,7 @@ cdef class SymmetryCollection:
         Returns:
             list[dict]: Detected symmetry axes.
         """
-        cdef vector[symmetry.FoundSymmetry] cpp_symmetries = \
+        cdef vector[freud._symmetry.FoundSymmetry] cpp_symmetries = \
             self.thisptr.getSymmetries()
         cdef np.ndarray[float, ndim=1] vert = np.zeros(3, dtype=np.float32)
         cdef np.ndarray[float, ndim=1] quat = np.zeros(4, dtype=np.float32)
@@ -190,8 +190,9 @@ cdef class SymmetryCollection:
         Returns:
             string: Laue group name.
         """
-        cdef string cpp_string = self.thisptr.getLaueGroup()
-        return cpp_string.decode('UTF-8')
+        cdef unicode laue_group = \
+            self.thisptr.getLaueGroup().decode('UTF-8')
+        return laue_group
 
     def getCrystalSystem(self):
         """Identify Crystal System.
@@ -199,8 +200,9 @@ cdef class SymmetryCollection:
         Returns:
             string: Crystal system name.
         """
-        cdef string cpp_string = self.thisptr.getCrystalSystem()
-        return cpp_string.decode('UTF-8')
+        cdef unicode crystal_system = \
+            self.thisptr.getCrystalSystem().decode('UTF-8')
+        return crystal_system
 
 
 cdef class Geodesation:
@@ -210,11 +212,11 @@ cdef class Geodesation:
     .. moduleauthor:: Bradley Dice <bdice@umich.edu>
     .. moduleauthor:: Yezhi Jin <jinyezhi@umich.edu>
     """
-    cdef symmetry.Geodesation *thisptr
+    cdef freud._symmetry.Geodesation *thisptr
     cdef iterations
 
     def __cinit__(self, iterations):
-        self.thisptr = new symmetry.Geodesation(iterations)
+        self.thisptr = new freud._symmetry.Geodesation(iterations)
         self.iterations = iterations
 
     def __dealloc__(self):

@@ -22,7 +22,7 @@ cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
 
     cdef cppclass SymmetryCollection:
         SymmetryCollection(unsigned int)
-        void compute(box.Box &,
+        void compute(freud._box.Box &,
                      vec3[float]*,
                      const freud._locality.NeighborList*,
                      unsigned int) nogil except +
