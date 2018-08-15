@@ -796,14 +796,11 @@ class FTbase:
         """
         self.density = np.complex64(density)
 
-    def get_density(self, density):
+    def get_density(self):
         """Get density.
 
         Returns:
             :class:`numpy.complex64`: Density.
-
-        .. todo::
-            Why does this take an argument??
         """
         return self.density
 
