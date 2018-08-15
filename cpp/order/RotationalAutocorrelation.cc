@@ -17,9 +17,12 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-RotationalAutocorrelationFunction::RotationalAutocorrelationFunction(float rmax, float k)
+RotationalAutocorrelationFunction::RotationalAutocorrelationFunction(float l)
     : m_Np(0)
     {
+      //TKTK: probably need to delete the below two lines
+      //m_RAi = std::shared_ptr<complex<float> >(new complex<float> [m_Np]);
+      //memset((void*)m_RAi.get(), 0, sizeof(complex(float))*m_Np)
     }
 
 RotationalAutocorrelationFunction::~RotationalAutocorrelationFunction()
@@ -88,53 +91,77 @@ void RotationalAutocorrelationFunction::compute(
                 unsigned int Np)
     {
 
+      //get the size of the orientation array for looping purposes
+      m_Np = Np;
+
+      //TKTK: make sure this is the best way to initialize an array of complex numbers
+      //m_RAi = std::shared_ptr<complex<float> >(new complex<float> [m_Np]);
+
+      //TKTK: not sure if this line is useful
+      //memset((void*)m_RAi.get(), 0, sizeof(complex<float>)*m_Np);
+
+      const size_t Np;
+      // reallocate the output array if it is not the right size
+      if (Np != m_Np)
+          {
+          m_RA_array = std::shared_ptr< std::complex<float> >(
+                  new complex [Np],
+                  std::default_delete<float[]>());
+          }
+      //Compute relevant values for all orientations in the system
+      parallel_for(blocked_range<size_t>(0,Np),
+          [=] (const blocked_range<size_t>& r)
+          {
+
+          assert(ref_ors);
+          assert(ors);
+          assert(Np > 0);
+          assert(ref_ors.size == ors.size);
+
+          for (size_t i=r.begin(); i!=r.end(); ++i)
+              {
+              quat<float> q_i(ref_ors[i]);
+              quat<float> q_t(ors[i]);
+              //Transform the orientation quaternions for normalization purposes
+              quat<float> qq_0 = conj(q_i) * q_i;
+              quat<float> qq_1 = conj(q_i) * q_t;
+
+              std::pair<std::complex<float>, std::complex<float> > angle_0 =
+                                                            quat_to_greek(qq_0);
+              std::pair<std::complex<float>, std::complex<float> > angle_1 =
+                                                            quat_to_greek(qq_1);
+              //At this point, we've transformed the quaternions to xi and zeta
 
 
-
-
-
-    // compute the cell list
-    m_box = box;
-
-    nlist->validate(Np, Np);
-    const size_t *neighbor_list(nlist->getNeighbors());
-
-    // reallocate the output array if it is not the right size
-    if (Np != m_Np)
-        {
-        m_dr_array = std::shared_ptr<complex<float> >(new complex<float> [Np], std::default_delete<complex<float>[]>());
-        }
-
-    // compute the order parameter
-    parallel_for(blocked_range<size_t>(0,Np),
-        [=] (const blocked_range<size_t>& r)
-        {
-        size_t bond(nlist->find_first_index(r.begin()));
-        for(size_t i=r.begin(); i!=r.end(); ++i)
-            {
-            m_dr_array.get()[i] = 0;
-            vec3<float> ref = points[i];
-
-            for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+              signed int m1;
+              signed int m2;
+              //Need to loop through quantum numbers m1 and m2 which depend on l
+              for (m1 = -1*m_l/2; m1<= m_l/2; m1++)
                 {
-                const size_t j(neighbor_list[2*bond + 1]);
-
-                //compute r between the two particles
-                vec3<float> delta = m_box.wrap(points[j] - ref);
-
-                float rsq = dot(delta, delta);
-                if (rsq > 1e-6)
-                    {
-                    //compute dr for neighboring particle(only constructed for 2d)
-                    m_dr_array.get()[i] += complex<float>(delta.x, delta.y);
-                    }
+                  for (m2 = -1*m_l/2; m1<= m_l/2; m2++)
+                  {
+                    std::complex <float> combined_value = std::conj(
+                      hypersphere_harmonic(angle_0.first, angle_0.second,
+                        m_l, m1, m2)
+                       * hypersphere_harmonic(angle_1.first, angle_1.second,
+                        m_1, m1, m2);
+                    m_RA_array.get()[i] = combined_value;
+                  }
                 }
-            m_dr_array.get()[i] /= complex<float>(m_k);
-            }
-        });
+              }
+          });
 
-    // save the last computed number of particles
-    m_Np = Np;
+
+
+      // save the last computed number of particles
+      m_Np = Np;
+    };
+
+std::shared_ptr<float> RotationalAutocorrelationFunction::getRotationalAutocorrelationFunction()
+    {
+    return m_Ft;
     }
+
+
 
 }; }; // end namespace freud::order
