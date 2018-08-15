@@ -32,6 +32,10 @@ void VoronoiBuffer::compute(const vec3<float> *points,
     float lx = m_box.getLx();
     float ly = m_box.getLy();
     float lz = m_box.getLz();
+    float xy = m_box.getTiltFactorXY();
+    float xz = m_box.getTiltFactorXZ();
+    float yz = m_box.getTiltFactorYZ();
+  
     float lx_2_buff = 0.5*lx + buff;
     float ly_2_buff = 0.5*ly + buff;
     float lz_2_buff = 0.5*lz + buff;
@@ -47,20 +51,20 @@ void VoronoiBuffer::compute(const vec3<float> *points,
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
         {
-        // in 2D, only loop over the 0 z plane
-      /*  if (m_box.is2D())
+        for (int i=-ix; i<=ix; i++)
             {
-            for (int i=-1; i<=1; i++)
+            for (int j=-iy; j<=iy; j++)
                 {
-                for (int j=-1; j<=1; j++)
+                if (m_box.is2D())
                     {
                     if(i != 0 || j != 0)
                         {
-                        img.x = points[particle].x + i*lx;
+                        img.x = points[particle].x + i*lx + j*ly*xy;
                         img.y = points[particle].y + j*ly;
                         img.z = 0.0;
                         // Check to see if this image is within the buffer
-                        if(img.x < lx_2_buff && img.x > -lx_2_buff &&
+                        float xadj = img.y*xy;
+                        if(img.x < lx_2_buff + xadj && img.x > -lx_2_buff + xadj &&
                            img.y < ly_2_buff && img.y > -ly_2_buff)
                             {
                             buffer_parts.push_back(img);
@@ -68,55 +72,31 @@ void VoronoiBuffer::compute(const vec3<float> *points,
                             }
                         }
                     }
-                }
-            }
-        else
-            {
-            // Loop over potential images
-       */   for (int i=-ix; i<=ix; i++)
-                {
-                for (int j=-iy; j<=iy; j++)
+                else
                     {
-                    if (m_box.is2D())
+                    for (int k=-iz; k<=iz; k++)
                         {
-                        if(i != 0 || j != 0)
+                        if(!(i==0 && j==0 && k==0))
                             {
-                            img.x = points[particle].x + i*lx;
-                            img.y = points[particle].y + j*ly;
-                            img.z = 0.0;
+                            img.x = points[particle].x + i*lx + j*ly*xy + k*lz*xz;
+                            img.y = points[particle].y + j*ly + k*lz*yz;
+                            img.z = points[particle].z + k*lz;
                             // Check to see if this image is within the buffer
-                            if(img.x < lx_2_buff && img.x > -lx_2_buff &&
-                               img.y < ly_2_buff && img.y > -ly_2_buff)
+                            float xadj = img.y*xy + img.z*xz;
+                            float yadj = img.z*yz;
+                            if(img.x < lx_2_buff  + xadj && img.x > -lx_2_buff + xadj &&
+                               img.y < ly_2_buff  + yadj && img.y > -ly_2_buff + yadj &&
+                               img.z < lz_2_buff && img.z > -lz_2_buff)
                                 {
                                 buffer_parts.push_back(img);
                                 buffer_ids.push_back(particle);
                                 }
                             }
                         }
-                    else
-                        {
-                        for (int k=-iz; k<=iz; k++)
-                            {
-                            if(!(i==0 && j==0 && k==0))
-                                {
-                                img.x = points[particle].x + i*lx;
-                                img.y = points[particle].y + j*ly;
-                                img.z = points[particle].z + k*lz;
-                                // Check to see if this image is within the buffer
-                                if(img.x < lx_2_buff && img.x > -lx_2_buff &&
-                                   img.y < ly_2_buff && img.y > -ly_2_buff &&
-                                   img.z < lz_2_buff && img.z > -lz_2_buff)
-                                    {
-                                    buffer_parts.push_back(img);
-                                    buffer_ids.push_back(particle);
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
-       // }
+        }
     }
 
 }; }; // end namespace freud::voronoi
