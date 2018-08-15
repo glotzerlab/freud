@@ -112,6 +112,10 @@ cdef class CubaticOrderParameter:
                 <quat[float]*> l_orientations.data, num_particles, 1)
         return self
 
+    @property
+    def t_initial(self):
+        return self.get_t_initial()
+
     def get_t_initial(self):
         """Get initial temperature.
 
@@ -119,6 +123,10 @@ cdef class CubaticOrderParameter:
             float: Value of initial temperature.
         """
         return self.thisptr.getTInitial()
+
+    @property
+    def t_final(self):
+        return self.get_t_final()
 
     def get_t_final(self):
         """Get final temperature.
@@ -128,6 +136,10 @@ cdef class CubaticOrderParameter:
         """
         return self.thisptr.getTFinal()
 
+    @property
+    def scale(self):
+        return self.get_scale()
+
     def get_scale(self):
         """Get scale.
 
@@ -135,6 +147,10 @@ cdef class CubaticOrderParameter:
             float: Value of scale.
         """
         return self.thisptr.getScale()
+
+    @property
+    def cubatic_order_parameter(self):
+        return self.get_cubatic_order_parameter()
 
     def get_cubatic_order_parameter(self):
         """Get cubatic order parameter.
@@ -144,17 +160,25 @@ cdef class CubaticOrderParameter:
         """
         return self.thisptr.getCubaticOrderParameter()
 
+    @property
+    def orientation(self):
+        return self.get_orientation()
+
     def get_orientation(self):
-        """Get orientations.
+        """Get global orientation.
 
         Returns:
             :math:`\\left(4 \\right)` :class:`numpy.ndarray`:
-                Orientation of global orientation.
+                Quaternion of global orientation.
         """
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
         cdef np.ndarray[float, ndim=1] result = np.array(
             [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
         return result
+
+    @property
+    def particle_order_parameter(self):
+        return self.get_particle_op()
 
     def get_particle_op(self):
         """Get per-particle order parameter.
@@ -170,6 +194,10 @@ cdef class CubaticOrderParameter:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32,
                                          <void*> particle_op)
         return result
+
+    @property
+    def particle_tensor(self):
+        return self.get_particle_tensor()
 
     def get_particle_tensor(self):
         """Get per-particle cubatic tensor.
@@ -192,6 +220,10 @@ cdef class CubaticOrderParameter:
                                          <void*> particle_tensor)
         return result
 
+    @property
+    def global_tensor(self):
+        return self.get_global_tensor()
+
     def get_global_tensor(self):
         """Get global tensor.
 
@@ -210,6 +242,10 @@ cdef class CubaticOrderParameter:
                                          <void*> global_tensor)
         return result
 
+    @property
+    def cubatic_tensor(self):
+        return self.get_cubatic_tensor()
+
     def get_cubatic_tensor(self):
         """Get cubatic tensor.
 
@@ -227,6 +263,10 @@ cdef class CubaticOrderParameter:
             np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
                                          <void*> cubatic_tensor)
         return result
+
+    @property
+    def gen_r4_tensor(self):
+        return self.get_gen_r4_tensor()
 
     def get_gen_r4_tensor(self):
         """Get R4 Tensor.
@@ -293,6 +333,10 @@ cdef class NematicOrderParameter:
             self.thisptr.compute(<quat[float]*> l_orientations.data,
                                  num_particles)
 
+    @property
+    def nematic_order_parameter(self):
+        return self.get_nematic_order_parameter()
+
     def get_nematic_order_parameter(self):
         """The nematic order parameter.
 
@@ -300,6 +344,10 @@ cdef class NematicOrderParameter:
             float: Nematic order parameter.
         """
         return self.thisptr.getNematicOrderParameter()
+
+    @property
+    def director(self):
+        return self.get_director()
 
     def get_director(self):
         """The director (eigenvector corresponding to the order parameter).
@@ -312,6 +360,10 @@ cdef class NematicOrderParameter:
         cdef np.ndarray[np.float32_t, ndim=1] result = np.array(
             [n.x, n.y, n.z], dtype=np.float32)
         return result
+
+    @property
+    def particle_tensor(self):
+        return self.get_particle_tensor()
 
     def get_particle_tensor(self):
         """The full per-particle tensor of orientation information.
@@ -330,6 +382,10 @@ cdef class NematicOrderParameter:
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
                                          <void*> particle_tensor)
         return result
+
+    @property
+    def nematic_tensor(self):
+        return self.get_nematic_tensor()
 
     def get_nematic_tensor(self):
         """The nematic Q tensor.
