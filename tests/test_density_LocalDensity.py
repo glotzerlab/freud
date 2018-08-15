@@ -31,7 +31,7 @@ class TestLD(unittest.TestCase):
         """Test that LocalDensity computes the correct density at each point"""
 
         self.ld.compute(self.box, self.pos, self.pos)
-        density = self.ld.getDensity()
+        density = self.ld.density
 
         npt.assert_array_less(np.fabs(density - 10.0), 1.5)
 
@@ -44,7 +44,7 @@ class TestLD(unittest.TestCase):
         using the old API"""
 
         self.ld.compute(self.box, self.pos)
-        density = self.ld.getDensity()
+        density = self.ld.density
 
         npt.assert_array_less(np.fabs(density - 10.0), 1.5)
 

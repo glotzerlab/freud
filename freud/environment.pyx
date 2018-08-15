@@ -1366,7 +1366,7 @@ cdef class AngularSeparation:
         return np
 
     @property
-    def n_ref(self):
+    def n_reference(self):
         return self.getNReference()
 
     def getNReference(self):

@@ -9,7 +9,7 @@ class TestTransOrder(unittest.TestCase):
         box = freud.box.Box.square(10)
 
         # make a square grid
-        xs = np.linspace(-box.getLx()/2, box.getLx()/2, 10, endpoint=False)
+        xs = np.linspace(-box.Lx/2, box.Lx/2, 10, endpoint=False)
         positions = np.zeros((len(xs)**2, 3), dtype=np.float32)
         positions[:, :2] = np.array(list(itertools.product(xs, xs)),
                                     dtype=np.float32)

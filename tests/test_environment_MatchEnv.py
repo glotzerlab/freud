@@ -23,7 +23,7 @@ class TestCluster(unittest.TestCase):
 
         match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold)
-        clusters = match.getClusters()
+        clusters = match.clusters
 
         cluster_env = {}
         for cluster_ind in clusters:
@@ -66,7 +66,7 @@ class TestCluster(unittest.TestCase):
 
         match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold)
-        clusters = match.getClusters()
+        clusters = match.clusters
 
         cluster_env = {}
         for cluster_ind in clusters:
@@ -112,7 +112,7 @@ class TestCluster(unittest.TestCase):
 
         match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold, hard_r=False, registration=False)
-        clusters = match.getClusters()
+        clusters = match.clusters
 
         cluster_env = {}
         for cluster_ind in clusters:
@@ -156,7 +156,7 @@ class TestCluster(unittest.TestCase):
 
         match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold, hard_r=True, registration=False)
-        clusters = match.getClusters()
+        clusters = match.clusters
 
         cluster_env = {}
         for cluster_ind in clusters:
@@ -213,7 +213,7 @@ class TestCluster(unittest.TestCase):
         match = MatchEnv(fbox, rcut, kn)
         match.cluster(xyz, threshold, hard_r=False,
                       registration=True, global_search=True)
-        clusters = match.getClusters()
+        clusters = match.clusters
 
         # Get environment for each particle
         tot_env = match.tot_environment
