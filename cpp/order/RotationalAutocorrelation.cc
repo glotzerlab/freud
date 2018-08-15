@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <math.h>
 
-#include "RotationalAutocorrelationFunction.h"
+#include "RotationalAutocorrelation.h"
 
 using namespace std;
 using namespace tbb;
@@ -17,7 +17,7 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-RotationalAutocorrelationFunction::RotationalAutocorrelationFunction(float l)
+RotationalAutocorrelationFunction::RotationalAutocorrelationFunction(int l)
     : m_Np(0)
     {
       //TKTK: probably need to delete the below two lines
@@ -51,6 +51,7 @@ std::complex<float> cpow(std::complex<float> base, float p)
     else
     {
         return pow(base, p);
+    }
   }
 
 //Defining the factorial function to rely on std's gamma functions
@@ -72,7 +73,7 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
     for ( int k=0; k <= min(a, b); k++)
       {
         sum_tracker = sum_tracker + cpow(std::conj(xi),k) * cpow(zeta, b-k) *
-                            cpow(std::conj(zeta), a-k), * cpow(-xi, l_k-a-b) /
+                            cpow(std::conj(zeta), a-k) * cpow(-xi, l+k-a-b) /
                             factorial(k) / factorial(l+k-a-b) /
                             factorial(a-k) / factorial(b-k);
       }
@@ -82,7 +83,6 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
                                      factorial(b) * factorial(l-b) / float(l+1),
                                    1/2);
     return sum_tracker;
-
   }
 
 void RotationalAutocorrelationFunction::compute(
@@ -90,23 +90,13 @@ void RotationalAutocorrelationFunction::compute(
                 const quat<float> *ors,
                 unsigned int Np)
     {
-
-      //get the size of the orientation array for looping purposes
-      m_Np = Np;
-
-      //TKTK: make sure this is the best way to initialize an array of complex numbers
-      //m_RAi = std::shared_ptr<complex<float> >(new complex<float> [m_Np]);
-
-      //TKTK: not sure if this line is useful
-      //memset((void*)m_RAi.get(), 0, sizeof(complex<float>)*m_Np);
-
-      const size_t Np;
       // reallocate the output array if it is not the right size
       if (Np != m_Np)
           {
           m_RA_array = std::shared_ptr< std::complex<float> >(
-                  new complex [Np],
-                  std::default_delete<float[]>());
+                  new std::complex<float>[Np],
+                  std::default_delete<std::complex<float>[]>());
+          m_Np = Np;
           }
       //Compute relevant values for all orientations in the system
       parallel_for(blocked_range<size_t>(0,Np),
@@ -142,25 +132,27 @@ void RotationalAutocorrelationFunction::compute(
                   {
                     std::complex <float> combined_value = std::conj(
                       hypersphere_harmonic(angle_0.first, angle_0.second,
-                        m_l, m1, m2)
+                        m_l, m1, m2))
                        * hypersphere_harmonic(angle_1.first, angle_1.second,
-                        m_1, m1, m2);
+                        m_l, m1, m2);
                     m_RA_array.get()[i] = combined_value;
                   }
                 }
               }
           });
 
-
-
-      // save the last computed number of particles
-      m_Np = Np;
+      std::complex<float> RA_sum = 0;
+      for (unsigned int i=0; i <= Np; i++)
+      {
+        RA_sum += m_RA_array.get()[i];
+      }
+      float m_Ft = real(RA_sum) / Np;
     };
 
-std::shared_ptr<float> RotationalAutocorrelationFunction::getRotationalAutocorrelationFunction()
-    {
-    return m_Ft;
-    }
+//std::shared_ptr<float> RotationalAutocorrelationFunction::getRotationalAutocorrelationFunction()
+//    {
+//    return m_Ft;
+//    }
 
 
 

@@ -1753,6 +1753,93 @@ cdef class SolLiqNear(SolLiq):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
+cdef class RotationalAutocorrelationFunction:
+    """Calculates a rotational autocorrelation function based on hyperspherical
+    harmonics as laid out in A. Karas's plastic crystals manuscript.
+    This is meant to return a scalar value that describes how all orientations
+    have changed relative to relative to an initial orientation. For analysis
+    of a trajectory, the compute call needs to be done at each trajectory
+    frame.
+
+    .. moduleauthor:: Andrew Karas
+
+    Args:
+      l (int):
+          Order of the hyperspherical harmonic. Must be a positive, even
+          integer. I've found values of l=2 or l=6 to be effective.
+
+    Attributes:
+      n_p (unsigned int):
+          The number of particles used in computing the last set.
+
+    """
+    cdef freud._order.RotationalAutocorrelationFunction * thisptr
+    cdef unsigned int l
+
+    def __cinit__(self, l):
+        self.thisptr = new freud._order.RotationalAutocorrelationFunction(l)
+        self.l = l  # noqa
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, ref_ors, ors):
+        """Calculates the rotational autocorrelation function for a single frame.
+
+        Args:
+            ref_ors ((:math:`N_{particles}`, 4) \
+            :class:`numpy.ndarray`):
+                Reference orientations for time t=0.
+            ors ((:math:`N_{particles}`, 4) \
+                :class:`numpy.ndarray`):
+                Orientations for the current frame of interest.
+
+        """
+        ref_ors = freud.common.convert_array(
+            ref_ors, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_ors")
+        if ref_ors.shape[1] != 4:
+            raise TypeError('ref_ors should be an Nx4 array')
+
+        ors = freud.common.convert_array(
+            ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
+        if ors.shape[1] != 4:
+            raise TypeError('ors should be an Nx4 array')
+
+        cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
+        cdef np.ndarray[float, ndim=2] l_ors = ors
+        cdef unsigned int nP = <unsigned int> ors.shape[0]
+
+        with nogil:
+            self.thisptr.compute(
+                <quat[float]*> l_ref_ors.data,
+                <quat[float]*> l_ors.data,
+                nP)
+        return self
+
+    def getRotationalAutocorrelationFunction(self):
+        """Get the last computed value of the rotational
+        autocorrelation function.
+
+        Returns:
+            float
+        """
+        cdef float Ft = self.thisptr.getRotationalAutocorrelationFunction()
+        return Ft
+
+    @property
+    def n_p(self):
+        return self.getNP()
+
+    def getNP(self):
+        """Get the number of particles used in computing the last set.
+
+        Returns:
+            unsigned int: :math:`N_{particles}`.
+        """
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
+
 
 class BondOrder(_EBO):
     """
