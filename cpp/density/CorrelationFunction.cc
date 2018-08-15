@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
 #include <stdexcept>
@@ -71,13 +71,27 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
     for(size_t i(0); i < m_nbins; ++i)
         m_rdf_array.get()[i] = T();
     // now compute the rdf
-    parallel_for(tbb::blocked_range<size_t>(0,m_nbins),
-                 CombineOCF<T>(m_nbins,
-                               m_bin_counts.get(),
-                               m_local_bin_counts,
-                               m_rdf_array.get(),
-                               m_local_rdf_array,
-                               (float) m_n_ref));
+    parallel_for(tbb::blocked_range<size_t>(0, m_nbins),
+        [=] (const blocked_range<size_t>& r)
+        {
+        for (size_t i = r.begin(); i != r.end(); i++)
+            {
+            for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
+                 local_bins != m_local_bin_counts.end(); ++local_bins)
+                {
+                m_bin_counts.get()[i] += (*local_bins)[i];
+                }
+            for (typename tbb::enumerable_thread_specific<T *>::const_iterator local_rdf = m_local_rdf_array.begin();
+                 local_rdf != m_local_rdf_array.end(); ++local_rdf)
+                {
+                m_rdf_array.get()[i] += (*local_rdf)[i];
+                }
+            if (m_bin_counts.get()[i])
+                {
+                m_rdf_array.get()[i] /= m_bin_counts.get()[i];
+                }
+            }
+        });
     }
 
 //! Get a reference to the RDF array
@@ -92,7 +106,7 @@ std::shared_ptr<T> CorrelationFunction<T>::getRDF()
 /*! \brief Function to reset the PCF array if needed e.g. calculating between new particle types
 */
 template<typename T>
-void CorrelationFunction<T>::resetCorrelationFunction()
+void CorrelationFunction<T>::reset()
     {
     // zero the bin counts for totaling
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
@@ -120,112 +134,77 @@ void CorrelationFunction<T>::accumulate(const box::Box &box,
     m_box = box;
     nlist->validate(n_ref, Np);
     parallel_for(tbb::blocked_range<size_t>(0, n_ref),
-                 ComputeOCF<T>(m_nbins,
-                               m_local_bin_counts,
-                               m_local_rdf_array,
-                               m_box,
-                               nlist,
-                               m_rmax,
-                               m_dr,
-                               ref_points,
-                               ref_values,
-                               n_ref,
-                               points,
-                               point_values,
-                               Np));
-    m_frame_counter += 1;
-    }
-
-template<typename T>
-void CombineOCF<T>::operator()( const tbb::blocked_range<size_t> &myBin ) const
+        [=] (const blocked_range<size_t>& r)
         {
-        for (size_t i = myBin.begin(); i != myBin.end(); i++)
+        assert(ref_points);
+        assert(ref_values);
+        assert(points);
+        assert(point_values);
+        assert(n_ref > 0);
+        assert(Np > 0);
+
+        float dr_inv = 1.0f / m_dr;
+        float rmaxsq = m_rmax * m_rmax;
+        const size_t *neighbor_list(nlist->getNeighbors());
+
+        bool bin_exists;
+        m_local_bin_counts.local(bin_exists);
+        if (!bin_exists)
             {
-            for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
-                 local_bins != m_local_bin_counts.end(); ++local_bins)
-                {
-                m_bin_counts[i] += (*local_bins)[i];
-                }
-            for (typename tbb::enumerable_thread_specific<T *>::const_iterator local_rdf = m_local_rdf_array.begin();
-                 local_rdf != m_local_rdf_array.end(); ++local_rdf)
-                {
-                m_rdf_array[i] += (*local_rdf)[i];
-                }
-            if (m_bin_counts[i])
-                {
-                m_rdf_array[i] /= m_bin_counts[i];
-                }
+            m_local_bin_counts.local() = new unsigned int [m_nbins];
+            memset((void*) m_local_bin_counts.local(), 0,
+                    sizeof(unsigned int)*m_nbins);
             }
-        }
 
-template<typename T>
-void ComputeOCF<T>::operator()( const blocked_range<size_t> &myR ) const
-    {
-    assert(m_ref_points);
-    assert(m_ref_values);
-    assert(m_points);
-    assert(m_point_values);
-    assert(m_n_ref > 0);
-    assert(m_Np > 0);
-
-    float dr_inv = 1.0f / m_dr;
-    float rmaxsq = m_rmax * m_rmax;
-    const size_t *neighbor_list(m_nlist->getNeighbors());
-
-    bool bin_exists;
-    m_bin_counts.local(bin_exists);
-    if (! bin_exists)
-        {
-        m_bin_counts.local() = new unsigned int [m_nbins];
-        memset((void*)m_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins);
-        }
-
-    bool rdf_exists;
-    m_rdf_array.local(rdf_exists);
-    if (! rdf_exists)
-        {
-        m_rdf_array.local() = new T [m_nbins];
-        memset((void*)m_rdf_array.local(), 0, sizeof(T)*m_nbins);
-        }
-
-    size_t bond(m_nlist->find_first_index(myR.begin()));
-    // for each reference point
-    for (size_t i = myR.begin(); i != myR.end(); i++)
-        {
-        // get the cell the point is in
-        vec3<float> ref = m_ref_points[i];
-        for(; bond < m_nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        bool rdf_exists;
+        m_local_rdf_array.local(rdf_exists);
+        if (!rdf_exists)
             {
-            const size_t j(neighbor_list[2*bond + 1]);
+            m_local_rdf_array.local() = new T [m_nbins];
+            memset((void*)m_local_rdf_array.local(), 0, sizeof(T)*m_nbins);
+            }
+
+        size_t bond(nlist->find_first_index(r.begin()));
+        // for each reference point
+        for (size_t i = r.begin(); i != r.end(); i++)
+            {
+            // get the cell the point is in
+            vec3<float> ref = ref_points[i];
+            for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                 {
-                // compute r between the two particles
-                vec3<float> delta = m_box.wrap(m_points[j] - ref);
-
-                float rsq = dot(delta, delta);
-
-                // check that the particle is not checking itself, if it is the same list
-                if ((i != j || m_points != m_ref_points) && rsq < rmaxsq)
+                const size_t j(neighbor_list[2*bond + 1]);
                     {
-                    float r = sqrtf(rsq);
+                    // compute r between the two particles
+                    vec3<float> delta = m_box.wrap(points[j] - ref);
 
-                    // bin that r
-                    float binr = r * dr_inv;
-                    // fast float to int conversion with truncation
-                    #ifdef __SSE2__
-                    unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                    #else
-                    unsigned int bin = (unsigned int)(binr);
-                    #endif
+                    float rsq = dot(delta, delta);
 
-                    if (bin < m_nbins)
+                    // check that the particle is not checking itself, if it is the same list
+                    if ((i != j || points != ref_points) && rsq < rmaxsq)
                         {
-                        ++m_bin_counts.local()[bin];
-                        m_rdf_array.local()[bin] += m_ref_values[i]*m_point_values[j];
+                        float r = sqrtf(rsq);
+
+                        // bin that r
+                        float binr = r * dr_inv;
+                        // fast float to int conversion with truncation
+                        #ifdef __SSE2__
+                        unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+                        #else
+                        unsigned int bin = (unsigned int)(binr);
+                        #endif
+
+                        if (bin < m_nbins)
+                            {
+                            ++m_local_bin_counts.local()[bin];
+                            m_local_rdf_array.local()[bin] += ref_values[i]*point_values[j];
+                            }
                         }
                     }
                 }
-            }
-        } // done looping over reference points
+            } // done looping over reference points
+
+        });
+    m_frame_counter += 1;
     }
 
 template class CorrelationFunction< complex<double> >;

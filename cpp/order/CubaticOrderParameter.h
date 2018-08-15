@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef CUBATIC_ORDER_PARAMETER_H
+#define CUBATIC_ORDER_PARAMETER_H
 
 #include <memory>
 #include <ostream>
@@ -11,9 +14,6 @@
 #include "saruprng.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _CUBATIC_ORDER_PARAMETER_H__
-#define _CUBATIC_ORDER_PARAMETER_H__
 
 /*! \file CubaticOrderParameter.h
     \brief Compute the cubatic order parameter for each particle.
@@ -27,27 +27,27 @@ class CubaticOrderParameter
     {
     public:
         //! Constructor
-        CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor, unsigned int n_replicates, unsigned int seed);
+        CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor, unsigned int replicates, unsigned int seed);
 
         //! Destructor
-        // ~CubaticOrderParameter();
+        ~CubaticOrderParameter();
 
         //! Reset the bond order array to all zeros
-        void resetCubaticOrderParameter(quat<float> orientation);
+        void reset();
 
-        //! accumulate the bond order
+        //! Compute the cubatic order parameter
         void compute(quat<float> *orientations,
                      unsigned int n,
-                     unsigned int n_replicates);
+                     unsigned int replicates);
 
-        // calculate the cubatic tensor
+        //! Calculate the cubatic tensor
         void calcCubaticTensor(float *cubatic_tensor, quat<float> orientation);
 
         void calcCubaticOrderParameter(float &cubatic_order_parameter, float *cubatic_tensor);
 
         void reduceCubaticOrderParameter();
 
-        //! Get a reference to the last computed rdf
+        //! Get a reference to the last computed cubatic order parameter
         float getCubaticOrderParameter();
 
         quat<float> calcRandomQuaternion(Saru &saru, float angle_multiplier);
@@ -72,9 +72,6 @@ class CubaticOrderParameter
 
         quat<float> getCubaticOrientation();
 
-
-        // std::shared_ptr<float> getParticleCubaticOrderParameter();
-
     private:
 
         float m_t_initial;
@@ -82,7 +79,7 @@ class CubaticOrderParameter
         float m_scale;
         tensor4<float> m_gen_r4_tensor;
         unsigned int m_n;                //!< Last number of points computed
-        unsigned int m_n_replicates;                //!< Last number of points computed
+        unsigned int m_replicates;       //!< Number of replicates
 
         float m_cubatic_order_parameter;
         quat<float> m_cubatic_orientation;
@@ -101,4 +98,4 @@ class CubaticOrderParameter
 
 }; }; // end namespace freud::order
 
-#endif // _CUBATIC_ORDER_PARAMETER_H__
+#endif // CUBATIC_ORDER_PARAMETER_H

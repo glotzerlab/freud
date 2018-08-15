@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
 #include <limits>
@@ -56,7 +56,7 @@ vec3<float> NematicOrderParameter::getNematicDirector()
     return m_nematic_director;
     }
 
-void NematicOrderParameter::resetNematicOrderParameter()
+void NematicOrderParameter::reset()
     {
     memset((void*)m_particle_tensor.get(), 0, sizeof(float)*m_n*9);
     for (unsigned int i = 0; i < 9; ++i)

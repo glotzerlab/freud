@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef VORONOIBUFFER_H
+#define VORONOIBUFFER_H
 
 #include <memory>
 #include <vector>
@@ -7,9 +10,6 @@
 #include "box.h"
 #include "VectorMath.h"
 #include "Index1D.h"
-
-#ifndef _VORONOIBUFFER_H__
-#define _VORONOIBUFFER_H__
 
 /*! \file VoronoiBuffer.h
     \brief Computes a buffer of particles to support wrapped positions in qhull
@@ -53,4 +53,4 @@ class VoronoiBuffer
 
 }; }; // end namespace freud::voronoi
 
-#endif
+#endif // VORONOI_BUFFER_H

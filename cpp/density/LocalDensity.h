@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef LOCAL_DENSITY_H
+#define LOCAL_DENSITY_H
 
 #include <memory>
 #include <ostream>
@@ -8,9 +11,6 @@
 #include "box.h"
 #include "VectorMath.h"
 #include "NeighborList.h"
-
-#ifndef _LOCAL_DENSITY_H__
-#define _LOCAL_DENSITY_H__
 
 /*! \file LocalDensity.h
     \brief Routines for computing local density around a point.
@@ -66,4 +66,4 @@ class LocalDensity
 
 }; }; // end namespace freud::density
 
-#endif // _LOCAL_DENSITY_H__
+#endif // LOCAL_DENSITY_H

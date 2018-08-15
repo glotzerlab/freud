@@ -1,11 +1,11 @@
   1030	Eric Harper <harperic@umich.edu>
+   324	Bradley Dice <bdice@bradleydice.com>
+   322	Vyas Ramasubramani <vramasub@umich.edu>
    278	Joshua A. Anderson <joaander@umich.edu>
-   221	Matthew Spellings <mspells@umich.edu>
-   201	Bradley Dice <bdice@bradleydice.com>
-   171	Vyas Ramasubramani <vramasub@umich.edu>
-    98	Erin Teich <erteich@umich.edu>
+   229	Matthew Spellings <mspells@umich.edu>
+   103	Erin Teich <erteich@umich.edu>
     66	M. Eric Irrgang <eirrgang@umich.edu>
-    52	Chrisy Du <xiyudu@umich.edu>
+    53	Chrisy Du <xiyudu@umich.edu>
     40	Antonio Osorio <aosorio@umich.edu>
     31	Richmond Newman <newmanrs@umich.edu>
     22	Jens Glaser <jsglaser@umich.edu>
@@ -13,9 +13,11 @@
     11	Tim Moore <mootimot@umich.edu>
     10	Benjamin Schultz <baschult@umich.edu>
     10	Bryan VanSaders <bvansade@umich.edu>
+    10	Matt Palathingal <mattjose@umich.edu>
      8	Ryan Marson <rmarson@umich.edu>
      6	Tom Grubb <tgrubb@umich.edu>
      6	Yina Geng <yinageng@umich.edu>
+     5	Alex Dutton <alxdttn@umich.edu>
      5	Carolyn Phillips <phillicl@umich.edu>
      4	Ben Swerdlow <benswerd@umich.edu>
      4	James Antonaglia <jamesaan@umich.edu>
@@ -25,5 +27,5 @@
      3	James Proctor <jproc@umich.edu>
      3	Rose Cersonsky <rosecers@umich.edu>
      3	Wenbo Shen <shenwb@umich.edu>
-     1	Andrew Karas <askaras@codeblue.umich.edu>
+     1	Andrew Karas <askaras@umich.edu>
      1	Paul Dodd <pdodd@umich.edu>

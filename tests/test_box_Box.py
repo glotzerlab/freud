@@ -1,8 +1,9 @@
-from freud import box as bx
 import numpy as np
 import numpy.testing as npt
-import warnings
+from freud import box as bx
 import unittest
+import warnings
+
 
 class TestBox(unittest.TestCase):
 
@@ -54,49 +55,45 @@ class TestBox(unittest.TestCase):
 
     def test_WrapSingleParticle(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([0, -1, -1], dtype=np.float32)
-        box.wrap(testpoints)
+        testpoints = np.array([0, -1, -1])
 
-        npt.assert_almost_equal(testpoints[0], -2, decimal=2,
+        npt.assert_almost_equal(box.wrap(testpoints)[0], -2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_WrapMultipleParticles(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([[0,  -1, -1],
-                               [0, 0.5,  0]], dtype=np.float32)
-        box.wrap(testpoints)
+        testpoints = np.array([[0, -1, -1],
+                               [0, 0.5, 0]])
 
-        npt.assert_almost_equal(testpoints[0,0], -2, decimal=2,
+        npt.assert_almost_equal(box.wrap(testpoints)[0, 0], -2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_WrapMultipleImages(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
         testpoints = np.array([[10, -5, -5],
-                               [0, 0.5, 0]], dtype=np.float32)
-        box.wrap(testpoints)
+                               [0, 0.5, 0]])
 
-        npt.assert_almost_equal(testpoints[0,0], -2, decimal=2,
+        npt.assert_almost_equal(box.wrap(testpoints)[0, 0], -2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_unwrap(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([[0,  -1, -1],
-                               [0, 0.5,  0]], dtype=np.float32)
-        imgs = np.array([[1,0,0],
-                         [1,1,0]], dtype=np.int32)
-        box.unwrap(testpoints, imgs)
+        testpoints = np.array([[0, -1, -1],
+                               [0, 0.5, 0]])
+        imgs = np.array([[1, 0, 0],
+                         [1, 1, 0]])
 
-        npt.assert_almost_equal(testpoints[0,0], 2, decimal=2,
-                                err_msg="WrapFail")
+        npt.assert_almost_equal(box.unwrap(testpoints, imgs)[0, 0], 2,
+                                decimal=2, err_msg="WrapFail")
 
     def test_images(self):
         box = bx.Box(2, 2, 2, 0, 0, 0)
         testpoints = np.array([[50, 40, 30],
-                               [-10, 0,  0]], dtype=np.float32)
+                               [-10, 0, 0]])
         testimages = np.array([box.getImage(vec) for vec in testpoints])
         npt.assert_equal(testimages,
                          np.array([[25, 20, 15],
-                                   [-5,  0,  0]], dtype=np.float32),
+                                   [-5, 0, 0]]),
                          err_msg="ImageFail")
 
     def test_coordinates(self):
@@ -182,7 +179,6 @@ class TestBox(unittest.TestCase):
         self.assertEqual(square.xz, 0)
         self.assertEqual(square.yz, 0)
         self.assertEqual(square.dimensions, 2)
-
 
 
 if __name__ == '__main__':

@@ -22,11 +22,6 @@ Add a New Module
 
 If the code you are adding is in a *new* module, not an existing module, you must do the following:
 
-- Edit :code:`cpp/CMakeLists.txt`
-
-  - Add :code:`${CMAKE_CURRENT_SOURCE_DIR}/moduleName` to :code:`include_directories`.
-  - Add :code:`moduleName/SubModule.cc` and :code:`moduleName/SubModule.h` to the :code:`FREUD_SOURCES` in :code:`set`.
-
 - Create :code:`cpp/moduleName` folder
 
 - Edit :code:`freud/__init__.py`
@@ -44,7 +39,7 @@ If the code you are adding is in a *new* module, not an existing module, you mus
 
 ::
 
-   cimport freud._moduleName as moduleName`
+   cimport freud._moduleName as moduleName
 
 - Create :code:`freud/moduleName.py` file
 
@@ -57,6 +52,11 @@ If the code you are adding is in a *new* module, not an existing module, you mus
 - Create :code:`freud/_moduleName.pxd`
 
   - This file will expose the C++ classes in your module to python.
+
+- Edit :code:`setup.py`
+
+  - Add :code:`cpp/moduleName` to the :code:`includes` list.
+  - If there are any helper cc files that will not have a corresponding Cython class, add those files to the :code:`sources` list inside the :code:`extensions` list.
 
 - Add line to :code:`doc/source/modules.rst`
 

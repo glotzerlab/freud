@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
 #include <stdexcept>
@@ -19,8 +19,8 @@ using namespace tbb;
 namespace freud { namespace order {
 
 CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, float scale, float *r4_tensor,
-    unsigned int n_replicates, unsigned int seed)
-    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_n_replicates(n_replicates), m_seed(seed)
+    unsigned int replicates, unsigned int seed)
+    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_replicates(replicates), m_seed(seed)
     {
     // sanity checks, should be caught in python
     if (m_t_initial < m_t_final)
@@ -154,7 +154,7 @@ quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru &saru, float angle_
 
 void CubaticOrderParameter::compute(quat<float> *orientations,
                                     unsigned int n,
-                                    unsigned int n_replicates)
+                                    unsigned int replicates)
     {
     // change the size of the particle tensor if the number of particles
     if (m_n != n)
@@ -219,21 +219,21 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
     // subtract off the general tensor
     m_global_tensor -= m_gen_r4_tensor;
     // prep for the simulated annealing
-    std::shared_ptr<float> p_cubatic_tensor = std::shared_ptr<float>(new float[m_n_replicates*81], std::default_delete<float[]>());
-    memset((void*)p_cubatic_tensor.get(), 0, sizeof(float)*m_n_replicates*81);
-    std::shared_ptr<float> p_cubatic_order_parameter = std::shared_ptr<float>(new float[m_n_replicates], std::default_delete<float[]>());
-    memset((void*)p_cubatic_order_parameter.get(), 0, sizeof(float)*m_n_replicates);
-    std::shared_ptr< quat<float> > p_cubatic_orientation = std::shared_ptr< quat<float> >(new quat<float>[m_n_replicates], std::default_delete< quat<float>[]>());
-    memset((void*)p_cubatic_orientation.get(), 0, sizeof(quat<float>)*m_n_replicates);
+    std::shared_ptr<float> p_cubatic_tensor = std::shared_ptr<float>(new float[m_replicates*81], std::default_delete<float[]>());
+    memset((void*)p_cubatic_tensor.get(), 0, sizeof(float)*m_replicates*81);
+    std::shared_ptr<float> p_cubatic_order_parameter = std::shared_ptr<float>(new float[m_replicates], std::default_delete<float[]>());
+    memset((void*)p_cubatic_order_parameter.get(), 0, sizeof(float)*m_replicates);
+    std::shared_ptr< quat<float> > p_cubatic_orientation = std::shared_ptr< quat<float> >(new quat<float>[m_replicates], std::default_delete< quat<float>[]>());
+    memset((void*)p_cubatic_orientation.get(), 0, sizeof(quat<float>)*m_replicates);
     // parallel for to handle the replicates...
-    parallel_for(blocked_range<size_t>(0, m_n_replicates),
+    parallel_for(blocked_range<size_t>(0, m_replicates),
         [=] (const blocked_range<size_t>& r)
             {
             // create thread-specific rng
             unsigned int thread_start = (unsigned int)r.begin();
             Saru l_saru(m_seed, thread_start, 0xffaabb);
             // create Index2D to access shared arrays
-            Index2D a_i = Index2D(m_n_replicates, 81);
+            Index2D a_i = Index2D(m_replicates, 81);
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
                 tensor4<float> cubatic_tensor;
@@ -291,7 +291,7 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
     // now, find max and set the values
     unsigned int max_idx = 0;
     float max_cubatic_order_parameter = p_cubatic_order_parameter.get()[max_idx];
-    for (unsigned int i = 1; i < m_n_replicates; i++)
+    for (unsigned int i = 1; i < m_replicates; i++)
         {
         if (p_cubatic_order_parameter.get()[i] > max_cubatic_order_parameter)
             {
@@ -300,7 +300,7 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
             }
         }
     // set the values
-    Index2D a_i = Index2D(m_n_replicates, 81);
+    Index2D a_i = Index2D(m_replicates, 81);
     memcpy((void*)&m_cubatic_tensor.data, (void*)&(p_cubatic_tensor.get()[a_i(max_idx,0)]), sizeof(float)*81);
     m_cubatic_orientation.s = p_cubatic_orientation.get()[max_idx].s;
     m_cubatic_orientation.v = p_cubatic_orientation.get()[max_idx].v;
@@ -326,7 +326,7 @@ void CubaticOrderParameter::compute(quat<float> *orientations,
             });
     // save the last computed number of particles
     m_n = n;
-    m_n_replicates = n_replicates;
+    m_replicates = replicates;
     }
 
 }; }; // end namespace freud::order

@@ -2,6 +2,53 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.9.0 - 2018-07-30
+
+### Added
+* Allow specification of rmin for LocalWl (previously was only possible for LocalQl).
+* New environment module. Contains classes split from the order module.
+* Box duck-typing: methods accepting a box argument will convert box-like objects into freud.box.Box objects.
+* All Python/Cython code is now validated with flake8 during continuous integration.
+
+### Changed
+* Refactoring of LocalQl and LocalWl Steinhardt order parameters.
+* MatchEnv uses BiMap instead of boost::bimap.
+* All boost shared\_arrays have been replaced with std::shared\_ptr.
+* Replaced boost geometry with standard containers in brute force registration code.
+* NearestNeighbors automatically uses ref\_points as the points if points are not provided.
+* Box::unwrap and Box::wrap return the vectors after updating.
+* Everything other than true order parameters moved from Order module to Environment module.
+* Use lambda function in parallel\_for in CorrelationFunction.
+* Tests no longer depend on nose. Python's unittest is used instead.
+* Vastly improved documentation clarity and correctness across all modules.
+* Docstrings are now in Google format. The developer guide offers guidance for module authors.
+
+### Fixed
+* Fixed LocalDescriptors producing NaN's in some cases.
+* Fixed cython passing C++ the default argument force\_resize to NeighborList::resize.
+* Standardize freud.common.convert\_array error message.
+
+### Removed
+* Boost is no longer needed to build or run freud.
+* Removed undocumented shapesplit module.
+* Removed extra argument from TransOrderParam in C++.
+
+## v0.8.2 - 2018-06-07
+
+### Added
+* Allow specification of maximum number of neighbors to use when computing LocalDescriptors
+
+### Changed
+* Using the default neighbor list with LocalDescriptors requires specifying the
+  precompute argument
+* Updated and improved tests
+* Cleaned AngularSeparation module and documentation
+
+## v0.8.1 - 2018-05-09
+
+### Fixed
+* Memory issue in nlist resolved
+
 ## v0.8.0 - 2018-04-06
 
 ### Added
@@ -15,7 +62,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Refactored C++ code to reduce extraneous #includes
 * Refactored PMFT code
 * Refactored box module to remove unused methods
-* Resolved bug in `kspace.AnalyzeSFactor3D`.
+* Resolved bug in `kspace.AnalyzeSFactor3D`
 
 ### Deprecated
 * Box module `getCoordinates()` in favor of duplicate `box.makeCoordinates()`

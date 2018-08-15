@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef BOX_H
+#define BOX_H
 
 #include <cassert>
 #include <iostream>
@@ -8,9 +11,6 @@
 #include <stdexcept>
 
 #include "VectorMath.h"
-
-#ifndef _BOX_H__
-#define _BOX_H__
 
 /*! \file box.h
     \brief Represents simulation boxes and contains helpful wrapping functions.
@@ -394,4 +394,4 @@ class Box
 
 }; }; // end namespace freud::box
 
-#endif // _BOX_H__
+#endif // BOX_H

@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
 
@@ -98,7 +98,7 @@ unsigned int GaussianDensity::getWidthZ()
 //! \internal
 /*! \brief Function to reset the density array if needed e.g. calculating between new particle types
 */
-void GaussianDensity::resetDensity()
+void GaussianDensity::reset()
     {
     for (tbb::enumerable_thread_specific<float *>::iterator \
          i = m_local_bin_counts.begin();
@@ -113,7 +113,7 @@ void GaussianDensity::resetDensity()
 */
 void GaussianDensity::compute(const box::Box &box, const vec3<float> *points, unsigned int Np)
     {
-    resetDensity();
+    reset();
     m_box = box;
     if (m_box.is2D())
         {
