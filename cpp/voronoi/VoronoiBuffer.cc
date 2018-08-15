@@ -39,9 +39,16 @@ void VoronoiBuffer::compute(const vec3<float> *points,
     float lx_2_buff = 0.5*lx + buff;
     float ly_2_buff = 0.5*ly + buff;
     float lz_2_buff = 0.5*lz + buff;
-    float ix = ceil(buff / lx);
-    float iy = ceil(buff / ly);
-    float iz = ceil(buff / lz);
+    int ix = ceil(buff / lx);
+    int iy = ceil(buff / ly);
+    int iz = ceil(buff / lz);
+    if (m_box.is2D())
+        {
+        iz = 0;
+        xz = 0;
+        yz = 0;
+        lz = 0;
+        }
 
 
     vec3<float> img;
@@ -55,42 +62,22 @@ void VoronoiBuffer::compute(const vec3<float> *points,
             {
             for (int j=-iy; j<=iy; j++)
                 {
-                if (m_box.is2D())
+                for (int k=-iz; k<=iz; k++)
                     {
-                    if(i != 0 || j != 0)
+                    if (i != 0 || j != 0 || k != 0)
                         {
-                        img.x = points[particle].x + i*lx + j*ly*xy;
-                        img.y = points[particle].y + j*ly;
-                        img.z = 0.0;
+                        img.x = points[particle].x + i*lx + j*ly*xy + k*lz*xz;
+                        img.y = points[particle].y + j*ly + k*lz*yz;
+                        img.z = points[particle].z + k*lz;
                         // Check to see if this image is within the buffer
-                        float xadj = img.y*xy;
-                        if(img.x < lx_2_buff + xadj && img.x > -lx_2_buff + xadj &&
-                           img.y < ly_2_buff && img.y > -ly_2_buff)
+                        float xadj = img.y*xy + img.z*xz;
+                        float yadj = img.z*yz;
+                        if (img.x < (lx_2_buff + xadj) && img.x > (-lx_2_buff + xadj) &&
+                            img.y < (ly_2_buff + yadj) && img.y > (-ly_2_buff + yadj) &&
+                            img.z < lz_2_buff && img.z > -lz_2_buff)
                             {
                             buffer_parts.push_back(img);
                             buffer_ids.push_back(particle);
-                            }
-                        }
-                    }
-                else
-                    {
-                    for (int k=-iz; k<=iz; k++)
-                        {
-                        if(!(i==0 && j==0 && k==0))
-                            {
-                            img.x = points[particle].x + i*lx + j*ly*xy + k*lz*xz;
-                            img.y = points[particle].y + j*ly + k*lz*yz;
-                            img.z = points[particle].z + k*lz;
-                            // Check to see if this image is within the buffer
-                            float xadj = img.y*xy + img.z*xz;
-                            float yadj = img.z*yz;
-                            if(img.x < lx_2_buff  + xadj && img.x > -lx_2_buff + xadj &&
-                               img.y < ly_2_buff  + yadj && img.y > -ly_2_buff + yadj &&
-                               img.z < lz_2_buff && img.z > -lz_2_buff)
-                                {
-                                buffer_parts.push_back(img);
-                                buffer_ids.push_back(particle);
-                                }
                             }
                         }
                     }
