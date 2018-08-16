@@ -1827,6 +1827,23 @@ cdef class RotationalAutocorrelationFunction:
         cdef float Ft = self.thisptr.getRotationalAutocorrelationFunction()
         return Ft
 
+    def getRAArray(self):
+        """Get the array full of computed values for the rotational auto-
+        correlation function calculations.
+
+        Returns:
+            array of complex numbers.
+        """
+
+        cdef float complex * RA = self.thisptr.getRAArray().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp> self.thisptr.getNP()
+        cdef np.ndarray[np.complex64_t, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
+                                         <void*> RA)
+
+        return result
+
     @property
     def n_p(self):
         return self.getNP()

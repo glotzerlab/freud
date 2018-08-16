@@ -160,6 +160,7 @@ cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
         RotationalAutocorrelationFunction(int)
         unsigned int getL()
         unsigned int getNP()
-        shared_ptr[complex] getRAArray()
+        # Following the procedure for passing complex array from getPsi()
+        shared_ptr[float complex] getRAArray()
         float getRotationalAutocorrelationFunction()
         void compute(quat[float]*, quat[float]*, unsigned int) nogil except +
