@@ -69,7 +69,7 @@ void InterfaceMeasure::compute(const freud::locality::NeighborList *nlist,
         if (inInterface)
             {
             m_interface_count++;
-            m_interface_ids.get().push_back(i);
+            m_interface_ids.get()->push_back(i);
             }
         }
     }

@@ -9,6 +9,7 @@ of points.
 import freud.common
 import numpy as np
 
+from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 import freud.locality
@@ -18,6 +19,10 @@ cimport freud.locality
 cimport freud.box
 
 cimport numpy as np
+
+# numpy must be initialized. When using numpy from C or Cython you must
+# _always_ do that, or you will have segfaults
+np.import_array()
 
 cdef class InterfaceMeasure:
     """Measures the interface between two sets of points.
@@ -71,24 +76,25 @@ cdef class InterfaceMeasure:
         cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        return self.thisptr.compute(
+        self.thisptr.compute(
             nlist_.get_ptr(),
             <vec3[float]*> cRef_points.data,
             n_ref,
             <vec3[float]*> cPoints.data,
             Np)
+        return self
 
     @property
     def interface_count(self):
         return self.thisptr.getInterfaceCount()
 
     @property
-    def interface_particles(self):
-        cdef unsigned int * interface_idx = \
-            self.thisptr.getInterfaceIdx().get()
-        cdef np.npy_intp nP[1]
-        nP[0] = <np.npy_intp> self.thisptr.getInterfaceCount()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
+    def interface_ids(self):
+        cdef unsigned int * interface_ids = \
+            self.thisptr.getInterfaceIds().get().data()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = <np.npy_intp> self.thisptr.getInterfaceCount()
+        cdef np.ndarray[unsigned int, ndim=1] result = \
             np.PyArray_SimpleNewFromData(
-                1, nP, np.NPY_UINT32, <void*> interface_idx)
+                1, nbins, np.NPY_UINT32, <void*> interface_ids)
         return result
