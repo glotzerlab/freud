@@ -18,13 +18,16 @@ class TestInterface(unittest.TestCase):
 
         inter = freud.interface.InterfaceMeasure(box, 1.5)
 
+        self.assertEqual(inter.interface_ref_point_count, 0)
+        self.assertEqual(inter.interface_point_count, 0)
+
         test_one = inter.compute(point, others)
-        self.assertEqual(test_one.interface_count, 1)
-        self.assertEqual(len(test_one.interface_ids), 1)
+        self.assertEqual(test_one.interface_ref_point_count, 1)
+        self.assertEqual(len(test_one.ref_point_ids), 1)
 
         test_twelve = inter.compute(others, point)
-        self.assertEqual(test_twelve.interface_count, 12)
-        self.assertEqual(len(test_twelve.interface_ids), 12)
+        self.assertEqual(test_twelve.interface_ref_point_count, 12)
+        self.assertEqual(len(test_twelve.ref_point_ids), 12)
 
 
 if __name__ == '__main__':

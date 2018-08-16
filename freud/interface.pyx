@@ -33,20 +33,16 @@ cdef class InterfaceMeasure:
         box (:py:class:`freud.box.Box`): Simulation box.
         r_cut (float): Distance to search for particle neighbors.
     """
-    cdef freud._interface.InterfaceMeasure * thisptr
     cdef freud.box.Box box
-    cdef rmax
+    cdef float rmax
+    cdef readonly np.ndarray ref_point_ids
+    cdef readonly np.ndarray point_ids
 
     def __cinit__(self, box, float r_cut):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        self.thisptr = new freud._interface.InterfaceMeasure(
-            dereference(b.thisptr), r_cut)
-        self.box = b
+        self.box = freud.common.convert_box(box)
         self.rmax = r_cut
-
-    def __dealloc__(self):
-        del self.thisptr
+        self.ref_point_ids = np.empty(0, dtype=np.uint32)
+        self.point_ids = np.empty(0, dtype=np.uint32)
 
     def compute(self, ref_points, points, nlist=None):
         """Compute the particles at the interface between the two given sets of
@@ -68,33 +64,18 @@ cdef class InterfaceMeasure:
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise RuntimeError('Need to provide array with x, y, z positions')
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.box, ref_points, points, self.rmax, nlist, None)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        if nlist is None:
+            lc = freud.locality.LinkCell(self.box, self.rmax)
+            nlist = lc.compute(self.box, ref_points, points).nlist
 
-        cdef np.ndarray cRef_points = ref_points
-        cdef unsigned int n_ref = ref_points.shape[0]
-        cdef np.ndarray cPoints = points
-        cdef unsigned int Np = points.shape[0]
-        self.thisptr.compute(
-            nlist_.get_ptr(),
-            <vec3[float]*> cRef_points.data,
-            n_ref,
-            <vec3[float]*> cPoints.data,
-            Np)
+        self.ref_point_ids = np.unique(nlist.index_i)
+        self.point_ids = np.unique(nlist.index_j)
         return self
 
     @property
-    def interface_count(self):
-        return self.thisptr.getInterfaceCount()
+    def interface_ref_point_count(self):
+        return len(self.ref_point_ids)
 
     @property
-    def interface_ids(self):
-        cdef unsigned int * interface_ids = \
-            self.thisptr.getInterfaceIds().get().data()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getInterfaceCount()
-        cdef np.ndarray[unsigned int, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_UINT32, <void*> interface_ids)
-        return result
+    def interface_point_count(self):
+        return len(self.point_ids)
