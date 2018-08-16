@@ -205,7 +205,7 @@ ext_args = dict(
 files = glob.glob(os.path.join('freud', '*') + ext)
 files.remove(os.path.join('freud', 'order' + ext))  # Is compiled separately
 modules = [f.replace(ext, '') for f in files]
-modules = [m.replace('freud' + os.path.sep, '') for m in modules]
+modules = [m.replace(os.path.sep, '.') for m in modules]
 
 sources_in_all = [
     os.path.join("cpp", "util", "HOOMDMatrix.cc"),
@@ -221,10 +221,11 @@ extra_module_sources = dict(
 
 extensions = []
 for f, m in zip(files, modules):
+    m_name = m.replace('freud' + os.path.sep, '')
     # use set to avoid doubling up on things in sources_in_all
     sources = set(sources_in_all + [f])
-    sources.update(extra_module_sources.get(m, []))
-    sources.update(glob.glob(os.path.join('cpp', m, '*.cc')))
+    sources.update(extra_module_sources.get(m_name, []))
+    sources.update(glob.glob(os.path.join('cpp', m_name, '*.cc')))
 
     extensions.append(Extension(m, sources=list(sources), **ext_args))
 
