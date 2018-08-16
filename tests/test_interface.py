@@ -20,6 +20,7 @@ class TestInterface(unittest.TestCase):
 
         test_one = inter.compute(point, others)
         self.assertEqual(test_one.interface_count, 1)
+        self.assertEqual(len(test_one.interface_ids), 1)
 
         test_twelve = inter.compute(others, point)
         self.assertEqual(test_twelve.interface_count, 12)
