@@ -14,7 +14,6 @@ from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 import freud.locality
 
-cimport freud._interface
 cimport freud.locality
 cimport freud.box
 
@@ -35,14 +34,14 @@ cdef class InterfaceMeasure:
     """
     cdef freud.box.Box box
     cdef float rmax
-    cdef readonly np.ndarray ref_point_ids
-    cdef readonly np.ndarray point_ids
+    cdef np.ndarray _ref_point_ids
+    cdef np.ndarray _point_ids
 
     def __cinit__(self, box, float r_cut):
         self.box = freud.common.convert_box(box)
         self.rmax = r_cut
-        self.ref_point_ids = np.empty(0, dtype=np.uint32)
-        self.point_ids = np.empty(0, dtype=np.uint32)
+        self._ref_point_ids = np.empty(0, dtype=np.uint32)
+        self._point_ids = np.empty(0, dtype=np.uint32)
 
     def compute(self, ref_points, points, nlist=None):
         """Compute the particles at the interface between the two given sets of
@@ -68,14 +67,42 @@ cdef class InterfaceMeasure:
             lc = freud.locality.LinkCell(self.box, self.rmax)
             nlist = lc.compute(self.box, ref_points, points).nlist
 
-        self.ref_point_ids = np.unique(nlist.index_i)
-        self.point_ids = np.unique(nlist.index_j)
+        self._ref_point_ids = np.unique(nlist.index_i)
+        self._point_ids = np.unique(nlist.index_j)
         return self
 
     @property
     def interface_ref_point_count(self):
-        return len(self.ref_point_ids)
+        """The number of particles from ``ref_points`` on the interface.
+
+        Returns:
+            int: Number of particles from ``ref_points`` on the interface.
+        """
+        return len(self._ref_point_ids)
+
+    @property
+    def ref_point_ids(self):
+        """The IDs of particles from ``ref_points`` on the interface.
+
+        Returns:
+            :class:`np.ndarray`: The particle IDs from ``ref_points``.
+        """
+        return self._ref_point_ids
 
     @property
     def interface_point_count(self):
-        return len(self.point_ids)
+        """The number of particles from ``points`` on the interface.
+
+        Returns:
+            int: Number of particles from ``points`` on the interface.
+        """
+        return len(self._point_ids)
+
+    @property
+    def point_ids(self):
+        """The IDs of particles from ``points`` on the interface.
+
+        Returns:
+            :class:`np.ndarray`: The particle IDs from ``points``.
+        """
+        return self._point_ids
