@@ -19,10 +19,10 @@ InterfaceMeasure::InterfaceMeasure(const box::Box& box, float r_cut)
     }
 
 void InterfaceMeasure::compute(const freud::locality::NeighborList *nlist,
-                                       const vec3<float> *ref_points,
-                                       unsigned int n_ref,
-                                       const vec3<float> *points,
-                                       unsigned int Np)
+                               const vec3<float> *ref_points,
+                               unsigned int n_ref,
+                               const vec3<float> *points,
+                               unsigned int Np)
     {
     assert(ref_points);
     assert(points);
@@ -43,9 +43,6 @@ void InterfaceMeasure::compute(const freud::locality::NeighborList *nlist,
         {
         bool inInterface = false;
 
-        // Get the cell the point is in
-        vec3<float> ref = ref_points[i];
-
         if (bond < nlist->getNumBonds() && neighbor_list[2*bond] < i)
             bond = nlist->find_first_index(i);
 
@@ -54,7 +51,7 @@ void InterfaceMeasure::compute(const freud::locality::NeighborList *nlist,
             const size_t j(neighbor_list[2*bond + 1]);
 
             // Compute the distance between the two particles
-            vec3<float> delta = ref - points[j];
+            vec3<float> delta = ref_points[i] - points[j];
 
             delta = m_box.wrap(delta);
 
