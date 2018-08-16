@@ -116,8 +116,9 @@ cdef class VoronoiBuffer:
         nbins[0] = buffer_size
 
         cdef np.ndarray[unsigned int, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> dereference(buffer_ids).data())
+            np.PyArray_SimpleNewFromData(
+                1, nbins, np.NPY_UINT32,
+                <void*> dereference(buffer_ids).data())
         return result
 
 
