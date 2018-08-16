@@ -48,7 +48,7 @@ class VoronoiBuffer
     private:
         const box::Box m_box;    //!< Simulation box where the particles belong
         std::shared_ptr< std::vector< vec3<float> > > m_buffer_particles;
-        std::shared_ptr< std::vector<unsigned int> > m_buffer_ids;
+        std::shared_ptr< std::vector< unsigned int > > m_buffer_ids;
     };
 
 }; }; // end namespace freud::voronoi
