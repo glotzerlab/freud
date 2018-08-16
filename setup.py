@@ -265,15 +265,15 @@ try:
 except SystemExit:
     # For now, the only error we're explicitly checking for is whether or not
     # TBB is missing
-    err_str = "tbb/tbb.h"
+    err_str = "'tbb/tbb.h' file not found"
     err_out = tfile.read().decode()
+    sys.stderr.write(err_out)
     if err_str in err_out:
-        sys.stderr.write("Unable to find tbb. If you have TBB on your "
+        sys.stderr.write("\nUnable to find tbb. If you have TBB on your "
                          "system, try specifying the location using the "
                          "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
                          "arguments to setup.py.\n")
     else:
-        sys.stderr.write(err_out)
         raise
 except: # noqa
     sys.stderr.write(tfile.read().decode())
