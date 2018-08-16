@@ -6,13 +6,21 @@
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
+            "cpp/box/box.cc",
             "cpp/box/box.h",
+            "cpp/density/CorrelationFunction.cc",
             "cpp/density/CorrelationFunction.h",
+            "cpp/density/GaussianDensity.cc",
             "cpp/density/GaussianDensity.h",
+            "cpp/density/LocalDensity.cc",
             "cpp/density/LocalDensity.h",
+            "cpp/density/RDF.cc",
             "cpp/density/RDF.h",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/LinkCell.h",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/NearestNeighbors.h",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborList.h",
             "cpp/util/Index1D.h",
             "cpp/util/VectorMath.h"
@@ -39,8 +47,7 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace",
-            "/usr/include"
+            "cpp/kspace"
         ],
         "language": "c++",
         "libraries": [
@@ -642,13 +649,21 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "Index1D.h"
 #include <vector>
 #include <string>
+#include "box.cc"
 #include "box.h"
+#include "NeighborList.cc"
 #include "NeighborList.h"
+#include "LinkCell.cc"
 #include "LinkCell.h"
+#include "NearestNeighbors.cc"
 #include "NearestNeighbors.h"
+#include "CorrelationFunction.cc"
 #include "CorrelationFunction.h"
+#include "GaussianDensity.cc"
 #include "GaussianDensity.h"
+#include "LocalDensity.cc"
 #include "LocalDensity.h"
+#include "RDF.cc"
 #include "RDF.h"
 #include <stdio.h>
 #include "numpy/arrayobject.h"
