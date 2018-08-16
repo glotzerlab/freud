@@ -44,8 +44,8 @@ cdef class InterfaceMeasure:
         del self.thisptr
 
     def compute(self, ref_points, points, nlist=None):
-        """Compute and return the number of particles at the interface between
-        the two given sets of points.
+        """Compute the particles at the interface between the two given sets of
+        points.
 
         Args:
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -77,3 +77,18 @@ cdef class InterfaceMeasure:
             n_ref,
             <vec3[float]*> cPoints.data,
             Np)
+
+    @property
+    def interface_count(self):
+        return self.thisptr.getInterfaceCount()
+
+    @property
+    def interface_particles(self):
+        cdef unsigned int * interface_idx = \
+            self.thisptr.getInterfaceIdx().get()
+        cdef np.npy_intp nP[1]
+        nP[0] = <np.npy_intp> self.thisptr.getInterfaceCount()
+        cdef np.ndarray[np.uint32_t, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(
+                1, nP, np.NPY_UINT32, <void*> interface_idx)
+        return result

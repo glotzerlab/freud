@@ -39,15 +39,29 @@ class InterfaceMeasure
         }
 
         //! Compute the interface
-        unsigned int compute(const freud::locality::NeighborList *nlist,
-                             const vec3<float> *ref_points,
-                             unsigned int n_ref,
-                             const vec3<float> *points,
-                             unsigned int Np);
+        void compute(const freud::locality::NeighborList *nlist,
+                     const vec3<float> *ref_points,
+                     unsigned int n_ref,
+                     const vec3<float> *points,
+                     unsigned int Np);
+
+        //! Return the number of particles at the interface
+        unsigned int getInterfaceCount()
+            {
+            return m_interface_count;
+            }
+
+        //! Get a reference to the last computed interface particle IDs
+        std::shared_ptr< std::vector<unsigned int> > getInterfaceIds()
+            {
+            return m_interface_ids;
+            }
 
     private:
         box::Box m_box;  //!< Simulation box where the particles belong
         float m_rcut;    //!< Max distance at which particles are considered to be in an interface
+        unsigned int m_interface_count; //!< Number of particles at the interface
+        std::shared_ptr< std::vector<unsigned int> > m_interface_ids; //!< IDs of particles at the interface
 };
 
 }; }; // end namespace freud::interface

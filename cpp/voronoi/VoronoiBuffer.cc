@@ -23,7 +23,7 @@ void VoronoiBuffer::compute(const vec3<float> *points,
 
     m_buffer_particles = std::shared_ptr<std::vector< vec3<float> > >(
             new std::vector< vec3<float> >());
-    m_buffer_ids = std::shared_ptr<std::vector< unsigned int > >(
+    m_buffer_ids = std::shared_ptr<std::vector<unsigned int> >(
             new std::vector< unsigned int >());
     std::vector< vec3<float> >& buffer_parts = *m_buffer_particles;
     std::vector< unsigned int >& buffer_ids = *m_buffer_ids;
