@@ -203,7 +203,6 @@ ext_args = dict(
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
 files = glob.glob(os.path.join('freud', '*') + ext)
-files.remove(os.path.join('freud', 'order' + ext))  # Is compiled separately
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
@@ -216,12 +215,13 @@ sources_in_all = [
 ]
 
 extra_module_sources = dict(
-    order=[os.path.join("cpp", "cluster", "Cluster.cc")]
+    order=[os.path.join("cpp", "cluster", "Cluster.cc")],
+    _cy_kspace=[os.path.join("cpp", "kspace", "kspace.cc")]
 )
 
 extensions = []
 for f, m in zip(files, modules):
-    m_name = m.replace('freud' + os.path.sep, '')
+    m_name = m.replace('freud.', '')
     # use set to avoid doubling up on things in sources_in_all
     sources = set(sources_in_all + [f])
     sources.update(extra_module_sources.get(m_name, []))
