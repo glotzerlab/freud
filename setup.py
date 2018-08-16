@@ -205,22 +205,28 @@ ext_args = dict(
 files = glob.glob(os.path.join('freud', '*') + ext)
 files.remove(os.path.join('freud', 'order' + ext))  # Is compiled separately
 modules = [f.replace(ext, '') for f in files]
-modules = [m.replace(os.path.sep, '.') for m in modules]
+modules = [m.replace('freud' + os.path.sep, '') for m in modules]
 
-# Compile order separately since it requires that Cluster.cc and a few
-# other things be compiled in addition to the main source.
-s = [os.path.join("freud", "order" + ext),
-     os.path.join("cpp", "util", "HOOMDMatrix.cc"),
-     os.path.join("cpp", "cluster", "Cluster.cc")]
-# Ensure changes in CC files are captured
-s.extend(glob.glob(os.path.join("cpp", "order", "*.cc")))
-extensions = [Extension("freud.order", sources=s, **ext_args)]
+sources_in_all = [
+    os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+    os.path.join("cpp", "locality", "LinkCell.cc"),
+    os.path.join("cpp", "locality", "NearestNeighbors.cc"),
+    os.path.join("cpp", "locality", "NeighborList.cc"),
+    os.path.join("cpp", "box", "box.cc")
+]
 
+extra_module_sources = dict(
+    order=[os.path.join("cpp", "cluster", "Cluster.cc")]
+)
+
+extensions = []
 for f, m in zip(files, modules):
-    s = [f, os.path.join("cpp", "util", "HOOMDMatrix.cc")]
-    # Ensure changes in CC files are captured
-    s.extend(glob.glob(os.path.join("cpp", m.replace('freud.', ''), "*.cc")))
-    extensions.append(Extension(m, sources=s, **ext_args))
+    # use set to avoid doubling up on things in sources_in_all
+    sources = set(sources_in_all + [f])
+    sources.update(extra_module_sources.get(m, []))
+    sources.update(glob.glob(os.path.join('cpp', m, '*.cc')))
+
+    extensions.append(Extension(m, sources=list(sources), **ext_args))
 
 if use_cython:
     from Cython.Build import cythonize
