@@ -594,10 +594,6 @@ cdef class GaussianDensity:
         pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
         return pyResult
 
-    def resetDensity(self):
-        """Resets the values of GaussianDensity in memory."""
-        self.thisptr.reset()
-
 cdef class LocalDensity:
     """ Computes the local density around a particle.
 

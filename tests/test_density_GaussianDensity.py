@@ -21,7 +21,7 @@ class TestDensity(unittest.TestCase):
         diff = density.GaussianDensity(width, rcut, sigma)
         testBox = box.Box.square(box_size)
         diff.compute(testBox, points)
-        myDiff = diff.getGaussianDensity()
+        myDiff = diff.gaussian_density
         myFFT = fft(fft(myDiff[:, :], axis=1), axis=0)
         myDiff = (myFFT * np.conj(myFFT)).real
         myDiff = fftshift(myDiff)[:, :]

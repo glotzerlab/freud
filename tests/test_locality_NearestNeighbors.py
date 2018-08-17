@@ -38,7 +38,7 @@ class TestNearestNeighbors(unittest.TestCase):
         points[1] = [3.0, 0.0, 0.0]
         cl.compute(fbox, points, points)
         neighbor_list = cl.getNeighborList()
-        rsq_list = cl.getRsqList()
+        rsq_list = cl.r_sq_list
         npt.assert_equal(neighbor_list[0, 0], 1)
         npt.assert_equal(neighbor_list[1, 0], 0)
         npt.assert_equal(rsq_list[0, 0], 9.0)
@@ -59,7 +59,7 @@ class TestNearestNeighbors(unittest.TestCase):
         cl.compute(fbox, points, points)
 
         neighbor_list = cl.getNeighborList()
-        rsq_list = cl.getRsqList()
+        rsq_list = cl.r_sq_list
         # pick particle at random
         pidx = np.random.randint(N)
         nidx = np.random.randint(num_neighbors)
@@ -81,7 +81,7 @@ class TestNearestNeighbors(unittest.TestCase):
         points[1] = [3.0, 0.0, 0.0]
         cl.compute(fbox, points, points)
         neighbor_list = cl.getNeighborList()
-        rsq_list = cl.getRsqList()
+        rsq_list = cl.r_sq_list
         npt.assert_equal(neighbor_list[0, 0], cl.UINTMAX)
         npt.assert_equal(neighbor_list[1, 0], cl.UINTMAX)
         npt.assert_equal(rsq_list[0, 0], -1.0)
@@ -104,7 +104,7 @@ class TestNearestNeighbors(unittest.TestCase):
 
         cl.compute(fbox, points, points)
         neighbor_list = cl.getNeighborList()
-        rsq_list = cl.getRsqList()
+        rsq_list = cl.r_sq_list
         npt.assert_equal(neighbor_list[0, 0], 1)
         npt.assert_equal(neighbor_list[0, 1], cl.UINTMAX)
         npt.assert_equal(rsq_list[0, 0], 1.0)

@@ -35,10 +35,10 @@ class TestCluster(unittest.TestCase):
         cubaticOP.compute(orientations)
 
         # get the op
-        op = cubaticOP.get_cubatic_order_parameter()
+        op = cubaticOP.cubatic_order_parameter
 
         # simple testing
-        pop = cubaticOP.get_particle_op()
+        pop = cubaticOP.particle_order_parameter
         op_min = np.nanmin(pop)
 
         npt.assert_almost_equal(op, 1, decimal=2,
@@ -74,9 +74,9 @@ class TestCluster(unittest.TestCase):
         cubaticOP = cop(5.0, 0.001, 0.95, 10)
         cubaticOP.compute(orientations)
         # get the op
-        op = cubaticOP.get_cubatic_order_parameter()
+        op = cubaticOP.cubatic_order_parameter
 
-        pop = cubaticOP.get_particle_op()
+        pop = cubaticOP.particle_order_parameter
         op_max = np.nanmax(pop)
 
         npt.assert_array_less(op, 0.3, err_msg="Cubatic Order is > 0.3")

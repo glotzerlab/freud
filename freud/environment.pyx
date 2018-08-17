@@ -923,6 +923,10 @@ cdef class MatchEnv:
             l_refPoints2, (nRef2, 3))
         return [min_rmsd, rot_refPoints2, results_map]
 
+    @property
+    def clusters(self):
+        return self.getClusters()
+
     def getClusters(self):
         """Get a reference to the particles, indexed into clusters according to
         their matching local environments.
@@ -1305,6 +1309,10 @@ cdef class AngularSeparation:
                 nGlobal, nP, nEquiv)
         return self
 
+    @property
+    def neighbor_angles(self):
+        return self.getNeighborAngles()
+
     def getNeighborAngles(self):
         """The neighbor angles in radians.
 
@@ -1322,8 +1330,12 @@ cdef class AngularSeparation:
                                          <void*> neigh_ang)
         return result
 
+    @property
+    def global_angles(self):
+        return self.getGlobalAngles()
+
     def getGlobalAngles(self):
-        """The global angles in radians
+        """The global angles in radians.
 
         Returns:
             :math:`\\left(N_{particles}, N_{global} \\right)` \

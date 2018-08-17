@@ -147,12 +147,12 @@ class TestSummation(unittest.TestCase):
         # A very large bin size exacerbates the problem
         cf = density.ComplexCF(500, 40)
         cf.compute(fbox, pos2d, phi, pos2d, phi)
-        c1 = cf.getCounts()
+        c1 = cf.counts
         f1 = np.real(cf.rdf)
 
         parallel.setNumThreads(20)
         cf.compute(fbox, pos2d, phi, pos2d, phi)
-        c2 = cf.getCounts()
+        c2 = cf.counts
         f2 = np.real(cf.rdf)
 
         np.testing.assert_allclose(f1, f2)

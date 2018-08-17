@@ -31,7 +31,7 @@ cdef class NeighborList:
     NeighborList objects are constructed for two sets of position
     arrays A (alternatively *reference points*; of length :math:`n_A`)
     and B (alternatively *target points*; of length :math:`n_B`) and
-    hold a set of :math:`\left(i, j\\right): i < n_A, j < n_B` index
+    hold a set of :math:`\\left(i, j\\right): i < n_A, j < n_B` index
     pairs corresponding to near-neighbor points in A and B,
     respectively.
 
