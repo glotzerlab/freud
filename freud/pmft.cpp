@@ -31,7 +31,6 @@
             "cpp/util",
             "cpp/order",
             "cpp/parallel",
-            "cpp/interface",
             "cpp/cluster",
             "cpp/environment",
             "cpp/locality",
@@ -50,16 +49,16 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
-            "cpp/locality/LinkCell.cc",
-            "cpp/pmft/PMFT.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/pmft/PMFTR12.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/pmft/PMFTXY2D.cc",
-            "cpp/pmft/PMFTXYZ.cc",
             "cpp/box/box.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/pmft/PMFTXYT.cc"
+            "cpp/pmft/PMFTXYZ.cc",
+            "cpp/pmft/PMFT.cc",
+            "cpp/pmft/PMFTXY2D.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/pmft/PMFTXYT.cc",
+            "cpp/util/HOOMDMatrix.cc"
         ]
     },
     "module_name": "freud.pmft"
