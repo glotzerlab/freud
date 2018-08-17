@@ -29,7 +29,8 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace"
+            "cpp/kspace",
+            "/usr/include"
         ],
         "language": "c++",
         "libraries": [
@@ -38,7 +39,11 @@
         "name": "freud.index",
         "sources": [
             "freud/index.pyx",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/box/box.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.index"

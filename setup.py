@@ -13,10 +13,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 ######################################
 # Define helper functions for setup.py
 ######################################
-
 
 def find_tbb(argv):
     """Function to find paths to TBB.
@@ -162,6 +162,7 @@ else:
     use_cython = False
     ext = '.cpp'
 
+
 #########################
 # Set extension arguments
 #########################
@@ -195,43 +196,51 @@ ext_args = dict(
     define_macros=macros
 )
 
+
 ###################
 # Set up extensions
 ###################
 
-
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
 files = glob.glob(os.path.join('freud', '*') + ext)
-files.remove(os.path.join('freud', 'order' + ext))  # Is compiled separately
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
-extensions = [
-    # Compile order separately since it requires that Cluster.cc and a few
-    # other things be compiled in addition to the main source.
-    Extension("freud.order",
-              sources=[os.path.join("freud", "order" + ext),
-                       os.path.join("cpp", "util", "HOOMDMatrix.cc"),
-                       os.path.join("cpp", "order", "wigner3j.cc"),
-                       os.path.join("cpp", "cluster", "Cluster.cc")],
-              **ext_args
-              ),
+# Source files required for all modules.
+sources_in_all = [
+    os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+    os.path.join("cpp", "locality", "LinkCell.cc"),
+    os.path.join("cpp", "locality", "NearestNeighbors.cc"),
+    os.path.join("cpp", "locality", "NeighborList.cc"),
+    os.path.join("cpp", "box", "box.cc")
 ]
 
+# Any source files required only for specific modules.
+# Dict keys should be specified as the module name without
+# "freud.", i.e. not the fully qualified name.
+extra_module_sources = dict(
+    order=[os.path.join("cpp", "cluster", "Cluster.cc")],
+    _cy_kspace=[os.path.join("cpp", "kspace", "kspace.cc")]
+)
+
+extensions = []
 for f, m in zip(files, modules):
-    extensions.append(
-        Extension(m,
-                  sources=[f, os.path.join("cpp", "util", "HOOMDMatrix.cc")],
-                  **ext_args)
-    )
+    m_name = m.replace('freud.', '')
+    # Use set to avoid doubling up on things in sources_in_all
+    sources = set(sources_in_all + [f])
+    sources.update(extra_module_sources.get(m_name, []))
+    sources.update(glob.glob(os.path.join('cpp', m_name, '*.cc')))
+
+    extensions.append(Extension(m, sources=list(sources), **ext_args))
 
 if use_cython:
     from Cython.Build import cythonize
     extensions = cythonize(extensions, compiler_directives=directives)
 
+
 ####################################
-# Perform set up with error handling
+# Perform setup with error handling
 ####################################
 
 # Ensure that builds on Mac use correct stdlib.
@@ -250,6 +259,9 @@ try:
 except ImportError:
     readme = desc
 
+# Using a temporary file as a buffer to hold stderr output allows us
+# to parse error messages from the underlying compiler and parse them
+# for known errors.
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
@@ -269,10 +281,10 @@ except SystemExit:
     err_out = tfile.read().decode()
     sys.stderr.write(err_out)
     if err_str in err_out:
-        sys.stderr.write("\nUnable to find tbb. If you have TBB on your "
-                         "system, try specifying the location using the "
+        sys.stderr.write("\n\033[1m Unable to find tbb. If you have TBB on "
+                         "your system, try specifying the location using the "
                          "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
-                         "arguments to setup.py.\n")
+                         "arguments to setup.py.\033[0m\n")
     else:
         raise
 except: # noqa

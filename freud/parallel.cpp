@@ -4,7 +4,6 @@
 {
     "distutils": {
         "depends": [
-            "cpp/parallel/tbb_config.cc",
             "cpp/parallel/tbb_config.h"
         ],
         "extra_compile_args": [
@@ -29,7 +28,8 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace"
+            "cpp/kspace",
+            "/usr/include"
         ],
         "language": "c++",
         "libraries": [
@@ -38,7 +38,12 @@
         "name": "freud.parallel",
         "sources": [
             "freud/parallel.pyx",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/parallel/tbb_config.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/box/box.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.parallel"
@@ -621,7 +626,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #define __PYX_HAVE__freud__parallel
 #define __PYX_HAVE_API__freud__parallel
 /* Early includes */
-#include "tbb_config.cc"
 #include "tbb_config.h"
 #ifdef _OPENMP
 #include <omp.h>

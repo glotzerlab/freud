@@ -11,9 +11,6 @@ from libcpp.map cimport map
 cimport freud._box
 cimport freud._locality
 
-cdef extern from "BondingAnalysis.cc" namespace "freud::bond":
-    pass
-
 cdef extern from "BondingAnalysis.h" namespace "freud::bond":
     cdef cppclass BondingAnalysis:
         BondingAnalysis(unsigned int, unsigned int)
@@ -27,9 +24,6 @@ cdef extern from "BondingAnalysis.h" namespace "freud::bond":
         unsigned int getNumFrames()
         unsigned int getNumParticles()
         unsigned int getNumBonds()
-
-cdef extern from "BondingR12.cc" namespace "freud::bond":
-    pass
 
 cdef extern from "BondingR12.h" namespace "freud::bond":
     cdef cppclass BondingR12:
@@ -50,9 +44,6 @@ cdef extern from "BondingR12.h" namespace "freud::bond":
         map[uint, uint] getListMap()
         map[uint, uint] getRevListMap()
 
-cdef extern from "BondingXY2D.cc" namespace "freud::bond":
-    pass
-
 cdef extern from "BondingXY2D.h" namespace "freud::bond":
     cdef cppclass BondingXY2D:
         BondingXY2D(float, float, unsigned int, unsigned int, unsigned int,
@@ -72,9 +63,6 @@ cdef extern from "BondingXY2D.h" namespace "freud::bond":
         map[uint, uint] getListMap()
         map[uint, uint] getRevListMap()
 
-cdef extern from "BondingXYT.cc" namespace "freud::bond":
-    pass
-
 cdef extern from "BondingXYT.h" namespace "freud::bond":
     cdef cppclass BondingXYT:
         BondingXYT(float, float, unsigned int, unsigned int, unsigned int,
@@ -93,9 +81,6 @@ cdef extern from "BondingXYT.h" namespace "freud::bond":
         unsigned int getNumBonds()
         map[uint, uint] getListMap()
         map[uint, uint] getRevListMap()
-
-cdef extern from "BondingXYZ.cc" namespace "freud::bond":
-    pass
 
 cdef extern from "BondingXYZ.h" namespace "freud::bond":
     cdef cppclass BondingXYZ:

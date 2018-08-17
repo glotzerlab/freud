@@ -6,23 +6,14 @@
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
-            "cpp/bond/BondingAnalysis.cc",
             "cpp/bond/BondingAnalysis.h",
-            "cpp/bond/BondingR12.cc",
             "cpp/bond/BondingR12.h",
-            "cpp/bond/BondingXY2D.cc",
             "cpp/bond/BondingXY2D.h",
-            "cpp/bond/BondingXYT.cc",
             "cpp/bond/BondingXYT.h",
-            "cpp/bond/BondingXYZ.cc",
             "cpp/bond/BondingXYZ.h",
-            "cpp/box/box.cc",
             "cpp/box/box.h",
-            "cpp/locality/LinkCell.cc",
             "cpp/locality/LinkCell.h",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/NearestNeighbors.h",
-            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborList.h",
             "cpp/util/Index1D.h",
             "cpp/util/VectorMath.h"
@@ -49,7 +40,8 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace"
+            "cpp/kspace",
+            "/usr/include"
         ],
         "language": "c++",
         "libraries": [
@@ -58,7 +50,16 @@
         "name": "freud.bond",
         "sources": [
             "freud/bond.pyx",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/bond/BondingXY2D.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/bond/BondingXYT.cc",
+            "cpp/bond/BondingXYZ.cc",
+            "cpp/bond/BondingAnalysis.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/bond/BondingR12.cc",
+            "cpp/box/box.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.bond"
@@ -653,24 +654,15 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <vector>
 #include <string.h>
 #include <string>
-#include "box.cc"
 #include "box.h"
-#include "NeighborList.cc"
 #include "NeighborList.h"
-#include "LinkCell.cc"
 #include "LinkCell.h"
-#include "NearestNeighbors.cc"
 #include "NearestNeighbors.h"
 #include <complex>
-#include "BondingAnalysis.cc"
 #include "BondingAnalysis.h"
-#include "BondingR12.cc"
 #include "BondingR12.h"
-#include "BondingXY2D.cc"
 #include "BondingXY2D.h"
-#include "BondingXYT.cc"
 #include "BondingXYT.h"
-#include "BondingXYZ.cc"
 #include "BondingXYZ.h"
 #include <stdio.h>
 #include "numpy/arrayobject.h"
