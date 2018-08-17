@@ -13,10 +13,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 ######################################
 # Define helper functions for setup.py
 ######################################
-
 
 def find_tbb(argv):
     """Function to find paths to TBB.
@@ -162,6 +162,7 @@ else:
     use_cython = False
     ext = '.cpp'
 
+
 #########################
 # Set extension arguments
 #########################
@@ -195,10 +196,10 @@ ext_args = dict(
     define_macros=macros
 )
 
+
 ###################
 # Set up extensions
 ###################
-
 
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
@@ -206,6 +207,7 @@ files = glob.glob(os.path.join('freud', '*') + ext)
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
+# Source files required for all modules.
 sources_in_all = [
     os.path.join("cpp", "util", "HOOMDMatrix.cc"),
     os.path.join("cpp", "locality", "LinkCell.cc"),
@@ -214,6 +216,9 @@ sources_in_all = [
     os.path.join("cpp", "box", "box.cc")
 ]
 
+# Any source files required only for specific modules.
+# Dict keys should be specified as the module name without
+# "freud.", i.e. not the fully qualified name.
 extra_module_sources = dict(
     order=[os.path.join("cpp", "cluster", "Cluster.cc")],
     _cy_kspace=[os.path.join("cpp", "kspace", "kspace.cc")]
@@ -222,7 +227,7 @@ extra_module_sources = dict(
 extensions = []
 for f, m in zip(files, modules):
     m_name = m.replace('freud.', '')
-    # use set to avoid doubling up on things in sources_in_all
+    # Use set to avoid doubling up on things in sources_in_all
     sources = set(sources_in_all + [f])
     sources.update(extra_module_sources.get(m_name, []))
     sources.update(glob.glob(os.path.join('cpp', m_name, '*.cc')))
@@ -233,8 +238,9 @@ if use_cython:
     from Cython.Build import cythonize
     extensions = cythonize(extensions, compiler_directives=directives)
 
+
 ####################################
-# Perform set up with error handling
+# Perform setup with error handling
 ####################################
 
 # Ensure that builds on Mac use correct stdlib.
@@ -253,6 +259,9 @@ try:
 except ImportError:
     readme = desc
 
+# Using a temporary file as a buffer to hold stderr output allows us
+# to parse error messages from the underlying compiler and parse them
+# for known errors.
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
@@ -268,15 +277,15 @@ try:
 except SystemExit:
     # For now, the only error we're explicitly checking for is whether or not
     # TBB is missing
-    err_str = "tbb/tbb.h"
+    err_str = "'tbb/tbb.h' file not found"
     err_out = tfile.read().decode()
+    sys.stderr.write(err_out)
     if err_str in err_out:
-        sys.stderr.write("Unable to find tbb. If you have TBB on your "
-                         "system, try specifying the location using the "
+        sys.stderr.write("\n\033[1m Unable to find tbb. If you have TBB on "
+                         "your system, try specifying the location using the "
                          "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
-                         "arguments to setup.py.\n")
+                         "arguments to setup.py.\033[0m\n")
     else:
-        sys.stderr.write(err_out)
         raise
 except: # noqa
     sys.stderr.write(tfile.read().decode())
