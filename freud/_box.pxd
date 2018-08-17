@@ -5,9 +5,6 @@ from libcpp cimport bool
 from freud.util._VectorMath cimport vec3
 from libcpp.string cimport string
 
-cdef extern from "box.cc" namespace "freud::box":
-    pass
-
 cdef extern from "box.h" namespace "freud::box":
     cdef cppclass Box:
         Box()

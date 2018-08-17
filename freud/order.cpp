@@ -6,37 +6,21 @@
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
-            "cpp/box/box.cc",
             "cpp/box/box.h",
-            "cpp/environment/AngularSeparation.cc",
             "cpp/environment/AngularSeparation.h",
-            "cpp/environment/BondOrder.cc",
             "cpp/environment/BondOrder.h",
-            "cpp/environment/LocalDescriptors.cc",
             "cpp/environment/LocalDescriptors.h",
-            "cpp/environment/MatchEnv.cc",
             "cpp/environment/MatchEnv.h",
-            "cpp/environment/Pairing2D.cc",
             "cpp/environment/Pairing2D.h",
-            "cpp/locality/LinkCell.cc",
             "cpp/locality/LinkCell.h",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/NearestNeighbors.h",
-            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborList.h",
-            "cpp/order/CubaticOrderParameter.cc",
             "cpp/order/CubaticOrderParameter.h",
-            "cpp/order/HexOrderParameter.cc",
             "cpp/order/HexOrderParameter.h",
-            "cpp/order/LocalQl.cc",
             "cpp/order/LocalQl.h",
-            "cpp/order/LocalWl.cc",
             "cpp/order/LocalWl.h",
-            "cpp/order/NematicOrderParameter.cc",
             "cpp/order/NematicOrderParameter.h",
-            "cpp/order/SolLiq.cc",
             "cpp/order/SolLiq.h",
-            "cpp/order/TransOrderParameter.cc",
             "cpp/order/TransOrderParameter.h",
             "cpp/util/Index1D.h",
             "cpp/util/VectorMath.h"
@@ -63,7 +47,8 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace"
+            "cpp/kspace",
+            "/usr/include"
         ],
         "language": "c++",
         "libraries": [
@@ -72,9 +57,20 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
+            "cpp/locality/LinkCell.cc",
             "cpp/util/HOOMDMatrix.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/order/LocalQl.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/order/SolLiq.cc",
             "cpp/order/wigner3j.cc",
-            "cpp/cluster/Cluster.cc"
+            "cpp/order/LocalWl.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/box/box.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.order"
@@ -669,41 +665,25 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <map>
 #include <string.h>
 #include <string>
-#include "box.cc"
 #include "box.h"
 #include "Index1D.h"
-#include "NeighborList.cc"
 #include "NeighborList.h"
-#include "LinkCell.cc"
 #include "LinkCell.h"
-#include "NearestNeighbors.cc"
 #include "NearestNeighbors.h"
-#include "BondOrder.cc"
 #include "BondOrder.h"
-#include "LocalDescriptors.cc"
 #include "LocalDescriptors.h"
-#include "MatchEnv.cc"
 #include "MatchEnv.h"
-#include "Pairing2D.cc"
 #include "Pairing2D.h"
-#include "AngularSeparation.cc"
 #include "AngularSeparation.h"
 #include <stdio.h>
 #include "numpy/arrayobject.h"
 #include "numpy/ufuncobject.h"
-#include "CubaticOrderParameter.cc"
 #include "CubaticOrderParameter.h"
-#include "NematicOrderParameter.cc"
 #include "NematicOrderParameter.h"
-#include "HexOrderParameter.cc"
 #include "HexOrderParameter.h"
-#include "TransOrderParameter.cc"
 #include "TransOrderParameter.h"
-#include "LocalQl.cc"
 #include "LocalQl.h"
-#include "LocalWl.cc"
 #include "LocalWl.h"
-#include "SolLiq.cc"
 #include "SolLiq.h"
 #ifdef _OPENMP
 #include <omp.h>

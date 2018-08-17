@@ -114,19 +114,18 @@ cdef class VoronoiBuffer:
         """
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
-        cdef unsigned int * buffer_ids = \
-            &dereference(self.thisptr.getBufferIds().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.uint32)
 
-        cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
+        cdef vector[unsigned int] * buffer_ids = \
+            self.thisptr.getBufferIds().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = buffer_size
 
         cdef np.ndarray[unsigned int, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> dereference(bufferIds).data())
-
+            np.PyArray_SimpleNewFromData(
+                1, nbins, np.NPY_UINT32,
+                <void*> dereference(buffer_ids).data())
         return result
 
 
