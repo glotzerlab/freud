@@ -29,8 +29,7 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace",
-            "/usr/include"
+            "cpp/kspace"
         ],
         "language": "c++",
         "libraries": [

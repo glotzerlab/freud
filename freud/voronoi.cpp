@@ -6,12 +6,17 @@
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
+            "cpp/box/box.cc",
             "cpp/box/box.h",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/LinkCell.h",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/NearestNeighbors.h",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborList.h",
             "cpp/util/Index1D.h",
             "cpp/util/VectorMath.h",
+            "cpp/voronoi/VoronoiBuffer.cc",
             "cpp/voronoi/VoronoiBuffer.h"
         ],
         "extra_compile_args": [
@@ -36,8 +41,7 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace",
-            "/usr/include"
+            "cpp/kspace"
         ],
         "language": "c++",
         "libraries": [
@@ -638,11 +642,16 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <memory>
 #include <string.h>
 #include <string>
+#include "box.cc"
 #include "box.h"
+#include "VoronoiBuffer.cc"
 #include "VoronoiBuffer.h"
 #include "Index1D.h"
+#include "NeighborList.cc"
 #include "NeighborList.h"
+#include "LinkCell.cc"
 #include "LinkCell.h"
+#include "NearestNeighbors.cc"
 #include "NearestNeighbors.h"
 #include <stdio.h>
 #include "numpy/arrayobject.h"
@@ -921,7 +930,7 @@ typedef struct {
  * 
  * ctypedef unsigned int uint             # <<<<<<<<<<<<<<
  * 
- * cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
+ * cdef extern from "VoronoiBuffer.cc" namespace "freud::voronoi":
  */
 typedef unsigned int __pyx_t_5freud_8_voronoi_uint;
 

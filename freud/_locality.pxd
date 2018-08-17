@@ -8,6 +8,9 @@ from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 cimport freud._box
 
+cdef extern from "NeighborList.cc" namespace "freud::locality":
+    pass
+
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
         NeighborList()
@@ -34,6 +37,9 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         void resize(size_t, bool)
         void copy(const NeighborList &)
         void validate(size_t, size_t) except +
+
+cdef extern from "LinkCell.cc" namespace "freud::locality":
+    pass
 
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:
@@ -76,6 +82,9 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
             unsigned int,
             bool) nogil except +
         NeighborList * getNeighborList()
+
+cdef extern from "NearestNeighbors.cc" namespace "freud::locality":
+    pass
 
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
     cdef cppclass NearestNeighbors:

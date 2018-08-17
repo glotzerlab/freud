@@ -8,6 +8,9 @@ cimport freud._box
 
 ctypedef unsigned int uint
 
+cdef extern from "VoronoiBuffer.cc" namespace "freud::voronoi":
+    pass
+
 cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
     cdef cppclass VoronoiBuffer:
         VoronoiBuffer(const freud._box.Box &)
