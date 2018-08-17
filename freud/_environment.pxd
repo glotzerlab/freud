@@ -11,9 +11,6 @@ from libcpp.map cimport map
 cimport freud._box
 cimport freud._locality
 
-cdef extern from "BondOrder.cc" namespace "freud::environment":
-    pass
-
 cdef extern from "BondOrder.h" namespace "freud::environment":
     cdef cppclass BondOrder:
         BondOrder(float, float, unsigned int, unsigned int, unsigned int)
@@ -35,9 +32,6 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
         shared_ptr[float] getPhi()
         unsigned int getNBinsTheta()
         unsigned int getNBinsPhi()
-
-cdef extern from "LocalDescriptors.cc" namespace "freud::environment":
-    pass
 
 cdef extern from "LocalDescriptors.h" namespace "freud::environment":
     ctypedef enum LocalDescriptorOrientation:
@@ -64,9 +58,6 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
             unsigned int, const vec3[float]*, unsigned int,
             const quat[float]*, LocalDescriptorOrientation) nogil except +
         shared_ptr[float complex] getSph()
-
-cdef extern from "MatchEnv.cc" namespace "freud::environment":
-    pass
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
@@ -112,9 +103,6 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         unsigned int getNumNeighbors()
         unsigned int getMaxNumNeighbors()
 
-cdef extern from "Pairing2D.cc" namespace "freud::environment":
-    pass
-
 cdef extern from "Pairing2D.h" namespace "freud::environment":
     cdef cppclass Pairing2D:
         Pairing2D(const float, const unsigned int, float)
@@ -130,9 +118,6 @@ cdef extern from "Pairing2D.h" namespace "freud::environment":
         shared_ptr[unsigned int] getMatch()
         shared_ptr[unsigned int] getPair()
         unsigned int getNumParticles()
-
-cdef extern from "AngularSeparation.cc" namespace "freud::environment":
-    pass
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparation:

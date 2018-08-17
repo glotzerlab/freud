@@ -5,9 +5,6 @@ from libcpp.memory cimport shared_ptr
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.complex cimport complex
 
-cdef extern from "kspace.cc" namespace "freud::kspace":
-    pass
-
 cdef extern from "kspace.h" namespace "freud::kspace":
     cdef cppclass FTdelta:
         FTDelta()
