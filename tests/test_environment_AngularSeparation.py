@@ -98,7 +98,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
-        npt.assert_equal(ang.n_reference, N)
+        npt.assert_equal(ang.n_ref, N)
 
     def test_compute_neighbors(self):
         boxlen = 4
