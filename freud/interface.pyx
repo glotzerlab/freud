@@ -32,18 +32,16 @@ cdef class InterfaceMeasure:
         box (:py:class:`freud.box.Box`): Simulation box.
         r_cut (float): Distance to search for particle neighbors.
     """
-    cdef freud.box.Box box
     cdef float rmax
     cdef np.ndarray _ref_point_ids
     cdef np.ndarray _point_ids
 
-    def __cinit__(self, box, float r_cut):
-        self.box = freud.common.convert_box(box)
+    def __cinit__(self, float r_cut):
         self.rmax = r_cut
         self._ref_point_ids = np.empty(0, dtype=np.uint32)
         self._point_ids = np.empty(0, dtype=np.uint32)
 
-    def compute(self, ref_points, points, nlist=None):
+    def compute(self, box, ref_points, points, nlist=None):
         """Compute the particles at the interface between the two given sets of
         points.
 
@@ -55,6 +53,7 @@ cdef class InterfaceMeasure:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
+        b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -64,15 +63,17 @@ cdef class InterfaceMeasure:
             raise RuntimeError('Need to provide array with x, y, z positions')
 
         if nlist is None:
-            lc = freud.locality.LinkCell(self.box, self.rmax)
-            nlist = lc.compute(self.box, ref_points, points).nlist
+            lc = freud.locality.LinkCell(b, self.rmax)
+            nlist = lc.compute(b, ref_points, points).nlist
+        else:
+            nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
 
         self._ref_point_ids = np.unique(nlist.index_i)
         self._point_ids = np.unique(nlist.index_j)
         return self
 
     @property
-    def interface_ref_point_count(self):
+    def ref_point_count(self):
         """The number of particles from ``ref_points`` on the interface.
 
         Returns:
@@ -90,7 +91,7 @@ cdef class InterfaceMeasure:
         return self._ref_point_ids
 
     @property
-    def interface_point_count(self):
+    def point_count(self):
         """The number of particles from ``points`` on the interface.
 
         Returns:
