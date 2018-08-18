@@ -20,7 +20,6 @@
             "cpp/util",
             "cpp/order",
             "cpp/parallel",
-            "cpp/interface",
             "cpp/cluster",
             "cpp/environment",
             "cpp/locality",
@@ -39,11 +38,11 @@
         "name": "freud.index",
         "sources": [
             "freud/index.pyx",
-            "cpp/locality/LinkCell.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/NeighborList.cc",
             "cpp/box/box.cc",
-            "cpp/locality/NearestNeighbors.cc"
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/util/HOOMDMatrix.cc"
         ]
     },
     "module_name": "freud.index"

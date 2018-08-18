@@ -28,7 +28,6 @@
             "cpp/util",
             "cpp/order",
             "cpp/parallel",
-            "cpp/interface",
             "cpp/cluster",
             "cpp/environment",
             "cpp/locality",
@@ -47,13 +46,13 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/locality/LinkCell.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/cluster/Cluster.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/cluster/ClusterProperties.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/box/box.cc",
-            "cpp/locality/NearestNeighbors.cc"
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/util/HOOMDMatrix.cc"
         ]
     },
     "module_name": "freud.cluster"

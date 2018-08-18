@@ -42,7 +42,7 @@ class TestRDF(unittest.TestCase):
                 np.float32) * box_size - box_size/2
             rdf = density.RDF(rmax, dr, rmin=rmin)
             fbox = box.Box.cube(box_size)
-            rdf.accumulate(fbox, points)
+            rdf.accumulate(fbox, points, points)
             correct = np.ones(nbins, dtype=np.float32)
             correct[0] = 0.0
             absolute_tolerance = 0.1
