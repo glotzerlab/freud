@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 from freud import box, density, parallel
 import unittest
+import os
 
 
 class TestCorrelationFunction(unittest.TestCase):
@@ -9,16 +10,12 @@ class TestCorrelationFunction(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax, dr = 3, 0.1
-
         bx = box.Box.cube(boxlen)
-
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
-        values = np.ones((N,)) + 0j
+        values = np.ones(N)
         corrfun = density.ComplexCF(rmax, dr)
-
-        values = np.asarray(values, dtype=np.complex128)
         corrfun.compute(bx, points, values, points, values.conj())
         assert True
 
@@ -54,17 +51,17 @@ class TestOCF(unittest.TestCase):
             * box_size - box_size/2
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
-        comp = np.cos(ang) + 1j * np.sin(ang)
-        conj = np.cos(ang) - 1j * np.sin(ang)
+        comp = np.exp(1j*ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(box.Box.square(box_size), points, comp, points, conj)
+        ocf.accumulate(box.Box.square(box_size), points, comp,
+                       points, np.conj(comp))
 
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
-    @unittest.skip("Skipping to test with CircleCI")
+    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
     def test_random_point_without_cell_list(self):
         rmax = 10.0
         dr = 1.0
@@ -75,15 +72,15 @@ class TestOCF(unittest.TestCase):
             * box_size - box_size/2
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
-        comp = np.cos(ang) + 1j * np.sin(ang)
-        conj = np.cos(ang) - 1j * np.sin(ang)
+        comp = np.exp(1j*ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(box.Box.square(box_size), points, comp, points, conj)
+        ocf.accumulate(box.Box.square(box_size), points, comp,
+                       points, np.conj(comp))
 
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
-        npt.assert_allclose(ocf.rdf, correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
     def test_value_point_with_cell_list(self):
         rmax = 10.0
@@ -94,17 +91,17 @@ class TestOCF(unittest.TestCase):
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
         ang = np.zeros(int(num_points), dtype=np.float64)
-        comp = np.cos(ang) + 1j * np.sin(ang)
-        conj = np.cos(ang) - 1j * np.sin(ang)
+        comp = np.exp(1j*ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(box.Box.square(box_size), points, comp, points, conj)
+        ocf.accumulate(box.Box.square(box_size), points, comp,
+                       points, np.conj(comp))
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + \
             1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
-    @unittest.skip("Skipping to test with CircleCI")
+    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
     def test_value_point_without_cell_list(self):
         rmax = 10.0
         dr = 1.0
@@ -114,29 +111,26 @@ class TestOCF(unittest.TestCase):
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
         ang = np.zeros(int(num_points), dtype=np.float64)
-        comp = np.cos(ang) + 1j * np.sin(ang)
-        conj = np.cos(ang) - 1j * np.sin(ang)
+        comp = np.exp(1j*ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(box.Box.square(box_size), points, comp, points, conj)
+        ocf.accumulate(box.Box.square(box_size), points, comp,
+                       points, np.conj(comp))
 
-        correct = np.ones(int(rmax/dr), dtype=np.float32) + \
-            1j * np.zeros(int(rmax/dr), dtype=np.float32)
+        correct = np.ones(int(rmax/dr), dtype=np.complex128)
         absolute_tolerance = 0.1
-        npt.assert_allclose(ocf.rdf, correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
 
 class TestSummation(unittest.TestCase):
-    @unittest.skip("Skipping to test with CircleCI")
-    def test_summation():
+    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
+    def test_summation(self):
         # Causes the correlation function to add lots of small numbers together
         # This leads to vastly different results with different numbers of
         # threads if the summation is not done robustly
         N = 20000
-        phi = np.zeros(N, dtype=np.complex128)
         np.random.seed(0)
-        phi[:] = np.random.rand(N)
-        pos2d = np.array(np.random.random(size=(N, 3)), dtype=np.float32) \
-            * 1000 - 500
+        phi = np.random.rand(N)
+        pos2d = np.random.uniform(-500, 500, size=(N, 3))
         pos2d[:, 2] = 0
         fbox = box.Box.square(1000)
 
@@ -146,14 +140,14 @@ class TestSummation(unittest.TestCase):
         parallel.setNumThreads(1)
         # A very large bin size exacerbates the problem
         cf = density.ComplexCF(500, 40)
-        cf.compute(fbox, pos2d, phi, pos2d, phi)
+        cf.compute(fbox, pos2d, phi)
         c1 = cf.counts
-        f1 = np.real(cf.rdf)
+        f1 = np.real(cf.RDF)
 
         parallel.setNumThreads(20)
-        cf.compute(fbox, pos2d, phi, pos2d, phi)
+        cf.compute(fbox, pos2d, phi)
         c2 = cf.counts
-        f2 = np.real(cf.rdf)
+        f2 = np.real(cf.RDF)
 
         np.testing.assert_allclose(f1, f2)
         np.testing.assert_array_equal(c1, c2)

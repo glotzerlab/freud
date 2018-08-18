@@ -28,14 +28,15 @@ cimport numpy as np
 np.import_array()
 
 cdef class FloatCF:
-    """Computes the pairwise correlation function :math:`\\left< p*q \\right>
-    \\left( r \\right)` between two sets of points with associated values
-    :math:`p` and :math:`q`.
+    """Computes the real pairwise correlation function.
 
-    Two sets of points and two sets of real values associated with those
-    points are given. Computing the correlation function results in an
-    array of the expected (average) product of all values at a given
-    radial distance.
+    The correlation function is given by
+    :math:`C(r) = \\left\\langle s_1(0) \cdot s_2(r) \\right\\rangle` between
+    two sets of points :math:`p_1` (:code:`ref_points`) and :math:`p_2`
+    (:code:`points`) with associated values :math:`s_1` (:code:`ref_values`)
+    and :math:`s_2` (:code:`values`). Computing the correlation function
+    results in an array of the expected (average) product of all values at a
+    given radial distance :math:`r`.
 
     The values of :math:`r` where the correlation function is computed are
     controlled by the :code:`rmax` and :code:`dr` parameters to the
@@ -48,10 +49,11 @@ cdef class FloatCF:
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
-    Self-correlation: It is often the case that we wish to compute the
-    correlation function of a set of points with itself. If given the same
-    arrays for both :code:`points` and :code:`ref_points`, we omit
-    accumulating the self-correlation value in the first bin.
+    .. note::
+        **Self-correlation:** It is often the case that we wish to compute the
+        correlation function of a set of points with itself. If :code:`points`
+        is the same as :code:`ref_points`, not provided, or :code:`None`, we
+        omit accumulating the self-correlation value in the first bin.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
@@ -84,7 +86,7 @@ cdef class FloatCF:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, ref_points, refValues, points, values,
+    def accumulate(self, box, ref_points, ref_values, points=None, values=None,
                    nlist=None):
         """Calculates the correlation function and adds to the current
         histogram.
@@ -93,24 +95,30 @@ cdef class FloatCF:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
-            refValues ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-                Values to use in computation.
+                Reference points used to calculate the correlation function.
+            ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+                Real values used to calculate the correlation function.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the correlation function.
+                Uses :code:`ref_points` if not provided or :code:`None`.
             values ((:math:`N_{particles}`):
-                Values to use in computation.
+                Real values used to calculate the correlation function.
+                Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (defaults to :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+        if points is None:
+            points = ref_points
+        if values is None:
+            values = ref_values
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        refValues = freud.common.convert_array(
-            refValues, 1, dtype=np.float64, contiguous=True)
+        ref_values = freud.common.convert_array(
+            ref_values, 1, dtype=np.float64, contiguous=True)
         values = freud.common.convert_array(
             values, 1, dtype=np.float64, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
@@ -121,10 +129,10 @@ cdef class FloatCF:
             l_points = l_ref_points
         else:
             l_points = points
-        cdef np.ndarray[np.float64_t, ndim=1] l_refValues = refValues
+        cdef np.ndarray[np.float64_t, ndim=1] l_ref_values = ref_values
         cdef np.ndarray[np.float64_t, ndim=1] l_values
-        if values is refValues:
-            l_values = l_refValues
+        if values is ref_values:
+            l_values = l_ref_values
         else:
             l_values = values
 
@@ -138,7 +146,7 @@ cdef class FloatCF:
             self.thisptr.accumulate(
                 dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
-                <double*> l_refValues.data, n_ref,
+                <double*> l_ref_values.data, n_ref,
                 <vec3[float]*> l_points.data,
                 <double*> l_values.data,
                 n_p)
@@ -183,26 +191,29 @@ cdef class FloatCF:
         """
         self.thisptr.reset()
 
-    def compute(self, box, ref_points, refValues, points, values, nlist=None):
+    def compute(self, box, ref_points, ref_values, points=None, values=None,
+                nlist=None):
         """Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
         Args:
             box (:class:`freud.box.Box`):
-                Simulation box
+                Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
-            refValues ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-                Values to use in computation.
+                Reference points used to calculate the correlation function.
+            ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+                Real values used to calculate the correlation function.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
+                Points used to calculate the correlation function.
+                Uses :code:`ref_points` if not provided or :code:`None`.
             values ((:math:`N_{particles}`):
-                Values to use in computation.
+                Real values used to calculate the correlation function.
+                Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (defaults to :code:`None`).
         """
         self.thisptr.reset()
-        self.accumulate(box, ref_points, refValues, points, values, nlist)
+        self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
 
     def reduceCorrelationFunction(self):
@@ -249,14 +260,15 @@ cdef class FloatCF:
         return result
 
 cdef class ComplexCF:
-    """Computes the pairwise correlation function :math:`\\left< p*q \\right>
-    \\left( r \\right)` between two sets of points with associated values
-    :math:`p` and :math:`q`.
+    """Computes the complex pairwise correlation function.
 
-    Two sets of points and two sets of complex values associated with those
-    points are given. Computing the correlation function results in an
-    array of the expected (average) product of all values at a given
-    radial distance.
+    The correlation function is given by
+    :math:`C(r) = \\left\\langle s_1(0) \cdot s_2(r) \\right\\rangle` between
+    two sets of points :math:`p_1` (:code:`ref_points`) and :math:`p_2`
+    (:code:`points`) with associated values :math:`s_1` (:code:`ref_values`)
+    and :math:`s_2` (:code:`values`). Computing the correlation function
+    results in an array of the expected (average) product of all values at a
+    given radial distance :math:`r`.
 
     The values of :math:`r` where the correlation function is computed are
     controlled by the :code:`rmax` and :code:`dr` parameters to the
@@ -269,16 +281,19 @@ cdef class ComplexCF:
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
-    Self-correlation: It is often the case that we wish to compute the
-    correlation function of a set of points with itself. If given the same
-    arrays for both :code:`points` and :code:`ref_points`, we omit
-    accumulating the self-correlation value in the first bin.
+    .. note::
+        **Self-correlation:** It is often the case that we wish to compute the
+        correlation function of a set of points with itself. If :code:`points`
+        is the same as :code:`ref_points`, not provided, or :code:`None`, we
+        omit accumulating the self-correlation value in the first bin.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
-        rmax (float): Distance over which to calculate.
-        dr (float): Bin size.
+        rmax (float):
+            Distance over which to calculate.
+        dr (float):
+            Bin size.
 
     Attributes:
         RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
@@ -304,7 +319,7 @@ cdef class ComplexCF:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, ref_points, refValues, points, values,
+    def accumulate(self, box, ref_points, ref_values, points=None, values=None,
                    nlist=None):
         """Calculates the correlation function and adds to the current
         histogram.
@@ -313,24 +328,30 @@ cdef class ComplexCF:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
-            refValues ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-                Values to use in computation.
+                Reference points used to calculate the correlation function.
+            ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+                Complex values used to calculate the correlation function.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the correlation function.
+                Uses :code:`ref_points` if not provided or :code:`None`.
             values ((:math:`N_{particles}`):
-                Values to use in computation.
+                Complex values used to calculate the correlation function.
+                Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (defaults to :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+        if points is None:
+            points = ref_points
+        if values is None:
+            values = ref_values
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        refValues = freud.common.convert_array(
-            refValues, 1, dtype=np.complex128, contiguous=True)
+        ref_values = freud.common.convert_array(
+            ref_values, 1, dtype=np.complex128, contiguous=True)
         values = freud.common.convert_array(
             values, 1, dtype=np.complex128, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
@@ -341,10 +362,10 @@ cdef class ComplexCF:
             l_points = l_ref_points
         else:
             l_points = points
-        cdef np.ndarray[np.complex128_t, ndim=1] l_refValues = refValues
+        cdef np.ndarray[np.complex128_t, ndim=1] l_ref_values = ref_values
         cdef np.ndarray[np.complex128_t, ndim=1] l_values
-        if values is refValues:
-            l_values = l_refValues
+        if values is ref_values:
+            l_values = l_ref_values
         else:
             l_values = values
 
@@ -358,7 +379,7 @@ cdef class ComplexCF:
             self.thisptr.accumulate(
                 dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> l_ref_points.data,
-                <np.complex128_t*> l_refValues.data,
+                <np.complex128_t*> l_ref_values.data,
                 n_ref,
                 <vec3[float]*> l_points.data,
                 <np.complex128_t*> l_values.data,
@@ -404,7 +425,8 @@ cdef class ComplexCF:
         """
         self.thisptr.reset()
 
-    def compute(self, box, ref_points, refValues, points, values, nlist=None):
+    def compute(self, box, ref_points, ref_values, points=None, values=None,
+                nlist=None):
         """Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -412,18 +434,20 @@ cdef class ComplexCF:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
-            refValues ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-                Values to use in computation.
+                Reference points used to calculate the correlation function.
+            ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+                Complex values used to calculate the correlation function.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the correlation function.
+                Uses :code:`ref_points` if not provided or :code:`None`.
             values ((:math:`N_{particles}`):
-                Values to use in computation.
+                Complex values used to calculate the correlation function.
+                Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None)
+                NeighborList to use to find bonds (defaults to :code:`None`).
         """
         self.thisptr.reset()
-        self.accumulate(box, ref_points, refValues, points, values, nlist)
+        self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
 
     def reduceCorrelationFunction(self):
@@ -630,7 +654,7 @@ cdef class LocalDensity:
         density ((:math:`N_{particles}`) :class:`numpy.ndarray`):
             Density per particle.
         num_neighbors ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-            Number of neighbors for each particle..
+            Number of neighbors for each particle.
     """
     cdef freud._density.LocalDensity * thisptr
     cdef r_cut
@@ -665,7 +689,7 @@ cdef class LocalDensity:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (defaults to :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
@@ -743,7 +767,7 @@ cdef class RDF:
     set of reference points in a sea of data points. Providing the same points
     calculates them against themselves. Computing the RDF results in an RDF
     array listing the value of the RDF at each given :math:`r`, listed in the
-    :code:`r` array.
+    :code:`R` array.
 
     The values of :math:`r` to compute the RDF are set by the values of
     :code:`rmin`, :code:`rmax`, :code:`dr` in the constructor. :code:`rmax`
@@ -765,7 +789,7 @@ cdef class RDF:
         dr (float):
             Distance between histogram bins.
         rmin (float):
-            Minimum distance to calculate, default 0.
+            Minimum distance to calculate, defaults to 0.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
@@ -804,24 +828,27 @@ cdef class RDF:
         """Get the box used in the calculation.
 
         Returns:
-          :class:`freud.box.Box`: freud Box.
+            :class:`freud.box.Box`: freud Box.
         """
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    def accumulate(self, box, ref_points, points, nlist=None):
+    def accumulate(self, box, ref_points, points=None, nlist=None):
         """Calculates the RDF and adds to the current RDF histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used to calculate the RDF.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the RDF. Uses :code:`ref_points` if
+                not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (defaults to :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+        if points is None:
+            points = ref_points
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -847,7 +874,7 @@ cdef class RDF:
                 n_p)
         return self
 
-    def compute(self, box, ref_points, points, nlist=None):
+    def compute(self, box, ref_points, points=None, nlist=None):
         """Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
@@ -855,11 +882,12 @@ cdef class RDF:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used to calculate the RDF.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the RDF. Uses :code:`ref_points` if
+                not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`):
-                NeighborList to use to find bonds (Default value = None)
+                NeighborList to use to find bonds (defaults to :code:`None`).
         """
         self.thisptr.reset()
         self.accumulate(box, ref_points, points, nlist)
