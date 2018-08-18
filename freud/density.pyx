@@ -9,6 +9,8 @@ to other particles.
 
 import freud.common
 import freud.locality
+import warnings
+from freud.errors import FreudDeprecationWarning
 import numpy as np
 
 from freud.util._VectorMath cimport vec3
@@ -204,11 +206,9 @@ cdef class FloatCF:
         return self
 
     def reduceCorrelationFunction(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.density.FloatCF.getRDF()`,
-        :py:meth:`freud.density.FloatCF.getCounts()`.
-        """
+        warnings.warn("This method is automatically called internally. It "
+                      "will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.reduceCorrelationFunction()
 
     @property
@@ -427,11 +427,9 @@ cdef class ComplexCF:
         return self
 
     def reduceCorrelationFunction(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.density.ComplexCF.getRDF()`,
-        :py:meth:`freud.density.ComplexCF.getCounts()`.
-        """
+        warnings.warn("This method is automatically called internally. It "
+                      "will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.reduceCorrelationFunction()
 
     @property
@@ -872,11 +870,9 @@ cdef class RDF:
         self.thisptr.reset()
 
     def reduceRDF(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.density.RDF.getRDF()`,
-        :py:meth:`freud.density.RDF.getNr()`.
-        """
+        warnings.warn("This method is automatically called internally. It "
+                      "will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.reduceRDF()
 
     @property
