@@ -983,7 +983,8 @@ cdef class NearestNeighbors:
                 Reference point coordinates.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
-                Point coordinates (Default value = None).
+                Point coordinates. Defaults to ``ref_points`` if not provided
+                or ``None``.
             exclude_ii (bool, optional):
                 True if pairs of points with identical indices should be
                 excluded; if None, is set to True if points is None or the same
