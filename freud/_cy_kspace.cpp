@@ -22,6 +22,7 @@
             "cpp/util",
             "cpp/order",
             "cpp/parallel",
+            "cpp/interface",
             "cpp/cluster",
             "cpp/environment",
             "cpp/locality",
@@ -40,12 +41,12 @@
         "name": "freud._cy_kspace",
         "sources": [
             "freud/_cy_kspace.pyx",
+            "cpp/locality/LinkCell.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/NeighborList.cc",
             "cpp/box/box.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/kspace/kspace.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/kspace/kspace.cc"
         ]
     },
     "module_name": "freud._cy_kspace"

@@ -31,6 +31,7 @@
             "cpp/util",
             "cpp/order",
             "cpp/parallel",
+            "cpp/interface",
             "cpp/cluster",
             "cpp/environment",
             "cpp/locality",
@@ -49,16 +50,16 @@
         "name": "freud.bond",
         "sources": [
             "freud/bond.pyx",
+            "cpp/locality/LinkCell.cc",
             "cpp/bond/BondingXY2D.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/box/box.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/bond/BondingXYT.cc",
             "cpp/bond/BondingXYZ.cc",
             "cpp/bond/BondingAnalysis.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/bond/BondingXYT.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/bond/BondingR12.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/box/box.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.bond"
