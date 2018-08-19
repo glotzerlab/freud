@@ -104,8 +104,8 @@ cdef class BondOrder:
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, box, ref_points, ref_orientations, points,
-                   orientations, str mode="bod", nlist=None):
+    def accumulate(self, box, ref_points, ref_orientations, points=None,
+                   orientations=None, str mode="bod", nlist=None):
         """Calculates the correlation function and adds to the current
         histogram.
 
@@ -113,39 +113,44 @@ cdef class BondOrder:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate bonds.
+                Reference points used to calculate bonds.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Reference orientations to calculate bonds.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Reference orientations used to calculate bonds.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used to calculate bonds. Uses :code:`ref_points` if not
+                provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Orientations to calculate the bonding.
+                Orientations used to calculate bonds. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             mode (str, optional):
                 Mode to calculate bond order. Options are :code:`'bod'`,
                 :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
                 (Default value = :code:`'bod'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
-
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
-
         ref_orientations = freud.common.convert_array(
             ref_orientations, 2, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise TypeError('ref_orientations should be an Nx4 array')
-
         orientations = freud.common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
@@ -225,8 +230,8 @@ cdef class BondOrder:
         """Resets the values of the bond order in memory."""
         self.thisptr.reset()
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                mode="bod", nlist=None):
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, mode="bod", nlist=None):
         """Calculates the bond order histogram. Will overwrite the current
         histogram.
 
@@ -234,20 +239,25 @@ cdef class BondOrder:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate bonds.
+                Reference points used to calculate bonds.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Reference orientations to calculate bonds.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
-            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Orientations to calculate the bonding.
+                Reference orientations used to calculate bonds.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used to calculate bonds. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Orientations used to calculate bonds. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             mode (str, optional):
                 Mode to calculate bond order. Options are :code:`'bod'`,
                 :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
                 (Default value = :code:`'bod'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         self.thisptr.reset()
         self.accumulate(box, ref_points, ref_orientations,
@@ -255,10 +265,9 @@ cdef class BondOrder:
         return self
 
     def reduceBondOrder(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.environment.BondOrder.getBondOrder()`.
-        """
+        warnings.warn("This method is automatically called internally. It "
+                      "will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.reduceBondOrder()
 
     @property
@@ -386,7 +395,7 @@ cdef class LocalDescriptors:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
                 Destination points to calculate the order parameter
-                (Default value = None).
+                (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -430,10 +439,11 @@ cdef class LocalDescriptors:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
                 Destination points to calculate the order parameter
-                (Default value = None).
+                (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, \
             optional):
-                Orientation of each reference point (Default value = None).
+                Orientation of each reference point (Default value =
+                :code:`None`).
             mode (str, optional):
                 Orientation mode to use for environments, either
                 :code:`'neighborhood'` to use the orientation of the local
@@ -441,8 +451,8 @@ cdef class LocalDescriptors:
                 particle orientations, or :code:`'global'` to not rotate
                 environments (Default value = :code:`'neighborhood'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds or :code:`'precomputed'` if
-                using :py:meth:`~.computeNList` (Default value = None).
+                NeighborList to use to find bonds or :code:`'precomputed'` if
+                using :py:meth:`~.computeNList` (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -622,13 +632,9 @@ cdef class MatchEnv:
         del self.thisptr
 
     def setBox(self, box):
-        """Reset the simulation box.
-
-        Args:
-            box(:class:`freud.box.Box`): Simulation box.
-        """
+        warnings.warn("This method will be removed in the future.",
+                      FreudDeprecationWarning)
         cdef freud.box.Box b = freud.common.convert_box(box)
-
         self.thisptr.setBox(dereference(b.thisptr))
         self.m_box = box
 
@@ -655,11 +661,11 @@ cdef class MatchEnv:
                 If False, only compare the environments of neighboring
                 particles.
             env_nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find the environment of every particle
-                (Default value = None).
+                NeighborList to use to find the environment of every particle
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find neighbors of every particle, to
-                compare environments (Default value = None).
+                NeighborList to use to find neighbors of every particle, to
+                compare environments (Default value = :code:`None`).
         """
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True,
@@ -718,7 +724,8 @@ cdef class MatchEnv:
                 it minimizes the RMSD between the two sets
                 (Default value = False).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True,
@@ -766,7 +773,8 @@ cdef class MatchEnv:
                 it minimizes the RMSD between the two sets
                 (Default value = False).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         Returns:
             :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
                 Vector of minimal RMSD values, one value per particle.
@@ -1062,7 +1070,8 @@ cdef class Pairing2D:
             :class:`numpy.ndarray`):
                 Possible orientations to check for bonds.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         points = freud.common.convert_array(
@@ -1189,17 +1198,14 @@ cdef class AngularSeparation:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Orientations to calculate the order parameter.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
-                Reference orientations to calculate the order parameter.
+            ref_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Reference orientations used to calculate the order parameter.
+            ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Orientations used to calculate the order parameter.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the order parameter.
+                Reference points used to calculate the order parameter.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                Points used to calculate the order parameter.
             equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, \
             optional):
                 The set of all equivalent quaternions that takes the particle
@@ -1207,7 +1213,8 @@ cdef class AngularSeparation:
                 Important: :code:`equiv_quats` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -1261,8 +1268,9 @@ cdef class AngularSeparation:
         return self
 
     def computeGlobal(self, global_ors, ors, equiv_quats):
-        """Calculates the minimum angles of separation between global_ors and
-        ors, checking for underlying symmetry as encoded in equiv_quats.
+        """Calculates the minimum angles of separation between
+        :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
+        encoded in :code`equiv_quats`.
 
         Args:
             ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
