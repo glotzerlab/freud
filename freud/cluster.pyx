@@ -29,7 +29,7 @@ cdef class Cluster:
     Given a set of coordinates and a cutoff, :py:class:`freud.cluster.Cluster`
     will determine all of the clusters of points that are made up of points
     that are closer than the cutoff. Clusters are 0-indexed. The class contains
-    an index array, the ``cluster_idx`` attribute, which can be used to
+    an index array, the :code:`cluster_idx` attribute, which can be used to
     identify which cluster a particle is associated with:
     :code:`cluster_obj.cluster_idx[i]` is the cluster index in which particle
     :code:`i` is found. By the definition of a cluster, points that are not
