@@ -226,9 +226,15 @@ cdef class BondOrder:
         """
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    def resetBondOrder(self):
+    def reset(self):
         """Resets the values of the bond order in memory."""
         self.thisptr.reset()
+
+    def resetBondOrder(self):
+        warnings.warn("Use .reset() instead of this method. "
+                      "This method will be removed in the future.",
+                      FreudDeprecationWarning)
+        self.reset()
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, mode="bod", nlist=None):
@@ -259,7 +265,7 @@ cdef class BondOrder:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        self.thisptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, mode, nlist)
         return self
