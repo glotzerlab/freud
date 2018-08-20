@@ -181,15 +181,21 @@ cdef class FloatCF:
         """Get the box used in the calculation.
 
         Returns:
-            :py:class:`freud.box.Box`: freud Box.
+            :class:`freud.box.Box`: freud Box.
         """
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    def resetCorrelationFunction(self):
+    def reset(self):
         """Resets the values of the correlation function histogram in
         memory.
         """
         self.thisptr.reset()
+
+    def resetCorrelationFunction(self):
+        warnings.warn("Use .reset() instead of this method. "
+                      "This method will be removed in the future.",
+                      FreudDeprecationWarning)
+        self.reset()
 
     def compute(self, box, ref_points, ref_values, points=None, values=None,
                 nlist=None):
@@ -212,7 +218,7 @@ cdef class FloatCF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (defaults to :code:`None`).
         """
-        self.thisptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
 
@@ -412,18 +418,24 @@ cdef class ComplexCF:
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculations.
+        """Get the box used in the calculation.
 
         Returns:
-          :class:`freud.box.Box`: freud Box.
+            :class:`freud.box.Box`: freud Box.
         """
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    def resetCorrelationFunction(self):
+    def reset(self):
         """Resets the values of the correlation function histogram in
         memory.
         """
         self.thisptr.reset()
+
+    def resetCorrelationFunction(self):
+        warnings.warn("Use .reset() instead of this method. "
+                      "This method will be removed in the future.",
+                      FreudDeprecationWarning)
+        self.reset()
 
     def compute(self, box, ref_points, ref_values, points=None, values=None,
                 nlist=None):
@@ -446,7 +458,7 @@ cdef class ComplexCF:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (defaults to :code:`None`).
         """
-        self.thisptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
 
@@ -889,12 +901,18 @@ cdef class RDF:
             nlist (:class:`freud.locality.NeighborList`):
                 NeighborList to use to find bonds (defaults to :code:`None`).
         """
-        self.thisptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, points, nlist)
         return self
 
-    def resetRDF(self):
+    def reset(self):
         """Resets the values of RDF in memory."""
+        self.thisptr.reset()
+
+    def resetRDF(self):
+        warnings.warn("Use .reset() instead of this method. "
+                      "This method will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.reset()
 
     def reduceRDF(self):
