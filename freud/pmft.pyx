@@ -138,7 +138,7 @@ cdef class PMFTR12(_PMFT):
     system described by :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.
 
     .. note::
-        2D: :py:class:`freud.pmft.PMFTR12` is only defined for 2D systems.
+        **2D:** :py:class:`freud.pmft.PMFTR12` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -458,7 +458,7 @@ cdef class PMFTXYT(_PMFT):
     PCF and n_bins_x, n_bins_y, n_bins_t is the number of bins in x, y, t.
 
     .. note::
-        2D: :py:class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
+        **2D:** :py:class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -766,7 +766,7 @@ cdef class PMFTXY2D(_PMFT):
     which to compute the PCF and n_x and n_y are the number of bins in x and y.
 
     .. note::
-        2D: :py:class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
+        **2D:** :py:class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 

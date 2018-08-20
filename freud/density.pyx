@@ -45,7 +45,7 @@ cdef class FloatCF:
     bin.
 
     .. note::
-        2D: :py:class:`freud.density.FloatCF` properly handles 2D boxes.
+        **2D:** :py:class:`freud.density.FloatCF` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -105,7 +105,8 @@ cdef class FloatCF:
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
@@ -216,7 +217,8 @@ cdef class FloatCF:
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
@@ -283,7 +285,7 @@ cdef class ComplexCF:
     bin.
 
     .. note::
-        2D: :py:class:`freud.density.ComplexCF` properly handles 2D boxes.
+        **2D:** :py:class:`freud.density.ComplexCF` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -344,7 +346,8 @@ cdef class ComplexCF:
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
@@ -456,7 +459,8 @@ cdef class ComplexCF:
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
@@ -646,7 +650,7 @@ cdef class LocalDensity:
     particle.
 
     .. note::
-        2D: :py:class:`freud.density.LocalDensity` properly handles 2D boxes.
+        **2D:** :py:class:`freud.density.LocalDensity` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -701,7 +705,7 @@ cdef class LocalDensity:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
@@ -791,7 +795,7 @@ cdef class RDF:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     .. note::
-        2D: :py:class:`freud.density.RDF` properly handles 2D boxes.
+        **2D:** :py:class:`freud.density.RDF` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -856,7 +860,8 @@ cdef class RDF:
                 Points used to calculate the RDF. Uses :code:`ref_points` if
                 not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
@@ -899,7 +904,8 @@ cdef class RDF:
                 Points used to calculate the RDF. Uses :code:`ref_points` if
                 not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         self.reset()
         self.accumulate(box, ref_points, points, nlist)

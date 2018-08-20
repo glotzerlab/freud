@@ -133,24 +133,29 @@ cdef class BondOrder:
                 :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
         if points is None:
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
+
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
+
         ref_orientations = freud.common.convert_array(
             ref_orientations, 2, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise TypeError('ref_orientations should be an Nx4 array')
+
         orientations = freud.common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
@@ -638,6 +643,11 @@ cdef class MatchEnv:
         del self.thisptr
 
     def setBox(self, box):
+        """Reset the simulation box.
+
+            Args:
+                box (:class:`freud.box.Box`): Simulation box.
+        """
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr.setBox(dereference(b.thisptr))
         self.m_box = box

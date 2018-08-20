@@ -287,25 +287,31 @@ cdef class BondingR12:
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
         if points is None:
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
         ref_points = freud.common.convert_array(
+
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
+
         ref_orientations = freud.common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
+
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
+
         orientations = freud.common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
@@ -452,25 +458,31 @@ cdef class BondingXY2D:
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
         if points is None:
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
+
         ref_orientations = freud.common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
+
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
+
         orientations = freud.common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
@@ -622,25 +634,31 @@ cdef class BondingXYT:
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
         if points is None:
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
+
         ref_orientations = freud.common.convert_array(
             ref_orientations, 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
+
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
+
         orientations = freud.common.convert_array(
             orientations, 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
@@ -794,28 +812,34 @@ cdef class BondingXYZ:
                 Orientations as quaternions to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (defaults to :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
         if points is None:
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
+
         ref_orientations = freud.common.convert_array(
             ref_orientations, 2, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
         if ref_orientations.shape[1] != 4:
             raise ValueError(
                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
+
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
+
         orientations = freud.common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")

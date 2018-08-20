@@ -419,9 +419,9 @@ cdef class HexOrderParameter:
     vector :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`.
 
     .. note::
-        2D: :py:class:`freud.cluster.Cluster` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
+        **2D:** :py:class:`freud.order.HexOrderParameter` properly handles 2D
+        boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
+        set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
