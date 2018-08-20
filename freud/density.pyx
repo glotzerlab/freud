@@ -913,7 +913,7 @@ cdef class RDF:
         warnings.warn("Use .reset() instead of this method. "
                       "This method will be removed in the future.",
                       FreudDeprecationWarning)
-        self.thisptr.reset()
+        self.reset()
 
     def reduceRDF(self):
         warnings.warn("This method is automatically called internally. It "
