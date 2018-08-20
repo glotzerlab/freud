@@ -650,9 +650,9 @@ cdef class LocalDensity:
     particle.
 
     .. note::
-        **2D:** :py:class:`freud.density.LocalDensity` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
+        **2D:** :py:class:`freud.density.LocalDensity` properly handles 2D
+        boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
+        set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -705,7 +705,8 @@ cdef class LocalDensity:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = :code:`None`).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
