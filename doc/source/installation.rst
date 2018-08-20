@@ -29,7 +29,7 @@ The following are **required** for installing freud:
 
 The following are **optional** for installing freud:
 
-- `Cython <http://cython.org/>`_: The freud repository contains Cython-generated :code:`*.cpp` files that can be used directly. However, Cython is necessary if you wish to recompile these files.
+- `Cython <http://cython.org/>`_: The freud repository contains Cython-generated :code:`*.cpp` files in the :code:`freud/` directory that can be used directly. However, Cython is necessary if you wish to recompile these files.
 
 The code that follows creates a build directory inside the freud source directory and builds freud:
 
