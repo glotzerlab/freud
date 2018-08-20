@@ -32,6 +32,8 @@ coordinate system used to represent the system.
 import numpy as np
 import freud.common
 import freud.locality
+import warnings
+from freud.errors import FreudDeprecationWarning
 
 from freud.util._VectorMath cimport vec3, quat
 from libc.string cimport memcpy
@@ -81,15 +83,20 @@ cdef class _PMFT:
         """
         return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
-    def resetPCF(self):
+    def reset(self):
         """Resets the values of the PCF histograms in memory."""
         self.pmftptr.reset()
 
+    def resetPCF(self):
+        warnings.warn("Use .reset() instead of this method. "
+                      "This method will be removed in the future.",
+                      FreudDeprecationWarning)
+        self.reset()
+
     def reducePCF(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.pmft.PMFT.PCF`.
-        """
+        warnings.warn("This method is automatically called internally. It "
+                      "will be removed in the future.",
+                      FreudDeprecationWarning)
         self.pmftptr.reducePCF()
 
     @property
@@ -283,7 +290,7 @@ cdef class PMFTR12(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """
-        self.pmftr12ptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -602,7 +609,7 @@ cdef class PMFTXYT(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """
-        self.pmftxytptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -902,7 +909,7 @@ cdef class PMFTXY2D(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """
-        self.pmftxy2dptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -1093,9 +1100,15 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
-    def resetPCF(self):
+    def reset(self):
         """Resets the values of the PCF histograms in memory."""
         self.pmftxyzptr.reset()
+
+    def resetPCF(self):
+        warnings.warn("Use .reset() instead of this method. "
+                      "This method will be removed in the future.",
+                      FreudDeprecationWarning)
+        self.reset()
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, face_orientations=None, nlist=None):
@@ -1261,16 +1274,15 @@ cdef class PMFTXYZ(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """
-        self.pmftxyzptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, face_orientations, nlist)
         return self
 
     def reducePCF(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.pmft.PMFTXYZ.PCF`.
-        """
+        warnings.warn("This method is automatically called internally. It "
+                      "will be removed in the future.",
+                      FreudDeprecationWarning)
         self.pmftxyzptr.reducePCF()
 
     def getBinCounts(self):
