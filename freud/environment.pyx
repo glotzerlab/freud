@@ -645,8 +645,8 @@ cdef class MatchEnv:
     def setBox(self, box):
         """Reset the simulation box.
 
-            Args:
-                box (:class:`freud.box.Box`): Simulation box.
+        Args:
+            box (:class:`freud.box.Box`): Simulation box.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr.setBox(dereference(b.thisptr))

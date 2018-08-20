@@ -296,8 +296,8 @@ cdef class BondingR12:
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
-        ref_points = freud.common.convert_array(
 
+        ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
         if ref_points.shape[1] != 3:
