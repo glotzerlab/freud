@@ -749,9 +749,6 @@ cdef class LocalQl:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
-        warnings.warn("Use the box with .compute() instead of this setter. "
-                      "This setter will be removed in the future.",
-                      FreudDeprecationWarning)
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.qlptr.setBox(dereference(b.thisptr))
 
