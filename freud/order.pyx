@@ -749,6 +749,9 @@ cdef class LocalQl:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
+        warnings.warn("Use the box with .compute() instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.qlptr.setBox(dereference(b.thisptr))
 
@@ -1555,13 +1558,16 @@ cdef class SolLiq:
         Args:
             rcutCluster (float): Radius for the cluster finding.
         """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setClusteringRadius(rcutCluster)
 
     def setBox(self, box):
         """Reset the simulation box.
 
         Args:
-            box(:class:`freud.box.Box`): Simulation box.
+            box (:class:`freud.box.Box`): Simulation box.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr.setBox(dereference(b.thisptr))

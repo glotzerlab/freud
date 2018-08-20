@@ -638,8 +638,6 @@ cdef class MatchEnv:
         del self.thisptr
 
     def setBox(self, box):
-        warnings.warn("This method will be removed in the future.",
-                      FreudDeprecationWarning)
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr.setBox(dereference(b.thisptr))
         self.m_box = box

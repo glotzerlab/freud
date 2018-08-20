@@ -166,6 +166,9 @@ class Voronoi:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
+        warnings.warn("Use the box with .compute() instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.box = b
 
@@ -175,6 +178,9 @@ class Voronoi:
         Args:
             buff (float): Buffer width.
         """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.buff = buff
 
     def _qhull_compute(self, positions, box=None, buff=None):

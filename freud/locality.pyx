@@ -820,11 +820,9 @@ cdef class NearestNeighbors:
         return self.thisptr.getNref()
 
     def setRMax(self, float rmax):
-        """Update the neighbor search distance guess.
-
-        Args:
-            rmax (float): Nearest neighbors search radius.
-        """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setRMax(rmax)
 
     def setCutMode(self, strict_cut):
@@ -842,6 +840,9 @@ cdef class NearestNeighbors:
             strict_cut (bool): Whether to use a strict :code:`rmax` or allow
                 for automatic expansion.
         """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setCutMode(strict_cut)
 
     @property
