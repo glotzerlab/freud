@@ -9,6 +9,8 @@ on their proximity to other points.
 import sys
 import numpy as np
 import freud.common
+import warnings
+from freud.errors import FreudDeprecationWarning
 
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
