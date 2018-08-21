@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 from freud import box as bx
+from collections import namedtuple
 import unittest
 import warnings
 
@@ -10,6 +11,17 @@ class TestBox(unittest.TestCase):
     def setUp(self):
         # We ignore warnings for test_2_dimensional
         warnings.simplefilter("ignore")
+
+    def test_construct(self):
+        """Test correct behavior for various constructor signatures"""
+        with self.assertRaises(ValueError):
+            box = bx.Box(0, 0)
+
+        with self.assertRaises(ValueError):
+            box = bx.Box(1, 2, is2D=False)
+
+        box = bx.Box(1, 2)
+        self.assertTrue(box.dimensions == 2)
 
     def test_get_length(self):
         box = bx.Box(2, 4, 5, 1, 0, 0)
@@ -122,14 +134,13 @@ class TestBox(unittest.TestCase):
         box2 = bx.Box(2, 2, 2, 1, 0.5, 0.1)
         self.assertEqual(str(box), str(box2))
 
-    def test_dict(self):
+    def test_to_dict(self):
+        """Test converting box to dict"""
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
-
-        class BoxTuple(object):
-            def __init__(self, box_dict):
-                self.__dict__.update(box_dict)
-        box2 = bx.Box.from_box(BoxTuple(box.to_dict()))
-        self.assertEqual(box, box2)
+        box2 = box.to_dict()
+        box_dict = {'Lx': 2, 'Ly': 2, 'Lz': 2, 'xy': 1, 'xz': 0.5, 'yz': 0.1}
+        for k in box_dict:
+            npt.assert_almost_equal(box_dict[k], box2[k])
 
     def test_tuple(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
@@ -137,9 +148,22 @@ class TestBox(unittest.TestCase):
         self.assertEqual(box, box2)
 
     def test_from_box(self):
+        """Test various methods of initializing a box"""
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = bx.Box.from_box(box)
         self.assertEqual(box, box2)
+
+        box_dict = {'Lx': 2, 'Ly': 2, 'Lz': 2, 'xy': 1, 'xz': 0.5, 'yz': 0.1}
+        box3 = bx.Box.from_box(box_dict)
+        self.assertEqual(box, box3)
+
+        BoxTuple = namedtuple('BoxTuple',
+                              ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'])
+        box3 = bx.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1))
+        self.assertEqual(box, box3)
+
+        box4 = bx.Box.from_box([2, 2, 2, 1, 0.5, 0.1])
+        self.assertEqual(box, box4)
 
     def test_matrix(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)

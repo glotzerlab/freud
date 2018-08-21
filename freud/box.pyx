@@ -98,7 +98,7 @@ cdef class Box:
             yz = 0
         if is2D is None:
             is2D = (Lz == 0)
-        elif is2D:
+        if is2D:
             if not (Lx and Ly):
                 raise ValueError("Lx and Ly must be nonzero for 2D boxes.")
             elif Lz != 0 or xz != 0 or yz != 0:

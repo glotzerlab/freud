@@ -44,11 +44,11 @@
         "name": "freud.locality",
         "sources": [
             "freud/locality.pyx",
-            "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/box.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.locality"

@@ -40,12 +40,12 @@
         "name": "freud._cy_kspace",
         "sources": [
             "freud/_cy_kspace.pyx",
-            "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/box.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
             "cpp/kspace/kspace.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud._cy_kspace"

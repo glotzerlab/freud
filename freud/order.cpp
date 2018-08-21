@@ -56,20 +56,20 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/cluster/Cluster.cc",
-            "cpp/order/CubaticOrderParameter.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/box/box.cc",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/order/HexOrderParameter.cc",
             "cpp/order/TransOrderParameter.cc",
             "cpp/order/SolLiq.cc",
+            "cpp/order/wigner3j.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/box/box.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/order/LocalQl.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/order/LocalWl.cc",
+            "cpp/cluster/Cluster.cc"
         ]
     },
     "module_name": "freud.order"

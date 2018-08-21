@@ -49,16 +49,16 @@
         "name": "freud.environment",
         "sources": [
             "freud/environment.pyx",
-            "cpp/environment/BondOrder.cc",
-            "cpp/environment/Pairing2D.cc",
-            "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/box.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/environment/LocalDescriptors.cc",
-            "cpp/environment/MatchEnv.cc",
             "cpp/locality/LinkCell.cc",
             "cpp/environment/AngularSeparation.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/environment/MatchEnv.cc",
+            "cpp/environment/BondOrder.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/environment/LocalDescriptors.cc",
+            "cpp/environment/Pairing2D.cc"
         ]
     },
     "module_name": "freud.environment"
