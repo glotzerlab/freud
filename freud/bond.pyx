@@ -268,26 +268,35 @@ cdef class BondingR12:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
+        """Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the bonding.
+                Reference points used to calculate the bonding.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`:
-                Orientations as angles to use in computation.
+            :class:`numpy.ndarray`):
+                Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the bonding. Uses :code:`ref_points`
+                if not provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Orientations as angles to use in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -430,27 +439,35 @@ cdef class BondingXY2D:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
-        """Calculates the correlation function and adds to the current
-        histogram.
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
+        """Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the bonding.
+                Reference points used to calculate the bonding.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the bonding. Uses :code:`ref_points`
+                if not provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Orientations as angles to use in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -598,26 +615,35 @@ cdef class BondingXYT:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
+        """Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
-                Simulation box
+                Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the bonding.
+                Reference points used to calculate the bonding.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the bonding. Uses :code:`ref_points`
+                if not provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Orientations as angles to use in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -767,26 +793,35 @@ cdef class BondingXYZ:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
+        """Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the bonding.
+                Reference points used to calculate the bonding.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Reference orientations as quaternions to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the bonding. Uses :code:`ref_points`
+                if not provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Orientations as quaternions to use in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")

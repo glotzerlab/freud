@@ -419,9 +419,9 @@ cdef class HexOrderParameter:
     vector :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`.
 
     .. note::
-        2D: :py:class:`freud.cluster.Cluster` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
+        **2D:** :py:class:`freud.order.HexOrderParameter` properly handles 2D
+        boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
+        set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -1555,13 +1555,16 @@ cdef class SolLiq:
         Args:
             rcutCluster (float): Radius for the cluster finding.
         """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setClusteringRadius(rcutCluster)
 
     def setBox(self, box):
         """Reset the simulation box.
 
         Args:
-            box(:class:`freud.box.Box`): Simulation box.
+            box (:class:`freud.box.Box`): Simulation box.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr.setBox(dereference(b.thisptr))
