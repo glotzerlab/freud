@@ -11,7 +11,7 @@ class TestBox(unittest.TestCase):
         # We ignore warnings for test_2_dimensional
         warnings.simplefilter("ignore")
 
-    def test_getLength(self):
+    def test_get_length(self):
         box = bx.Box(2, 4, 5, 1, 0, 0)
 
         npt.assert_almost_equal(box.Lx, 2, decimal=2, err_msg="LxFail")
@@ -21,7 +21,7 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.Linv, [0.5, 0.25, 0.2], decimal=2,
                                 err_msg="LinvFail")
 
-    def test_setLength(self):
+    def test_set_length(self):
         # Make sure we can change the lengths of the box after its creation
         box = bx.Box(1, 2, 3, 1, 0, 0)
 
@@ -37,14 +37,14 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.L, [7, 8, 9], decimal=2,
                                 err_msg="SetLFail")
 
-    def test_TiltFactor(self):
+    def test_tilt_factor(self):
         box = bx.Box(2, 2, 2, 1, 2, 3)
 
         npt.assert_almost_equal(box.xy, 1, decimal=2, err_msg="TiltXYFail")
         npt.assert_almost_equal(box.xz, 2, decimal=2, err_msg="TiltXZFail")
         npt.assert_almost_equal(box.yz, 3, decimal=2, err_msg="TiltYZFail")
 
-    def test_BoxVolume(self):
+    def test_box_volume(self):
         box3d = bx.Box(2, 2, 2, 1, 0, 0)
         box2d = bx.Box(2, 2, 0, 0, 0, 0, is2D=True)
 
@@ -53,14 +53,14 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box2d.volume, 4, decimal=2,
                                 err_msg="Volume2DFail")
 
-    def test_WrapSingleParticle(self):
+    def test_wrap_single_particle(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
         testpoints = np.array([0, -1, -1])
 
         npt.assert_almost_equal(box.wrap(testpoints)[0], -2, decimal=2,
                                 err_msg="WrapFail")
 
-    def test_WrapMultipleParticles(self):
+    def test_wrap_multiple_particles(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
         testpoints = np.array([[0, -1, -1],
                                [0, 0.5, 0]])
@@ -68,7 +68,7 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.wrap(testpoints)[0, 0], -2, decimal=2,
                                 err_msg="WrapFail")
 
-    def test_WrapMultipleImages(self):
+    def test_wrap_multiple_images(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
         testpoints = np.array([[10, -5, -5],
                                [0, 0.5, 0]])

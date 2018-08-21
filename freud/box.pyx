@@ -100,6 +100,9 @@ cdef class Box:
             warnings.warn(
                 "Specifying z-dimensions in a 2-dimensional box "
                 "has no effect!")
+        else:
+            if not (Lx and Ly and Lz):
+                raise ValueError("3D boxes must have nonzero lengths.")
         self.thisptr = new freud._box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     def __dealloc__(self):
@@ -338,6 +341,7 @@ cdef class Box:
             :class:`numpy.ndarray`:
                 Vectors wrapped into the box.
         """
+        vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[-1] != 3:
             raise ValueError(
                 "Invalid dimensions for vecs given to box.wrap. "
