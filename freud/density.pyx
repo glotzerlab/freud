@@ -87,7 +87,7 @@ cdef class FloatCF:
         del self.thisptr
 
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None):
+                   nlist=None, refValues=None):
         """Calculates the correlation function and adds to the current
         histogram.
 
@@ -108,6 +108,12 @@ cdef class FloatCF:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        if refValues is not None:
+            warnings.warn("Use ref_values instead of refValues. The refValues "
+                          "keyword argument will be removed in the future.",
+                          FreudDeprecationWarning)
+            ref_values = refValues
+
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
@@ -199,7 +205,7 @@ cdef class FloatCF:
         self.reset()
 
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None):
+                nlist=None, refValues=None):
         """Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -220,6 +226,12 @@ cdef class FloatCF:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        if refValues is not None:
+            warnings.warn("Use ref_values instead of refValues. The refValues "
+                          "keyword argument will be removed in the future.",
+                          FreudDeprecationWarning)
+            ref_values = refValues
+
         self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
@@ -328,7 +340,7 @@ cdef class ComplexCF:
         del self.thisptr
 
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None):
+                   nlist=None, refValues=None):
         """Calculates the correlation function and adds to the current
         histogram.
 
@@ -349,6 +361,12 @@ cdef class ComplexCF:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        if refValues is not None:
+            warnings.warn("Use ref_values instead of refValues. The refValues "
+                          "keyword argument will be removed in the future.",
+                          FreudDeprecationWarning)
+            ref_values = refValues
+
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
@@ -441,7 +459,7 @@ cdef class ComplexCF:
         self.reset()
 
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None):
+                nlist=None, refValues=None):
         """Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -462,6 +480,12 @@ cdef class ComplexCF:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        if refValues is not None:
+            warnings.warn("Use ref_values instead of refValues. The refValues "
+                          "keyword argument will be removed in the future.",
+                          FreudDeprecationWarning)
+            ref_values = refValues
+
         self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
