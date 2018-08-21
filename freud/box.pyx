@@ -7,6 +7,8 @@ simulation box. The module natively supports periodicity by providing the
 fundamental features for wrapping vectors outside the box back into it.
 """
 
+from __future__ import print_function
+
 import warnings
 import numpy as np
 from collections import namedtuple
@@ -95,11 +97,14 @@ cdef class Box:
         if yz is None:
             yz = 0
         if is2D is None:
-            is2D = False
-        if is2D and (Lz != 0 or xz != 0 or yz != 0):
-            warnings.warn(
-                "Specifying z-dimensions in a 2-dimensional box "
-                "has no effect!")
+            is2D = (Lz == 0)
+        elif is2D:
+            if not (Lx and Ly):
+                raise ValueError("Lx and Ly must be nonzero for 2D boxes.")
+            elif Lz != 0 or xz != 0 or yz != 0:
+                warnings.warn(
+                    "Specifying z-dimensions in a 2-dimensional box "
+                    "has no effect!")
         else:
             if not (Lx and Ly and Lz):
                 raise ValueError("3D boxes must have nonzero lengths.")
@@ -571,7 +576,7 @@ cdef class Box:
         Returns:
             :class:`freud.box:Box`: The resulting box object.
         """
-        if isinstance(box, np.ndarray) and box.shape == (3, 3):
+        if np.asarray(box).shape == (3, 3):
             # Handles 3x3 matrices
             return cls.from_matrix(box)
         try:
@@ -584,6 +589,11 @@ cdef class Box:
             yz = getattr(box, 'yz', 0)
             if dimensions is None:
                 dimensions = getattr(box, 'dimensions', None)
+            else:
+                if dimensions != getattr(box, 'dimensions', dimensions):
+                    raise ValueError(
+                        "The provided dimensions argument conflicts with the "
+                        "dimensions attribute of the provided box object.")
         except AttributeError:
             try:
                 # Handle dictionary-like
@@ -595,17 +605,27 @@ cdef class Box:
                 yz = box.get('yz', 0)
                 if dimensions is None:
                     dimensions = box.get('dimensions', None)
+                else:
+                    if dimensions != getattr(box, 'dimensions', dimensions):
+                        raise ValueError(
+                            "The provided dimensions argument conflicts with "
+                            "the dimensions attribute of the provided box "
+                            "object.")
             except (KeyError, TypeError):
+                if not len(box) in [2, 3, 6]:
+                    raise ValueError(
+                        "List-like objects must have length 2, 3, or 6 to be "
+                        "converted to a box")
                 # Handle list-like
                 Lx = box[0]
                 Ly = box[1]
                 Lz = box[2] if len(box) > 2 else 0
                 xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
-        except Exception:
-            raise ValueError(
-                'Supplied box cannot be converted to type freud.box.Box')
+        except:  # noqa
+            print('Supplied box cannot be converted to type freud.box.Box')
+            raise
 
-        # The dimensions argument should override the box settings
+        # Infer dimensions if not provided.
         if dimensions is None:
             dimensions = 2 if Lz == 0 else 3
         is2D = (dimensions == 2)
@@ -635,9 +655,12 @@ cdef class Box:
         v0xv1 = np.cross(v0, v1)
         v0xv1mag = np.sqrt(np.dot(v0xv1, v0xv1))
         Lz = np.dot(v2, v0xv1) / v0xv1mag
-        a3x = np.dot(v0, v2) / Lx
-        xz = a3x / Lz
-        yz = (np.dot(v1, v2) - a2x * a3x) / (Ly * Lz)
+        if Lz != 0:
+            a3x = np.dot(v0, v2) / Lx
+            xz = a3x / Lz
+            yz = (np.dot(v1, v2) - a2x * a3x) / (Ly * Lz)
+        else:
+            xz = yz = 0
         if dimensions is None:
             dimensions = 2 if Lz == 0 else 3
         return cls(Lx=Lx, Ly=Ly, Lz=Lz,
