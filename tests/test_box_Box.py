@@ -15,6 +15,9 @@ class TestBox(unittest.TestCase):
     def test_construct(self):
         """Test correct behavior for various constructor signatures"""
         with self.assertRaises(ValueError):
+            box = bx.Box()
+
+        with self.assertRaises(ValueError):
             box = bx.Box(0, 0)
 
         with self.assertRaises(ValueError):
@@ -33,6 +36,12 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.Linv, [0.5, 0.25, 0.2], decimal=2,
                                 err_msg="LinvFail")
 
+        npt.assert_equal(box.Lx, box.getLx())
+        npt.assert_equal(box.Ly, box.getLy())
+        npt.assert_equal(box.Lz, box.getLz())
+        npt.assert_equal(box.L, box.getL())
+        npt.assert_equal(box.Linv, box.getLinv())
+
     def test_set_length(self):
         # Make sure we can change the lengths of the box after its creation
         box = bx.Box(1, 2, 3, 1, 0, 0)
@@ -49,12 +58,22 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.L, [7, 8, 9], decimal=2,
                                 err_msg="SetLFail")
 
-    def test_tilt_factor(self):
+        box.setL([1, 2, 3])
+        npt.assert_almost_equal(box.L, [1, 2, 3], decimal=2,
+                                err_msg="SetLFail")
+
+    def test_get_tilt_factor(self):
         box = bx.Box(2, 2, 2, 1, 2, 3)
 
         npt.assert_almost_equal(box.xy, 1, decimal=2, err_msg="TiltXYFail")
         npt.assert_almost_equal(box.xz, 2, decimal=2, err_msg="TiltXZFail")
         npt.assert_almost_equal(box.yz, 3, decimal=2, err_msg="TiltYZFail")
+        npt.assert_almost_equal(box.getTiltFactorXY(), 1, decimal=2,
+                                err_msg="TiltXYFail")
+        npt.assert_almost_equal(box.getTiltFactorXZ(), 2, decimal=2,
+                                err_msg="TiltXZFail")
+        npt.assert_almost_equal(box.getTiltFactorYZ(), 3, decimal=2,
+                                err_msg="TiltYZFail")
 
     def test_box_volume(self):
         box3d = bx.Box(2, 2, 2, 1, 0, 0)
@@ -62,39 +81,56 @@ class TestBox(unittest.TestCase):
 
         npt.assert_almost_equal(box3d.volume, 8, decimal=2,
                                 err_msg="Volume3DFail")
+        npt.assert_almost_equal(box3d.getVolume(), 8, decimal=2,
+                                err_msg="Volume3DFail")
         npt.assert_almost_equal(box2d.volume, 4, decimal=2,
+                                err_msg="Volume2DFail")
+        npt.assert_almost_equal(box2d.getVolume(), 4, decimal=2,
                                 err_msg="Volume2DFail")
 
     def test_wrap_single_particle(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([0, -1, -1])
 
+        testpoints = [0, -1, -1]
+        npt.assert_almost_equal(box.wrap(testpoints)[0], -2, decimal=2,
+                                err_msg="WrapFail")
+
+        testpoints = np.array(testpoints)
         npt.assert_almost_equal(box.wrap(testpoints)[0], -2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_wrap_multiple_particles(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([[0, -1, -1],
-                               [0, 0.5, 0]])
 
+        testpoints = [[0, -1, -1], [0, 0.5, 0]]
+        npt.assert_almost_equal(box.wrap(testpoints)[0, 0], -2, decimal=2,
+                                err_msg="WrapFail")
+
+        testpoints = np.array(testpoints)
         npt.assert_almost_equal(box.wrap(testpoints)[0, 0], -2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_wrap_multiple_images(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([[10, -5, -5],
-                               [0, 0.5, 0]])
 
+        testpoints = [[10, -5, -5], [0, 0.5, 0]]
+        npt.assert_almost_equal(box.wrap(testpoints)[0, 0], -2, decimal=2,
+                                err_msg="WrapFail")
+
+        testpoints = np.array(testpoints)
         npt.assert_almost_equal(box.wrap(testpoints)[0, 0], -2, decimal=2,
                                 err_msg="WrapFail")
 
     def test_unwrap(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
-        testpoints = np.array([[0, -1, -1],
-                               [0, 0.5, 0]])
-        imgs = np.array([[1, 0, 0],
-                         [1, 1, 0]])
 
+        testpoints = [[0, -1, -1], [0, 0.5, 0]]
+        imgs = [[1, 0, 0], [1, 1, 0]]
+        npt.assert_almost_equal(box.unwrap(testpoints, imgs)[0, 0], 2,
+                                decimal=2, err_msg="WrapFail")
+
+        testpoints = np.array(testpoints)
+        imgs = np.array(imgs)
         npt.assert_almost_equal(box.unwrap(testpoints, imgs)[0, 0], 2,
                                 decimal=2, err_msg="WrapFail")
 
@@ -109,13 +145,20 @@ class TestBox(unittest.TestCase):
                          err_msg="ImageFail")
 
     def test_coordinates(self):
-        box = bx.Box(2, 4, 6, 0, 0, 0)
-        rel_coords = [0.5, 0.5, 0.5]
-        abs_coords = box.getCoordinates(rel_coords)
-        self.assertTrue(np.isclose(abs_coords, [0, 0, 0]).all())
-        rel_coords = [1, 1, 1]
-        abs_coords = box.getCoordinates(rel_coords)
-        self.assertTrue(np.isclose(abs_coords, [1, 2, 3]).all())
+        box = bx.Box(2, 2, 2)
+        f_point = np.array([0.5, 0.25, 0.75])
+        point = np.array([0, -0.5, 0.5])
+
+        self.assertTrue(box.getCoordinates(f_point),
+                        box.makeCoordinates(f_point))
+        npt.assert_equal(box.makeCoordinates(f_point),
+                         point)
+        npt.assert_equal(box.makeFraction(point),
+                         f_point)
+
+        dims = np.array([2, 2, 2])
+        for i in range(10):
+            npt.assert_array_equal(box.getImage(dims*i), [i, i, i])
 
     def test_periodic(self):
         box = bx.Box(1, 2, 3, 0, 0, 0)
