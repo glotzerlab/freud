@@ -49,16 +49,16 @@
         "name": "freud.bond",
         "sources": [
             "freud/bond.pyx",
-            "cpp/bond/BondingAnalysis.cc",
-            "cpp/bond/BondingXY2D.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/bond/BondingR12.cc",
             "cpp/box/box.cc",
+            "cpp/bond/BondingXYZ.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/bond/BondingXYT.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/bond/BondingAnalysis.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/bond/BondingXYZ.cc"
+            "cpp/bond/BondingXYT.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/bond/BondingR12.cc",
+            "cpp/bond/BondingXY2D.cc"
         ]
     },
     "module_name": "freud.bond"
@@ -1684,6 +1684,62 @@ static void* __Pyx_GetVtable(PyObject *dict);
 /* Import.proto */
 static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
 
+/* FetchCommonType.proto */
+static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type);
+
+/* CythonFunction.proto */
+#define __Pyx_CyFunction_USED 1
+#define __Pyx_CYFUNCTION_STATICMETHOD  0x01
+#define __Pyx_CYFUNCTION_CLASSMETHOD   0x02
+#define __Pyx_CYFUNCTION_CCLASS        0x04
+#define __Pyx_CyFunction_GetClosure(f)\
+    (((__pyx_CyFunctionObject *) (f))->func_closure)
+#define __Pyx_CyFunction_GetClassObj(f)\
+    (((__pyx_CyFunctionObject *) (f))->func_classobj)
+#define __Pyx_CyFunction_Defaults(type, f)\
+    ((type *)(((__pyx_CyFunctionObject *) (f))->defaults))
+#define __Pyx_CyFunction_SetDefaultsGetter(f, g)\
+    ((__pyx_CyFunctionObject *) (f))->defaults_getter = (g)
+typedef struct {
+    PyCFunctionObject func;
+#if PY_VERSION_HEX < 0x030500A0
+    PyObject *func_weakreflist;
+#endif
+    PyObject *func_dict;
+    PyObject *func_name;
+    PyObject *func_qualname;
+    PyObject *func_doc;
+    PyObject *func_globals;
+    PyObject *func_code;
+    PyObject *func_closure;
+    PyObject *func_classobj;
+    void *defaults;
+    int defaults_pyobjects;
+    int flags;
+    PyObject *defaults_tuple;
+    PyObject *defaults_kwdict;
+    PyObject *(*defaults_getter)(PyObject *);
+    PyObject *func_annotations;
+} __pyx_CyFunctionObject;
+static PyTypeObject *__pyx_CyFunctionType = 0;
+#define __Pyx_CyFunction_NewEx(ml, flags, qualname, self, module, globals, code)\
+    __Pyx_CyFunction_New(__pyx_CyFunctionType, ml, flags, qualname, self, module, globals, code)
+static PyObject *__Pyx_CyFunction_New(PyTypeObject *, PyMethodDef *ml,
+                                      int flags, PyObject* qualname,
+                                      PyObject *self,
+                                      PyObject *module, PyObject *globals,
+                                      PyObject* code);
+static CYTHON_INLINE void *__Pyx_CyFunction_InitDefaults(PyObject *m,
+                                                         size_t size,
+                                                         int pyobjects);
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsTuple(PyObject *m,
+                                                            PyObject *tuple);
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsKwDict(PyObject *m,
+                                                             PyObject *dict);
+static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *m,
+                                                              PyObject *dict);
+static int __pyx_CyFunction_init(void);
+
 /* CLineInTraceback.proto */
 #ifdef CYTHON_CLINE_IN_TRACEBACK
 #define __Pyx_CLineForTraceback(tstate, c_line)  (((CYTHON_CLINE_IN_TRACEBACK)) ? c_line : 0)
@@ -2024,15 +2080,21 @@ static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_RuntimeError;
 static PyObject *__pyx_builtin_ImportError;
 static const char __pyx_k_C[] = "C";
+static const char __pyx_k_b[] = "b";
 static const char __pyx_k_np[] = "np";
 static const char __pyx_k_box[] = "box";
+static const char __pyx_k_n_p[] = "n_p";
 static const char __pyx_k_copy[] = "copy";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
+static const char __pyx_k_self[] = "self";
 static const char __pyx_k_sqrt[] = "sqrt";
 static const char __pyx_k_test[] = "__test__";
+static const char __pyx_k_bonds[] = "bonds";
 static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_freud[] = "freud";
+static const char __pyx_k_n_ref[] = "n_ref";
+static const char __pyx_k_nbins[] = "nbins";
 static const char __pyx_k_nlist[] = "nlist";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_r_max[] = "r_max";
@@ -2047,25 +2109,35 @@ static const char __pyx_k_getBox[] = "getBox";
 static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_points[] = "points";
 static const char __pyx_k_reduce[] = "__reduce__";
+static const char __pyx_k_result[] = "result";
 static const char __pyx_k_uint32[] = "uint32";
 static const char __pyx_k_asarray[] = "asarray";
+static const char __pyx_k_compute[] = "compute";
 static const char __pyx_k_float32[] = "float32";
 static const char __pyx_k_frame_0[] = "frame_0";
 static const char __pyx_k_frame_1[] = "frame_1";
+static const char __pyx_k_nlist_2[] = "nlist_";
 static const char __pyx_k_require[] = "require";
 static const char __pyx_k_bond_map[] = "bond_map";
 static const char __pyx_k_getBonds[] = "getBonds";
 static const char __pyx_k_getstate[] = "__getstate__";
+static const char __pyx_k_l_points[] = "l_points";
 static const char __pyx_k_locality[] = "locality";
 static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_bond_list[] = "bond_list";
+static const char __pyx_k_l_frame_0[] = "l_frame_0";
+static const char __pyx_k_l_frame_1[] = "l_frame_1";
 static const char __pyx_k_num_bonds[] = "num_bonds";
+static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
+static const char __pyx_k_ret_bonds[] = "ret_bonds";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_array_name[] = "array_name";
 static const char __pyx_k_contiguous[] = "contiguous";
+static const char __pyx_k_freud_bond[] = "freud.bond";
 static const char __pyx_k_getListMap[] = "getListMap";
+static const char __pyx_k_initialize[] = "initialize";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_ref_points[] = "ref_points";
 static const char __pyx_k_ImportError[] = "ImportError";
@@ -2074,26 +2146,71 @@ static const char __pyx_k_getNumBonds[] = "getNumBonds";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_freud_common[] = "freud.common";
 static const char __pyx_k_getNumFrames[] = "getNumFrames";
+static const char __pyx_k_l_ref_points[] = "l_ref_points";
 static const char __pyx_k_orientations[] = "orientations";
 static const char __pyx_k_requirements[] = "requirements";
+static const char __pyx_k_stringsource[] = "stringsource";
+static const char __pyx_k_trans_matrix[] = "trans_matrix";
 static const char __pyx_k_convert_array[] = "convert_array";
 static const char __pyx_k_getRevListMap[] = "getRevListMap";
 static const char __pyx_k_num_particles[] = "num_particles";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
+static const char __pyx_k_freud_bond_pyx[] = "freud/bond.pyx";
 static const char __pyx_k_freud_locality[] = "freud.locality";
+static const char __pyx_k_l_orientations[] = "l_orientations";
+static const char __pyx_k_defaulted_nlist[] = "defaulted_nlist";
 static const char __pyx_k_getNumParticles[] = "getNumParticles";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_getBondLifetimes[] = "getBondLifetimes";
 static const char __pyx_k_ref_orientations[] = "ref_orientations";
+static const char __pyx_k_BondingR12_getBox[] = "BondingR12.getBox";
+static const char __pyx_k_BondingXYT_getBox[] = "BondingXYT.getBox";
+static const char __pyx_k_BondingXYZ_getBox[] = "BondingXYZ.getBox";
+static const char __pyx_k_BondingR12_compute[] = "BondingR12.compute";
+static const char __pyx_k_BondingXY2D_getBox[] = "BondingXY2D.getBox";
+static const char __pyx_k_BondingXYT_compute[] = "BondingXYT.compute";
+static const char __pyx_k_BondingXYZ_compute[] = "BondingXYZ.compute";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
+static const char __pyx_k_l_ref_orientations[] = "l_ref_orientations";
 static const char __pyx_k_make_default_nlist[] = "make_default_nlist";
+static const char __pyx_k_BondingR12_getBonds[] = "BondingR12.getBonds";
+static const char __pyx_k_BondingXY2D_compute[] = "BondingXY2D.compute";
+static const char __pyx_k_BondingXYT_getBonds[] = "BondingXYT.getBonds";
+static const char __pyx_k_BondingXYZ_getBonds[] = "BondingXYZ.getBonds";
 static const char __pyx_k_getOverallLifetimes[] = "getOverallLifetimes";
 static const char __pyx_k_getTransitionMatrix[] = "getTransitionMatrix";
+static const char __pyx_k_BondingXY2D_getBonds[] = "BondingXY2D.getBonds";
+static const char __pyx_k_BondingR12_getListMap[] = "BondingR12.getListMap";
+static const char __pyx_k_BondingXYT_getListMap[] = "BondingXYT.getListMap";
+static const char __pyx_k_BondingXYZ_getListMap[] = "BondingXYZ.getListMap";
+static const char __pyx_k_BondingXY2D_getListMap[] = "BondingXY2D.getListMap";
+static const char __pyx_k_BondingAnalysis_compute[] = "BondingAnalysis.compute";
+static const char __pyx_k_BondingR12_getRevListMap[] = "BondingR12.getRevListMap";
+static const char __pyx_k_BondingXYT_getRevListMap[] = "BondingXYT.getRevListMap";
+static const char __pyx_k_BondingXYZ_getRevListMap[] = "BondingXYZ.getRevListMap";
+static const char __pyx_k_BondingXY2D_getRevListMap[] = "BondingXY2D.getRevListMap";
+static const char __pyx_k_BondingAnalysis_initialize[] = "BondingAnalysis.initialize";
+static const char __pyx_k_BondingR12___reduce_cython[] = "BondingR12.__reduce_cython__";
+static const char __pyx_k_BondingXYT___reduce_cython[] = "BondingXYT.__reduce_cython__";
+static const char __pyx_k_BondingXYZ___reduce_cython[] = "BondingXYZ.__reduce_cython__";
+static const char __pyx_k_BondingAnalysis_getNumBonds[] = "BondingAnalysis.getNumBonds";
+static const char __pyx_k_BondingXY2D___reduce_cython[] = "BondingXY2D.__reduce_cython__";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
+static const char __pyx_k_BondingAnalysis_getNumFrames[] = "BondingAnalysis.getNumFrames";
+static const char __pyx_k_BondingR12___setstate_cython[] = "BondingR12.__setstate_cython__";
+static const char __pyx_k_BondingXYT___setstate_cython[] = "BondingXYT.__setstate_cython__";
+static const char __pyx_k_BondingXYZ___setstate_cython[] = "BondingXYZ.__setstate_cython__";
+static const char __pyx_k_BondingXY2D___setstate_cython[] = "BondingXY2D.__setstate_cython__";
 static const char __pyx_k_points_should_be_an_Nx3_array[] = "points should be an Nx3 array";
 static const char __pyx_k_The_bond_module_allows_for_the[] = "\nThe bond module allows for the computation of bonds as defined by a map.\nDepending on the coordinate system desired, either a two or three dimensional\narray is supplied, with each element containing the bond index mapped to the\npair geometry of that element. The user provides a list of indices to track, so\nthat not all bond indices contained in the bond map need to be tracked in\ncomputation.\n\nThe bond module is designed to take in arrays using the same coordinate systems\nas the :doc:`pmft` in freud.\n\n.. note::\n    The coordinate system in which the calculation is performed is not the same\n    as the coordinate system in which particle positions and orientations\n    should be supplied. Only certain coordinate systems are available for\n    certain particle positions and orientations:\n\n    * 2D particle coordinates (position: [:math:`x`, :math:`y`, :math:`0`],\n      orientation: :math:`\\theta`):\n\n        * :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.\n        * :math:`x`, :math:`y`.\n        * :math:`x`, :math:`y`, :math:`\\theta`.\n\n    * 3D particle coordinates:\n\n        * :math:`x`, :math:`y`, :math:`z`.\n";
+static const char __pyx_k_BondingAnalysis___reduce_cython[] = "BondingAnalysis.__reduce_cython__";
+static const char __pyx_k_BondingAnalysis_getNumParticles[] = "BondingAnalysis.getNumParticles";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
+static const char __pyx_k_BondingAnalysis___setstate_cytho[] = "BondingAnalysis.__setstate_cython__";
+static const char __pyx_k_BondingAnalysis_getBondLifetimes[] = "BondingAnalysis.getBondLifetimes";
+static const char __pyx_k_BondingAnalysis_getOverallLifeti[] = "BondingAnalysis.getOverallLifetimes";
+static const char __pyx_k_BondingAnalysis_getTransitionMat[] = "BondingAnalysis.getTransitionMatrix";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
 static const char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte order not supported";
 static const char __pyx_k_The_1st_dimension_must_match_num[] = "The 1st dimension must match num_particles: {}";
@@ -2104,6 +2221,44 @@ static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __red
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
 static const char __pyx_k_ref_points_should_be_an_Nx3_arra[] = "ref_points should be an Nx3 array";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
+static PyObject *__pyx_n_s_BondingAnalysis___reduce_cython;
+static PyObject *__pyx_n_s_BondingAnalysis___setstate_cytho;
+static PyObject *__pyx_n_s_BondingAnalysis_compute;
+static PyObject *__pyx_n_s_BondingAnalysis_getBondLifetimes;
+static PyObject *__pyx_n_s_BondingAnalysis_getNumBonds;
+static PyObject *__pyx_n_s_BondingAnalysis_getNumFrames;
+static PyObject *__pyx_n_s_BondingAnalysis_getNumParticles;
+static PyObject *__pyx_n_s_BondingAnalysis_getOverallLifeti;
+static PyObject *__pyx_n_s_BondingAnalysis_getTransitionMat;
+static PyObject *__pyx_n_s_BondingAnalysis_initialize;
+static PyObject *__pyx_n_s_BondingR12___reduce_cython;
+static PyObject *__pyx_n_s_BondingR12___setstate_cython;
+static PyObject *__pyx_n_s_BondingR12_compute;
+static PyObject *__pyx_n_s_BondingR12_getBonds;
+static PyObject *__pyx_n_s_BondingR12_getBox;
+static PyObject *__pyx_n_s_BondingR12_getListMap;
+static PyObject *__pyx_n_s_BondingR12_getRevListMap;
+static PyObject *__pyx_n_s_BondingXY2D___reduce_cython;
+static PyObject *__pyx_n_s_BondingXY2D___setstate_cython;
+static PyObject *__pyx_n_s_BondingXY2D_compute;
+static PyObject *__pyx_n_s_BondingXY2D_getBonds;
+static PyObject *__pyx_n_s_BondingXY2D_getBox;
+static PyObject *__pyx_n_s_BondingXY2D_getListMap;
+static PyObject *__pyx_n_s_BondingXY2D_getRevListMap;
+static PyObject *__pyx_n_s_BondingXYT___reduce_cython;
+static PyObject *__pyx_n_s_BondingXYT___setstate_cython;
+static PyObject *__pyx_n_s_BondingXYT_compute;
+static PyObject *__pyx_n_s_BondingXYT_getBonds;
+static PyObject *__pyx_n_s_BondingXYT_getBox;
+static PyObject *__pyx_n_s_BondingXYT_getListMap;
+static PyObject *__pyx_n_s_BondingXYT_getRevListMap;
+static PyObject *__pyx_n_s_BondingXYZ___reduce_cython;
+static PyObject *__pyx_n_s_BondingXYZ___setstate_cython;
+static PyObject *__pyx_n_s_BondingXYZ_compute;
+static PyObject *__pyx_n_s_BondingXYZ_getBonds;
+static PyObject *__pyx_n_s_BondingXYZ_getBox;
+static PyObject *__pyx_n_s_BondingXYZ_getListMap;
+static PyObject *__pyx_n_s_BondingXYZ_getRevListMap;
 static PyObject *__pyx_n_s_C;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor_2;
@@ -2117,21 +2272,27 @@ static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_array_name;
 static PyObject *__pyx_n_s_asarray;
+static PyObject *__pyx_n_s_b;
 static PyObject *__pyx_n_s_bond_list;
 static PyObject *__pyx_n_s_bond_map;
+static PyObject *__pyx_n_s_bonds;
 static PyObject *__pyx_n_s_box;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_common;
+static PyObject *__pyx_n_s_compute;
 static PyObject *__pyx_n_s_contiguous;
 static PyObject *__pyx_n_s_convert_array;
 static PyObject *__pyx_n_s_convert_box;
 static PyObject *__pyx_n_s_copy;
+static PyObject *__pyx_n_s_defaulted_nlist;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_float32;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_frame_0;
 static PyObject *__pyx_n_s_frame_1;
 static PyObject *__pyx_n_s_freud;
+static PyObject *__pyx_n_s_freud_bond;
+static PyObject *__pyx_kp_s_freud_bond_pyx;
 static PyObject *__pyx_n_s_freud_common;
 static PyObject *__pyx_n_s_freud_locality;
 static PyObject *__pyx_n_s_getBondLifetimes;
@@ -2146,13 +2307,24 @@ static PyObject *__pyx_n_s_getRevListMap;
 static PyObject *__pyx_n_s_getTransitionMatrix;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_n_s_import;
+static PyObject *__pyx_n_s_initialize;
+static PyObject *__pyx_n_s_l_frame_0;
+static PyObject *__pyx_n_s_l_frame_1;
+static PyObject *__pyx_n_s_l_orientations;
+static PyObject *__pyx_n_s_l_points;
+static PyObject *__pyx_n_s_l_ref_orientations;
+static PyObject *__pyx_n_s_l_ref_points;
 static PyObject *__pyx_n_s_locality;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_make_default_nlist;
+static PyObject *__pyx_n_s_n_p;
+static PyObject *__pyx_n_s_n_ref;
 static PyObject *__pyx_n_s_name;
+static PyObject *__pyx_n_s_nbins;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_nlist;
+static PyObject *__pyx_n_s_nlist_2;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
 static PyObject *__pyx_n_s_np;
 static PyObject *__pyx_n_s_num_bonds;
@@ -2163,6 +2335,7 @@ static PyObject *__pyx_kp_s_numpy_core_umath_failed_to_impor;
 static PyObject *__pyx_n_s_orientations;
 static PyObject *__pyx_n_s_points;
 static PyObject *__pyx_kp_s_points_should_be_an_Nx3_array;
+static PyObject *__pyx_n_s_pyx_state;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_r_max;
 static PyObject *__pyx_n_s_range;
@@ -2174,11 +2347,16 @@ static PyObject *__pyx_n_s_ref_points;
 static PyObject *__pyx_kp_s_ref_points_should_be_an_Nx3_arra;
 static PyObject *__pyx_n_s_require;
 static PyObject *__pyx_n_s_requirements;
+static PyObject *__pyx_n_s_result;
+static PyObject *__pyx_n_s_ret_bonds;
+static PyObject *__pyx_n_s_self;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_sqrt;
+static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_test;
+static PyObject *__pyx_n_s_trans_matrix;
 static PyObject *__pyx_n_s_uint32;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_x_max;
@@ -2294,6 +2472,82 @@ static PyObject *__pyx_tuple__26;
 static PyObject *__pyx_tuple__27;
 static PyObject *__pyx_tuple__28;
 static PyObject *__pyx_tuple__29;
+static PyObject *__pyx_tuple__30;
+static PyObject *__pyx_tuple__32;
+static PyObject *__pyx_tuple__34;
+static PyObject *__pyx_tuple__36;
+static PyObject *__pyx_tuple__38;
+static PyObject *__pyx_tuple__40;
+static PyObject *__pyx_tuple__42;
+static PyObject *__pyx_tuple__44;
+static PyObject *__pyx_tuple__46;
+static PyObject *__pyx_tuple__48;
+static PyObject *__pyx_tuple__50;
+static PyObject *__pyx_tuple__52;
+static PyObject *__pyx_tuple__54;
+static PyObject *__pyx_tuple__56;
+static PyObject *__pyx_tuple__58;
+static PyObject *__pyx_tuple__60;
+static PyObject *__pyx_tuple__62;
+static PyObject *__pyx_tuple__64;
+static PyObject *__pyx_tuple__66;
+static PyObject *__pyx_tuple__68;
+static PyObject *__pyx_tuple__70;
+static PyObject *__pyx_tuple__72;
+static PyObject *__pyx_tuple__74;
+static PyObject *__pyx_tuple__76;
+static PyObject *__pyx_tuple__78;
+static PyObject *__pyx_tuple__80;
+static PyObject *__pyx_tuple__82;
+static PyObject *__pyx_tuple__84;
+static PyObject *__pyx_tuple__86;
+static PyObject *__pyx_tuple__88;
+static PyObject *__pyx_tuple__90;
+static PyObject *__pyx_tuple__92;
+static PyObject *__pyx_tuple__94;
+static PyObject *__pyx_tuple__96;
+static PyObject *__pyx_tuple__98;
+static PyObject *__pyx_tuple__100;
+static PyObject *__pyx_tuple__102;
+static PyObject *__pyx_tuple__104;
+static PyObject *__pyx_codeobj__31;
+static PyObject *__pyx_codeobj__33;
+static PyObject *__pyx_codeobj__35;
+static PyObject *__pyx_codeobj__37;
+static PyObject *__pyx_codeobj__39;
+static PyObject *__pyx_codeobj__41;
+static PyObject *__pyx_codeobj__43;
+static PyObject *__pyx_codeobj__45;
+static PyObject *__pyx_codeobj__47;
+static PyObject *__pyx_codeobj__49;
+static PyObject *__pyx_codeobj__51;
+static PyObject *__pyx_codeobj__53;
+static PyObject *__pyx_codeobj__55;
+static PyObject *__pyx_codeobj__57;
+static PyObject *__pyx_codeobj__59;
+static PyObject *__pyx_codeobj__61;
+static PyObject *__pyx_codeobj__63;
+static PyObject *__pyx_codeobj__65;
+static PyObject *__pyx_codeobj__67;
+static PyObject *__pyx_codeobj__69;
+static PyObject *__pyx_codeobj__71;
+static PyObject *__pyx_codeobj__73;
+static PyObject *__pyx_codeobj__75;
+static PyObject *__pyx_codeobj__77;
+static PyObject *__pyx_codeobj__79;
+static PyObject *__pyx_codeobj__81;
+static PyObject *__pyx_codeobj__83;
+static PyObject *__pyx_codeobj__85;
+static PyObject *__pyx_codeobj__87;
+static PyObject *__pyx_codeobj__89;
+static PyObject *__pyx_codeobj__91;
+static PyObject *__pyx_codeobj__93;
+static PyObject *__pyx_codeobj__95;
+static PyObject *__pyx_codeobj__97;
+static PyObject *__pyx_codeobj__99;
+static PyObject *__pyx_codeobj__101;
+static PyObject *__pyx_codeobj__103;
+static PyObject *__pyx_codeobj__105;
 /* Late includes */
 
 /* "freud/bond.pyx":82
@@ -2465,7 +2719,8 @@ static void __pyx_pf_5freud_4bond_15BondingAnalysis_2__dealloc__(struct __pyx_ob
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_5initialize(PyObject *__pyx_v_self, PyObject *__pyx_v_frame_0); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_4initialize[] = "Calculates the changes in bonding states from one frame to the next.\n\n        Args:\n            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                First bonding frame (as output from :py:class:`~.BondingR12`\n                modules).\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_4initialize[] = "BondingAnalysis.initialize(self, frame_0)\nCalculates the changes in bonding states from one frame to the next.\n\n        Args:\n            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                First bonding frame (as output from :py:class:`~.BondingR12`\n                modules).\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_5initialize = {"initialize", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_5initialize, METH_O, __pyx_doc_5freud_4bond_15BondingAnalysis_4initialize};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_5initialize(PyObject *__pyx_v_self, PyObject *__pyx_v_frame_0) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -2885,7 +3140,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_6compute[] = "Calculates the changes in bonding states from one frame to the next.\n\n        Args:\n            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                Current/previous bonding frame (as output from\n                :py:class:`.BondingR12` modules).\n            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                Next/current bonding frame (as output from\n                :py:class:`.BondingR12` modules).\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_6compute[] = "BondingAnalysis.compute(self, frame_0, frame_1)\nCalculates the changes in bonding states from one frame to the next.\n\n        Args:\n            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                Current/previous bonding frame (as output from\n                :py:class:`.BondingR12` modules).\n            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                Next/current bonding frame (as output from\n                :py:class:`.BondingR12` modules).\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_7compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_7compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_15BondingAnalysis_6compute};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_frame_0 = 0;
   PyObject *__pyx_v_frame_1 = 0;
@@ -3315,7 +3571,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14bond_lifetimes___get_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_9getBondLifetimes(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_8getBondLifetimes[] = "Return the bond lifetimes.\n\n        Returns:\n            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:\n                Lifetime of bonds.\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_8getBondLifetimes[] = "BondingAnalysis.getBondLifetimes(self)\nReturn the bond lifetimes.\n\n        Returns:\n            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:\n                Lifetime of bonds.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_9getBondLifetimes = {"getBondLifetimes", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_9getBondLifetimes, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_8getBondLifetimes};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_9getBondLifetimes(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3468,7 +3725,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17overall_lifetimes___g
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_11getOverallLifetimes(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_10getOverallLifetimes[] = "Return the overall lifetimes.\n\n        Returns:\n            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:\n                Lifetime of bonds.\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_10getOverallLifetimes[] = "BondingAnalysis.getOverallLifetimes(self)\nReturn the overall lifetimes.\n\n        Returns:\n            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:\n                Lifetime of bonds.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_11getOverallLifetimes = {"getOverallLifetimes", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_11getOverallLifetimes, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_10getOverallLifetimes};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_11getOverallLifetimes(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3720,7 +3978,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17transition_matrix___g
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_13getTransitionMatrix(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_12getTransitionMatrix[] = "Return the transition matrix.\n\n        Returns:\n            :class:`numpy.ndarray`: Transition matrix.\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_12getTransitionMatrix[] = "BondingAnalysis.getTransitionMatrix(self)\nReturn the transition matrix.\n\n        Returns:\n            :class:`numpy.ndarray`: Transition matrix.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_13getTransitionMatrix = {"getTransitionMatrix", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_13getTransitionMatrix, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_12getTransitionMatrix};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_13getTransitionMatrix(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3931,7 +4190,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10num_frames___get__(st
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_15getNumFrames(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_14getNumFrames[] = "Get number of frames calculated.\n\n        Returns:\n            unsigned int: Number of frames.\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_14getNumFrames[] = "BondingAnalysis.getNumFrames(self)\nGet number of frames calculated.\n\n        Returns:\n            unsigned int: Number of frames.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_15getNumFrames = {"getNumFrames", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_15getNumFrames, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_14getNumFrames};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_15getNumFrames(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4074,7 +4334,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_13num_particles___get__
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_17getNumParticles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_16getNumParticles[] = "Get number of particles being tracked.\n\n        Returns:\n            unsigned int: Number of particles.\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_16getNumParticles[] = "BondingAnalysis.getNumParticles(self)\nGet number of particles being tracked.\n\n        Returns:\n            unsigned int: Number of particles.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_17getNumParticles = {"getNumParticles", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_17getNumParticles, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_16getNumParticles};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_17getNumParticles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4217,7 +4478,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_9num_bonds___get__(stru
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_19getNumBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_18getNumBonds[] = "Get number of bonds tracked.\n\n        Returns:\n            unsigned int: Number of bonds.\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_18getNumBonds[] = "BondingAnalysis.getNumBonds(self)\nGet number of bonds tracked.\n\n        Returns:\n            unsigned int: Number of bonds.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_19getNumBonds = {"getNumBonds", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_19getNumBonds, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_18getNumBonds};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_19getNumBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4276,6 +4538,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_18getNumBonds(struct __
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_21__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_20__reduce_cython__[] = "BondingAnalysis.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_21__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_21__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_20__reduce_cython__};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_21__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4330,6 +4594,8 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_20__reduce_cython__(CYT
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_23__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_22__setstate_cython__[] = "BondingAnalysis.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_23__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_23__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_15BondingAnalysis_22__setstate_cython__};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_23__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4714,7 +4980,8 @@ static void __pyx_pf_5freud_4bond_10BondingR12_2__dealloc__(struct __pyx_obj_5fr
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingR12_4compute[] = "Calculates the correlation function and adds to the current histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`:\n                Orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_4bond_10BondingR12_4compute[] = "BondingR12.compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None)\nCalculates the correlation function and adds to the current histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`:\n                Orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingR12_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_10BondingR12_4compute};
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_ref_points = 0;
@@ -5689,7 +5956,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_5bonds___get__(struct __pyx_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_7getBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingR12_6getBonds[] = "Return the particle bonds.\n\n        Returns:\n            :class:`numpy.ndarray`: Particle bonds.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingR12_6getBonds[] = "BondingR12.getBonds(self)\nReturn the particle bonds.\n\n        Returns:\n            :class:`numpy.ndarray`: Particle bonds.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingR12_7getBonds = {"getBonds", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_7getBonds, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_6getBonds};
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_7getBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5900,7 +6168,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_3box___get__(struct __pyx_ob
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingR12_8getBox[] = "Get the box used in the calculation.\n\n        Returns:\n            :py:class:`freud.box.Box`: freud Box.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingR12_8getBox[] = "BondingR12.getBox(self)\nGet the box used in the calculation.\n\n        Returns:\n            :py:class:`freud.box.Box`: freud Box.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingR12_9getBox = {"getBox", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_9getBox, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_8getBox};
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -6043,7 +6312,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8list_map___get__(struct __p
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_11getListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingR12_10getListMap[] = "Get the dict used to map bond idx to list idx.\n\n        Returns:\n            dict: The mapping from bond to particle index.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingR12_10getListMap[] = "BondingR12.getListMap(self)\nGet the dict used to map bond idx to list idx.\n\n        Returns:\n            dict: The mapping from bond to particle index.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingR12_11getListMap = {"getListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_11getListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_10getListMap};
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_11getListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -6186,7 +6456,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12rev_list_map___get__(struc
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_13getRevListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingR12_12getRevListMap[] = "Get the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from particle to bond index.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingR12_12getRevListMap[] = "BondingR12.getRevListMap(self)\nGet the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from particle to bond index.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingR12_13getRevListMap = {"getRevListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_13getRevListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_12getRevListMap};
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_13getRevListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -6245,6 +6516,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12getRevListMap(struct __pyx
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_4bond_10BondingR12_14__reduce_cython__[] = "BondingR12.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingR12_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_14__reduce_cython__};
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -6299,6 +6572,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_14__reduce_cython__(CYTHON_U
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_4bond_10BondingR12_16__setstate_cython__[] = "BondingR12.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingR12_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_17__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_10BondingR12_16__setstate_cython__};
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -6804,7 +7079,8 @@ static void __pyx_pf_5freud_4bond_11BondingXY2D_2__dealloc__(struct __pyx_obj_5f
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_11BondingXY2D_4compute[] = "Calculates the correlation function and adds to the current\n        histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_4bond_11BondingXY2D_4compute[] = "BondingXY2D.compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None)\nCalculates the correlation function and adds to the current\n        histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_11BondingXY2D_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_11BondingXY2D_4compute};
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_ref_points = 0;
@@ -7779,7 +8055,8 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_5bonds___get__(struct __pyx
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_7getBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_11BondingXY2D_6getBonds[] = "Return the particle bonds.\n\n        Returns:\n            :class:`numpy.ndarray`: Particle bonds.\n        ";
+static char __pyx_doc_5freud_4bond_11BondingXY2D_6getBonds[] = "BondingXY2D.getBonds(self)\nReturn the particle bonds.\n\n        Returns:\n            :class:`numpy.ndarray`: Particle bonds.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_11BondingXY2D_7getBonds = {"getBonds", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_7getBonds, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_6getBonds};
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_7getBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -7990,7 +8267,8 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_3box___get__(struct __pyx_o
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_11BondingXY2D_8getBox[] = "Get the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static char __pyx_doc_5freud_4bond_11BondingXY2D_8getBox[] = "BondingXY2D.getBox(self)\nGet the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_11BondingXY2D_9getBox = {"getBox", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_9getBox, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_8getBox};
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8133,7 +8411,8 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8list_map___get__(struct __
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_11getListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_11BondingXY2D_10getListMap[] = "Get the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from bond to particle index.\n        ";
+static char __pyx_doc_5freud_4bond_11BondingXY2D_10getListMap[] = "BondingXY2D.getListMap(self)\nGet the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from bond to particle index.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_11BondingXY2D_11getListMap = {"getListMap", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_11getListMap, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_10getListMap};
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_11getListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8276,7 +8555,8 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12rev_list_map___get__(stru
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_13getRevListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_11BondingXY2D_12getRevListMap[] = "Get the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from particle to bond index.\n        ";
+static char __pyx_doc_5freud_4bond_11BondingXY2D_12getRevListMap[] = "BondingXY2D.getRevListMap(self)\nGet the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from particle to bond index.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_11BondingXY2D_13getRevListMap = {"getRevListMap", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_13getRevListMap, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_12getRevListMap};
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_13getRevListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8335,6 +8615,8 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12getRevListMap(struct __py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_4bond_11BondingXY2D_14__reduce_cython__[] = "BondingXY2D.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_4bond_11BondingXY2D_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_14__reduce_cython__};
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8389,6 +8671,8 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_14__reduce_cython__(CYTHON_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_4bond_11BondingXY2D_16__setstate_cython__[] = "BondingXY2D.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_4bond_11BondingXY2D_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_17__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_11BondingXY2D_16__setstate_cython__};
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8913,7 +9197,8 @@ static void __pyx_pf_5freud_4bond_10BondingXYT_2__dealloc__(struct __pyx_obj_5fr
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYT_4compute[] = "Calculates the correlation function and adds to the current histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYT_4compute[] = "BondingXYT.compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None)\nCalculates the correlation function and adds to the current histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYT_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_10BondingXYT_4compute};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_ref_points = 0;
@@ -9888,7 +10173,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_5bonds___get__(struct __pyx_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_7getBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYT_6getBonds[] = "Return the particle bonds.\n\n        Returns:\n            :class:`numpy.ndarray`: Particle bonds.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYT_6getBonds[] = "BondingXYT.getBonds(self)\nReturn the particle bonds.\n\n        Returns:\n            :class:`numpy.ndarray`: Particle bonds.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYT_7getBonds = {"getBonds", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_7getBonds, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_6getBonds};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_7getBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -10099,7 +10385,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_3box___get__(struct __pyx_ob
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYT_8getBox[] = "Get the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYT_8getBox[] = "BondingXYT.getBox(self)\nGet the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYT_9getBox = {"getBox", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_9getBox, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_8getBox};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -10242,7 +10529,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8list_map___get__(struct __p
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_11getListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYT_10getListMap[] = "Get the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from bond to particle index.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYT_10getListMap[] = "BondingXYT.getListMap(self)\nGet the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from bond to particle index.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYT_11getListMap = {"getListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_11getListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_10getListMap};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_11getListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -10385,7 +10673,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12rev_list_map___get__(struc
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_13getRevListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYT_12getRevListMap[] = "Get the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from particle to bond index.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYT_12getRevListMap[] = "BondingXYT.getRevListMap(self)\nGet the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from particle to bond index.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYT_13getRevListMap = {"getRevListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_13getRevListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_12getRevListMap};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_13getRevListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -10444,6 +10733,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12getRevListMap(struct __pyx
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_4bond_10BondingXYT_14__reduce_cython__[] = "BondingXYT.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYT_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_14__reduce_cython__};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -10498,6 +10789,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_14__reduce_cython__(CYTHON_U
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_4bond_10BondingXYT_16__setstate_cython__[] = "BondingXYT.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYT_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_17__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_10BondingXYT_16__setstate_cython__};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -11033,7 +11326,8 @@ static void __pyx_pf_5freud_4bond_10BondingXYZ_2__dealloc__(struct __pyx_obj_5fr
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYZ_4compute[] = "Calculates the correlation function and adds to the current histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYZ_4compute[] = "BondingXYZ.compute(self, box, ref_points, ref_orientations, points, orientations, nlist=None)\nCalculates the correlation function and adds to the current histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as angles to use in computation.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYZ_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_10BondingXYZ_4compute};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_ref_points = 0;
@@ -12088,7 +12382,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_5bonds___get__(struct __pyx_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_7getBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYZ_6getBonds[] = "Return the particle bonds.\n\n        Returns:\n            :class:`numpy.ndarray`: Particle bonds.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYZ_6getBonds[] = "BondingXYZ.getBonds(self)\nReturn the particle bonds.\n\n        Returns:\n            :class:`numpy.ndarray`: Particle bonds.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYZ_7getBonds = {"getBonds", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_7getBonds, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_6getBonds};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_7getBonds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -12299,7 +12594,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_3box___get__(struct __pyx_ob
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYZ_8getBox[] = "Get the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYZ_8getBox[] = "BondingXYZ.getBox(self)\nGet the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYZ_9getBox = {"getBox", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_9getBox, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_8getBox};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -12442,7 +12738,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8list_map___get__(struct __p
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_11getListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYZ_10getListMap[] = "Get the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from bond to particle index.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYZ_10getListMap[] = "BondingXYZ.getListMap(self)\nGet the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from bond to particle index.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYZ_11getListMap = {"getListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_11getListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_10getListMap};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_11getListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -12585,7 +12882,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12rev_list_map___get__(struc
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_13getRevListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYZ_12getRevListMap[] = "Get the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from particle to bond index.\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYZ_12getRevListMap[] = "BondingXYZ.getRevListMap(self)\nGet the dict used to map list idx to bond idx.\n\n        Returns:\n            dict: The mapping from particle to bond index.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYZ_13getRevListMap = {"getRevListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_13getRevListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_12getRevListMap};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_13getRevListMap(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -12642,6 +12940,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12getRevListMap(struct __pyx
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_4bond_10BondingXYZ_14__reduce_cython__[] = "BondingXYZ.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYZ_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_14__reduce_cython__};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -12696,6 +12996,8 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_14__reduce_cython__(CYTHON_U
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_4bond_10BondingXYZ_16__setstate_cython__[] = "BondingXYZ.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYZ_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_17__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_10BondingXYZ_16__setstate_cython__};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -15502,8 +15804,8 @@ static PyMethodDef __pyx_methods_5freud_4bond_BondingAnalysis[] = {
   {"getNumFrames", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_15getNumFrames, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_14getNumFrames},
   {"getNumParticles", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_17getNumParticles, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_16getNumParticles},
   {"getNumBonds", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_19getNumBonds, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_18getNumBonds},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_21__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_23__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_21__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_15BondingAnalysis_20__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_23__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_15BondingAnalysis_22__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -15653,8 +15955,8 @@ static PyMethodDef __pyx_methods_5freud_4bond_BondingR12[] = {
   {"getBox", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_9getBox, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_8getBox},
   {"getListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_11getListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_10getListMap},
   {"getRevListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_13getRevListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_12getRevListMap},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_15__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_17__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingR12_14__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_17__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_10BondingR12_16__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -15802,8 +16104,8 @@ static PyMethodDef __pyx_methods_5freud_4bond_BondingXY2D[] = {
   {"getBox", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_9getBox, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_8getBox},
   {"getListMap", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_11getListMap, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_10getListMap},
   {"getRevListMap", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_13getRevListMap, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_12getRevListMap},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_15__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_17__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_11BondingXY2D_14__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_17__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_11BondingXY2D_16__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -15951,8 +16253,8 @@ static PyMethodDef __pyx_methods_5freud_4bond_BondingXYT[] = {
   {"getBox", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_9getBox, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_8getBox},
   {"getListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_11getListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_10getListMap},
   {"getRevListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_13getRevListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_12getRevListMap},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_15__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_17__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYT_14__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_17__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_10BondingXYT_16__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -16100,8 +16402,8 @@ static PyMethodDef __pyx_methods_5freud_4bond_BondingXYZ[] = {
   {"getBox", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_9getBox, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_8getBox},
   {"getListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_11getListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_10getListMap},
   {"getRevListMap", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_13getRevListMap, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_12getRevListMap},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_15__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_17__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4bond_10BondingXYZ_14__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_17__setstate_cython__, METH_O, __pyx_doc_5freud_4bond_10BondingXYZ_16__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -16208,6 +16510,44 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
+  {&__pyx_n_s_BondingAnalysis___reduce_cython, __pyx_k_BondingAnalysis___reduce_cython, sizeof(__pyx_k_BondingAnalysis___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis___setstate_cytho, __pyx_k_BondingAnalysis___setstate_cytho, sizeof(__pyx_k_BondingAnalysis___setstate_cytho), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis_compute, __pyx_k_BondingAnalysis_compute, sizeof(__pyx_k_BondingAnalysis_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis_getBondLifetimes, __pyx_k_BondingAnalysis_getBondLifetimes, sizeof(__pyx_k_BondingAnalysis_getBondLifetimes), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis_getNumBonds, __pyx_k_BondingAnalysis_getNumBonds, sizeof(__pyx_k_BondingAnalysis_getNumBonds), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis_getNumFrames, __pyx_k_BondingAnalysis_getNumFrames, sizeof(__pyx_k_BondingAnalysis_getNumFrames), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis_getNumParticles, __pyx_k_BondingAnalysis_getNumParticles, sizeof(__pyx_k_BondingAnalysis_getNumParticles), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis_getOverallLifeti, __pyx_k_BondingAnalysis_getOverallLifeti, sizeof(__pyx_k_BondingAnalysis_getOverallLifeti), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis_getTransitionMat, __pyx_k_BondingAnalysis_getTransitionMat, sizeof(__pyx_k_BondingAnalysis_getTransitionMat), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingAnalysis_initialize, __pyx_k_BondingAnalysis_initialize, sizeof(__pyx_k_BondingAnalysis_initialize), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingR12___reduce_cython, __pyx_k_BondingR12___reduce_cython, sizeof(__pyx_k_BondingR12___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingR12___setstate_cython, __pyx_k_BondingR12___setstate_cython, sizeof(__pyx_k_BondingR12___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingR12_compute, __pyx_k_BondingR12_compute, sizeof(__pyx_k_BondingR12_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingR12_getBonds, __pyx_k_BondingR12_getBonds, sizeof(__pyx_k_BondingR12_getBonds), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingR12_getBox, __pyx_k_BondingR12_getBox, sizeof(__pyx_k_BondingR12_getBox), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingR12_getListMap, __pyx_k_BondingR12_getListMap, sizeof(__pyx_k_BondingR12_getListMap), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingR12_getRevListMap, __pyx_k_BondingR12_getRevListMap, sizeof(__pyx_k_BondingR12_getRevListMap), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXY2D___reduce_cython, __pyx_k_BondingXY2D___reduce_cython, sizeof(__pyx_k_BondingXY2D___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXY2D___setstate_cython, __pyx_k_BondingXY2D___setstate_cython, sizeof(__pyx_k_BondingXY2D___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXY2D_compute, __pyx_k_BondingXY2D_compute, sizeof(__pyx_k_BondingXY2D_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXY2D_getBonds, __pyx_k_BondingXY2D_getBonds, sizeof(__pyx_k_BondingXY2D_getBonds), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXY2D_getBox, __pyx_k_BondingXY2D_getBox, sizeof(__pyx_k_BondingXY2D_getBox), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXY2D_getListMap, __pyx_k_BondingXY2D_getListMap, sizeof(__pyx_k_BondingXY2D_getListMap), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXY2D_getRevListMap, __pyx_k_BondingXY2D_getRevListMap, sizeof(__pyx_k_BondingXY2D_getRevListMap), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYT___reduce_cython, __pyx_k_BondingXYT___reduce_cython, sizeof(__pyx_k_BondingXYT___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYT___setstate_cython, __pyx_k_BondingXYT___setstate_cython, sizeof(__pyx_k_BondingXYT___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYT_compute, __pyx_k_BondingXYT_compute, sizeof(__pyx_k_BondingXYT_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYT_getBonds, __pyx_k_BondingXYT_getBonds, sizeof(__pyx_k_BondingXYT_getBonds), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYT_getBox, __pyx_k_BondingXYT_getBox, sizeof(__pyx_k_BondingXYT_getBox), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYT_getListMap, __pyx_k_BondingXYT_getListMap, sizeof(__pyx_k_BondingXYT_getListMap), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYT_getRevListMap, __pyx_k_BondingXYT_getRevListMap, sizeof(__pyx_k_BondingXYT_getRevListMap), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYZ___reduce_cython, __pyx_k_BondingXYZ___reduce_cython, sizeof(__pyx_k_BondingXYZ___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYZ___setstate_cython, __pyx_k_BondingXYZ___setstate_cython, sizeof(__pyx_k_BondingXYZ___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYZ_compute, __pyx_k_BondingXYZ_compute, sizeof(__pyx_k_BondingXYZ_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYZ_getBonds, __pyx_k_BondingXYZ_getBonds, sizeof(__pyx_k_BondingXYZ_getBonds), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYZ_getBox, __pyx_k_BondingXYZ_getBox, sizeof(__pyx_k_BondingXYZ_getBox), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYZ_getListMap, __pyx_k_BondingXYZ_getListMap, sizeof(__pyx_k_BondingXYZ_getListMap), 0, 0, 1, 1},
+  {&__pyx_n_s_BondingXYZ_getRevListMap, __pyx_k_BondingXYZ_getRevListMap, sizeof(__pyx_k_BondingXYZ_getRevListMap), 0, 0, 1, 1},
   {&__pyx_n_s_C, __pyx_k_C, sizeof(__pyx_k_C), 0, 0, 1, 1},
   {&__pyx_kp_u_Format_string_allocated_too_shor, __pyx_k_Format_string_allocated_too_shor, sizeof(__pyx_k_Format_string_allocated_too_shor), 0, 1, 0, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor_2, __pyx_k_Format_string_allocated_too_shor_2, sizeof(__pyx_k_Format_string_allocated_too_shor_2), 0, 1, 0, 0},
@@ -16221,21 +16561,27 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_array_name, __pyx_k_array_name, sizeof(__pyx_k_array_name), 0, 0, 1, 1},
   {&__pyx_n_s_asarray, __pyx_k_asarray, sizeof(__pyx_k_asarray), 0, 0, 1, 1},
+  {&__pyx_n_s_b, __pyx_k_b, sizeof(__pyx_k_b), 0, 0, 1, 1},
   {&__pyx_n_s_bond_list, __pyx_k_bond_list, sizeof(__pyx_k_bond_list), 0, 0, 1, 1},
   {&__pyx_n_s_bond_map, __pyx_k_bond_map, sizeof(__pyx_k_bond_map), 0, 0, 1, 1},
+  {&__pyx_n_s_bonds, __pyx_k_bonds, sizeof(__pyx_k_bonds), 0, 0, 1, 1},
   {&__pyx_n_s_box, __pyx_k_box, sizeof(__pyx_k_box), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_common, __pyx_k_common, sizeof(__pyx_k_common), 0, 0, 1, 1},
+  {&__pyx_n_s_compute, __pyx_k_compute, sizeof(__pyx_k_compute), 0, 0, 1, 1},
   {&__pyx_n_s_contiguous, __pyx_k_contiguous, sizeof(__pyx_k_contiguous), 0, 0, 1, 1},
   {&__pyx_n_s_convert_array, __pyx_k_convert_array, sizeof(__pyx_k_convert_array), 0, 0, 1, 1},
   {&__pyx_n_s_convert_box, __pyx_k_convert_box, sizeof(__pyx_k_convert_box), 0, 0, 1, 1},
   {&__pyx_n_s_copy, __pyx_k_copy, sizeof(__pyx_k_copy), 0, 0, 1, 1},
+  {&__pyx_n_s_defaulted_nlist, __pyx_k_defaulted_nlist, sizeof(__pyx_k_defaulted_nlist), 0, 0, 1, 1},
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_float32, __pyx_k_float32, sizeof(__pyx_k_float32), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_frame_0, __pyx_k_frame_0, sizeof(__pyx_k_frame_0), 0, 0, 1, 1},
   {&__pyx_n_s_frame_1, __pyx_k_frame_1, sizeof(__pyx_k_frame_1), 0, 0, 1, 1},
   {&__pyx_n_s_freud, __pyx_k_freud, sizeof(__pyx_k_freud), 0, 0, 1, 1},
+  {&__pyx_n_s_freud_bond, __pyx_k_freud_bond, sizeof(__pyx_k_freud_bond), 0, 0, 1, 1},
+  {&__pyx_kp_s_freud_bond_pyx, __pyx_k_freud_bond_pyx, sizeof(__pyx_k_freud_bond_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_freud_common, __pyx_k_freud_common, sizeof(__pyx_k_freud_common), 0, 0, 1, 1},
   {&__pyx_n_s_freud_locality, __pyx_k_freud_locality, sizeof(__pyx_k_freud_locality), 0, 0, 1, 1},
   {&__pyx_n_s_getBondLifetimes, __pyx_k_getBondLifetimes, sizeof(__pyx_k_getBondLifetimes), 0, 0, 1, 1},
@@ -16250,13 +16596,24 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_getTransitionMatrix, __pyx_k_getTransitionMatrix, sizeof(__pyx_k_getTransitionMatrix), 0, 0, 1, 1},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
+  {&__pyx_n_s_initialize, __pyx_k_initialize, sizeof(__pyx_k_initialize), 0, 0, 1, 1},
+  {&__pyx_n_s_l_frame_0, __pyx_k_l_frame_0, sizeof(__pyx_k_l_frame_0), 0, 0, 1, 1},
+  {&__pyx_n_s_l_frame_1, __pyx_k_l_frame_1, sizeof(__pyx_k_l_frame_1), 0, 0, 1, 1},
+  {&__pyx_n_s_l_orientations, __pyx_k_l_orientations, sizeof(__pyx_k_l_orientations), 0, 0, 1, 1},
+  {&__pyx_n_s_l_points, __pyx_k_l_points, sizeof(__pyx_k_l_points), 0, 0, 1, 1},
+  {&__pyx_n_s_l_ref_orientations, __pyx_k_l_ref_orientations, sizeof(__pyx_k_l_ref_orientations), 0, 0, 1, 1},
+  {&__pyx_n_s_l_ref_points, __pyx_k_l_ref_points, sizeof(__pyx_k_l_ref_points), 0, 0, 1, 1},
   {&__pyx_n_s_locality, __pyx_k_locality, sizeof(__pyx_k_locality), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_make_default_nlist, __pyx_k_make_default_nlist, sizeof(__pyx_k_make_default_nlist), 0, 0, 1, 1},
+  {&__pyx_n_s_n_p, __pyx_k_n_p, sizeof(__pyx_k_n_p), 0, 0, 1, 1},
+  {&__pyx_n_s_n_ref, __pyx_k_n_ref, sizeof(__pyx_k_n_ref), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
+  {&__pyx_n_s_nbins, __pyx_k_nbins, sizeof(__pyx_k_nbins), 0, 0, 1, 1},
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_nlist, __pyx_k_nlist, sizeof(__pyx_k_nlist), 0, 0, 1, 1},
+  {&__pyx_n_s_nlist_2, __pyx_k_nlist_2, sizeof(__pyx_k_nlist_2), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
   {&__pyx_n_s_num_bonds, __pyx_k_num_bonds, sizeof(__pyx_k_num_bonds), 0, 0, 1, 1},
@@ -16267,6 +16624,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_orientations, __pyx_k_orientations, sizeof(__pyx_k_orientations), 0, 0, 1, 1},
   {&__pyx_n_s_points, __pyx_k_points, sizeof(__pyx_k_points), 0, 0, 1, 1},
   {&__pyx_kp_s_points_should_be_an_Nx3_array, __pyx_k_points_should_be_an_Nx3_array, sizeof(__pyx_k_points_should_be_an_Nx3_array), 0, 0, 1, 0},
+  {&__pyx_n_s_pyx_state, __pyx_k_pyx_state, sizeof(__pyx_k_pyx_state), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_r_max, __pyx_k_r_max, sizeof(__pyx_k_r_max), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
@@ -16278,11 +16636,16 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_ref_points_should_be_an_Nx3_arra, __pyx_k_ref_points_should_be_an_Nx3_arra, sizeof(__pyx_k_ref_points_should_be_an_Nx3_arra), 0, 0, 1, 0},
   {&__pyx_n_s_require, __pyx_k_require, sizeof(__pyx_k_require), 0, 0, 1, 1},
   {&__pyx_n_s_requirements, __pyx_k_requirements, sizeof(__pyx_k_requirements), 0, 0, 1, 1},
+  {&__pyx_n_s_result, __pyx_k_result, sizeof(__pyx_k_result), 0, 0, 1, 1},
+  {&__pyx_n_s_ret_bonds, __pyx_k_ret_bonds, sizeof(__pyx_k_ret_bonds), 0, 0, 1, 1},
+  {&__pyx_n_s_self, __pyx_k_self, sizeof(__pyx_k_self), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_sqrt, __pyx_k_sqrt, sizeof(__pyx_k_sqrt), 0, 0, 1, 1},
+  {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
+  {&__pyx_n_s_trans_matrix, __pyx_k_trans_matrix, sizeof(__pyx_k_trans_matrix), 0, 0, 1, 1},
   {&__pyx_n_s_uint32, __pyx_k_uint32, sizeof(__pyx_k_uint32), 0, 0, 1, 1},
   {&__pyx_kp_u_unknown_dtype_code_in_numpy_pxd, __pyx_k_unknown_dtype_code_in_numpy_pxd, sizeof(__pyx_k_unknown_dtype_code_in_numpy_pxd), 0, 1, 0, 0},
   {&__pyx_n_s_x_max, __pyx_k_x_max, sizeof(__pyx_k_x_max), 0, 0, 1, 1},
@@ -16606,6 +16969,447 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(2, 1012, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_GIVEREF(__pyx_tuple__29);
+
+  /* "freud/bond.pyx":91
+ *         del self.thisptr
+ * 
+ *     def initialize(self, frame_0):             # <<<<<<<<<<<<<<
+ *         """Calculates the changes in bonding states from one frame to the next.
+ * 
+ */
+  __pyx_tuple__30 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_frame_0, __pyx_n_s_l_frame_0); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__30);
+  __Pyx_GIVEREF(__pyx_tuple__30);
+  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_initialize, 91, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 91, __pyx_L1_error)
+
+  /* "freud/bond.pyx":114
+ *             self.thisptr.initialize(<unsigned int*> l_frame_0.data)
+ * 
+ *     def compute(self, frame_0, frame_1):             # <<<<<<<<<<<<<<
+ *         """Calculates the changes in bonding states from one frame to the next.
+ * 
+ */
+  __pyx_tuple__32 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_frame_0, __pyx_n_s_frame_1, __pyx_n_s_l_frame_0, __pyx_n_s_l_frame_1); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__32);
+  __Pyx_GIVEREF(__pyx_tuple__32);
+  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 114, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 114, __pyx_L1_error)
+
+  /* "freud/bond.pyx":144
+ *         return self.getBondLifetimes()
+ * 
+ *     def getBondLifetimes(self):             # <<<<<<<<<<<<<<
+ *         """Return the bond lifetimes.
+ * 
+ */
+  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_bonds); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__34);
+  __Pyx_GIVEREF(__pyx_tuple__34);
+  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBondLifetimes, 144, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 144, __pyx_L1_error)
+
+  /* "freud/bond.pyx":158
+ *         return self.getOverallLifetimes()
+ * 
+ *     def getOverallLifetimes(self):             # <<<<<<<<<<<<<<
+ *         """Return the overall lifetimes.
+ * 
+ */
+  __pyx_tuple__36 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_bonds, __pyx_n_s_ret_bonds); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 158, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__36);
+  __Pyx_GIVEREF(__pyx_tuple__36);
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getOverallLifetimes, 158, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 158, __pyx_L1_error)
+
+  /* "freud/bond.pyx":173
+ *         return self.getTransitionMatrix()
+ * 
+ *     def getTransitionMatrix(self):             # <<<<<<<<<<<<<<
+ *         """Return the transition matrix.
+ * 
+ */
+  __pyx_tuple__38 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_trans_matrix, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__38);
+  __Pyx_GIVEREF(__pyx_tuple__38);
+  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getTransitionMatrix, 173, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 173, __pyx_L1_error)
+
+  /* "freud/bond.pyx":193
+ *         return self.getNumFrames()
+ * 
+ *     def getNumFrames(self):             # <<<<<<<<<<<<<<
+ *         """Get number of frames calculated.
+ * 
+ */
+  __pyx_tuple__40 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 193, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__40);
+  __Pyx_GIVEREF(__pyx_tuple__40);
+  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumFrames, 193, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 193, __pyx_L1_error)
+
+  /* "freud/bond.pyx":205
+ *         return self.getNumParticles()
+ * 
+ *     def getNumParticles(self):             # <<<<<<<<<<<<<<
+ *         """Get number of particles being tracked.
+ * 
+ */
+  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 205, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__42);
+  __Pyx_GIVEREF(__pyx_tuple__42);
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumParticles, 205, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 205, __pyx_L1_error)
+
+  /* "freud/bond.pyx":217
+ *         return self.getNumBonds()
+ * 
+ *     def getNumBonds(self):             # <<<<<<<<<<<<<<
+ *         """Get number of bonds tracked.
+ * 
+ */
+  __pyx_tuple__44 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__44);
+  __Pyx_GIVEREF(__pyx_tuple__44);
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumBonds, 217, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 217, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__46 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__46);
+  __Pyx_GIVEREF(__pyx_tuple__46);
+  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__48 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__48)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__48);
+  __Pyx_GIVEREF(__pyx_tuple__48);
+  __pyx_codeobj__49 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__48, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__49)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/bond.pyx":271
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 nlist=None):
+ *         """Calculates the correlation function and adds to the current histogram.
+ */
+  __pyx_tuple__50 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__50);
+  __Pyx_GIVEREF(__pyx_tuple__50);
+  __pyx_codeobj__51 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__50, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 271, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__51)) __PYX_ERR(0, 271, __pyx_L1_error)
+
+  /* "freud/bond.pyx":333
+ *         return self.getBonds()
+ * 
+ *     def getBonds(self):             # <<<<<<<<<<<<<<
+ *         """Return the particle bonds.
+ * 
+ */
+  __pyx_tuple__52 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_bonds, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__52)) __PYX_ERR(0, 333, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__52);
+  __Pyx_GIVEREF(__pyx_tuple__52);
+  __pyx_codeobj__53 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__52, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 333, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__53)) __PYX_ERR(0, 333, __pyx_L1_error)
+
+  /* "freud/bond.pyx":352
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_tuple__54 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__54);
+  __Pyx_GIVEREF(__pyx_tuple__54);
+  __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 352, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(0, 352, __pyx_L1_error)
+
+  /* "freud/bond.pyx":364
+ *         return self.getListMap()
+ * 
+ *     def getListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map bond idx to list idx.
+ * 
+ */
+  __pyx_tuple__56 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 364, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__56);
+  __Pyx_GIVEREF(__pyx_tuple__56);
+  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 364, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 364, __pyx_L1_error)
+
+  /* "freud/bond.pyx":376
+ *         return self.getRevListMap()
+ * 
+ *     def getRevListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_tuple__58 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 376, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__58);
+  __Pyx_GIVEREF(__pyx_tuple__58);
+  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 376, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 376, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__60 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__60)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__60);
+  __Pyx_GIVEREF(__pyx_tuple__60);
+  __pyx_codeobj__61 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__60, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__61)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__62 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__62)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__62);
+  __Pyx_GIVEREF(__pyx_tuple__62);
+  __pyx_codeobj__63 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__62, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__63)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/bond.pyx":433
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 nlist=None):
+ *         """Calculates the correlation function and adds to the current
+ */
+  __pyx_tuple__64 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(0, 433, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__64);
+  __Pyx_GIVEREF(__pyx_tuple__64);
+  __pyx_codeobj__65 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__64, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 433, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__65)) __PYX_ERR(0, 433, __pyx_L1_error)
+
+  /* "freud/bond.pyx":497
+ *         return self.getBonds()
+ * 
+ *     def getBonds(self):             # <<<<<<<<<<<<<<
+ *         """Return the particle bonds.
+ * 
+ */
+  __pyx_tuple__66 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_bonds, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__66)) __PYX_ERR(0, 497, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__66);
+  __Pyx_GIVEREF(__pyx_tuple__66);
+  __pyx_codeobj__67 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__66, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 497, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__67)) __PYX_ERR(0, 497, __pyx_L1_error)
+
+  /* "freud/bond.pyx":516
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_tuple__68 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__68)) __PYX_ERR(0, 516, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__68);
+  __Pyx_GIVEREF(__pyx_tuple__68);
+  __pyx_codeobj__69 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__68, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 516, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__69)) __PYX_ERR(0, 516, __pyx_L1_error)
+
+  /* "freud/bond.pyx":528
+ *         return self.getListMap()
+ * 
+ *     def getListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_tuple__70 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(0, 528, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__70);
+  __Pyx_GIVEREF(__pyx_tuple__70);
+  __pyx_codeobj__71 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__70, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 528, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__71)) __PYX_ERR(0, 528, __pyx_L1_error)
+
+  /* "freud/bond.pyx":540
+ *         return self.getRevListMap()
+ * 
+ *     def getRevListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_tuple__72 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__72)) __PYX_ERR(0, 540, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__72);
+  __Pyx_GIVEREF(__pyx_tuple__72);
+  __pyx_codeobj__73 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__72, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 540, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__73)) __PYX_ERR(0, 540, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__74 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__74)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__74);
+  __Pyx_GIVEREF(__pyx_tuple__74);
+  __pyx_codeobj__75 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__74, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__75)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__76 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__76)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__76);
+  __Pyx_GIVEREF(__pyx_tuple__76);
+  __pyx_codeobj__77 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__76, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__77)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/bond.pyx":601
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 nlist=None):
+ *         """Calculates the correlation function and adds to the current histogram.
+ */
+  __pyx_tuple__78 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__78)) __PYX_ERR(0, 601, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__78);
+  __Pyx_GIVEREF(__pyx_tuple__78);
+  __pyx_codeobj__79 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__78, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 601, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__79)) __PYX_ERR(0, 601, __pyx_L1_error)
+
+  /* "freud/bond.pyx":663
+ *         return self.getBonds()
+ * 
+ *     def getBonds(self):             # <<<<<<<<<<<<<<
+ *         """Return the particle bonds.
+ * 
+ */
+  __pyx_tuple__80 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_bonds, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__80)) __PYX_ERR(0, 663, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__80);
+  __Pyx_GIVEREF(__pyx_tuple__80);
+  __pyx_codeobj__81 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__80, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 663, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__81)) __PYX_ERR(0, 663, __pyx_L1_error)
+
+  /* "freud/bond.pyx":682
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_tuple__82 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__82)) __PYX_ERR(0, 682, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__82);
+  __Pyx_GIVEREF(__pyx_tuple__82);
+  __pyx_codeobj__83 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__82, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 682, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__83)) __PYX_ERR(0, 682, __pyx_L1_error)
+
+  /* "freud/bond.pyx":694
+ *         return self.getListMap()
+ * 
+ *     def getListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_tuple__84 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__84)) __PYX_ERR(0, 694, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__84);
+  __Pyx_GIVEREF(__pyx_tuple__84);
+  __pyx_codeobj__85 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__84, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 694, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__85)) __PYX_ERR(0, 694, __pyx_L1_error)
+
+  /* "freud/bond.pyx":706
+ *         return self.getRevListMap()
+ * 
+ *     def getRevListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_tuple__86 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__86)) __PYX_ERR(0, 706, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__86);
+  __Pyx_GIVEREF(__pyx_tuple__86);
+  __pyx_codeobj__87 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__86, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 706, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__87)) __PYX_ERR(0, 706, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__88 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__88)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__88);
+  __Pyx_GIVEREF(__pyx_tuple__88);
+  __pyx_codeobj__89 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__88, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__89)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__90 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__90)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__90);
+  __Pyx_GIVEREF(__pyx_tuple__90);
+  __pyx_codeobj__91 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__90, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__91)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/bond.pyx":770
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 nlist=None):
+ *         """Calculates the correlation function and adds to the current histogram.
+ */
+  __pyx_tuple__92 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__92)) __PYX_ERR(0, 770, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__92);
+  __Pyx_GIVEREF(__pyx_tuple__92);
+  __pyx_codeobj__93 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__92, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 770, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__93)) __PYX_ERR(0, 770, __pyx_L1_error)
+
+  /* "freud/bond.pyx":840
+ *         return self.getBonds()
+ * 
+ *     def getBonds(self):             # <<<<<<<<<<<<<<
+ *         """Return the particle bonds.
+ * 
+ */
+  __pyx_tuple__94 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_bonds, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__94)) __PYX_ERR(0, 840, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__94);
+  __Pyx_GIVEREF(__pyx_tuple__94);
+  __pyx_codeobj__95 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__94, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 840, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__95)) __PYX_ERR(0, 840, __pyx_L1_error)
+
+  /* "freud/bond.pyx":859
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_tuple__96 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__96)) __PYX_ERR(0, 859, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__96);
+  __Pyx_GIVEREF(__pyx_tuple__96);
+  __pyx_codeobj__97 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__96, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 859, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__97)) __PYX_ERR(0, 859, __pyx_L1_error)
+
+  /* "freud/bond.pyx":871
+ *         return self.getListMap()
+ * 
+ *     def getListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_tuple__98 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__98)) __PYX_ERR(0, 871, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__98);
+  __Pyx_GIVEREF(__pyx_tuple__98);
+  __pyx_codeobj__99 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__98, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 871, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__99)) __PYX_ERR(0, 871, __pyx_L1_error)
+
+  /* "freud/bond.pyx":883
+ *         return self.getRevListMap()
+ * 
+ *     def getRevListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_tuple__100 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__100)) __PYX_ERR(0, 883, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__100);
+  __Pyx_GIVEREF(__pyx_tuple__100);
+  __pyx_codeobj__101 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__100, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 883, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__101)) __PYX_ERR(0, 883, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__102 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__102)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__102);
+  __Pyx_GIVEREF(__pyx_tuple__102);
+  __pyx_codeobj__103 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__102, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__103)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__104 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__104)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__104);
+  __Pyx_GIVEREF(__pyx_tuple__104);
+  __pyx_codeobj__105 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__104, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__105)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -16979,6 +17783,475 @@ if (!__Pyx_RefNanny) {
  * cdef class BondingAnalysis:
  */
   __pyx_t_2 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 49, __pyx_L1_error)
+
+  /* "freud/bond.pyx":91
+ *         del self.thisptr
+ * 
+ *     def initialize(self, frame_0):             # <<<<<<<<<<<<<<
+ *         """Calculates the changes in bonding states from one frame to the next.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_5initialize, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_initialize, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_initialize, __pyx_t_1) < 0) __PYX_ERR(0, 91, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
+
+  /* "freud/bond.pyx":114
+ *             self.thisptr.initialize(<unsigned int*> l_frame_0.data)
+ * 
+ *     def compute(self, frame_0, frame_1):             # <<<<<<<<<<<<<<
+ *         """Calculates the changes in bonding states from one frame to the next.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 114, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
+
+  /* "freud/bond.pyx":144
+ *         return self.getBondLifetimes()
+ * 
+ *     def getBondLifetimes(self):             # <<<<<<<<<<<<<<
+ *         """Return the bond lifetimes.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_9getBondLifetimes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getBondLifetimes, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getBondLifetimes, __pyx_t_1) < 0) __PYX_ERR(0, 144, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
+
+  /* "freud/bond.pyx":158
+ *         return self.getOverallLifetimes()
+ * 
+ *     def getOverallLifetimes(self):             # <<<<<<<<<<<<<<
+ *         """Return the overall lifetimes.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_11getOverallLifetimes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getOverallLifeti, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 158, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getOverallLifetimes, __pyx_t_1) < 0) __PYX_ERR(0, 158, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
+
+  /* "freud/bond.pyx":173
+ *         return self.getTransitionMatrix()
+ * 
+ *     def getTransitionMatrix(self):             # <<<<<<<<<<<<<<
+ *         """Return the transition matrix.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_13getTransitionMatrix, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getTransitionMat, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getTransitionMatrix, __pyx_t_1) < 0) __PYX_ERR(0, 173, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
+
+  /* "freud/bond.pyx":193
+ *         return self.getNumFrames()
+ * 
+ *     def getNumFrames(self):             # <<<<<<<<<<<<<<
+ *         """Get number of frames calculated.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_15getNumFrames, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumFrames, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 193, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumFrames, __pyx_t_1) < 0) __PYX_ERR(0, 193, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
+
+  /* "freud/bond.pyx":205
+ *         return self.getNumParticles()
+ * 
+ *     def getNumParticles(self):             # <<<<<<<<<<<<<<
+ *         """Get number of particles being tracked.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_17getNumParticles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumParticles, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 205, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumParticles, __pyx_t_1) < 0) __PYX_ERR(0, 205, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
+
+  /* "freud/bond.pyx":217
+ *         return self.getNumBonds()
+ * 
+ *     def getNumBonds(self):             # <<<<<<<<<<<<<<
+ *         """Get number of bonds tracked.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_19getNumBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumBonds, __pyx_t_1) < 0) __PYX_ERR(0, 217, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_21__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis___reduce_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__47)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_23__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis___setstate_cytho, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__49)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/bond.pyx":271
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 nlist=None):
+ *         """Calculates the correlation function and adds to the current histogram.
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__51)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
+
+  /* "freud/bond.pyx":333
+ *         return self.getBonds()
+ * 
+ *     def getBonds(self):             # <<<<<<<<<<<<<<
+ *         """Return the particle bonds.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__53)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 333, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getBonds, __pyx_t_1) < 0) __PYX_ERR(0, 333, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
+
+  /* "freud/bond.pyx":352
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__55)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getBox, __pyx_t_1) < 0) __PYX_ERR(0, 352, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
+
+  /* "freud/bond.pyx":364
+ *         return self.getListMap()
+ * 
+ *     def getListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map bond idx to list idx.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 364, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getListMap, __pyx_t_1) < 0) __PYX_ERR(0, 364, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
+
+  /* "freud/bond.pyx":376
+ *         return self.getRevListMap()
+ * 
+ *     def getRevListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 376, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_1) < 0) __PYX_ERR(0, 376, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_15__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12___reduce_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__61)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_17__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12___setstate_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__63)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/bond.pyx":433
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 nlist=None):
+ *         """Calculates the correlation function and adds to the current
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__65)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 433, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 433, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
+
+  /* "freud/bond.pyx":497
+ *         return self.getBonds()
+ * 
+ *     def getBonds(self):             # <<<<<<<<<<<<<<
+ *         """Return the particle bonds.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__67)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getBonds, __pyx_t_1) < 0) __PYX_ERR(0, 497, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
+
+  /* "freud/bond.pyx":516
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__69)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 516, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getBox, __pyx_t_1) < 0) __PYX_ERR(0, 516, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
+
+  /* "freud/bond.pyx":528
+ *         return self.getListMap()
+ * 
+ *     def getListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__71)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 528, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getListMap, __pyx_t_1) < 0) __PYX_ERR(0, 528, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
+
+  /* "freud/bond.pyx":540
+ *         return self.getRevListMap()
+ * 
+ *     def getRevListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__73)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 540, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_1) < 0) __PYX_ERR(0, 540, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_15__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D___reduce_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__75)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_17__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D___setstate_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__77)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/bond.pyx":601
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 nlist=None):
+ *         """Calculates the correlation function and adds to the current histogram.
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__79)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 601, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 601, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
+
+  /* "freud/bond.pyx":663
+ *         return self.getBonds()
+ * 
+ *     def getBonds(self):             # <<<<<<<<<<<<<<
+ *         """Return the particle bonds.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__81)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 663, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getBonds, __pyx_t_1) < 0) __PYX_ERR(0, 663, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
+
+  /* "freud/bond.pyx":682
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__83)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 682, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getBox, __pyx_t_1) < 0) __PYX_ERR(0, 682, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
+
+  /* "freud/bond.pyx":694
+ *         return self.getListMap()
+ * 
+ *     def getListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__85)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 694, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getListMap, __pyx_t_1) < 0) __PYX_ERR(0, 694, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
+
+  /* "freud/bond.pyx":706
+ *         return self.getRevListMap()
+ * 
+ *     def getRevListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__87)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 706, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_1) < 0) __PYX_ERR(0, 706, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_15__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT___reduce_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__89)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_17__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT___setstate_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__91)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/bond.pyx":770
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 nlist=None):
+ *         """Calculates the correlation function and adds to the current histogram.
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__93)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 770, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 770, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
+
+  /* "freud/bond.pyx":840
+ *         return self.getBonds()
+ * 
+ *     def getBonds(self):             # <<<<<<<<<<<<<<
+ *         """Return the particle bonds.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__95)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 840, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getBonds, __pyx_t_1) < 0) __PYX_ERR(0, 840, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
+
+  /* "freud/bond.pyx":859
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__97)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 859, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getBox, __pyx_t_1) < 0) __PYX_ERR(0, 859, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
+
+  /* "freud/bond.pyx":871
+ *         return self.getListMap()
+ * 
+ *     def getListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__99)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 871, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getListMap, __pyx_t_1) < 0) __PYX_ERR(0, 871, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
+
+  /* "freud/bond.pyx":883
+ *         return self.getRevListMap()
+ * 
+ *     def getRevListMap(self):             # <<<<<<<<<<<<<<
+ *         """Get the dict used to map list idx to bond idx.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__101)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 883, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_1) < 0) __PYX_ERR(0, 883, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_15__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ___reduce_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__103)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_17__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ___setstate_cython, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__105)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "freud/bond.pyx":1
  * # Copyright (c) 2010-2018 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
@@ -18706,8 +19979,641 @@ bad:
     return module;
 }
 
+/* FetchCommonType */
+          static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type) {
+    PyObject* fake_module;
+    PyTypeObject* cached_type = NULL;
+    fake_module = PyImport_AddModule((char*) "_cython_" CYTHON_ABI);
+    if (!fake_module) return NULL;
+    Py_INCREF(fake_module);
+    cached_type = (PyTypeObject*) PyObject_GetAttrString(fake_module, type->tp_name);
+    if (cached_type) {
+        if (!PyType_Check((PyObject*)cached_type)) {
+            PyErr_Format(PyExc_TypeError,
+                "Shared Cython type %.200s is not a type object",
+                type->tp_name);
+            goto bad;
+        }
+        if (cached_type->tp_basicsize != type->tp_basicsize) {
+            PyErr_Format(PyExc_TypeError,
+                "Shared Cython type %.200s has the wrong size, try recompiling",
+                type->tp_name);
+            goto bad;
+        }
+    } else {
+        if (!PyErr_ExceptionMatches(PyExc_AttributeError)) goto bad;
+        PyErr_Clear();
+        if (PyType_Ready(type) < 0) goto bad;
+        if (PyObject_SetAttrString(fake_module, type->tp_name, (PyObject*) type) < 0)
+            goto bad;
+        Py_INCREF(type);
+        cached_type = type;
+    }
+done:
+    Py_DECREF(fake_module);
+    return cached_type;
+bad:
+    Py_XDECREF(cached_type);
+    cached_type = NULL;
+    goto done;
+}
+
+/* CythonFunction */
+          #include <structmember.h>
+static PyObject *
+__Pyx_CyFunction_get_doc(__pyx_CyFunctionObject *op, CYTHON_UNUSED void *closure)
+{
+    if (unlikely(op->func_doc == NULL)) {
+        if (op->func.m_ml->ml_doc) {
+#if PY_MAJOR_VERSION >= 3
+            op->func_doc = PyUnicode_FromString(op->func.m_ml->ml_doc);
+#else
+            op->func_doc = PyString_FromString(op->func.m_ml->ml_doc);
+#endif
+            if (unlikely(op->func_doc == NULL))
+                return NULL;
+        } else {
+            Py_INCREF(Py_None);
+            return Py_None;
+        }
+    }
+    Py_INCREF(op->func_doc);
+    return op->func_doc;
+}
+static int
+__Pyx_CyFunction_set_doc(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp = op->func_doc;
+    if (value == NULL) {
+        value = Py_None;
+    }
+    Py_INCREF(value);
+    op->func_doc = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_name(__pyx_CyFunctionObject *op)
+{
+    if (unlikely(op->func_name == NULL)) {
+#if PY_MAJOR_VERSION >= 3
+        op->func_name = PyUnicode_InternFromString(op->func.m_ml->ml_name);
+#else
+        op->func_name = PyString_InternFromString(op->func.m_ml->ml_name);
+#endif
+        if (unlikely(op->func_name == NULL))
+            return NULL;
+    }
+    Py_INCREF(op->func_name);
+    return op->func_name;
+}
+static int
+__Pyx_CyFunction_set_name(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+#if PY_MAJOR_VERSION >= 3
+    if (unlikely(value == NULL || !PyUnicode_Check(value))) {
+#else
+    if (unlikely(value == NULL || !PyString_Check(value))) {
+#endif
+        PyErr_SetString(PyExc_TypeError,
+                        "__name__ must be set to a string object");
+        return -1;
+    }
+    tmp = op->func_name;
+    Py_INCREF(value);
+    op->func_name = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_qualname(__pyx_CyFunctionObject *op)
+{
+    Py_INCREF(op->func_qualname);
+    return op->func_qualname;
+}
+static int
+__Pyx_CyFunction_set_qualname(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+#if PY_MAJOR_VERSION >= 3
+    if (unlikely(value == NULL || !PyUnicode_Check(value))) {
+#else
+    if (unlikely(value == NULL || !PyString_Check(value))) {
+#endif
+        PyErr_SetString(PyExc_TypeError,
+                        "__qualname__ must be set to a string object");
+        return -1;
+    }
+    tmp = op->func_qualname;
+    Py_INCREF(value);
+    op->func_qualname = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_self(__pyx_CyFunctionObject *m, CYTHON_UNUSED void *closure)
+{
+    PyObject *self;
+    self = m->func_closure;
+    if (self == NULL)
+        self = Py_None;
+    Py_INCREF(self);
+    return self;
+}
+static PyObject *
+__Pyx_CyFunction_get_dict(__pyx_CyFunctionObject *op)
+{
+    if (unlikely(op->func_dict == NULL)) {
+        op->func_dict = PyDict_New();
+        if (unlikely(op->func_dict == NULL))
+            return NULL;
+    }
+    Py_INCREF(op->func_dict);
+    return op->func_dict;
+}
+static int
+__Pyx_CyFunction_set_dict(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+    if (unlikely(value == NULL)) {
+        PyErr_SetString(PyExc_TypeError,
+               "function's dictionary may not be deleted");
+        return -1;
+    }
+    if (unlikely(!PyDict_Check(value))) {
+        PyErr_SetString(PyExc_TypeError,
+               "setting function's dictionary to a non-dict");
+        return -1;
+    }
+    tmp = op->func_dict;
+    Py_INCREF(value);
+    op->func_dict = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_globals(__pyx_CyFunctionObject *op)
+{
+    Py_INCREF(op->func_globals);
+    return op->func_globals;
+}
+static PyObject *
+__Pyx_CyFunction_get_closure(CYTHON_UNUSED __pyx_CyFunctionObject *op)
+{
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+static PyObject *
+__Pyx_CyFunction_get_code(__pyx_CyFunctionObject *op)
+{
+    PyObject* result = (op->func_code) ? op->func_code : Py_None;
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_init_defaults(__pyx_CyFunctionObject *op) {
+    int result = 0;
+    PyObject *res = op->defaults_getter((PyObject *) op);
+    if (unlikely(!res))
+        return -1;
+    #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+    op->defaults_tuple = PyTuple_GET_ITEM(res, 0);
+    Py_INCREF(op->defaults_tuple);
+    op->defaults_kwdict = PyTuple_GET_ITEM(res, 1);
+    Py_INCREF(op->defaults_kwdict);
+    #else
+    op->defaults_tuple = PySequence_ITEM(res, 0);
+    if (unlikely(!op->defaults_tuple)) result = -1;
+    else {
+        op->defaults_kwdict = PySequence_ITEM(res, 1);
+        if (unlikely(!op->defaults_kwdict)) result = -1;
+    }
+    #endif
+    Py_DECREF(res);
+    return result;
+}
+static int
+__Pyx_CyFunction_set_defaults(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value) {
+        value = Py_None;
+    } else if (value != Py_None && !PyTuple_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__defaults__ must be set to a tuple object");
+        return -1;
+    }
+    Py_INCREF(value);
+    tmp = op->defaults_tuple;
+    op->defaults_tuple = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_defaults(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->defaults_tuple;
+    if (unlikely(!result)) {
+        if (op->defaults_getter) {
+            if (__Pyx_CyFunction_init_defaults(op) < 0) return NULL;
+            result = op->defaults_tuple;
+        } else {
+            result = Py_None;
+        }
+    }
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_set_kwdefaults(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value) {
+        value = Py_None;
+    } else if (value != Py_None && !PyDict_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__kwdefaults__ must be set to a dict object");
+        return -1;
+    }
+    Py_INCREF(value);
+    tmp = op->defaults_kwdict;
+    op->defaults_kwdict = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_kwdefaults(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->defaults_kwdict;
+    if (unlikely(!result)) {
+        if (op->defaults_getter) {
+            if (__Pyx_CyFunction_init_defaults(op) < 0) return NULL;
+            result = op->defaults_kwdict;
+        } else {
+            result = Py_None;
+        }
+    }
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_set_annotations(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value || value == Py_None) {
+        value = NULL;
+    } else if (!PyDict_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__annotations__ must be set to a dict object");
+        return -1;
+    }
+    Py_XINCREF(value);
+    tmp = op->func_annotations;
+    op->func_annotations = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_annotations(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->func_annotations;
+    if (unlikely(!result)) {
+        result = PyDict_New();
+        if (unlikely(!result)) return NULL;
+        op->func_annotations = result;
+    }
+    Py_INCREF(result);
+    return result;
+}
+static PyGetSetDef __pyx_CyFunction_getsets[] = {
+    {(char *) "func_doc", (getter)__Pyx_CyFunction_get_doc, (setter)__Pyx_CyFunction_set_doc, 0, 0},
+    {(char *) "__doc__",  (getter)__Pyx_CyFunction_get_doc, (setter)__Pyx_CyFunction_set_doc, 0, 0},
+    {(char *) "func_name", (getter)__Pyx_CyFunction_get_name, (setter)__Pyx_CyFunction_set_name, 0, 0},
+    {(char *) "__name__", (getter)__Pyx_CyFunction_get_name, (setter)__Pyx_CyFunction_set_name, 0, 0},
+    {(char *) "__qualname__", (getter)__Pyx_CyFunction_get_qualname, (setter)__Pyx_CyFunction_set_qualname, 0, 0},
+    {(char *) "__self__", (getter)__Pyx_CyFunction_get_self, 0, 0, 0},
+    {(char *) "func_dict", (getter)__Pyx_CyFunction_get_dict, (setter)__Pyx_CyFunction_set_dict, 0, 0},
+    {(char *) "__dict__", (getter)__Pyx_CyFunction_get_dict, (setter)__Pyx_CyFunction_set_dict, 0, 0},
+    {(char *) "func_globals", (getter)__Pyx_CyFunction_get_globals, 0, 0, 0},
+    {(char *) "__globals__", (getter)__Pyx_CyFunction_get_globals, 0, 0, 0},
+    {(char *) "func_closure", (getter)__Pyx_CyFunction_get_closure, 0, 0, 0},
+    {(char *) "__closure__", (getter)__Pyx_CyFunction_get_closure, 0, 0, 0},
+    {(char *) "func_code", (getter)__Pyx_CyFunction_get_code, 0, 0, 0},
+    {(char *) "__code__", (getter)__Pyx_CyFunction_get_code, 0, 0, 0},
+    {(char *) "func_defaults", (getter)__Pyx_CyFunction_get_defaults, (setter)__Pyx_CyFunction_set_defaults, 0, 0},
+    {(char *) "__defaults__", (getter)__Pyx_CyFunction_get_defaults, (setter)__Pyx_CyFunction_set_defaults, 0, 0},
+    {(char *) "__kwdefaults__", (getter)__Pyx_CyFunction_get_kwdefaults, (setter)__Pyx_CyFunction_set_kwdefaults, 0, 0},
+    {(char *) "__annotations__", (getter)__Pyx_CyFunction_get_annotations, (setter)__Pyx_CyFunction_set_annotations, 0, 0},
+    {0, 0, 0, 0, 0}
+};
+static PyMemberDef __pyx_CyFunction_members[] = {
+    {(char *) "__module__", T_OBJECT, offsetof(PyCFunctionObject, m_module), PY_WRITE_RESTRICTED, 0},
+    {0, 0, 0,  0, 0}
+};
+static PyObject *
+__Pyx_CyFunction_reduce(__pyx_CyFunctionObject *m, CYTHON_UNUSED PyObject *args)
+{
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromString(m->func.m_ml->ml_name);
+#else
+    return PyString_FromString(m->func.m_ml->ml_name);
+#endif
+}
+static PyMethodDef __pyx_CyFunction_methods[] = {
+    {"__reduce__", (PyCFunction)__Pyx_CyFunction_reduce, METH_VARARGS, 0},
+    {0, 0, 0, 0}
+};
+#if PY_VERSION_HEX < 0x030500A0
+#define __Pyx_CyFunction_weakreflist(cyfunc) ((cyfunc)->func_weakreflist)
+#else
+#define __Pyx_CyFunction_weakreflist(cyfunc) ((cyfunc)->func.m_weakreflist)
+#endif
+static PyObject *__Pyx_CyFunction_New(PyTypeObject *type, PyMethodDef *ml, int flags, PyObject* qualname,
+                                      PyObject *closure, PyObject *module, PyObject* globals, PyObject* code) {
+    __pyx_CyFunctionObject *op = PyObject_GC_New(__pyx_CyFunctionObject, type);
+    if (op == NULL)
+        return NULL;
+    op->flags = flags;
+    __Pyx_CyFunction_weakreflist(op) = NULL;
+    op->func.m_ml = ml;
+    op->func.m_self = (PyObject *) op;
+    Py_XINCREF(closure);
+    op->func_closure = closure;
+    Py_XINCREF(module);
+    op->func.m_module = module;
+    op->func_dict = NULL;
+    op->func_name = NULL;
+    Py_INCREF(qualname);
+    op->func_qualname = qualname;
+    op->func_doc = NULL;
+    op->func_classobj = NULL;
+    op->func_globals = globals;
+    Py_INCREF(op->func_globals);
+    Py_XINCREF(code);
+    op->func_code = code;
+    op->defaults_pyobjects = 0;
+    op->defaults = NULL;
+    op->defaults_tuple = NULL;
+    op->defaults_kwdict = NULL;
+    op->defaults_getter = NULL;
+    op->func_annotations = NULL;
+    PyObject_GC_Track(op);
+    return (PyObject *) op;
+}
+static int
+__Pyx_CyFunction_clear(__pyx_CyFunctionObject *m)
+{
+    Py_CLEAR(m->func_closure);
+    Py_CLEAR(m->func.m_module);
+    Py_CLEAR(m->func_dict);
+    Py_CLEAR(m->func_name);
+    Py_CLEAR(m->func_qualname);
+    Py_CLEAR(m->func_doc);
+    Py_CLEAR(m->func_globals);
+    Py_CLEAR(m->func_code);
+    Py_CLEAR(m->func_classobj);
+    Py_CLEAR(m->defaults_tuple);
+    Py_CLEAR(m->defaults_kwdict);
+    Py_CLEAR(m->func_annotations);
+    if (m->defaults) {
+        PyObject **pydefaults = __Pyx_CyFunction_Defaults(PyObject *, m);
+        int i;
+        for (i = 0; i < m->defaults_pyobjects; i++)
+            Py_XDECREF(pydefaults[i]);
+        PyObject_Free(m->defaults);
+        m->defaults = NULL;
+    }
+    return 0;
+}
+static void __Pyx__CyFunction_dealloc(__pyx_CyFunctionObject *m)
+{
+    if (__Pyx_CyFunction_weakreflist(m) != NULL)
+        PyObject_ClearWeakRefs((PyObject *) m);
+    __Pyx_CyFunction_clear(m);
+    PyObject_GC_Del(m);
+}
+static void __Pyx_CyFunction_dealloc(__pyx_CyFunctionObject *m)
+{
+    PyObject_GC_UnTrack(m);
+    __Pyx__CyFunction_dealloc(m);
+}
+static int __Pyx_CyFunction_traverse(__pyx_CyFunctionObject *m, visitproc visit, void *arg)
+{
+    Py_VISIT(m->func_closure);
+    Py_VISIT(m->func.m_module);
+    Py_VISIT(m->func_dict);
+    Py_VISIT(m->func_name);
+    Py_VISIT(m->func_qualname);
+    Py_VISIT(m->func_doc);
+    Py_VISIT(m->func_globals);
+    Py_VISIT(m->func_code);
+    Py_VISIT(m->func_classobj);
+    Py_VISIT(m->defaults_tuple);
+    Py_VISIT(m->defaults_kwdict);
+    if (m->defaults) {
+        PyObject **pydefaults = __Pyx_CyFunction_Defaults(PyObject *, m);
+        int i;
+        for (i = 0; i < m->defaults_pyobjects; i++)
+            Py_VISIT(pydefaults[i]);
+    }
+    return 0;
+}
+static PyObject *__Pyx_CyFunction_descr_get(PyObject *func, PyObject *obj, PyObject *type)
+{
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    if (m->flags & __Pyx_CYFUNCTION_STATICMETHOD) {
+        Py_INCREF(func);
+        return func;
+    }
+    if (m->flags & __Pyx_CYFUNCTION_CLASSMETHOD) {
+        if (type == NULL)
+            type = (PyObject *)(Py_TYPE(obj));
+        return __Pyx_PyMethod_New(func, type, (PyObject *)(Py_TYPE(type)));
+    }
+    if (obj == Py_None)
+        obj = NULL;
+    return __Pyx_PyMethod_New(func, obj, type);
+}
+static PyObject*
+__Pyx_CyFunction_repr(__pyx_CyFunctionObject *op)
+{
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("<cyfunction %U at %p>",
+                                op->func_qualname, (void *)op);
+#else
+    return PyString_FromFormat("<cyfunction %s at %p>",
+                               PyString_AsString(op->func_qualname), (void *)op);
+#endif
+}
+static PyObject * __Pyx_CyFunction_CallMethod(PyObject *func, PyObject *self, PyObject *arg, PyObject *kw) {
+    PyCFunctionObject* f = (PyCFunctionObject*)func;
+    PyCFunction meth = f->m_ml->ml_meth;
+    Py_ssize_t size;
+    switch (f->m_ml->ml_flags & (METH_VARARGS | METH_KEYWORDS | METH_NOARGS | METH_O)) {
+    case METH_VARARGS:
+        if (likely(kw == NULL || PyDict_Size(kw) == 0))
+            return (*meth)(self, arg);
+        break;
+    case METH_VARARGS | METH_KEYWORDS:
+        return (*(PyCFunctionWithKeywords)meth)(self, arg, kw);
+    case METH_NOARGS:
+        if (likely(kw == NULL || PyDict_Size(kw) == 0)) {
+            size = PyTuple_GET_SIZE(arg);
+            if (likely(size == 0))
+                return (*meth)(self, NULL);
+            PyErr_Format(PyExc_TypeError,
+                "%.200s() takes no arguments (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                f->m_ml->ml_name, size);
+            return NULL;
+        }
+        break;
+    case METH_O:
+        if (likely(kw == NULL || PyDict_Size(kw) == 0)) {
+            size = PyTuple_GET_SIZE(arg);
+            if (likely(size == 1)) {
+                PyObject *result, *arg0;
+                #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+                arg0 = PyTuple_GET_ITEM(arg, 0);
+                #else
+                arg0 = PySequence_ITEM(arg, 0); if (unlikely(!arg0)) return NULL;
+                #endif
+                result = (*meth)(self, arg0);
+                #if !(CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS)
+                Py_DECREF(arg0);
+                #endif
+                return result;
+            }
+            PyErr_Format(PyExc_TypeError,
+                "%.200s() takes exactly one argument (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                f->m_ml->ml_name, size);
+            return NULL;
+        }
+        break;
+    default:
+        PyErr_SetString(PyExc_SystemError, "Bad call flags in "
+                        "__Pyx_CyFunction_Call. METH_OLDARGS is no "
+                        "longer supported!");
+        return NULL;
+    }
+    PyErr_Format(PyExc_TypeError, "%.200s() takes no keyword arguments",
+                 f->m_ml->ml_name);
+    return NULL;
+}
+static CYTHON_INLINE PyObject *__Pyx_CyFunction_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+    return __Pyx_CyFunction_CallMethod(func, ((PyCFunctionObject*)func)->m_self, arg, kw);
+}
+static PyObject *__Pyx_CyFunction_CallAsMethod(PyObject *func, PyObject *args, PyObject *kw) {
+    PyObject *result;
+    __pyx_CyFunctionObject *cyfunc = (__pyx_CyFunctionObject *) func;
+    if ((cyfunc->flags & __Pyx_CYFUNCTION_CCLASS) && !(cyfunc->flags & __Pyx_CYFUNCTION_STATICMETHOD)) {
+        Py_ssize_t argc;
+        PyObject *new_args;
+        PyObject *self;
+        argc = PyTuple_GET_SIZE(args);
+        new_args = PyTuple_GetSlice(args, 1, argc);
+        if (unlikely(!new_args))
+            return NULL;
+        self = PyTuple_GetItem(args, 0);
+        if (unlikely(!self)) {
+            Py_DECREF(new_args);
+            return NULL;
+        }
+        result = __Pyx_CyFunction_CallMethod(func, self, new_args, kw);
+        Py_DECREF(new_args);
+    } else {
+        result = __Pyx_CyFunction_Call(func, args, kw);
+    }
+    return result;
+}
+static PyTypeObject __pyx_CyFunctionType_type = {
+    PyVarObject_HEAD_INIT(0, 0)
+    "cython_function_or_method",
+    sizeof(__pyx_CyFunctionObject),
+    0,
+    (destructor) __Pyx_CyFunction_dealloc,
+    0,
+    0,
+    0,
+#if PY_MAJOR_VERSION < 3
+    0,
+#else
+    0,
+#endif
+    (reprfunc) __Pyx_CyFunction_repr,
+    0,
+    0,
+    0,
+    0,
+    __Pyx_CyFunction_CallAsMethod,
+    0,
+    0,
+    0,
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
+    0,
+    (traverseproc) __Pyx_CyFunction_traverse,
+    (inquiry) __Pyx_CyFunction_clear,
+    0,
+#if PY_VERSION_HEX < 0x030500A0
+    offsetof(__pyx_CyFunctionObject, func_weakreflist),
+#else
+    offsetof(PyCFunctionObject, m_weakreflist),
+#endif
+    0,
+    0,
+    __pyx_CyFunction_methods,
+    __pyx_CyFunction_members,
+    __pyx_CyFunction_getsets,
+    0,
+    0,
+    __Pyx_CyFunction_descr_get,
+    0,
+    offsetof(__pyx_CyFunctionObject, func_dict),
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+#if PY_VERSION_HEX >= 0x030400a1
+    0,
+#endif
+};
+static int __pyx_CyFunction_init(void) {
+    __pyx_CyFunctionType = __Pyx_FetchCommonType(&__pyx_CyFunctionType_type);
+    if (unlikely(__pyx_CyFunctionType == NULL)) {
+        return -1;
+    }
+    return 0;
+}
+static CYTHON_INLINE void *__Pyx_CyFunction_InitDefaults(PyObject *func, size_t size, int pyobjects) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults = PyObject_Malloc(size);
+    if (unlikely(!m->defaults))
+        return PyErr_NoMemory();
+    memset(m->defaults, 0, size);
+    m->defaults_pyobjects = pyobjects;
+    return m->defaults;
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsTuple(PyObject *func, PyObject *tuple) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults_tuple = tuple;
+    Py_INCREF(tuple);
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsKwDict(PyObject *func, PyObject *dict) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults_kwdict = dict;
+    Py_INCREF(dict);
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *func, PyObject *dict) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->func_annotations = dict;
+    Py_INCREF(dict);
+}
+
 /* CLineInTraceback */
-          #ifndef CYTHON_CLINE_IN_TRACEBACK
+              #ifndef CYTHON_CLINE_IN_TRACEBACK
 static int __Pyx_CLineForTraceback(CYTHON_UNUSED PyThreadState *tstate, int c_line) {
     PyObject *use_cline;
     PyObject *ptype, *pvalue, *ptraceback;
@@ -18747,7 +20653,7 @@ static int __Pyx_CLineForTraceback(CYTHON_UNUSED PyThreadState *tstate, int c_li
 #endif
 
 /* CodeObjectCache */
-          static int __pyx_bisect_code_objects(__Pyx_CodeObjectCacheEntry* entries, int count, int code_line) {
+              static int __pyx_bisect_code_objects(__Pyx_CodeObjectCacheEntry* entries, int count, int code_line) {
     int start = 0, mid = 0, end = count - 1;
     if (end >= 0 && code_line > entries[end].code_line) {
         return count;
@@ -18827,7 +20733,7 @@ static void __pyx_insert_code_object(int code_line, PyCodeObject* code_object) {
 }
 
 /* AddTraceback */
-          #include "compile.h"
+              #include "compile.h"
 #include "frameobject.h"
 #include "traceback.h"
 static PyCodeObject* __Pyx_CreateCodeObjectForTraceback(
@@ -18933,8 +20839,8 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 
-          /* CIntFromPyVerify */
-          #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
+              /* CIntFromPyVerify */
+              #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
     __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 0)
 #define __PYX_VERIFY_RETURN_INT_EXC(target_type, func_type, func_value)\
     __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 1)
@@ -18956,7 +20862,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
     }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
     const long neg_one = (long) -1, const_zero = (long) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -18987,7 +20893,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value) {
     const unsigned int neg_one = (unsigned int) -1, const_zero = (unsigned int) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -19018,7 +20924,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* Declarations */
-          #if CYTHON_CCOMPLEX
+              #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
     static CYTHON_INLINE __pyx_t_float_complex __pyx_t_float_complex_from_parts(float x, float y) {
       return ::std::complex< float >(x, y);
@@ -19038,7 +20944,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 /* Arithmetic */
-          #if CYTHON_CCOMPLEX
+              #if CYTHON_CCOMPLEX
 #else
     static CYTHON_INLINE int __Pyx_c_eq_float(__pyx_t_float_complex a, __pyx_t_float_complex b) {
        return (a.real == b.real) && (a.imag == b.imag);
@@ -19173,7 +21079,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 /* Declarations */
-          #if CYTHON_CCOMPLEX
+              #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
     static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(double x, double y) {
       return ::std::complex< double >(x, y);
@@ -19193,7 +21099,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 /* Arithmetic */
-          #if CYTHON_CCOMPLEX
+              #if CYTHON_CCOMPLEX
 #else
     static CYTHON_INLINE int __Pyx_c_eq_double(__pyx_t_double_complex a, __pyx_t_double_complex b) {
        return (a.real == b.real) && (a.imag == b.imag);
@@ -19328,7 +21234,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
     const int neg_one = (int) -1, const_zero = (int) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -19359,7 +21265,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_enum__NPY_TYPES(enum NPY_TYPES value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_enum__NPY_TYPES(enum NPY_TYPES value) {
     const enum NPY_TYPES neg_one = (enum NPY_TYPES) -1, const_zero = (enum NPY_TYPES) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -19390,7 +21296,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
+              static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
     const int neg_one = (int) -1, const_zero = (int) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -19579,7 +21485,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *x) {
+              static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *x) {
     const unsigned int neg_one = (unsigned int) -1, const_zero = (unsigned int) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -19768,7 +21674,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *x) {
+              static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *x) {
     const size_t neg_one = (size_t) -1, const_zero = (size_t) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -19957,7 +21863,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
+              static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
     const long neg_one = (long) -1, const_zero = (long) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -20146,7 +22052,7 @@ raise_neg_overflow:
 }
 
 /* FastTypeChecks */
-          #if CYTHON_COMPILING_IN_CPYTHON
+              #if CYTHON_COMPILING_IN_CPYTHON
 static int __Pyx_InBases(PyTypeObject *a, PyTypeObject *b) {
     while (a) {
         a = a->tp_base;
@@ -20246,7 +22152,7 @@ static CYTHON_INLINE int __Pyx_PyErr_GivenExceptionMatches2(PyObject *err, PyObj
 #endif
 
 /* CheckBinaryVersion */
-          static int __Pyx_check_binary_version(void) {
+              static int __Pyx_check_binary_version(void) {
     char ctversion[4], rtversion[4];
     PyOS_snprintf(ctversion, 4, "%d.%d", PY_MAJOR_VERSION, PY_MINOR_VERSION);
     PyOS_snprintf(rtversion, 4, "%s", Py_GetVersion());
@@ -20262,7 +22168,7 @@ static CYTHON_INLINE int __Pyx_PyErr_GivenExceptionMatches2(PyObject *err, PyObj
 }
 
 /* ModuleImport */
-          #ifndef __PYX_HAVE_RT_ImportModule
+              #ifndef __PYX_HAVE_RT_ImportModule
 #define __PYX_HAVE_RT_ImportModule
 static PyObject *__Pyx_ImportModule(const char *name) {
     PyObject *py_name = 0;
@@ -20280,7 +22186,7 @@ bad:
 #endif
 
 /* TypeImport */
-          #ifndef __PYX_HAVE_RT_ImportType
+              #ifndef __PYX_HAVE_RT_ImportType
 #define __PYX_HAVE_RT_ImportType
 static PyTypeObject *__Pyx_ImportType(const char *module_name, const char *class_name,
     size_t size, int strict)
@@ -20345,7 +22251,7 @@ bad:
 #endif
 
 /* FunctionImport */
-          #ifndef __PYX_HAVE_RT_ImportFunction
+              #ifndef __PYX_HAVE_RT_ImportFunction
 #define __PYX_HAVE_RT_ImportFunction
 static int __Pyx_ImportFunction(PyObject *module, const char *funcname, void (**f)(void), const char *sig) {
     PyObject *d = 0;
@@ -20399,7 +22305,7 @@ bad:
 #endif
 
 /* InitStrings */
-          static int __Pyx_InitStrings(__Pyx_StringTabEntry *t) {
+              static int __Pyx_InitStrings(__Pyx_StringTabEntry *t) {
     while (t->p) {
         #if PY_MAJOR_VERSION < 3
         if (t->is_unicode) {

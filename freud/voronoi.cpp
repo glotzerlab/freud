@@ -45,12 +45,12 @@
         "name": "freud.voronoi",
         "sources": [
             "freud/voronoi.pyx",
-            "cpp/voronoi/VoronoiBuffer.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/box.cc",
             "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/voronoi/VoronoiBuffer.cc"
         ]
     },
     "module_name": "freud.voronoi"
@@ -2106,11 +2106,12 @@ static const char __pyx_k_i[] = "i";
 static const char __pyx_k_j[] = "j";
 static const char __pyx_k_k[] = "k";
 static const char __pyx_k_x[] = "x";
+static const char __pyx_k_Np[] = "Np";
 static const char __pyx_k_c0[] = "c0";
 static const char __pyx_k_c1[] = "c1";
 static const char __pyx_k_c2[] = "c2";
 static const char __pyx_k_np[] = "np";
-static const char __pyx_k__50[] = "_";
+static const char __pyx_k__60[] = "_";
 static const char __pyx_k_abs[] = "abs";
 static const char __pyx_k_all[] = "all";
 static const char __pyx_k_box[] = "box";
@@ -2138,6 +2139,7 @@ static const char __pyx_k_count[] = "count";
 static const char __pyx_k_cross[] = "cross";
 static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_freud[] = "freud";
+static const char __pyx_k_nbins[] = "nbins";
 static const char __pyx_k_nlist[] = "nlist";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_range[] = "range";
@@ -2167,6 +2169,7 @@ static const char __pyx_k_weight[] = "weight";
 static const char __pyx_k_Voronoi[] = "Voronoi";
 static const char __pyx_k_added_i[] = "added_i";
 static const char __pyx_k_added_j[] = "added_j";
+static const char __pyx_k_cPoints[] = "cPoints";
 static const char __pyx_k_compute[] = "compute";
 static const char __pyx_k_float32[] = "float32";
 static const char __pyx_k_index_i[] = "index_i";
@@ -2189,6 +2192,7 @@ static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_vertices[] = "vertices";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_buff_ptls[] = "buff_ptls";
+static const char __pyx_k_bufferPar[] = "bufferPar";
 static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_getBuffer[] = "getBuffer";
 static const char __pyx_k_getLogger[] = "getLogger";
@@ -2196,16 +2200,19 @@ static const char __pyx_k_metaclass[] = "__metaclass__";
 static const char __pyx_k_numShells[] = "numShells";
 static const char __pyx_k_polytopes[] = "polytopes";
 static const char __pyx_k_positions[] = "positions";
+static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_ConvexHull[] = "ConvexHull";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_array_name[] = "array_name";
+static const char __pyx_k_buffer_ids[] = "buffer_ids";
 static const char __pyx_k_contiguous[] = "contiguous";
 static const char __pyx_k_exclude_ii[] = "exclude_ii";
 static const char __pyx_k_getVolumes[] = "getVolumes";
 static const char __pyx_k_poly_verts[] = "poly_verts";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_ImportError[] = "ImportError";
+static const char __pyx_k_buffer_size[] = "buffer_size";
 static const char __pyx_k_concatenate[] = "concatenate";
 static const char __pyx_k_convert_box[] = "convert_box";
 static const char __pyx_k_from_arrays[] = "from_arrays";
@@ -2218,8 +2225,10 @@ static const char __pyx_k_numNeighbors[] = "numNeighbors";
 static const char __pyx_k_point_region[] = "point_region";
 static const char __pyx_k_poly_volumes[] = "poly_volumes";
 static const char __pyx_k_ridge_points[] = "ridge_points";
+static const char __pyx_k_stringsource[] = "stringsource";
 static const char __pyx_k_vor_vertices[] = "vor_vertices";
 static const char __pyx_k_Voronoi_nlist[] = "Voronoi.nlist";
+static const char __pyx_k_buffer_points[] = "buffer_points";
 static const char __pyx_k_convert_array[] = "convert_array";
 static const char __pyx_k_freud_voronoi[] = "freud.voronoi";
 static const char __pyx_k_neighbor_list[] = "neighbor_list";
@@ -2252,21 +2261,26 @@ static const char __pyx_k_getBufferParticles[] = "getBufferParticles";
 static const char __pyx_k_dummy_neighbor_list[] = "dummy_neighbor_list";
 static const char __pyx_k_getVoronoiPolytopes[] = "getVoronoiPolytopes";
 static const char __pyx_k_Voronoi_getNeighbors[] = "Voronoi.getNeighbors";
+static const char __pyx_k_VoronoiBuffer_compute[] = "VoronoiBuffer.compute";
 static const char __pyx_k_Voronoi__qhull_compute[] = "Voronoi._qhull_compute";
 static const char __pyx_k_Voronoi_computeVolumes[] = "Voronoi.computeVolumes";
 static const char __pyx_k_Voronoi_setBufferWidth[] = "Voronoi.setBufferWidth";
 static const char __pyx_k_firstShellNeighborList[] = "firstShellNeighborList";
 static const char __pyx_k_Voronoi_getNeighborList[] = "Voronoi.getNeighborList";
 static const char __pyx_k_Voronoi_computeNeighbors[] = "Voronoi.computeNeighbors";
+static const char __pyx_k_VoronoiBuffer_getBufferIds[] = "VoronoiBuffer.getBufferIds";
 static const char __pyx_k_Voronoi_getVoronoiPolytopes[] = "Voronoi.getVoronoiPolytopes";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
+static const char __pyx_k_VoronoiBuffer___reduce_cython[] = "VoronoiBuffer.__reduce_cython__";
 static const char __pyx_k_The_voronoi_module_contains_too[] = "\nThe voronoi module contains tools to characterize Voronoi cells of a system.\n";
+static const char __pyx_k_VoronoiBuffer___setstate_cython[] = "VoronoiBuffer.__setstate_cython__";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static const char __pyx_k_Compute_the_Voronoi_tessellation[] = "Compute the Voronoi tessellation of a 2D or 3D system using qhull.\n    This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic\n    boundary conditions.\n\n    .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>\n    .. moduleauthor:: Yina Geng <yinageng@umich.edu>\n    .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>\n    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>\n\n    Since qhull does not support periodic boundary conditions natively, we\n    expand the box to include a portion of the particles' periodic images.\n    The buffer width is given by the parameter :code:`buff`. The\n    computation of Voronoi tessellations and neighbors is only guaranteed\n    to be correct if :code:`buff >= L/2` where :code:`L` is the longest side\n    of the simulation box. For dense systems with particles filling the\n    entire simulation volume, a smaller value for :code:`buff` is acceptable.\n\n    Args:\n        box (:py:class:`freud.box.Box`):\n            Simulation box.\n        buff (float):\n            Buffer width.\n    ";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
 static const char __pyx_k_Need_a_list_of_3D_points_for_Vor[] = "Need a list of 3D points for VoronoiBuffer.compute()";
 static const char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte order not supported";
+static const char __pyx_k_VoronoiBuffer_getBufferParticles[] = "VoronoiBuffer.getBufferParticles";
 static const char __pyx_k_You_cannot_use_this_class_withou[] = "You cannot use this class without scipy";
 static const char __pyx_k_ndarray_is_not_Fortran_contiguou[] = "ndarray is not Fortran contiguous";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
@@ -2282,11 +2296,17 @@ static PyObject *__pyx_n_s_ImportError;
 static PyObject *__pyx_n_s_N;
 static PyObject *__pyx_kp_s_Need_a_list_of_3D_points_for_Vor;
 static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
+static PyObject *__pyx_n_s_Np;
 static PyObject *__pyx_n_s_RuntimeError;
 static PyObject *__pyx_n_s_SCIPY_AVAILABLE;
 static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_Voronoi;
+static PyObject *__pyx_n_s_VoronoiBuffer___reduce_cython;
+static PyObject *__pyx_n_s_VoronoiBuffer___setstate_cython;
+static PyObject *__pyx_n_s_VoronoiBuffer_compute;
+static PyObject *__pyx_n_s_VoronoiBuffer_getBufferIds;
+static PyObject *__pyx_n_s_VoronoiBuffer_getBufferParticles;
 static PyObject *__pyx_n_s_Voronoi___init;
 static PyObject *__pyx_n_s_Voronoi__qhull_compute;
 static PyObject *__pyx_n_s_Voronoi_buffer;
@@ -2305,7 +2325,7 @@ static PyObject *__pyx_n_s_Voronoi_setBufferWidth;
 static PyObject *__pyx_n_s_Voronoi_volumes;
 static PyObject *__pyx_kp_s_You_cannot_use_this_class_withou;
 static PyObject *__pyx_kp_s_You_cannot_use_this_class_withou_2;
-static PyObject *__pyx_n_s__50;
+static PyObject *__pyx_n_s__60;
 static PyObject *__pyx_n_s_abs;
 static PyObject *__pyx_n_s_added_i;
 static PyObject *__pyx_n_s_added_j;
@@ -2321,9 +2341,14 @@ static PyObject *__pyx_n_s_buff;
 static PyObject *__pyx_n_s_buff_ids;
 static PyObject *__pyx_n_s_buff_ptls;
 static PyObject *__pyx_n_s_buffer;
+static PyObject *__pyx_n_s_bufferPar;
+static PyObject *__pyx_n_s_buffer_ids;
+static PyObject *__pyx_n_s_buffer_points;
+static PyObject *__pyx_n_s_buffer_size;
 static PyObject *__pyx_n_s_c0;
 static PyObject *__pyx_n_s_c1;
 static PyObject *__pyx_n_s_c2;
+static PyObject *__pyx_n_s_cPoints;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_common;
 static PyObject *__pyx_n_s_compute;
@@ -2380,6 +2405,7 @@ static PyObject *__pyx_n_s_metaclass;
 static PyObject *__pyx_n_s_module;
 static PyObject *__pyx_n_s_msg;
 static PyObject *__pyx_n_s_name;
+static PyObject *__pyx_n_s_nbins;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_neighbor_list;
@@ -2403,6 +2429,7 @@ static PyObject *__pyx_n_s_positions;
 static PyObject *__pyx_n_s_prepare;
 static PyObject *__pyx_n_s_projected_area;
 static PyObject *__pyx_n_s_property;
+static PyObject *__pyx_n_s_pyx_state;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_qhull_compute;
 static PyObject *__pyx_n_s_qualname;
@@ -2429,6 +2456,7 @@ static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_size;
+static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_uint32;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
@@ -2511,40 +2539,50 @@ static PyObject *__pyx_tuple__27;
 static PyObject *__pyx_tuple__28;
 static PyObject *__pyx_tuple__29;
 static PyObject *__pyx_tuple__31;
-static PyObject *__pyx_tuple__32;
-static PyObject *__pyx_tuple__34;
-static PyObject *__pyx_tuple__36;
-static PyObject *__pyx_tuple__38;
+static PyObject *__pyx_tuple__33;
+static PyObject *__pyx_tuple__35;
+static PyObject *__pyx_tuple__37;
 static PyObject *__pyx_tuple__39;
 static PyObject *__pyx_tuple__41;
 static PyObject *__pyx_tuple__42;
 static PyObject *__pyx_tuple__44;
 static PyObject *__pyx_tuple__46;
 static PyObject *__pyx_tuple__48;
+static PyObject *__pyx_tuple__49;
 static PyObject *__pyx_tuple__51;
-static PyObject *__pyx_tuple__53;
+static PyObject *__pyx_tuple__52;
 static PyObject *__pyx_tuple__54;
 static PyObject *__pyx_tuple__56;
 static PyObject *__pyx_tuple__58;
-static PyObject *__pyx_tuple__60;
-static PyObject *__pyx_tuple__62;
+static PyObject *__pyx_tuple__61;
+static PyObject *__pyx_tuple__63;
 static PyObject *__pyx_tuple__64;
+static PyObject *__pyx_tuple__66;
+static PyObject *__pyx_tuple__68;
+static PyObject *__pyx_tuple__70;
+static PyObject *__pyx_tuple__72;
+static PyObject *__pyx_tuple__74;
 static PyObject *__pyx_codeobj__30;
-static PyObject *__pyx_codeobj__33;
-static PyObject *__pyx_codeobj__35;
-static PyObject *__pyx_codeobj__37;
+static PyObject *__pyx_codeobj__32;
+static PyObject *__pyx_codeobj__34;
+static PyObject *__pyx_codeobj__36;
+static PyObject *__pyx_codeobj__38;
 static PyObject *__pyx_codeobj__40;
 static PyObject *__pyx_codeobj__43;
 static PyObject *__pyx_codeobj__45;
 static PyObject *__pyx_codeobj__47;
-static PyObject *__pyx_codeobj__49;
-static PyObject *__pyx_codeobj__52;
+static PyObject *__pyx_codeobj__50;
+static PyObject *__pyx_codeobj__53;
 static PyObject *__pyx_codeobj__55;
 static PyObject *__pyx_codeobj__57;
 static PyObject *__pyx_codeobj__59;
-static PyObject *__pyx_codeobj__61;
-static PyObject *__pyx_codeobj__63;
+static PyObject *__pyx_codeobj__62;
 static PyObject *__pyx_codeobj__65;
+static PyObject *__pyx_codeobj__67;
+static PyObject *__pyx_codeobj__69;
+static PyObject *__pyx_codeobj__71;
+static PyObject *__pyx_codeobj__73;
+static PyObject *__pyx_codeobj__75;
 /* Late includes */
 
 /* "freud/voronoi.pyx":51
@@ -2758,7 +2796,8 @@ static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_2compute[] = "Compute the voronoi diagram.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            buffer (float):\n                Buffer distance within which to look for images.\n        ";
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_2compute[] = "VoronoiBuffer.compute(self, points, float buffer)\nCompute the voronoi diagram.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            buffer (float):\n                Buffer distance within which to look for images.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_3compute = {"compute", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_2compute};
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_points = 0;
   float __pyx_v_buffer;
@@ -3103,7 +3142,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_16buffer_particles___g
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles[] = "Get buffer particles.\n\n        Returns:\n            :class:`np.ndarray`: The buffer particles.\n        ";
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles[] = "VoronoiBuffer.getBufferParticles(self)\nGet buffer particles.\n\n        Returns:\n            :class:`np.ndarray`: The buffer particles.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles = {"getBufferParticles", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles};
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3405,7 +3445,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_10buffer_ids___get__(s
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_6getBufferIds[] = "Get buffer ids.\n\n        Returns:\n            :class:`np.ndarray`: The buffer ids.\n        ";
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_6getBufferIds[] = "VoronoiBuffer.getBufferIds(self)\nGet buffer ids.\n\n        Returns:\n            :class:`np.ndarray`: The buffer ids.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_7getBufferIds = {"getBufferIds", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_6getBufferIds};
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3604,6 +3645,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct _
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__[] = "VoronoiBuffer.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__};
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3658,6 +3701,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__(CYT
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__[] = "VoronoiBuffer.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__, METH_O, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__};
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3713,7 +3758,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__(
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_7voronoi_7Voronoi___init__[] = "Voronoi.__init__(self, box, buff=0.1)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi___init__};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_box = 0;
@@ -3951,7 +3997,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi___init__(CYTHON_UNUSED PyObje
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_3setBox(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_2setBox[] = "Reset the simulation box.\n\n        Args:\n            box (:class:`freud.box.Box`): Simulation box.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_2setBox[] = "Voronoi.setBox(self, box)\nReset the simulation box.\n\n        Args:\n            box (:class:`freud.box.Box`): Simulation box.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_3setBox = {"setBox", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_3setBox, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_2setBox};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_3setBox(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -4128,7 +4174,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_2setBox(CYTHON_UNUSED PyObjec
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_4setBufferWidth[] = "Reset the buffer width.\n\n        Args:\n            buff (float): Buffer width.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_4setBufferWidth[] = "Voronoi.setBufferWidth(self, buff)\nReset the buffer width.\n\n        Args:\n            buff (float): Buffer width.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_5setBufferWidth = {"setBufferWidth", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_4setBufferWidth};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -4233,7 +4279,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_4setBufferWidth(CYTHON_UNUSED
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_6_qhull_compute[] = "Calls VoronoiBuffer and qhull\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_6_qhull_compute[] = "Voronoi._qhull_compute(self, positions, box=None, buff=None)\nCalls VoronoiBuffer and qhull\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_7_qhull_compute = {"_qhull_compute", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_6_qhull_compute};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -4932,7 +4978,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_9compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_8compute[] = "Compute Voronoi diagram.\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_8compute[] = "Voronoi.compute(self, positions, box=None, buff=None)\nCompute Voronoi diagram.\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_9compute = {"compute", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_9compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_8compute};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_9compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -5543,7 +5589,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_11buffer(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_11buffer = {"buffer", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_11buffer, METH_O, 0};
+static char __pyx_doc_5freud_7voronoi_7Voronoi_10buffer[] = "Voronoi.buffer(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_11buffer = {"buffer", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_11buffer, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_10buffer};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_11buffer(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5626,7 +5673,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_10buffer(CYTHON_UNUSED PyObje
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_13getBuffer(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_12getBuffer[] = "Returns the buffer width.\n\n        Returns:\n            float: Buffer width.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_12getBuffer[] = "Voronoi.getBuffer(self)\nReturns the buffer width.\n\n        Returns:\n            float: Buffer width.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_13getBuffer = {"getBuffer", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_13getBuffer, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_12getBuffer};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_13getBuffer(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -5688,7 +5735,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_12getBuffer(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15polytopes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_15polytopes = {"polytopes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_15polytopes, METH_O, 0};
+static char __pyx_doc_5freud_7voronoi_7Voronoi_14polytopes[] = "Voronoi.polytopes(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_15polytopes = {"polytopes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_15polytopes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_14polytopes};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15polytopes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5771,7 +5819,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14polytopes(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes[] = "Returns a list of polytope vertices corresponding to Voronoi cells.\n\n        If the buffer width is too small, then some polytopes may not be\n        closed (they may have a boundary at infinity), and these polytopes'\n        vertices are excluded from the list.\n\n        The length of the list returned by this method should be the same\n        as the array of positions used in the\n        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes\n        are closed. Otherwise try using a larger buffer width.\n\n        Returns:\n            list:\n                List of :class:`numpy.ndarray` containing Voronoi polytope\n                vertices.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes[] = "Voronoi.getVoronoiPolytopes(self)\nReturns a list of polytope vertices corresponding to Voronoi cells.\n\n        If the buffer width is too small, then some polytopes may not be\n        closed (they may have a boundary at infinity), and these polytopes'\n        vertices are excluded from the list.\n\n        The length of the list returned by this method should be the same\n        as the array of positions used in the\n        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes\n        are closed. Otherwise try using a larger buffer width.\n\n        Returns:\n            list:\n                List of :class:`numpy.ndarray` containing Voronoi polytope\n                vertices.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes = {"getVoronoiPolytopes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -5833,7 +5881,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes(CYTHON_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_19computeNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_18computeNeighbors[] = "Compute the neighbors of each particle based on the Voronoi\n        tessellation. One can include neighbors from multiple Voronoi shells by\n        specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.\n        An example of computing neighbors from the first two Voronoi shells\n        for a 2D mesh is shown below.\n\n        Retrieve the results with :py:meth:`~.getNeighbors()`.\n\n        Example::\n\n            from freud import box, voronoi\n            import numpy as np\n            vor = voronoi.Voronoi(box.Box(5, 5, is2D=True))\n            pos = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0],\n                            [1, 0, 0], [1, 1, 0], [1, 2, 0],\n                            [2, 0, 0], [2, 1, 0], [2, 2, 0]], dtype=np.float32)\n            first_shell = vor.computeNeighbors(pos).getNeighbors(1)\n            second_shell = vor.computeNeighbors(pos).getNeighbors(2)\n            print('First shell:', first_shell)\n            print('Second shell:', second_shell)\n\n        .. note:: Input positions must be a 3D array. For 2D, set the z value\n                  to 0.\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n            exclude_ii (bool, optional):\n                True if pairs of points with identical indices should be\n                excluded (Default value = True).\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_18computeNeighbors[] = "Voronoi.computeNeighbors(self, positions, box=None, buff=None, exclude_ii=True)\nCompute the neighbors of each particle based on the Voronoi\n        tessellation. One can include neighbors from multiple Voronoi shells by\n        specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.\n        An example of computing neighbors from the first two Voronoi shells\n        for a 2D mesh is shown below.\n\n        Retrieve the results with :py:meth:`~.getNeighbors()`.\n\n        Example::\n\n            from freud import box, voronoi\n            import numpy as np\n            vor = voronoi.Voronoi(box.Box(5, 5, is2D=True))\n            pos = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0],\n                            [1, 0, 0], [1, 1, 0], [1, 2, 0],\n                            [2, 0, 0], [2, 1, 0], [2, 2, 0]], dtype=np.float32)\n            first_shell = vor.computeNeighbors(pos).getNeighbors(1)\n            second_shell = vor.computeNeighbors(pos).getNeighbors(2)\n            print('First shell:', first_shell)\n            print('Second shell:', second_shell)\n\n        .. note:: Input positions must be a 3D array. For 2D, set the z value\n                  to 0.\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n            exclude_ii (bool, optional):\n                True if pairs of points with identical indices should be\n                excluded (Default value = True).\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_19computeNeighbors = {"computeNeighbors", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_19computeNeighbors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_18computeNeighbors};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_19computeNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -7894,7 +7942,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18computeNeighbors(CYTHON_UNU
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_21getNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_20getNeighbors[] = "Get :code:`numShells` of neighbors for each particle\n\n        Must call :py:meth:`~.computeNeighbors()` before this method.\n\n        Args:\n            numShells (int): Number of neighbor shells.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_20getNeighbors[] = "Voronoi.getNeighbors(self, numShells)\nGet :code:`numShells` of neighbors for each particle\n\n        Must call :py:meth:`~.computeNeighbors()` before this method.\n\n        Args:\n            numShells (int): Number of neighbor shells.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_21getNeighbors = {"getNeighbors", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_21getNeighbors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_20getNeighbors};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_21getNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -8525,7 +8573,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20getNeighbors(CYTHON_UNUSED 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_23nlist(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_23nlist = {"nlist", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_23nlist, METH_O, 0};
+static char __pyx_doc_5freud_7voronoi_7Voronoi_22nlist[] = "Voronoi.nlist(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_23nlist = {"nlist", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_23nlist, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_22nlist};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_23nlist(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8608,7 +8657,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_22nlist(CYTHON_UNUSED PyObjec
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_25getNeighborList(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_24getNeighborList[] = "Returns a neighbor list object.\n\n        In the neighbor list, each neighbor pair has a weight value.\n\n        In 2D systems, the bond weight is the \"ridge length\" of the Voronoi\n        boundary line between the neighboring particles.\n\n        In 3D systems, the bond weight is the \"ridge area\" of the Voronoi\n        boundary polygon between the neighboring particles.\n\n        Returns:\n            :class:`~.locality.NeighborList`: Neighbor list.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_24getNeighborList[] = "Voronoi.getNeighborList(self)\nReturns a neighbor list object.\n\n        In the neighbor list, each neighbor pair has a weight value.\n\n        In 2D systems, the bond weight is the \"ridge length\" of the Voronoi\n        boundary line between the neighboring particles.\n\n        In 3D systems, the bond weight is the \"ridge area\" of the Voronoi\n        boundary polygon between the neighboring particles.\n\n        Returns:\n            :class:`~.locality.NeighborList`: Neighbor list.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_25getNeighborList = {"getNeighborList", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_25getNeighborList, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_24getNeighborList};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_25getNeighborList(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -9254,7 +9303,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_24getNeighborList(CYTHON_UNUS
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_27computeVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_26computeVolumes[] = "Computes volumes (areas in 2D) of Voronoi cells.\n\n        .. versionadded:: 0.8\n\n        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this\n        method. Retrieve the results with\n        :py:meth:`freud.voronoi.Voronoi.getVolumes()`.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_26computeVolumes[] = "Voronoi.computeVolumes(self)\nComputes volumes (areas in 2D) of Voronoi cells.\n\n        .. versionadded:: 0.8\n\n        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this\n        method. Retrieve the results with\n        :py:meth:`freud.voronoi.Voronoi.getVolumes()`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_27computeVolumes = {"computeVolumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_27computeVolumes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_26computeVolumes};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_27computeVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -9631,7 +9680,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_26computeVolumes(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_29volumes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_29volumes = {"volumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_29volumes, METH_O, 0};
+static char __pyx_doc_5freud_7voronoi_7Voronoi_28volumes[] = "Voronoi.volumes(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_29volumes = {"volumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_29volumes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_28volumes};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_29volumes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -9714,7 +9764,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_28volumes(CYTHON_UNUSED PyObj
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_31getVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_30getVolumes[] = "Returns an array of volumes (areas in 2D) corresponding to Voronoi\n        cells.\n\n        .. versionadded:: 0.8\n\n        Must call :py:meth:`freud.voronoi.Voronoi.computeVolumes()` before this\n        method.\n\n        If the buffer width is too small, then some polytopes may not be\n        closed (they may have a boundary at infinity), and these polytopes'\n        volumes/areas are excluded from the list.\n\n        The length of the list returned by this method should be the same\n        as the array of positions used in the\n        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes\n        are closed. Otherwise try using a larger buffer width.\n\n        Returns:\n            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:\n                Voronoi polytope volumes/areas.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_30getVolumes[] = "Voronoi.getVolumes(self)\nReturns an array of volumes (areas in 2D) corresponding to Voronoi\n        cells.\n\n        .. versionadded:: 0.8\n\n        Must call :py:meth:`freud.voronoi.Voronoi.computeVolumes()` before this\n        method.\n\n        If the buffer width is too small, then some polytopes may not be\n        closed (they may have a boundary at infinity), and these polytopes'\n        volumes/areas are excluded from the list.\n\n        The length of the list returned by this method should be the same\n        as the array of positions used in the\n        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes\n        are closed. Otherwise try using a larger buffer width.\n\n        Returns:\n            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:\n                Voronoi polytope volumes/areas.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_31getVolumes = {"getVolumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_31getVolumes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_30getVolumes};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_31getVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -12262,8 +12312,8 @@ static PyMethodDef __pyx_methods_5freud_7voronoi_VoronoiBuffer[] = {
   {"compute", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_2compute},
   {"getBufferParticles", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles},
   {"getBufferIds", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_6getBufferIds},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__, METH_O, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -12376,11 +12426,17 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_N, __pyx_k_N, sizeof(__pyx_k_N), 0, 0, 1, 1},
   {&__pyx_kp_s_Need_a_list_of_3D_points_for_Vor, __pyx_k_Need_a_list_of_3D_points_for_Vor, sizeof(__pyx_k_Need_a_list_of_3D_points_for_Vor), 0, 0, 1, 0},
   {&__pyx_kp_u_Non_native_byte_order_not_suppor, __pyx_k_Non_native_byte_order_not_suppor, sizeof(__pyx_k_Non_native_byte_order_not_suppor), 0, 1, 0, 0},
+  {&__pyx_n_s_Np, __pyx_k_Np, sizeof(__pyx_k_Np), 0, 0, 1, 1},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
   {&__pyx_n_s_SCIPY_AVAILABLE, __pyx_k_SCIPY_AVAILABLE, sizeof(__pyx_k_SCIPY_AVAILABLE), 0, 0, 1, 1},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi, __pyx_k_Voronoi, sizeof(__pyx_k_Voronoi), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer___reduce_cython, __pyx_k_VoronoiBuffer___reduce_cython, sizeof(__pyx_k_VoronoiBuffer___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer___setstate_cython, __pyx_k_VoronoiBuffer___setstate_cython, sizeof(__pyx_k_VoronoiBuffer___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer_compute, __pyx_k_VoronoiBuffer_compute, sizeof(__pyx_k_VoronoiBuffer_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer_getBufferIds, __pyx_k_VoronoiBuffer_getBufferIds, sizeof(__pyx_k_VoronoiBuffer_getBufferIds), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer_getBufferParticles, __pyx_k_VoronoiBuffer_getBufferParticles, sizeof(__pyx_k_VoronoiBuffer_getBufferParticles), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi___init, __pyx_k_Voronoi___init, sizeof(__pyx_k_Voronoi___init), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi__qhull_compute, __pyx_k_Voronoi__qhull_compute, sizeof(__pyx_k_Voronoi__qhull_compute), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi_buffer, __pyx_k_Voronoi_buffer, sizeof(__pyx_k_Voronoi_buffer), 0, 0, 1, 1},
@@ -12399,7 +12455,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_Voronoi_volumes, __pyx_k_Voronoi_volumes, sizeof(__pyx_k_Voronoi_volumes), 0, 0, 1, 1},
   {&__pyx_kp_s_You_cannot_use_this_class_withou, __pyx_k_You_cannot_use_this_class_withou, sizeof(__pyx_k_You_cannot_use_this_class_withou), 0, 0, 1, 0},
   {&__pyx_kp_s_You_cannot_use_this_class_withou_2, __pyx_k_You_cannot_use_this_class_withou_2, sizeof(__pyx_k_You_cannot_use_this_class_withou_2), 0, 0, 1, 0},
-  {&__pyx_n_s__50, __pyx_k__50, sizeof(__pyx_k__50), 0, 0, 1, 1},
+  {&__pyx_n_s__60, __pyx_k__60, sizeof(__pyx_k__60), 0, 0, 1, 1},
   {&__pyx_n_s_abs, __pyx_k_abs, sizeof(__pyx_k_abs), 0, 0, 1, 1},
   {&__pyx_n_s_added_i, __pyx_k_added_i, sizeof(__pyx_k_added_i), 0, 0, 1, 1},
   {&__pyx_n_s_added_j, __pyx_k_added_j, sizeof(__pyx_k_added_j), 0, 0, 1, 1},
@@ -12415,9 +12471,14 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_buff_ids, __pyx_k_buff_ids, sizeof(__pyx_k_buff_ids), 0, 0, 1, 1},
   {&__pyx_n_s_buff_ptls, __pyx_k_buff_ptls, sizeof(__pyx_k_buff_ptls), 0, 0, 1, 1},
   {&__pyx_n_s_buffer, __pyx_k_buffer, sizeof(__pyx_k_buffer), 0, 0, 1, 1},
+  {&__pyx_n_s_bufferPar, __pyx_k_bufferPar, sizeof(__pyx_k_bufferPar), 0, 0, 1, 1},
+  {&__pyx_n_s_buffer_ids, __pyx_k_buffer_ids, sizeof(__pyx_k_buffer_ids), 0, 0, 1, 1},
+  {&__pyx_n_s_buffer_points, __pyx_k_buffer_points, sizeof(__pyx_k_buffer_points), 0, 0, 1, 1},
+  {&__pyx_n_s_buffer_size, __pyx_k_buffer_size, sizeof(__pyx_k_buffer_size), 0, 0, 1, 1},
   {&__pyx_n_s_c0, __pyx_k_c0, sizeof(__pyx_k_c0), 0, 0, 1, 1},
   {&__pyx_n_s_c1, __pyx_k_c1, sizeof(__pyx_k_c1), 0, 0, 1, 1},
   {&__pyx_n_s_c2, __pyx_k_c2, sizeof(__pyx_k_c2), 0, 0, 1, 1},
+  {&__pyx_n_s_cPoints, __pyx_k_cPoints, sizeof(__pyx_k_cPoints), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_common, __pyx_k_common, sizeof(__pyx_k_common), 0, 0, 1, 1},
   {&__pyx_n_s_compute, __pyx_k_compute, sizeof(__pyx_k_compute), 0, 0, 1, 1},
@@ -12474,6 +12535,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_module, __pyx_k_module, sizeof(__pyx_k_module), 0, 0, 1, 1},
   {&__pyx_n_s_msg, __pyx_k_msg, sizeof(__pyx_k_msg), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
+  {&__pyx_n_s_nbins, __pyx_k_nbins, sizeof(__pyx_k_nbins), 0, 0, 1, 1},
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_neighbor_list, __pyx_k_neighbor_list, sizeof(__pyx_k_neighbor_list), 0, 0, 1, 1},
@@ -12497,6 +12559,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_prepare, __pyx_k_prepare, sizeof(__pyx_k_prepare), 0, 0, 1, 1},
   {&__pyx_n_s_projected_area, __pyx_k_projected_area, sizeof(__pyx_k_projected_area), 0, 0, 1, 1},
   {&__pyx_n_s_property, __pyx_k_property, sizeof(__pyx_k_property), 0, 0, 1, 1},
+  {&__pyx_n_s_pyx_state, __pyx_k_pyx_state, sizeof(__pyx_k_pyx_state), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_qhull_compute, __pyx_k_qhull_compute, sizeof(__pyx_k_qhull_compute), 0, 0, 1, 1},
   {&__pyx_n_s_qualname, __pyx_k_qualname, sizeof(__pyx_k_qualname), 0, 0, 1, 1},
@@ -12523,6 +12586,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
+  {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_uint32, __pyx_k_uint32, sizeof(__pyx_k_uint32), 0, 0, 1, 1},
   {&__pyx_kp_u_unknown_dtype_code_in_numpy_pxd, __pyx_k_unknown_dtype_code_in_numpy_pxd, sizeof(__pyx_k_unknown_dtype_code_in_numpy_pxd), 0, 1, 0, 0},
@@ -12799,6 +12863,63 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
 
+  /* "freud/voronoi.pyx":57
+ *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
+ * 
+ *     def compute(self, points, float buffer):             # <<<<<<<<<<<<<<
+ *         """Compute the voronoi diagram.
+ * 
+ */
+  __pyx_tuple__29 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_buffer, __pyx_n_s_cPoints, __pyx_n_s_Np); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__29);
+  __Pyx_GIVEREF(__pyx_tuple__29);
+  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_compute, 57, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 57, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":81
+ *         return self.getBufferParticles()
+ * 
+ *     def getBufferParticles(self):             # <<<<<<<<<<<<<<
+ *         """Get buffer particles.
+ * 
+ */
+  __pyx_tuple__31 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_buffer_size, __pyx_n_s_buffer_points, __pyx_n_s_bufferPar, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__31);
+  __Pyx_GIVEREF(__pyx_tuple__31);
+  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(1, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getBufferParticles, 81, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 81, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":109
+ *         return self.getBufferIds()
+ * 
+ *     def getBufferIds(self):             # <<<<<<<<<<<<<<
+ *         """Get buffer ids.
+ * 
+ */
+  __pyx_tuple__33 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_buffer_size, __pyx_n_s_buffer_ids, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__33);
+  __Pyx_GIVEREF(__pyx_tuple__33);
+  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(1, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getBufferIds, 109, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 109, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__35 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__35);
+  __Pyx_GIVEREF(__pyx_tuple__35);
+  __pyx_codeobj__36 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__35, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__36)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__37 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__37);
+  __Pyx_GIVEREF(__pyx_tuple__37);
+  __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(1, 3, __pyx_L1_error)
+
   /* "freud/voronoi.pyx":156
  *             Buffer width.
  *     """
@@ -12806,13 +12927,13 @@ static int __Pyx_InitCachedConstants(void) {
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without SciPy")
  */
-  __pyx_tuple__29 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_b); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 156, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__29);
-  __Pyx_GIVEREF(__pyx_tuple__29);
-  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(3, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_init, 156, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 156, __pyx_L1_error)
-  __pyx_tuple__31 = PyTuple_Pack(1, ((PyObject*)__pyx_float_0_1)); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 156, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__31);
-  __Pyx_GIVEREF(__pyx_tuple__31);
+  __pyx_tuple__39 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_b); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 156, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__39);
+  __Pyx_GIVEREF(__pyx_tuple__39);
+  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(3, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_init, 156, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 156, __pyx_L1_error)
+  __pyx_tuple__41 = PyTuple_Pack(1, ((PyObject*)__pyx_float_0_1)); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 156, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__41);
+  __Pyx_GIVEREF(__pyx_tuple__41);
 
   /* "freud/voronoi.pyx":163
  *         self.buff = buff
@@ -12821,10 +12942,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Reset the simulation box.
  * 
  */
-  __pyx_tuple__32 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_b); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 163, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__32);
-  __Pyx_GIVEREF(__pyx_tuple__32);
-  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_setBox, 163, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_tuple__42 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_b); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__42);
+  __Pyx_GIVEREF(__pyx_tuple__42);
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_setBox, 163, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 163, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":172
  *         self.box = b
@@ -12833,10 +12954,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Reset the buffer width.
  * 
  */
-  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_buff); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 172, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__34);
-  __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_setBufferWidth, 172, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 172, __pyx_L1_error)
+  __pyx_tuple__44 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_buff); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 172, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__44);
+  __Pyx_GIVEREF(__pyx_tuple__44);
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_setBufferWidth, 172, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 172, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":180
  *         self.buff = buff
@@ -12845,13 +12966,13 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Calls VoronoiBuffer and qhull
  * 
  */
-  __pyx_tuple__36 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_vbuff, __pyx_n_s_buff_ptls, __pyx_n_s_buff_ids); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 180, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__36);
-  __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_qhull_compute, 180, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 180, __pyx_L1_error)
-  __pyx_tuple__38 = PyTuple_Pack(2, ((PyObject *)Py_None), ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 180, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__38);
-  __Pyx_GIVEREF(__pyx_tuple__38);
+  __pyx_tuple__46 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_vbuff, __pyx_n_s_buff_ptls, __pyx_n_s_buff_ids); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__46);
+  __Pyx_GIVEREF(__pyx_tuple__46);
+  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_qhull_compute, 180, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_tuple__48 = PyTuple_Pack(2, ((PyObject *)Py_None), ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__48)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__48);
+  __Pyx_GIVEREF(__pyx_tuple__48);
 
   /* "freud/voronoi.pyx":213
  *         self.voronoi = qvoronoi(self.expanded_points)
@@ -12860,13 +12981,13 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Compute Voronoi diagram.
  * 
  */
-  __pyx_tuple__39 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_b, __pyx_n_s_vertices, __pyx_n_s_region); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 213, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__39);
-  __Pyx_GIVEREF(__pyx_tuple__39);
-  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_compute, 213, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 213, __pyx_L1_error)
-  __pyx_tuple__41 = PyTuple_Pack(2, ((PyObject *)Py_None), ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 213, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__41);
-  __Pyx_GIVEREF(__pyx_tuple__41);
+  __pyx_tuple__49 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_b, __pyx_n_s_vertices, __pyx_n_s_region); if (unlikely(!__pyx_tuple__49)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__49);
+  __Pyx_GIVEREF(__pyx_tuple__49);
+  __pyx_codeobj__50 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__49, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_compute, 213, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__50)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_tuple__51 = PyTuple_Pack(2, ((PyObject *)Py_None), ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__51)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__51);
+  __Pyx_GIVEREF(__pyx_tuple__51);
 
   /* "freud/voronoi.pyx":252
  * 
@@ -12875,10 +12996,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.getBuffer()
  * 
  */
-  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 252, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__42);
-  __Pyx_GIVEREF(__pyx_tuple__42);
-  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_buffer, 252, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_tuple__52 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__52)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__52);
+  __Pyx_GIVEREF(__pyx_tuple__52);
+  __pyx_codeobj__53 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__52, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_buffer, 252, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__53)) __PYX_ERR(0, 252, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":255
  *         return self.getBuffer()
@@ -12887,10 +13008,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Returns the buffer width.
  * 
  */
-  __pyx_tuple__44 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 255, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__44);
-  __Pyx_GIVEREF(__pyx_tuple__44);
-  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getBuffer, 255, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __pyx_tuple__54 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__54);
+  __Pyx_GIVEREF(__pyx_tuple__54);
+  __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getBuffer, 255, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(0, 255, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":264
  * 
@@ -12899,10 +13020,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.getVoronoiPolytopes()
  * 
  */
-  __pyx_tuple__46 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(0, 264, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__46);
-  __Pyx_GIVEREF(__pyx_tuple__46);
-  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_polytopes, 264, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(0, 264, __pyx_L1_error)
+  __pyx_tuple__56 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 264, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__56);
+  __Pyx_GIVEREF(__pyx_tuple__56);
+  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_polytopes, 264, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 264, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":267
  *         return self.getVoronoiPolytopes()
@@ -12911,10 +13032,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Returns a list of polytope vertices corresponding to Voronoi cells.
  * 
  */
-  __pyx_tuple__48 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__48)) __PYX_ERR(0, 267, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__48);
-  __Pyx_GIVEREF(__pyx_tuple__48);
-  __pyx_codeobj__49 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__48, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getVoronoiPolytopes, 267, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__49)) __PYX_ERR(0, 267, __pyx_L1_error)
+  __pyx_tuple__58 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 267, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__58);
+  __Pyx_GIVEREF(__pyx_tuple__58);
+  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getVoronoiPolytopes, 267, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 267, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":286
  *         return self.poly_verts
@@ -12923,13 +13044,13 @@ static int __Pyx_InitCachedConstants(void) {
  *                          exclude_ii=True):
  *         """Compute the neighbors of each particle based on the Voronoi
  */
-  __pyx_tuple__51 = PyTuple_Pack(28, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_exclude_ii, __pyx_n_s_b, __pyx_n_s_ridge_points, __pyx_n_s_ridge_vertices, __pyx_n_s_vor_vertices, __pyx_n_s_N, __pyx_n_s_k, __pyx_n_s_index_i, __pyx_n_s_index_j, __pyx_n_s_added_i, __pyx_n_s_added_j, __pyx_n_s_weight, __pyx_n_s_vertex_coords, __pyx_n_s_r01, __pyx_n_s_r12, __pyx_n_s_norm_vec, __pyx_n_s_c0, __pyx_n_s_c1, __pyx_n_s_c2, __pyx_n_s_vc1, __pyx_n_s_vc2, __pyx_n_s_projected_area, __pyx_n_s__50, __pyx_n_s_i); if (unlikely(!__pyx_tuple__51)) __PYX_ERR(0, 286, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__51);
-  __Pyx_GIVEREF(__pyx_tuple__51);
-  __pyx_codeobj__52 = (PyObject*)__Pyx_PyCode_New(5, 0, 28, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__51, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_computeNeighbors, 286, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__52)) __PYX_ERR(0, 286, __pyx_L1_error)
-  __pyx_tuple__53 = PyTuple_Pack(3, ((PyObject *)Py_None), ((PyObject *)Py_None), ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__53)) __PYX_ERR(0, 286, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__53);
-  __Pyx_GIVEREF(__pyx_tuple__53);
+  __pyx_tuple__61 = PyTuple_Pack(28, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_exclude_ii, __pyx_n_s_b, __pyx_n_s_ridge_points, __pyx_n_s_ridge_vertices, __pyx_n_s_vor_vertices, __pyx_n_s_N, __pyx_n_s_k, __pyx_n_s_index_i, __pyx_n_s_index_j, __pyx_n_s_added_i, __pyx_n_s_added_j, __pyx_n_s_weight, __pyx_n_s_vertex_coords, __pyx_n_s_r01, __pyx_n_s_r12, __pyx_n_s_norm_vec, __pyx_n_s_c0, __pyx_n_s_c1, __pyx_n_s_c2, __pyx_n_s_vc1, __pyx_n_s_vc2, __pyx_n_s_projected_area, __pyx_n_s__60, __pyx_n_s_i); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__61);
+  __Pyx_GIVEREF(__pyx_tuple__61);
+  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(5, 0, 28, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__61, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_computeNeighbors, 286, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __pyx_tuple__63 = PyTuple_Pack(3, ((PyObject *)Py_None), ((PyObject *)Py_None), ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__63)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__63);
+  __Pyx_GIVEREF(__pyx_tuple__63);
 
   /* "freud/voronoi.pyx":429
  *         return self
@@ -12938,10 +13059,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Get :code:`numShells` of neighbors for each particle
  * 
  */
-  __pyx_tuple__54 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_numShells, __pyx_n_s_neighbor_list, __pyx_n_s__50, __pyx_n_s_dummy_neighbor_list, __pyx_n_s_i, __pyx_n_s_numNeighbors, __pyx_n_s_j, __pyx_n_s_x); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(0, 429, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__54);
-  __Pyx_GIVEREF(__pyx_tuple__54);
-  __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(2, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getNeighbors, 429, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(0, 429, __pyx_L1_error)
+  __pyx_tuple__64 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_numShells, __pyx_n_s_neighbor_list, __pyx_n_s__60, __pyx_n_s_dummy_neighbor_list, __pyx_n_s_i, __pyx_n_s_numNeighbors, __pyx_n_s_j, __pyx_n_s_x); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(0, 429, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__64);
+  __Pyx_GIVEREF(__pyx_tuple__64);
+  __pyx_codeobj__65 = (PyObject*)__Pyx_PyCode_New(2, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__64, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getNeighbors, 429, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__65)) __PYX_ERR(0, 429, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":459
  * 
@@ -12950,10 +13071,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.getNeighborList()
  * 
  */
-  __pyx_tuple__56 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 459, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__56);
-  __Pyx_GIVEREF(__pyx_tuple__56);
-  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_nlist, 459, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_tuple__66 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__66)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__66);
+  __Pyx_GIVEREF(__pyx_tuple__66);
+  __pyx_codeobj__67 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__66, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_nlist, 459, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__67)) __PYX_ERR(0, 459, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":462
  *         return self.getNeighborList()
@@ -12962,10 +13083,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Returns a neighbor list object.
  * 
  */
-  __pyx_tuple__58 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_neighbor_list, __pyx_n_s_weight, __pyx_n_s_count, __pyx_n_s_i, __pyx_n_s_indexAry, __pyx_n_s_j, __pyx_n_s_N, __pyx_n_s_result); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 462, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__58);
-  __Pyx_GIVEREF(__pyx_tuple__58);
-  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getNeighborList, 462, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 462, __pyx_L1_error)
+  __pyx_tuple__68 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_neighbor_list, __pyx_n_s_weight, __pyx_n_s_count, __pyx_n_s_i, __pyx_n_s_indexAry, __pyx_n_s_j, __pyx_n_s_N, __pyx_n_s_result); if (unlikely(!__pyx_tuple__68)) __PYX_ERR(0, 462, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__68);
+  __Pyx_GIVEREF(__pyx_tuple__68);
+  __pyx_codeobj__69 = (PyObject*)__Pyx_PyCode_New(1, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__68, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getNeighborList, 462, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__69)) __PYX_ERR(0, 462, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":503
  *         return result
@@ -12974,10 +13095,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Computes volumes (areas in 2D) of Voronoi cells.
  * 
  */
-  __pyx_tuple__60 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_polytope_verts, __pyx_n_s_i, __pyx_n_s_verts, __pyx_n_s_is2D, __pyx_n_s_hull); if (unlikely(!__pyx_tuple__60)) __PYX_ERR(0, 503, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__60);
-  __Pyx_GIVEREF(__pyx_tuple__60);
-  __pyx_codeobj__61 = (PyObject*)__Pyx_PyCode_New(1, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__60, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_computeVolumes, 503, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__61)) __PYX_ERR(0, 503, __pyx_L1_error)
+  __pyx_tuple__70 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_polytope_verts, __pyx_n_s_i, __pyx_n_s_verts, __pyx_n_s_is2D, __pyx_n_s_hull); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(0, 503, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__70);
+  __Pyx_GIVEREF(__pyx_tuple__70);
+  __pyx_codeobj__71 = (PyObject*)__Pyx_PyCode_New(1, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__70, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_computeVolumes, 503, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__71)) __PYX_ERR(0, 503, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":523
  * 
@@ -12986,10 +13107,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.getVolumes()
  * 
  */
-  __pyx_tuple__62 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__62)) __PYX_ERR(0, 523, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__62);
-  __Pyx_GIVEREF(__pyx_tuple__62);
-  __pyx_codeobj__63 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__62, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_volumes, 523, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__63)) __PYX_ERR(0, 523, __pyx_L1_error)
+  __pyx_tuple__72 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__72)) __PYX_ERR(0, 523, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__72);
+  __Pyx_GIVEREF(__pyx_tuple__72);
+  __pyx_codeobj__73 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__72, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_volumes, 523, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__73)) __PYX_ERR(0, 523, __pyx_L1_error)
 
   /* "freud/voronoi.pyx":526
  *         return self.getVolumes()
@@ -12998,10 +13119,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
  *         cells.
  */
-  __pyx_tuple__64 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(0, 526, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__64);
-  __Pyx_GIVEREF(__pyx_tuple__64);
-  __pyx_codeobj__65 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__64, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getVolumes, 526, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__65)) __PYX_ERR(0, 526, __pyx_L1_error)
+  __pyx_tuple__74 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__74)) __PYX_ERR(0, 526, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__74);
+  __Pyx_GIVEREF(__pyx_tuple__74);
+  __pyx_codeobj__75 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__74, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getVolumes, 526, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__75)) __PYX_ERR(0, 526, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -13553,6 +13674,66 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_t_7 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 39, __pyx_L1_error)
 
+  /* "freud/voronoi.pyx":57
+ *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
+ * 
+ *     def compute(self, points, float buffer):             # <<<<<<<<<<<<<<
+ *         """Compute the voronoi diagram.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_3compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__30)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7voronoi_VoronoiBuffer->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 57, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_7voronoi_VoronoiBuffer);
+
+  /* "freud/voronoi.pyx":81
+ *         return self.getBufferParticles()
+ * 
+ *     def getBufferParticles(self):             # <<<<<<<<<<<<<<
+ *         """Get buffer particles.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer_getBufferParticles, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7voronoi_VoronoiBuffer->tp_dict, __pyx_n_s_getBufferParticles, __pyx_t_2) < 0) __PYX_ERR(0, 81, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_7voronoi_VoronoiBuffer);
+
+  /* "freud/voronoi.pyx":109
+ *         return self.getBufferIds()
+ * 
+ *     def getBufferIds(self):             # <<<<<<<<<<<<<<
+ *         """Get buffer ids.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_7getBufferIds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer_getBufferIds, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__34)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7voronoi_VoronoiBuffer->tp_dict, __pyx_n_s_getBufferIds, __pyx_t_2) < 0) __PYX_ERR(0, 109, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_7voronoi_VoronoiBuffer);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer___reduce_cython, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__36)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer___setstate_cython, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
   /* "freud/voronoi.pyx":132
  * 
  * 
@@ -13570,9 +13751,9 @@ if (!__Pyx_RefNanny) {
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without SciPy")
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_1__init__, 0, __pyx_n_s_Voronoi___init, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__30)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_1__init__, 0, __pyx_n_s_Voronoi___init, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__31);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__41);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_1) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -13583,7 +13764,7 @@ if (!__Pyx_RefNanny) {
  *         """Reset the simulation box.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_3setBox, 0, __pyx_n_s_Voronoi_setBox, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_3setBox, 0, __pyx_n_s_Voronoi_setBox, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_setBox, __pyx_t_1) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -13595,7 +13776,7 @@ if (!__Pyx_RefNanny) {
  *         """Reset the buffer width.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_5setBufferWidth, 0, __pyx_n_s_Voronoi_setBufferWidth, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 172, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_5setBufferWidth, 0, __pyx_n_s_Voronoi_setBufferWidth, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_setBufferWidth, __pyx_t_1) < 0) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -13607,9 +13788,9 @@ if (!__Pyx_RefNanny) {
  *         """Calls VoronoiBuffer and qhull
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_7_qhull_compute, 0, __pyx_n_s_Voronoi__qhull_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_7_qhull_compute, 0, __pyx_n_s_Voronoi__qhull_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__47)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__38);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__48);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_qhull_compute, __pyx_t_1) < 0) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -13620,9 +13801,9 @@ if (!__Pyx_RefNanny) {
  *         """Compute Voronoi diagram.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_9compute, 0, __pyx_n_s_Voronoi_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_9compute, 0, __pyx_n_s_Voronoi_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__50)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__41);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__51);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -13633,7 +13814,7 @@ if (!__Pyx_RefNanny) {
  *         return self.getBuffer()
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_11buffer, 0, __pyx_n_s_Voronoi_buffer, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_11buffer, 0, __pyx_n_s_Voronoi_buffer, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__53)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
   /* "freud/voronoi.pyx":251
@@ -13656,7 +13837,7 @@ if (!__Pyx_RefNanny) {
  *         """Returns the buffer width.
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_13getBuffer, 0, __pyx_n_s_Voronoi_getBuffer, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_13getBuffer, 0, __pyx_n_s_Voronoi_getBuffer, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__55)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getBuffer, __pyx_t_3) < 0) __PYX_ERR(0, 255, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -13668,7 +13849,7 @@ if (!__Pyx_RefNanny) {
  *         return self.getVoronoiPolytopes()
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_15polytopes, 0, __pyx_n_s_Voronoi_polytopes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__47)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 264, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_15polytopes, 0, __pyx_n_s_Voronoi_polytopes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 264, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
   /* "freud/voronoi.pyx":263
@@ -13691,7 +13872,7 @@ if (!__Pyx_RefNanny) {
  *         """Returns a list of polytope vertices corresponding to Voronoi cells.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes, 0, __pyx_n_s_Voronoi_getVoronoiPolytopes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__49)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 267, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes, 0, __pyx_n_s_Voronoi_getVoronoiPolytopes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 267, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getVoronoiPolytopes, __pyx_t_1) < 0) __PYX_ERR(0, 267, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -13703,9 +13884,9 @@ if (!__Pyx_RefNanny) {
  *                          exclude_ii=True):
  *         """Compute the neighbors of each particle based on the Voronoi
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_19computeNeighbors, 0, __pyx_n_s_Voronoi_computeNeighbors, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__52)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_19computeNeighbors, 0, __pyx_n_s_Voronoi_computeNeighbors, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__53);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__63);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_computeNeighbors, __pyx_t_1) < 0) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -13716,7 +13897,7 @@ if (!__Pyx_RefNanny) {
  *         """Get :code:`numShells` of neighbors for each particle
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_21getNeighbors, 0, __pyx_n_s_Voronoi_getNeighbors, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__55)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 429, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_21getNeighbors, 0, __pyx_n_s_Voronoi_getNeighbors, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__65)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 429, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getNeighbors, __pyx_t_1) < 0) __PYX_ERR(0, 429, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -13728,7 +13909,7 @@ if (!__Pyx_RefNanny) {
  *         return self.getNeighborList()
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_23nlist, 0, __pyx_n_s_Voronoi_nlist, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_23nlist, 0, __pyx_n_s_Voronoi_nlist, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__67)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
   /* "freud/voronoi.pyx":458
@@ -13751,7 +13932,7 @@ if (!__Pyx_RefNanny) {
  *         """Returns a neighbor list object.
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_25getNeighborList, 0, __pyx_n_s_Voronoi_getNeighborList, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 462, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_25getNeighborList, 0, __pyx_n_s_Voronoi_getNeighborList, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__69)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 462, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getNeighborList, __pyx_t_3) < 0) __PYX_ERR(0, 462, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -13763,7 +13944,7 @@ if (!__Pyx_RefNanny) {
  *         """Computes volumes (areas in 2D) of Voronoi cells.
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_27computeVolumes, 0, __pyx_n_s_Voronoi_computeVolumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__61)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 503, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_27computeVolumes, 0, __pyx_n_s_Voronoi_computeVolumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__71)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 503, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_computeVolumes, __pyx_t_3) < 0) __PYX_ERR(0, 503, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -13775,7 +13956,7 @@ if (!__Pyx_RefNanny) {
  *         return self.getVolumes()
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_29volumes, 0, __pyx_n_s_Voronoi_volumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__63)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 523, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_29volumes, 0, __pyx_n_s_Voronoi_volumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__73)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 523, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
   /* "freud/voronoi.pyx":522
@@ -13798,7 +13979,7 @@ if (!__Pyx_RefNanny) {
  *         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
  *         cells.
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_31getVolumes, 0, __pyx_n_s_Voronoi_getVolumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__65)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 526, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_31getVolumes, 0, __pyx_n_s_Voronoi_getVolumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__75)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 526, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getVolumes, __pyx_t_1) < 0) __PYX_ERR(0, 526, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
